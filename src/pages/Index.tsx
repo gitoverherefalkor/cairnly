@@ -679,7 +679,7 @@ const Index = () => {
 
               <div className="space-y-3 mb-10 text-blue-100/80 font-medium">
                 {[
-                  "15-minute assessment",
+                  "About an hour to your full report",
                   "AI analysis built with career coaches",
                   "Interactive AI coaching chat",
                   "Concrete career recommendations with salary data"
@@ -737,7 +737,7 @@ const Index = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black text-[#1A1A1A] mb-6 leading-tight tracking-tight">From Assessment to <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#27A1A1] to-[#3989AF]">Action</span></h2>
-            <p className="text-xl text-gray-500 font-medium max-w-2xl mx-auto">Four steps. Fifteen minutes. Concrete career paths that actually fit who you are today.</p>
+            <p className="text-xl text-gray-500 font-medium max-w-2xl mx-auto">Five steps, from assessment to landing the job. Concrete career paths that actually fit who you are today.</p>
           </div>
 
           <div className="max-w-5xl mx-auto space-y-20">
@@ -810,6 +810,28 @@ const Index = () => {
               {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of the report / a career card.
               <div className="md:w-1/2">
                 <ScreenshotPlaceholder title="Your report" description="A career recommendation card" />
+              </div>
+              */}
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex flex-col md:flex-row gap-10 items-center">
+              <div className="md:w-full">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#27A1A1] to-[#3989AF] text-white flex items-center justify-center text-xl font-black shrink-0 shadow-lg shadow-teal-500/30">5</div>
+                  <h3 className="text-2xl font-black text-[#1A1A1A]">Land the Job</h3>
+                </div>
+                <p className="text-gray-500 text-lg leading-relaxed font-medium ml-16">
+                  Pick the recommendations that resonate and Cairnly finds live job openings for them. When you apply, it tailors your resume and cover letter using everything it already learned about you, no prompting required.
+                </p>
+                <p className="text-[#D4A024] text-sm font-black ml-16 mt-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 shrink-0" />
+                  These job-landing features are in beta and free to unlock.
+                </p>
+              </div>
+              {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of the job-openings finder.
+              <div className="md:w-1/2">
+                <ScreenshotPlaceholder title="Land the job" description="The job-openings finder" />
               </div>
               */}
             </div>
