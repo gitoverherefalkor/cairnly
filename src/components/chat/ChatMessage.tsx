@@ -107,6 +107,19 @@ function detectFollowUpOptions(markdown: string): {
   }
 
   if (options.length < 2) return null;
+
+  // The WF5.3 agent is told to always end with a free-text "Something
+  // else" option, but the LLM sometimes drops it. Guarantee one so the
+  // user can always type a custom follow-up instead of being boxed into
+  // the suggested choices.
+  if (!options.some((o) => o.isFreeText)) {
+    options.push({
+      display: 'Something else, type below',
+      message: 'Something else',
+      isFreeText: true,
+    });
+  }
+
   return { intro: introLines.join('\n').trim(), options };
 }
 
