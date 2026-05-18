@@ -74,38 +74,45 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
       </div>
       <p className="text-sm text-atlas-navy font-medium leading-snug mb-3">{headline}</p>
 
-      <div className="flex justify-center">
-        <CareerComparisonRadar careers={careers} />
-      </div>
+      {/* Radar and legend sit side by side; they stack on a narrow bubble. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-shrink-0 mx-auto sm:mx-0">
+          <CareerComparisonRadar careers={careers} size={250} />
+        </div>
 
-      <div className="flex flex-wrap gap-2 mt-2 mb-3">
-        {careers.map((c) => (
-          <span
-            key={c.label}
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-atlas-navy"
+        <div className="flex-1 min-w-[170px]">
+          <div className="flex flex-col gap-1.5 mb-3">
+            {careers.map((c, idx) => (
+              <span
+                key={c.label}
+                className="flex items-start gap-2 text-xs font-medium text-atlas-navy leading-snug"
+              >
+                <span
+                  className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 mt-[3px]"
+                  style={{ backgroundColor: c.color }}
+                />
+                <span>
+                  <span className="font-bold">{idx + 1}.</span> {c.label}
+                </span>
+              </span>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExplain}
+            disabled={explained}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+              explained
+                ? 'bg-gray-100 text-gray-400 cursor-default'
+                : 'bg-atlas-teal text-white hover:bg-atlas-teal/90'
+            }`}
           >
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: c.color }}
-            />
-            {c.label}
-          </span>
-        ))}
+            <MessageCircle size={14} />
+            {explained ? 'Explanation added below' : 'Explain this comparison'}
+          </button>
+        </div>
       </div>
-
-      <button
-        type="button"
-        onClick={handleExplain}
-        disabled={explained}
-        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-          explained
-            ? 'bg-gray-100 text-gray-400 cursor-default'
-            : 'bg-atlas-teal text-white hover:bg-atlas-teal/90'
-        }`}
-      >
-        <MessageCircle size={14} />
-        {explained ? 'Explanation added below' : 'Explain this comparison'}
-      </button>
     </div>
   );
 };
