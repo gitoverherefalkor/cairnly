@@ -5,9 +5,6 @@ import { useTTS } from '@/contexts/TTSContext';
 interface MessageVoiceButtonProps {
   messageId: string;
   text: string;
-  // Latest bot message gets the BETA pill so users discover the feature
-  // without it being repeated on every historical bubble.
-  showBetaBadge?: boolean;
   // Bookmark state for the parent's "save this verbatim to dashboard"
   // mechanic. Optional so messages outside the saveable set (e.g.
   // welcome card, historical bubbles where the feature wasn't enabled)
@@ -20,7 +17,6 @@ interface MessageVoiceButtonProps {
 export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
   messageId,
   text,
-  showBetaBadge = false,
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
@@ -90,12 +86,6 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           {isThisLoading ? 'Loading…' : isThisSpeaking ? 'Stop' : 'Read aloud'}
         </span>
       </button>
-
-      {showBetaBadge && (
-        <span className="px-1.5 py-0.5 rounded bg-atlas-teal/10 text-atlas-teal text-[10px] font-bold tracking-wide uppercase">
-          Beta
-        </span>
-      )}
 
       {bookmarkable && onBookmarkToggle && (
         <button

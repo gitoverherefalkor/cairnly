@@ -1111,7 +1111,6 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <MessageVoiceButton
             messageId={messageId}
             text={sanitized}
-            showBetaBadge={isLatestBotMessage}
             bookmarkable={bookmarkable}
             bookmarked={bookmarked}
             onBookmarkToggle={
