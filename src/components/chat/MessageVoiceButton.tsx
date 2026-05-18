@@ -87,28 +87,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
         </span>
       </button>
 
-      {bookmarkable && onBookmarkToggle && (
-        <button
-          type="button"
-          onClick={onBookmarkToggle}
-          title={
-            bookmarked
-              ? 'Saved to your report — click to unsave'
-              : 'Save this response to your report'
-          }
-          aria-pressed={bookmarked}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-            bookmarked
-              ? 'bg-atlas-teal/10 text-atlas-teal'
-              : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
-          }`}
-        >
-          <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
-          <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
-        </button>
-      )}
-
-      <div className="relative ml-auto">
+      <div className="relative">
         <button
           type="button"
           onClick={() => setMenuOpen((o) => !o)}
@@ -144,6 +123,27 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           </div>
         )}
       </div>
+
+      {bookmarkable && onBookmarkToggle && (
+        <button
+          type="button"
+          onClick={onBookmarkToggle}
+          title={
+            bookmarked
+              ? 'Saved to your report — click to unsave'
+              : 'Save this response to your report'
+          }
+          aria-pressed={bookmarked}
+          className={`ml-auto flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+            bookmarked
+              ? 'bg-atlas-teal/10 text-atlas-teal'
+              : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
+          }`}
+        >
+          <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
+          <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
+        </button>
+      )}
     </div>
   );
 };

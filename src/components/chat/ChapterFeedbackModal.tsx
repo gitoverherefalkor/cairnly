@@ -98,12 +98,34 @@ interface LengthOption {
   value: ChapterFeedbackLength;
   label: string;
   Icon: ComponentType<{ size?: number; className?: string }>;
+  // Selected styling per option — "too long" reads as negative feedback,
+  // so it gets a rose treatment instead of the positive teal fill.
+  selectedClasses: string;
+  selectedIconClasses: string;
 }
 
 const LENGTH_OPTIONS: LengthOption[] = [
-  { value: 'too_long', label: 'Too long', Icon: ScrollText },
-  { value: 'just_right', label: 'Just right', Icon: Check },
-  { value: 'too_short', label: 'Too short', Icon: Zap },
+  {
+    value: 'too_long',
+    label: 'Too long',
+    Icon: ScrollText,
+    selectedClasses: 'border-rose-400 bg-rose-50 text-rose-800 shadow-sm',
+    selectedIconClasses: 'text-rose-500',
+  },
+  {
+    value: 'just_right',
+    label: 'Just right',
+    Icon: Check,
+    selectedClasses: 'border-atlas-teal bg-atlas-teal text-white shadow-md',
+    selectedIconClasses: 'text-white',
+  },
+  {
+    value: 'too_short',
+    label: 'Too short',
+    Icon: Zap,
+    selectedClasses: 'border-atlas-teal bg-atlas-teal text-white shadow-md',
+    selectedIconClasses: 'text-white',
+  },
 ];
 
 interface SubsectionOption {
@@ -211,7 +233,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             </h2>
             <p className="text-sm text-gray-600 leading-relaxed">
               You just covered your personality profile. Before we move into your
-              career recommendations, take a moment to tell us how this part landed.
+              career suggestions, take a moment to tell us how this part landed.
               Quick to answer, gold for us.
             </p>
           </div>
@@ -272,11 +294,11 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                       onClick={() => setLength(selected ? null : opt.value)}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 ${
                         selected
-                          ? 'border-atlas-teal bg-atlas-teal text-white shadow-md'
+                          ? opt.selectedClasses
                           : 'border-gray-200 bg-white text-gray-700 hover:border-atlas-teal/50 hover:bg-atlas-teal/5'
                       }`}
                     >
-                      <Icon size={14} className={selected ? 'text-white' : 'text-atlas-teal'} />
+                      <Icon size={14} className={selected ? opt.selectedIconClasses : 'text-atlas-teal'} />
                       {opt.label}
                     </button>
                   );
