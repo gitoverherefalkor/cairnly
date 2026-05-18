@@ -1,12 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
 
-// Voices supported by OpenAI tts-1. We expose two friendly names to the
-// frontend (female / male) and map them here so the API surface stays simple.
+// Voices supported by OpenAI gpt-4o-mini-tts. We expose two friendly names
+// to the frontend (female / male) and map them here so the API surface
+// stays simple. nova/ash are the brighter, more energetic options.
 const VOICE_MAP: Record<string, string> = {
-  female: 'nova',   // warm, expressive (American)
-  male: 'fable',    // British male, natural cadence
+  female: 'nova',   // bright, energetic (American)
+  male: 'ash',      // natural, conversational male
 };
+
+// Steers delivery on gpt-4o-mini-tts. Produces genuinely faster speech
+// rather than time-stretched audio, so it stays natural at speed 1.0.
+const DELIVERY_INSTRUCTIONS =
+  'Speak at a brisk, upbeat conversational pace, like an energetic but ' +
+  'warm career coach. Clear and natural, never rushed or robotic.';
 
 // Hard cap on input length — OpenAI's limit is 4096 chars per request and
 // long messages cost more anyway. Section reveals are usually under 3000.
@@ -54,13 +61,12 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'tts-1',
+        model: 'gpt-4o-mini-tts',
         voice: openaiVoice,
         input: text,
+        instructions: DELIVERY_INSTRUCTIONS,
         response_format: 'mp3',
-        // 1.1 = 10% faster than default. Pitch stays natural; just snappier
-        // delivery, which matches how a coach would actually speak aloud.
-        speed: 1.1,
+        speed: 1.0,
       }),
     });
 
