@@ -81,6 +81,7 @@ function detectFollowUpOptions(markdown: string): {
   const bulletRegex = /^\s*-\s*(?:\*\*(.+?)\*\*\s*(.*)|(.+))$/;
 
   const introLines: string[] = [];
+  const trailingLines: string[] = [];
   const options: ChipOption[] = [];
   let seenBullet = false;
 
@@ -103,21 +104,28 @@ function detectFollowUpOptions(markdown: string): {
       options.push({ display, message: title, isFreeText });
     } else if (!seenBullet && line.trim()) {
       introLines.push(line);
+    } else if (seenBullet && line.trim()) {
+      trailingLines.push(line.trim());
     }
   }
 
   if (options.length < 2) return null;
 
-  // The WF5.3 agent is told to always end with a free-text "Something
-  // else" option, but the LLM sometimes drops it. Guarantee one so the
-  // user can always type a custom follow-up instead of being boxed into
-  // the suggested choices.
+  // Ensure a free-text "Something else" option always exists. The WF5.3
+  // agent is told to add one, but sometimes writes it as a trailing line
+  // instead of a bullet — the bullet parser misses that, so it would only
+  // ever be read aloud by TTS, never shown as a clickable chip. If we find
+  // such a trailing line, reuse the agent's wording; otherwise add a
+  // generic one.
   if (!options.some((o) => o.isFreeText)) {
-    options.push({
-      display: 'Something else, type below',
-      message: 'Something else',
-      isFreeText: true,
-    });
+    const trailingFreeText = trailingLines.find((l) =>
+      /something else|let me know|on your mind/i.test(l),
+    );
+    const display = (trailingFreeText ?? 'Something else, type below')
+      .replace(/^\s*-\s*/, '')
+      .replace(/\*\*/g, '')
+      .trim();
+    options.push({ display, message: 'Something else', isFreeText: true });
   }
 
   return { intro: introLines.join('\n').trim(), options };
