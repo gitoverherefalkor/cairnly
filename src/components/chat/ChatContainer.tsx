@@ -788,6 +788,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onSequentialRevealStateChange={handleRevealStateChange}
           hasUnrevealedSubsections={latestUnrevealedCount !== 0}
           onAskAboutRole={handleAskAboutRole}
+          onComparisonExplain={(content) => addMessage('bot', content)}
           showWelcome={showWelcome}
           isReturningUser={isReturningUser}
           welcomeFirstName={firstName}

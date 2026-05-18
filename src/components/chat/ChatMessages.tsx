@@ -66,10 +66,12 @@ interface ChatMessagesProps {
   // the very first welcome bubble (where Save would be meaningless).
   bookmarkedMessageIds?: string[];
   onBookmarkToggle?: (messageId: string) => void;
+  // Posts a comparison explanation into the chat as a bot message.
+  onComparisonExplain?: (content: string) => void;
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
     const isDreamJobsSection = currentSectionIndex >= ALL_SECTIONS.length - 1;
@@ -265,6 +267,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   onChipFocusInput={onFocusInput}
                   onSequentialRevealStateChange={onSequentialRevealStateChange}
                   onAskAboutRole={onAskAboutRole}
+                  onComparisonExplain={onComparisonExplain}
                   failed={failedSet.has(msg.id)}
                   onRetry={onRetryMessage}
                   bookmarkable={msg.sender === 'bot' && !!onBookmarkToggle}
