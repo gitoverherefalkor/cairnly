@@ -1,4 +1,4 @@
-import React, { useState, type ComponentType } from 'react';
+import React, { useRef, useState, type ComponentType } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   Sparkles,
@@ -152,11 +152,21 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
   const [weakest, setWeakest] = useState<ChapterFeedbackSubsection | null>(null);
   const [freeText, setFreeText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const freeTextRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleQuality = (q: ChapterFeedbackQuality) => {
+    const justSelectedOther = q === 'other' && !quality.includes('other');
     setQuality((curr) =>
       curr.includes(q) ? curr.filter((x) => x !== q) : [...curr, q]
     );
+    // "Other" has no detail of its own — nudge the user to the free-text
+    // field so the selection actually carries meaning.
+    if (justSelectedOther) {
+      requestAnimationFrame(() => {
+        freeTextRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        freeTextRef.current?.focus();
+      });
+    }
   };
 
   const toggleSubsection = (
@@ -276,6 +286,11 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                   );
                 })}
               </div>
+              {quality.includes('other') && (
+                <p className="mt-2 text-xs text-indigo-600">
+                  Tell us what you mean in the text field below.
+                </p>
+              )}
             </div>
 
             {/* 2. Length (single-select) — pills with icons */}
@@ -375,6 +390,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                 </span>
               </label>
               <textarea
+                ref={freeTextRef}
                 value={freeText}
                 onChange={(e) => setFreeText(e.target.value)}
                 rows={3}
