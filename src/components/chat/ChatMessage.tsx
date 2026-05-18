@@ -5,7 +5,14 @@ import DOMPurify from 'dompurify';
 import { ChevronDown, MessageCircle, Pencil, RotateCw } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
-import { CareerScoreCard, extractAIImpact, AIImpactBadge, leadingAIImpactLevel } from './CareerScoreCard';
+import {
+  CareerScoreCard,
+  extractAIImpact,
+  AIImpactBadge,
+  leadingAIImpactLevel,
+  FeasibilityBadge,
+  leadingFeasibilityLevel,
+} from './CareerScoreCard';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
 import { CareerComparisonCard } from './CareerComparisonCard';
@@ -434,16 +441,23 @@ const markdownComponents = {
     );
   },
   p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
-    // The "How AI will impact this role" body leads with the rating, e.g.
-    // "Transforming (High Impact): ...". Surface it as a colour-coded
-    // severity badge so the impact still lands once the header pill has
-    // scrolled out of view.
-    const aiLevel = leadingAIImpactLevel(childrenToText(children));
+    // Some standardized sections lead their body with a rating, e.g.
+    // "Transforming (High Impact): ..." or "Low - Moderate: ...". Surface
+    // these as colour-coded badges so the rating lands at a glance instead
+    // of being buried in prose.
+    const text = childrenToText(children);
+    const aiLevel = leadingAIImpactLevel(text);
+    const feasLevel = aiLevel ? null : leadingFeasibilityLevel(text);
     return (
       <>
         {aiLevel && (
           <div className="mb-2">
             <AIImpactBadge level={aiLevel} />
+          </div>
+        )}
+        {feasLevel && (
+          <div className="mb-2">
+            <FeasibilityBadge level={feasLevel} />
           </div>
         )}
         <p className="mb-2 last:mb-0" {...props}>

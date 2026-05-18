@@ -175,6 +175,70 @@ export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => 
   );
 };
 
+// ── Feasibility rating (dream jobs) ──────────────────────────────────
+// Scale from the dream-job prompt: Low | Low - Moderate | Moderate |
+// Moderate - High | High. Coloured as a red → green ramp (low feasibility
+// reads as a warning, high feasibility as positive).
+const FEASIBILITY_LEVELS = [
+  'Low',
+  'Low - Moderate',
+  'Moderate',
+  'Moderate - High',
+  'High',
+] as const;
+type FeasibilityLevel = (typeof FEASIBILITY_LEVELS)[number];
+
+const FEASIBILITY_STYLES: Record<
+  FeasibilityLevel,
+  { dot: string; text: string; ring: string; tint: string }
+> = {
+  Low:               { dot: 'bg-red-500',     text: 'text-red-700',     ring: 'border-red-500/30',     tint: 'bg-red-50' },
+  'Low - Moderate':  { dot: 'bg-orange-500',  text: 'text-orange-700',  ring: 'border-orange-500/30',  tint: 'bg-orange-50' },
+  Moderate:          { dot: 'bg-amber-500',   text: 'text-amber-700',   ring: 'border-amber-500/30',   tint: 'bg-amber-50' },
+  'Moderate - High': { dot: 'bg-lime-600',    text: 'text-lime-700',    ring: 'border-lime-600/30',    tint: 'bg-lime-50' },
+  High:              { dot: 'bg-emerald-500', text: 'text-emerald-700', ring: 'border-emerald-500/30', tint: 'bg-emerald-50' },
+};
+
+// Detect when a paragraph LEADS with a feasibility rating, e.g.
+// "Low - Moderate: ...". Two-word ranges are matched before the single
+// words so "Low - Moderate" isn't truncated to "Low".
+export function leadingFeasibilityLevel(text: string): FeasibilityLevel | null {
+  if (!text) return null;
+  const m = text
+    .trim()
+    .match(/^(low\s*[-–]\s*moderate|moderate\s*[-–]\s*high|low|moderate|high)\s*:/i);
+  if (!m) return null;
+  const norm = m[1].toLowerCase().replace(/\s*[-–]\s*/g, ' - ').replace(/\s+/g, ' ').trim();
+  return FEASIBILITY_LEVELS.find((l) => l.toLowerCase() === norm) ?? null;
+}
+
+// 5-step badge mirroring AIImpactBadge — the active level's dot carries its
+// colour, the rest stay neutral; the label colour shifts with feasibility.
+export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level }) => {
+  const idx = FEASIBILITY_LEVELS.indexOf(level);
+  if (idx < 0) return null;
+  const style = FEASIBILITY_STYLES[level];
+
+  return (
+    <div
+      className={`inline-flex items-center gap-2.5 rounded-full border ${style.ring} ${style.tint} px-3 py-1.5 shadow-sm`}
+    >
+      <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
+        Feasibility
+      </span>
+      <span className={`text-xs font-semibold ${style.text}`}>{level}</span>
+      <div className="flex items-center gap-0.5" aria-hidden="true">
+        {FEASIBILITY_LEVELS.map((_, i) => (
+          <div
+            key={i}
+            className={`h-1.5 w-1.5 rounded-full ${i === idx ? style.dot : 'bg-gray-200'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 interface CareerScoreCardProps {
   score?: number | null;
   aiImpact?: AIImpactLevel | null;
