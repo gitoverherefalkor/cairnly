@@ -467,7 +467,11 @@ const SequentialSubsections: React.FC<{
   // the preamble's ### heading so the chat container can scope the
   // next user message to that role.
   onAskAboutRole?: (roleTitle: string) => void;
-}> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole }) => {
+  // Career-comparison card. Rendered alongside the "Ask about this role"
+  // pill once every subsection (incl. "Alignment with your ambitions")
+  // has been revealed.
+  comparisonSlot?: React.ReactNode;
+}> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole, comparisonSlot }) => {
   // revealedCount = number of sub-sections currently visible. Starts at 1
   // so the user sees the preamble + first h2 + first body on first render.
   const [revealedCount, setRevealedCount] = useState(1);
@@ -639,6 +643,9 @@ const SequentialSubsections: React.FC<{
           </button>
         );
       })()}
+      {/* Career-comparison card — appears with the ask pill once the last
+          subsection ("Alignment with your ambitions") has been revealed. */}
+      {allRevealed && comparisonSlot}
       {/* Boilerplate outro panel — appears only after all subsections are
           revealed, with extra top margin so it doesn't feel glued to the
           last paragraph. */}
@@ -1009,6 +1016,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     return null;
   }, [sender, hasMultipleBlocks, sanitized, sections]);
 
+  // The comparison card element, built once. Rendered inside
+  // SequentialSubsections (gated on full reveal) for the latest message, or
+  // directly below the content for historical / non-sequential renders.
+  const comparisonCard =
+    comparisonSection && sections && onComparisonExplain ? (
+      <CareerComparisonCard
+        sections={sections}
+        focalSectionType={comparisonSection.section_type as 'top_career_2' | 'top_career_3'}
+        onExplain={onComparisonExplain}
+      />
+    ) : null;
+
   // For single-block messages (e.g. top_career_1/2/3), enrich the h3 renderer
   // so the score card appears right under the career title without changing
   // the surrounding markdown flow.
@@ -1078,6 +1097,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             // also get the per-card ask button so users can scope a
             // follow-up to that specific role.
             onAskAboutRole={onAskAboutRole}
+            comparisonSlot={comparisonCard}
           />
         ) : followUpOptions ? (
           <div>
@@ -1129,15 +1149,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             {sanitized}
           </ReactMarkdown>
         )}
-        {comparisonSection && sections && onComparisonExplain && (
-          <CareerComparisonCard
-            sections={sections}
-            focalSectionType={
-              comparisonSection.section_type as 'top_career_2' | 'top_career_3'
-            }
-            onExplain={onComparisonExplain}
-          />
-        )}
+        {/* Sequential-reveal messages render the card inside
+            SequentialSubsections (with the ask pill); other renders show it
+            here, directly below the content. */}
+        {!useSequentialReveal && comparisonCard}
         {messageId && (
           <MessageVoiceButton
             messageId={messageId}
