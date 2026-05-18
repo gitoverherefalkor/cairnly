@@ -6,7 +6,7 @@ import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } fr
 // stays simple. nova/ash are the brighter, more energetic options.
 const VOICE_MAP: Record<string, string> = {
   female: 'nova',   // bright, energetic (American)
-  male: 'ash',      // natural, conversational male
+  male: 'verse',    // expressive, dynamic male — faster natural cadence
 };
 
 // Steers delivery on gpt-4o-mini-tts. Produces genuinely faster speech
