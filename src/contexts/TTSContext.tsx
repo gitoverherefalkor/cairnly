@@ -1,9 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export type VoiceGender = 'female' | 'male';
-
-const STORAGE_KEY_GENDER = 'cairnly:tts:gender';
 const STORAGE_KEY_READ_ALL = 'cairnly:tts:read-all';
 
 // Resolve the TTS edge function URL from the same env var the supabase client
@@ -23,8 +20,6 @@ interface TTSContextValue {
   // playback starts). Lets the button show a spinner state.
   isLoading: boolean;
   loadingId: string | null;
-  gender: VoiceGender;
-  setGender: (g: VoiceGender) => void;
   readAll: boolean;
   setReadAll: (v: boolean) => void;
   speak: (text: string, id: string) => void;
@@ -58,10 +53,6 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [gender, setGenderState] = useState<VoiceGender>(() => {
-    if (typeof window === 'undefined') return 'female';
-    return localStorage.getItem(STORAGE_KEY_GENDER) === 'male' ? 'male' : 'female';
-  });
   const [readAll, setReadAllState] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem(STORAGE_KEY_READ_ALL) === 'true';
@@ -128,7 +119,7 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             'Authorization': `Bearer ${token}`,
             'apikey': SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ text: cleaned, voice: gender }),
+          body: JSON.stringify({ text: cleaned, voice: 'female' }),
           signal: controller.signal,
         });
 
@@ -236,15 +227,8 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setLoadingId(null);
       }
     },
-    [gender, stop, cleanupAudio]
+    [stop, cleanupAudio]
   );
-
-  const setGender = useCallback((g: VoiceGender) => {
-    setGenderState(g);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY_GENDER, g);
-    }
-  }, []);
 
   const setReadAll = useCallback((v: boolean) => {
     setReadAllState(v);
@@ -259,8 +243,6 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     speakingId,
     isLoading,
     loadingId,
-    gender,
-    setGender,
     readAll,
     setReadAll,
     speak,
@@ -279,8 +261,6 @@ export function useTTS(): TTSContextValue {
       speakingId: null,
       isLoading: false,
       loadingId: null,
-      gender: 'female',
-      setGender: () => {},
       readAll: false,
       setReadAll: () => {},
       speak: () => {},

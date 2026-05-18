@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
 
-// Voices supported by OpenAI gpt-4o-mini-tts. We expose two friendly names
-// to the frontend (female / male) and map them here so the API surface
-// stays simple. nova/ash are the brighter, more energetic options.
+// Single voice for now — nova (bright, energetic American female). The
+// frontend always requests 'female'; kept as a map so adding voices later
+// is a one-line change.
 const VOICE_MAP: Record<string, string> = {
-  female: 'nova',   // bright, energetic (American)
-  male: 'verse',    // expressive, dynamic male — faster natural cadence
+  female: 'nova',
 };
 
 // Steers delivery on gpt-4o-mini-tts. Produces genuinely faster speech

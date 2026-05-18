@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Volume2, Square, Settings2, Check, Loader2, Bookmark } from 'lucide-react';
+import { Volume2, Square, Settings2, Loader2, Bookmark } from 'lucide-react';
 import { useTTS } from '@/contexts/TTSContext';
 
 interface MessageVoiceButtonProps {
@@ -31,8 +31,6 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
     loadingId,
     speak,
     stop,
-    gender,
-    setGender,
     readAll,
     setReadAll,
   } = useTTS();
@@ -128,25 +126,11 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           className="flex items-center gap-1 px-2 py-1 rounded-md text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5 transition-colors"
         >
           <Settings2 size={13} />
-          <span>{gender === 'female' ? 'Female' : 'Male'}</span>
+          <span>Settings</span>
         </button>
 
         {menuOpen && (
           <div className="absolute right-0 bottom-full mb-2 w-60 bg-white border border-gray-200 rounded-xl shadow-lg p-1 z-20">
-            <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-              Voice
-            </div>
-            <VoiceOption
-              label="Female"
-              active={gender === 'female'}
-              onClick={() => setGender('female')}
-            />
-            <VoiceOption
-              label="Male"
-              active={gender === 'male'}
-              onClick={() => setGender('male')}
-            />
-            <div className="border-t border-gray-100 my-1" />
             <button
               type="button"
               onClick={() => setReadAll(!readAll)}
@@ -173,20 +157,3 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
     </div>
   );
 };
-
-const VoiceOption: React.FC<{
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}> = ({ label, active, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm text-left transition-colors ${
-      active ? 'text-atlas-teal font-semibold' : 'text-atlas-navy hover:bg-gray-50'
-    }`}
-  >
-    <span>{label}</span>
-    {active && <Check size={14} className="text-atlas-teal" />}
-  </button>
-);
