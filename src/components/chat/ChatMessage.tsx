@@ -614,6 +614,10 @@ const SequentialSubsections: React.FC<{
           </button>
         );
       })()}
+      {/* Career-comparison subsection — appears once the last subsection
+          ("Alignment with your ambitions") is revealed, just above the
+          ask pill. */}
+      {allRevealed && comparisonSlot}
       {/* Per-card "ask about this role" pill — same UX as multi-card
           collapsibles. Appears once every subsection has been revealed
           so it doesn't distract during reading. Career title comes from
@@ -643,9 +647,6 @@ const SequentialSubsections: React.FC<{
           </button>
         );
       })()}
-      {/* Career-comparison card — appears with the ask pill once the last
-          subsection ("Alignment with your ambitions") has been revealed. */}
-      {allRevealed && comparisonSlot}
       {/* Boilerplate outro panel — appears only after all subsections are
           revealed, with extra top margin so it doesn't feel glued to the
           last paragraph. */}

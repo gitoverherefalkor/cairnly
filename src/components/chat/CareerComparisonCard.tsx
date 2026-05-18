@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, GitCompare } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 
@@ -13,9 +13,11 @@ interface CareerComparisonCardProps {
   onExplain: (explanation: string) => void;
 }
 
+// One colour per career, used for both the radar polygon and the legend
+// text. Amber is the -600 shade so it stays readable as coloured text.
 const FOCAL_COLOR = '#0d9488';
 const NON_FOCAL_COLORS: Record<string, string> = {
-  top_career_1: '#f59e0b',
+  top_career_1: '#d97706',
   top_career_2: '#6366f1',
 };
 
@@ -51,7 +53,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
     careers.push({
       label: stripHtml(section.title) || `Career ${i + 1}`,
       scores,
-      color: isFocal ? FOCAL_COLOR : NON_FOCAL_COLORS[type] ?? '#94a3b8',
+      color: isFocal ? FOCAL_COLOR : NON_FOCAL_COLORS[type] ?? '#64748b',
       focal: isFocal,
     });
   }
@@ -60,6 +62,10 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
   if (careers.length < 2) return null;
 
   const { headline, explanation } = focal.metadata.comparison;
+  const heading =
+    careers.length === 2
+      ? 'How it differs from your other top role'
+      : 'How it differs from your other top roles';
 
   const handleExplain = () => {
     if (explained) return;
@@ -68,51 +74,41 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
   };
 
   return (
-    <div className="mt-4 rounded-xl border border-atlas-teal/30 bg-white p-4">
-      <div className="text-[11px] font-bold uppercase tracking-wide text-atlas-teal mb-1.5">
-        How this differs
+    <div className="mt-10">
+      {/* Styled to match the career section's other h5 subsection headings. */}
+      <h5 className="text-lg font-semibold text-atlas-teal mb-3 flex items-center gap-2.5">
+        <GitCompare className="w-5 h-5 shrink-0" strokeWidth={2.25} />
+        <span>{heading}</span>
+      </h5>
+
+      <p className="text-[0.9375rem] text-gray-700 leading-relaxed mb-4">{headline}</p>
+
+      <div className="flex justify-center mb-3">
+        <CareerComparisonRadar careers={careers} size={380} />
       </div>
-      <p className="text-sm text-atlas-navy font-medium leading-snug mb-3">{headline}</p>
 
-      {/* Radar and legend sit side by side; they stack on a narrow bubble. */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex-shrink-0 mx-auto sm:mx-0">
-          <CareerComparisonRadar careers={careers} size={250} />
-        </div>
-
-        <div className="flex-1 min-w-[170px]">
-          <div className="flex flex-col gap-1.5 mb-3">
-            {careers.map((c, idx) => (
-              <span
-                key={c.label}
-                className="flex items-start gap-2 text-xs font-medium text-atlas-navy leading-snug"
-              >
-                <span
-                  className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 mt-[3px]"
-                  style={{ backgroundColor: c.color }}
-                />
-                <span>
-                  <span className="font-bold">{idx + 1}.</span> {c.label}
-                </span>
-              </span>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleExplain}
-            disabled={explained}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-              explained
-                ? 'bg-gray-100 text-gray-400 cursor-default'
-                : 'bg-atlas-teal text-white hover:bg-atlas-teal/90'
-            }`}
-          >
-            <MessageCircle size={14} />
-            {explained ? 'Explanation added below' : 'Explain this comparison'}
-          </button>
-        </div>
+      {/* Legend — career rank + title in the career's colour, no dots. */}
+      <div className="flex flex-col gap-1 mb-4">
+        {careers.map((c, idx) => (
+          <span key={c.label} className="text-sm font-semibold" style={{ color: c.color }}>
+            {idx + 1}. {c.label}
+          </span>
+        ))}
       </div>
+
+      <button
+        type="button"
+        onClick={handleExplain}
+        disabled={explained}
+        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+          explained
+            ? 'bg-gray-100 text-gray-400 cursor-default'
+            : 'bg-atlas-teal text-white hover:bg-atlas-teal/90'
+        }`}
+      >
+        <MessageCircle size={15} />
+        {explained ? 'Explanation added below' : 'Explain this comparison'}
+      </button>
     </div>
   );
 };
