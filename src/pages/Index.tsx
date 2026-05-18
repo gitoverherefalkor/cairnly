@@ -753,6 +753,11 @@ const Index = () => {
                   Answer questions about your background, skills, work style, values, and goals. Designed to capture what actually matters for career fit - not just personality types.
                 </p>
               </div>
+              {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of a survey question.
+              <div className="md:w-1/2">
+                <ScreenshotPlaceholder title="The assessment" description="A question from the survey" />
+              </div>
+              */}
             </div>
 
             {/* Step 2 */}
@@ -766,6 +771,11 @@ const Index = () => {
                   Multiple specialized AI workflows analyze your responses, generate your personality profile, and match you to specific careers with personalized justifications.
                 </p>
               </div>
+              {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of the analysis / processing screen.
+              <div className="md:w-1/2">
+                <ScreenshotPlaceholder title="AI analysis" description="The profile being built" />
+              </div>
+              */}
             </div>
 
             {/* Step 3 */}
@@ -779,6 +789,11 @@ const Index = () => {
                   Discuss your results one-on-one. Ask follow-up questions, explore specific careers in depth, and get honest answers about fit, trade-offs, and next steps.
                 </p>
               </div>
+              {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of the AI coach chat.
+              <div className="md:w-1/2">
+                <ScreenshotPlaceholder title="AI coach chat" description="A coaching conversation" />
+              </div>
+              */}
             </div>
 
             {/* Step 4 */}
@@ -792,12 +807,17 @@ const Index = () => {
                   Your complete career report - incorporating chat feedback - with personality analysis, all career recommendations, salary data, AI impact ratings, and concrete next steps.
                 </p>
               </div>
+              {/* Screenshot slot: set the text div above to md:w-1/2, then uncomment and swap for a real <img> of the report / a career card.
+              <div className="md:w-1/2">
+                <ScreenshotPlaceholder title="Your report" description="A career recommendation card" />
+              </div>
+              */}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ========== WHAT MAKES ATLAS DIFFERENT (compact) ========== */}
+      {/* ========== WHAT MAKES CAIRNLY DIFFERENT (compact) ========== */}
       <section className="py-24 md:py-32 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
@@ -808,9 +828,9 @@ const Index = () => {
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               { icon: MessageSquare, title: "Interactive, not static", desc: "An AI coach walks you through results and answers your questions. No PDF you read once and forget." },
-              { icon: BarChart3, title: "Future-aware", desc: "Every career includes an AI impact assessment showing how that role evolves by 2027-2028." },
+              { icon: BarChart3, title: "Future-aware", desc: "Every career includes an AI impact assessment showing how AI is set to reshape that role." },
               { icon: CheckCircle2, title: "Honest, not flattering", desc: "Reality checks on challenges, trade-offs, and skills you'd need to develop. No cheerleading." },
-              { icon: FileText, title: "Specific, not vague", desc: "10+ career recommendations with salary ranges, day-to-day breakdowns, and personalized fit explanations." },
+              { icon: FileText, title: "Specific, not vague", desc: "Up to 14 career recommendations with salary ranges, day-to-day breakdowns, and personalized fit explanations." },
             ].map((item, i) => (
               <div key={i} className="bg-white p-8 rounded-2xl border border-gray-100 flex gap-5 hover:shadow-lg transition-all">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#27A1A1] to-[#3989AF] rounded-xl flex items-center justify-center text-white shrink-0 shadow-md shadow-teal-500/20">
@@ -825,6 +845,42 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* ========== TESTIMONIALS — hidden until real beta-user quotes are collected ==========
+           Do NOT fill these with invented quotes. Fabricated testimonials are deceptive and
+           illegal under EU consumer law. When you have real, permissioned beta-user quotes,
+           replace the placeholders below (first name + role/situation), then uncomment.
+      <section className="py-24 md:py-32 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-[#1A1A1A] mb-6 tracking-tight">
+              What early users say
+            </h2>
+            <p className="text-xl text-gray-500 font-medium max-w-2xl mx-auto">
+              Real words from people who took Cairnly during the beta.
+            </p>
+          </div>
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { quote: '[Real beta-user quote.]', name: '[First name]', detail: '[Role or situation]' },
+              { quote: '[Real beta-user quote.]', name: '[First name]', detail: '[Role or situation]' },
+              { quote: '[Real beta-user quote.]', name: '[First name]', detail: '[Role or situation]' },
+            ].map((item, i) => (
+              <div key={i} className="bg-gray-50 p-8 rounded-2xl border border-gray-100 flex flex-col">
+                <p className="text-gray-700 leading-relaxed font-medium flex-1">{item.quote}</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#27A1A1]/15 shrink-0" />
+                  <div>
+                    <p className="font-black text-sm text-[#1A1A1A]">{item.name}</p>
+                    <p className="text-xs text-gray-400 font-medium">{item.detail}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      ====================================================================== */}
 
       {/* ========== PRICING ========== */}
       <section id="pricing" className="relative py-24 md:py-32 bg-[#213F4F] text-white scroll-mt-24 overflow-hidden">
