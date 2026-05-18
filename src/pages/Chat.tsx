@@ -442,6 +442,14 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      {/* Fixed background — locked to the viewport so it never scales or
+          scrolls as the chat content grows. All content layers sit above it. */}
+      <div
+        className="fixed inset-0 bg-atlas-navy bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/trail_over_water.png')" }}
+        aria-hidden="true"
+      />
+      <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
       {/* Header */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="px-4 sm:px-6">
@@ -481,14 +489,9 @@ const Chat = () => {
           <ClosingCard firstName={profile?.first_name || undefined} />
         </div>
       ) : (
-        <div
-          className="flex-1 flex relative bg-atlas-navy bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/trail_over_water.png')" }}
-        >
-          {/* Section-style dark overlay so chat content stays readable over the photo */}
-          <div className="absolute inset-0 bg-black/40 pointer-events-none" aria-hidden="true" />
+        <div className="flex-1 flex relative z-10">
           {/* Chat Area */}
-          <div className={`relative z-10 flex-1 flex flex-col transition-all ${isSidebarCollapsed ? 'md:mx-20' : 'md:mx-80'}`}>
+          <div className={`flex-1 flex flex-col transition-all ${isSidebarCollapsed ? 'md:mx-20' : 'md:mx-80'}`}>
             {/* Session Restored Banner */}
             {showSessionBanner && (
               <div className="bg-atlas-teal/10 border-b border-atlas-teal/20 px-4 py-2 flex items-center justify-center gap-2 text-sm text-atlas-navy">
