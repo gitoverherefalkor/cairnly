@@ -398,17 +398,26 @@ const markdownComponents = {
       {children}
     </h4>
   ),
-  h5: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  h5: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => {
     // The agent uses ##### for the teal sub-headers inside section reveals
-    // ('Personality and Interaction Style', 'Your Conflict Style', etc).
-    // This is what users actually see — give it the prominent styling.
-    <h5
-      className="text-lg font-semibold text-atlas-teal mt-6 mb-2 first:mt-0"
-      {...props}
-    >
-      {children}
-    </h5>
-  ),
+    // ('Personality and Interaction Style', 'The practical stuff', etc).
+    // This is what users actually see — give it the prominent styling, and
+    // prefix a matching icon when the header is a known standardized one.
+    const text = React.Children.toArray(children)
+      .map((c) => (typeof c === 'string' ? c : ''))
+      .join('')
+      .trim();
+    const Icon = iconForSubsection(text);
+    return (
+      <h5
+        className="text-lg font-semibold text-atlas-teal mt-6 mb-2 first:mt-0 flex items-center gap-2.5"
+        {...props}
+      >
+        {Icon && <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} />}
+        <span>{children}</span>
+      </h5>
+    );
+  },
   p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p className="mb-2 last:mb-0" {...props}>
       {children}
