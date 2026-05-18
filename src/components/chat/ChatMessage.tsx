@@ -595,6 +595,10 @@ const SequentialSubsections: React.FC<{
           ? titleMatch[1].replace(/\*\*/g, '').trim()
           : null;
         if (!roleTitle) return null;
+        // Only real career sections get the pill. The heading must match a
+        // scored career row in the report; personality sections (approach,
+        // strengths, etc.) have ### subsection headings that never will.
+        if (!findSectionByTitle(sections, roleTitle)) return null;
         return (
           <button
             type="button"
