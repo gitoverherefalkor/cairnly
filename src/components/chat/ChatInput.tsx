@@ -85,14 +85,15 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
 
   return (
     <>
-      {/* Inline style to apply sidebar offset only on desktop */}
+      {/* Inline style to apply symmetric sidebar offset on desktop, so the
+          input stays centered on the page (sidebar lives on the left). */}
       <style>{`
-        .chat-input-root { right: 0; }
+        .chat-input-root { left: 0; right: 0; }
         @media (min-width: 768px) {
-          .chat-input-root { right: ${sidebarWidth}; }
+          .chat-input-root { left: ${sidebarWidth}; right: ${sidebarWidth}; }
         }
       `}</style>
-      <div className="chat-input-root fixed bottom-0 left-0 z-30">
+      <div className="chat-input-root fixed bottom-0 z-30">
         <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
           <div className="max-w-[800px] mx-auto relative">
             <textarea
