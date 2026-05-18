@@ -8,6 +8,7 @@ import type { ReportSection } from '@/hooks/useReportSections';
 import { CareerScoreCard, extractAIImpact } from './CareerScoreCard';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
+import { CareerComparisonCard } from './CareerComparisonCard';
 import { useTTS } from '@/contexts/TTSContext';
 
 interface ChatMessageProps {
@@ -50,6 +51,9 @@ interface ChatMessageProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: (messageId: string) => void;
+  // Posts the pre-written comparison explanation into the chat as a bot
+  // message. Supplied by ChatContainer; only used by Career 2/3 messages.
+  onComparisonExplain?: (content: string) => void;
 }
 
 interface ChipOption {
@@ -857,6 +861,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  onComparisonExplain,
 }) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const tts = useTTS();
@@ -987,6 +992,23 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
       ? detectFollowUpOptions(sanitized)
       : null;
 
+  // If this single message is a Career 2 or Career 3 section, resolve its
+  // report_sections row so we can render the comparison card. Career 1 is
+  // intentionally excluded — there is nothing earlier to compare against.
+  const comparisonSection = useMemo(() => {
+    if (sender !== 'bot' || hasMultipleBlocks) return null;
+    const headingMatch = sanitized.match(/^###\s+(.+)$/m);
+    if (!headingMatch) return null;
+    const section = findSectionByTitle(sections, headingMatch[1]);
+    if (
+      section &&
+      (section.section_type === 'top_career_2' || section.section_type === 'top_career_3')
+    ) {
+      return section;
+    }
+    return null;
+  }, [sender, hasMultipleBlocks, sanitized, sections]);
+
   // For single-block messages (e.g. top_career_1/2/3), enrich the h3 renderer
   // so the score card appears right under the career title without changing
   // the surrounding markdown flow.
@@ -1106,6 +1128,15 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={enrichedComponents}>
             {sanitized}
           </ReactMarkdown>
+        )}
+        {comparisonSection && sections && onComparisonExplain && (
+          <CareerComparisonCard
+            sections={sections}
+            focalSectionType={
+              comparisonSection.section_type as 'top_career_2' | 'top_career_3'
+            }
+            onExplain={onComparisonExplain}
+          />
         )}
         {messageId && (
           <MessageVoiceButton
