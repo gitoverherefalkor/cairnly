@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { ChevronDown, MessageCircle, Pencil, RotateCw } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
-import { CareerScoreCard, extractAIImpact } from './CareerScoreCard';
+import { CareerScoreCard, extractAIImpact, AIImpactBadge, leadingAIImpactLevel } from './CareerScoreCard';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
 import { CareerComparisonCard } from './CareerComparisonCard';
@@ -366,6 +366,21 @@ function findSectionIndex(headingText: string): number {
   });
 }
 
+// Flatten react-markdown children (strings + nested elements like <strong>)
+// down to plain text — used to inspect a paragraph's leading content.
+function childrenToText(children: React.ReactNode): string {
+  return React.Children.toArray(children)
+    .map((c) => {
+      if (typeof c === 'string') return c;
+      if (typeof c === 'number') return String(c);
+      if (React.isValidElement(c)) {
+        return childrenToText((c.props as { children?: React.ReactNode }).children);
+      }
+      return '';
+    })
+    .join('');
+}
+
 // Custom components for react-markdown to style headings with atlas colors.
 // The agent emits a mix of heading levels (## for sub-sections like
 // "Personality and Interaction Style", ### for main section titles, etc.),
@@ -418,11 +433,25 @@ const markdownComponents = {
       </h5>
     );
   },
-  p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className="mb-2 last:mb-0" {...props}>
-      {children}
-    </p>
-  ),
+  p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
+    // The "How AI will impact this role" body leads with the rating, e.g.
+    // "Transforming (High Impact): ...". Surface it as a colour-coded
+    // severity badge so the impact still lands once the header pill has
+    // scrolled out of view.
+    const aiLevel = leadingAIImpactLevel(childrenToText(children));
+    return (
+      <>
+        {aiLevel && (
+          <div className="mb-2">
+            <AIImpactBadge level={aiLevel} />
+          </div>
+        )}
+        <p className="mb-2 last:mb-0" {...props}>
+          {children}
+        </p>
+      </>
+    );
+  },
   ul: ({ children, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
     <ul className="list-disc pl-5 mb-2 space-y-1" {...props}>
       {children}

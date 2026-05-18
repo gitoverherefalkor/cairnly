@@ -109,6 +109,19 @@ export function extractAIImpact(body: string): AIImpactLevel | null {
   return null;
 }
 
+// Detect when a paragraph LEADS with an AI-impact rating, e.g.
+// "Transforming (High Impact): ...". Used to surface a severity badge at the
+// top of the "How AI will impact this role" section. Deliberately strict —
+// only the section's own opening line should match.
+export function leadingAIImpactLevel(text: string): AIImpactLevel | null {
+  if (!text) return null;
+  const m = text
+    .trim()
+    .match(/^(safe|augmented|transforming|at\s*risk)\s*\([^)]*impact[^)]*\)\s*:/i);
+  if (!m) return null;
+  return aliasFor(m[1]);
+}
+
 // Compact pill showing match score 0-100 with a teal progress bar.
 // All recommended jobs pass the suitability filter, so no warning colors —
 // the bar fill itself communicates how strong the match is.
@@ -137,7 +150,7 @@ const ScoreGauge: React.FC<{ score: number }> = ({ score }) => {
 // 4-step badge: dots colored by impact level, only the active level's dot
 // shows that level's color (others stay neutral). The label color also
 // shifts so the pill instantly reads as "fine" vs "watch out".
-const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => {
+export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => {
   const idx = AI_IMPACT_LEVELS.indexOf(level);
   if (idx < 0) return null;
   const style = AI_IMPACT_STYLES[level];
