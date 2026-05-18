@@ -4,6 +4,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+// Five fit axes for the career comparison radar. Each is 1-5, oriented as
+// fit-for-this-candidate (5 = excellent fit). Written by WF4 into metadata.
+export interface FitScores {
+  autonomy: number;
+  social: number;
+  pace: number;
+  stability: number;
+  schedule: number;
+}
+
+// Pre-written comparison shown on Career 2 and Career 3. headline = the
+// one-line main difference; explanation = the paragraph the "Explain this
+// comparison" button posts into the chat.
+export interface CareerComparison {
+  headline: string;
+  explanation: string;
+}
+
 export interface ReportSection {
   id: string;
   report_id: string;
@@ -23,7 +41,11 @@ export interface ReportSection {
   // approach section's personality_scores (5-dim AI-judged 1-10 ratings
   // that drive the Personality Radar). May be extended with other
   // structured fields per section_type in the future.
-  metadata: { personality_scores?: Record<string, number> } | null;
+  metadata: {
+    personality_scores?: Record<string, number>;
+    fit_scores?: FitScores;
+    comparison?: CareerComparison;
+  } | null;
   created_at: string;
   updated_at: string;
 }
