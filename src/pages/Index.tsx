@@ -679,7 +679,7 @@ const Index = () => {
 
               <div className="space-y-3 mb-10 text-blue-100/80 font-medium">
                 {[
-                  "About an hour to your full report",
+                  "Done before a career coach could fit you in",
                   "AI analysis built with career coaches",
                   "Interactive AI coaching chat",
                   "Concrete career recommendations with salary data"
