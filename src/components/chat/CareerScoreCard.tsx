@@ -217,10 +217,13 @@ export function leadingFeasibilityLevel(text: string): FeasibilityLevel | null {
 // Returns null for non-dream careers (no feasibility section).
 export function extractFeasibility(body: string): FeasibilityLevel | null {
   if (!body) return null;
-  const text = body.replace(/<[^>]+>/g, ' ');
+  // Strip HTML tags AND markdown emphasis markers, so a bolded rating like
+  // "**Low** - Moderate" reads as plain "Low - Moderate" and hyphenated
+  // ranges still match.
+  const text = body.replace(/<[^>]+>/g, ' ').replace(/[*_]/g, '');
   const idx = text.search(/feasibility\s*rating/i);
   if (idx < 0) return null;
-  const after = text.slice(idx).replace(/^feasibility\s*rating[\s:*\-–]*/i, '');
+  const after = text.slice(idx).replace(/^feasibility\s*rating[\s:.]*/i, '');
   return leadingFeasibilityLevel(after);
 }
 
