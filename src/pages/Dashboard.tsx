@@ -1,28 +1,20 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, LogOut, Settings, Play, FileText, Download, Briefcase, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
-import ReportDisplay from '@/components/ReportDisplay';
-import ReportPreview from '@/components/report/ReportPreview';
-import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
-import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
-import { CareerQuadrant } from '@/components/dashboard/CareerQuadrant';
-import { CareerSignatureCard } from '@/components/chat/CareerSignatureCard';
-import { CareerSignatureModal } from '@/components/dashboard/CareerSignatureModal';
-import { PersonalityRadar } from '@/components/dashboard/PersonalityRadar';
-import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
+import { useReportSections } from '@/hooks/useReportSections';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
-import { ReferralPanel } from '@/components/dashboard/ReferralPanel';
-import { FeatureTeaserCard } from '@/components/dashboard/FeatureTeaserCard';
+import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
+import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
+import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
+import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/DashboardEntryState';
+import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
+import { firstSentences } from '@/components/dashboard/v2/dashboardV2Shared';
 
 // Helper to get assessment session from localStorage
 const getAssessmentSession = () => {
@@ -34,53 +26,43 @@ const getAssessmentSession = () => {
   }
 };
 
+// Survey section count — matches the assessment-section strip in the entry state.
+const TOTAL_SURVEY_SECTIONS = 6;
+
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
   const { reports, isLoading: reportsLoading } = useReports();
-  const [isReportSectionExpanded, setIsReportSectionExpanded] = useState(false);
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
-  // Career Signature opens in a modal when the user clicks the compact
-  // dashboard card. Modal renders the full standalone version of the card.
-  const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showExecSummaryModal, setShowExecSummaryModal] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
   const [userAccessCode, setUserAccessCode] = useState<string | null>(null);
   // True when this user has a 'draft' row in the answers table — i.e., they've
   // started the survey on a different device (or after clearing localStorage)
-  // but haven't submitted yet. Without this signal, the dashboard shows
-  // "Start Your Assessment" to anyone with empty localStorage, even if they're
-  // halfway through and just landed on a fresh device.
+  // but haven't submitted yet.
   const [hasDraftAnswers, setHasDraftAnswers] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
-  // If user explicitly navigated here (e.g. from chat), don't auto-redirect back
+  // If user explicitly navigated here (e.g. from chat), don't auto-redirect back.
   const cameFromChat = location.state?.fromChat === true;
 
-  // Check for saved assessment progress
   const savedSession = getAssessmentSession();
 
-  // Compute latestReport early so we can pass it to hooks (hooks can't be after conditional returns)
-  const latestReport = (!reports || reports.length === 0) ? null : reports[0];
+  // latestReport computed early so hooks can use it (hooks can't be conditional).
+  const latestReport = !reports || reports.length === 0 ? null : reports[0];
 
-  // Fetch report sections to check for exec summary (hook must be called unconditionally)
   const { sections: reportSections } = useReportSections(latestReport?.id);
   const execSummarySection = reportSections.find(
     (s) => s.section_type === 'exec_summary' || s.section_type === 'executive_summary'
   );
 
-  // Referral / virality status — invite code, count, feature unlocks
+  // Referral / virality status — invite code, count, feature unlocks.
   const referralStatus = useReferralStatus();
 
-  const scrollToReferralPanel = () => {
-    document
-      .getElementById('referral-panel-anchor')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  // Track dashboard visit for users who have completed chat
+  // Track dashboard visit for users who have completed chat.
   const { trackDashboardVisit } = useEngagementTracking();
   useEffect(() => {
     if (latestReport && latestReport.status === 'completed') {
@@ -88,7 +70,7 @@ const Dashboard = () => {
     }
   }, [latestReport?.id]);
 
-  // Show exec summary modal on first visit after report completion
+  // Show exec summary modal on first visit after report completion.
   useEffect(() => {
     if (!latestReport || latestReport.status !== 'completed' || !execSummarySection) return;
     const dismissKey = `exec_summary_dismissed_${latestReport.id}`;
@@ -104,33 +86,25 @@ const Dashboard = () => {
     }
   };
 
-  // Same dismiss + flag set, but also scroll the user to the report
-  // chapter cards. Wrapped in setTimeout so the modal's exit unmounts
-  // before we scroll — otherwise the body-scroll-lock useEffect cleanup
-  // races the scroll and lands you back at the top.
   const handleExploreReport = () => {
     handleDismissExecSummary();
-    setTimeout(() => {
-      const target = document.getElementById('report-display-anchor');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    navigate('/report');
   };
 
   // Resolve the user's access code and recover any in-progress assessment.
   // Code sources, in order: user_metadata (email signup) → purchase_data in
   // localStorage (payment flow) → get-my-access-code (DB lookup by user id).
-  // The DB lookup is what makes a social-signup user on a fresh browser /
-  // incognito recover their assessment instead of being treated as new.
   useEffect(() => {
     if (!(user && !authLoading && !profileLoading && !reportsLoading)) return;
 
     const hasReport = reports && reports.length > 0;
-    const hasLocalSession = savedSession?.isVerified || savedSession?.accessCodeData ||
+    const hasLocalSession =
+      savedSession?.isVerified ||
+      savedSession?.accessCodeData ||
       (savedSession?.responses && Object.keys(savedSession.responses).length > 0);
 
     (async () => {
       try {
-        // Step 1 — find the access code object {id, code, survey_type}.
         let verifiedCode: any = null;
 
         let codeString: string | null = user.user_metadata?.access_code || null;
@@ -144,10 +118,9 @@ const Dashboard = () => {
         }
 
         if (codeString) {
-          const { data: verifyData } = await supabase.functions.invoke(
-            'verify-access-code',
-            { body: { code: codeString } }
-          );
+          const { data: verifyData } = await supabase.functions.invoke('verify-access-code', {
+            body: { code: codeString },
+          });
           if (verifyData?.valid) verifiedCode = verifyData.accessCode;
         } else {
           // No code on this device — recover it from the database by user id.
@@ -159,7 +132,7 @@ const Dashboard = () => {
 
         setUserAccessCode(verifiedCode.code);
 
-        // Step 2 — does this code have an in-progress (draft) survey?
+        // Does this code have an in-progress (draft) survey?
         const { data: answersRow } = await supabase
           .from('answers')
           .select('status')
@@ -169,8 +142,6 @@ const Dashboard = () => {
 
         if (hasDraft) {
           setHasDraftAnswers(true);
-          // Pre-populate assessment_session so the Continue card navigates
-          // straight into the survey without the verification modal.
           if (!hasLocalSession) {
             const session = {
               isVerified: true,
@@ -184,7 +155,6 @@ const Dashboard = () => {
           }
           setShowAccessCodeModal(false);
         } else if (!hasLocalSession && !hasReport) {
-          // Genuinely new user — no draft, no local session, no report.
           setShowAccessCodeModal(true);
         }
       } catch (err) {
@@ -192,42 +162,32 @@ const Dashboard = () => {
       }
     })();
 
-    // Update profile with country from localStorage if available (from payment form)
+    // Update profile with country from localStorage if available (from payment form).
     const paymentCountry = localStorage.getItem('payment_country');
     if (paymentCountry && profile && !profile.country) {
       supabase
         .from('profiles')
         .update({ country: paymentCountry })
         .eq('id', user.id)
-        .then(() => {
-          console.log('Profile updated with country from payment:', paymentCountry);
-          localStorage.removeItem('payment_country');
-        })
-        .catch((error) => {
-          console.error('Error updating profile with country:', error);
-        });
+        .then(
+          () => {
+            localStorage.removeItem('payment_country');
+          },
+          (error) => {
+            console.error('Error updating profile with country:', error);
+          }
+        );
     }
   }, [user, authLoading, profileLoading, reportsLoading, reports, profile]);
 
   const handleSignOut = async () => {
     try {
-      // Local-scope signout: clear the local session without calling
-      // /auth/v1/logout?scope=global, which has been 403-ing on this
-      // project (likely a Supabase config quirk). User stays logged out
-      // on this device, sessions on other devices stay alive until they
-      // expire naturally — acceptable UX for our flow.
+      // Local-scope signout — global logout has been 403-ing on this project.
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to sign out. Please try again.",
-          variant: "destructive",
-        });
+        toast({ title: 'Error', description: 'Failed to sign out. Please try again.', variant: 'destructive' });
       } else {
-        toast({
-          title: "Signed out",
-          description: "You've been signed out successfully.",
-        });
+        toast({ title: 'Signed out', description: "You've been signed out successfully." });
         navigate('/');
       }
     } catch (error) {
@@ -235,51 +195,24 @@ const Dashboard = () => {
     }
   };
 
-  const getSectionProgress = (session: any) => {
-    if (!session) return '';
-    const currentSection = session.currentSectionIndex + 1;
-    const currentQuestion = session.currentQuestionIndex + 1;
-    return `Section ${currentSection}, Question ${currentQuestion}`;
-  };
-
-  // Check if this is truly a returning user - ONLY based on reports, not saved sessions
-  const isReturningUser = () => {
-    return reports && reports.length > 0;
-  };
-
-  // Check if there's meaningful assessment progress or a started session
+  // Meaningful assessment progress — server-side draft row wins regardless of
+  // local state (covers the fresh-device / cleared-cache case).
   const hasMeaningfulProgress = () => {
-    // Server-side draft row wins regardless of local state — covers the
-    // fresh-device / cleared-cache case where localStorage has nothing
-    // but the user genuinely has a half-finished survey in Supabase.
     if (hasDraftAnswers) return true;
-
     if (!savedSession) return false;
-
-    // Show continue if:
-    // 1. They're beyond the first question
-    // 2. They have any responses saved
-    // 3. They have verified access (entered access code)
-    const beyondFirstQuestion = savedSession.currentSectionIndex > 0 || savedSession.currentQuestionIndex > 0;
+    const beyondFirstQuestion =
+      savedSession.currentSectionIndex > 0 || savedSession.currentQuestionIndex > 0;
     const hasResponses = savedSession.responses && Object.keys(savedSession.responses).length > 0;
     const hasVerified = savedSession.isVerified || savedSession.accessCodeData;
-
     return beyondFirstQuestion || hasResponses || hasVerified;
   };
 
-  // Check if user has already verified access code (meaning they don't need purchase/access code options)
-  // Also true if they have a report generated or started a chat session
-  const hasVerifiedAccess = () => {
-    const hasReport = reports && reports.length > 0;
-    const hasChatSession = !!localStorage.getItem('n8n-chat/sessionId');
-    return savedSession?.isVerified || savedSession?.accessCodeData || hasMeaningfulProgress() || hasReport || hasChatSession;
-  };
-
   // Redirects must happen in useEffect, not during render.
-  // navigate() called during render is a no-op in React Router 6 and causes blank pages.
   const needsAuthRedirect = !authLoading && !user;
-  const needsProcessingRedirect = !authLoading && !reportsLoading && latestReport?.status === 'processing';
-  const needsChatRedirect = !authLoading && !reportsLoading && latestReport?.status === 'pending_review' && !cameFromChat;
+  const needsProcessingRedirect =
+    !authLoading && !reportsLoading && latestReport?.status === 'processing';
+  const needsChatRedirect =
+    !authLoading && !reportsLoading && latestReport?.status === 'pending_review' && !cameFromChat;
 
   useEffect(() => {
     if (needsAuthRedirect) {
@@ -291,8 +224,47 @@ const Dashboard = () => {
     }
   }, [needsAuthRedirect, needsProcessingRedirect, needsChatRedirect, navigate]);
 
-  // Show loading spinner while data is loading OR a redirect is about to happen
-  if (authLoading || profileLoading || reportsLoading || needsAuthRedirect || needsProcessingRedirect || needsChatRedirect) {
+  // Candidate quotes for the share card — pulled from real report sections.
+  const shareQuotes = useMemo(() => {
+    const order = ['strengths', 'values', 'exec_summary', 'executive_summary', 'approach'];
+    const seen = new Set<string>();
+    const quotes: string[] = [];
+    for (const type of order) {
+      const s = reportSections.find((x) => x.section_type === type);
+      if (!s) continue;
+      const q = firstSentences(s.content || '', 1);
+      if (q && q.length > 12 && q.length < 220 && !seen.has(q)) {
+        seen.add(q);
+        quotes.push(q);
+      }
+    }
+    return quotes;
+  }, [reportSections]);
+
+  // Copy the personal invite link to the clipboard.
+  const handleInvite = async () => {
+    const link = referralStatus.referralLink;
+    if (!link) {
+      toast({ title: 'One moment', description: 'Your invite link is still being prepared. Try again shortly.' });
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(link);
+      toast({ title: 'Invite link copied', description: 'Share it with a friend to unlock your next tool.' });
+    } catch {
+      toast({ title: 'Your invite link', description: link });
+    }
+  };
+
+  // Loading spinner while data loads OR a redirect is about to happen.
+  if (
+    authLoading ||
+    profileLoading ||
+    reportsLoading ||
+    needsAuthRedirect ||
+    needsProcessingRedirect ||
+    needsChatRedirect
+  ) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -300,288 +272,100 @@ const Dashboard = () => {
     );
   }
 
-  const displayName = profile?.first_name && profile?.last_name
-    ? `${profile.first_name} ${profile.last_name}`
-    : profile?.email || user.email;
+  const firstName = profile?.first_name || '';
+
+  // ── Completed report → V4 dashboard ──────────────────────────
+  if (latestReport && latestReport.status === 'completed') {
+    const heroSection = reportSections.find((s) => s.section_type === 'top_career_1');
+    const heroTitle = heroSection?.title?.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim() || 'Your best-fit career';
+    const heroShape = heroSection?.company_size_type
+      ? heroSection.company_size_type.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim()
+      : null;
+    const heroPct = heroSection?.score != null ? Math.round(Number(heroSection.score)) || 0 : 0;
+
+    return (
+      <>
+        <DashboardV4
+          firstName={firstName}
+          country={profile?.country ?? null}
+          reportGeneratedAt={latestReport.updated_at ?? latestReport.created_at ?? null}
+          sections={reportSections}
+          referralCode={referralStatus.referralCode}
+          referralCount={referralStatus.referralCount}
+          features={referralStatus.features}
+          onNavigate={(route) => navigate(route)}
+          onProfile={() => navigate('/profile')}
+          onSignOut={handleSignOut}
+          onInvite={handleInvite}
+          onOpenShareCard={() => setShowShareCard(true)}
+        />
+
+        {showShareCard && (
+          <ShareCardModal
+            open={showShareCard}
+            onClose={() => setShowShareCard(false)}
+            firstName={firstName}
+            heroTitle={heroTitle}
+            heroShape={heroShape}
+            heroMatchPct={heroPct}
+            quotes={shareQuotes}
+          />
+        )}
+
+        {showExecSummaryModal && execSummarySection && (
+          <ExecSummaryModal
+            content={execSummarySection.content}
+            onClose={handleDismissExecSummary}
+            onViewReport={handleExploreReport}
+          />
+        )}
+      </>
+    );
+  }
+
+  // ── Pre-report states (empty / resume / chat) ────────────────
+  let mode: EntryMode = 'empty';
+  if (latestReport?.status === 'pending_review' && cameFromChat) {
+    mode = 'chat';
+  } else if (!latestReport && hasMeaningfulProgress()) {
+    mode = 'resume';
+  }
+
+  const resumeProgress =
+    mode === 'resume'
+      ? {
+          sectionsComplete: Math.min(savedSession?.currentSectionIndex ?? 0, TOTAL_SURVEY_SECTIONS),
+          totalSections: TOTAL_SURVEY_SECTIONS,
+        }
+      : undefined;
+
+  const handleStart = () => {
+    if (mode === 'chat') {
+      navigate('/chat');
+    } else if (mode === 'resume') {
+      navigate('/assessment');
+    } else if (userAccessCode) {
+      setShowAccessCodeModal(true);
+    } else {
+      navigate('/assessment');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
-            <div className="flex items-center">
-              {/* Header grew to h-24 (96px) so the original h-20 (80px)
-                  logo can render at full presence. Updated PNG has no
-                  built-in left padding, so no need for object-left
-                  anymore — natural flex alignment puts it level with
-                  "Welcome, {name}" below. */}
-              <img
-                src="/cairnly-logo.png"
-                alt="Cairnly"
-                className="h-20 w-auto"
-              />
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" onClick={() => navigate('/profile')}>
-                <Settings className="h-4 w-4 mr-2" />
-                Profile
-              </Button>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <>
+      <DashboardEntryState
+        mode={mode}
+        firstName={firstName}
+        onStart={handleStart}
+        onProfile={() => navigate('/profile')}
+        onSignOut={handleSignOut}
+        resumeProgress={resumeProgress}
+      />
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section - Only show when report section is not expanded */}
-        {!isReportSectionExpanded && (
-          <>
-            {/* Welcome Header — hardcoded cream because the editorial
-                palette is applied via custom CSS rather than Tailwind's
-                dark-mode class strategy, so `text-foreground` would resolve
-                to the LIGHT-mode dark navy and stay illegible on the
-                teal-navy canvas. */}
-            <h2 className="text-3xl font-bold text-[#F5F5F5] mb-6">
-              {isReturningUser() ? 'Welcome back' : 'Welcome'}{profile?.first_name ? `, ${profile.first_name}` : ''}
-            </h2>
-
-            {/* Top row — two columns. Left: Career Report card with the
-                Quick Actions list folded inside. Right: full-size Career
-                Signature (the data-card replaces the old Quick Actions
-                slot). Personality Radar / Career Map have moved DOWN
-                onto the chapter columns where they act as section
-                headers. */}
-            {latestReport && latestReport.status === 'completed' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                {/* Career Report + Quick Actions merged */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4 mb-4">
-                      <div className="bg-atlas-teal/10 p-3 rounded-full">
-                        <FileText className="h-6 w-6 text-atlas-teal" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">Your Career Report</h3>
-                        <p className="text-sm text-atlas-teal font-medium mb-1">Atlas Personality & Career Assessment 2025</p>
-                        <p className="text-sm text-gray-500">
-                          Completed {latestReport.updated_at ? new Date(latestReport.updated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Provenance line — was floating in dark space between
-                        the top row and the chapter columns where it was
-                        illegible. Lives here now as a subtle subtitle. */}
-                    <p className="text-xs text-gray-500 italic border-t border-gray-100 pt-3 mb-4">
-                      These insights are adjusted based on feedback provided in the chat where relevant.
-                    </p>
-
-                    {/* Quick Actions list — folded into the Career Report
-                        card per the dashboard restructure. Items are still
-                        Coming Soon, just shown more compactly. */}
-                    <div>
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">
-                        Quick Actions
-                      </h4>
-                      <div className="space-y-1.5">
-                        <button className="w-full flex items-center gap-3 text-left p-2 rounded-lg text-gray-400 cursor-not-allowed">
-                          <Download className="h-4 w-4 shrink-0" />
-                          <span className="text-sm font-medium">Download Recruiter Summary</span>
-                          <span className="text-xs text-gray-400 ml-auto">Coming soon</span>
-                        </button>
-                        <button className="w-full flex items-center gap-3 text-left p-2 rounded-lg text-gray-400 cursor-not-allowed">
-                          <PlusCircle className="h-4 w-4 shrink-0" />
-                          <span className="text-sm font-medium">More Assessments</span>
-                          <span className="text-xs text-gray-400 ml-auto">Coming soon</span>
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Career Signature — full-size inline. The click-to-modal
-                    behavior was redundant (modal showed the same card)
-                    and was removed. The footer Share CTA will eventually
-                    open a dedicated share flow (LinkedIn, PNG export);
-                    for now it's wired to the modal as a placeholder. */}
-                <CareerSignatureCard
-                  reportId={latestReport.id}
-                  variant="full"
-                  onShare={() => setShowSignatureModal(true)}
-                />
-              </div>
-            )}
-
-            {/* Unlock more features — referral teasers + invite panel. Shown
-                once the report is completed (the unlockable features all
-                build on the report). */}
-            {latestReport && latestReport.status === 'completed' && (
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-[#F5F5F5] mb-1">Unlock more features</h3>
-                <p className="text-sm text-[#F5F5F5]/70 mb-4">
-                  Invite friends to Cairnly and unlock powerful job-hunting tools.
-                </p>
-                <div id="referral-panel-anchor" className="mb-6">
-                  <ReferralPanel />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {referralStatus.features.map((feature) => (
-                    <FeatureTeaserCard
-                      key={feature.key}
-                      feature={feature}
-                      onInviteClick={scrollToReferralPanel}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Resume chat — when the user navigated to the dashboard from
-                an in-progress chat session (status === 'pending_review' and
-                cameFromChat suppresses the auto-redirect). Without this card
-                the page is empty except for the welcome heading. */}
-            {latestReport?.status === 'pending_review' && (
-              <Card
-                className="hover:shadow-lg transition-shadow cursor-pointer mb-8"
-                onClick={() => navigate('/chat')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="bg-atlas-teal/10 p-3 rounded-full">
-                        <Play className="h-6 w-6 text-atlas-teal" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Pick up where you left off</h3>
-                        <p className="text-sm text-gray-600">
-                          Your chat session is still in progress. Finish it to unlock your full report and Career Signature.
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" onClick={(e) => { e.stopPropagation(); navigate('/chat'); }}>
-                      Resume Chat
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Continue Assessment Card - Only show if there's meaningful progress AND no report exists */}
-            {hasMeaningfulProgress() && !latestReport && (
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer mb-8" onClick={() => navigate('/assessment')}>
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-green-100 p-3 rounded-full">
-                      <Play className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Continue Assessment</h3>
-                      <p className="text-sm text-gray-600">Resume where you left off</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-
-            {/* Show assessment start card if user hasn't verified access yet */}
-            {!hasVerifiedAccess() && (
-              <Card
-                className="hover:shadow-lg transition-shadow cursor-pointer mb-8"
-                onClick={() => userAccessCode ? setShowAccessCodeModal(true) : navigate('/assessment')}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-gray-100 p-3 rounded-full">
-                      <Briefcase className="h-6 w-6 text-gray-500" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Start Your Assessment</h3>
-                      <p className="text-sm text-gray-500">Assessment not started</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </>
-        )}
-
-        {/* Report Display or Preview */}
-        {latestReport ? (
-          <>
-            {/* Note: 'processing' redirects to /report-processing, 'pending_review' redirects to /chat */}
-
-            {/* Only show full report if status is completed.
-                The id is the scroll anchor for the ExecSummaryModal's
-                "Explore Your Report" button — landing here drops the user
-                right at the chapter cards instead of leaving them at the
-                top of the dashboard.
-
-                customChapterHeaders plug the Personality Radar and Career
-                Map directly into each chapter column as the visual header,
-                replacing the old striped/circle banners. `bare` strips the
-                charts' own outer card wrapper so they nest cleanly inside
-                ChapterCard's outer Card. */}
-            {latestReport.status === 'completed' && (
-              <div id="report-display-anchor">
-                <ReportDisplay
-                  userEmail={profile?.email}
-                  onSectionExpanded={setIsReportSectionExpanded}
-                  customChapterHeaders={{
-                    'about-you': (
-                      <PersonalityRadar sections={reportSections} bare />
-                    ),
-                    'career-suggestions': (
-                      // variant="compact" gives the small uppercase
-                      // "CAREER MAP" tag instead of the verbose h3
-                      // "Your Career Map" — matches the Personality Radar
-                      // header style on the left column.
-                      <CareerQuadrant sections={reportSections} variant="compact" bare />
-                    ),
-                  }}
-                />
-              </div>
-            )}
-          </>
-        ) : (
-          /* Show report preview when no report exists yet — hide CTA if assessment is already in progress */
-          <ReportPreview onStartAssessment={hasMeaningfulProgress() ? undefined : () => userAccessCode ? setShowAccessCodeModal(true) : navigate('/assessment')} />
-        )}
-      </div>
-
-      {/* Access Code Modal */}
       {showAccessCodeModal && userAccessCode && (
-        <AccessCodeModal
-          accessCode={userAccessCode}
-          onClose={() => setShowAccessCodeModal(false)}
-        />
+        <AccessCodeModal accessCode={userAccessCode} onClose={() => setShowAccessCodeModal(false)} />
       )}
-
-      {/* Career Signature Modal — full-size card on click of the compact
-          hero block. Mounted unconditionally so the close animation can
-          play; component returns null when open=false. */}
-      {latestReport?.id && (
-        <CareerSignatureModal
-          reportId={latestReport.id}
-          open={showSignatureModal}
-          onClose={() => setShowSignatureModal(false)}
-        />
-      )}
-
-      {/* Executive Summary Modal — shown on first visit after report completion */}
-      {showExecSummaryModal && execSummarySection && (
-        <ExecSummaryModal
-          content={execSummarySection.content}
-          onClose={handleDismissExecSummary}
-          onViewReport={handleExploreReport}
-        />
-      )}
-    </div>
+    </>
   );
 };
 
