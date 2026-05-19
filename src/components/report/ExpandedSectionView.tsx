@@ -8,6 +8,8 @@ import { X, ArrowRight, ArrowLeft, ChevronDown, Bot, Search } from 'lucide-react
 import { useNavigate } from 'react-router-dom';
 import { ReportSection } from '@/hooks/useReportSections';
 import AILegend from './AILegend';
+import { iconForSubsection } from '@/components/chat/subsectionIcons';
+import { CareerScoreCard, extractAIImpact, extractFeasibility } from '@/components/chat/CareerScoreCard';
 
 // ── Utilities ───────────────────────────────────────────────────────────
 
@@ -33,6 +35,24 @@ function htmlToMarkdown(text: string): string {
   return result;
 }
 
+// Flatten React children (markdown headings) to plain text for icon lookup.
+function childrenText(children: React.ReactNode): string {
+  return React.Children.toArray(children)
+    .map((c) => {
+      if (typeof c === 'string' || typeof c === 'number') return String(c);
+      if (React.isValidElement(c)) return childrenText((c as any).props?.children);
+      return '';
+    })
+    .join('');
+}
+
+// Parse a section's text score into a finite number, or null.
+function toScore(s: string | null | undefined): number | null {
+  if (s == null) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
 // ── Dashboard-tuned Markdown Components ─────────────────────────────────
 // Slightly larger than the chat components since this is full-page reading.
 
@@ -46,9 +66,17 @@ const dashboardComponents: Record<string, React.FC<any>> = {
   h4: ({ children, ...props }) => (
     <h4 className="text-lg font-semibold mt-6 mb-3 text-atlas-blue" {...props}>{children}</h4>
   ),
-  h5: ({ children, ...props }) => (
-    <h5 className="text-base font-semibold mt-5 mb-2 text-atlas-teal" {...props}>{children}</h5>
-  ),
+  h5: ({ children, ...props }) => {
+    // Match the chat: prefix a Lucide icon when the subsection heading is a
+    // known one. Unmatched headings render plain (no decorative noise).
+    const Icon = iconForSubsection(childrenText(children));
+    return (
+      <h5 className="flex items-center gap-2 text-base font-semibold mt-5 mb-2 text-atlas-teal" {...props}>
+        {Icon && <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />}
+        <span>{children}</span>
+      </h5>
+    );
+  },
   p: ({ children, ...props }) => {
     // Detect standalone bold paragraphs (e.g. "**Feasibility Rating**") and render as subheadings.
     // This makes them visually consistent with numbered headers like "1. Career Name".
@@ -228,6 +256,12 @@ const CollapsibleCareerAccordion: React.FC<{
             {/* Collapsible body */}
             {isOpen && (
               <div className="px-5 pb-5 pt-3 border-t border-gray-100">
+                {/* Match/AI-impact/feasibility pills — same as the chat */}
+                <CareerScoreCard
+                  score={toScore(section.score)}
+                  aiImpact={extractAIImpact(section.content || '')}
+                  feasibility={extractFeasibility(section.content || '')}
+                />
                 <div
                   className="text-gray-700 leading-relaxed"
                   style={{ fontSize: '16px', lineHeight: '1.8' }}
@@ -397,8 +431,17 @@ const ExpandedSectionView: React.FC<ExpandedSectionViewProps> = ({
       aiImpactContent = extracted.aiImpactContent;
     }
 
+    const isCareer = careerSectionIds.includes(sectionId);
     return (
       <>
+        {/* Match/AI-impact/feasibility pills — same as the chat */}
+        {isCareer && (
+          <CareerScoreCard
+            score={toScore(dbSection.score)}
+            aiImpact={extractAIImpact(dbSection.content || '')}
+            feasibility={extractFeasibility(dbSection.content || '')}
+          />
+        )}
         <MarkdownContent content={mainContent} />
         {aiImpactContent && <AIImpactCallout content={aiImpactContent} />}
         <FeedbackExploreCards
