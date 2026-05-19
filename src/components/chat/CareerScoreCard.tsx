@@ -212,6 +212,18 @@ export function leadingFeasibilityLevel(text: string): FeasibilityLevel | null {
   return FEASIBILITY_LEVELS.find((l) => l.toLowerCase() === norm) ?? null;
 }
 
+// Pull the dream-job feasibility rating out of section content. The body
+// carries a "Feasibility Rating" subheader followed by e.g. "Low - Moderate: …".
+// Returns null for non-dream careers (no feasibility section).
+export function extractFeasibility(body: string): FeasibilityLevel | null {
+  if (!body) return null;
+  const text = body.replace(/<[^>]+>/g, ' ');
+  const idx = text.search(/feasibility\s*rating/i);
+  if (idx < 0) return null;
+  const after = text.slice(idx).replace(/^feasibility\s*rating[\s:*\-–]*/i, '');
+  return leadingFeasibilityLevel(after);
+}
+
 // 5-step badge mirroring AIImpactBadge — the active level's dot carries its
 // colour, the rest stay neutral; the label colour shifts with feasibility.
 export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level }) => {
@@ -242,17 +254,24 @@ export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level 
 interface CareerScoreCardProps {
   score?: number | null;
   aiImpact?: AIImpactLevel | null;
+  feasibility?: FeasibilityLevel | null;
 }
 
-// Renders score + AI impact in a single row above a career section heading.
-// Renders nothing if neither value is available, so prose-only careers stay clean.
-export const CareerScoreCard: React.FC<CareerScoreCardProps> = ({ score, aiImpact }) => {
-  if (score == null && !aiImpact) return null;
+// Renders score + AI impact + feasibility in a single row above a career
+// section heading. Renders nothing if no value is available, so prose-only
+// careers stay clean.
+export const CareerScoreCard: React.FC<CareerScoreCardProps> = ({
+  score,
+  aiImpact,
+  feasibility,
+}) => {
+  if (score == null && !aiImpact && !feasibility) return null;
 
   return (
     <div className="flex items-center gap-2 flex-wrap mb-2 mt-1">
       {score != null && <ScoreGauge score={score} />}
       {aiImpact && <AIImpactBadge level={aiImpact} />}
+      {feasibility && <FeasibilityBadge level={feasibility} />}
     </div>
   );
 };

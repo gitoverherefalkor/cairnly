@@ -8,10 +8,9 @@ import type { ReportSection } from '@/hooks/useReportSections';
 import {
   CareerScoreCard,
   extractAIImpact,
+  extractFeasibility,
   AIImpactBadge,
   leadingAIImpactLevel,
-  FeasibilityBadge,
-  leadingFeasibilityLevel,
 } from './CareerScoreCard';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
@@ -441,23 +440,17 @@ const markdownComponents = {
     );
   },
   p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
-    // Some standardized sections lead their body with a rating, e.g.
-    // "Transforming (High Impact): ..." or "Low - Moderate: ...". Surface
-    // these as colour-coded badges so the rating lands at a glance instead
-    // of being buried in prose.
-    const text = childrenToText(children);
-    const aiLevel = leadingAIImpactLevel(text);
-    const feasLevel = aiLevel ? null : leadingFeasibilityLevel(text);
+    // The "How AI will impact this role" body leads with the rating, e.g.
+    // "Transforming (High Impact): ...". Surface it as a colour-coded
+    // severity badge so the impact still lands once the header pill has
+    // scrolled out of view. (Feasibility lives in the header CareerScoreCard,
+    // not here — it sits high enough in the section to not need re-surfacing.)
+    const aiLevel = leadingAIImpactLevel(childrenToText(children));
     return (
       <>
         {aiLevel && (
           <div className="mb-2">
             <AIImpactBadge level={aiLevel} />
-          </div>
-        )}
-        {feasLevel && (
-          <div className="mb-2">
-            <FeasibilityBadge level={feasLevel} />
           </div>
         )}
         <p className="mb-2 last:mb-0" {...props}>
@@ -580,6 +573,7 @@ const SequentialSubsections: React.FC<{
         const section = findSectionByTitle(sections, headingText);
         const score = section?.score != null ? Number(section.score) : null;
         const aiImpact = extractAIImpact(fullBody || preamble);
+        const feasibility = extractFeasibility(fullBody || preamble);
         return (
           <>
             <h3
@@ -591,6 +585,7 @@ const SequentialSubsections: React.FC<{
             <CareerScoreCard
               score={Number.isFinite(score) ? score : null}
               aiImpact={section ? aiImpact : null}
+              feasibility={section ? feasibility : null}
             />
           </>
         );
@@ -815,7 +810,9 @@ const CollapsibleCareerBlocks: React.FC<{
             const section = findSectionByTitle(sections, block.title);
             const score = section?.score != null ? Number(section.score) : null;
             const aiImpact = extractAIImpact(block.body || '');
-            const hasCard = (Number.isFinite(score) && score != null) || aiImpact;
+            const feasibility = extractFeasibility(block.body || '');
+            const hasCard =
+              (Number.isFinite(score) && score != null) || !!aiImpact || !!feasibility;
             const { size, rest } = splitSizeFromBody(block.body || '');
 
             return (
@@ -845,6 +842,7 @@ const CollapsibleCareerBlocks: React.FC<{
                       <CareerScoreCard
                         score={Number.isFinite(score) ? score : null}
                         aiImpact={aiImpact}
+                        feasibility={feasibility}
                       />
                     )}
                   </div>
@@ -1097,6 +1095,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         const score = section?.score != null ? Number(section.score) : null;
         // Look for an AI Impact rating anywhere in the message body.
         const aiImpact = extractAIImpact(sanitized);
+        const feasibility = extractFeasibility(sanitized);
         return (
           <>
             <h3
@@ -1108,6 +1107,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             <CareerScoreCard
               score={Number.isFinite(score) ? score : null}
               aiImpact={section ? aiImpact : null}
+              feasibility={section ? feasibility : null}
             />
           </>
         );
