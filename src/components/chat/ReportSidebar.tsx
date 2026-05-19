@@ -333,7 +333,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                   state === 'current'
                     ? 'bg-atlas-teal text-white ring-2 ring-atlas-teal/30 cursor-pointer hover:ring-atlas-teal/50'
                     : state === 'past'
-                      ? 'bg-atlas-teal/20 text-atlas-teal hover:bg-atlas-teal/30 cursor-pointer'
+                      ? 'bg-white text-atlas-navy ring-1 ring-atlas-navy/15 hover:bg-white/80 cursor-pointer'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 }`}
                 title={translateTitle(section.id, section.title)}
@@ -341,7 +341,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                 {/* Display the VISIBLE 1-indexed position. With Exec Summary
                     hidden at canonical index 0, the canonical index itself is
                     already the 1-indexed visible position (Approach=1, etc.). */}
-                {state === 'past' ? <Check className="h-3 w-3" /> : index}
+                {state === 'past' ? <Check className="h-3.5 w-3.5" /> : index}
               </button>
             );
           })}
