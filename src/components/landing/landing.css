@@ -62,13 +62,20 @@
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center top; display: block;
 }
-.lp-screenshot-slot__preliminary {
-  position: absolute; top: 12px; left: 12px; z-index: 2;
-  background: rgba(212, 160, 36, 0.95); color: #1A1A1A;
-  padding: 4px 10px; border-radius: 9999px;
-  font-family: 'Poppins', sans-serif; font-weight: 800;
-  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+/* Screenshot slots are clickable buttons that open a zoom lightbox. */
+button.lp-screenshot-slot {
+  padding: 0; margin: 0; font: inherit; color: inherit;
+  text-align: inherit; -webkit-appearance: none; appearance: none;
+  cursor: zoom-in;
 }
+.lp-screenshot-slot__zoom {
+  position: absolute; bottom: 12px; right: 12px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 9999px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(18, 46, 59, 0.8); color: #fff;
+  opacity: 0; transition: opacity 200ms ease;
+}
+.lp-screenshot-slot:hover .lp-screenshot-slot__zoom { opacity: 1; }
 .lp-screenshot-slot__meta {
   position: absolute; top: 14px; right: 14px;
   background: rgba(33, 63, 79, 0.85); color: #fff;
@@ -121,13 +128,7 @@
 .lp-btn-secondary-text:hover { color: #fff; border-color: rgba(255,255,255,0.7); }
 
 /* Cairn rail */
-.lp-cairn-rail { position: sticky; top: 120px; }
-.lp-cairn-stone {
-  width: 100%;
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1);
-  opacity: 0.18;
-}
-.lp-cairn-stone.lp-active { opacity: 1; }
+.lp-cairn-rail { position: sticky; top: 130px; }
 .lp-cairn-rail__label {
   font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 10px;
   letter-spacing: 0.22em; text-transform: uppercase; color: #6B7F8B;

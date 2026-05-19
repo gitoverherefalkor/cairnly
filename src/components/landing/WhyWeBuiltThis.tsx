@@ -7,8 +7,8 @@ const WhyWeBuiltThis: React.FC = () => (
     id="about"
     className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden"
   >
-    <div className="absolute right-[-60px] md:right-[-20px] top-1/2 -translate-y-1/2 pointer-events-none opacity-[0.08]">
-      <img src={CairnSymbolInvert} alt="" className="w-[420px] md:w-[520px] h-auto" />
+    <div className="absolute right-[-20px] md:right-[20px] top-1/2 -translate-y-1/2 pointer-events-none opacity-[0.09]">
+      <img src={CairnSymbolInvert} alt="" className="w-[210px] md:w-[270px] h-auto" />
     </div>
     <div className="lp-container relative z-10">
       <Reveal className="max-w-3xl">

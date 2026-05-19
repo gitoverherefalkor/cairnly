@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
+import ScreenshotSlot from './ScreenshotSlot';
 import { useGetStarted } from './useGetStarted';
 import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
@@ -15,8 +16,8 @@ const Hero: React.FC = () => {
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
       {/* Cairn silhouette */}
-      <div className="absolute left-[-80px] bottom-[-120px] pointer-events-none opacity-[0.06]">
-        <img src={CairnSymbolInvert} alt="" className="w-[400px] md:w-[520px] h-auto" />
+      <div className="absolute left-[-30px] bottom-[-50px] pointer-events-none opacity-[0.07]">
+        <img src={CairnSymbolInvert} alt="" className="w-[200px] md:w-[260px] h-auto" />
       </div>
 
       <div className="lp-container relative z-10">
@@ -79,15 +80,13 @@ const Hero: React.FC = () => {
 
           {/* Product preview */}
           <Reveal className="lg:col-span-5">
-            <div className="lp-screenshot-slot lp-on-dark aspect-[5/4] w-full">
-              <span className="lp-screenshot-slot__preliminary">Preliminary</span>
-              <div className="lp-screenshot-slot__meta">5 : 4 · AI coach session</div>
-              <img
-                className="lp-screenshot-slot__img"
-                src="/images/landing/hero-ai-coach.png"
-                alt="Cairnly AI coaching session"
-              />
-            </div>
+            <ScreenshotSlot
+              onDark
+              aspect="aspect-[5/4]"
+              meta="5 : 4 · AI coach session"
+              src="/images/landing/hero-ai-coach.png"
+              alt="Cairnly AI coaching session"
+            />
           </Reveal>
         </div>
       </div>

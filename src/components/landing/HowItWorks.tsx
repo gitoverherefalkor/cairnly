@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Sparkles, Briefcase } from 'lucide-react';
 import Reveal from './Reveal';
+import ScreenshotSlot from './ScreenshotSlot';
 import WorkflowDiagram from './WorkflowDiagram';
 
 const STEP_TITLES = [
@@ -11,21 +12,8 @@ const STEP_TITLES = [
   'Land the job',
 ];
 
-const STONES = [
-  { i: 0, h: 16, vb: '0 0 80 16', d: 'M 28 14 L 28 7 L 40 2 L 52 7 L 52 14 Z', cap: true },
-  { i: 1, h: 18, vb: '0 0 80 18', d: 'M 24 9 Q 40 1 56 9 Q 40 17 24 9 Z', cap: false },
-  { i: 2, h: 20, vb: '0 0 80 20', d: 'M 16 10 Q 40 1 64 10 Q 40 19 16 10 Z', cap: false },
-  { i: 3, h: 22, vb: '0 0 80 22', d: 'M 10 11 Q 40 1 70 11 Q 40 21 10 11 Z', cap: false },
-  { i: 4, h: 24, vb: '0 0 80 24', d: 'M 4 12 Q 40 1 76 12 Q 40 23 4 12 Z', cap: false },
-];
-
-const ImageSlot: React.FC<{ meta: string; src: string; alt: string }> = ({ meta, src, alt }) => (
-  <div className="lp-screenshot-slot aspect-[4/3] w-full">
-    <span className="lp-screenshot-slot__preliminary">Preliminary</span>
-    <div className="lp-screenshot-slot__meta">{meta}</div>
-    <img className="lp-screenshot-slot__img" src={src} alt={alt} />
-  </div>
-);
+// Stone pill widths, bottom (index 0, widest) to capstone (index 4, narrowest).
+const STONE_WIDTHS = [74, 62, 51, 41, 29];
 
 const HowItWorks: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -36,8 +24,7 @@ const HowItWorks: React.FC = () => {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            const idx = Number((e.target as HTMLElement).dataset.step);
-            setActiveStep(idx);
+            setActiveStep(Number((e.target as HTMLElement).dataset.step));
           }
         });
       },
@@ -104,27 +91,31 @@ const HowItWorks: React.FC = () => {
           {/* Sticky cairn rail */}
           <aside className="hidden lg:block col-span-2">
             <div className="lp-cairn-rail">
-              <div className="lp-cairn-rail__label mb-5" style={{ color: '#27A1A1' }}>
-                {`Step ${activeCount} of 5 · ${STEP_TITLES[activeStep]}`}
+              <div className="lp-cairn-rail__label mb-1" style={{ color: '#27A1A1' }}>
+                {`Step ${activeCount} of 5`}
               </div>
-              <div className="flex flex-col gap-2.5 w-[80px]">
-                {STONES.map((s) => {
-                  const isActive = 4 - s.i < activeCount;
+              <div className="text-[12px] font-medium text-[#6B7F8B] mb-6 leading-snug">
+                {STEP_TITLES[activeStep]}
+              </div>
+              <div className="flex flex-col items-center gap-[6px]">
+                {[4, 3, 2, 1, 0].map((i) => {
+                  const active = i < activeCount;
+                  const cap = i === 4;
                   return (
-                    <svg
-                      key={s.i}
-                      viewBox={s.vb}
-                      className={`lp-cairn-stone ${isActive ? 'lp-active' : ''}`}
-                      style={{ height: s.h }}
-                    >
-                      <path
-                        d={s.d}
-                        fill={s.cap ? '#D4A024' : 'none'}
-                        stroke={s.cap ? '#D4A024' : '#122E3B'}
-                        strokeWidth={s.cap ? 1.4 : 2}
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <div
+                      key={i}
+                      style={{
+                        width: STONE_WIDTHS[i],
+                        height: 13,
+                        borderRadius: 9999,
+                        background: active
+                          ? cap
+                            ? '#D4A024'
+                            : '#1F8282'
+                          : 'rgba(18,46,59,0.13)',
+                        transition: 'background 500ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    />
                   );
                 })}
               </div>
@@ -138,7 +129,14 @@ const HowItWorks: React.FC = () => {
               eyebrow="Take the assessment"
               imageLeft
               body="A guided set of questions about your background, skills, work style, values, and what's actually energized or drained you so far. Designed to capture what matters for career fit. Not just personality traits."
-              visual={<ImageSlot meta="4 : 3 · Assessment" src="/images/landing/step1-assessment.png" alt="Assessment question about working in teams" />}
+              visual={
+                <ScreenshotSlot
+                  aspect="aspect-[4/3]"
+                  meta="4 : 3 · Assessment"
+                  src="/images/landing/step1-assessment.png"
+                  alt="Assessment question about working in teams"
+                />
+              }
             />
             <Step
               idx={1}
@@ -164,14 +162,28 @@ const HowItWorks: React.FC = () => {
               eyebrow="Chat with your AI coach"
               imageLeft
               body="Discuss your results one-on-one. Ask follow-ups, explore specific roles in depth, push back when something doesn't fit. You'll get honest answers about trade-offs and next steps. Not flattery."
-              visual={<ImageSlot meta="4 : 3 · Coach chat" src="/images/landing/hero-ai-coach.png" alt="AI coaching session with your personality profile" />}
+              visual={
+                <ScreenshotSlot
+                  aspect="aspect-[4/3]"
+                  meta="4 : 3 · Coach chat"
+                  src="/images/landing/hero-ai-coach.png"
+                  alt="AI coaching session with your personality profile"
+                />
+              }
             />
             <Step
               idx={3}
               eyebrow="Get your report"
               imageLeft={false}
               body="Your finished report, refined by the chat: personality and values analysis, every career recommendation, salary data, AI-impact ratings, and concrete next steps."
-              visual={<ImageSlot meta="4 : 3 · Career report" src="/images/landing/step4-dashboard.png" alt="The Cairnly dashboard with career signature and top matches" />}
+              visual={
+                <ScreenshotSlot
+                  aspect="aspect-[4/3]"
+                  meta="4 : 3 · Career report"
+                  src="/images/landing/step4-dashboard.png"
+                  alt="The Cairnly dashboard with career signature and top matches"
+                />
+              }
             />
             <Step
               idx={4}

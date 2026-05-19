@@ -22,7 +22,7 @@ import LandingFooter from '@/components/landing/LandingFooter';
  */
 const Index: React.FC = () => (
   <div
-    className="min-h-screen font-sans overflow-x-hidden"
+    className="min-h-screen font-sans overflow-x-clip"
     style={{ background: '#F4ECDA', color: '#122E3B' }}
   >
     <LandingNav variant="home" />
@@ -30,13 +30,13 @@ const Index: React.FC = () => (
       <Hero />
       <Pillars />
       <HowItWorks />
-      <ForkDivider />
       <Methodology />
       <CoachCards />
       <ComparisonTable />
       <CostMath />
       <PricingSection />
       <WhoFor />
+      <ForkDivider />
       <WhyWeBuiltThis />
       <FAQ />
       <FinalCTA />

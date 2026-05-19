@@ -99,7 +99,7 @@ const FeaturedCard: React.FC<{ article: JournalArticle }> = ({ article }) => (
 );
 
 const Journal: React.FC = () => (
-  <div className="min-h-screen font-sans overflow-x-hidden" style={{ background: '#F4ECDA', color: '#122E3B' }}>
+  <div className="min-h-screen font-sans overflow-x-clip" style={{ background: '#F4ECDA', color: '#122E3B' }}>
     <LandingNav variant="page" />
 
     {/* Hero */}
