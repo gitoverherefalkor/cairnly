@@ -435,7 +435,7 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
           <>
             <span
               className={`text-xs font-medium truncate leading-tight ${
-                state === 'current' ? 'text-white/95' : 'text-atlas-teal'
+                state === 'current' ? 'text-white/95' : 'text-atlas-blue'
               }`}
               title={careerInfo.title}
             >
