@@ -403,7 +403,7 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
       {/* Status icon — pinned to top so the row aligns when a careerInfo
           subline pushes the content to two-or-more lines. */}
       <span className={`flex-shrink-0 mt-0.5 ${
-        state === 'current' ? 'text-white' : state === 'past' ? 'text-atlas-teal' : 'text-gray-300'
+        state === 'current' ? 'text-white' : state === 'past' ? 'text-atlas-navy' : 'text-gray-300'
       }`}>
         {state === 'past' && <Check className="h-4 w-4" />}
         {state === 'current' && <Circle className="h-4 w-4 fill-current" />}
@@ -435,7 +435,7 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
           <>
             <span
               className={`text-xs font-medium truncate leading-tight ${
-                state === 'current' ? 'text-white/95' : 'text-atlas-blue'
+                state === 'current' ? 'text-white/95' : 'text-atlas-navy'
               }`}
               title={careerInfo.title}
             >
