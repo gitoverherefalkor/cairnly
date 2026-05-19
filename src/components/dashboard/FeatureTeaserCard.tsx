@@ -10,6 +10,15 @@ const ICONS: Record<ResolvedFeature['key'], LucideIcon> = {
   'cover-letter': Mail,
 };
 
+// Ordinal phrasing keyed to the referral threshold. Each feature unlocks on
+// the next single invite, so we frame it as "a second friend", not "2 friends"
+// — it should read as one more step, not a fresh count.
+const UNLOCK_LABELS: Record<number, string> = {
+  1: 'a friend',
+  2: 'a second friend',
+  3: 'a third friend',
+};
+
 interface FeatureTeaserCardProps {
   feature: ResolvedFeature;
   onInviteClick: () => void;
@@ -41,8 +50,7 @@ export const FeatureTeaserCard = ({ feature, onInviteClick }: FeatureTeaserCardP
             <h3 className="font-semibold text-gray-900">{feature.title}</h3>
             {!feature.unlocked && (
               <p className="text-xs text-gray-500 mt-0.5">
-                Invite {feature.requiredReferrals}{' '}
-                {feature.requiredReferrals === 1 ? 'friend' : 'friends'} to unlock
+                Invite {UNLOCK_LABELS[feature.requiredReferrals] ?? 'a friend'} to unlock
               </p>
             )}
           </div>

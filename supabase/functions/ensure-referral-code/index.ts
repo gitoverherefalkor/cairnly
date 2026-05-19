@@ -40,7 +40,10 @@ serve(async (req) => {
     const couponId = Deno.env.get("STRIPE_REFERRAL_COUPON_ID");
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!couponId || !stripeKey) {
-      console.error("STRIPE_REFERRAL_COUPON_ID or STRIPE_SECRET_KEY not configured");
+      // Log the specific missing var server-side; keep the client message generic.
+      console.error(
+        `Referral config missing: ${!couponId ? "STRIPE_REFERRAL_COUPON_ID " : ""}${!stripeKey ? "STRIPE_SECRET_KEY" : ""}`.trim(),
+      );
       return errorResponse("Referral system is not available right now.", 500, corsHeaders);
     }
 
