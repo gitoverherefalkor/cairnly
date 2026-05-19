@@ -19,19 +19,26 @@ const HowItWorks: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // The active step is the last row whose top has scrolled past a reference
+  // line ~42% down the viewport. A scroll computation (rather than a
+  // visibility-threshold observer) keeps tracking reliable even for step rows
+  // that are taller than the viewport.
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            setActiveStep(Number((e.target as HTMLElement).dataset.step));
-          }
-        });
-      },
-      { threshold: 0.4, rootMargin: '-100px 0px -40% 0px' }
-    );
-    rowRefs.current.forEach((r) => r && obs.observe(r));
-    return () => obs.disconnect();
+    const onScroll = () => {
+      const line = window.innerHeight * 0.42;
+      let active = 0;
+      rowRefs.current.forEach((row, i) => {
+        if (row && row.getBoundingClientRect().top <= line) active = i;
+      });
+      setActiveStep(active);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   const activeCount = activeStep + 1;
