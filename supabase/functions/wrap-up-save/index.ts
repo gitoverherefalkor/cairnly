@@ -177,6 +177,46 @@ serve(async (req) => {
     console.error('[wrap-up-save] status update error:', statusErr);
   }
 
+  // Kick off the executive summary now that the wrap-up content is in the
+  // DB. This is the surefire trigger point: the chat_highlights row is
+  // written and the session is closed, so the ExecSummary n8n workflow can
+  // pull every section (including chat_highlights) and generate the
+  // exec_summary section. Previously the exec summary was chained off an
+  // n8n feedback workflow that depended on the chat agent calling a tool,
+  // which the rebuilt wrap-up flow never does, so it never fired.
+  //
+  // Delete any prior exec_summary first so re-running wrap-up doesn't leave
+  // a duplicate row. Both steps are non-fatal: highlights are already saved
+  // and the report is marked complete, so on failure we log and still
+  // return success, since the summary can be regenerated.
+  const EXEC_SUMMARY_WEBHOOK =
+    'https://falkoratlas.app.n8n.cloud/webhook/exec-summary-6508dd5f8e79419599dc8fff32fb6703';
+  try {
+    const { error: execDelErr } = await supabase
+      .from('report_sections')
+      .delete()
+      .eq('report_id', report_id)
+      .eq('section_type', 'exec_summary');
+    if (execDelErr) {
+      console.error('[wrap-up-save] exec_summary cleanup error:', execDelErr);
+    }
+
+    const execRes = await fetch(EXEC_SUMMARY_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ report_id }),
+    });
+    if (!execRes.ok) {
+      console.error(
+        '[wrap-up-save] exec summary trigger failed:',
+        execRes.status,
+        await execRes.text().catch(() => ''),
+      );
+    }
+  } catch (err) {
+    console.error('[wrap-up-save] exec summary trigger threw:', err);
+  }
+
   return new Response(JSON.stringify({ ok: true }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
