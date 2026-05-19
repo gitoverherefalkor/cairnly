@@ -270,11 +270,14 @@ export const CareerScoreCard: React.FC<CareerScoreCardProps> = ({
 }) => {
   if (score == null && !aiImpact && !feasibility) return null;
 
+  // Two fixed columns so the right-hand pill always starts at the same x
+  // regardless of the left pill's content length. justify-items-start keeps
+  // each pill at its natural width (no stretching to fill the column).
   return (
-    <div className="flex items-center gap-2 flex-wrap mb-2 mt-1">
+    <div className="grid grid-cols-2 gap-2 justify-items-start items-start mb-2 mt-1">
       {score != null && <ScoreGauge score={score} />}
-      {aiImpact && <AIImpactBadge level={aiImpact} />}
       {feasibility && <FeasibilityBadge level={feasibility} />}
+      {aiImpact && <AIImpactBadge level={aiImpact} />}
     </div>
   );
 };
