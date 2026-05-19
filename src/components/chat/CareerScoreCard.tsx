@@ -41,8 +41,10 @@ const AI_IMPACT_STYLES: Record<AIImpactLevel, { dot: string; text: string; ring:
 };
 
 // Pull an AI Impact rating out of free-text section content.
-// Production phrasings the prompt produces:
-//   "**Safe** (Low Impact)"
+// Production phrasings the prompt produces (the ** bold is OPTIONAL — the
+// n8n top-career parser node strips all bold, so those sections arrive as
+// plain "Augmented (Moderate Impact)" while runner-ups keep the bold):
+//   "**Safe** (Low Impact)"      / "Safe (Low Impact)"
 //   "**Augmented** (Moderate Impact)"
 //   "**Transforming** (High Impact)"
 //   "**At Risk** (Severe Impact)"
@@ -73,7 +75,7 @@ export function extractAIImpact(body: string): AIImpactLevel | null {
 
   // First pass: high-precision patterns that nail a specific phrasing.
   const patterns: RegExp[] = [
-    new RegExp(`\\*\\*${LABEL_GROUP}\\*\\*\\s*\\((?:low|moderate|high|severe)\\s*impact\\)`, 'i'),
+    new RegExp(`\\*{0,2}${LABEL_GROUP}\\*{0,2}\\s*\\((?:low|moderate|high|severe)\\s*impact\\)`, 'i'),
     new RegExp(`(?:rating)\\s*[:\\-]\\s*${LABEL_GROUP}`, 'i'),
     new RegExp(`carries?\\s+a\\s+${LABEL_GROUP}\\s+ai\\s*impact`, 'i'),
     new RegExp(`\\*\\*${LABEL_GROUP}:`, 'i'),
