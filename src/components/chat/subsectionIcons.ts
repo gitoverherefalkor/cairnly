@@ -22,7 +22,7 @@ import {
   Signpost,
   Gauge,
   UserCheck,
-  GraduationCap,
+  Crown,
   Telescope,
   Footprints,
   type LucideIcon,
@@ -78,9 +78,9 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
   // dream jobs ('overview' shared with outside-the-box, above)
   'feasibility rating': Gauge,
-  'personality fit': UserCheck,
-  'credentials & experience': GraduationCap,
-  'industry outlook & future trends': Telescope,
+  'personality & energy fit': UserCheck,
+  'the executive version suggestion': Crown,
+  'industry outlook & regional trends': Telescope,
   'steps for pursuing this role': Footprints,
 };
 
