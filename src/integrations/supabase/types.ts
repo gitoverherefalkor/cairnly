@@ -609,6 +609,37 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_chat_responses: {
+        Row: {
+          content: string
+          content_hash: string | null
+          created_at: string
+          id: string
+          label: string | null
+          report_id: string
+          section_type: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          report_id: string
+          section_type?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          report_id?: string
+          section_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           allow_multiple: boolean | null

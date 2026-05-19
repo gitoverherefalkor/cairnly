@@ -133,13 +133,6 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         // Storage full / disabled — bookmarks just won't survive refresh.
       }
     }, [bookmarkedIds, BOOKMARK_STORAGE_KEY]);
-    const handleBookmarkToggle = useCallback((messageId: string) => {
-      setBookmarkedIds((prev) =>
-        prev.includes(messageId)
-          ? prev.filter((id) => id !== messageId)
-          : [...prev, messageId],
-      );
-    }, []);
     // Map of user-message-id -> the original send args, populated when the
     // agent path throws. Lets us render a small retry icon next to the
     // failed message instead of forcing the user to retype. Cleared per
@@ -192,6 +185,47 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
 
     const { messages, isLoading, addMessage, seedFromHistory, hasMessages } =
       useChatMessages({ sessionId, reportId, userId });
+
+    // Toggle a coach response's "Saved" state. The localStorage list above
+    // drives the instant in-chat UI; here we also persist (or remove) the
+    // response in Supabase so it surfaces in the dashboard report, tagged
+    // with the section currently in focus.
+    const handleBookmarkToggle = useCallback(
+      (messageId: string) => {
+        const isSaved = bookmarkedIds.includes(messageId);
+        setBookmarkedIds((prev) =>
+          isSaved ? prev.filter((id) => id !== messageId) : [...prev, messageId],
+        );
+
+        const message = messages.find((m) => m.id === messageId);
+        if (!message?.content) return;
+
+        if (!isSaved) {
+          const sectionType = SECTION_INDEX_TO_TYPE[currentSectionIndex] ?? null;
+          supabase.functions
+            .invoke('save-chat-response', {
+              body: {
+                report_id: reportId,
+                content: message.content,
+                section_type: sectionType,
+              },
+            })
+            .then(({ error }) => {
+              if (error) console.error('Failed to save chat response:', error);
+            });
+        } else {
+          supabase
+            .from('saved_chat_responses')
+            .delete()
+            .eq('report_id', reportId)
+            .eq('content', message.content)
+            .then(({ error }) => {
+              if (error) console.error('Failed to remove saved chat response:', error);
+            });
+        }
+      },
+      [bookmarkedIds, messages, reportId, currentSectionIndex],
+    );
     // Pull career sections from the report so ChatMessage can show match
     // scores + AI impact next to the career titles the agent presents.
     const { sections } = useReportSections(reportId);

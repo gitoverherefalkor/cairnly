@@ -10,6 +10,8 @@ import { ReportSection } from '@/hooks/useReportSections';
 import AILegend from './AILegend';
 import { iconForSubsection } from '@/components/chat/subsectionIcons';
 import { CareerScoreCard, extractAIImpact, extractFeasibility } from '@/components/chat/CareerScoreCard';
+import { useSavedChatResponses, type SavedChatResponse } from '@/hooks/useSavedChatResponses';
+import { SavedFromCoach } from './SavedFromCoach';
 
 // ── Utilities ───────────────────────────────────────────────────────────
 
@@ -318,6 +320,17 @@ const ExpandedSectionView: React.FC<ExpandedSectionViewProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  // Saved coach responses for this report. reportId is derived from any
+  // loaded section so no new prop threading is needed.
+  const reportId = Object.values(groupedSections).flat()[0]?.report_id;
+  const { savedResponses } = useSavedChatResponses(reportId);
+
+  // Saved responses tagged to the section_type(s) behind a UI section id.
+  const savedForSection = (uiSectionId: string): SavedChatResponse[] => {
+    const types = new Set((groupedSections[uiSectionId] || []).map((s) => s.section_type));
+    return savedResponses.filter((r) => r.section_type != null && types.has(r.section_type));
+  };
+
   // Career sections that should show AI Legend (all except dream-jobs)
   const careerSectionsWithAILegend = ['first-career', 'second-career', 'third-career', 'runner-up', 'outside-box'];
 
@@ -442,6 +455,7 @@ const ExpandedSectionView: React.FC<ExpandedSectionViewProps> = ({
             feasibility={extractFeasibility(dbSection.content || '')}
           />
         )}
+        <SavedFromCoach items={savedForSection(sectionId)} />
         <MarkdownContent content={mainContent} />
         {aiImpactContent && <AIImpactCallout content={aiImpactContent} />}
         <FeedbackExploreCards
@@ -552,6 +566,7 @@ const ExpandedSectionView: React.FC<ExpandedSectionViewProps> = ({
                       <h2 className="text-2xl font-bold text-atlas-navy mb-2">{getCareerTitle(expandedSection)}</h2>
                       <p className="text-gray-600">{getSectionDescription(expandedSection)}</p>
                     </div>
+                    <SavedFromCoach items={savedForSection(expandedSection)} />
                     <CollapsibleCareerAccordion
                       sections={groupedSections[expandedSection]}
                       showAILegend={careerSectionsWithAILegend.includes(expandedSection)}
