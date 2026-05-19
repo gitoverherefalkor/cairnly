@@ -1,0 +1,283 @@
+/* ============================================================
+   Cairnly landing page (Homepage v2) — scoped styles.
+   All classes are prefixed `lp-` so they never collide with the
+   project-wide `.btn-primary` / shadcn utilities.
+   ============================================================ */
+
+/* ---- Editorial scaffolding ---- */
+.lp-container { max-width: 1280px; margin: 0 auto; padding-inline: 1.5rem; }
+@media (min-width: 768px) { .lp-container { padding-inline: 3rem; } }
+
+/* Chapter rule — thin line with a centered dot */
+.lp-chapter-rule {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; color: rgba(18, 46, 59, 0.2);
+}
+.lp-chapter-rule::before, .lp-chapter-rule::after {
+  content: ""; flex: 1; height: 1px; background: currentColor; max-width: 200px;
+}
+.lp-chapter-rule__dot {
+  width: 7px; height: 7px; border-radius: 9999px;
+  background: currentColor; opacity: 0.7;
+}
+
+/* Eyebrow — premium tag idiom */
+.lp-eyebrow {
+  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+}
+
+/* Gradient text */
+.lp-text-gold-grad {
+  background: linear-gradient(90deg, #C8891A 0%, #F0C040 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lp-text-teal-grad {
+  background: linear-gradient(90deg, #27A1A1 0%, #3989AF 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Screenshot placeholder / image frame */
+.lp-screenshot-slot {
+  position: relative;
+  border-radius: 18px; overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(39,161,161,0.06), rgba(57,137,175,0.04)),
+    #FBF6E8;
+  border: 1px solid rgba(201, 182, 144, 0.6);
+  box-shadow: 0 20px 50px -28px rgba(18,46,59,0.30);
+}
+.lp-screenshot-slot--placeholder { border-style: dashed; }
+.lp-screenshot-slot.lp-on-dark {
+  background:
+    linear-gradient(135deg, rgba(39,161,161,0.10), rgba(57,137,175,0.05)),
+    rgba(18, 46, 59, 0.4);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 40px 80px -28px rgba(0,0,0,0.55);
+}
+.lp-screenshot-slot.lp-on-dark.lp-screenshot-slot--placeholder {
+  border-style: dashed; border-color: rgba(255,255,255,0.18);
+}
+.lp-screenshot-slot__img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center top; display: block;
+}
+.lp-screenshot-slot__preliminary {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  background: rgba(212, 160, 36, 0.95); color: #1A1A1A;
+  padding: 4px 10px; border-radius: 9999px;
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+}
+.lp-screenshot-slot__meta {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(33, 63, 79, 0.85); color: #fff;
+  padding: 5px 12px; border-radius: 9999px;
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+}
+.lp-screenshot-slot__inner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px; color: #4B6373;
+}
+.lp-on-dark.lp-screenshot-slot .lp-screenshot-slot__inner { color: rgba(255,255,255,0.72); }
+.lp-screenshot-slot__inner svg { opacity: 0.4; }
+.lp-screenshot-slot__label {
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 13px; letter-spacing: 0.04em;
+}
+.lp-screenshot-slot__desc {
+  font-size: 12px; max-width: 320px; text-align: center; line-height: 1.5;
+  color: rgba(75, 99, 115, 0.7);
+}
+.lp-on-dark.lp-screenshot-slot .lp-screenshot-slot__desc { color: rgba(255,255,255,0.55); }
+
+/* Pill buttons */
+.lp-btn-primary {
+  background: #2ABFBF; color: #fff;
+  padding: 16px 30px; border-radius: 9999px;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 17px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 12px 30px -10px rgba(39,161,161,0.55);
+  transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex; align-items: center; gap: 10px;
+  cursor: pointer; border: none; text-decoration: none;
+}
+.lp-btn-primary:hover {
+  background: #27A1A1; transform: translateY(-1px);
+  box-shadow: 0 18px 36px -10px rgba(39,161,161,0.7);
+}
+.lp-btn-primary:active { transform: scale(0.97); }
+
+.lp-btn-secondary-text {
+  color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding-bottom: 2px; transition: all 200ms ease; cursor: pointer;
+  background: none; font-family: 'Inter', sans-serif;
+}
+.lp-btn-secondary-text:hover { color: #fff; border-color: rgba(255,255,255,0.7); }
+
+/* Cairn rail */
+.lp-cairn-rail { position: sticky; top: 120px; }
+.lp-cairn-stone {
+  width: 100%;
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.18;
+}
+.lp-cairn-stone.lp-active { opacity: 1; }
+.lp-cairn-rail__label {
+  font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 10px;
+  letter-spacing: 0.22em; text-transform: uppercase; color: #6B7F8B;
+}
+
+/* Pillar card hover */
+.lp-pillar-card {
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease;
+}
+.lp-pillar-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px -18px rgba(18,46,59,0.20);
+}
+
+/* Comparison table */
+.lp-compare-table { width: 100%; border-collapse: collapse; }
+.lp-compare-table th, .lp-compare-table td {
+  text-align: left; padding: 22px 18px;
+  border-bottom: 1px solid rgba(201, 182, 144, 0.5);
+  vertical-align: top;
+}
+.lp-compare-table thead th {
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #6B7F8B; padding-bottom: 14px;
+  border-bottom: 2px solid rgba(201, 182, 144, 0.6);
+}
+.lp-compare-table thead th .lp-row-name {
+  color: #122E3B; font-size: 14px; text-transform: none;
+  letter-spacing: -0.01em; margin-top: 4px;
+}
+.lp-compare-table tbody td .lp-row-name {
+  font-family: 'Poppins', sans-serif; font-weight: 700;
+  font-size: 14px; color: #122E3B;
+  letter-spacing: -0.005em; margin-bottom: 4px;
+}
+.lp-compare-table tbody td:first-child {
+  background: rgba(212, 160, 36, 0.05);
+  border-right: 2px solid rgba(212, 160, 36, 0.25);
+  width: 20%;
+}
+.lp-compare-table tbody td:first-child .lp-row-name::before {
+  content: ""; display: inline-block;
+  width: 6px; height: 6px; border-radius: 9999px;
+  background: #D4A024;
+  margin-right: 8px; margin-bottom: 2px; vertical-align: middle;
+}
+.lp-compare-table tbody td p {
+  font-size: 14px; line-height: 1.5; color: #4B6373; font-weight: 500; margin: 0;
+}
+.lp-compare-table tbody td p strong { color: #122E3B; font-weight: 800; }
+.lp-compare-cairnly {
+  background: #FBF6E8;
+  border-left: 1px solid #D4A024;
+  border-right: 1px solid #D4A024;
+}
+.lp-compare-cairnly-top {
+  background: #FBF6E8;
+  border-top: 4px solid #D4A024;
+  border-left: 1px solid #D4A024;
+  border-right: 1px solid #D4A024;
+}
+.lp-compare-cairnly-bottom { border-bottom: 1px solid #D4A024; }
+.lp-compare-table tbody .lp-compare-cairnly p { color: #122E3B; font-weight: 600; }
+
+/* Fork in the road */
+.lp-fork-divider { position: relative; padding: 80px 0; }
+.lp-fork-divider svg { display: block; margin: 0 auto; max-width: 720px; width: 100%; height: auto; }
+.lp-fork-label-old {
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase; fill: #6B7F8B;
+}
+.lp-fork-label-new {
+  font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase; fill: #D4A024;
+}
+
+/* FAQ accordion (native <details>) */
+.lp-faq { border-bottom: 1px solid rgba(201, 182, 144, 0.5); }
+.lp-faq[open] summary svg.lp-chev { transform: rotate(45deg); }
+.lp-faq summary {
+  list-style: none; cursor: pointer; padding: 22px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px; font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 19px; color: #122E3B; letter-spacing: -0.01em;
+}
+.lp-faq summary::-webkit-details-marker { display: none; }
+.lp-faq summary svg.lp-chev { transition: transform 300ms ease; flex-shrink: 0; }
+.lp-faq p {
+  font-size: 16px; color: #4B6373; font-weight: 500; line-height: 1.65;
+  max-width: 760px; padding-bottom: 22px; margin: 0;
+}
+
+/* Pricing landmark card */
+.lp-pricing-card {
+  background:
+    radial-gradient(circle at 80% 20%, rgba(39,161,161,0.06), transparent 60%),
+    #FBF6E8;
+}
+
+/* Scroll-reveal — default visible so the page never paints blank */
+.lp-reveal {
+  opacity: 1; transform: translateY(0);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-reveal.lp-reveal-armed { opacity: 0; transform: translateY(18px); }
+.lp-reveal.lp-reveal-in { opacity: 1; transform: translateY(0); }
+
+/* ---- Journal index ---- */
+.lp-article-card {
+  background: #FBF6E8;
+  border: 1px solid rgba(201, 182, 144, 0.6);
+  border-radius: 18px; overflow: hidden;
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease;
+  text-decoration: none; display: block; color: #122E3B;
+}
+.lp-article-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px -18px rgba(18, 46, 59, 0.18);
+}
+.lp-featured-card {
+  background:
+    linear-gradient(135deg, rgba(212, 160, 36, 0.10), transparent 60%),
+    #FBF6E8;
+  border: 1px solid #D4A024;
+  border-radius: 24px; overflow: hidden;
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms ease;
+  text-decoration: none; display: block; color: #122E3B;
+  box-shadow: 0 30px 60px -28px rgba(212, 160, 36, 0.35);
+}
+.lp-featured-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 36px 70px -28px rgba(212, 160, 36, 0.45);
+}
+.lp-coming-card {
+  background: rgba(18, 46, 59, 0.04);
+  border: 1px dashed rgba(107, 127, 139, 0.4);
+  border-radius: 18px;
+}
+.lp-topic-chip {
+  display: inline-flex; align-items: center;
+  padding: 6px 14px; border-radius: 9999px;
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(39, 161, 161, 0.10);
+  color: #1F8282;
+  border: 1px solid rgba(39, 161, 161, 0.25);
+}
+.lp-topic-chip.lp-gold {
+  background: rgba(212, 160, 36, 0.12);
+  color: #C8891A;
+  border-color: rgba(212, 160, 36, 0.30);
+}
