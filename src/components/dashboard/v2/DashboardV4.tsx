@@ -5,7 +5,10 @@
 // Section order: Welcome · Hero match + #2/#3 · More paths · Profile at a
 // glance · Unlock toolkit · Share promo · Full report accordion.
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import DOMPurify from 'dompurify';
 import { ArrowRight, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
@@ -26,8 +29,25 @@ import {
   firstSentences,
   extractBullets,
   type CareerMatch,
-  type AIImpactLevel,
 } from './dashboardV2Shared';
+
+// Convert the HTML tags the AI sometimes emits into Markdown so the accordion
+// can render through one pipeline. Same shape as the chat / ExpandedSectionView
+// converter — kept local to avoid pulling in the old report component graph.
+function htmlToMarkdown(text: string): string {
+  let r = text;
+  r = r.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1');
+  r = r.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1');
+  r = r.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1');
+  r = r.replace(/<strong>(.*?)<\/strong>/gi, '**$1**');
+  r = r.replace(/<em>(.*?)<\/em>/gi, '*$1*');
+  r = r.replace(/<br\s*\/?>/gi, '\n');
+  r = r.replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '\n\n');
+  r = r.replace(/<ul[^>]*>/gi, '').replace(/<\/ul>/gi, '\n');
+  r = r.replace(/<ol[^>]*>/gi, '').replace(/<\/ol>/gi, '\n');
+  r = r.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1');
+  return r;
+}
 
 interface DashboardV4Props {
   firstName: string;
@@ -71,17 +91,23 @@ interface ReportRow {
   id: string;
   title: string;
   oneLiner: string;
-  excerpt: string;
+  // Raw section content (HTML/Markdown mix from n8n). Rendered through the
+  // sanitize → markdown pipeline below when the row is open.
+  content: string;
+  // Photo-chip key into SECTION_VISUALS. Defaults to row.id.
+  visualKey?: string;
 }
 
-// Generic, non-personalised descriptors (mirrors src/components/report/reportData.ts).
+// Generic, non-personalised descriptors.
 const ONE_LINERS: Record<string, string> = {
   summary: 'Who you are professionally and what drives your career.',
   approach: 'How you work, lead, and navigate challenges.',
   strengths: 'What sets you apart and how to use it strategically.',
   development: 'Growth opportunities that will help you reach your goals.',
   values: 'What matters most to you and how it shapes the right fit.',
-  top3: 'Three roles that best match your profile, skills, and goals.',
+  'top-1': 'Your strongest match.',
+  'top-2': 'Career #2 — a close second.',
+  'top-3': 'Career #3 — also a strong fit.',
   runners: 'Strong alternatives worth a second look.',
   outside: 'Unconventional paths aligned with your interests.',
   dream: 'An honest reality check on your ideal career.',
@@ -93,7 +119,6 @@ const FALLBACK_TITLES: Record<string, string> = {
   strengths: 'Your Strengths',
   development: 'Development Areas',
   values: 'Your (Career) Values',
-  top3: 'Top 3 Career Matches',
   runners: 'Runner-up Careers',
   outside: 'Outside-the-Box Careers',
   dream: 'Dream Job Analysis',
@@ -115,6 +140,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   onOpenShareCard,
 }) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const accordionRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Open a specific accordion row from elsewhere on the dashboard (Hero,
+  // secondary matches, More-paths tiles) and scroll it into view. The
+  // requestAnimationFrame wait lets the expanded body lay out first so the
+  // scroll lands on the opened row, not its still-collapsed footprint.
+  const handleOpenSection = (id: string) => {
+    setOpenSection(id);
+    requestAnimationFrame(() => {
+      const node = accordionRowRefs.current[id];
+      if (node) node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
 
   const { hero, secondary } = useMemo(() => {
     const hero = getMatch(sections, 'top_career_1', 1, true);
@@ -142,6 +180,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   }, [sections]);
 
   // Report accordion rows — only rows backed by real sections are shown.
+  // /report is gone, so the accordion is the user's report: expanded rows
+  // render full sanitized content, not a 3-sentence excerpt.
   const aboutRows = useMemo<ReportRow[]>(() => {
     const map: { id: string; types: string[] }[] = [
       { id: 'summary', types: ['exec_summary', 'executive_summary'] },
@@ -158,7 +198,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           id,
           title: stripHtml(s.title || FALLBACK_TITLES[id]),
           oneLiner: ONE_LINERS[id],
-          excerpt: firstSentences(s.content || '', 3),
+          content: s.content || '',
         };
       })
       .filter(Boolean) as ReportRow[];
@@ -166,15 +206,22 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
-    const topCareers = ['top_career_1', 'top_career_2', 'top_career_3']
-      .map((t) => sections.find((x) => x.section_type === t))
-      .filter(Boolean) as ReportSection[];
-    if (topCareers.length > 0) {
+    // Top 3 → one accordion row per career so hero/secondary "Open" buttons
+    // can target the specific career the user clicked.
+    const topMap: { id: string; type: string; rank: 1 | 2 | 3 }[] = [
+      { id: 'top-1', type: 'top_career_1', rank: 1 },
+      { id: 'top-2', type: 'top_career_2', rank: 2 },
+      { id: 'top-3', type: 'top_career_3', rank: 3 },
+    ];
+    for (const { id, type } of topMap) {
+      const s = sections.find((x) => x.section_type === type);
+      if (!s) continue;
       rows.push({
-        id: 'top3',
-        title: FALLBACK_TITLES.top3,
-        oneLiner: ONE_LINERS.top3,
-        excerpt: topCareers.map((s, i) => `${i + 1}. ${stripHtml(s.title || 'Career match')}`).join('   '),
+        id,
+        title: stripHtml(s.title || 'Career match'),
+        oneLiner: ONE_LINERS[id],
+        content: s.content || '',
+        visualKey: 'top3',
       });
     }
     const extras: { id: string; type: string }[] = [
@@ -189,7 +236,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         id,
         title: stripHtml(s.title || FALLBACK_TITLES[id]),
         oneLiner: ONE_LINERS[id],
-        excerpt: firstSentences(s.content || '', 3),
+        content: s.content || '',
       });
     }
     return rows;
@@ -280,14 +327,14 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               marginBottom: 24,
             }}
           >
-            <HeroMatch match={hero} onOpenBreakdown={() => onNavigate('/report')} onFindRoles={handleFindRoles} jobsUnlocked={jobsUnlocked} />
+            <HeroMatch match={hero} onOpenBreakdown={() => handleOpenSection('top-1')} onFindRoles={handleFindRoles} jobsUnlocked={jobsUnlocked} />
             {secondary.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {secondary.map((m) => (
                   <SecondaryMatch
                     key={m.rank}
                     match={m}
-                    onOpen={() => onNavigate('/report')}
+                    onOpen={() => handleOpenSection(`top-${m.rank}`)}
                     onFindRoles={handleFindRoles}
                   />
                 ))}
@@ -304,13 +351,13 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {paths.runners && (
-                <PathsTile title="Runner-up Careers" accent={PALETTE.teal} teaser={paths.runners.teaser} onOpen={() => onNavigate('/report')} />
+                <PathsTile title="Runner-up Careers" accent={PALETTE.teal} teaser={paths.runners.teaser} onOpen={() => handleOpenSection('runners')} />
               )}
               {paths.outside && (
-                <PathsTile title="Outside-the-Box" accent={PALETTE.goldBright} teaser={paths.outside.teaser} onOpen={() => onNavigate('/report')} />
+                <PathsTile title="Outside-the-Box" accent={PALETTE.goldBright} teaser={paths.outside.teaser} onOpen={() => handleOpenSection('outside')} />
               )}
               {paths.dream && (
-                <PathsTile title="Dream Job Analysis" accent={PALETTE.blue} teaser={paths.dream.teaser} onOpen={() => onNavigate('/report')} />
+                <PathsTile title="Dream Job Analysis" accent={PALETTE.blue} teaser={paths.dream.teaser} onOpen={() => handleOpenSection('dream')} />
               )}
             </div>
           </section>
@@ -397,7 +444,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   isOpen={openSection === row.id}
                   isLast={careerRows.length === 0 && i === aboutRows.length - 1}
                   onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
-                  onReadFull={() => onNavigate('/report')}
+                  registerRef={(node) => {
+                    accordionRowRefs.current[row.id] = node;
+                  }}
                 />
               ))}
               {careerRows.length > 0 && (
@@ -419,7 +468,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   isOpen={openSection === row.id}
                   isLast={i === careerRows.length - 1}
                   onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
-                  onReadFull={() => onNavigate('/report')}
+                  registerRef={(node) => {
+                    accordionRowRefs.current[row.id] = node;
+                  }}
                 />
               ))}
             </div>
@@ -1289,15 +1340,17 @@ const ReportAccordionRow: React.FC<{
   isOpen: boolean;
   isLast: boolean;
   onToggle: () => void;
-  onReadFull: () => void;
-}> = ({ row, isOpen, isLast, onToggle, onReadFull }) => {
-  const photo = SECTION_VISUALS[row.id];
+  registerRef: (node: HTMLDivElement | null) => void;
+}> = ({ row, isOpen, isLast, onToggle, registerRef }) => {
+  const photo = SECTION_VISUALS[row.visualKey || row.id];
   return (
     <div
+      ref={registerRef}
       style={{
         borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
         background: isOpen ? 'rgba(212,160,36,0.06)' : 'transparent',
         transition: 'background 200ms ease',
+        scrollMarginTop: 80,
       }}
     >
       <button
@@ -1354,44 +1407,141 @@ const ReportAccordionRow: React.FC<{
           </svg>
         </div>
       </button>
-      {isOpen && row.excerpt && (
-        <div style={{ padding: '0 28px 24px 120px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 14.5,
-              fontWeight: 500,
-              lineHeight: 1.6,
-              color: 'rgba(255,255,255,0.85)',
-              margin: 0,
-              maxWidth: 720,
-            }}
-          >
-            {row.excerpt}
-          </p>
-          <button
-            type="button"
-            onClick={onReadFull}
-            style={{
-              background: 'transparent',
-              color: PALETTE.goldBright,
-              border: 'none',
-              padding: 0,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              cursor: 'pointer',
-              alignSelf: 'flex-start',
-              marginTop: 4,
-            }}
-          >
-            Read full section <ArrowRight size={13} />
-          </button>
+      {isOpen && row.content && (
+        <div
+          className="cairnly-accordion-body"
+          style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}
+        >
+          <AccordionContent content={row.content} />
         </div>
       )}
     </div>
   );
 };
+
+// Render the section content the same way ExpandedSectionView used to —
+// HTML → markdown → DOMPurify → react-markdown. Styled for the dark-glass
+// accordion (white type on rgba(18,46,59) background).
+const ACCORDION_MD_COMPONENTS = {
+  h3: ({ children, ...p }: any) => (
+    <h3
+      {...p}
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 900,
+        fontSize: 18,
+        letterSpacing: '-0.015em',
+        color: '#fff',
+        margin: '18px 0 8px 0',
+      }}
+    >
+      {children}
+    </h3>
+  ),
+  h4: ({ children, ...p }: any) => (
+    <h4
+      {...p}
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 900,
+        fontSize: 15,
+        letterSpacing: '-0.01em',
+        color: '#fff',
+        margin: '14px 0 6px 0',
+      }}
+    >
+      {children}
+    </h4>
+  ),
+  h5: ({ children, ...p }: any) => (
+    <h5
+      {...p}
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 900,
+        fontSize: 11,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: PALETTE.goldBright,
+        margin: '14px 0 6px 0',
+      }}
+    >
+      {children}
+    </h5>
+  ),
+  p: ({ children, ...p }: any) => (
+    <p
+      {...p}
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 14.5,
+        fontWeight: 500,
+        lineHeight: 1.6,
+        color: 'rgba(255,255,255,0.85)',
+        margin: '0 0 12px 0',
+      }}
+    >
+      {children}
+    </p>
+  ),
+  ul: ({ children, ...p }: any) => (
+    <ul {...p} style={{ paddingLeft: 22, margin: '6px 0 14px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {children}
+    </ul>
+  ),
+  ol: ({ children, ...p }: any) => (
+    <ol {...p} style={{ paddingLeft: 22, margin: '6px 0 14px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {children}
+    </ol>
+  ),
+  li: ({ children, ...p }: any) => (
+    <li
+      {...p}
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 14,
+        fontWeight: 500,
+        lineHeight: 1.55,
+        color: 'rgba(255,255,255,0.85)',
+      }}
+    >
+      {children}
+    </li>
+  ),
+  strong: ({ children, ...p }: any) => (
+    <strong {...p} style={{ color: '#fff', fontWeight: 700 }}>
+      {children}
+    </strong>
+  ),
+  em: ({ children, ...p }: any) => (
+    <em {...p} style={{ color: 'rgba(255,255,255,0.9)' }}>
+      {children}
+    </em>
+  ),
+  a: ({ children, href, ...p }: any) => (
+    <a
+      {...p}
+      href={href}
+      target={href?.startsWith('http') ? '_blank' : undefined}
+      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+      style={{ color: PALETTE.goldBright, textDecoration: 'underline' }}
+    >
+      {children}
+    </a>
+  ),
+  hr: () => (
+    <hr
+      style={{
+        border: 'none',
+        borderTop: '1px solid rgba(255,255,255,0.10)',
+        margin: '18px 0',
+      }}
+    />
+  ),
+};
+
+const AccordionContent: React.FC<{ content: string }> = ({ content }) => (
+  <ReactMarkdown remarkPlugins={[remarkGfm]} components={ACCORDION_MD_COMPONENTS}>
+    {DOMPurify.sanitize(htmlToMarkdown(content))}
+  </ReactMarkdown>
+);

@@ -31,7 +31,6 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Chat = lazy(() => import("./pages/Chat"));
-const Report = lazy(() => import("./pages/Report"));
 const ReportProcessing = lazy(() => import("./pages/ReportProcessing"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -42,6 +41,8 @@ const ColorTest = lazy(() => import("./pages/ColorTest"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const Journal = lazy(() => import("./pages/Journal"));
 const JournalArticle = lazy(() => import("./pages/JournalArticle"));
+const NewsletterConfirm = lazy(() => import("./pages/NewsletterConfirm"));
+const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -94,7 +95,6 @@ const App = () => {
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/assessment" element={<Assessment />} />
               <Route path="/chat" element={<Chat />} />
-              <Route path="/report" element={<Report />} />
               <Route path="/report-processing" element={<ReportProcessing />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-conditions" element={<TermsOfService />} />
@@ -106,6 +106,8 @@ const App = () => {
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/journal/:slug" element={<JournalArticle />} />
+              <Route path="/newsletter/confirm" element={<NewsletterConfirm />} />
+              <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
