@@ -4,7 +4,7 @@
 // § Removed from prior dashboard).
 
 import React from 'react';
-import { LogOut, User } from 'lucide-react';
+import { ArrowLeft, LogOut, User } from 'lucide-react';
 import { PALETTE, FONT_BODY, LOGO_INVERTED_URL } from './dashboardV2Shared';
 
 interface DashboardAppNavProps {
@@ -12,6 +12,10 @@ interface DashboardAppNavProps {
   pageLabel?: string;
   onProfile: () => void;
   onSignOut: () => void;
+  // Optional back-link on the far left. Used by sub-pages (e.g. /jobs) that
+  // want a clear path back to /dashboard.
+  onBack?: () => void;
+  backLabel?: string;
 }
 
 export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
@@ -19,6 +23,8 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
   pageLabel = 'Dashboard',
   onProfile,
   onSignOut,
+  onBack,
+  backLabel = 'Back',
 }) => (
   <header
     style={{
@@ -34,6 +40,27 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
     }}
   >
     <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px 10px 6px 0',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 13,
+            color: PALETTE.inkMuted,
+          }}
+        >
+          <ArrowLeft size={16} /> {backLabel}
+        </button>
+      )}
       <img src={LOGO_INVERTED_URL} alt="Cairnly" style={{ height: 44, width: 'auto' }} />
       <span style={{ color: PALETTE.tan }}>|</span>
       <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: PALETTE.inkMuted }}>

@@ -15,7 +15,7 @@ interface LocationInputProps {
 }
 
 // Countries supported by most job APIs
-const COUNTRIES = [
+export const COUNTRIES = [
   { code: 'us', label: 'United States' },
   { code: 'gb', label: 'United Kingdom' },
   { code: 'ca', label: 'Canada' },
