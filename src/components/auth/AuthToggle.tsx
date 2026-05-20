@@ -13,13 +13,14 @@ const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
     // On login page, link to payment flow instead of signup
     return (
       <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm" style={{ color: '#4B6373' }}>
           No account yet?
         </p>
         <Link to="/payment">
           <Button
             variant="link"
-            className="p-0 h-auto font-medium"
+            className="p-0 h-auto font-semibold"
+            style={{ color: '#1F8282' }}
           >
             Get your access code first
           </Button>
@@ -31,13 +32,14 @@ const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
   // On signup page, allow toggle back to login
   return (
     <div className="mt-6 text-center">
-      <p className="text-sm text-gray-600">
+      <p className="text-sm" style={{ color: '#4B6373' }}>
         Already have an account?
       </p>
       <Button
         variant="link"
         onClick={onToggle}
-        className="p-0 h-auto font-medium"
+        className="p-0 h-auto font-semibold"
+        style={{ color: '#1F8282' }}
       >
         Sign in here
       </Button>

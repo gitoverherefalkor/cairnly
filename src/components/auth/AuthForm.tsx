@@ -48,8 +48,11 @@ const AuthForm = ({ isLogin }: AuthFormProps) => {
     <div className="space-y-4">
       {/* Hint about previous sign-in method */}
       {isLogin && lastMethodLabel && (
-        <p className="text-xs text-center text-muted-foreground">
-          You last signed in with <span className="font-medium text-foreground">{lastMethodLabel}</span>
+        <p className="text-xs text-center" style={{ color: '#6B7F8B' }}>
+          You last signed in with{' '}
+          <span className="font-semibold" style={{ color: '#122E3B' }}>
+            {lastMethodLabel}
+          </span>
         </p>
       )}
 
@@ -63,16 +66,17 @@ const AuthForm = ({ isLogin }: AuthFormProps) => {
       <button
         type="button"
         onClick={() => setShowEmailForm(!showEmailForm)}
-        className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="w-full flex items-center justify-center gap-3 py-2 text-sm transition-colors"
+        style={{ color: '#4B6373' }}
       >
-        <div className="flex-1 border-t" />
-        <span className="px-2 flex items-center gap-1 whitespace-nowrap">
+        <div className="flex-1 h-px" style={{ background: 'rgba(75,99,115,0.18)' }} />
+        <span className="px-1 flex items-center gap-1 whitespace-nowrap font-medium">
           {isLogin ? 'Or sign in with email' : 'Or continue with email'}
           <ChevronDown
-            className={`h-4 w-4 transition-transform duration-200 ${showEmailForm ? 'rotate-180' : ''}`}
+            className={`h-3.5 w-3.5 transition-transform duration-200 ${showEmailForm ? 'rotate-180' : ''}`}
           />
         </span>
-        <div className="flex-1 border-t" />
+        <div className="flex-1 h-px" style={{ background: 'rgba(75,99,115,0.18)' }} />
       </button>
 
       {showEmailForm && (

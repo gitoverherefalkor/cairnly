@@ -8,16 +8,14 @@ const AuthNavigation = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="mt-6 text-center">
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/')}
-        className="text-sm"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Homepage
-      </Button>
-    </div>
+    <Button
+      variant="ghost"
+      onClick={() => navigate('/')}
+      className="text-sm text-white/70 hover:text-white hover:bg-white/5 font-semibold"
+    >
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      Back to Homepage
+    </Button>
   );
 };
 

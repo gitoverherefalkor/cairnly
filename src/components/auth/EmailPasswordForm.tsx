@@ -211,18 +211,26 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
     return (
       <div className="text-center space-y-4 py-2">
         <div className="flex justify-center">
-          <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+          <div
+            className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+            style={{
+              background: 'rgba(34,197,94,0.12)',
+              borderColor: 'rgba(34,197,94,0.32)',
+            }}
+          >
+            <CheckCircle className="h-8 w-8" style={{ color: '#16A34A' }} />
           </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-atlas-navy">{t('emailVerification.checkYourEmail')}</h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <h3 className="text-lg font-bold" style={{ color: '#122E3B' }}>
+            {t('emailVerification.checkYourEmail')}
+          </h3>
+          <p className="text-sm mt-1" style={{ color: '#4B6373' }}>
             {t('emailVerification.weSentLink')}
           </p>
-          <p className="text-sm font-medium text-atlas-navy mt-1">{sentToEmail}</p>
+          <p className="text-sm font-semibold mt-1" style={{ color: '#122E3B' }}>{sentToEmail}</p>
         </div>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs" style={{ color: '#6B7F8B' }}>
           {t('emailVerification.clickLink')}
         </p>
         <div className="pt-2 space-y-2">
@@ -231,7 +239,8 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             size="sm"
             onClick={handleResendEmail}
             disabled={isResending}
-            className="w-full"
+            className="w-full rounded-full border-[rgba(31,130,130,0.32)] bg-transparent font-bold"
+            style={{ color: '#1F8282' }}
           >
             {isResending ? (
               <><Loader2 className="h-3 w-3 mr-2 animate-spin" /> {t('emailVerification.sending')}</>
@@ -239,7 +248,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
               <><RefreshCw className="h-3 w-3 mr-2" /> {t('emailVerification.resend')}</>
             )}
           </Button>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs" style={{ color: '#9CA3AF' }}>
             {t('emailVerification.didntReceive')}
           </p>
         </div>
@@ -252,7 +261,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
       {!isLogin && (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium mb-1">
+            <label htmlFor="firstName" className="block text-[13px] font-semibold mb-1.5 text-[#122E3B]">
               {t('firstName')}
             </label>
             <div className="relative">
@@ -264,13 +273,13 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
                 required={!isLogin}
                 value={formData.firstName}
                 onChange={handleInputChange}
-                className="pl-10"
+                className="pl-10 bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40"
                 placeholder={t('placeholders.firstName')}
               />
             </div>
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium mb-1">
+            <label htmlFor="lastName" className="block text-[13px] font-semibold mb-1.5 text-[#122E3B]">
               {t('lastName')}
             </label>
             <div className="relative">
@@ -282,7 +291,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
                 required={!isLogin}
                 value={formData.lastName}
                 onChange={handleInputChange}
-                className="pl-10"
+                className="pl-10 bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40"
                 placeholder={t('placeholders.lastName')}
               />
             </div>
@@ -291,7 +300,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
+        <label htmlFor="email" className="block text-[13px] font-semibold mb-1.5 text-[#122E3B]">
           {t('email')}
         </label>
         <div className="relative">
@@ -303,7 +312,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             required
             value={formData.email}
             onChange={handleInputChange}
-            className="pl-10"
+            className="pl-10 bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40"
             placeholder={t('placeholders.email')}
           />
         </div>
@@ -318,7 +327,8 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             <button
               type="button"
               onClick={() => navigate('/forgot-password')}
-              className="text-xs text-atlas-navy hover:underline"
+              className="text-xs font-semibold hover:underline"
+              style={{ color: '#1F8282' }}
             >
               {t('forgotPassword')}
             </button>
@@ -333,7 +343,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             required
             value={formData.password}
             onChange={handleInputChange}
-            className="pl-10 pr-10"
+            className="pl-10 pr-10 bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40"
             placeholder={isLogin ? t('placeholders.enterPassword') : t('placeholders.createPassword')}
             minLength={8}
           />
@@ -346,7 +356,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
           </button>
         </div>
         {!isLogin && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-[11.5px] font-medium mt-1.5" style={{ color: '#6B7F8B' }}>
             {t('passwordMinLength')}
           </p>
         )}
@@ -354,7 +364,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
 
       {!isLogin && (
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+          <label htmlFor="confirmPassword" className="block text-[13px] font-semibold mb-1.5 text-[#122E3B]">
             {t('confirmPassword')}
           </label>
           <div className="relative">
@@ -366,7 +376,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
               required
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              className="pl-10"
+              className="pl-10 bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40"
               placeholder={t('placeholders.repeatPassword')}
               minLength={8}
             />
@@ -380,7 +390,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
         </Alert>
       )}
 
-      <Button type="submit" disabled={isLoading || disabled} className="w-full">
+      <Button
+        type="submit"
+        disabled={isLoading || disabled}
+        className="w-full mt-1 rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
+      >
         {isLoading ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />

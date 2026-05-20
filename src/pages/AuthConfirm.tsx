@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import AuthShell from '@/components/auth/AuthShell';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 // Check if user has a profile (existing user) or is brand new.
@@ -206,60 +206,72 @@ const AuthConfirm = () => {
     handleAuthConfirm();
   }, [searchParams, navigate]);
 
+  const titleByStatus =
+    status === 'loading'
+      ? 'Confirming your email…'
+      : status === 'success'
+        ? 'Email Confirmed!'
+        : 'Confirmation Failed';
+
+  const iconCircleStyles =
+    status === 'success'
+      ? { bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.32)', color: '#16A34A' }
+      : status === 'error'
+        ? { bg: 'rgba(220,38,38,0.10)', border: 'rgba(220,38,38,0.28)', color: '#DC2626' }
+        : { bg: 'rgba(39,161,161,0.10)', border: 'rgba(39,161,161,0.30)', color: '#1F8282' };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <img src="/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto mx-auto mb-2" />
-          <p className="text-gray-600">Email Confirmation</p>
+    <AuthShell eyebrow="Email confirmation" title={titleByStatus}>
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div
+            className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+            style={{ background: iconCircleStyles.bg, borderColor: iconCircleStyles.border }}
+          >
+            {status === 'loading' && (
+              <Loader2 className="h-8 w-8 animate-spin" style={{ color: iconCircleStyles.color }} />
+            )}
+            {status === 'success' && (
+              <CheckCircle className="h-8 w-8" style={{ color: iconCircleStyles.color }} />
+            )}
+            {status === 'error' && (
+              <XCircle className="h-8 w-8" style={{ color: iconCircleStyles.color }} />
+            )}
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center flex items-center justify-center gap-2">
-              {status === 'loading' && <Loader2 className="h-5 w-5 animate-spin" />}
-              {status === 'success' && <CheckCircle className="h-5 w-5 text-green-600" />}
-              {status === 'error' && <XCircle className="h-5 w-5 text-red-600" />}
-              
-              {status === 'loading' && 'Confirming your email...'}
-              {status === 'success' && 'Email Confirmed!'}
-              {status === 'error' && 'Confirmation Failed'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Alert variant={status === 'error' ? "destructive" : "default"}>
-              <AlertDescription className="text-center">
-                {message}
-              </AlertDescription>
-            </Alert>
+        <Alert variant={status === 'error' ? 'destructive' : 'default'} className="bg-transparent">
+          <AlertDescription className="text-center" style={{ color: '#1F2937' }}>
+            {message}
+          </AlertDescription>
+        </Alert>
 
-            {status === 'success' && (
-              <p className="text-sm text-gray-600 text-center mt-4">
-                Redirecting you to your dashboard...
-              </p>
-            )}
+        {status === 'success' && (
+          <p className="text-sm" style={{ color: '#4B6373' }}>
+            Redirecting you to your dashboard…
+          </p>
+        )}
 
-            {status === 'error' && (
-              <div className="mt-6 text-center space-y-2">
-                <Button
-                  onClick={() => navigate('/auth')}
-                  className="w-full"
-                >
-                  Try Signing Up Again
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/')}
-                  className="w-full"
-                >
-                  Back to Homepage
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {status === 'error' && (
+          <div className="mt-2 space-y-2">
+            <Button
+              onClick={() => navigate('/auth')}
+              className="w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
+            >
+              Try Signing Up Again
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="w-full rounded-full border bg-transparent font-bold"
+              style={{ color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' }}
+            >
+              Back to Homepage
+            </Button>
+          </div>
+        )}
       </div>
-    </div>
+    </AuthShell>
   );
 };
 

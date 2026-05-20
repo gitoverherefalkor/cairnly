@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AuthHeader from '@/components/auth/AuthHeader';
+import AuthShell from '@/components/auth/AuthShell';
 import AuthForm from '@/components/auth/AuthForm';
 import AuthToggle from '@/components/auth/AuthToggle';
 import AuthNavigation from '@/components/auth/AuthNavigation';
@@ -43,29 +42,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <AuthHeader />
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </CardTitle>
-            {!isLogin && (
-              <p className="text-center text-sm text-muted-foreground">
-                Your personal info stays secure in the survey, and you can easily find your results later.
-              </p>
-            )}
-          </CardHeader>
-          <CardContent>
-            <AuthForm isLogin={isLogin} />
-            <AuthToggle isLogin={isLogin} onToggle={handleToggle} />
-            <AuthNavigation />
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <AuthShell
+      eyebrow={isLogin ? 'Welcome back' : 'Almost there'}
+      title={isLogin ? 'Sign in to your account' : 'Create your account'}
+      subtitle={
+        !isLogin
+          ? 'Your personal info stays secure in the survey, and you can easily find your results later.'
+          : undefined
+      }
+      width={isLogin ? 'narrow' : 'wide'}
+      footer={<AuthNavigation />}
+    >
+      <AuthForm isLogin={isLogin} />
+      <AuthToggle isLogin={isLogin} onToggle={handleToggle} />
+    </AuthShell>
   );
 };
 
