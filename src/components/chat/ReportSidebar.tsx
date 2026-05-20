@@ -183,8 +183,8 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         {/* About You Chapter */}
         <div className="px-4 py-2">
           <p
-            className="text-[10px] font-heading font-black uppercase mb-2.5 text-white/55"
-            style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+            className="text-[10px] font-heading font-bold uppercase mb-2.5 text-white/55"
+            style={{ letterSpacing: '0.22em', fontWeight: 700 }}
           >{t('chapters.aboutYou')}</p>
           <div className="space-y-1">
             {ABOUT_YOU_SECTIONS.map((section) => (
@@ -203,8 +203,8 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         {/* Career Suggestions Chapter */}
         <div className="px-4 py-2 mt-2">
           <p
-            className="text-[10px] font-heading font-black uppercase mb-2.5 text-white/55"
-            style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+            className="text-[10px] font-heading font-bold uppercase mb-2.5 text-white/55"
+            style={{ letterSpacing: '0.22em', fontWeight: 700 }}
           >{t('chapters.careerSuggestions')}</p>
           <div className="space-y-1">
             {CAREER_SECTIONS.map((section) => {
@@ -365,7 +365,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
               <FileText className="h-[15px] w-[15px] text-[#EFBE48]" />
               <span
                 className="font-heading uppercase text-[11px] text-[#EFBE48]"
-                style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+                style={{ letterSpacing: '0.22em', fontWeight: 700 }}
               >
                 {t('chat:session.reportSections')}
               </span>

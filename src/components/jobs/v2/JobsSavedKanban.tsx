@@ -182,7 +182,7 @@ const KanbanColumn: React.FC<{
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 13,
                 color: '#fff',
                 letterSpacing: '-0.01em',
@@ -273,7 +273,7 @@ const KanbanJobCard: React.FC<{
         <h5
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 14,
             letterSpacing: '-0.01em',
             color: '#fff',
@@ -293,7 +293,7 @@ const KanbanJobCard: React.FC<{
               color: tone,
               border: `1px solid ${tone}44`,
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 11,
               letterSpacing: '0.02em',
             }}

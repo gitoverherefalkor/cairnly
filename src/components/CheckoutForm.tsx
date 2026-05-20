@@ -253,7 +253,7 @@ export function CheckoutForm() {
       <div className="mb-4">
         <span
           className="font-heading uppercase text-[11px]"
-          style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 900 }}
+          style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
         >
           Your Information
         </span>

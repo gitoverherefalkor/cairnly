@@ -408,7 +408,7 @@ const markdownComponents = {
       className="text-[28px] mt-8 mb-4 font-heading first:mt-0 scroll-mt-[120px]"
       style={{
         color: '#122E3B',
-        fontWeight: 900,
+        fontWeight: 700,
         letterSpacing: '-0.02em',
         lineHeight: 1.15,
         textWrap: 'pretty' as any,
@@ -442,7 +442,7 @@ const markdownComponents = {
         style={{
           color: '#1F8282',
           fontSize: 11,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: '0.24em',
         }}
         {...props}
@@ -593,7 +593,7 @@ const SequentialSubsections: React.FC<{
               className="text-[28px] mt-8 mb-4 font-heading first:mt-0"
               style={{
                 color: '#122E3B',
-                fontWeight: 900,
+                fontWeight: 700,
                 letterSpacing: '-0.02em',
                 lineHeight: 1.15,
                 textWrap: 'pretty' as any,
@@ -1122,7 +1122,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               className="text-[28px] mt-4 mb-4 font-heading"
               style={{
                 color: '#122E3B',
-                fontWeight: 900,
+                fontWeight: 700,
                 letterSpacing: '-0.02em',
                 lineHeight: 1.15,
                 textWrap: 'pretty' as any,

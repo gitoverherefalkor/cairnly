@@ -54,7 +54,7 @@ const HowItWorks: React.FC = () => {
     const copy = (
       <div className={`md:col-span-7 ${imageLeft ? 'order-1 md:order-2' : ''}`}>
         <div className="flex items-center gap-4 mb-4">
-          <span className="font-heading font-black text-[#C9B690] text-[60px] leading-none">
+          <span className="font-heading font-bold text-[#C9B690] text-[60px] leading-none">
             {String(idx + 1).padStart(2, '0')}
           </span>
           <span className="text-[#1F8282] font-bold text-[11px] tracking-[0.22em] uppercase">{eyebrow}</span>

@@ -235,7 +235,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         {/* Gold editorial eyebrow */}
         <span
           className="font-heading uppercase text-[11px] mb-3"
-          style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 900 }}
+          style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
         >
           Step 1 of your assessment
         </span>
@@ -244,7 +244,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         <h1
           className="font-heading text-center text-white text-[28px] sm:text-[36px] m-0 max-w-2xl"
           style={{
-            fontWeight: 900,
+            fontWeight: 700,
             letterSpacing: '-0.025em',
             lineHeight: 1.1,
             textWrap: 'pretty' as any,

@@ -54,7 +54,7 @@ const ColorTest = () => {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 py-8 px-6 text-center sticky top-0 z-50">
-        <h1 className="text-3xl font-black text-gray-900 mb-2">Color Palette Comparison</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Color Palette Comparison</h1>
         <p className="text-gray-500 font-medium">Same layout, same teal accent, different primary dark color. Scroll to compare.</p>
         <a href="/" className="text-[#27A1A1] font-bold text-sm mt-3 inline-block hover:underline">← Back to homepage</a>
       </div>
@@ -66,9 +66,9 @@ const ColorTest = () => {
           <div className="bg-white border-b border-gray-200 py-4 px-6 sticky top-[108px] z-40">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="text-2xl font-black text-gray-900">{idx + 1}.</span>
+                <span className="text-2xl font-bold text-gray-900">{idx + 1}.</span>
                 <div>
-                  <h2 className="text-lg font-black text-gray-900">{p.name}</h2>
+                  <h2 className="text-lg font-bold text-gray-900">{p.name}</h2>
                   <p className="text-sm text-gray-400 font-medium">{p.note}</p>
                 </div>
               </div>
@@ -87,7 +87,7 @@ const ColorTest = () => {
               <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
                 {/* Left */}
                 <div className="lg:w-1/2 text-center lg:text-left">
-                  <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white mb-8 leading-[0.95] tracking-tighter">
+                  <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-8 leading-[0.95] tracking-tighter">
                     Stop Guessing. <br />
                     <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${p.accent}, ${p.accent}cc)` }}>
                       Start Thriving.
@@ -149,7 +149,7 @@ const ColorTest = () => {
           <section className="py-20 bg-gray-50">
             <div className="max-w-5xl mx-auto px-6">
               <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-black mb-4 leading-tight tracking-tight" style={{ color: p.primary }}>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight" style={{ color: p.primary }}>
                   Not another personality test
                 </h2>
                 <p className="text-lg text-gray-500 font-medium max-w-2xl mx-auto">
@@ -169,7 +169,7 @@ const ColorTest = () => {
                       <item.icon className="w-6 h-6" style={{ color: p.accent }} />
                     </div>
                     <div>
-                      <h4 className="text-lg font-black mb-2" style={{ color: p.primary }}>{item.title}</h4>
+                      <h4 className="text-lg font-bold mb-2" style={{ color: p.primary }}>{item.title}</h4>
                       <p className="text-gray-500 leading-relaxed font-medium text-sm">{item.desc}</p>
                     </div>
                   </div>
@@ -182,7 +182,7 @@ const ColorTest = () => {
           <section className="py-24 text-center relative overflow-hidden" style={{ backgroundColor: p.primary }}>
             <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${p.primary}, transparent, ${p.accent}1a)` }} />
             <div className="max-w-3xl mx-auto px-6 relative z-10">
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tighter leading-tight">Ready to Stop Guessing?</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tighter leading-tight">Ready to Stop Guessing?</h2>
               <p className="text-lg mb-10 font-medium leading-relaxed" style={{ color: p.textMuted }}>
                 Get clarity on your career direction. Take the assessment, get honest recommendations.
               </p>
@@ -192,7 +192,7 @@ const ColorTest = () => {
               >
                 Get Your Cairnly Assessment - €39
               </button>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] mt-6" style={{ color: `${p.textMuted}50` }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.4em] mt-6" style={{ color: `${p.textMuted}50` }}>
                 Beta access. Full refund if you're not satisfied.
               </p>
             </div>
@@ -205,7 +205,7 @@ const ColorTest = () => {
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${p.accent}, ${p.accent}cc)` }}>
                   <Layers className="text-white w-5 h-5" />
                 </div>
-                <span className="text-white text-lg font-black tracking-tighter">ATLAS</span>
+                <span className="text-white text-lg font-bold tracking-tighter">ATLAS</span>
               </div>
               <div className="flex items-center gap-6">
                 <span className="text-white/70 text-xs font-bold uppercase tracking-widest">How It Works</span>

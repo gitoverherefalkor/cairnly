@@ -558,7 +558,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                   style={{
                     color: '#C8891A',
                     letterSpacing: '0.24em',
-                    fontWeight: 900,
+                    fontWeight: 700,
                   }}
                 >
                   Section {currentSectionIndex + 1} · Question {currentQuestionInSection} of {totalQuestionsInSection}

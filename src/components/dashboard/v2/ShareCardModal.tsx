@@ -118,7 +118,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             <div
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
@@ -127,7 +127,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             >
               SHARE · LINKEDIN-READY
             </div>
-            <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0' }}>
+            <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0' }}>
               Your career card
             </h3>
           </div>
@@ -182,7 +182,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             <div
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
@@ -293,7 +293,7 @@ const ShareCardB: React.FC<{
         <span
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 12,
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
@@ -310,7 +310,7 @@ const ShareCardB: React.FC<{
               top: -12,
               fontFamily: FONT_DISPLAY,
               fontSize: 96,
-              fontWeight: 900,
+              fontWeight: 700,
               color: PALETTE.gold,
               lineHeight: 1,
               opacity: 0.5,
@@ -381,7 +381,7 @@ const ShareCardB: React.FC<{
           <span
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
@@ -393,7 +393,7 @@ const ShareCardB: React.FC<{
           <h2
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 38,
               letterSpacing: '-0.025em',
               lineHeight: 1.05,
@@ -430,7 +430,7 @@ const ShareCardB: React.FC<{
                 }}
               />
             </div>
-            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 16, color: PALETTE.goldBright }}>
+            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PALETTE.goldBright }}>
               {heroMatchPct}%
             </span>
           </div>

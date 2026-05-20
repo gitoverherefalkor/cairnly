@@ -112,8 +112,8 @@ export const SurveyNavigation: React.FC<SurveyNavigationProps> = ({
     >
       {/* Gold editorial eyebrow */}
       <div
-        className="text-[11px] font-heading font-black uppercase mb-4 text-[#EFBE48]"
-        style={{ letterSpacing: '0.24em', fontWeight: 900 }}
+        className="text-[11px] font-heading font-bold uppercase mb-4 text-[#EFBE48]"
+        style={{ letterSpacing: '0.24em', fontWeight: 700 }}
       >
         Your Progress
       </div>

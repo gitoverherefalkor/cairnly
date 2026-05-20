@@ -88,7 +88,7 @@ const NotFound = () => {
         {/* Eyebrow */}
         <span
           className="font-heading uppercase text-[11px] mt-9"
-          style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 900 }}
+          style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
         >
           You've wandered off the trail
         </span>
@@ -97,7 +97,7 @@ const NotFound = () => {
         <h1
           className="font-heading text-center text-white m-0 mt-3.5 text-[40px] sm:text-[56px]"
           style={{
-            fontWeight: 900,
+            fontWeight: 700,
             letterSpacing: '-0.03em',
             lineHeight: 1,
             textWrap: 'pretty' as any,

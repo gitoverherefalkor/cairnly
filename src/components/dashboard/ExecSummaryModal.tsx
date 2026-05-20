@@ -50,7 +50,7 @@ function renderExecContent(content: string): React.ReactNode[] {
           key={index}
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -148,7 +148,7 @@ export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onC
             <div
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 11,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',

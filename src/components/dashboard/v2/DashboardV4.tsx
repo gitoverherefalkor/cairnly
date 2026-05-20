@@ -812,7 +812,7 @@ const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = f
         style={{
           fontFamily: FONT_DISPLAY,
           fontSize: 11,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: '0.20em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.5)',
@@ -844,7 +844,7 @@ const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = f
     <span
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: large ? 18 : 14,
         color: PALETTE.goldBright,
         minWidth: large ? 50 : undefined,
@@ -880,7 +880,7 @@ const PathsTile: React.FC<{ title: string; accent: string; teaser: string; onOpe
     <span
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 11,
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
@@ -945,7 +945,7 @@ const ProfilePanel: React.FC<{ title: string; sub: string; children: React.React
       <span
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 11,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -1092,7 +1092,7 @@ const UnlockToolkit: React.FC<{
                   style={{
                     fontFamily: FONT_DISPLAY,
                     fontSize: 16,
-                    fontWeight: 900,
+                    fontWeight: 700,
                     color: PALETTE.goldBright,
                     letterSpacing: '0.12em',
                   }}
@@ -1261,7 +1261,7 @@ const SharePromoBlock: React.FC<{
       <span
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 11,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
@@ -1369,7 +1369,7 @@ const SharePromoBlock: React.FC<{
         <span
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 9,
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
@@ -1538,7 +1538,7 @@ const CareerComparisonPanel: React.FC<{
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 11,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -1647,7 +1647,7 @@ const CareerTabs: React.FC<{
           <span
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 10,
               opacity: active ? 0.7 : 0.5,
             }}
@@ -1700,7 +1700,7 @@ const ACCORDION_MD_COMPONENTS = {
       {...p}
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 11,
         letterSpacing: '0.18em',
         textTransform: 'uppercase',

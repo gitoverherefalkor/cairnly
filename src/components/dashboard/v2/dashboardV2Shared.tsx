@@ -126,7 +126,7 @@ export const Eyebrow: React.FC<{
   <span
     style={{
       fontFamily: FONT_DISPLAY,
-      fontWeight: 900,
+      fontWeight: 700,
       fontSize: subtle ? 10 : 11,
       letterSpacing: '0.24em',
       textTransform: 'uppercase',

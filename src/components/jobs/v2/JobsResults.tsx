@@ -273,7 +273,7 @@ const CareerGrouping: React.FC<{
         <h2
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 28,
             letterSpacing: '-0.025em',
             color: '#fff',
@@ -381,7 +381,7 @@ const JobCardCream: React.FC<{
             <h4
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 18,
                 letterSpacing: '-0.015em',
                 color: PALETTE.canvasDeep,
@@ -486,7 +486,7 @@ const JobCardCream: React.FC<{
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 17,
                 color: tone,
                 letterSpacing: '-0.01em',

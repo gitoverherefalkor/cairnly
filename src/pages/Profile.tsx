@@ -68,7 +68,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ icon: Icon, title, danger = f
           style={{
             color: danger ? '#DC2626' : '#1F8282',
             letterSpacing: '0.22em',
-            fontWeight: 900,
+            fontWeight: 700,
           }}
         >
           {title}
@@ -222,7 +222,7 @@ const Profile = () => {
         <div className="mb-8">
           <span
             className="font-heading uppercase text-[11px]"
-            style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 900 }}
+            style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
           >
             Your Account
           </span>
@@ -230,7 +230,7 @@ const Profile = () => {
             className="font-heading text-white m-0 mt-2.5"
             style={{
               fontSize: 'clamp(28px, 5vw, 44px)',
-              fontWeight: 900,
+              fontWeight: 700,
               letterSpacing: '-0.025em',
               lineHeight: 1.05,
             }}

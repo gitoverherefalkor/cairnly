@@ -87,7 +87,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
           <div
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 11,
               letterSpacing: '0.24em',
               textTransform: 'uppercase',
@@ -196,7 +196,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 11,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
@@ -243,7 +243,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               <div
                 style={{
                   fontFamily: FONT_DISPLAY,
-                  fontWeight: 900,
+                  fontWeight: 700,
                   fontSize: 11,
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',

@@ -89,7 +89,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           <h1
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 48,
               letterSpacing: '-0.03em',
               color: '#fff',
@@ -322,7 +322,7 @@ const CareerPickerCard: React.FC<{
     <div
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 17,
         letterSpacing: '-0.01em',
         color: '#fff',

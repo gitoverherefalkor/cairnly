@@ -49,7 +49,7 @@ const AuthShell: React.FC<AuthShellProps> = ({
             style={{
               color: '#EFBE48',
               letterSpacing: '0.24em',
-              fontWeight: 900,
+              fontWeight: 700,
             }}
           >
             {eyebrow}
@@ -60,7 +60,7 @@ const AuthShell: React.FC<AuthShellProps> = ({
         <h1
           className="font-heading text-center text-white text-[28px] sm:text-[36px] m-0 max-w-xl"
           style={{
-            fontWeight: 900,
+            fontWeight: 700,
             letterSpacing: '-0.025em',
             lineHeight: 1.1,
             textWrap: 'pretty' as any,
