@@ -379,13 +379,18 @@
   transform-origin: 120px 102px;
 }
 
-/* Survey background — the cairn-trail photo, heavily overlaid with the
-   teal-navy canvas colour (#213F4F) so it reads as a subtle atmospheric
-   backdrop rather than a distracting image. The overlay is slightly lighter
-   at the top (sky shows through faintly) and darker at the bottom. */
+/* Survey + Chat background — cairn-trail photo with the V4 3-stop overlay
+   so /assessment and /chat share the same atmospheric backdrop as the rest
+   of the dark surfaces (dashboard, jobs, journal). Lighter at the top
+   (sky bleeds through faintly), deeper toward the bottom for readability. */
 .survey-bg {
   background-image:
-    linear-gradient(hsl(201 41% 22% / 0.55), hsl(201 41% 22% / 0.72)),
+    linear-gradient(
+      180deg,
+      rgba(33, 63, 79, 0.78) 0%,
+      rgba(18, 46, 59, 0.92) 60%,
+      rgba(18, 46, 59, 0.96) 100%
+    ),
     url('/canvas_image_cairn_trail_hr.jpg');
   background-size: cover;
   background-position: center;

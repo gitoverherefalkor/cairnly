@@ -531,8 +531,38 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                 : 'slide-in-from-left-16'
             }`}
           >
-            <Card>
-              <CardContent className="space-y-6 pt-4 sm:pt-6 px-3 sm:px-6">
+            <div
+              className="relative overflow-hidden rounded-[22px] border shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)]"
+              style={{
+                background: '#FDFBF2',
+                borderColor: 'rgba(201, 182, 144, 0.6)',
+              }}
+            >
+              {/* Soft gold radial bloom top-right */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute"
+                style={{
+                  top: -60,
+                  right: -60,
+                  width: 280,
+                  height: 280,
+                  background:
+                    'radial-gradient(circle, rgba(212,160,36,0.18) 0%, rgba(212,160,36,0) 70%)',
+                }}
+              />
+              <div className="relative space-y-6 pt-5 sm:pt-7 px-4 sm:px-8 pb-5 sm:pb-7">
+                {/* Gold editorial eyebrow */}
+                <div
+                  className="font-heading uppercase text-[11px]"
+                  style={{
+                    color: '#C8891A',
+                    letterSpacing: '0.24em',
+                    fontWeight: 900,
+                  }}
+                >
+                  Section {currentSectionIndex + 1} · Question {currentQuestionInSection} of {totalQuestionsInSection}
+                </div>
                 <div className="text-base sm:text-lg font-light text-gray-900">
                   <QuestionRenderer
                     question={currentQuestion}
@@ -543,7 +573,10 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                 </div>
 
                 {/* Navigation — bottom of the question card */}
-                <div className="flex justify-between items-center border-t border-border pt-4">
+                <div
+                  className="flex justify-between items-center pt-4"
+                  style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
+                >
                   <Button
                     variant="ghost"
                     onClick={handleBack}
@@ -561,7 +594,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                       isLoading ||
                       isSubmitting
                     }
-                    className="bg-atlas-teal text-white hover:bg-atlas-teal/90"
+                    className="bg-atlas-teal text-white hover:bg-atlas-teal/90 rounded-full px-5"
                   >
                     {isSubmitting ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -578,8 +611,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     )}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>

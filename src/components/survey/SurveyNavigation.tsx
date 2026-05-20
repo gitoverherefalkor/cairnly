@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Lock, LockOpen, Loader2, Mountain } from 'lucide-react';
 import { useAssessmentSession } from '@/components/assessment/AssessmentSessionContext';
 
@@ -23,7 +22,7 @@ interface SurveyNavigationProps {
 // sidebar when the user crosses a progress milestone. Mustard card so it reads
 // as a distinct, positive beat rather than blending into the survey chrome.
 const MilestoneNotice: React.FC<{ message: string }> = ({ message }) => (
-  <div className="mt-4 pt-4 border-t border-gray-100 px-3">
+  <div className="mt-5 pt-5 border-t border-white/10 px-1">
     <div className="flex items-start gap-3 rounded-lg bg-atlas-gold p-3 animate-in fade-in slide-in-from-bottom-1 duration-300">
       <Mountain className="h-5 w-5 text-white flex-shrink-0 mt-0.5" />
       <p className="text-sm font-medium text-white leading-relaxed">{message}</p>
@@ -50,22 +49,20 @@ const AutoSaveNotice: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
     );
   }
 
-  // Aligned to match the section-item layout above: same horizontal padding (px-3),
-  // same icon size (h-5 w-5), and the description is indented past the icon column
-  // (pl-8 = icon width 20px + gap-3 12px) so it sits under the "Progress auto-saved" text.
+  // Aligned to match the section-item layout above.
   return (
-    <div className="mt-4 pt-4 border-t border-gray-100 px-3">
+    <div className="mt-5 pt-5 border-t border-white/10 px-1">
       <div className="flex items-center gap-3 mb-1">
         {isSaving ? (
-          <Loader2 className="h-5 w-5 animate-spin text-atlas-gold flex-shrink-0" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#EFBE48] flex-shrink-0" />
         ) : (
-          <CheckCircle className="h-5 w-5 text-atlas-gold flex-shrink-0" />
+          <CheckCircle className="h-4 w-4 text-[#EFBE48] flex-shrink-0" />
         )}
-        <p className="text-sm font-medium text-atlas-navy">
+        <p className="text-[12.5px] font-semibold text-white">
           {isSaving ? 'Saving…' : 'Progress auto-saved'}
         </p>
       </div>
-      <p className="text-xs text-gray-500 leading-relaxed pl-8">
+      <p className="text-[11px] text-white/60 leading-snug pl-7">
         Safe to close this tab and return later. Your answers stay where you left off.
       </p>
     </div>
@@ -98,82 +95,104 @@ export const SurveyNavigation: React.FC<SurveyNavigationProps> = ({
   const getSectionIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-5 w-5 text-atlas-gold" />;
+        return <CheckCircle className="h-[18px] w-[18px] text-[#EFBE48]" />;
       case 'current':
-        return <LockOpen className="h-5 w-5 text-atlas-teal" />;
+        return <LockOpen className="h-4 w-4 text-[#2ABFBF]" />;
       case 'accessible':
-        return <LockOpen className="h-5 w-5 text-atlas-teal" />;
+        return <LockOpen className="h-4 w-4 text-[#2ABFBF]" />;
       default:
-        return <Lock className="h-5 w-5 text-gray-300" />;
+        return <Lock className="h-4 w-4 text-white/35" />;
     }
   };
 
   return (
-    <Card className="hidden md:block w-80">
-      <CardContent className="px-4 pt-6 pb-4 h-full flex flex-col">
-        <div className="space-y-2 flex-1">
-          {sections.map((section, index) => {
-            const status = getSectionStatus(index);
-            const isClickable = status === 'completed' || status === 'accessible' || status === 'current';
+    <aside
+      className="hidden md:flex w-80 h-fit flex-col p-[22px] rounded-[20px] border border-white/10 shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] backdrop-blur-[14px]"
+      style={{ background: 'rgba(18, 46, 59, 0.55)' }}
+    >
+      {/* Gold editorial eyebrow */}
+      <div
+        className="text-[11px] font-heading font-black uppercase mb-4 text-[#EFBE48]"
+        style={{ letterSpacing: '0.24em', fontWeight: 900 }}
+      >
+        Your Progress
+      </div>
 
-            const showProgress =
-              status === 'current' &&
-              typeof currentQuestionInSection === 'number' &&
-              typeof totalQuestionsInSection === 'number' &&
-              totalQuestionsInSection > 0;
-            const progressPct = showProgress
-              ? Math.min(100, (currentQuestionInSection! / totalQuestionsInSection!) * 100)
-              : 0;
+      <div className="space-y-3.5 flex-1">
+        {sections.map((section, index) => {
+          const status = getSectionStatus(index);
+          const isClickable = status === 'completed' || status === 'accessible' || status === 'current';
 
-            return (
-              <div
-                key={section.id}
-                onClick={() => isClickable ? onSectionClick(index) : undefined}
-                className={`p-3 rounded-lg transition-colors ${
-                  isClickable
-                    ? 'cursor-pointer hover:bg-gray-50'
-                    : 'cursor-not-allowed'
-                } ${
-                  status === 'current' ? 'bg-atlas-teal/10 border border-atlas-teal/20' : ''
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {getSectionIcon(status)}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={`text-base font-medium truncate ${
-                        status === 'locked' ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
-                        Section {index + 1}
-                      </p>
-                      {showProgress && (
-                        <span className="text-xs font-semibold text-atlas-teal whitespace-nowrap">
-                          Q{currentQuestionInSection} /{totalQuestionsInSection}
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-sm truncate ${
-                      status === 'locked' ? 'text-gray-200' : 'text-gray-500'
-                    }`}>
-                      {section.title}
+          const showProgress =
+            status === 'current' &&
+            typeof currentQuestionInSection === 'number' &&
+            typeof totalQuestionsInSection === 'number' &&
+            totalQuestionsInSection > 0;
+          const progressPct = showProgress
+            ? Math.min(100, (currentQuestionInSection! / totalQuestionsInSection!) * 100)
+            : 0;
+          const isCurrent = status === 'current';
+
+          return (
+            <div
+              key={section.id}
+              onClick={() => isClickable ? onSectionClick(index) : undefined}
+              className={`transition-colors rounded-[12px] ${
+                isClickable ? 'cursor-pointer' : 'cursor-not-allowed'
+              } ${
+                isCurrent
+                  ? 'p-3 border border-[rgba(39,161,161,0.32)]'
+                  : 'p-0 border border-transparent'
+              }`}
+              style={isCurrent ? { background: 'rgba(39, 161, 161, 0.18)' } : undefined}
+            >
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 mt-0.5">{getSectionIcon(status)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p
+                      className={`text-[13px] font-bold truncate ${
+                        status === 'locked' ? 'text-white/65' : 'text-white'
+                      }`}
+                    >
+                      Section {index + 1}
                     </p>
+                    {showProgress && (
+                      <span className="text-[11px] font-bold whitespace-nowrap text-[#EFBE48]">
+                        Q{currentQuestionInSection} /{totalQuestionsInSection}
+                      </span>
+                    )}
                   </div>
+                  <p
+                    className={`text-xs truncate mt-0.5 ${
+                      status === 'locked'
+                        ? 'text-white/40'
+                        : isCurrent
+                          ? 'text-white/[0.78]'
+                          : 'text-white/50'
+                    }`}
+                  >
+                    {section.title}
+                  </p>
+                  {showProgress && (
+                    <div className="mt-2.5 h-1 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full transition-all duration-500 ease-out rounded-full"
+                        style={{
+                          width: `${progressPct}%`,
+                          background: 'linear-gradient(90deg, #27A1A1 0%, #EFBE48 100%)',
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
-                {showProgress && (
-                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white border border-atlas-teal/20">
-                    <div
-                      className="h-full bg-atlas-teal transition-all duration-500 ease-out"
-                      style={{ width: `${progressPct}%` }}
-                    />
-                  </div>
-                )}
               </div>
-            );
-          })}
-        </div>
-        {activeMilestone ? <MilestoneNotice message={activeMilestone} /> : <AutoSaveNotice />}
-      </CardContent>
-    </Card>
+            </div>
+          );
+        })}
+      </div>
+      {activeMilestone ? <MilestoneNotice message={activeMilestone} /> : <AutoSaveNotice />}
+    </aside>
   );
 };
 

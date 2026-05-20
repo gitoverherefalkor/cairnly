@@ -182,7 +182,10 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
       <div className="flex-1 overflow-y-auto py-2">
         {/* About You Chapter */}
         <div className="px-4 py-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t('chapters.aboutYou')}</p>
+          <p
+            className="text-[10px] font-heading font-black uppercase mb-2.5 text-white/55"
+            style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+          >{t('chapters.aboutYou')}</p>
           <div className="space-y-1">
             {ABOUT_YOU_SECTIONS.map((section) => (
               <SectionButton
@@ -199,7 +202,10 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
 
         {/* Career Suggestions Chapter */}
         <div className="px-4 py-2 mt-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{t('chapters.careerSuggestions')}</p>
+          <p
+            className="text-[10px] font-heading font-black uppercase mb-2.5 text-white/55"
+            style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+          >{t('chapters.careerSuggestions')}</p>
           <div className="space-y-1">
             {CAREER_SECTIONS.map((section) => {
               const state = getSectionState(section.globalIndex);
@@ -243,7 +249,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
 
       {/* Complete Session Button - shows when edge function marks session complete */}
       {isSessionCompleted && onCompleteSession && (
-        <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0">
+        <div className="px-4 py-3 border-t border-white/10 flex-shrink-0">
           <Button
             onClick={onCompleteSession}
             className="w-full bg-atlas-teal hover:bg-atlas-teal/90 text-white"
@@ -308,14 +314,17 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
 
       {/* Collapsed desktop sidebar */}
       {isCollapsed ? (
-        <div className="hidden md:flex w-12 bg-white/50 backdrop-blur-xl backdrop-brightness-[1.8] backdrop-saturate-150 border border-gray-200 rounded-xl shadow-lg flex-col items-center py-4 space-y-2 fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-y-auto z-40">
+        <div
+          className="hidden md:flex w-12 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col items-center py-4 space-y-2 fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-y-auto z-40"
+          style={{ background: 'rgba(18, 46, 59, 0.55)' }}
+        >
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleCollapse}
-            className="hover:bg-atlas-blue/10 mb-2"
+            className="hover:bg-white/10 mb-2"
           >
-            <ChevronLeft className="h-4 w-4 text-atlas-navy" />
+            <ChevronLeft className="h-4 w-4 text-white" />
           </Button>
           {ALL_SECTIONS.map((section, index) => {
             // Skip hidden sections (Executive Summary) — kept in
@@ -333,35 +342,41 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                   state === 'current'
                     ? 'bg-atlas-teal text-white ring-2 ring-atlas-teal/30 cursor-pointer hover:ring-atlas-teal/50'
                     : state === 'past'
-                      ? 'bg-white text-atlas-navy ring-1 ring-atlas-navy/15 hover:bg-white/80 cursor-pointer'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'bg-white/15 text-white ring-1 ring-white/20 hover:bg-white/25 cursor-pointer'
+                      : 'bg-white/5 text-white/40 cursor-not-allowed'
                 }`}
                 title={translateTitle(section.id, section.title)}
               >
-                {/* Display the VISIBLE 1-indexed position. With Exec Summary
-                    hidden at canonical index 0, the canonical index itself is
-                    already the 1-indexed visible position (Approach=1, etc.). */}
-                {state === 'past' ? <Check className="h-3.5 w-3.5" /> : index}
+                {/* Display the VISIBLE 1-indexed position. */}
+                {state === 'past' ? <Check className="h-3.5 w-3.5 text-[#EFBE48]" /> : index}
               </button>
             );
           })}
         </div>
       ) : (
         /* Expanded desktop sidebar */
-        <div className="hidden md:flex w-72 bg-white/50 backdrop-blur-xl backdrop-brightness-[1.8] backdrop-saturate-150 border border-gray-200 rounded-xl shadow-lg flex-col fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-hidden z-40">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
+        <div
+          className="hidden md:flex w-72 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-hidden z-40"
+          style={{ background: 'rgba(18, 46, 59, 0.55)' }}
+        >
+          {/* Header — gold editorial eyebrow */}
+          <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
             <div className="flex items-center space-x-2">
-              <FileText className="h-5 w-5 text-atlas-teal" />
-              <h2 className="font-heading font-semibold text-atlas-navy text-sm">{t('chat:session.reportSections')}</h2>
+              <FileText className="h-[15px] w-[15px] text-[#EFBE48]" />
+              <span
+                className="font-heading uppercase text-[11px] text-[#EFBE48]"
+                style={{ letterSpacing: '0.22em', fontWeight: 900 }}
+              >
+                {t('chat:session.reportSections')}
+              </span>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleCollapse}
-              className="hover:bg-atlas-blue/10"
+              className="hover:bg-white/10 h-7 w-7 p-0"
             >
-              <ChevronRight className="h-4 w-4 text-atlas-navy" />
+              <ChevronRight className="h-4 w-4 text-white/60" />
             </Button>
           </div>
           {sectionContent}
@@ -392,50 +407,46 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all flex items-start gap-2 ${
+      className={`w-full text-left px-2.5 py-2 rounded-[12px] text-sm font-medium transition-all flex items-start gap-2.5 border ${
         state === 'current'
-          ? 'bg-atlas-teal text-white shadow-sm cursor-pointer hover:bg-atlas-teal/90'
+          ? 'text-white cursor-pointer border-[rgba(39,161,161,0.32)]'
           : state === 'past'
-            ? 'text-atlas-navy hover:bg-atlas-teal/10 cursor-pointer'
-            : 'text-gray-400 cursor-not-allowed'
+            ? 'text-white hover:bg-white/5 cursor-pointer border-transparent'
+            : 'text-white/40 cursor-not-allowed border-transparent'
       }`}
+      style={state === 'current' ? { background: 'rgba(39, 161, 161, 0.18)' } : undefined}
     >
       {/* Status icon — pinned to top so the row aligns when a careerInfo
           subline pushes the content to two-or-more lines. */}
-      <span className={`flex-shrink-0 mt-0.5 ${
-        state === 'current' ? 'text-white' : state === 'past' ? 'text-atlas-navy' : 'text-gray-300'
-      }`}>
-        {state === 'past' && <Check className="h-4 w-4" />}
-        {state === 'current' && <Circle className="h-4 w-4 fill-current" />}
-        {state === 'upcoming' && <Lock className="h-3.5 w-3.5" />}
+      <span className="flex-shrink-0 mt-0.5">
+        {state === 'past' && <Check className="h-[15px] w-[15px] text-[#EFBE48]" />}
+        {state === 'current' && <Circle className="h-[15px] w-[15px] text-[#EFBE48] fill-[#EFBE48]" />}
+        {state === 'upcoming' && <Lock className="h-3.5 w-3.5 text-white/35" />}
       </span>
 
       {/* Section icon or number badge */}
       {state !== 'past' && (
         careerNumber ? (
           <span className={`w-3.5 text-center text-xs font-bold flex-shrink-0 mt-1 ${
-            state === 'current' ? 'text-white' : 'text-atlas-teal'
+            state === 'current' ? 'text-[#EFBE48]' : 'text-white/65'
           }`}>
             {careerNumber}
           </span>
         ) : SectionIcon ? (
           <SectionIcon className={`h-3.5 w-3.5 flex-shrink-0 mt-1 ${
-            state === 'current' ? 'text-white' : state === 'upcoming' ? 'text-gray-300' : 'text-atlas-teal'
+            state === 'current' ? 'text-[#EFBE48]' : state === 'upcoming' ? 'text-white/35' : 'text-white/65'
           }`} />
         ) : null
       )}
 
-      {/* Title + optional career subline. min-w-0 lets text truncate.
-          Career subline colors track the button state:
-            current → white/95 + white/70 over teal background
-            past    → atlas-teal + gray-500 over white background (muted recap) */}
-      <span className={`flex flex-col gap-0.5 min-w-0 flex-1 ${state === 'upcoming' ? 'opacity-60' : ''}`}>
-        <span>{title}</span>
+      {/* Title + optional career subline. */}
+      <span className={`flex flex-col gap-0.5 min-w-0 flex-1 ${state === 'upcoming' ? 'opacity-70' : ''}`}>
+        <span className={state === 'upcoming' ? 'text-white/55' : 'text-white font-bold text-[13px]'}>{title}</span>
         {careerInfo && (state === 'current' || state === 'past') && (
           <>
             <span
-              className={`text-xs font-medium truncate leading-tight ${
-                state === 'current' ? 'text-white/95' : 'text-atlas-navy'
+              className={`text-[11px] font-semibold truncate leading-tight ${
+                state === 'current' ? 'text-[#EFBE48]' : 'text-white/[0.78]'
               }`}
               title={careerInfo.title}
             >
@@ -443,9 +454,7 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
             </span>
             {careerInfo.size && (
               <span
-                className={`text-[11px] truncate leading-tight ${
-                  state === 'current' ? 'text-white/70' : 'text-gray-500'
-                }`}
+                className="text-[11px] truncate leading-tight text-white/50"
                 title={careerInfo.size}
               >
                 {careerInfo.size}

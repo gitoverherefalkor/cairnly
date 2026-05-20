@@ -441,15 +441,12 @@ const Chat = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Fixed background — locked to the viewport so it never scales or
-          scrolls as the chat content grows. All content layers sit above it. */}
-      <div
-        className="fixed inset-0 bg-atlas-navy bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/trail_over_water.png')" }}
-        aria-hidden="true"
-      />
-      <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+    <div className="min-h-screen flex flex-col">
+      {/* Fixed background — cairn-trail photo with the shared 3-stop V4
+          overlay so /chat reads as one family with /assessment, /dashboard,
+          /jobs, /journal. Locked to the viewport so it doesn't scale or
+          scroll as the chat content grows. */}
+      <div className="fixed inset-0 survey-bg" aria-hidden="true" />
       {/* Header */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="px-4 sm:px-6">

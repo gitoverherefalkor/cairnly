@@ -401,11 +401,18 @@ const markdownComponents = {
     </h2>
   ),
   h3: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    // scroll-mt-[120px] ensures the sticky page navbar (~73px) doesn't
-    // cover the heading when the user clicks a sidebar section to scroll
-    // here. ~50px of breathing room below the navbar feels intentional.
+    // Display-weight, tightly tracked title that anchors each coach card.
+    // scroll-mt-[120px] keeps the sticky page navbar from covering the heading
+    // when the user clicks a sidebar section to scroll here.
     <h3
-      className="text-xl font-bold text-atlas-navy mt-8 mb-2 font-heading first:mt-0 scroll-mt-[120px]"
+      className="text-[28px] mt-8 mb-4 font-heading first:mt-0 scroll-mt-[120px]"
+      style={{
+        color: '#122E3B',
+        fontWeight: 900,
+        letterSpacing: '-0.02em',
+        lineHeight: 1.15,
+        textWrap: 'pretty' as any,
+      }}
       {...props}
     >
       {children}
@@ -431,10 +438,16 @@ const markdownComponents = {
     const Icon = iconForSubsection(text);
     return (
       <h5
-        className="text-lg font-semibold text-atlas-teal mt-6 mb-2 first:mt-0 flex items-center gap-2.5"
+        className="font-heading uppercase mt-7 mb-3 first:mt-0 flex items-center gap-2"
+        style={{
+          color: '#1F8282',
+          fontSize: 11,
+          fontWeight: 900,
+          letterSpacing: '0.24em',
+        }}
         {...props}
       >
-        {Icon && <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} />}
+        {Icon && <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />}
         <span>{children}</span>
       </h5>
     );
@@ -577,7 +590,14 @@ const SequentialSubsections: React.FC<{
         return (
           <>
             <h3
-              className="text-xl font-bold text-atlas-navy mt-8 mb-2 font-heading first:mt-0"
+              className="text-[28px] mt-8 mb-4 font-heading first:mt-0"
+              style={{
+                color: '#122E3B',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                textWrap: 'pretty' as any,
+              }}
               {...props}
             >
               {children}
@@ -1099,7 +1119,14 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         return (
           <>
             <h3
-              className="text-lg font-bold text-atlas-navy mt-4 mb-2 font-heading"
+              className="text-[28px] mt-4 mb-4 font-heading"
+              style={{
+                color: '#122E3B',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                textWrap: 'pretty' as any,
+              }}
               {...props}
             >
               {children}
@@ -1119,8 +1146,27 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
     <div className="flex justify-start mb-4">
       <div
         ref={messageRef}
-        className="max-w-[85%] bg-white border border-gray-200 rounded-2xl px-4 py-3.5 text-[0.9375rem] leading-relaxed text-gray-700"
+        className="relative overflow-hidden max-w-[85%] rounded-[20px] border px-5 py-4 text-[15px] leading-[1.6]"
+        style={{
+          background: '#FDFBF2',
+          borderColor: 'rgba(201, 182, 144, 0.6)',
+          boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
+          color: '#1F2937',
+        }}
       >
+        {/* Soft gold radial bloom top-right */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute"
+          style={{
+            top: -60,
+            right: -60,
+            width: 240,
+            height: 240,
+            background:
+              'radial-gradient(circle, rgba(212,160,36,0.16) 0%, rgba(212,160,36,0) 70%)',
+          }}
+        />
         {hasMultipleBlocks ? (
           <CollapsibleCareerBlocks
             intro={intro}
