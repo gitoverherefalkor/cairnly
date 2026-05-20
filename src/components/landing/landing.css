@@ -282,3 +282,149 @@ button.lp-screenshot-slot {
   color: #C8891A;
   border-color: rgba(212, 160, 36, 0.30);
 }
+
+/* ============================================================
+   Journal article — used by /journal/:slug
+   ============================================================ */
+
+.lp-prose {
+  max-width: 720px;
+  font-family: 'Inter', sans-serif;
+  color: #122E3B;
+  font-size: 17.5px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+.lp-prose p { margin: 0 0 1.4em; }
+.lp-prose strong { color: #122E3B; font-weight: 700; }
+.lp-prose em { font-style: italic; color: #1F8282; }
+.lp-prose ul { list-style: none; padding: 0; margin: 0 0 1.6em; }
+.lp-prose ul li {
+  position: relative; padding-left: 22px; margin: 0 0 0.7em;
+}
+.lp-prose ul li::before {
+  content: "·"; position: absolute; left: 8px; top: -2px;
+  color: #D4A024; font-weight: 900; font-size: 22px;
+}
+.lp-prose .lp-source {
+  display: block; margin-top: 1.2em;
+  font-size: 13px; color: #6B7F8B; font-weight: 500; font-style: italic;
+}
+
+.lp-chapter {
+  margin: 0 0 1.4em; padding-top: 2.2em;
+  border-top: 1px solid rgba(201, 182, 144, 0.55);
+}
+.lp-chapter__num {
+  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: #D4A024; margin-bottom: 0.6em;
+}
+.lp-chapter h2 {
+  font-family: 'Poppins', sans-serif; font-weight: 700;
+  font-size: clamp(22px, 2.6vw, 30px);
+  color: #122E3B; letter-spacing: -0.015em;
+  line-height: 1.2; margin: 0;
+}
+
+.lp-pull {
+  margin: 1.6em 0; padding: 0 0 0 22px;
+  border-left: 3px solid #D4A024;
+  font-family: 'Poppins', sans-serif; font-weight: 500;
+  font-size: 22px; line-height: 1.4; color: #122E3B;
+  letter-spacing: -0.01em;
+}
+
+.lp-stat-inline {
+  display: flex; gap: 18px; align-items: flex-start;
+  margin: 1.6em 0; padding: 18px 22px;
+  border-radius: 12px;
+  background: rgba(212, 160, 36, 0.08);
+  border: 1px solid rgba(212, 160, 36, 0.25);
+}
+.lp-stat-inline__num {
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 38px; color: #C8891A; line-height: 1;
+  letter-spacing: -0.02em; flex-shrink: 0;
+}
+.lp-stat-inline__text {
+  font-size: 14.5px; font-weight: 600;
+  line-height: 1.45; color: #122E3B;
+}
+.lp-stat-inline__text .lp-src {
+  display: block; font-size: 12px;
+  color: #6B7F8B; font-weight: 500; font-style: italic; margin-top: 4px;
+}
+
+.lp-stat-grid {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: rgba(201, 182, 144, 0.5);
+  border-radius: 18px; overflow: hidden;
+  border: 1px solid rgba(201, 182, 144, 0.5);
+}
+@media (min-width: 640px) { .lp-stat-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .lp-stat-grid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+.lp-stat-cell {
+  background: #FBF6E8; padding: 24px 22px;
+  display: flex; flex-direction: column;
+  justify-content: space-between; gap: 14px;
+  min-height: 178px;
+}
+.lp-stat-cell__num {
+  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-size: 42px; line-height: 1; color: #122E3B;
+  letter-spacing: -0.025em;
+}
+.lp-stat-cell__num .lp-accent { color: #D4A024; }
+.lp-stat-cell__desc {
+  font-size: 13.5px; font-weight: 600;
+  line-height: 1.45; color: #122E3B;
+}
+.lp-stat-cell__src {
+  font-size: 11px; color: #6B7F8B; font-weight: 500;
+  font-style: italic; margin-top: 8px;
+  border-top: 1px solid rgba(201, 182, 144, 0.5);
+  padding-top: 10px;
+}
+
+.lp-toc {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500; line-height: 1.5;
+}
+.lp-toc__title {
+  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: #1F8282; margin-bottom: 14px;
+}
+.lp-toc__item {
+  display: block; padding: 7px 0;
+  color: #4B6373;
+  transition: color 180ms ease, border-color 180ms ease;
+  border-left: 2px solid transparent;
+  padding-left: 12px; margin-left: -2px;
+  text-decoration: none; cursor: pointer;
+  background: none; border-top: none; border-right: none; border-bottom: none;
+  width: 100%; text-align: left;
+  font: inherit;
+}
+.lp-toc__item:hover { color: #1F8282; }
+.lp-toc__item .lp-num {
+  display: inline-block; width: 22px;
+  color: #9CA3AF; font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 11px;
+}
+.lp-toc__item.is-current {
+  color: #122E3B;
+  border-left-color: #D4A024;
+  font-weight: 700;
+}
+.lp-toc__item.is-current .lp-num { color: #D4A024; }
+
+.lp-sources li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(201, 182, 144, 0.4);
+  font-size: 13.5px; line-height: 1.55;
+  color: #4B6373; font-weight: 500;
+}
+.lp-sources li:last-child { border-bottom: none; }
+.lp-sources li strong { color: #122E3B; font-weight: 700; }

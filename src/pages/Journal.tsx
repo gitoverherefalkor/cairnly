@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import '../components/landing/landing.css';
 import { Clock, Calendar, FileText, ArrowRight } from 'lucide-react';
 import LandingNav from '@/components/landing/LandingNav';
@@ -13,8 +14,7 @@ function formatDate(iso?: string): string {
 }
 
 const FeaturedCard: React.FC<{ article: JournalArticle }> = ({ article }) => (
-  // Rendered as a static card until the /journal/:slug article page ships.
-  <div className="lp-featured-card grid md:grid-cols-12 gap-0">
+  <Link to={`/journal/${article.slug}`} className="lp-featured-card grid md:grid-cols-12 gap-0">
     {/* Left visual */}
     <div
       className="md:col-span-5 relative overflow-hidden p-10 md:p-12"
@@ -95,7 +95,7 @@ const FeaturedCard: React.FC<{ article: JournalArticle }> = ({ article }) => (
         <ArrowRight size={18} strokeWidth={2.4} />
       </div>
     </div>
-  </div>
+  </Link>
 );
 
 const Journal: React.FC = () => (

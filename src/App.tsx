@@ -41,6 +41,7 @@ const Security = lazy(() => import("./pages/Security"));
 const ColorTest = lazy(() => import("./pages/ColorTest"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const Journal = lazy(() => import("./pages/Journal"));
+const JournalArticle = lazy(() => import("./pages/JournalArticle"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -104,6 +105,7 @@ const App = () => {
               <Route path="/color-test" element={<ColorTest />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/journal" element={<Journal />} />
+              <Route path="/journal/:slug" element={<JournalArticle />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
