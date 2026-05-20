@@ -1,10 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../components/landing/landing.css';
-import { Clock, Calendar, FileText, ArrowRight } from 'lucide-react';
+import { Clock, Calendar, FileText, ArrowRight, Check } from 'lucide-react';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { featuredArticle, otherArticles, type JournalArticle } from '@/content/journal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+const SubscribeForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+
+    const { data, error } = await supabase.functions.invoke('journal-subscribe', {
+      body: { email: email.trim(), source: 'journal' },
+    });
+
+    setSubmitting(false);
+
+    if (error || !data?.ok) {
+      const message =
+        (data as { error?: string } | undefined)?.error ||
+        error?.message ||
+        "We couldn't sign you up. Try again in a moment.";
+      toast({
+        title: "Couldn't subscribe",
+        description: message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSubmitted(true);
+    toast({
+      title: 'Check your inbox',
+      description: 'We sent a link to confirm your subscription.',
+    });
+  };
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-2">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #27A1A1, #3989AF)' }}
+        >
+          <Check size={20} strokeWidth={2.6} color="#fff" />
+        </div>
+        <p className="text-[15px] font-semibold text-[#122E3B]">Check your inbox.</p>
+        <p className="text-[13px] text-[#4B6373] max-w-sm">
+          We sent a link to confirm your subscription. The Journal will only land when there's
+          something worth reading.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      className="flex flex-col sm:flex-row items-stretch gap-2 max-w-md mx-auto"
+      onSubmit={handleSubmit}
+    >
+      <input
+        type="email"
+        required
+        placeholder="your@email.com"
+        value={email}
+        onChange={(ev) => setEmail(ev.target.value)}
+        disabled={submitting}
+        className="flex-1 px-4 py-3 rounded-full border text-[14px] font-medium disabled:opacity-60"
+        style={{ background: '#fff', borderColor: '#C9B690', color: '#122E3B' }}
+      />
+      <button
+        type="submit"
+        disabled={submitting}
+        className="lp-btn-primary disabled:opacity-70"
+        style={{ padding: '12px 22px', fontSize: 14 }}
+      >
+        {submitting ? 'Sending…' : 'Subscribe'}
+      </button>
+    </form>
+  );
+};
 
 function formatDate(iso?: string): string {
   if (!iso) return '';
@@ -185,21 +269,7 @@ const Journal: React.FC = () => (
             Three to four times a year. No marketing newsletter. Just a short email when a report or
             essay goes live.
           </p>
-          <form
-            className="flex flex-col sm:flex-row items-stretch gap-2 max-w-md mx-auto"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="email"
-              required
-              placeholder="your@email.com"
-              className="flex-1 px-4 py-3 rounded-full border text-[14px] font-medium"
-              style={{ background: '#fff', borderColor: '#C9B690', color: '#122E3B' }}
-            />
-            <button type="submit" className="lp-btn-primary" style={{ padding: '12px 22px', fontSize: 14 }}>
-              Subscribe
-            </button>
-          </form>
+          <SubscribeForm />
           <p className="text-[11px] text-[#9CA3AF] mt-4">No tracking pixels. Unsubscribe with one click.</p>
         </div>
       </div>

@@ -64,6 +64,7 @@ const PrivacyPolicy = () => {
                   <li><strong>Legitimate interest:</strong> Improve our assessment methodology and platform reliability</li>
                   <li><strong>Legal obligation:</strong> Comply with applicable laws and protect our rights</li>
                   <li><strong>Consent:</strong> Send marketing communications and optional reminder emails (you can opt out at any time via your profile settings)</li>
+                  <li><strong>Consent (Journal newsletter):</strong> If you subscribe to the Cairnly Journal, we store your email address solely to send three to four issues per year. We use a confirmed double opt-in and include a one-click unsubscribe link in every email.</li>
                 </ul>
               </section>
 
