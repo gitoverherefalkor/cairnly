@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Lock } from "lucide-react";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -241,90 +242,107 @@ export function CheckoutForm() {
     }
   }
 
+  const inputCls =
+    'bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40';
+  const labelCls = 'text-[13px] font-semibold text-[#122E3B]';
+  const optionalCls = 'text-[11px] font-medium text-[#6B7F8B] ml-1';
+
   return (
-    <div className="rounded-xl shadow-2xl bg-white p-8 border border-gray-200">
-      <div className="mb-6 text-center">
-        <h2 className="mt-6 text-2xl font-extrabold tracking-tight text-gray-900">
+    <div>
+      {/* Section eyebrow */}
+      <div className="mb-4">
+        <span
+          className="font-heading uppercase text-[11px]"
+          style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 900 }}
+        >
           Your Information
-        </h2>
-        <p className="mt-2 text-gray-500 text-base">
+        </span>
+        <p className="text-[13px] font-medium mt-2 leading-snug" style={{ color: '#4B6373' }}>
           Please fill in your details below. Business customers can enter their company info for invoicing.
         </p>
       </div>
-    <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
-          name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>First Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Claire" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Last Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Ritty" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="claire.ritty@email.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="country"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Country</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls}>First Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Claire" className={inputCls} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={labelCls}>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ritty" className={inputCls} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={labelCls}>Email</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a country" />
-                  </SelectTrigger>
+                  <Input type="email" placeholder="claire.ritty@email.com" className={inputCls} {...field} />
                 </FormControl>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={labelCls}>Country</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className={inputCls}>
+                      <SelectValue placeholder="Select a country" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <FormField
               control={form.control}
               name="businessName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Name <span className="text-xs text-muted-foreground">(optional)</span></FormLabel>
+                  <FormLabel className={labelCls}>
+                    Business Name <span className={optionalCls}>(optional)</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Atlas Solutions BV" {...field} />
+                    <Input placeholder="Atlas Solutions BV" className={inputCls} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -335,56 +353,95 @@ export function CheckoutForm() {
               name="vatNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>VAT Number <span className="text-xs text-muted-foreground">(optional)</span></FormLabel>
+                  <FormLabel className={labelCls}>
+                    VAT Number <span className={optionalCls}>(optional)</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="NL123456789B01" {...field} />
+                    <Input placeholder="NL123456789B01" className={inputCls} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-        <FormField
-          control={form.control}
-          name="acceptTerms"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value === true}
-                  onCheckedChange={(checked) => field.onChange(checked === true ? true : undefined)}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel className="text-sm font-normal text-muted-foreground">
-                  I agree to the{' '}
-                  <a href="/privacy-policy" target="_blank" className="text-atlas-teal underline hover:text-atlas-teal/80">
-                    Privacy Policy
-                  </a>{' '}
-                  and{' '}
-                  <a href="/terms-conditions" target="_blank" className="text-atlas-teal underline hover:text-atlas-teal/80">
-                    Terms of Service
-                  </a>
-                </FormLabel>
-                <FormMessage />
-              </div>
-            </FormItem>
+
+          <FormField
+            control={form.control}
+            name="acceptTerms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-1">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => field.onChange(checked === true ? true : undefined)}
+                    className="border-atlas-teal/60 data-[state=checked]:bg-atlas-teal data-[state=checked]:border-atlas-teal"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel
+                    className="text-[13px] font-medium leading-snug"
+                    style={{ color: '#4B6373' }}
+                  >
+                    I agree to the{' '}
+                    <a
+                      href="/privacy-policy"
+                      target="_blank"
+                      className="underline hover:opacity-80"
+                      style={{ color: '#1F8282' }}
+                    >
+                      Privacy Policy
+                    </a>{' '}
+                    and{' '}
+                    <a
+                      href="/terms-conditions"
+                      target="_blank"
+                      className="underline hover:opacity-80"
+                      style={{ color: '#1F8282' }}
+                    >
+                      Terms of Service
+                    </a>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {error && (
+            <div className="text-destructive text-sm p-3 bg-destructive/10 rounded-md">
+              {error}
+            </div>
           )}
-        />
-        {error && (
-          <div className="text-destructive text-sm p-3 bg-destructive/10 rounded-md">
-            {error}
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
+          >
+            {isLoading ? 'Processing…' : 'Proceed to Checkout'}
+          </Button>
+
+          {/* Footer microcopy */}
+          <div
+            className="mt-4 pt-4 space-y-1.5 text-center"
+            style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
+          >
+            <p
+              className="text-[11.5px] font-medium leading-snug inline-flex items-center justify-center gap-1.5"
+              style={{ color: '#6B7F8B' }}
+            >
+              <Lock className="h-3 w-3" />
+              Your payment is handled by Stripe. We never see or store your card details.
+            </p>
+            <p
+              className="text-[11.5px] font-medium leading-snug"
+              style={{ color: '#6B7F8B' }}
+            >
+              Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time.
+            </p>
           </div>
-        )}
-          <Button type="submit" className="w-full bg-atlas-teal hover:bg-atlas-teal/90 text-white font-bold py-3 rounded-lg shadow-lg shadow-teal-500/20 hover:shadow-teal-400/40 transition-all duration-150" disabled={isLoading}>
-          {isLoading ? "Processing..." : "Proceed to Checkout"}
-        </Button>
-          <div className="pt-2 space-y-2 text-center">
-            <p className="text-xs text-muted-foreground">Your payment is handled by Stripe. We never see or store your card details.</p>
-            <p className="text-xs text-muted-foreground">Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time.</p>
-          </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
     </div>
   );
 }

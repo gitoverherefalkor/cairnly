@@ -1,8 +1,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Loader2, Upload, FileText, CheckCircle, X, Info, ChevronDown, AlertTriangle, Sparkles } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  ArrowRight,
+  Loader2,
+  Upload,
+  FileText,
+  CheckCircle,
+  X,
+  Info,
+  ChevronDown,
+  AlertTriangle,
+  Sparkles,
+} from 'lucide-react';
 import { useAIResumeUpload } from '../resume/hooks/useAIResumeUpload';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,56 +19,80 @@ interface PreSurveyUploadProps {
   onContinue: () => void;
 }
 
-// Animated illustration showing resume → auto-fill value proposition
+// Animated illustration showing resume → auto-fill value proposition.
+// Lives on a dark-glass strip above the cream card so the dark bg shows through.
 const ResumeAutoFillAnimation = () => (
-  <div className="max-w-md mx-auto mb-6">
-    <div className="flex items-center justify-center gap-3 sm:gap-5">
+  <div className="w-full max-w-xl mt-6">
+    <div
+      className="flex items-center justify-center gap-3 sm:gap-5 rounded-2xl border border-white/10 backdrop-blur-[14px] px-5 sm:px-7 py-4 sm:py-5"
+      style={{ background: 'rgba(18, 46, 59, 0.45)' }}
+    >
       {/* Step 1: Resume drops in */}
-      <div className="flex flex-col items-center gap-1.5 animate-fade-in" style={{ animationDelay: '0s' }}>
-        <div className="w-12 h-14 sm:w-14 sm:h-16 bg-white border-2 border-atlas-navy/20 rounded-lg flex items-center justify-center shadow-sm relative">
-          <FileText className="h-6 w-6 sm:h-7 sm:w-7 text-atlas-navy/70" />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-atlas-teal rounded-full flex items-center justify-center">
+      <div className="flex flex-col items-center gap-1.5">
+        <div
+          className="relative w-[52px] h-16 rounded-lg flex items-center justify-center"
+          style={{ background: '#FDFBF2', border: '1px solid rgba(201,182,144,0.6)' }}
+        >
+          <FileText className="h-5 w-5" style={{ color: '#122E3B' }} />
+          <div
+            className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full flex items-center justify-center bg-atlas-teal"
+            style={{ border: '2px solid rgba(18, 46, 59, 0.6)' }}
+          >
             <Upload className="h-2.5 w-2.5 text-white" />
           </div>
         </div>
-        <span className="text-[10px] sm:text-xs text-gray-500 font-medium">Upload</span>
+        <span className="text-[11px] font-semibold text-white/70">Upload</span>
       </div>
 
-      {/* Arrow 1 */}
-      <div className="text-atlas-teal/40 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-      </div>
+      <ArrowRight className="h-4 w-4 text-white/40" />
 
       {/* Step 2: AI processing */}
-      <div className="flex flex-col items-center gap-1.5 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-        <div className="w-12 h-14 sm:w-14 sm:h-16 bg-gradient-to-br from-atlas-teal/10 to-atlas-blue/10 border-2 border-atlas-teal/20 rounded-lg flex items-center justify-center shadow-sm">
-          <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-atlas-teal animate-pulse" />
+      <div className="flex flex-col items-center gap-1.5">
+        <div
+          className="w-[52px] h-16 rounded-lg flex items-center justify-center"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(39,161,161,0.16), rgba(57,137,175,0.16))',
+            border: '1px solid rgba(39,161,161,0.32)',
+          }}
+        >
+          <Sparkles className="h-5 w-5 animate-pulse" style={{ color: '#2ABFBF' }} />
         </div>
-        <span className="text-[10px] sm:text-xs text-gray-500 font-medium">AI reads</span>
+        <span className="text-[11px] font-semibold text-white/70">AI reads</span>
       </div>
 
-      {/* Arrow 2 */}
-      <div className="text-atlas-teal/40 animate-fade-in" style={{ animationDelay: '0.8s' }}>
-        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-      </div>
+      <ArrowRight className="h-4 w-4 text-white/40" />
 
       {/* Step 3: Auto-filled fields */}
-      <div className="flex flex-col items-center gap-1.5 animate-fade-in" style={{ animationDelay: '1s' }}>
-        <div className="w-28 sm:w-36 space-y-1.5 py-2">
-          {['Job Titles', 'Skills', 'Achievements'].map((label, i) => (
-            <div key={label} className="flex items-center gap-1.5">
+      <div className="flex flex-col items-center gap-1.5">
+        <div className="flex flex-col gap-2 w-[140px]">
+          {[
+            { pct: 70, label: 'Job titles' },
+            { pct: 55, label: 'Skills' },
+            { pct: 40, label: 'Achievements' },
+          ].map(({ pct, label }, i) => (
+            <div key={label} className="flex items-center gap-2">
               <div
-                className="h-2 rounded-full bg-atlas-teal/70 transition-all duration-1000"
-                style={{
-                  width: `${65 - i * 10}%`,
-                  animation: `bar-fill 1.2s ease-out ${1.2 + i * 0.2}s both`
-                }}
-              />
-              <span className="text-[9px] sm:text-[10px] text-gray-400 whitespace-nowrap">{label}</span>
+                className="flex-1 h-1.5 rounded-full overflow-hidden"
+                style={{ background: 'rgba(255,255,255,0.08)' }}
+              >
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${pct}%`,
+                    background: '#2ABFBF',
+                    opacity: 0.85,
+                    animation: `bar-fill 1.2s ease-out ${0.4 + i * 0.2}s both`,
+                  }}
+                />
+              </div>
+              <span className="text-[9.5px] font-semibold text-white/55 whitespace-nowrap">
+                {label}
+              </span>
             </div>
           ))}
         </div>
-        <span className="text-[10px] sm:text-xs text-gray-500 font-medium">Auto-filled</span>
+        <span className="text-[11px] font-semibold text-white/70">Auto-filled</span>
       </div>
     </div>
 
@@ -88,7 +121,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
     hasProcessed,
     processingResult,
     uploadAndProcess,
-    resetState
+    resetState,
   } = useAIResumeUpload({
     onSuccess: (data) => {
       if (data && data.surveyPreFillData) {
@@ -97,7 +130,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         localStorage.setItem('resume_parsed_timestamp', new Date().toISOString());
         setHasUploadedResume(true);
         toast({
-          title: "Processing Complete",
+          title: 'Processing Complete',
           description: `Extracted ${data.fieldsExtracted} fields from your resume.`,
         });
       } else if (data && data.aiParsedData) {
@@ -106,20 +139,20 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         localStorage.setItem('resume_parsed_timestamp', new Date().toISOString());
         setHasUploadedResume(true);
         toast({
-          title: "Processing Complete",
-          description: "Your information is ready to pre-fill the assessment.",
+          title: 'Processing Complete',
+          description: 'Your information is ready to pre-fill the assessment.',
         });
       }
       setIsProcessing(false);
     },
     onError: (error) => {
       toast({
-        title: "Processing failed",
-        description: error || "Failed to process your file. You can continue manually.",
-        variant: "destructive",
+        title: 'Processing failed',
+        description: error || 'Failed to process your file. You can continue manually.',
+        variant: 'destructive',
       });
       setIsProcessing(false);
-    }
+    },
   });
 
   const validateAndSetFile = (file: File): boolean => {
@@ -131,18 +164,18 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
 
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: "File type not supported",
-        description: "Please upload a PDF or Word document (.pdf, .doc, .docx).",
-        variant: "destructive",
+        title: 'File type not supported',
+        description: 'Please upload a PDF or Word document (.pdf, .doc, .docx).',
+        variant: 'destructive',
       });
       return false;
     }
 
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: "File too large",
-        description: "Please upload a file smaller than 10MB.",
-        variant: "destructive",
+        title: 'File too large',
+        description: 'Please upload a file smaller than 10MB.',
+        variant: 'destructive',
       });
       return false;
     }
@@ -188,41 +221,134 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   const isContinueDisabled = isBusy || !hasUploadedResume;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Animated illustration above the card */}
+    <div className="min-h-screen survey-bg">
+      <div className="min-h-screen flex flex-col items-center px-6 pt-12 pb-12">
+        {/* Cairnly wordmark on dark bg */}
+        <a href="/" className="inline-flex mb-6">
+          <img
+            src="/cairnly-logo-white.png"
+            alt="Cairnly"
+            className="h-12 sm:h-14 w-auto"
+          />
+        </a>
+
+        {/* Gold editorial eyebrow */}
+        <span
+          className="font-heading uppercase text-[11px] mb-3"
+          style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 900 }}
+        >
+          Step 1 of your assessment
+        </span>
+
+        {/* Big white headline */}
+        <h1
+          className="font-heading text-center text-white text-[28px] sm:text-[36px] m-0 max-w-2xl"
+          style={{
+            fontWeight: 900,
+            letterSpacing: '-0.025em',
+            lineHeight: 1.1,
+            textWrap: 'pretty' as any,
+          }}
+        >
+          Save Time with a Resume Upload
+        </h1>
+
+        <p
+          className="text-center mt-3.5 max-w-lg text-[15px]"
+          style={{
+            color: 'rgba(255,255,255,0.72)',
+            fontWeight: 500,
+            lineHeight: 1.5,
+            textWrap: 'pretty' as any,
+          }}
+        >
+          Upload your resume or CV to pre-fill work history, education, and skills
+        </p>
+
+        {/* Animated illustration on dark-glass strip */}
         <ResumeAutoFillAnimation />
 
-        <Card>
-          <CardContent className="p-8">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-atlas-navy mb-2">
-                Save Time with a Resume Upload
-              </h1>
-              <p className="text-gray-600">
-                Upload your resume or CV to pre-fill work history, education, and skills
-              </p>
+        {/* Cream form card */}
+        <div
+          className="relative overflow-hidden w-full mt-6 rounded-[22px] border"
+          style={{
+            maxWidth: 640,
+            background: '#FDFBF2',
+            borderColor: 'rgba(201, 182, 144, 0.6)',
+            boxShadow: '0 30px 60px -24px rgba(0,0,0,0.55)',
+            padding: '28px 32px 24px',
+          }}
+        >
+          {/* Soft gold radial bloom top-right */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute"
+            style={{
+              top: -60,
+              right: -60,
+              width: 280,
+              height: 280,
+              background:
+                'radial-gradient(circle, rgba(212,160,36,0.18) 0%, rgba(212,160,36,0) 70%)',
+            }}
+          />
+
+          <div className="relative">
+            {/* Blue info alert */}
+            <div
+              className="rounded-xl flex items-start gap-2.5 mb-5"
+              style={{
+                background: 'rgba(57, 137, 175, 0.08)',
+                border: '1px solid rgba(57, 137, 175, 0.24)',
+                padding: '12px 16px',
+              }}
+            >
+              <Info className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: '#2563EB' }} />
+              <span
+                className="text-[13px] font-medium leading-snug"
+                style={{ color: '#1F2937' }}
+              >
+                Any pre-filled information can be edited or overwritten during the assessment.
+              </span>
             </div>
 
-            {/* Info Alert */}
-            <Alert className="mb-6 bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-sm text-gray-700">
-                Any pre-filled information can be edited or overwritten during the assessment.
-              </AlertDescription>
-            </Alert>
-
-            {/* Upload Area */}
+            {/* Upload area */}
             <div
-              className={`border-2 border-dashed rounded-lg p-6 mb-6 transition-colors ${
+              className="rounded-[14px] mb-5 transition-colors"
+              style={
                 isDragOver
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 bg-white'
-              }`}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true); }}
-              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(true); }}
-              onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragOver(false); }}
+                  ? {
+                      border: '2px dashed rgba(39,161,161,0.5)',
+                      background: 'rgba(39,161,161,0.06)',
+                      padding: uploadedFile ? '18px 22px' : '32px 28px',
+                    }
+                  : uploadedFile && hasProcessed
+                    ? {
+                        border: '2px dashed rgba(34,197,94,0.5)',
+                        background: 'rgba(34,197,94,0.04)',
+                        padding: '18px 22px',
+                      }
+                    : {
+                        border: '2px dashed rgba(201,182,144,0.7)',
+                        background: '#F5EFE2',
+                        padding: uploadedFile ? '18px 22px' : '32px 28px',
+                      }
+              }
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(true);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragOver(false);
+              }}
               onDrop={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -236,57 +362,107 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
               }}
             >
               {uploadedFile ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                <>
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                      style={
+                        hasProcessed
+                          ? {
+                              background: 'rgba(34, 197, 94, 0.14)',
+                              border: '1px solid rgba(34, 197, 94, 0.32)',
+                            }
+                          : {
+                              background: 'rgba(212, 160, 36, 0.18)',
+                              border: '1px solid rgba(212, 160, 36, 0.32)',
+                            }
+                      }
+                    >
                       {hasProcessed ? (
-                        <CheckCircle className="h-8 w-8 text-green-600" />
+                        <CheckCircle className="h-5 w-5" style={{ color: '#16A34A' }} />
                       ) : (
-                        <FileText className="h-8 w-8 text-atlas-gold" />
+                        <FileText className="h-5 w-5" style={{ color: '#C8891A' }} />
                       )}
-                      <div>
-                        <p className="font-medium">{uploadedFile.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                          {hasProcessed && " • Processed"}
-                          {isProcessing && " • Processing..."}
-                        </p>
-                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-[14px] font-bold truncate"
+                        style={{ color: '#122E3B' }}
+                      >
+                        {uploadedFile.name}
+                      </p>
+                      <p
+                        className="text-[12px] font-medium mt-0.5"
+                        style={{ color: hasProcessed ? '#15803D' : '#6B7F8B' }}
+                      >
+                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                        {hasProcessed && ' · Processed'}
+                        {isProcessing && ' · Processing…'}
+                      </p>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={handleRemoveFile}
                       disabled={isProcessing}
+                      className="text-[#6B7F8B] hover:bg-transparent hover:text-[#122E3B]"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
 
-                  {isProcessing && (
-                    <div className="flex items-center justify-center space-x-2 text-sm text-atlas-gold">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>Extracting information...</span>
-                    </div>
-                  )}
-
-                  {hasProcessed && processingResult && (
-                    <div className="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
-                      ✓ Extracted {processingResult.fieldsExtracted || 0} fields from your resume
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center space-y-4 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className={`h-12 w-12 mx-auto transition-colors ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
-                  <div>
-                    <p className="font-medium text-gray-700">
-                      {isDragOver ? 'Drop your file here' : 'Drag & drop your resume or CV'}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {isDragOver ? '' : 'or click to browse \u00B7 PDF or Word documents up to 10MB'}
-                    </p>
+                  <div
+                    className="mt-3 pt-3 text-[13px] font-semibold flex items-center gap-2"
+                    style={{
+                      borderTop: hasProcessed
+                        ? '1px solid rgba(34, 197, 94, 0.24)'
+                        : '1px solid rgba(201,182,144,0.5)',
+                      color: hasProcessed ? '#15803D' : '#C8891A',
+                    }}
+                  >
+                    {hasProcessed ? (
+                      <>
+                        <CheckCircle className="h-3.5 w-3.5" style={{ color: '#16A34A' }} />
+                        {processingResult?.fieldsExtracted
+                          ? `Extracted ${processingResult.fieldsExtracted} fields from your resume`
+                          : 'Resume processed successfully'}
+                      </>
+                    ) : (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Extracting information from your resume…
+                      </>
+                    )}
                   </div>
+                </>
+              ) : (
+                <div
+                  className="text-center cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload
+                    className="mx-auto"
+                    style={{
+                      color: isDragOver ? '#27A1A1' : '#9CA3AF',
+                      width: 36,
+                      height: 36,
+                      strokeWidth: 1.8,
+                    }}
+                  />
+                  <p
+                    className="text-[15px] font-bold mt-3"
+                    style={{ color: '#122E3B' }}
+                  >
+                    {isDragOver ? 'Drop your file here' : 'Drag & drop your resume or CV'}
+                  </p>
+                  <p
+                    className="text-[13px] font-medium mt-1.5"
+                    style={{ color: '#6B7F8B' }}
+                  >
+                    {isDragOver
+                      ? ''
+                      : 'or click to browse · PDF or Word documents up to 10MB'}
+                  </p>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -298,25 +474,42 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
               )}
             </div>
 
-            {/* Skip Confirmation Warning */}
+            {/* Skip Confirmation Warning (amber) */}
             {showSkipConfirm && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 animate-fade-in">
+              <div
+                className="rounded-[14px] p-[18px] mb-5 animate-in fade-in"
+                style={{
+                  background: 'rgba(245, 158, 11, 0.08)',
+                  border: '1px solid rgba(245, 158, 11, 0.32)',
+                }}
+              >
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                  <div className="space-y-3 w-full">
-                    <div>
-                      <p className="font-medium text-amber-900">Are you sure?</p>
-                      <p className="text-sm text-amber-800 mt-1">
-                        Uploading your resume saves you <strong>10-12 minutes</strong> of typing and improves the accuracy of your career recommendations.
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
+                  <AlertTriangle
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: '#D97706' }}
+                  />
+                  <div className="flex-1">
+                    <p
+                      className="text-[14.5px] font-bold m-0"
+                      style={{ color: '#92400E' }}
+                    >
+                      Are you sure?
+                    </p>
+                    <p
+                      className="text-[13.5px] font-medium mt-1.5 mb-3.5 leading-snug"
+                      style={{ color: '#92400E' }}
+                    >
+                      Uploading your resume saves you <strong>10-12 minutes</strong> of
+                      typing and improves the accuracy of your career recommendations.
+                    </p>
+                    <div className="flex gap-2.5">
                       <Button
                         size="sm"
                         onClick={() => {
                           setShowSkipConfirm(false);
                           fileInputRef.current?.click();
                         }}
+                        className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
                       >
                         Upload Resume
                       </Button>
@@ -324,7 +517,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         variant="ghost"
                         size="sm"
                         onClick={handleSkipConfirmed}
-                        className="text-amber-700 hover:text-amber-900"
+                        className="rounded-full font-semibold text-[13px] hover:bg-transparent"
+                        style={{ color: '#92400E' }}
                       >
                         Yes, skip anyway
                       </Button>
@@ -334,45 +528,72 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
               </div>
             )}
 
-            {/* LinkedIn Export Tip - Collapsible (hidden when skip confirm shows) */}
+            {/* LinkedIn Export Tip - Collapsible */}
             {!showSkipConfirm && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg mb-6">
+              <div
+                className="rounded-xl mb-0"
+                style={{
+                  background: 'rgba(18, 46, 59, 0.04)',
+                  border: '1px solid rgba(201, 182, 144, 0.6)',
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => setShowLinkedInTip(!showLinkedInTip)}
-                  className="w-full flex items-center justify-between p-4 text-left"
+                  className="w-full flex items-center justify-between text-left p-[14px_18px]"
                 >
-                  <span className="text-sm font-medium text-gray-700">
+                  <span
+                    className="text-[13.5px] font-semibold"
+                    style={{ color: '#122E3B' }}
+                  >
                     No resume handy? Use your LinkedIn profile export instead
                   </span>
                   <ChevronDown
-                    className={`h-4 w-4 text-gray-500 transition-transform ${showLinkedInTip ? 'rotate-180' : ''}`}
+                    className={`h-3.5 w-3.5 transition-transform ${
+                      showLinkedInTip ? 'rotate-180' : ''
+                    }`}
+                    style={{ color: '#6B7F8B' }}
                   />
                 </button>
 
                 {showLinkedInTip && (
-                  <div className="px-4 pb-4 pt-0">
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-start space-x-2">
-                        <span className="font-medium text-gray-900">1.</span>
-                        <span>Go to your LinkedIn profile</span>
+                  <div className="px-[18px] pb-4 pt-0">
+                    <div
+                      className="flex flex-col gap-1.5 text-[13px] font-medium"
+                      style={{ color: '#4B6373', lineHeight: 1.6 }}
+                    >
+                      <div>
+                        <span className="font-bold" style={{ color: '#122E3B' }}>
+                          1.
+                        </span>{' '}
+                        Go to your LinkedIn profile
                       </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="font-medium text-gray-900">2.</span>
-                        <span>Click "Resources" → "Save to PDF"</span>
+                      <div>
+                        <span className="font-bold" style={{ color: '#122E3B' }}>
+                          2.
+                        </span>{' '}
+                        Click "Resources" → "Save to PDF"
                       </div>
-                      <div className="flex items-start space-x-2">
-                        <span className="font-medium text-gray-900">3.</span>
-                        <span>Upload the downloaded PDF here</span>
+                      <div>
+                        <span className="font-bold" style={{ color: '#122E3B' }}>
+                          3.
+                        </span>{' '}
+                        Upload the downloaded PDF here
                       </div>
                     </div>
-                    <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div
+                      className="mt-3 pt-3"
+                      style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
+                    >
                       <img
                         src="/uploads/ad38b517-4c3f-47bd-b4f4-546e532e34cf.png"
                         alt="LinkedIn Resources menu showing Save to PDF option"
                         className="w-48 mx-auto rounded shadow-sm"
                       />
-                      <p className="text-xs text-gray-500 mt-3 text-center">
+                      <p
+                        className="text-[12px] mt-3 text-center italic"
+                        style={{ color: '#6B7F8B' }}
+                      >
                         A LinkedIn export often has the most up-to-date version of your work history.
                       </p>
                     </div>
@@ -381,13 +602,17 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-between items-center">
+            {/* Footer action buttons */}
+            <div
+              className="flex justify-between items-center mt-5 pt-4"
+              style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
+            >
               <Button
                 variant="ghost"
                 onClick={handleSkipClick}
                 disabled={isBusy}
-                className="text-gray-500"
+                className="font-semibold text-[13px] hover:bg-transparent"
+                style={{ color: '#6B7F8B' }}
               >
                 Skip this step
               </Button>
@@ -395,6 +620,11 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                 onClick={handleContinue}
                 disabled={isContinueDisabled}
                 size="lg"
+                className={
+                  isContinueDisabled
+                    ? 'rounded-full font-bold text-[14px] px-6 bg-atlas-teal/45 text-white cursor-not-allowed'
+                    : 'rounded-full font-bold text-[14px] px-6 bg-atlas-teal text-white hover:bg-atlas-teal/90 shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]'
+                }
               >
                 {isBusy ? (
                   <>
@@ -414,8 +644,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
