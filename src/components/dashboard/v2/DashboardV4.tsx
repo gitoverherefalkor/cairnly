@@ -16,6 +16,7 @@ import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { PersonalityRadar } from '@/components/dashboard/PersonalityRadar';
 import { CareerQuadrant } from '@/components/dashboard/CareerQuadrant';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
+import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
 import {
   PALETTE,
@@ -113,6 +114,13 @@ interface ReportRow {
   // Cairn-glyph slot for Career Suggestion rows — uses CareerSlotIcon on a
   // cream chip instead of a nature photograph.
   careerSlot?: CareerSlot;
+  // Career-fit radar payload for top-2 / top-3 (where fit_scores +
+  // comparison metadata are present). Plots this career against the
+  // higher-ranked ones. Mirrors what the chat shows on each career section.
+  comparison?: {
+    headline: string;
+    careers: RadarCareer[];
+  };
 }
 
 // Generic, non-personalised descriptors.
@@ -235,15 +243,52 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       { id: 'top-2', type: 'top_career_2', rank: 2, slot: 'second' },
       { id: 'top-3', type: 'top_career_3', rank: 3, slot: 'third' },
     ];
+    // Colors match the chat's CareerComparisonCard so the radar reads
+    // identically in both places.
+    const RADAR_FOCAL_COLOR = '#0d9488';
+    const RADAR_NON_FOCAL: Record<string, string> = {
+      top_career_1: '#d97706',
+      top_career_2: '#6366f1',
+    };
+    const TOP_TYPES = ['top_career_1', 'top_career_2', 'top_career_3'];
+
     for (const { id, type, slot } of topMap) {
       const s = sections.find((x) => x.section_type === type);
       if (!s) continue;
+
+      // Build the comparison radar payload for top-2 and top-3 (where the
+      // chat surfaces "How it differs from your other top role(s)").
+      let comparison: ReportRow['comparison'];
+      const focalIndex = TOP_TYPES.indexOf(type);
+      const fit = s.metadata?.fit_scores;
+      const cmp = s.metadata?.comparison;
+      if (focalIndex >= 1 && fit && cmp) {
+        const careersForRadar: RadarCareer[] = [];
+        for (let i = 0; i <= focalIndex; i++) {
+          const peerType = TOP_TYPES[i];
+          const peer = sections.find((x) => x.section_type === peerType);
+          const peerFit = peer?.metadata?.fit_scores;
+          if (!peer || !peerFit) continue;
+          const isFocal = peerType === type;
+          careersForRadar.push({
+            label: stripHtml(peer.title || `Career ${i + 1}`),
+            scores: peerFit,
+            color: isFocal ? RADAR_FOCAL_COLOR : RADAR_NON_FOCAL[peerType] ?? '#64748b',
+            focal: isFocal,
+          });
+        }
+        if (careersForRadar.length >= 2) {
+          comparison = { headline: cmp.headline, careers: careersForRadar };
+        }
+      }
+
       rows.push({
         id,
         title: stripHtml(s.title || 'Career match'),
         oneLiner: ONE_LINERS[id],
         content: s.content || '',
         careerSlot: slot,
+        comparison,
       });
     }
 
@@ -1462,8 +1507,77 @@ const ReportAccordionRow: React.FC<{
           style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}
         >
           <AccordionContent content={row.content} />
+          {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}
         </div>
       )}
+    </div>
+  );
+};
+
+// Cream paper panel wrapping the chat's CareerComparisonRadar — the radar's
+// rings, spokes, and axis labels use light tones that need a cream surface
+// behind them to read. Same component the chat uses, no theme overrides.
+const CareerComparisonPanel: React.FC<{
+  comparison: NonNullable<ReportRow['comparison']>;
+}> = ({ comparison }) => {
+  const heading =
+    comparison.careers.length === 2
+      ? 'How it differs from your other top role'
+      : 'How it differs from your other top roles';
+  return (
+    <div
+      style={{
+        marginTop: 24,
+        background: 'rgba(236, 228, 210, 0.94)',
+        borderRadius: 20,
+        padding: 24,
+        border: '1px solid rgba(201, 182, 144, 0.5)',
+        boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 900,
+          fontSize: 11,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: PALETTE.tealDeep,
+          marginBottom: 10,
+        }}
+      >
+        {heading}
+      </div>
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 14.5,
+          fontWeight: 500,
+          color: PALETTE.ink,
+          lineHeight: 1.55,
+          margin: '0 0 14px 0',
+        }}
+      >
+        {comparison.headline}
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+        <CareerComparisonRadar careers={comparison.careers} size={380} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {comparison.careers.map((c, i) => (
+          <span
+            key={c.label}
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 13.5,
+              fontWeight: 700,
+              color: c.color,
+            }}
+          >
+            {i + 1}. {c.label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };

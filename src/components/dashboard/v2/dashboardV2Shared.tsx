@@ -95,18 +95,25 @@ export const LakeBackground: React.FC<{ intensity?: Intensity; children: React.R
   intensity = 'normal',
   children,
 }) => (
-  <div
-    style={{
-      position: 'relative',
-      minHeight: '100vh',
-      background: PALETTE.canvasDeep,
-      backgroundImage: `${OVERLAYS[intensity]}, url(${LAKE_BG_URL})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center top',
-      backgroundAttachment: 'scroll',
-    }}
-  >
-    {children}
+  <div style={{ position: 'relative', minHeight: '100vh', background: PALETTE.canvasDeep }}>
+    {/* Background image lives in its own viewport-fixed layer so the lake
+        doesn't visibly "zoom" when the page height changes (an accordion
+        opening grew the parent and `background-size: cover` was scaling
+        the image up to match). Position-fixed locks the layer to the
+        viewport — page can grow, image stays the same size. */}
+    <div
+      aria-hidden
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        backgroundImage: `${OVERLAYS[intensity]}, url(${LAKE_BG_URL})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        pointerEvents: 'none',
+      }}
+    />
+    <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
   </div>
 );
 
