@@ -36,16 +36,23 @@ import {
 // converter — kept local to avoid pulling in the old report component graph.
 function htmlToMarkdown(text: string): string {
   let r = text;
-  r = r.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1');
-  r = r.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1');
-  r = r.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1');
+  // Headings need a leading blank line (so they break out of any preceding
+  // paragraph) and a trailing blank line (so what follows is parsed as a new
+  // block, e.g. a list).
+  r = r.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '\n\n### $1\n\n');
+  r = r.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '\n\n#### $1\n\n');
+  r = r.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '\n\n##### $1\n\n');
   r = r.replace(/<strong>(.*?)<\/strong>/gi, '**$1**');
   r = r.replace(/<em>(.*?)<\/em>/gi, '*$1*');
   r = r.replace(/<br\s*\/?>/gi, '\n');
-  r = r.replace(/<p[^>]*>/gi, '').replace(/<\/p>/gi, '\n\n');
-  r = r.replace(/<ul[^>]*>/gi, '').replace(/<\/ul>/gi, '\n');
-  r = r.replace(/<ol[^>]*>/gi, '').replace(/<\/ol>/gi, '\n');
-  r = r.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1');
+  r = r.replace(/<p[^>]*>/gi, '\n\n').replace(/<\/p>/gi, '\n\n');
+  // Lists: wrap each list block in blank lines, end every <li> with a newline
+  // so react-markdown groups them into a single list.
+  r = r.replace(/<ul[^>]*>/gi, '\n\n').replace(/<\/ul>/gi, '\n\n');
+  r = r.replace(/<ol[^>]*>/gi, '\n\n').replace(/<\/ol>/gi, '\n\n');
+  r = r.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+  // Collapse runs of 3+ blank lines back to 2 so the output stays clean.
+  r = r.replace(/\n{3,}/g, '\n\n');
   return r;
 }
 
@@ -275,7 +282,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             <h1
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 56,
                 letterSpacing: '-0.03em',
                 color: '#fff',
@@ -398,7 +405,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               <h3
                 style={{
                   fontFamily: FONT_DISPLAY,
-                  fontWeight: 900,
+                  fontWeight: 700,
                   fontSize: 28,
                   letterSpacing: '-0.02em',
                   color: '#fff',
@@ -530,7 +537,7 @@ const HeroMatch: React.FC<{
     <h2
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 44,
         letterSpacing: '-0.03em',
         lineHeight: 1.05,
@@ -661,7 +668,7 @@ const SecondaryMatch: React.FC<{
     <h3
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 22,
         letterSpacing: '-0.018em',
         lineHeight: 1.18,
@@ -939,7 +946,7 @@ const UnlockToolkit: React.FC<{
             <h3
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 28,
                 letterSpacing: '-0.02em',
                 color: '#fff',
@@ -1100,7 +1107,7 @@ const ToolCard: React.FC<{
           {unlocked ? meta.icon : <Lock size={18} />}
         </div>
         <div>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 16, color: PALETTE.canvasDeep }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PALETTE.canvasDeep }}>
             {feature.title}
           </div>
           <div
@@ -1197,7 +1204,7 @@ const SharePromoBlock: React.FC<{
       <h3
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 28,
           letterSpacing: '-0.025em',
           color: PALETTE.canvasDeep,
@@ -1305,7 +1312,7 @@ const SharePromoBlock: React.FC<{
         <h4
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 22,
             letterSpacing: '-0.02em',
             lineHeight: 1.1,
@@ -1373,7 +1380,7 @@ const ReportAccordionRow: React.FC<{
           <div
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 19,
               letterSpacing: '-0.01em',
               color: '#fff',
@@ -1428,7 +1435,7 @@ const ACCORDION_MD_COMPONENTS = {
       {...p}
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 18,
         letterSpacing: '-0.015em',
         color: '#fff',
@@ -1443,7 +1450,7 @@ const ACCORDION_MD_COMPONENTS = {
       {...p}
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 15,
         letterSpacing: '-0.01em',
         color: '#fff',
@@ -1485,12 +1492,28 @@ const ACCORDION_MD_COMPONENTS = {
     </p>
   ),
   ul: ({ children, ...p }: any) => (
-    <ul {...p} style={{ paddingLeft: 22, margin: '6px 0 14px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <ul
+      {...p}
+      style={{
+        paddingLeft: 22,
+        margin: '6px 0 14px 0',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
+      }}
+    >
       {children}
     </ul>
   ),
   ol: ({ children, ...p }: any) => (
-    <ol {...p} style={{ paddingLeft: 22, margin: '6px 0 14px 0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <ol
+      {...p}
+      style={{
+        paddingLeft: 22,
+        margin: '6px 0 14px 0',
+        listStyleType: 'decimal',
+        listStylePosition: 'outside',
+      }}
+    >
       {children}
     </ol>
   ),
@@ -1503,6 +1526,7 @@ const ACCORDION_MD_COMPONENTS = {
         fontWeight: 500,
         lineHeight: 1.55,
         color: 'rgba(255,255,255,0.85)',
+        marginBottom: 6,
       }}
     >
       {children}

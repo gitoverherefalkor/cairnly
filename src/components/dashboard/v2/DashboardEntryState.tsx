@@ -100,7 +100,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
           <h1
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 60,
               letterSpacing: '-0.035em',
               color: '#fff',
@@ -339,7 +339,7 @@ const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; tit
       <CairnGlyph kind={glyph} size={36} color="rgba(236,228,210,0.85)" accent={PALETTE.goldBright} />
     </div>
     <div>
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>
+      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>
         {title}
       </div>
       <div style={{ fontFamily: FONT_BODY, fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
