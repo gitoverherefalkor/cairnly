@@ -12,7 +12,7 @@ import {
   FONT_BODY,
   CairnGlyph,
   CAIRN_TRAIL_URL,
-  LOGO_INVERTED_URL,
+  LOGO_WORDMARK_URL,
 } from './dashboardV2Shared';
 
 const CARD_W = 1200;
@@ -337,7 +337,7 @@ const ShareCardB: React.FC<{
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 32 }}>
-        <img src={LOGO_INVERTED_URL} alt="Cairnly" style={{ height: 52, width: 'auto' }} crossOrigin="anonymous" />
+        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 52, width: 'auto' }} crossOrigin="anonymous" />
         <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted, textAlign: 'right' }}>
           One-shot career clarity · <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
         </div>

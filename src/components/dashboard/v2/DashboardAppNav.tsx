@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { ArrowLeft, LogOut, User } from 'lucide-react';
-import { PALETTE, FONT_BODY, LOGO_INVERTED_URL } from './dashboardV2Shared';
+import { PALETTE, FONT_BODY, LOGO_WORDMARK_URL } from './dashboardV2Shared';
 
 interface DashboardAppNavProps {
   firstName: string;
@@ -61,7 +61,7 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
           <ArrowLeft size={16} /> {backLabel}
         </button>
       )}
-      <img src={LOGO_INVERTED_URL} alt="Cairnly" style={{ height: 44, width: 'auto' }} />
+      <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 44, width: 'auto' }} />
       <span style={{ color: PALETTE.tan }}>|</span>
       <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: PALETTE.inkMuted }}>
         {pageLabel}

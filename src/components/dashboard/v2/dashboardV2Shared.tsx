@@ -86,9 +86,9 @@ export const SECTION_VISUALS: Record<string, SectionVisual> = {
 type Intensity = 'light' | 'normal' | 'heavy';
 
 const OVERLAYS: Record<Intensity, string> = {
-  light: 'linear-gradient(180deg, rgba(33,63,79,0.62) 0%, rgba(18,46,59,0.78) 100%)',
-  normal: 'linear-gradient(180deg, rgba(33,63,79,0.78) 0%, rgba(18,46,59,0.92) 60%, rgba(18,46,59,0.96) 100%)',
-  heavy: 'linear-gradient(180deg, rgba(33,63,79,0.88) 0%, rgba(18,46,59,0.97) 50%, #122E3B 100%)',
+  light: 'linear-gradient(180deg, rgba(33,63,79,0.40) 0%, rgba(18,46,59,0.62) 100%)',
+  normal: 'linear-gradient(180deg, rgba(33,63,79,0.55) 0%, rgba(18,46,59,0.78) 60%, rgba(18,46,59,0.90) 100%)',
+  heavy: 'linear-gradient(180deg, rgba(33,63,79,0.72) 0%, rgba(18,46,59,0.90) 50%, #122E3B 100%)',
 };
 
 export const LakeBackground: React.FC<{ intensity?: Intensity; children: React.ReactNode }> = ({
