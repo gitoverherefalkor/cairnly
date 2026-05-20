@@ -87,8 +87,10 @@ const Dashboard = () => {
   };
 
   const handleExploreReport = () => {
+    // Just close the modal — the dashboard behind it already shows the full
+    // report. Previously navigated to /report, which yanked the user away
+    // from the populated dashboard they expect to land on.
     handleDismissExecSummary();
-    navigate('/report');
   };
 
   // Resolve the user's access code and recover any in-progress assessment.
