@@ -177,6 +177,30 @@ serve(async (req) => {
     console.error('[wrap-up-save] status update error:', statusErr);
   }
 
+  // Mark the chat as completed in user_engagement_tracking so the reminder
+  // cron stops sending "your chat is incomplete" / "your report is ready"
+  // emails. The frontend trackChatComplete() hook only fires on the legacy
+  // ClosingCard path, not the WrapUpCard path used today, so without this
+  // every wrap-up user gets a stale reminder 24h later. Guarded on NULL so
+  // a re-run of wrap-up preserves the original completion time.
+  const nowIso = new Date().toISOString();
+  const { error: engagementErr } = await supabase
+    .from('user_engagement_tracking')
+    .update({
+      chat_completed_at: nowIso,
+      chat_last_activity_at: nowIso,
+      chat_last_section_index: 10,
+      updated_at: nowIso,
+    })
+    .eq('user_id', authUserId)
+    .is('chat_completed_at', null);
+
+  if (engagementErr) {
+    // Non-fatal: highlights are saved. A stale reminder email is annoying
+    // but the user can still use the product.
+    console.error('[wrap-up-save] engagement tracking update error:', engagementErr);
+  }
+
   // Kick off the executive summary now that the wrap-up content is in the
   // DB. This is the surefire trigger point: the chat_highlights row is
   // written and the session is closed, so the ExecSummary n8n workflow can
