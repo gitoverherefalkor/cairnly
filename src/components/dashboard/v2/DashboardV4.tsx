@@ -15,6 +15,7 @@ import type { ResolvedFeature } from '@/hooks/useReferralStatus';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { PersonalityRadar } from '@/components/dashboard/PersonalityRadar';
 import { CareerQuadrant } from '@/components/dashboard/CareerQuadrant';
+import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { DashboardAppNav } from './DashboardAppNav';
 import {
   PALETTE,
@@ -94,15 +95,24 @@ function getMatch(
 }
 
 // ── Report accordion model ────────────────────────────────────
+interface CareerEntry {
+  title: string;
+  content: string;
+}
+
 interface ReportRow {
   id: string;
   title: string;
   oneLiner: string;
-  // Raw section content (HTML/Markdown mix from n8n). Rendered through the
-  // sanitize → markdown pipeline below when the row is open.
-  content: string;
-  // Photo-chip key into SECTION_VISUALS. Defaults to row.id.
+  // Single-section rows carry `content`; multi-career groupings (runners,
+  // outside, dream) carry `careers` instead and render as tabs.
+  content?: string;
+  careers?: CareerEntry[];
+  // Photo-chip key into SECTION_VISUALS for About-You rows.
   visualKey?: string;
+  // Cairn-glyph slot for Career Suggestion rows — uses CareerSlotIcon on a
+  // cream chip instead of a nature photograph.
+  careerSlot?: CareerSlot;
 }
 
 // Generic, non-personalised descriptors.
@@ -213,14 +223,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
-    // Top 3 → one accordion row per career so hero/secondary "Open" buttons
+    // Top 3 — one accordion row per career so hero/secondary "Open" buttons
     // can target the specific career the user clicked.
-    const topMap: { id: string; type: string; rank: 1 | 2 | 3 }[] = [
-      { id: 'top-1', type: 'top_career_1', rank: 1 },
-      { id: 'top-2', type: 'top_career_2', rank: 2 },
-      { id: 'top-3', type: 'top_career_3', rank: 3 },
+    const topMap: {
+      id: string;
+      type: string;
+      rank: 1 | 2 | 3;
+      slot: CareerSlot;
+    }[] = [
+      { id: 'top-1', type: 'top_career_1', rank: 1, slot: 'primary' },
+      { id: 'top-2', type: 'top_career_2', rank: 2, slot: 'second' },
+      { id: 'top-3', type: 'top_career_3', rank: 3, slot: 'third' },
     ];
-    for (const { id, type } of topMap) {
+    for (const { id, type, slot } of topMap) {
       const s = sections.find((x) => x.section_type === type);
       if (!s) continue;
       rows.push({
@@ -228,22 +243,31 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         title: stripHtml(s.title || 'Career match'),
         oneLiner: ONE_LINERS[id],
         content: s.content || '',
-        visualKey: 'top3',
+        careerSlot: slot,
       });
     }
-    const extras: { id: string; type: string }[] = [
-      { id: 'runners', type: 'runner_ups' },
-      { id: 'outside', type: 'outside_box' },
-      { id: 'dream', type: 'dream_jobs' },
+
+    // Runner-ups / outside-box / dream — these section_types repeat in the
+    // DB (one row per career, split on ---CAREER_SPLIT--- by WF4). Collect
+    // all matching sections per group and render as one accordion row with
+    // inner tabs, one tab per career.
+    const groups: { id: string; type: string; slot: CareerSlot }[] = [
+      { id: 'runners', type: 'runner_ups', slot: 'runnerups' },
+      { id: 'outside', type: 'outside_box', slot: 'outside' },
+      { id: 'dream', type: 'dream_jobs', slot: 'dream' },
     ];
-    for (const { id, type } of extras) {
-      const s = sections.find((x) => x.section_type === type);
-      if (!s) continue;
+    for (const { id, type, slot } of groups) {
+      const matches = sections.filter((x) => x.section_type === type);
+      if (matches.length === 0) continue;
       rows.push({
         id,
-        title: stripHtml(s.title || FALLBACK_TITLES[id]),
+        title: FALLBACK_TITLES[id],
         oneLiner: ONE_LINERS[id],
-        content: s.content || '',
+        careers: matches.map((s) => ({
+          title: stripHtml(s.title || 'Career'),
+          content: s.content || '',
+        })),
+        careerSlot: slot,
       });
     }
     return rows;
@@ -440,8 +464,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               }}
             >
               {aboutRows.length > 0 && (
-                <div style={{ padding: '18px 28px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <Eyebrow subtle>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
+                <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
                 </div>
               )}
               {aboutRows.map((row, i) => (
@@ -459,13 +483,13 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               {careerRows.length > 0 && (
                 <div
                   style={{
-                    padding: '18px 28px 14px',
+                    padding: '22px 28px 16px',
                     borderTop: '1px solid rgba(255,255,255,0.06)',
                     borderBottom: '1px solid rgba(255,255,255,0.06)',
                     background: 'rgba(39,161,161,0.04)',
                   }}
                 >
-                  <Eyebrow subtle>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
+                  <Eyebrow>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
                 </div>
               )}
               {careerRows.map((row, i) => (
@@ -1349,7 +1373,9 @@ const ReportAccordionRow: React.FC<{
   onToggle: () => void;
   registerRef: (node: HTMLDivElement | null) => void;
 }> = ({ row, isOpen, isLast, onToggle, registerRef }) => {
-  const photo = SECTION_VISUALS[row.visualKey || row.id];
+  const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
+  // Inner-tabs state for multi-career rows (runners, outside, dream).
+  const [activeCareer, setActiveCareer] = useState(0);
   return (
     <div
       ref={registerRef}
@@ -1375,7 +1401,11 @@ const ReportAccordionRow: React.FC<{
           gap: 20,
         }}
       >
-        <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={72} />
+        {row.careerSlot ? (
+          <CareerSlotChip slot={row.careerSlot} />
+        ) : (
+          <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={72} />
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
@@ -1414,7 +1444,19 @@ const ReportAccordionRow: React.FC<{
           </svg>
         </div>
       </button>
-      {isOpen && row.content && (
+      {isOpen && row.careers && row.careers.length > 0 && (
+        <div className="cairnly-accordion-body" style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}>
+          <CareerTabs
+            careers={row.careers}
+            activeIndex={Math.min(activeCareer, row.careers.length - 1)}
+            onSelect={setActiveCareer}
+          />
+          <AccordionContent
+            content={row.careers[Math.min(activeCareer, row.careers.length - 1)].content}
+          />
+        </div>
+      )}
+      {isOpen && row.content && !row.careers && (
         <div
           className="cairnly-accordion-body"
           style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}
@@ -1425,6 +1467,85 @@ const ReportAccordionRow: React.FC<{
     </div>
   );
 };
+
+// Cream chip carrying a cairn-glyph career icon — replaces the nature
+// photograph for Career Suggestion rows.
+const CareerSlotChip: React.FC<{ slot: CareerSlot }> = ({ slot }) => (
+  <div
+    style={{
+      width: 72,
+      height: 72,
+      borderRadius: 12,
+      flexShrink: 0,
+      background: PALETTE.cream,
+      border: `1px solid ${PALETTE.tan}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.4)',
+    }}
+  >
+    <CareerSlotIcon slot={slot} size={44} />
+  </div>
+);
+
+// Horizontal pill tabs shown inside the runner-up / outside-box / dream-jobs
+// accordion rows. Each tab is one career.
+const CareerTabs: React.FC<{
+  careers: CareerEntry[];
+  activeIndex: number;
+  onSelect: (i: number) => void;
+}> = ({ careers, activeIndex, onSelect }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 18,
+      paddingBottom: 14,
+      borderBottom: '1px solid rgba(255,255,255,0.08)',
+    }}
+  >
+    {careers.map((c, i) => {
+      const active = i === activeIndex;
+      return (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onSelect(i)}
+          style={{
+            background: active ? PALETTE.goldBright : 'rgba(255,255,255,0.04)',
+            color: active ? PALETTE.canvasDeep : 'rgba(255,255,255,0.78)',
+            border: `1px solid ${active ? PALETTE.goldBright : 'rgba(255,255,255,0.12)'}`,
+            padding: '7px 14px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 12.5,
+            letterSpacing: '0.005em',
+            cursor: 'pointer',
+            transition: 'all 150ms ease',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 900,
+              fontSize: 10,
+              opacity: active ? 0.7 : 0.5,
+            }}
+          >
+            {i + 1}
+          </span>
+          {c.title}
+        </button>
+      );
+    })}
+  </div>
+);
 
 // Render the section content the same way ExpandedSectionView used to —
 // HTML → markdown → DOMPurify → react-markdown. Styled for the dark-glass
