@@ -2,7 +2,7 @@
 // AI exposure (x) × match strength (y) — sweet spot top-left.
 // Built from the design-handoff README specs (viewBox 520×360).
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PALETTE } from './dashboardV2Shared';
 
 export interface CareerPoint {
@@ -43,6 +43,10 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
   // Render order: secondaries first, then top-3 on top.
   const secondaries = points.filter((p) => !p.rank);
   const tops = points.filter((p) => p.rank).sort((a, b) => (b.rank! - a.rank!));
+
+  // Hover state — drives an instant SVG tooltip rather than relying on the
+  // browser's slow native <title> popup.
+  const [hovered, setHovered] = useState<{ x: number; y: number; label: string } | null>(null);
 
   return (
     <svg
@@ -182,29 +186,38 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         ← match strength →
       </text>
 
-      {/* Secondaries first. Labels removed — names live in the legend below
-          the chart since most points cluster in the same AI-impact bucket
-          and inline labels collide. Native <title> gives a hover tooltip. */}
+      {/* Secondaries first. Names live in the legend / hover tooltip since
+          most points cluster in the same AI-impact bucket and inline labels
+          would collide. Transparent hit-area circle widens the hover target. */}
       {secondaries.map((p, i) => {
         const px = xPx(p.x);
         const py = yPx(p.y);
         return (
-          <g key={`sec-${i}`}>
-            <title>{p.label}</title>
+          <g
+            key={`sec-${i}`}
+            onMouseEnter={() => setHovered({ x: px, y: py, label: p.label })}
+            onMouseLeave={() => setHovered(null)}
+            style={{ cursor: 'help' }}
+          >
             <circle cx={px} cy={py} r={8} fill={PALETTE.tan} stroke={PALETTE.inkMuted} strokeWidth={0.6} opacity={0.65} />
+            <circle cx={px} cy={py} r={14} fill="transparent" />
           </g>
         );
       })}
 
-      {/* Top-3 on top — rank numeral stays inside the bubble; full name in the
-          legend below the chart. */}
+      {/* Top-3 on top — rank numeral inside the bubble; full name in legend
+          / hover tooltip. */}
       {tops.map((p) => {
         const px = xPx(p.x);
         const py = yPx(p.y);
         const color = RANK_COLOR[p.rank!];
         return (
-          <g key={`top-${p.rank}`}>
-            <title>{p.label}</title>
+          <g
+            key={`top-${p.rank}`}
+            onMouseEnter={() => setHovered({ x: px, y: py, label: p.label })}
+            onMouseLeave={() => setHovered(null)}
+            style={{ cursor: 'help' }}
+          >
             <circle cx={px} cy={py} r={18} fill={color} opacity={0.15} />
             <circle cx={px} cy={py} r={12} fill={color} stroke="#ffffff" strokeWidth={2.4} />
             <text
@@ -215,12 +228,45 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
               fontSize={13}
               fontWeight={900}
               fill="#ffffff"
+              pointerEvents="none"
             >
               {p.rank}
             </text>
+            <circle cx={px} cy={py} r={22} fill="transparent" />
           </g>
         );
       })}
+
+      {/* Tooltip — instant on hover, no browser delay */}
+      {hovered &&
+        (() => {
+          const charW = 6.4;
+          const padX = 10;
+          const padY = 6;
+          const bw = Math.max(60, hovered.label.length * charW + padX * 2);
+          const bh = 22;
+          let bx = hovered.x - bw / 2;
+          bx = Math.max(4, Math.min(bx, W - bw - 4));
+          // Above the bubble when possible; below if it'd clip the top.
+          let by = hovered.y - 22 - bh;
+          if (by < 4) by = hovered.y + 24;
+          return (
+            <g pointerEvents="none">
+              <rect x={bx} y={by} width={bw} height={bh} rx={6} fill={PALETTE.canvasDeep} opacity={0.92} />
+              <text
+                x={bx + bw / 2}
+                y={by + padY + 9}
+                textAnchor="middle"
+                fontFamily="'Inter', sans-serif"
+                fontSize={11.5}
+                fontWeight={600}
+                fill="#fff"
+              >
+                {hovered.label}
+              </text>
+            </g>
+          );
+        })()}
     </svg>
   );
 };
