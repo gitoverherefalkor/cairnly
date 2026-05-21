@@ -31,12 +31,12 @@ interface DashboardEntryStateProps {
 }
 
 const ASSESSMENT_SECTIONS = [
-  'Personality & decision-making',
-  'Values & motivations',
+  'Career history & ambitions',
+  'Personality & decision style',
+  'Values & priorities',
+  'Work-life & energy',
   'Professional interests',
-  'Work environment',
   'Emotional intelligence',
-  'Career goals',
 ];
 
 export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
@@ -65,7 +65,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
     ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
     : isResume
       ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-      : 'About 25 minutes. One sitting works best, covering psychometrics, work-style and values. After that your coach walks you through the report.';
+      : "About 25 minutes, best in one sitting — but everything's auto-saved if you need to pause. You'll cover how you work, what you've done, and where you want to go. Then your AI coach walks you through a personalised report and refines it with you.";
 
   const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
   const ctaEyebrow = isChat
@@ -217,10 +217,10 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               filter: 'saturate(0.6)',
             }}
           >
-            <GhostCard glyph="capstone" title="Top career matches" sub="With AI-impact analysis" />
-            <GhostCard glyph="halo" title="Personality profile" sub="5-axis radar · how you work" />
-            <GhostCard glyph="distant" title="Dream-job reality check" sub="An honest assessment" />
+            <GhostCard glyph="halo" title="Personality profile" sub="How you think, lead, and operate" />
+            <GhostCard glyph="capstone" title="Top career matches" sub="3 roles tailored to you, AI-impact rated" />
             <GhostCard glyph="pair" title="Alternative paths" sub="Runner-ups + outside-the-box" />
+            <GhostCard glyph="distant" title="Dream-job reality check" sub="An honest feasibility check" />
           </div>
 
           {!isChat && (
@@ -242,15 +242,13 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             >
               <div
                 style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 11,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.55)',
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.72)',
                 }}
               >
-                WHAT'S IN THE ASSESSMENT
+                The assessment covers, among other things:
               </div>
               <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
                 {ASSESSMENT_SECTIONS.map((label, i) => {
