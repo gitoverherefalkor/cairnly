@@ -426,10 +426,26 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     return out;
   }, [sections]);
 
-  // Stat callouts shown under the chart banners.
-  const radarTopAxis = useMemo(() => {
+  // Stat callouts shown under the chart banners. personality_scores are
+  // 1-10 integers from the AI, so ties at the top are common (5 axes into
+  // 10 buckets). The label adapts to how many axes share the top score so
+  // we don't pick one arbitrarily and mislabel it "the top".
+  const radarTopStat = useMemo<{ value: string; label: string } | null>(() => {
     if (radarAxes.length === 0) return null;
-    return [...radarAxes].sort((a, b) => b.score - a.score)[0];
+    const max = Math.max(...radarAxes.map((a) => a.score));
+    const tied = radarAxes.filter((a) => Math.abs(a.score - max) < 0.05);
+    const value = max.toFixed(1);
+
+    if (tied.length === radarAxes.length) {
+      return { value, label: `Balanced across all ${radarAxes.length} axes.` };
+    }
+    if (tied.length === 1) {
+      return { value, label: `${tied[0].label} — your top axis on the assessment.` };
+    }
+    if (tied.length === 2) {
+      return { value, label: `${tied[0].label} and ${tied[1].label} tied at the top.` };
+    }
+    return { value, label: `${tied.length} axes tied at the top — your strongest dimensions.` };
   }, [radarAxes]);
   const sweetSpotCount = useMemo(
     () => careerMapPoints.filter((p) => p.x <= 0.5 && p.y <= 0.5 && p.rank).length,
@@ -621,14 +637,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   title="How you actually work"
                   blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
                   meta={`${radarAxes.length} axes`}
-                  stat={
-                    radarTopAxis
-                      ? {
-                          value: radarTopAxis.score.toFixed(1),
-                          label: `${radarTopAxis.label} — your top axis on the assessment.`,
-                        }
-                      : undefined
-                  }
+                  stat={radarTopStat ?? undefined}
                   chart={<V4PersonalityRadarSVG axes={radarAxes} />}
                 />
               </div>
