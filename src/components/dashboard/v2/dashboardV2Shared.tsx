@@ -31,9 +31,10 @@ export const FONT_DISPLAY = "'Poppins', sans-serif";
 export const FONT_BODY = "'Inter', sans-serif";
 
 // Asset paths (copied from the handoff bundle into /public/dashboard).
-// LakeBackground points at the cairn-trail landscape since the original
-// lake-reflection asset was retired with the section-image refresh.
-export const LAKE_BG_URL = '/dashboard/cairn_trail_landscape.jpg';
+// LakeBackground now uses the water-and-cairn shot from /public/images — the
+// original lake-reflection asset was retired but the dashboard wants water,
+// not the dry mountain trail.
+export const LAKE_BG_URL = '/images/trail_over_water.png';
 export const CAIRN_TRAIL_URL = '/dashboard/cairn_trail_landscape.jpg';
 export const LOGO_INVERTED_URL = '/dashboard/cairnly_logo_wordmark_inverted.png';
 export const LOGO_WORDMARK_URL = '/dashboard/cairnly_logo_wordmark.png';
