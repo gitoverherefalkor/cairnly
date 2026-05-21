@@ -528,7 +528,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Enter your response..."
-            className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-base leading-relaxed resize-y min-h-[120px]"
+            className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-base leading-relaxed resize-y min-h-[120px]"
             rows={5}
           />
         </div>
@@ -1809,7 +1809,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <textarea
                         value={generalText}
                         onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
+                        className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
                         rows={4}
                         placeholder="Describe your key achievements..."
                       />
@@ -1848,7 +1848,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           <textarea
                             value={match?.text || ''}
                             onChange={(e) => updateCompanyAchievement(career.companyName, yearRange, e.target.value)}
-                            className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
+                            className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
                             rows={3}
                             placeholder={`Key achievements at ${career.companyName}...`}
                           />
@@ -1865,7 +1865,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <AutoResizeTextarea
                         value={skillsValue.achievements.find(a => a.company === 'Other')?.text || ''}
                         onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed"
+                        className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 text-sm leading-relaxed"
                         minHeightPx={60}
                         placeholder="Any other achievements not tied to a specific company..."
                       />
@@ -2078,7 +2078,7 @@ const LongTextWithVoice: React.FC<{
           onChange={(e) => onChange(e.target.value)}
           placeholder="Enter your response..."
           disabled={isCleaning}
-          className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 pr-12 text-base leading-relaxed resize-y min-h-[350px] disabled:opacity-70"
+          className="w-full rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-2 pr-12 text-base leading-relaxed resize-y min-h-[350px] disabled:opacity-70"
           rows={10}
           maxLength={question.config?.max_length}
         />

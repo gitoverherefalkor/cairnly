@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ClipboardList, Brain, Compass, Briefcase, Users, HeartHandshake, Target, type LucideIcon } from 'lucide-react';
 import CairnProgress from './CairnProgress';
@@ -49,8 +48,27 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto h-full">
-      <Card className="h-full">
-        <CardContent className="text-center pt-6 pb-12 px-8 h-full flex flex-col justify-center">
+      <div
+        className="relative overflow-hidden rounded-[22px] border shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)] h-full"
+        style={{
+          background: '#FDFBF2',
+          borderColor: 'rgba(201, 182, 144, 0.6)',
+        }}
+      >
+        {/* Soft gold radial bloom top-right — same as the question card. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute"
+          style={{
+            top: -60,
+            right: -60,
+            width: 280,
+            height: 280,
+            background:
+              'radial-gradient(circle, rgba(212,160,36,0.18) 0%, rgba(212,160,36,0) 70%)',
+          }}
+        />
+        <div className="relative text-center pt-6 pb-12 px-8 h-full flex flex-col justify-center">
           {justCompletedTitle && (
             <div className="mb-8 pb-8 border-b border-border">
               <CairnProgress
@@ -89,8 +107,8 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
             Continue
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
