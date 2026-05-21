@@ -31,7 +31,9 @@ export const FONT_DISPLAY = "'Poppins', sans-serif";
 export const FONT_BODY = "'Inter', sans-serif";
 
 // Asset paths (copied from the handoff bundle into /public/dashboard).
-export const LAKE_BG_URL = '/dashboard/sections/lake-reflection.jpg';
+// LakeBackground points at the cairn-trail landscape since the original
+// lake-reflection asset was retired with the section-image refresh.
+export const LAKE_BG_URL = '/dashboard/cairn_trail_landscape.jpg';
 export const CAIRN_TRAIL_URL = '/dashboard/cairn_trail_landscape.jpg';
 export const LOGO_INVERTED_URL = '/dashboard/cairnly_logo_wordmark_inverted.png';
 export const LOGO_WORDMARK_URL = '/dashboard/cairnly_logo_wordmark.png';
@@ -68,16 +70,14 @@ export interface SectionVisual {
   hue: string;
 }
 
+// About-You row visuals — refreshed set. Career-suggestion rows use the
+// CareerSlotIcon set instead, so they don't need photo entries here.
 export const SECTION_VISUALS: Record<string, SectionVisual> = {
-  summary: { src: '/dashboard/sections/lake-reflection.jpg', position: 'center 60%', hue: 'rgba(33,63,79,0.35)' },
-  approach: { src: '/dashboard/sections/values-moss.jpg', position: 'center 40%', hue: 'rgba(33,63,79,0.40)' },
-  strengths: { src: '/dashboard/sections/strengths-coast-cairn.jpg', position: '60% center', hue: 'rgba(31,130,130,0.30)' },
-  development: { src: '/dashboard/sections/development-tilted-stone.jpg', position: 'center center', hue: 'rgba(33,63,79,0.45)' },
-  values: { src: '/dashboard/sections/values-moss.jpg', position: 'center 70%', hue: 'rgba(212,160,36,0.22)' },
-  top3: { src: '/dashboard/sections/lake-reflection.jpg', position: 'center 30%', hue: 'rgba(31,130,130,0.30)' },
-  runners: { src: '/dashboard/sections/strengths-coast-cairn.jpg', position: '20% center', hue: 'rgba(33,63,79,0.50)' },
-  outside: { src: '/dashboard/sections/development-tilted-stone.jpg', position: '70% 40%', hue: 'rgba(33,63,79,0.42)' },
-  dream: { src: '/dashboard/sections/dream-sunset-ridges.jpg', position: 'center center', hue: 'rgba(212,160,36,0.18)' },
+  summary: { src: '/dashboard/sections/exec_summ.jpg', position: 'center 60%', hue: 'rgba(33,63,79,0.30)' },
+  approach: { src: '/dashboard/sections/approach_vis.jpg', position: 'center center', hue: 'rgba(33,63,79,0.35)' },
+  strengths: { src: '/dashboard/sections/strenghts_you.jpg', position: 'center center', hue: 'rgba(212,160,36,0.20)' },
+  development: { src: '/dashboard/sections/development-tilted-stone.jpg', position: 'center center', hue: 'rgba(33,63,79,0.40)' },
+  values: { src: '/dashboard/sections/values_vis.jpg', position: 'center center', hue: 'rgba(31,130,130,0.25)' },
 };
 
 // ---------- LakeBackground ----------

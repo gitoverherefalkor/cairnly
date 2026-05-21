@@ -18,6 +18,10 @@ interface V4ChartBannerProps {
   // can render label-only.
   stat?: { value?: string; label: string; color?: string };
   chart: React.ReactNode;
+  // Optional content rendered in the LEFT column under the stat callout —
+  // currently used by the Career Map banner to host its legend, freeing the
+  // right column for a wider chart.
+  legend?: React.ReactNode;
   // Right-column width — the radar is square-ish (1.25fr), the career map
   // wants more room (1.55fr).
   chartWidth?: string;
@@ -31,6 +35,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
   meta,
   stat,
   chart,
+  legend,
   chartWidth = '1.25fr',
 }) => (
   <section
@@ -109,6 +114,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
       </p>
       {stat && (
         <div
+          data-banner-stat
           style={{
             marginTop: 10,
             paddingTop: 12,
@@ -146,6 +152,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
           </span>
         </div>
       )}
+      {legend && <div style={{ marginTop: 14 }}>{legend}</div>}
     </div>
     <div style={{ minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       {chart}

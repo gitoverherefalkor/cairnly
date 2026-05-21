@@ -683,8 +683,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   eyebrow="CAREER MAP"
                   icon={<MapIcon size={14} />}
                   title="Where the matches sit"
-                  blurb="Your top roles plotted by match strength against AI-exposure risk. The sweet spot is top-left."
-                  meta={`${careerMapPoints.length} roles · AI exposure × match`}
+                  blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
                   stat={
                     sweetSpotCount > 0
                       ? {
@@ -693,13 +692,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                         }
                       : undefined
                   }
-                  chart={
-                    <div style={{ width: '100%' }}>
-                      <V4CareerMapSVG points={careerMapPoints} />
-                      <V4CareerMapLegend points={careerMapPoints} />
-                    </div>
-                  }
-                  chartWidth="1.55fr"
+                  legend={<V4CareerMapLegend points={careerMapPoints} />}
+                  chart={<V4CareerMapSVG points={careerMapPoints} />}
+                  chartWidth="1.7fr"
                 />
               </div>
             )}

@@ -16,14 +16,16 @@ interface Props {
   points: CareerPoint[];
 }
 
-const W = 520;
-const H = 360;
-const PAD_L = 64;
+const W = 580;
+const H = 380;
+// Increased left padding gives the Y-axis labels real breathing room
+// outside the plot frame.
+const PAD_L = 92;
 const PAD_R = 24;
 const PAD_T = 40;
 const PAD_B = 50;
-const PLOT_W = W - PAD_L - PAD_R; // 432
-const PLOT_H = H - PAD_T - PAD_B; // 270
+const PLOT_W = W - PAD_L - PAD_R; // 464
+const PLOT_H = H - PAD_T - PAD_B; // 290
 
 const RANK_COLOR: Record<1 | 2 | 3, string> = {
   1: '#d97706', // amber
@@ -45,7 +47,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      style={{ width: '100%', maxHeight: 340, height: 'auto' }}
+      style={{ width: '100%', maxHeight: 400, height: 'auto' }}
       role="img"
       aria-label="Career map quadrant"
     >
@@ -81,6 +83,29 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         opacity={0.85}
       >
         SWEET SPOT
+      </text>
+
+      {/* At-risk wash — bottom-right quadrant (high AI exposure × weak match) */}
+      <rect
+        x={PAD_L + PLOT_W / 2}
+        y={PAD_T + PLOT_H / 2}
+        width={PLOT_W / 2}
+        height={PLOT_H / 2}
+        fill="#D64545"
+        fillOpacity={0.10}
+      />
+      <text
+        x={PAD_L + PLOT_W - 10}
+        y={PAD_T + PLOT_H - 10}
+        textAnchor="end"
+        fontFamily="'Poppins', sans-serif"
+        fontWeight={900}
+        fontSize={10}
+        letterSpacing="0.18em"
+        fill="#A53636"
+        opacity={0.85}
+      >
+        WALK AWAY
       </text>
 
       {/* Quadrant gridlines */}
@@ -119,9 +144,9 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         ← AI exposure →
       </text>
 
-      {/* Y axis labels */}
+      {/* Y axis labels — pushed further left now that PAD_L gives more room. */}
       <text
-        x={PAD_L - 8}
+        x={PAD_L - 12}
         y={PAD_T + 4}
         textAnchor="end"
         fontFamily="'Poppins', sans-serif"
@@ -133,7 +158,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         STRONG
       </text>
       <text
-        x={PAD_L - 8}
+        x={PAD_L - 12}
         y={PAD_T + PLOT_H + 4}
         textAnchor="end"
         fontFamily="'Poppins', sans-serif"
@@ -145,10 +170,10 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         WEAKER
       </text>
       <text
-        x={18}
+        x={22}
         y={cy}
         textAnchor="middle"
-        transform={`rotate(-90 18 ${cy})`}
+        transform={`rotate(-90 22 ${cy})`}
         fontFamily="'Inter', sans-serif"
         fontSize={11}
         fontWeight={600}
