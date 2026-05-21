@@ -30,13 +30,16 @@ interface DashboardEntryStateProps {
   resumeProgress?: ResumeProgress;
 }
 
+// Mirrors the survey_sections table in DB order. Update both together when
+// sections change in Supabase.
 const ASSESSMENT_SECTIONS = [
-  'Career history & ambitions',
-  'Personality & decision style',
-  'Values & priorities',
-  'Work-life & energy',
-  'Professional interests',
+  'Intake questions',
+  'Personality & decision-making',
+  'Values & motivations',
+  'Professional interests & skills',
+  'Work environment & team preferences',
   'Emotional intelligence',
+  'Career goals & development',
 ];
 
 export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({

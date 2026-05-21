@@ -53,8 +53,9 @@ const getAssessmentSession = () => {
   }
 };
 
-// Survey section count — matches the assessment-section strip in the entry state.
-const TOTAL_SURVEY_SECTIONS = 6;
+// Survey section count — matches the assessment-section strip in the entry
+// state, which mirrors the survey_sections table in Supabase.
+const TOTAL_SURVEY_SECTIONS = 7;
 
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
