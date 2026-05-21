@@ -1,5 +1,5 @@
 // submit-support-request — receives a Support & Feedback form submission,
-// logs it to the support_requests table, and emails sjoerd@cairnly.io.
+// logs it to the support_requests table, and emails info@cairnly.io.
 //
 // Callable without authentication: pre-login users submit too. When a valid
 // user session token is supplied, the user is derived from it server-side; a
@@ -252,8 +252,8 @@ serve(async (req) => {
   try {
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
     await resend.emails.send({
-      from: 'Cairnly <no-reply@cairnly.io>',
-      to: ['sjoerd@cairnly.io'],
+      from: 'Cairnly support <no-reply@cairnly.io>',
+      to: ['info@cairnly.io'],
       reply_to: email,
       subject: `[Support: ${categoryLabel}] from ${email}`,
       html: buildSupportEmailHtml(emailArgs),

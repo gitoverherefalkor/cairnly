@@ -108,7 +108,7 @@ const SHARED_HEAD = (title: string, preheader: string) => `<!DOCTYPE html>
 
 const SHARED_BANNER = (width: number) => `<tr><td style="background-color:#27A1A1;height:3px;font-size:0;line-height:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>
 <tr><td style="line-height:0;font-size:0;background-color:#122E3B;">
-  <img src="${EMAIL_BANNER_URL}" alt="Cairnly — Career Discovery" width="${width}" style="display:block;width:100%;max-width:${width}px;height:auto;border:0;outline:none;text-decoration:none;">
+  <img src="${EMAIL_BANNER_URL}" alt="Cairnly - career path clarity." width="${width}" style="display:block;width:100%;max-width:${width}px;height:auto;border:0;outline:none;text-decoration:none;">
 </td></tr>`;
 
 const FOOTER_GENERIC = `<tr><td style="padding:0 48px 36px;background-color:#ECE4D2;font-family:'Inter','Segoe UI',Arial,sans-serif;" class="px-mob">
