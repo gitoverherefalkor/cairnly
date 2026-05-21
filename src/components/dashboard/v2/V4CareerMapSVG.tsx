@@ -157,34 +157,29 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         ← match strength →
       </text>
 
-      {/* Secondaries first */}
+      {/* Secondaries first. Labels removed — names live in the legend below
+          the chart since most points cluster in the same AI-impact bucket
+          and inline labels collide. Native <title> gives a hover tooltip. */}
       {secondaries.map((p, i) => {
         const px = xPx(p.x);
         const py = yPx(p.y);
         return (
           <g key={`sec-${i}`}>
+            <title>{p.label}</title>
             <circle cx={px} cy={py} r={8} fill={PALETTE.tan} stroke={PALETTE.inkMuted} strokeWidth={0.6} opacity={0.65} />
-            <text
-              x={px + 13}
-              y={py + 4}
-              fontFamily="'Inter', sans-serif"
-              fontSize={11}
-              fontWeight={600}
-              fill={PALETTE.inkMuted}
-            >
-              {p.label}
-            </text>
           </g>
         );
       })}
 
-      {/* Top-3 on top */}
+      {/* Top-3 on top — rank numeral stays inside the bubble; full name in the
+          legend below the chart. */}
       {tops.map((p) => {
         const px = xPx(p.x);
         const py = yPx(p.y);
         const color = RANK_COLOR[p.rank!];
         return (
           <g key={`top-${p.rank}`}>
+            <title>{p.label}</title>
             <circle cx={px} cy={py} r={18} fill={color} opacity={0.15} />
             <circle cx={px} cy={py} r={12} fill={color} stroke="#ffffff" strokeWidth={2.4} />
             <text
@@ -198,19 +193,83 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
             >
               {p.rank}
             </text>
-            <text
-              x={px + 16}
-              y={py + 4.5}
-              fontFamily="'Inter', sans-serif"
-              fontSize={12.5}
-              fontWeight={700}
-              fill={PALETTE.canvasDeep}
-            >
-              {p.label}
-            </text>
           </g>
         );
       })}
     </svg>
+  );
+};
+
+// Compact legend rendered alongside the chart (the chart no longer prints
+// inline titles because most careers bucket to the same X). Top 3 show
+// colored rank chips with names; secondaries collapse to "+N runner-ups".
+export const V4CareerMapLegend: React.FC<{ points: CareerPoint[] }> = ({ points }) => {
+  const tops = points
+    .filter((p) => p.rank)
+    .sort((a, b) => (a.rank! - b.rank!));
+  const secondaries = points.filter((p) => !p.rank);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+      {tops.map((p) => (
+        <div key={p.rank} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span
+            aria-hidden
+            style={{
+              width: 18,
+              height: 18,
+              borderRadius: 9999,
+              background: RANK_COLOR[p.rank!],
+              color: '#fff',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: 900,
+              fontSize: 10,
+              flexShrink: 0,
+            }}
+          >
+            {p.rank}
+          </span>
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: PALETTE.canvasDeep,
+              lineHeight: 1.3,
+            }}
+          >
+            {p.label}
+          </span>
+        </div>
+      ))}
+      {secondaries.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
+          <span
+            aria-hidden
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 9999,
+              background: PALETTE.tan,
+              flexShrink: 0,
+              marginLeft: 3,
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11.5,
+              fontWeight: 600,
+              color: PALETTE.inkMuted,
+              lineHeight: 1.3,
+            }}
+          >
+            +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'} (hover the dots for names)
+          </span>
+        </div>
+      )}
+    </div>
   );
 };

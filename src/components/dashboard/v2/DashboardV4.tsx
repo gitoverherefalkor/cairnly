@@ -18,7 +18,7 @@ import { CareerComparisonRadar, type RadarCareer } from '@/components/career/Car
 import { DashboardAppNav } from './DashboardAppNav';
 import { V4ChartBanner } from './V4ChartBanner';
 import { V4PersonalityRadarSVG, type RadarAxis } from './V4PersonalityRadarSVG';
-import { V4CareerMapSVG, type CareerPoint } from './V4CareerMapSVG';
+import { V4CareerMapSVG, V4CareerMapLegend, type CareerPoint } from './V4CareerMapSVG';
 import { V4CompareRadarSVG, V4CompareLegend, type CompareCareer } from './V4CompareRadarSVG';
 import {
   PALETTE,
@@ -682,7 +682,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                         }
                       : undefined
                   }
-                  chart={<V4CareerMapSVG points={careerMapPoints} />}
+                  chart={
+                    <div style={{ width: '100%' }}>
+                      <V4CareerMapSVG points={careerMapPoints} />
+                      <V4CareerMapLegend points={careerMapPoints} />
+                    </div>
+                  }
                   chartWidth="1.55fr"
                 />
               </div>
@@ -770,7 +775,11 @@ const HeroMatch: React.FC<{
         }}
       />
 
-      {/* Flip container — hover-only listener, perspective parent */}
+      {/* Flip container — hover-only listener, perspective parent.
+          Inside, the flipper uses a CSS-grid stack so both faces share one
+          cell. That cell auto-sizes to the taller face, which prevents the
+          back face (radar + legend) from being clipped when the front face
+          (text + bullets) is shorter. */}
       <div
         onMouseEnter={canFlip ? () => setFlipped(true) : undefined}
         onMouseLeave={canFlip ? () => setFlipped(false) : undefined}
@@ -782,7 +791,8 @@ const HeroMatch: React.FC<{
       >
         <div
           style={{
-            position: 'relative',
+            display: 'grid',
+            gridTemplateAreas: '"stack"',
             transformStyle: 'preserve-3d',
             transition: 'transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
@@ -791,6 +801,7 @@ const HeroMatch: React.FC<{
           {/* FRONT */}
           <div
             style={{
+              gridArea: 'stack',
               backfaceVisibility: 'hidden',
               WebkitBackfaceVisibility: 'hidden',
               display: 'flex',
@@ -866,13 +877,13 @@ const HeroMatch: React.FC<{
               </div>
             )}
 
-            {/* Hover-hint pill — only when there's a back face to flip to */}
+            {/* Hover-hint pill — only when there's a back face to flip to.
+                In the flow (not absolute) so it can't overlap content above. */}
             {canFlip && (
               <div
                 style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
+                  marginTop: 'auto',
+                  alignSelf: 'flex-end',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
@@ -896,12 +907,12 @@ const HeroMatch: React.FC<{
             )}
           </div>
 
-          {/* BACK — cream paper, comparison radar */}
+          {/* BACK — cream paper, comparison radar. Lives in the same grid
+              cell as the front so the cell sizes to whichever face is taller. */}
           {canFlip && (
             <div
               style={{
-                position: 'absolute',
-                inset: 0,
+                gridArea: 'stack',
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
                 transform: 'rotateY(180deg)',
