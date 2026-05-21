@@ -382,7 +382,9 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
 
-  // Initialize "Other" value from stored response
+  // Initialize "Other" value from stored response.
+  // Array may contain either 'Other: <text>' (filled) or 'other' (sentinel:
+  // checked but empty — present so the validator can block Continue).
   React.useEffect(() => {
     if (typeof value === 'string' && value.startsWith('Other: ')) {
       const extractedValue = value.replace('Other: ', '');
@@ -393,6 +395,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         const extractedValue = otherResponse.replace('Other: ', '');
         setOtherValue(extractedValue);
         setShowOther(true);
+      } else if (value.includes('other')) {
+        setShowOther(true);
       }
     }
   }, [value]);
@@ -402,7 +406,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     if (question.type === 'multiple_choice' && question.allow_multiple && Array.isArray(value) && value.length > 0) {
       const validChoices = question.config?.choices || [];
       const cleaned = value.filter((v: string) =>
-        v.startsWith('Other: ') || validChoices.includes(v)
+        v === 'other' || v.startsWith('Other: ') || validChoices.includes(v)
       );
       if (cleaned.length !== value.length) {
         onChange(cleaned);
@@ -428,17 +432,25 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     setOtherValue(otherText);
     const currentValues = Array.isArray(value) ? value : [];
     const maxSelections = question.max_selections;
-    const hasExistingOther = currentValues.some((v: string) => v.startsWith('Other: '));
+    const hasOtherSlot = currentValues.some(
+      (v: string) => v === 'other' || v.startsWith('Other: ')
+    );
+
+    // Strip both filled and sentinel forms, then re-add whichever is correct.
+    const withoutOther = currentValues.filter(
+      (v: string) => v !== 'other' && !v.startsWith('Other: ')
+    );
 
     if (otherText) {
-      const filteredValues = currentValues.filter((v: string) => !v.startsWith('Other: '));
-      // If adding new Other (not updating existing), check the limit
-      if (!hasExistingOther && maxSelections && filteredValues.length >= maxSelections) {
-        return; // At limit, can't add Other
+      // Adding a brand-new Other: enforce the selection limit.
+      if (!hasOtherSlot && maxSelections && withoutOther.length >= maxSelections) {
+        return;
       }
-      onChange([...filteredValues, `Other: ${otherText}`]);
+      onChange([...withoutOther, `Other: ${otherText}`]);
     } else {
-      onChange(currentValues.filter((v: string) => !v.startsWith('Other: ')));
+      // Empty text: keep the 'other' sentinel so the validator blocks Continue
+      // until the user types at least OTHER_MIN_CHARS chars.
+      onChange([...withoutOther, 'other']);
     }
   };
 
@@ -775,16 +787,25 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   <div
                     onClick={(e) => {
                       e.preventDefault();
-                      const hasOtherResponse = currentValues.some((v: string) => v.startsWith('Other: '));
-                      if (!showOther && !hasOtherResponse) {
+                      const hasOtherSlot = currentValues.some(
+                        (v: string) => v === 'other' || v.startsWith('Other: ')
+                      );
+                      if (!showOther && !hasOtherSlot) {
                         // Block opening Other if selection limit is already reached
                         if (isSelectionLimitReached()) return;
                         setShowOther(true);
-                      } else if (hasOtherResponse) {
-                        // Remove the "Other" response
-                        handleOtherChange('');
+                        // Push sentinel immediately so Continue is blocked
+                        // until the user types something.
+                        onChange([...currentValues, 'other']);
+                      } else {
+                        // Remove the "Other" response (sentinel or filled)
                         setOtherValue('');
                         setShowOther(false);
+                        onChange(
+                          currentValues.filter(
+                            (v: string) => v !== 'other' && !v.startsWith('Other: ')
+                          )
+                        );
                       }
                     }}
                     className={`
@@ -800,16 +821,33 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   >
                     <Checkbox
                       id="other-checkbox"
-                      checked={showOther || currentValues.some((v: string) => v.startsWith('Other: '))}
+                      checked={
+                        showOther ||
+                        currentValues.some(
+                          (v: string) => v === 'other' || v.startsWith('Other: ')
+                        )
+                      }
                       onCheckedChange={(checked) => {
-                        const hasOtherResponse = currentValues.some((v: string) => v.startsWith('Other: '));
-                        if (checked && !showOther && !hasOtherResponse && isSelectionLimitReached()) {
+                        const hasOtherSlot = currentValues.some(
+                          (v: string) => v === 'other' || v.startsWith('Other: ')
+                        );
+                        if (checked && !showOther && !hasOtherSlot && isSelectionLimitReached()) {
                           return;
                         }
                         setShowOther(checked as boolean);
-                        if (!checked) {
-                          handleOtherChange('');
+                        if (checked) {
+                          if (!hasOtherSlot) {
+                            // Push sentinel immediately so Continue is blocked
+                            // until the user types something.
+                            onChange([...currentValues, 'other']);
+                          }
+                        } else {
                           setOtherValue('');
+                          onChange(
+                            currentValues.filter(
+                              (v: string) => v !== 'other' && !v.startsWith('Other: ')
+                            )
+                          );
                         }
                       }}
                       className={`
