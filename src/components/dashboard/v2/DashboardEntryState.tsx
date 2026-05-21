@@ -19,6 +19,10 @@ export type EntryMode = 'empty' | 'resume' | 'chat';
 interface ResumeProgress {
   sectionsComplete: number;
   totalSections: number;
+  // Optional finer-grained progress: drives the % eyebrow and the bar so a
+  // user on the last question of the last section reads ~98% instead of 86%.
+  questionsAnswered?: number;
+  totalQuestions?: number;
 }
 
 interface DashboardEntryStateProps {
@@ -56,7 +60,16 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
 
   const complete = resumeProgress?.sectionsComplete ?? 0;
   const total = resumeProgress?.totalSections ?? ASSESSMENT_SECTIONS.length;
-  const pct = total > 0 ? Math.round((complete / total) * 100) : 0;
+  // Prefer question-level ratio when available — section-level ratio is too
+  // coarse (1 of 7 sections done jumps the bar in 14% chunks).
+  const answered = resumeProgress?.questionsAnswered;
+  const totalQs = resumeProgress?.totalQuestions;
+  const pct =
+    typeof answered === 'number' && typeof totalQs === 'number' && totalQs > 0
+      ? Math.min(100, Math.round((answered / totalQs) * 100))
+      : total > 0
+        ? Math.round((complete / total) * 100)
+        : 0;
 
   const headline: React.ReactNode = isChat
     ? `Your coach is ready, ${name}.`

@@ -56,6 +56,10 @@ const getAssessmentSession = () => {
 // Survey section count — matches the assessment-section strip in the entry
 // state, which mirrors the survey_sections table in Supabase.
 const TOTAL_SURVEY_SECTIONS = 7;
+// Total question count across all sections (DB: SUM of questions per section).
+// Powers the finer-grained % on the dashboard's resume progress bar.
+// Update when sections/questions change in Supabase.
+const TOTAL_SURVEY_QUESTIONS = 60;
 
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -366,6 +370,11 @@ const Dashboard = () => {
       ? {
           sectionsComplete: Math.min(savedSession?.currentSectionIndex ?? 0, TOTAL_SURVEY_SECTIONS),
           totalSections: TOTAL_SURVEY_SECTIONS,
+          questionsAnswered: Math.min(
+            Object.keys(savedSession?.responses ?? {}).length,
+            TOTAL_SURVEY_QUESTIONS
+          ),
+          totalQuestions: TOTAL_SURVEY_QUESTIONS,
         }
       : undefined;
 
