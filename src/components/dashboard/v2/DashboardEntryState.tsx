@@ -10,9 +10,9 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
   LakeBackground,
-  CairnGlyph,
 } from './dashboardV2Shared';
 import { DashboardAppNav } from './DashboardAppNav';
+import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
 export type EntryMode = 'empty' | 'resume' | 'chat';
 
@@ -81,8 +81,13 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 32px 80px' }}>
         {/* ─── CTA hero ─── */}
         <div style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 88, height: 88, marginBottom: 12 }}>
-            <CairnGlyph kind={isChat ? 'capstone' : 'foundation'} size={88} color="rgba(236,228,210,0.95)" accent={PALETTE.goldBright} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <img
+              src={cairnSymbolInvert}
+              alt=""
+              aria-hidden
+              style={{ height: 44, width: 'auto', opacity: 0.9 }}
+            />
           </div>
           <div
             style={{
@@ -297,7 +302,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             color: 'rgba(255,255,255,0.5)',
           }}
         >
-          Progress auto-saved · Safe to close and return later · Full refund if you're not satisfied
+          Progress auto-saved · Safe to close and return later
         </div>
       </div>
     </LakeBackground>
