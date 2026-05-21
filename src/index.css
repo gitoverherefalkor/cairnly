@@ -290,7 +290,8 @@
 
 /* Nested muted surfaces on cream — keep in cream family */
 .dark .bg-card .bg-muted, .dark .bg-card .bg-gray-50, .dark .bg-card .bg-gray-100,
-.dark .bg-popover .bg-muted, .dark .bg-popover .bg-gray-50, .dark .bg-popover .bg-gray-100 {
+.dark .bg-popover .bg-muted, .dark .bg-popover .bg-gray-50, .dark .bg-popover .bg-gray-100,
+.dark .bg-white .bg-muted, .dark .bg-white .bg-gray-50, .dark .bg-white .bg-gray-100 {
   background-color: hsl(40 28% 85%) !important;
 }
 
