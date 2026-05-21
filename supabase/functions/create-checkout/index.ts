@@ -41,9 +41,6 @@ serve(async (req) => {
 
     console.log("Creating checkout session for:", email, "Country:", country);
 
-    // For now, only use card payments
-    const paymentMethods: string[] = ["card"];
-
     // Get the origin from request headers or use the live domain
     const origin = req.headers.get("origin") || "https://cairnly.io";
 
@@ -66,8 +63,10 @@ serve(async (req) => {
     // Build the session. Stripe forbids `discounts` and `allow_promotion_codes`
     // together — so pre-apply the referral discount when we have one, otherwise
     // leave the manual promotion-code field open at Stripe checkout.
+    // Omitting payment_method_types makes Stripe Checkout use the methods
+    // enabled in the Stripe Dashboard, filtered by the buyer's eligibility
+    // (iDEAL for NL buyers, Bancontact for BE, Klarna where supported, etc.).
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: paymentMethods,
       line_items: [
         {
           price_data: {
