@@ -16,11 +16,38 @@ import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/D
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import { firstSentences } from '@/components/dashboard/v2/dashboardV2Shared';
 
-// Helper to get assessment session from localStorage
+// Helper to get assessment session from localStorage.
+// Live survey progress is written by useSurveyState/useSurveySession under
+// `survey_session_<surveyId>_<accessCodeId>`. The legacy `assessment_session`
+// key is only touched pre-survey (AccessCodeModal, AssessmentSessionContext)
+// and never advances, so reading it alone leaves the dashboard frozen at
+// "Section 1 of 6 in progress". Pick the most-advanced survey_session_* and
+// fall back to the legacy key for pre-survey states.
 const getAssessmentSession = () => {
   try {
-    const stored = localStorage.getItem('assessment_session');
-    return stored ? JSON.parse(stored) : null;
+    let best: any = null;
+    let bestScore = -1;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('survey_session_')) continue;
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      try {
+        const parsed = JSON.parse(raw);
+        const score =
+          (parsed?.currentSectionIndex ?? 0) * 1000 +
+          (parsed?.currentQuestionIndex ?? 0);
+        if (score > bestScore) {
+          bestScore = score;
+          best = parsed;
+        }
+      } catch {
+        // ignore unparseable entries
+      }
+    }
+    if (best) return best;
+    const legacy = localStorage.getItem('assessment_session');
+    return legacy ? JSON.parse(legacy) : null;
   } catch {
     return null;
   }
