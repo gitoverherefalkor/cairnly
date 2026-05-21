@@ -183,14 +183,7 @@ const PaymentSuccess = () => {
   return (
     <AuthShell
       eyebrow="Payment successful"
-      title="Payment Successful!"
-      subtitle={
-        !user
-          ? "Thank you for your purchase! To start your assessment, you'll need to create an account first."
-          : searchParams.get('demo') === 'true'
-            ? 'Thank you for trying our demo purchase flow. You can now start the assessment!'
-            : "Thank you for your purchase. We've sent your access code to your email as well. You can now start your assessment!"
-      }
+      title="Thank you for your purchase!"
       width="wide"
     >
       <div className="flex justify-center mb-5">
@@ -218,17 +211,17 @@ const PaymentSuccess = () => {
             style={{
               background: '#F5EFE2',
               border: '1px dashed rgba(201, 182, 144, 0.9)',
-              padding: '18px 24px',
+              padding: '10px 16px',
             }}
           >
             <p
               className="m-0"
               style={{
                 fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
-                fontSize: 28,
+                fontSize: 16,
                 fontWeight: 700,
                 color: '#122E3B',
-                letterSpacing: '0.2em',
+                letterSpacing: '0.14em',
                 lineHeight: 1.1,
               }}
             >
@@ -241,12 +234,20 @@ const PaymentSuccess = () => {
           >
             {searchParams.get('demo') === 'true'
               ? 'This is a demo access code for testing purposes only.'
-              : 'This code has also been sent to your email.'}
+              : 'This code will be automatically pre-filled and verified later, but as a backup it is also sent to your email.'}
           </p>
         </div>
       )}
 
       <div className="space-y-2.5">
+        {!user && (
+          <p
+            className="text-[14px] font-medium text-center mb-1"
+            style={{ color: '#1F2937', lineHeight: 1.5 }}
+          >
+            To start your assessment, you'll need to create an account first.
+          </p>
+        )}
         <Button onClick={handleStartAssessment} size="lg" className={primaryBtnCls}>
           {!user ? (
             <>
