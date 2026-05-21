@@ -13,7 +13,10 @@ interface V4ChartBannerProps {
   title: string;
   blurb: string;
   meta?: string;
-  stat?: { value: string; label: string; color?: string };
+  // `value` is optional — banners without a meaningful number (e.g. the
+  // personality radar, where integer ties make per-axis digits unhelpful)
+  // can render label-only.
+  stat?: { value?: string; label: string; color?: string };
   chart: React.ReactNode;
   // Right-column width — the radar is square-ish (1.25fr), the career map
   // wants more room (1.55fr).
@@ -115,25 +118,28 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
             gap: 12,
           }}
         >
-          <span
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
-              fontSize: 30,
-              letterSpacing: '-0.02em',
-              color: stat.color || PALETTE.teal,
-              lineHeight: 1,
-            }}
-          >
-            {stat.value}
-          </span>
+          {stat.value && (
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 900,
+                fontSize: 30,
+                letterSpacing: '-0.02em',
+                color: stat.color || PALETTE.teal,
+                lineHeight: 1,
+              }}
+            >
+              {stat.value}
+            </span>
+          )}
           <span
             style={{
               fontFamily: FONT_BODY,
-              fontSize: 12.5,
-              fontWeight: 600,
-              color: PALETTE.inkMuted,
-              lineHeight: 1.4,
+              // Label gets a touch more weight when it stands alone.
+              fontSize: stat.value ? 12.5 : 14,
+              fontWeight: stat.value ? 600 : 700,
+              color: stat.value ? PALETTE.inkMuted : (stat.color || PALETTE.tealDeep),
+              lineHeight: 1.45,
             }}
           >
             {stat.label}

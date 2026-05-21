@@ -99,27 +99,10 @@ export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size }) => {
         );
       })}
 
-      {/* 0 / 5 / 10 scale markers on the top spoke */}
-      {[
-        { v: 0, label: '0' },
-        { v: 0.5, label: '5' },
-        { v: 1.0, label: '10' },
-      ].map((m) => {
-        const [x, y] = pointAt(0, R * m.v);
-        return (
-          <text
-            key={m.label}
-            x={x + 6}
-            y={y + 3}
-            fontFamily="'JetBrains Mono', ui-monospace, monospace"
-            fontSize={8}
-            fill={PALETTE.inkMuted}
-            opacity={0.55}
-          >
-            {m.label}
-          </text>
-        );
-      })}
+      {/* Scale markers (0/5/10) intentionally removed — the methodology
+          (5 axes × 10 integer buckets) makes per-axis numbers misleading.
+          See dashboard handoff discussion. The chart now carries the
+          story via shape only. */}
 
       {/* Value polygon */}
       <polygon
@@ -141,7 +124,9 @@ export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size }) => {
         );
       })}
 
-      {/* Axis labels + scores */}
+      {/* Axis labels. Per-axis scores intentionally removed — the
+          underlying scale (integer 1-10 over 5 axes) ties too often for
+          the digits to be meaningful. Shape carries the read. */}
       {axes.map((ax, i) => {
         const [lx, ly] = pointAt(i, R + LABEL_OFFSET);
         const angle = angleFor(i);
@@ -165,17 +150,6 @@ export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size }) => {
                 {line}
               </text>
             ))}
-            <text
-              x={lx.toFixed(1)}
-              y={(ly + lines.length * 13 + 1).toFixed(1)}
-              textAnchor={anchor}
-              fontFamily="'JetBrains Mono', ui-monospace, monospace"
-              fontSize={9}
-              fill={PALETTE.teal}
-              fontWeight={600}
-            >
-              {ax.score.toFixed(1)}
-            </text>
           </g>
         );
       })}

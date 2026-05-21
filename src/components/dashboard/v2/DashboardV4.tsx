@@ -426,26 +426,28 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     return out;
   }, [sections]);
 
-  // Stat callouts shown under the chart banners. personality_scores are
-  // 1-10 integers from the AI, so ties at the top are common (5 axes into
-  // 10 buckets). The label adapts to how many axes share the top score so
-  // we don't pick one arbitrarily and mislabel it "the top".
-  const radarTopStat = useMemo<{ value: string; label: string } | null>(() => {
+  // Personality stat — names only, no numeric value. With a 1–10 integer
+  // scale across 5 axes the digits tie too often to be meaningful; the
+  // banner instead names the dimension(s) carrying the strongest signal.
+  const radarLeadStat = useMemo<{ label: string } | null>(() => {
     if (radarAxes.length === 0) return null;
     const max = Math.max(...radarAxes.map((a) => a.score));
-    const tied = radarAxes.filter((a) => Math.abs(a.score - max) < 0.05);
-    const value = max.toFixed(1);
+    const leads = radarAxes.filter((a) => Math.abs(a.score - max) < 0.05);
 
-    if (tied.length === radarAxes.length) {
-      return { value, label: `Balanced across all ${radarAxes.length} axes.` };
+    if (leads.length === radarAxes.length) {
+      return { label: `Balanced across all ${radarAxes.length} dimensions.` };
     }
-    if (tied.length === 1) {
-      return { value, label: `${tied[0].label} — your top axis on the assessment.` };
+    const names = leads.map((a) => a.label);
+    if (leads.length === 1) {
+      return { label: `Strongest dimension: ${names[0]}.` };
     }
-    if (tied.length === 2) {
-      return { value, label: `${tied[0].label} and ${tied[1].label} tied at the top.` };
+    if (leads.length === 2) {
+      return { label: `Strongest dimensions: ${names[0]} and ${names[1]}.` };
     }
-    return { value, label: `${tied.length} axes tied at the top — your strongest dimensions.` };
+    // 3+ leaders — comma list with Oxford-style "and" on the last item.
+    const head = names.slice(0, -1).join(', ');
+    const tail = names[names.length - 1];
+    return { label: `Strongest dimensions: ${head}, and ${tail}.` };
   }, [radarAxes]);
   const sweetSpotCount = useMemo(
     () => careerMapPoints.filter((p) => p.x <= 0.5 && p.y <= 0.5 && p.rank).length,
@@ -637,7 +639,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   title="How you actually work"
                   blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
                   meta={`${radarAxes.length} axes`}
-                  stat={radarTopStat ?? undefined}
+                  stat={radarLeadStat ?? undefined}
                   chart={<V4PersonalityRadarSVG axes={radarAxes} />}
                 />
               </div>
