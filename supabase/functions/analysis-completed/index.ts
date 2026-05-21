@@ -2,6 +2,15 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { verifySharedSecret, errorResponse } from "../_shared/cors.ts";
+import {
+  renderEmail,
+  bodyRow,
+  ctaRow,
+  h1,
+  paragraph,
+  fineprint,
+  callout,
+} from "../_shared/email-chrome.ts";
 
 // n8n-called function — no browser CORS needed
 const serverHeaders = { 'Content-Type': 'application/json' };
@@ -67,49 +76,28 @@ serve(async (req) => {
     const chatUrl = `https://cairnly.io/chat`;
 
     const firstName = profile.first_name || 'there';
+    const titleSuffix = updated.title ? ` "${updated.title}"` : '';
     const subject = 'Your Cairnly career report is ready';
-    const html = `
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <div style="background-color: #27A1A1; height: 4px; font-size: 0; line-height: 0;">&nbsp;</div>
-        <div style="background-color: #213F4F; padding: 32px 40px 28px; text-align: center;">
-          <img src="https://cairnly.io/cairnly-logo-white.png" alt="Cairnly" width="180" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-          <p style="color: #27A1A1; margin: 12px 0 0 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;">Career Discovery Platform</p>
-        </div>
 
-        <div style="padding: 40px; color: #333333;">
-          <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">Your career analysis is ready, ${firstName}</h2>
-
-          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-            Your assessment${updated.title ? ` "${updated.title}"` : ''} has been analyzed and your AI career coach is ready to walk you through the results.
+    const bodyHtml =
+      bodyRow(
+        h1(`Your career analysis is ready, ${firstName}`) +
+        paragraph(`Your assessment${titleSuffix} has been analyzed and your AI career coach is ready to walk you through the results.`) +
+        paragraph("The coaching chat is the core of the Cairnly experience. It covers your personality profile, strengths, career matches, and dream job analysis, section by section, with you in the driver's seat.") +
+        callout('Typically takes 20-30 minutes', `
+          <p style="margin:0;color:#3D4A53;font-size:14.5px;line-height:1.65;font-family:'Inter',Arial,sans-serif;font-weight:500;">
+            Your session is saved if you need to pause and come back.
           </p>
+        `)
+      ) +
+      ctaRow('Start Your Coaching Session', chatUrl) +
+      `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint('If you did not request this, you can ignore this email.')}</td></tr>`;
 
-          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-            The coaching chat is the core of the Cairnly experience. It covers your personality profile, strengths, career matches, and dream job analysis, section by section, with you in the driver's seat.
-          </p>
-
-          <div style="background-color: #f0f7fa; border-left: 4px solid #27A1A1; padding: 16px 20px; margin-bottom: 28px; border-radius: 0 8px 8px 0;">
-            <p style="color: #213F4F; font-weight: 600; margin: 0 0 4px 0; font-size: 15px;">Typically takes 20-30 minutes</p>
-            <p style="color: #666; font-size: 14px; margin: 0;">Your session is saved if you need to pause and come back.</p>
-          </div>
-
-          <div style="text-align: center; margin: 32px 0;">
-            <a href="${chatUrl}"
-               style="background-color: #27A1A1; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
-              Start Your Coaching Session
-            </a>
-          </div>
-        </div>
-
-        <div style="text-align: center; padding: 24px 40px; border-top: 1px solid #e8e8e8; background-color: #f8f9fa;">
-          <p style="color: #999; font-size: 12px; margin: 4px 0;">
-            If you did not request this, you can ignore this email.
-          </p>
-          <p style="color: #999; font-size: 12px; margin: 16px 0 0 0;">
-            &copy; 2026 Cairnly. All rights reserved.
-          </p>
-        </div>
-      </div>
-    `;
+    const html = renderEmail({
+      title: subject,
+      preheader: 'Your assessment has been analyzed and is ready to walk through.',
+      bodyHtml,
+    });
 
     const { error: emailError } = await resend.emails.send({
       from: 'Cairnly <no-reply@cairnly.io>',
