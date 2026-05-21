@@ -44,6 +44,28 @@ serve(async (req) => {
     // Get the origin from request headers or use the live domain
     const origin = req.headers.get("origin") || "https://cairnly.io";
 
+    // Resolve to a Stripe Customer so Stripe Checkout can pre-fill the
+    // buyer's name on the payment form — avoids re-typing the name for
+    // iDEAL / Bancontact / etc., which Stripe always collects regardless
+    // of the chosen method. Re-uses an existing customer when one matches
+    // the email; creates one otherwise. A failure here is non-fatal — we
+    // fall back to customer_email below.
+    let customer: Stripe.Customer | null = null;
+    try {
+      const fullName = `${firstName} ${lastName}`.trim();
+      const existing = await stripe.customers.list({ email, limit: 1 });
+      if (existing.data[0]) {
+        customer = existing.data[0];
+        if (fullName && customer.name !== fullName) {
+          customer = await stripe.customers.update(customer.id, { name: fullName });
+        }
+      } else {
+        customer = await stripe.customers.create({ email, name: fullName });
+      }
+    } catch (e) {
+      console.warn("Could not resolve Stripe customer; falling back to customer_email:", e);
+    }
+
     // If the buyer arrived via a referral code, resolve it to a live Stripe
     // promotion code so we can pre-apply the 25% discount.
     let referralPromo: Stripe.PromotionCode | null = null;
@@ -86,7 +108,9 @@ serve(async (req) => {
       // the marketing homepage — they're mid-purchase and usually want to
       // tweak a field (country, email) and try again.
       cancel_url: `${origin}/payment`,
-      customer_email: email,
+      // `customer` (with pre-set name) gives us the pre-fill; fall back to
+      // `customer_email` only if the customer resolution above failed.
+      ...(customer ? { customer: customer.id } : { customer_email: email }),
       metadata: {
         firstName,
         lastName,
