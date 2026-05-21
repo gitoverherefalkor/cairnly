@@ -10,7 +10,6 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
   LakeBackground,
-  CairnGlyph,
 } from './dashboardV2Shared';
 import { DashboardAppNav } from './DashboardAppNav';
 import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
@@ -56,17 +55,23 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   const total = resumeProgress?.totalSections ?? ASSESSMENT_SECTIONS.length;
   const pct = total > 0 ? Math.round((complete / total) * 100) : 0;
 
-  const headline = isChat
+  const headline: React.ReactNode = isChat
     ? `Your coach is ready, ${name}.`
     : isResume
       ? `Pick up where you left off, ${name}.`
-      : `Welcome, ${name}. Let's start.`;
+      : (
+          <>
+            Welcome, {name}.
+            <br />
+            Let's start.
+          </>
+        );
 
   const sub = isChat
     ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
     : isResume
       ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-      : "About 25 minutes, best in one sitting — but everything's auto-saved if you need to pause. You'll cover how you work, what you've done, and where you want to go. Then your AI coach walks you through a personalised report and refines it with you.";
+      : "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.";
 
   const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
   const ctaEyebrow = isChat
@@ -223,10 +228,10 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               filter: 'saturate(0.6)',
             }}
           >
-            <GhostCard glyph="halo" title="Personality profile" sub="How you think, lead, and operate" />
-            <GhostCard glyph="capstone" title="Top career matches" sub="3 roles tailored to you, AI-impact rated" />
-            <GhostCard glyph="pair" title="Alternative paths" sub="Runner-ups + outside-the-box" />
-            <GhostCard glyph="distant" title="Dream-job reality check" sub="An honest feasibility check" />
+            <GhostCard title="Personality profile" sub="How you think, lead, and operate" />
+            <GhostCard title="Top career matches" sub="3 roles tailored to you, AI-impact rated" />
+            <GhostCard title="Alternative paths" sub="Runner-ups + outside-the-box" />
+            <GhostCard title="Dream-job reality check" sub="An honest feasibility check" />
           </div>
 
           {!isChat && (
@@ -310,11 +315,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   );
 };
 
-const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; title: string; sub: string }> = ({
-  glyph,
-  title,
-  sub,
-}) => (
+const GhostCard: React.FC<{ title: string; sub: string }> = ({ title, sub }) => (
   <div
     style={{
       background: 'rgba(18, 46, 59, 0.50)',
@@ -326,22 +327,9 @@ const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; tit
       display: 'flex',
       flexDirection: 'column',
       gap: 12,
+      textAlign: 'center',
     }}
   >
-    <div
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <CairnGlyph kind={glyph} size={36} color="rgba(236,228,210,0.85)" accent={PALETTE.goldBright} />
-    </div>
     <div>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>
         {title}
@@ -351,6 +339,6 @@ const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; tit
       </div>
     </div>
     <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999 }} />
-    <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999, width: '70%' }} />
+    <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999, width: '70%', margin: '0 auto' }} />
   </div>
 );
