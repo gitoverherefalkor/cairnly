@@ -159,8 +159,16 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                   color: 'rgba(255,255,255,0.55)',
                 }}
               >
-                <span>Section {Math.min(complete + 1, total)} of {total} in progress</span>
-                <span>{complete} / {total} sections complete</span>
+                {complete >= total ? (
+                  <span style={{ width: '100%', textAlign: 'center' }}>
+                    All {total} sections done — submit to finish
+                  </span>
+                ) : (
+                  <>
+                    <span>Section {complete + 1} of {total} in progress</span>
+                    <span>{complete} / {total} sections complete</span>
+                  </>
+                )}
               </div>
             </div>
           )}
