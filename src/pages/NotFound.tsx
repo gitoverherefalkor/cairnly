@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 
-// Big "404" rendered as two ink-cream "4"s with a stylized cairn replacing the 0.
-const CairnFourOhFour = () => (
+// Big plain "404" in the Poppins display weight used elsewhere on the site.
+const FourOhFour = () => (
   <svg
     width="320"
     height="180"
@@ -23,39 +23,17 @@ const CairnFourOhFour = () => (
       strokeDasharray="4 6"
     />
 
-    {/* "4" — left */}
     <text
-      x="48"
+      x="160"
       y="148"
+      textAnchor="middle"
       fontFamily="Poppins, sans-serif"
       fontWeight="900"
       fontSize="148"
       fill="rgba(236,228,210,0.95)"
       letterSpacing="-6"
     >
-      4
-    </text>
-
-    {/* "0" — cairn stack */}
-    <g transform="translate(160, 100)">
-      <ellipse cx="0" cy="58" rx="38" ry="10" fill="rgba(236,228,210,0.20)" stroke="rgba(236,228,210,0.85)" strokeWidth="1.4" />
-      <ellipse cx="-2" cy="40" rx="30" ry="9" fill="rgba(236,228,210,0.20)" stroke="rgba(236,228,210,0.85)" strokeWidth="1.4" />
-      <ellipse cx="3" cy="22" rx="22" ry="7.5" fill="rgba(236,228,210,0.20)" stroke="rgba(236,228,210,0.85)" strokeWidth="1.4" />
-      <ellipse cx="-1" cy="4" rx="16" ry="6" fill="rgba(212,160,36,0.30)" stroke="#EFBE48" strokeWidth="1.6" />
-      <circle cx="0" cy="-12" r="6" fill="#EFBE48" />
-    </g>
-
-    {/* "4" — right */}
-    <text
-      x="218"
-      y="148"
-      fontFamily="Poppins, sans-serif"
-      fontWeight="900"
-      fontSize="148"
-      fill="rgba(236,228,210,0.95)"
-      letterSpacing="-6"
-    >
-      4
+      404
     </text>
   </svg>
 );
@@ -82,8 +60,8 @@ const NotFound = () => {
           />
         </a>
 
-        {/* Cairn 404 illustration */}
-        <CairnFourOhFour />
+        {/* 404 numerals */}
+        <FourOhFour />
 
         {/* Eyebrow */}
         <span
@@ -117,7 +95,7 @@ const NotFound = () => {
             textWrap: 'pretty' as any,
           }}
         >
-          The page you were looking for isn't here. The cairns are still on the trail — head back to the start.
+          The page you were looking for isn't here. The cairns are still on the trail. Head back to the start.
         </p>
 
         {/* CTAs */}
