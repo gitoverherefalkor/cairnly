@@ -6,9 +6,12 @@ import { getCorsHeaders, handleCorsPreFlight, errorResponse } from "../_shared/c
 import {
   renderEmail,
   bodyRow,
+  ctaRow,
   h1,
   paragraph,
   fineprint,
+  callout,
+  escapeHtml,
 } from "../_shared/email-chrome.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -73,6 +76,124 @@ async function sendAccessCodeEmail(email: string, firstName: string, lastName: s
   } catch (error) {
     console.error("Email sending error:", error);
     return false;
+  }
+}
+
+// "A friend joined Cairnly through your code" — sent to the referrer the
+// moment a new conversion crosses the 1, 2, or 3 friend threshold (those
+// are the conversions that actually unlock a tool). After 3, no email —
+// nothing new to celebrate.
+const REFERRAL_UNLOCK_TIERS: Array<{
+  count: number;
+  toolLabel: string;
+  toolBody: string; // sentence describing what it does
+  next: { count: number; toolLabel: string } | null;
+  cta: { label: string; href: string };
+}> = [
+  {
+    count: 1,
+    toolLabel: "Find Open Roles",
+    toolBody: "live job openings matched to your top career recommendations",
+    next: { count: 2, toolLabel: "Tailor Your Resume" },
+    cta: { label: "Find open roles now", href: "https://cairnly.io/jobs" },
+  },
+  {
+    count: 2,
+    toolLabel: "Tailor Your Resume",
+    toolBody: "an AI rewrite of your uploaded resume tailored to specific jobs you want to apply for",
+    next: { count: 3, toolLabel: "Tailor Cover Letters" },
+    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+  },
+  {
+    count: 3,
+    toolLabel: "Tailor Cover Letters",
+    toolBody: "cover letters customised to each job on your shortlist",
+    next: null,
+    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+  },
+];
+
+async function sendReferralUnlockEmail(args: {
+  referrerEmail: string;
+  referrerFirstName: string | null;
+  referrerCode: string | null;
+  inviteeFirstName: string | null;
+  // deno-lint-ignore no-explicit-any
+  supabase: any;
+  referrerUserId: string;
+}): Promise<void> {
+  const { referrerEmail, referrerFirstName, referrerCode, inviteeFirstName, supabase, referrerUserId } = args;
+
+  // Count how many converted referrals this user has now (post-insert).
+  const { count, error: countError } = await supabase
+    .from("referrals")
+    .select("id", { count: "exact", head: true })
+    .eq("referrer_user_id", referrerUserId);
+
+  if (countError) {
+    console.error("Referral count query failed:", countError);
+    return;
+  }
+
+  const tier = REFERRAL_UNLOCK_TIERS.find((t) => t.count === (count ?? 0));
+  if (!tier) {
+    // Past the 3rd unlock — nothing new to celebrate, skip.
+    return;
+  }
+
+  if (!Deno.env.get("RESEND_API_KEY")) {
+    console.warn("RESEND_API_KEY not set; skipping referral unlock email");
+    return;
+  }
+
+  const firstName = referrerFirstName?.trim() || "there";
+  const inviteeName = inviteeFirstName?.trim() || "someone";
+  const subject = `You just unlocked ${tier.toolLabel} for free`;
+  const codeBlock = referrerCode
+    ? `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">Your code: <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${escapeHtml(referrerCode)}</strong> &nbsp;·&nbsp; <a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share it again</a></p>`
+    : `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;"><a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share your code again →</a></p>`;
+
+  const nextLine = tier.next
+    ? paragraph(
+        `Invite one more friend and <strong style="color:#122E3B;font-weight:700;">${escapeHtml(tier.next.toolLabel)}</strong> opens up too.`,
+      )
+    : paragraph(
+        `That's all three tools unlocked. Thank you for helping three people find some clarity, it genuinely matters.`,
+      );
+
+  const bodyHtml =
+    bodyRow(
+      h1("A friend joined Cairnly through your code") +
+        paragraph(
+          `Hey ${escapeHtml(firstName)}, ${escapeHtml(inviteeName)} just used your code and took their first step toward better career clarity.`,
+        ) +
+        paragraph(
+          `<strong style="color:#122E3B;font-weight:700;">${tier.count} of 3 friends joined.</strong> ${escapeHtml(tier.toolLabel)} is now live on your dashboard — ${tier.toolBody}.`,
+        ) +
+        nextLine +
+        paragraph(
+          `Each invite helps someone find clarity, and earns you a tool for your own job hunt.`,
+        ) +
+        callout("YOUR REFERRAL CODE", codeBlock),
+    ) +
+    ctaRow(tier.cta.label, tier.cta.href) +
+    `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint("You're receiving this because someone just joined Cairnly using your referral code.")}</td></tr>`;
+
+  const html = renderEmail({
+    title: subject,
+    preheader: `${tier.toolLabel} is now live on your dashboard.`,
+    bodyHtml,
+  });
+
+  const { error: emailError } = await resend.emails.send({
+    from: "Cairnly <no-reply@cairnly.io>",
+    to: [referrerEmail],
+    subject,
+    html,
+  });
+
+  if (emailError) {
+    console.error("Failed to send referral unlock email:", emailError);
   }
 }
 
@@ -267,7 +388,7 @@ serve(async (req) => {
         // their own code. Compare the buyer email to the referrer's email.
         const { data: referrerProfile } = await supabase
           .from("profiles")
-          .select("email")
+          .select("email, first_name, referral_code")
           .eq("id", referrerUserId)
           .maybeSingle();
 
@@ -292,6 +413,18 @@ serve(async (req) => {
           // 23505 = duplicate stripe_session_id — already credited. Fine.
           if (referralError && referralError.code !== "23505") {
             console.error("Failed to record referral:", referralError);
+          } else if (!referralError && referrerProfile?.email) {
+            // Send the "friend joined, tool unlocked" email to the referrer.
+            // Only fires on conversions 1, 2, and 3 (the moments a tool
+            // actually unlocks). After 3 there's nothing new to celebrate.
+            await sendReferralUnlockEmail({
+              referrerEmail: referrerProfile.email,
+              referrerFirstName: referrerProfile.first_name ?? null,
+              referrerCode: referrerProfile.referral_code ?? null,
+              inviteeFirstName: firstName,
+              supabase,
+              referrerUserId,
+            }).catch((e) => console.error("Referral unlock email failed (non-fatal):", e));
           }
         }
       } catch (e) {

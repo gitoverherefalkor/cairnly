@@ -1474,13 +1474,26 @@ const ToolCard: React.FC<{
             width: 42,
             height: 42,
             borderRadius: 9999,
-            background: unlocked ? 'rgba(39, 161, 161, 0.14)' : 'rgba(18,46,59,0.08)',
-            color: unlocked ? PALETTE.tealDeep : PALETTE.inkSoft,
-            border: unlocked ? '1px solid rgba(39, 161, 161, 0.30)' : '1px solid rgba(18,46,59,0.10)',
+            background: actionable
+              ? 'rgba(212, 160, 36, 0.18)'
+              : unlocked
+                ? 'rgba(39, 161, 161, 0.14)'
+                : 'rgba(18,46,59,0.08)',
+            color: actionable
+              ? PALETTE.gold
+              : unlocked
+                ? PALETTE.tealDeep
+                : PALETTE.inkSoft,
+            border: actionable
+              ? '1px solid rgba(212, 160, 36, 0.45)'
+              : unlocked
+                ? '1px solid rgba(39, 161, 161, 0.30)'
+                : '1px solid rgba(18,46,59,0.10)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
           }}
         >
           {unlocked ? meta.icon : <Lock size={18} />}
@@ -1492,13 +1505,15 @@ const ToolCard: React.FC<{
           <div
             style={{
               fontFamily: FONT_BODY,
-              fontWeight: 500,
+              fontWeight: 700,
               fontSize: 12,
-              color: unlocked ? PALETTE.teal : PALETTE.inkMuted,
+              color: actionable ? PALETTE.gold : unlocked ? PALETTE.teal : PALETTE.inkMuted,
               marginTop: 2,
+              letterSpacing: actionable ? '0.04em' : undefined,
+              textTransform: actionable ? 'uppercase' : undefined,
             }}
           >
-            {unlocked ? (feature.builtYet ? 'Unlocked' : 'Unlocked · coming soon') : meta.unlockCopy}
+            {unlocked ? (feature.builtYet ? 'Unlocked!' : 'Unlocked · coming soon') : meta.unlockCopy}
           </div>
         </div>
       </div>
@@ -1524,19 +1539,26 @@ const ToolCard: React.FC<{
         }}
         style={{
           marginTop: 'auto',
-          background: 'transparent',
-          color: unlocked && !feature.builtYet ? PALETTE.inkSoft : PALETTE.tealDeep,
-          border: `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
+          background: actionable ? PALETTE.gold : 'transparent',
+          color: actionable
+            ? PALETTE.canvasDeep
+            : unlocked && !feature.builtYet
+              ? PALETTE.inkSoft
+              : PALETTE.tealDeep,
+          border: actionable
+            ? '1px solid transparent'
+            : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
           padding: '11px 14px',
           borderRadius: 9999,
           fontFamily: FONT_BODY,
-          fontWeight: 700,
+          fontWeight: actionable ? 800 : 700,
           fontSize: 13,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
           cursor: unlocked && !feature.builtYet ? 'default' : 'pointer',
+          boxShadow: actionable ? '0 10px 24px -8px rgba(212,160,36,0.55)' : undefined,
           opacity: unlocked && !feature.builtYet ? 0.7 : 1,
         }}
       >
