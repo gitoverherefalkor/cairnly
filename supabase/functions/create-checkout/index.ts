@@ -83,7 +83,10 @@ serve(async (req) => {
       ],
       mode: "payment",
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/#pricing`,
+      // Back/cancel from Stripe returns the buyer to the checkout form, not
+      // the marketing homepage — they're mid-purchase and usually want to
+      // tweak a field (country, email) and try again.
+      cancel_url: `${origin}/payment`,
       customer_email: email,
       metadata: {
         firstName,
