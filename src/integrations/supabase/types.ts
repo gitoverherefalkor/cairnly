@@ -253,6 +253,79 @@ export type Database = {
           },
         ]
       }
+      custom_resumes: {
+        Row: {
+          ats_score: number | null
+          career_section_id: string | null
+          career_title: string
+          cover_letter_json: Json | null
+          created_at: string
+          error_message: string | null
+          id: string
+          keyword_coverage: Json | null
+          report_id: string
+          resume_json: Json
+          status: string
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ats_score?: number | null
+          career_section_id?: string | null
+          career_title: string
+          cover_letter_json?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          keyword_coverage?: Json | null
+          report_id: string
+          resume_json: Json
+          status?: string
+          template_id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ats_score?: number | null
+          career_section_id?: string | null
+          career_title?: string
+          cover_letter_json?: Json | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          keyword_coverage?: Json | null
+          report_id?: string
+          resume_json?: Json
+          status?: string
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_resumes_career_section_id_fkey"
+            columns: ["career_section_id"]
+            isOneToOne: false
+            referencedRelation: "report_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_resumes_career_section_id_fkey"
+            columns: ["career_section_id"]
+            isOneToOne: false
+            referencedRelation: "report_sections_with_user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "custom_resumes_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enriched_jobs: {
         Row: {
           ai_impact_rating: string | null
@@ -445,6 +518,42 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          confirmation_token: string
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          status: string
+          unsubscribe_token: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          confirmation_token?: string
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          status?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          confirmation_token?: string
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          status?: string
+          unsubscribe_token?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_range: string | null
@@ -461,6 +570,8 @@ export type Database = {
           referral_code: string | null
           region: string | null
           resume_data: Json | null
+          resume_full_data: Json | null
+          resume_full_data_extracted_at: string | null
           resume_parsed_data: Json | null
           resume_uploaded_at: string | null
           stripe_promotion_code_id: string | null
@@ -482,6 +593,8 @@ export type Database = {
           referral_code?: string | null
           region?: string | null
           resume_data?: Json | null
+          resume_full_data?: Json | null
+          resume_full_data_extracted_at?: string | null
           resume_parsed_data?: Json | null
           resume_uploaded_at?: string | null
           stripe_promotion_code_id?: string | null
@@ -503,32 +616,13 @@ export type Database = {
           referral_code?: string | null
           region?: string | null
           resume_data?: Json | null
+          resume_full_data?: Json | null
+          resume_full_data_extracted_at?: string | null
           resume_parsed_data?: Json | null
           resume_uploaded_at?: string | null
           stripe_promotion_code_id?: string | null
           terms_consent_at?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      prompts: {
-        Row: {
-          content: string | null
-          created_at: string | null
-          id: string
-          title: string | null
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string | null
-          id?: string
-          title?: string | null
-        }
-        Update: {
-          content?: string | null
-          created_at?: string | null
-          id?: string
-          title?: string | null
         }
         Relationships: []
       }
@@ -572,73 +666,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      referrals: {
-        Row: {
-          amount_paid: number | null
-          created_at: string
-          currency: string | null
-          id: string
-          invitee_email: string | null
-          invitee_user_id: string | null
-          promotion_code_used: string | null
-          referrer_user_id: string
-          stripe_session_id: string
-        }
-        Insert: {
-          amount_paid?: number | null
-          created_at?: string
-          currency?: string | null
-          id?: string
-          invitee_email?: string | null
-          invitee_user_id?: string | null
-          promotion_code_used?: string | null
-          referrer_user_id: string
-          stripe_session_id: string
-        }
-        Update: {
-          amount_paid?: number | null
-          created_at?: string
-          currency?: string | null
-          id?: string
-          invitee_email?: string | null
-          invitee_user_id?: string | null
-          promotion_code_used?: string | null
-          referrer_user_id?: string
-          stripe_session_id?: string
-        }
-        Relationships: []
-      }
-      saved_chat_responses: {
-        Row: {
-          content: string
-          content_hash: string | null
-          created_at: string
-          id: string
-          label: string | null
-          report_id: string
-          section_type: string | null
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          label?: string | null
-          report_id: string
-          section_type?: string | null
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          label?: string | null
-          report_id?: string
-          section_type?: string | null
-          user_id?: string
-        }
-        Relationships: []
       }
       questions: {
         Row: {
@@ -692,6 +719,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      referrals: {
+        Row: {
+          amount_paid: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          invitee_email: string | null
+          invitee_user_id: string | null
+          promotion_code_used: string | null
+          referrer_user_id: string
+          stripe_session_id: string
+        }
+        Insert: {
+          amount_paid?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invitee_email?: string | null
+          invitee_user_id?: string | null
+          promotion_code_used?: string | null
+          referrer_user_id: string
+          stripe_session_id: string
+        }
+        Update: {
+          amount_paid?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invitee_email?: string | null
+          invitee_user_id?: string | null
+          promotion_code_used?: string | null
+          referrer_user_id?: string
+          stripe_session_id?: string
+        }
+        Relationships: []
       }
       report_sections: {
         Row: {
@@ -830,6 +893,47 @@ export type Database = {
           },
         ]
       }
+      saved_chat_responses: {
+        Row: {
+          content: string
+          content_hash: string | null
+          created_at: string
+          id: string
+          label: string | null
+          report_id: string
+          section_type: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_hash?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          report_id: string
+          section_type?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_hash?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          report_id?: string
+          section_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_chat_responses_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_jobs: {
         Row: {
           apply_url: string | null
@@ -889,24 +993,42 @@ export type Database = {
           },
         ]
       }
-      sop_vectors: {
+      support_requests: {
         Row: {
-          content: string | null
-          embedding: string | null
+          access_code: string | null
+          category: string
+          created_at: string
+          email: string
           id: string
-          metadata: Json | null
+          message: string
+          page: string | null
+          status: string
+          user_agent: string | null
+          user_id: string | null
         }
         Insert: {
-          content?: string | null
-          embedding?: string | null
+          access_code?: string | null
+          category: string
+          created_at?: string
+          email: string
           id?: string
-          metadata?: Json | null
+          message: string
+          page?: string | null
+          status?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Update: {
-          content?: string | null
-          embedding?: string | null
+          access_code?: string | null
+          category?: string
+          created_at?: string
+          email?: string
           id?: string
-          metadata?: Json | null
+          message?: string
+          page?: string | null
+          status?: string
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1114,6 +1236,17 @@ export type Database = {
     Functions: {
       check_and_send_reminders: { Args: never; Returns: undefined }
       cleanup_old_chat_histories: { Args: never; Returns: undefined }
+      consume_access_code: {
+        Args: { p_code_id: string }
+        Returns: {
+          code: string
+          id: string
+          max_usage: number
+          usage_count: number
+          used_at: string
+          user_id: string
+        }[]
+      }
       dmetaphone: { Args: { "": string }; Returns: string }
       dmetaphone_alt: { Args: { "": string }; Returns: string }
       enriched_careers: {

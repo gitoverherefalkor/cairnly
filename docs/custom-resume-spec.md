@@ -189,15 +189,9 @@ This stores the deeper résumé parse (from §5 step 2) so re-generation doesn't
 - Validates auth.
 - Creates a signed URL (5-min expiry) for the user's stored résumé.
 - Calls `N8N_CUSTOM_RESUME_WEBHOOK_URL` (new env var).
-- Returns the n8n response to the frontend (or a job ID if we want async, see §10 open decisions).
+- Returns immediately with `{ custom_resume_ids: [...], status: 'processing' }`. The frontend then subscribes to those rows in `custom_resumes` (Supabase Realtime) and updates the UI as each generation flips to `'completed'`.
 
-**Also new:** `supabase/functions/render-resume-pdf/index.ts`
-
-- Takes `{ custom_resume_id, template_id, output_type: 'ats' | 'designed' | 'cover_letter' }`.
-- Loads the resume_json from `custom_resumes`.
-- Renders HTML using the chosen template.
-- Converts to PDF via an HTML→PDF service (decision: do we self-host a renderer like Puppeteer in an edge function, or use a third-party API like PDFShift / DocRaptor?).
-- Streams the PDF back.
+**No server-side PDF rendering.** All PDF generation happens **client-side via `@react-pdf/renderer`** — no edge function, no vendor, no per-PDF cost.
 
 ---
 
@@ -237,6 +231,14 @@ src/components/custom-resume/
 - Atlas color palette: use `atlas-blue` for primary actions, `atlas-teal` for success states, `atlas-orange` for alerts (e.g., missing keywords in ATS feedback).
 - The ATS score gets a prominent visual treatment — circular progress or a labeled badge ("87/100 — Strong match").
 
+### PDF rendering
+- Library: **`@react-pdf/renderer`** (client-side, MIT, free, zero per-PDF cost).
+- Each template under `templates/` is a React PDF component using `<Page>`, `<Text>`, `<View>`, `<StyleSheet>` primitives.
+- Preview: `<PDFViewer>` shows a live render in the browser.
+- Download: `pdf(<Template data={...} />).toBlob()` produces the file on click.
+- Fonts: register custom fonts via `Font.register({ family, src })` with TTF/OTF URLs (Google Fonts files are fine).
+- One component definition serves both preview and download — no parallel implementations.
+
 ---
 
 ## 9. Templates
@@ -248,14 +250,15 @@ Templates render from the `resume_json` source of truth — template switching i
 
 ---
 
-## 10. Open decisions
+## 10. Decisions (locked)
 
-1. **Sync vs. async webhook.** With three careers in parallel + LLM calls, total time is ~30–40s. Borderline for a sync HTTP request. **Recommendation:** async — return immediately, frontend polls `custom_resumes` table (or subscribes via Supabase Realtime) for completion. Mirrors how the main report generation works.
-2. **PDF rendering choice.** Self-hosted Puppeteer in an edge function (more setup) vs. third-party API (faster to ship, adds a vendor). **Recommendation:** start with a third-party PDF API (e.g., PDFShift) for speed; revisit if cost/privacy becomes an issue.
-3. **Re-parse strategy.** If a user uploads a new résumé later, do we invalidate cached `resume_full_data` automatically? **Recommendation:** yes, key it by `profiles.resume_uploaded_at`; if that changes, re-parse on next generation.
-4. **Initial summary as input.** Include in LLM context or skip? **Recommendation:** include — it's a short, well-curated framing of the user. Worth the tokens.
-5. **Editing the result.** Can users edit `resume_json` directly in the UI before downloading? **Recommendation:** v1 = no (regenerate or live with it). v2 = inline editor. Don't block v1 on this.
-6. **Storage of PDFs.** Generate-on-demand vs. cache PDFs in a new Storage bucket. **Recommendation:** generate-on-demand from `resume_json` — keeps storage costs down and means template/edit changes are reflected immediately.
+1. ✅ **Async webhook.** Edge function returns immediately with the `custom_resume_ids`; frontend subscribes via Supabase Realtime and updates the UI when each row flips to `'completed'`.
+2. ✅ **PDF rendering = `@react-pdf/renderer` client-side.** No vendor, no per-PDF cost, no server load. One template component serves both preview and download.
+3. ✅ **Re-parse on new upload.** Resume_full_data is keyed by `profiles.resume_uploaded_at`; if that timestamp is newer than `resume_full_data_extracted_at`, WF_custom_resume re-parses.
+4. ✅ **Initial summary included** in the LLM context — short, well-curated framing of the user, worth the tokens.
+5. ✅ **No editing in v1.** Users regenerate or live with the output. Inline editor is a v2 candidate.
+6. ✅ **No PDF storage.** Generated on demand from `resume_json` — saves storage costs and means edits to templates apply retroactively.
+7. ✅ **No n8n exports.** `WF_custom_resume` is net-new — no existing workflow is touched, so the per-workflow export policy doesn't apply.
 
 ---
 
@@ -270,25 +273,14 @@ Templates render from the `resume_json` source of truth — template switching i
 
 ---
 
-## 12. Implementation order (proposed)
+## 12. Implementation order
 
-1. **DB migration** — `custom_resumes` table + `profiles.resume_full_data` column.
-2. **Export current n8n state** to `n8n_aa/` (Resume Extract + WF1 + WF2 + WF3 + WF4 + WF5 + Error Handler) per CLAUDE.md policy.
-3. **Build `WF_custom_resume`** in n8n. Test end-to-end with a real user_id via Postman.
-4. **Edge function** `generate-custom-resume` (proxy + signed URL).
-5. **Edge function** `render-resume-pdf` (PDF rendering).
-6. **ATS templates** (2) in React.
-7. **Wizard UI** (steps 1–4) as a Sheet/Dialog from dashboard.
-8. **Results view** with preview, ATS score, downloads.
-9. **Polish** — empty states, error states, loading micro-interactions.
-10. **Designed templates** (3) — slotted in once Claude Design delivers them.
-
----
-
-## 13. Approvals needed before building
-
-- [ ] Spec reviewed and approved
-- [ ] Decision on async vs. sync (open decision #1)
-- [ ] Decision on PDF rendering vendor (open decision #2)
-- [ ] Confirm we're OK exporting all production n8n workflows to `n8n_aa/` as part of step 2
-- [ ] Claude Design brief sent (already drafted)
+1. ✅ **DB migration** — `custom_resumes` table + `profiles.resume_full_data` columns. Applied 2026-05-21.
+2. **Install `@react-pdf/renderer`** and confirm it builds in Vite.
+3. **Build `WF_custom_resume`** in n8n. Net-new workflow. Test end-to-end with a real user_id via Postman against a dev row in `custom_resumes`.
+4. **Edge function** `generate-custom-resume` — auth, signed URL, async proxy to n8n.
+5. **Frontend wizard UI** (steps 1–4) as a Sheet/Dialog from dashboard.
+6. **ATS templates** (2) as `@react-pdf/renderer` components.
+7. **Results view** — Supabase Realtime subscription, ATS score, live PDF preview, download buttons.
+8. **Polish** — empty states, error states, loading micro-interactions.
+9. **Designed templates** (3) — slotted in once Claude Design delivers them.
