@@ -10,6 +10,7 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
   LakeBackground,
+  CairnGlyph,
 } from './dashboardV2Shared';
 import { DashboardAppNav } from './DashboardAppNav';
 import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
