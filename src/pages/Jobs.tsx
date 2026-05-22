@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -166,12 +166,17 @@ const Jobs = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Flip to results once at least one career finishes.
+  // Flip to results once at least one career finishes — but only for a freshly
+  // initiated search. Without this guard, clicking "Edit search" (which sets
+  // view back to 'search') would instantly bounce to 'results' because the
+  // previous run's results are still present.
+  const awaitingSearchRef = useRef(false);
   useEffect(() => {
-    if (results.some((r) => r.status === 'done') && view === 'search') {
+    if (awaitingSearchRef.current && results.some((r) => r.status === 'done')) {
+      awaitingSearchRef.current = false;
       setView('results');
     }
-  }, [results, view]);
+  }, [results]);
 
   const handleToggleCareer = (sectionType: string) => {
     setSelectedCareers((prev) =>
@@ -187,6 +192,7 @@ const Jobs = () => {
       })
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
+    awaitingSearchRef.current = true;
     searchJobs(careers, countryCodes, city || undefined, workArrangement, userLanguages, latestReport?.id);
   };
 
