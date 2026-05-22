@@ -157,6 +157,37 @@ const Jobs = () => {
     return out;
   }, [latestReport]);
 
+  // Cherry-pick the survey's "avoid" answers straight from the report payload
+  // (deterministic — no LLM parsing of the prose summary). These feed the n8n
+  // scorer as a penalty signal so jobs the user told us to avoid rank lower.
+  //   44…447 = industries to avoid, 33…338 = career aspects to avoid.
+  const avoidPreferences = useMemo<string[]>(() => {
+    const AVOID_INDUSTRIES_QID = '44444444-4444-4444-4444-444444444447';
+    const AVOID_ASPECTS_QID = '33333333-3333-3333-3333-333333333338';
+    const resp = (latestReport as any)?.payload?.responses;
+    if (!resp) return [];
+    // Strip markdown bold + trailing "(e.g. …)" examples and newlines.
+    const clean = (s: unknown) =>
+      String(s ?? '')
+        .replace(/\*\*/g, '')
+        .split(/\n|\(e\.g/i)[0]
+        .replace(/\s+/g, ' ')
+        .trim();
+    // "Industry doesn't matter to me…" is a no-preference sentinel, not an avoid.
+    const isNoPref = (s: string) => /doesn'?t matter|no preference|not applicable/i.test(s);
+    const out: string[] = [];
+    for (const qid of [AVOID_INDUSTRIES_QID, AVOID_ASPECTS_QID]) {
+      const v = resp[qid];
+      if (Array.isArray(v)) {
+        for (const item of v) {
+          const c = clean(item);
+          if (c && !isNoPref(c)) out.push(c);
+        }
+      }
+    }
+    return [...new Set(out)];
+  }, [latestReport]);
+
   // Restore a completed search from the persisted snapshot once on mount.
   useEffect(() => {
     if (persisted?.results?.length) restoreResults(persisted.results);
@@ -254,7 +285,7 @@ const Jobs = () => {
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
     awaitingSearchRef.current = true;
-    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id);
+    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, avoidPreferences);
   };
 
   const handleInvite = async () => {

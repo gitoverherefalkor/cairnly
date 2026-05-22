@@ -21,6 +21,12 @@ serve(async (req) => {
     const body = await req.json();
     const { career_title, location, alternate_titles, work_arrangement, job_commitment, report_id } = body;
 
+    // Survey-derived "avoid" preferences (industries + career aspects the user
+    // wants to steer clear of). Forwarded to n8n's scorer as a penalty signal.
+    const avoidPreferences: string[] = Array.isArray(body.avoid_preferences)
+      ? body.avoid_preferences.map((s: unknown) => String(s).trim()).filter(Boolean)
+      : [];
+
     // Accept country_codes (array, 1-2 entries) OR country_code (legacy single).
     // Always normalize to a sorted, deduped array internally.
     const rawCountries: string[] = Array.isArray(body.country_codes) && body.country_codes.length > 0
@@ -108,7 +114,14 @@ serve(async (req) => {
     // Bump this whenever the n8n search/scoring logic changes, so stale
     // results cached under the old logic stop matching and fresh searches run.
     // v2: LLM keyword generator + scoring specialization rule (2026-05-22).
-    const SEARCH_LOGIC_VERSION = 'v2';
+    // v3: avoid-preferences penalty in scoring (2026-05-22).
+    const SEARCH_LOGIC_VERSION = 'v3';
+
+    // Avoid-prefs signature: stable per user, so users with different avoid
+    // lists don't share each other's scored cache. Sorted so order doesn't matter.
+    const avoidSignature = avoidPreferences.length
+      ? [...avoidPreferences].map((s) => s.toLowerCase()).sort().join('|')
+      : 'none';
 
     // Cache key: logic version + sorted country list + arrangement + language
     // signature. Same query in NL+DE hits the same cache regardless of which
@@ -119,7 +132,8 @@ serve(async (req) => {
       + countries.join('+')
       + (workArrangement !== 'any' ? ':' + workArrangement : '')
       + (jobCommitment !== 'any' ? ':jt=' + jobCommitment : '')
-      + ':lang=' + langSignature;
+      + ':lang=' + langSignature
+      + ':avoid=' + avoidSignature;
 
     // Check cache first
     const { data: cached } = await supabase
@@ -174,6 +188,7 @@ serve(async (req) => {
           country_codes: countries,
           work_arrangement: workArrangement,
           job_commitment: jobCommitment,
+          avoid_preferences: avoidPreferences,
           location: location || '',
           // user_languages drives the scoring step's language-awareness.
           // Forwarded as-is; n8n decides how aggressively to weight it.
