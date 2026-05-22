@@ -3,7 +3,8 @@
 // logo + gold rule baked in), gold accents, tan hairlines, teal CTAs.
 //
 // Tables-for-layout + inline styles for 90%+ client compatibility. Web fonts
-// load via <link>; Outlook desktop falls back to Georgia/Segoe UI Bold.
+// load via <link>; clients that strip web fonts (Gmail, Outlook desktop)
+// fall back to a system sans (Segoe UI / Helvetica Neue / Arial), never serif.
 //
 // Usage:
 //   import { renderEmail, paragraph, callout, cta, bullet, escapeHtml }
@@ -21,7 +22,7 @@ export const EMAIL_BANNER_URL = "https://cairnly.io/email-banner.jpg";
 // ─── Inline helpers for body content ──────────────────────────────────────
 
 export function h1(text: string): string {
-  return `<h1 class="h1-mob" style="margin:0 0 22px 0;font-family:'Poppins','Inter','Segoe UI',Georgia,sans-serif;color:#122E3B;font-size:30px;line-height:1.2;font-weight:700;letter-spacing:-0.5px;">${text}</h1>`;
+  return `<h1 class="h1-mob" style="margin:0 0 22px 0;font-family:'Poppins','Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;color:#122E3B;font-size:30px;line-height:1.2;font-weight:700;letter-spacing:-0.5px;">${text}</h1>`;
 }
 
 export function paragraph(
