@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
 import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
-import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement } from '@/hooks/useJobSearch';
+import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
 import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
@@ -46,6 +46,7 @@ interface PersistedJobsState {
   secondaryCountry: string;
   city: string;
   workArrangement: WorkArrangement;
+  jobCommitment: JobCommitment;
   results: import('@/hooks/useJobSearch').JobSearchResult[];
 }
 
@@ -87,6 +88,7 @@ const Jobs = () => {
   const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
   const [city, setCity] = useState(() => persisted?.city ?? '');
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
+  const [jobCommitment, setJobCommitment] = useState<JobCommitment>(() => persisted?.jobCommitment ?? 'any');
 
   // Build career options from real report sections.
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
@@ -167,12 +169,12 @@ const Jobs = () => {
     try {
       sessionStorage.setItem(
         JOBS_STATE_KEY,
-        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, results }),
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, results }),
       );
     } catch {
       // sessionStorage full or unavailable — non-fatal, just skip persisting.
     }
-  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, results]);
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, results]);
 
   // Pre-fill primary country from profile — only when there's no restored
   // snapshot, so we don't clobber a country the user already picked.
@@ -252,7 +254,7 @@ const Jobs = () => {
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
     awaitingSearchRef.current = true;
-    searchJobs(careers, countryCodes, city || undefined, workArrangement, userLanguages, latestReport?.id);
+    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id);
   };
 
   const handleInvite = async () => {
@@ -335,6 +337,7 @@ const Jobs = () => {
       `${selectedCareers.length} ${selectedCareers.length === 1 ? 'career' : 'careers'}`,
       [primaryCountry, secondaryCountry].filter(Boolean).map((c) => c.toUpperCase()).join(' + '),
       workArrangement === 'remote_only' ? 'remote only' : workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
+      jobCommitment === 'full_time' ? 'full-time' : jobCommitment === 'part_time' ? 'part-time / fractional' : null,
     ].filter(Boolean);
     return (
       <JobsResults
@@ -374,6 +377,8 @@ const Jobs = () => {
       onCityChange={setCity}
       workArrangement={workArrangement}
       onWorkArrangementChange={setWorkArrangement}
+      jobCommitment={jobCommitment}
+      onJobCommitmentChange={setJobCommitment}
       isSearching={isSearching}
       onSearch={handleSearch}
       onBack={() => navigate('/dashboard')}

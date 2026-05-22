@@ -19,7 +19,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { career_title, location, alternate_titles, work_arrangement, report_id } = body;
+    const { career_title, location, alternate_titles, work_arrangement, job_commitment, report_id } = body;
 
     // Accept country_codes (array, 1-2 entries) OR country_code (legacy single).
     // Always normalize to a sorted, deduped array internally.
@@ -44,6 +44,13 @@ serve(async (req) => {
     const workArrangement = VALID_ARRANGEMENTS.has(String(work_arrangement))
       ? String(work_arrangement)
       : (body.remote_only ? 'remote_only' : 'any');
+
+    // Hours / commitment: 'any' (no filter) | 'full_time' | 'part_time'
+    // (part-time + contract, i.e. fractional/interim). Defaults to 'any'.
+    const VALID_COMMITMENTS = new Set(['any', 'full_time', 'part_time']);
+    const jobCommitment = VALID_COMMITMENTS.has(String(job_commitment))
+      ? String(job_commitment)
+      : 'any';
 
     // User languages — the frontend extracts these from the user's report payload
     // when the survey collected them. Format: [{ language: 'Dutch', proficiency: 'fluent' }, ...]
@@ -111,6 +118,7 @@ serve(async (req) => {
     const countryNormalized = SEARCH_LOGIC_VERSION + ':'
       + countries.join('+')
       + (workArrangement !== 'any' ? ':' + workArrangement : '')
+      + (jobCommitment !== 'any' ? ':jt=' + jobCommitment : '')
       + ':lang=' + langSignature;
 
     // Check cache first
@@ -165,6 +173,7 @@ serve(async (req) => {
           alternate_titles: alternate_titles || [],
           country_codes: countries,
           work_arrangement: workArrangement,
+          job_commitment: jobCommitment,
           location: location || '',
           // user_languages drives the scoring step's language-awareness.
           // Forwarded as-is; n8n decides how aggressively to weight it.

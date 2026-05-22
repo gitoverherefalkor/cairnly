@@ -4,7 +4,7 @@
 // profileCountryToCode) are still used.
 
 import React from 'react';
-import { CheckCircle2, Globe, Loader2, Search } from 'lucide-react';
+import { CheckCircle2, Clock, Globe, Loader2, Search } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -13,7 +13,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier, TIER_LABEL } from './jobsV2Shared';
-import type { WorkArrangement } from '@/hooks/useJobSearch';
+import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
 
 export interface JobsSearchCareerOption {
   sectionType: string;
@@ -33,6 +33,12 @@ const WORK_OPTIONS: { value: WorkArrangement; label: string }[] = [
   { value: 'remote_only', label: 'Remote only' },
 ];
 
+const COMMITMENT_OPTIONS: { value: JobCommitment; label: string }[] = [
+  { value: 'any', label: 'Any hours' },
+  { value: 'full_time', label: 'Full-time' },
+  { value: 'part_time', label: 'Part-time / fractional' },
+];
+
 interface JobsSearchProps {
   firstName: string;
   careers: JobsSearchCareerOption[];
@@ -47,6 +53,8 @@ interface JobsSearchProps {
   onCityChange: (city: string) => void;
   workArrangement: WorkArrangement;
   onWorkArrangementChange: (v: WorkArrangement) => void;
+  jobCommitment: JobCommitment;
+  onJobCommitmentChange: (v: JobCommitment) => void;
   isSearching: boolean;
   onSearch: () => void;
   onBack: () => void;
@@ -71,6 +79,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onCityChange,
   workArrangement,
   onWorkArrangementChange,
+  jobCommitment,
+  onJobCommitmentChange,
   isSearching,
   onSearch,
   onBack,
@@ -275,6 +285,67 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               "Remote" surfaces remote roles posted for the countries you picked. We don't yet search
               for roles that are remote <em>anywhere in the world</em>. Want that? Let us know via the
               Feedback &amp; Support button, bottom-right.
+            </p>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: 8,
+              }}
+            >
+              Hours / commitment
+            </div>
+            <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
+              {COMMITMENT_OPTIONS.map((opt) => {
+                const active = jobCommitment === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onJobCommitmentChange(opt.value)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      padding: '10px 16px',
+                      borderRadius: 9999,
+                      border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                      background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                      fontFamily: FONT_BODY,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      color: active ? PALETTE.goldBright : '#fff',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {opt.value !== 'any' && <Clock size={14} />}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 12.5,
+                fontWeight: 500,
+                lineHeight: 1.5,
+                color: 'rgba(255,255,255,0.55)',
+                margin: '12px 0 0 0',
+                maxWidth: 640,
+              }}
+            >
+              Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time / fractional
+              roles are rarer, so this can return noticeably fewer results. Leave it on "Any hours" for
+              the widest search.
             </p>
           </div>
         </div>

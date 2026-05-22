@@ -50,6 +50,12 @@ export interface UserLanguage {
 //   remote_only    → fully remote
 export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
 
+// Hours / engagement commitment. Maps to LinkedIn's job-type filter (f_JT):
+//   any        → no filter
+//   full_time  → F
+//   part_time  → P,C (part-time + contract — covers fractional/interim)
+export type JobCommitment = 'any' | 'full_time' | 'part_time';
+
 /**
  * Hook for searching jobs sequentially (one career at a time).
  * Returns per-career results and an overall progress state.
@@ -65,6 +71,7 @@ export const useJobSearch = () => {
     countryCodes: string[],
     location?: string,
     workArrangement?: WorkArrangement,
+    jobCommitment?: JobCommitment,
     userLanguages?: UserLanguage[],
     reportId?: string,
   ) => {
@@ -98,6 +105,7 @@ export const useJobSearch = () => {
             career_title: careers[i].careerTitle,
             country_codes: countryCodes,
             work_arrangement: workArrangement || 'any',
+            job_commitment: jobCommitment || 'any',
             location: location || '',
             alternate_titles: careers[i].alternateTitles || [],
             user_languages: userLanguages || [],
