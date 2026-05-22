@@ -141,11 +141,18 @@ export const useJobSearch = () => {
     setIsSearching(false);
   };
 
+  // Re-seed results from a persisted snapshot (e.g. sessionStorage after a
+  // page refresh) so the user doesn't lose a completed search.
+  const restoreResults = (saved: JobSearchResult[]) => {
+    if (Array.isArray(saved) && saved.length > 0) setResults(saved);
+  };
+
   return {
     results,
     currentIndex,
     isSearching,
     searchJobs,
     clearResults,
+    restoreResults,
   };
 };

@@ -33,6 +33,31 @@ const SECTION_TO_TIER: Record<string, CareerTier & JobsTier> = {
 
 type View = 'search' | 'results' | 'saved';
 
+// Persisted search snapshot so a page refresh restores the user's careers,
+// location filters, and results instead of resetting to defaults. sessionStorage
+// (not localStorage) so it lives for the browsing session and clears on tab
+// close — job results go stale, and the backend re-caches them cheaply anyway.
+const JOBS_STATE_KEY = 'cairnly_jobs_search_v1';
+
+interface PersistedJobsState {
+  view: View;
+  selectedCareers: string[];
+  primaryCountry: string;
+  secondaryCountry: string;
+  city: string;
+  workArrangement: WorkArrangement;
+  results: import('@/hooks/useJobSearch').JobSearchResult[];
+}
+
+function readPersistedJobsState(): PersistedJobsState | null {
+  try {
+    const raw = sessionStorage.getItem(JOBS_STATE_KEY);
+    return raw ? (JSON.parse(raw) as PersistedJobsState) : null;
+  } catch {
+    return null;
+  }
+}
+
 const Jobs = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
@@ -45,16 +70,23 @@ const Jobs = () => {
   const latestReport = reports?.length ? reports[0] : null;
   const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
 
-  const { results, isSearching, searchJobs } = useJobSearch();
+  const { results, isSearching, searchJobs, restoreResults } = useJobSearch();
   const { savedJobs, saveJob, unsaveJob, updateStatus, isJobSaved } = useSavedJobs();
 
-  // View / filter state
-  const [view, setView] = useState<View>('search');
-  const [selectedCareers, setSelectedCareers] = useState<string[]>([]);
-  const [primaryCountry, setPrimaryCountry] = useState('us');
-  const [secondaryCountry, setSecondaryCountry] = useState('');
-  const [city, setCity] = useState('');
-  const [workArrangement, setWorkArrangement] = useState<WorkArrangement>('any');
+  // Read the persisted snapshot once (lazy — runs a single time on mount).
+  const [persisted] = useState<PersistedJobsState | null>(() => readPersistedJobsState());
+
+  // View / filter state — seeded from the persisted snapshot when present.
+  const [view, setView] = useState<View>(() =>
+    persisted?.view === 'results' && !persisted?.results?.some((r) => r.status === 'done')
+      ? 'search' // had a results view but nothing completed — fall back to the picker
+      : persisted?.view ?? 'search',
+  );
+  const [selectedCareers, setSelectedCareers] = useState<string[]>(() => persisted?.selectedCareers ?? []);
+  const [primaryCountry, setPrimaryCountry] = useState(() => persisted?.primaryCountry ?? 'us');
+  const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
+  const [city, setCity] = useState(() => persisted?.city ?? '');
+  const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
 
   // Build career options from real report sections.
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
@@ -123,11 +155,32 @@ const Jobs = () => {
     return out;
   }, [latestReport]);
 
-  // Pre-fill primary country from profile.
+  // Restore a completed search from the persisted snapshot once on mount.
   useEffect(() => {
-    if (profile?.country) {
+    if (persisted?.results?.length) restoreResults(persisted.results);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist the search snapshot whenever inputs or results change, so a refresh
+  // restores exactly what the user was looking at.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        JOBS_STATE_KEY,
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, results }),
+      );
+    } catch {
+      // sessionStorage full or unavailable — non-fatal, just skip persisting.
+    }
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, results]);
+
+  // Pre-fill primary country from profile — only when there's no restored
+  // snapshot, so we don't clobber a country the user already picked.
+  useEffect(() => {
+    if (!persisted && profile?.country) {
       setPrimaryCountry(profileCountryToCode(profile.country));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.country]);
 
   // Defensive: if user picks the same country in both selects, clear the secondary.
