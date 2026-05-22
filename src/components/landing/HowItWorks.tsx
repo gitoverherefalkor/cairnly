@@ -94,7 +94,7 @@ const HowItWorks: React.FC = () => {
           </p>
         </Reveal>
 
-        <div className="grid grid-cols-12 gap-x-10">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-x-10">
           {/* Sticky cairn rail */}
           <aside className="hidden lg:block col-span-2">
             <div className="lp-cairn-rail">
