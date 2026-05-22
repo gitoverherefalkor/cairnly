@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
 import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
-import { useJobSearch, type JobListing, type UserLanguage } from '@/hooks/useJobSearch';
+import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
 import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
@@ -54,7 +54,7 @@ const Jobs = () => {
   const [primaryCountry, setPrimaryCountry] = useState('us');
   const [secondaryCountry, setSecondaryCountry] = useState('');
   const [city, setCity] = useState('');
-  const [remoteOnly, setRemoteOnly] = useState(false);
+  const [workArrangement, setWorkArrangement] = useState<WorkArrangement>('any');
 
   // Build career options from real report sections.
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
@@ -187,7 +187,7 @@ const Jobs = () => {
       })
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
-    searchJobs(careers, countryCodes, city || undefined, remoteOnly, userLanguages, latestReport?.id);
+    searchJobs(careers, countryCodes, city || undefined, workArrangement, userLanguages, latestReport?.id);
   };
 
   const handleInvite = async () => {
@@ -269,7 +269,7 @@ const Jobs = () => {
     const summaryParts = [
       `${selectedCareers.length} ${selectedCareers.length === 1 ? 'career' : 'careers'}`,
       [primaryCountry, secondaryCountry].filter(Boolean).map((c) => c.toUpperCase()).join(' + '),
-      remoteOnly ? 'remote OK' : null,
+      workArrangement === 'remote_only' ? 'remote only' : workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
     ].filter(Boolean);
     return (
       <JobsResults
@@ -307,8 +307,8 @@ const Jobs = () => {
       onSecondaryCountryChange={setSecondaryCountry}
       city={city}
       onCityChange={setCity}
-      remoteOnly={remoteOnly}
-      onRemoteOnlyChange={setRemoteOnly}
+      workArrangement={workArrangement}
+      onWorkArrangementChange={setWorkArrangement}
       isSearching={isSearching}
       onSearch={handleSearch}
       onBack={() => navigate('/dashboard')}

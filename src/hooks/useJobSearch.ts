@@ -44,6 +44,12 @@ export interface UserLanguage {
   proficiency: 'native' | 'fluent' | 'conversational' | 'basic';
 }
 
+// Where the user is willing to work. Maps to LinkedIn's work-type filter:
+//   any            → no filter (on-site + hybrid + remote in the chosen countries)
+//   remote_friendly → remote + hybrid
+//   remote_only    → fully remote
+export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
+
 /**
  * Hook for searching jobs sequentially (one career at a time).
  * Returns per-career results and an overall progress state.
@@ -58,7 +64,7 @@ export const useJobSearch = () => {
     careers: SearchCareer[],
     countryCodes: string[],
     location?: string,
-    remoteOnly?: boolean,
+    workArrangement?: WorkArrangement,
     userLanguages?: UserLanguage[],
     reportId?: string,
   ) => {
@@ -91,7 +97,7 @@ export const useJobSearch = () => {
           body: {
             career_title: careers[i].careerTitle,
             country_codes: countryCodes,
-            remote_only: Boolean(remoteOnly),
+            work_arrangement: workArrangement || 'any',
             location: location || '',
             alternate_titles: careers[i].alternateTitles || [],
             user_languages: userLanguages || [],

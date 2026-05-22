@@ -13,6 +13,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier, TIER_LABEL } from './jobsV2Shared';
+import type { WorkArrangement } from '@/hooks/useJobSearch';
 
 export interface JobsSearchCareerOption {
   sectionType: string;
@@ -26,6 +27,12 @@ export interface JobsSearchCountry {
   label: string;
 }
 
+const WORK_OPTIONS: { value: WorkArrangement; label: string }[] = [
+  { value: 'any', label: 'Any location' },
+  { value: 'remote_friendly', label: 'Remote-friendly' },
+  { value: 'remote_only', label: 'Remote only' },
+];
+
 interface JobsSearchProps {
   firstName: string;
   careers: JobsSearchCareerOption[];
@@ -38,8 +45,8 @@ interface JobsSearchProps {
   onSecondaryCountryChange: (code: string) => void;
   city: string;
   onCityChange: (city: string) => void;
-  remoteOnly: boolean;
-  onRemoteOnlyChange: (v: boolean) => void;
+  workArrangement: WorkArrangement;
+  onWorkArrangementChange: (v: WorkArrangement) => void;
   isSearching: boolean;
   onSearch: () => void;
   onBack: () => void;
@@ -62,8 +69,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onSecondaryCountryChange,
   city,
   onCityChange,
-  remoteOnly,
-  onRemoteOnlyChange,
+  workArrangement,
+  onWorkArrangementChange,
   isSearching,
   onSearch,
   onBack,
@@ -189,52 +196,87 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: 18,
             padding: 20,
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr auto',
-            gap: 12,
-            alignItems: 'end',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 18,
           }}
         >
-          <FormField label="Country">
-            <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
-          </FormField>
-          <FormField label="+ Another country (optional)">
-            <CreamSelect
-              value={secondaryCountry}
-              onChange={onSecondaryCountryChange}
-              options={[{ code: '', label: 'None' }, ...countries.filter((c) => c.code !== primaryCountry)]}
-            />
-          </FormField>
-          <FormField label="City (optional)">
-            <CreamInput value={city} onChange={onCityChange} placeholder="Amsterdam, Berlin…" />
-          </FormField>
-          <label
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              cursor: 'pointer',
-              padding: '10px 14px',
-              borderRadius: 9999,
-              border: `1px solid ${remoteOnly ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
-              background: remoteOnly ? 'rgba(212,160,36,0.12)' : 'transparent',
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13,
-              color: remoteOnly ? PALETTE.goldBright : '#fff',
-              whiteSpace: 'nowrap',
-              height: 42,
-              boxSizing: 'border-box',
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={remoteOnly}
-              onChange={(e) => onRemoteOnlyChange(e.target.checked)}
-              style={{ display: 'none' }}
-            />
-            <Globe size={14} /> Remote-friendly only
-          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
+            <FormField label="Country">
+              <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
+            </FormField>
+            <FormField label="+ Another country (optional)">
+              <CreamSelect
+                value={secondaryCountry}
+                onChange={onSecondaryCountryChange}
+                options={[{ code: '', label: 'None' }, ...countries.filter((c) => c.code !== primaryCountry)]}
+              />
+            </FormField>
+            <FormField label="City (optional)">
+              <CreamInput value={city} onChange={onCityChange} placeholder="Amsterdam, Berlin…" />
+            </FormField>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.5)',
+                marginBottom: 8,
+              }}
+            >
+              Work arrangement
+            </div>
+            <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
+              {WORK_OPTIONS.map((opt) => {
+                const active = workArrangement === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onWorkArrangementChange(opt.value)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      padding: '10px 16px',
+                      borderRadius: 9999,
+                      border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                      background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                      fontFamily: FONT_BODY,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      color: active ? PALETTE.goldBright : '#fff',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {opt.value !== 'any' && <Globe size={14} />}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 12.5,
+                fontWeight: 500,
+                lineHeight: 1.5,
+                color: 'rgba(255,255,255,0.55)',
+                margin: '12px 0 0 0',
+                maxWidth: 640,
+              }}
+            >
+              "Remote" surfaces remote roles posted for the countries you picked. We don't yet search
+              for roles that are remote <em>anywhere in the world</em>. Want that? Let us know via the
+              Feedback &amp; Support button, bottom-right.
+            </p>
+          </div>
         </div>
       </section>
 

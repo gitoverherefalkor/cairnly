@@ -19,7 +19,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { career_title, location, alternate_titles, remote_only, report_id } = body;
+    const { career_title, location, alternate_titles, work_arrangement, report_id } = body;
 
     // Accept country_codes (array, 1-2 entries) OR country_code (legacy single).
     // Always normalize to a sorted, deduped array internally.
@@ -37,7 +37,13 @@ serve(async (req) => {
       .filter(Boolean)
       .slice(0, 2)
       .sort();
-    const remoteOnly = Boolean(remote_only);
+    // Work arrangement: 'any' (no filter) | 'remote_friendly' (remote+hybrid)
+    // | 'remote_only' (fully remote). Defaults to 'any'. Legacy callers that
+    // still send remote_only=true are mapped to 'remote_only'.
+    const VALID_ARRANGEMENTS = new Set(['any', 'remote_friendly', 'remote_only']);
+    const workArrangement = VALID_ARRANGEMENTS.has(String(work_arrangement))
+      ? String(work_arrangement)
+      : (body.remote_only ? 'remote_only' : 'any');
 
     // User languages — the frontend extracts these from the user's report payload
     // when the survey collected them. Format: [{ language: 'Dutch', proficiency: 'fluent' }, ...]
@@ -97,7 +103,7 @@ serve(async (req) => {
     // user picked; same query for users with the same language profile reuses.
     const searchQuery = career_title.toLowerCase().trim();
     const countryNormalized = countries.join('+')
-      + (remoteOnly ? ':remote' : '')
+      + (workArrangement !== 'any' ? ':' + workArrangement : '')
       + ':lang=' + langSignature;
 
     // Check cache first
@@ -151,7 +157,7 @@ serve(async (req) => {
           career_title,
           alternate_titles: alternate_titles || [],
           country_codes: countries,
-          remote_only: remoteOnly,
+          work_arrangement: workArrangement,
           location: location || '',
           // user_languages drives the scoring step's language-awareness.
           // Forwarded as-is; n8n decides how aggressively to weight it.
