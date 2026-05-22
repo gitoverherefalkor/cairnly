@@ -202,15 +202,21 @@ const Jobs = () => {
     }
   }, [searchParams, careerOptions]);
 
-  // Default-select the user's top 3 careers when sections load and no
-  // pre-selection or query param has set them yet.
+  // Default-select the user's top 3 careers ONCE, when sections first load and
+  // nothing is already selected (no persisted snapshot or query param). Guarded
+  // by a ref so that later unselecting everything does NOT re-trigger the
+  // default — selecting none is a valid state (the search button just disables).
+  const didAutoSelectRef = useRef(false);
   useEffect(() => {
-    if (selectedCareers.length > 0 || careerOptions.length === 0) return;
+    if (didAutoSelectRef.current || careerOptions.length === 0) return;
+    didAutoSelectRef.current = true;
+    if (selectedCareers.length > 0) return;
     const topThree = careerOptions
       .filter((c) => c.tier === 'top-1' || c.tier === 'top-2' || c.tier === 'top-3')
       .map((c) => c.sectionType);
     if (topThree.length > 0) setSelectedCareers(topThree);
-  }, [careerOptions, selectedCareers.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [careerOptions]);
 
   // Auth gate.
   useEffect(() => {

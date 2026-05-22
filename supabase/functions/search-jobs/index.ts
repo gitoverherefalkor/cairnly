@@ -98,11 +98,18 @@ serve(async (req) => {
       }
     }
 
-    // Cache key: sorted country list + remote suffix + language signature.
-    // Same query in NL+DE hits the same cache regardless of which order the
-    // user picked; same query for users with the same language profile reuses.
+    // Bump this whenever the n8n search/scoring logic changes, so stale
+    // results cached under the old logic stop matching and fresh searches run.
+    // v2: LLM keyword generator + scoring specialization rule (2026-05-22).
+    const SEARCH_LOGIC_VERSION = 'v2';
+
+    // Cache key: logic version + sorted country list + arrangement + language
+    // signature. Same query in NL+DE hits the same cache regardless of which
+    // order the user picked; same query for users with the same language
+    // profile reuses.
     const searchQuery = career_title.toLowerCase().trim();
-    const countryNormalized = countries.join('+')
+    const countryNormalized = SEARCH_LOGIC_VERSION + ':'
+      + countries.join('+')
       + (workArrangement !== 'any' ? ':' + workArrangement : '')
       + ':lang=' + langSignature;
 
