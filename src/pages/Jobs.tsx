@@ -47,6 +47,7 @@ interface PersistedJobsState {
   city: string;
   workArrangement: WorkArrangement;
   jobCommitment: JobCommitment;
+  disabledAvoids: string[];
   results: import('@/hooks/useJobSearch').JobSearchResult[];
 }
 
@@ -89,6 +90,9 @@ const Jobs = () => {
   const [city, setCity] = useState(() => persisted?.city ?? '');
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
   const [jobCommitment, setJobCommitment] = useState<JobCommitment>(() => persisted?.jobCommitment ?? 'any');
+  // Avoid items the user has unchecked for this search (so they can override
+  // assessment preferences they don't remember / no longer want applied).
+  const [disabledAvoids, setDisabledAvoids] = useState<string[]>(() => persisted?.disabledAvoids ?? []);
 
   // Build career options from real report sections.
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
@@ -188,6 +192,15 @@ const Jobs = () => {
     return [...new Set(out)];
   }, [latestReport]);
 
+  // The avoid items actually sent to the scorer = everything the user hasn't
+  // unchecked in the foldout.
+  const activeAvoids = useMemo(
+    () => avoidPreferences.filter((a) => !disabledAvoids.includes(a)),
+    [avoidPreferences, disabledAvoids],
+  );
+  const toggleAvoid = (item: string) =>
+    setDisabledAvoids((prev) => (prev.includes(item) ? prev.filter((p) => p !== item) : [...prev, item]));
+
   // Restore a completed search from the persisted snapshot once on mount.
   useEffect(() => {
     if (persisted?.results?.length) restoreResults(persisted.results);
@@ -200,12 +213,12 @@ const Jobs = () => {
     try {
       sessionStorage.setItem(
         JOBS_STATE_KEY,
-        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, results }),
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results }),
       );
     } catch {
       // sessionStorage full or unavailable — non-fatal, just skip persisting.
     }
-  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, results]);
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results]);
 
   // Pre-fill primary country from profile — only when there's no restored
   // snapshot, so we don't clobber a country the user already picked.
@@ -285,7 +298,7 @@ const Jobs = () => {
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
     awaitingSearchRef.current = true;
-    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, avoidPreferences);
+    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
   };
 
   const handleInvite = async () => {
@@ -410,6 +423,9 @@ const Jobs = () => {
       onWorkArrangementChange={setWorkArrangement}
       jobCommitment={jobCommitment}
       onJobCommitmentChange={setJobCommitment}
+      avoidPreferences={avoidPreferences}
+      disabledAvoids={disabledAvoids}
+      onToggleAvoid={toggleAvoid}
       isSearching={isSearching}
       onSearch={handleSearch}
       onBack={() => navigate('/dashboard')}

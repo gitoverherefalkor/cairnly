@@ -3,8 +3,8 @@
 // LocationInput components' UI; their data exports (COUNTRIES,
 // profileCountryToCode) are still used.
 
-import React from 'react';
-import { CheckCircle2, Clock, Globe, Loader2, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, Clock, Globe, Loader2, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -39,6 +39,119 @@ const COMMITMENT_OPTIONS: { value: JobCommitment; label: string }[] = [
   { value: 'part_time', label: 'Part-time / fractional' },
 ];
 
+// Collapsible panel showing the "avoid" preferences pulled from the user's
+// assessment. Each item is a toggle — unchecking it means "don't filter this
+// out for this search" (people forget what they marked to avoid months ago).
+const AvoidFoldout: React.FC<{
+  items: string[];
+  disabled: string[];
+  onToggle: (item: string) => void;
+}> = ({ items, disabled, onToggle }) => {
+  const [open, setOpen] = useState(false);
+  if (items.length === 0) return null;
+  const activeCount = items.length - disabled.filter((d) => items.includes(d)).length;
+
+  return (
+    <section style={{ marginBottom: 32 }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          width: '100%',
+          textAlign: 'left',
+          background: 'rgba(18, 46, 59, 0.55)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: open ? '18px 18px 0 0' : 18,
+          padding: '14px 18px',
+          cursor: 'pointer',
+          fontFamily: FONT_BODY,
+          color: '#fff',
+        }}
+      >
+        <SlidersHorizontal size={15} color={PALETTE.goldBright} />
+        <span style={{ fontSize: 13.5, fontWeight: 700 }}>
+          Hiding roles you said you'd avoid
+        </span>
+        <span style={{ fontSize: 12.5, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
+          {activeCount} of {items.length} active
+        </span>
+        <ChevronDown
+          size={16}
+          style={{
+            marginLeft: 'auto',
+            transition: 'transform 0.15s ease',
+            transform: open ? 'rotate(180deg)' : 'none',
+            color: 'rgba(255,255,255,0.6)',
+          }}
+        />
+      </button>
+      {open && (
+        <div
+          style={{
+            background: 'rgba(18, 46, 59, 0.55)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderTop: 'none',
+            borderRadius: '0 0 18px 18px',
+            padding: 18,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 12.5,
+              fontWeight: 500,
+              lineHeight: 1.5,
+              color: 'rgba(255,255,255,0.55)',
+              margin: '0 0 14px 0',
+              maxWidth: 640,
+            }}
+          >
+            From your assessment. We lower the score of roles matching these, so they drop off your
+            list. Uncheck any you'd actually consider for this search.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {items.map((item) => {
+              const active = !disabled.includes(item);
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => onToggle(item)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                    padding: '8px 14px',
+                    borderRadius: 9999,
+                    border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                    background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                    fontFamily: FONT_BODY,
+                    fontWeight: 600,
+                    fontSize: 12.5,
+                    color: active ? PALETTE.goldBright : 'rgba(255,255,255,0.45)',
+                    textDecoration: active ? 'none' : 'line-through',
+                  }}
+                >
+                  {active ? <CheckCircle2 size={13} /> : null}
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
+
 interface JobsSearchProps {
   firstName: string;
   careers: JobsSearchCareerOption[];
@@ -55,6 +168,9 @@ interface JobsSearchProps {
   onWorkArrangementChange: (v: WorkArrangement) => void;
   jobCommitment: JobCommitment;
   onJobCommitmentChange: (v: JobCommitment) => void;
+  avoidPreferences: string[];
+  disabledAvoids: string[];
+  onToggleAvoid: (item: string) => void;
   isSearching: boolean;
   onSearch: () => void;
   onBack: () => void;
@@ -81,6 +197,9 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onWorkArrangementChange,
   jobCommitment,
   onJobCommitmentChange,
+  avoidPreferences,
+  disabledAvoids,
+  onToggleAvoid,
   isSearching,
   onSearch,
   onBack,
@@ -350,6 +469,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           </div>
         </div>
       </section>
+
+      <AvoidFoldout items={avoidPreferences} disabled={disabledAvoids} onToggle={onToggleAvoid} />
 
       {/* Search CTA */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
