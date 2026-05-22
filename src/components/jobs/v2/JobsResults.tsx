@@ -400,6 +400,28 @@ const CareerSearching: React.FC<{
   );
 };
 
+// ── Workplace / employment badge ──────────────────────────────
+// `highlight` = gold fill (used for Remote, the thing we want to draw the eye).
+const JobBadge: React.FC<{ label: string; highlight?: boolean }> = ({ label, highlight }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '3px 10px',
+      borderRadius: 9999,
+      fontFamily: FONT_BODY,
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: '0.02em',
+      background: highlight ? PALETTE.gold : 'rgba(18,46,59,0.08)',
+      color: highlight ? PALETTE.canvasDeep : PALETTE.inkMuted,
+      border: highlight ? '1px solid transparent' : `1px solid ${PALETTE.tan}`,
+    }}
+  >
+    {label}
+  </span>
+);
+
 // ── Cream job card ────────────────────────────────────────────
 const JobCardCream: React.FC<{
   job: JobListing;
@@ -488,6 +510,17 @@ const JobCardCream: React.FC<{
             >
               {[job.location, postedText].filter(Boolean).join(' · ')}
             </div>
+            {(job.workplace_type || job.employment_type) && (
+              <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {job.workplace_type && (
+                  <JobBadge
+                    label={job.workplace_type}
+                    highlight={/remote/i.test(job.workplace_type)}
+                  />
+                )}
+                {job.employment_type && <JobBadge label={job.employment_type} />}
+              </div>
+            )}
           </div>
         </div>
         {job.description && (

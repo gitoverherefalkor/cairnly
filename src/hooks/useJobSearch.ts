@@ -14,6 +14,9 @@ export interface JobListing {
   apply_url: string;
   posted_date?: string;
   source: string;
+  // Structured LinkedIn fields for result badges (null when LinkedIn omits them).
+  workplace_type?: string | null; // 'Remote' | 'Hybrid' | null (on-site)
+  employment_type?: string | null; // 'Full-time' | 'Part-time' | 'Contract' | …
   // AI-scored relevance to the recommended career (0-10) + a short reason.
   // Set by the n8n scoring step; null when scoring failed/skipped.
   match_score?: number | null;
