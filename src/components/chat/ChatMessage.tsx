@@ -57,6 +57,10 @@ interface ChatMessageProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: (messageId: string) => void;
+  // Thumbs-up "I'm impressed" feedback, stored in content_feedback to learn
+  // from. State lives in ChatContainer (loaded from + written to the DB).
+  liked?: boolean;
+  onLikeToggle?: (messageId: string, text: string) => void;
   // Posts the pre-written comparison explanation into the chat as a bot
   // message. Supplied by ChatContainer; only used by Career 2/3 messages.
   onComparisonExplain?: (content: string) => void;
@@ -939,6 +943,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  liked = false,
+  onLikeToggle,
   onComparisonExplain,
 }) => {
   const messageRef = useRef<HTMLDivElement>(null);
@@ -1260,6 +1266,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             bookmarked={bookmarked}
             onBookmarkToggle={
               onBookmarkToggle ? () => onBookmarkToggle(messageId) : undefined
+            }
+            liked={liked}
+            onLikeToggle={
+              onLikeToggle ? () => onLikeToggle(messageId, sanitized) : undefined
             }
           />
         )}

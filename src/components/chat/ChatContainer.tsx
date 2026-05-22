@@ -8,6 +8,7 @@ import { useN8nWebhook } from '@/hooks/useN8nWebhook';
 import { useDeliverSection, type DeliverableSectionType } from '@/hooks/useDeliverSection';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useReportSections } from '@/hooks/useReportSections';
+import { useContentFeedback } from '@/hooks/useContentFeedback';
 import { useSubmitChapterFeedback } from '@/hooks/useSubmitChapterFeedback';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -226,6 +227,20 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       },
       [bookmarkedIds, messages, reportId, currentSectionIndex],
     );
+    // Thumbs-up "I'm impressed" feedback on bot replies. Loaded from + written
+    // to content_feedback so it persists and we can learn from what lands.
+    const { isLiked, toggleFeedback } = useContentFeedback(reportId, userId);
+    const likedMessageIds = useMemo(
+      () => messages.filter((m) => m.sender === 'bot' && isLiked('chat_message', m.id)).map((m) => m.id),
+      [messages, isLiked],
+    );
+    const handleLikeToggle = useCallback(
+      (messageId: string, text: string) => {
+        void toggleFeedback('chat_message', messageId, text);
+      },
+      [toggleFeedback],
+    );
+
     // Pull career sections from the report so ChatMessage can show match
     // scores + AI impact next to the career titles the agent presents.
     const { sections } = useReportSections(reportId);
@@ -836,6 +851,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onRetryMessage={handleRetry}
           bookmarkedMessageIds={bookmarkedIds}
           onBookmarkToggle={handleBookmarkToggle}
+          likedMessageIds={likedMessageIds}
+          onLikeToggle={handleLikeToggle}
         />
 
         {/* Mobile-only Complete Session CTA — sidebar button isn't visible on mobile */}
