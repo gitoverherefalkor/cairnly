@@ -117,7 +117,8 @@ serve(async (req) => {
     // v3: avoid-preferences penalty in scoring (2026-05-22).
     // v4: scoring sees 400 chars of description (was 200) (2026-05-22).
     // v5: capture workplace_type + employment_type for result badges (2026-05-22).
-    const SEARCH_LOGIC_VERSION = 'v5';
+    // v6: apply_url now uses LinkedIn job page instead of offsite applyUrl (2026-05-23).
+    const SEARCH_LOGIC_VERSION = 'v6';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
