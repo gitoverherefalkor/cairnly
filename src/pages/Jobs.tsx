@@ -78,13 +78,37 @@ const Jobs = () => {
   // Read the persisted snapshot once (lazy — runs a single time on mount).
   const [persisted] = useState<PersistedJobsState | null>(() => readPersistedJobsState());
 
-  // View / filter state — seeded from the persisted snapshot when present.
-  const [view, setView] = useState<View>(() =>
-    persisted?.view === 'results' && !persisted?.results?.some((r) => r.status === 'done')
-      ? 'search' // had a results view but nothing completed — fall back to the picker
-      : persisted?.view ?? 'search',
+  // Was this page entered with explicit "fresh search" intent? Any
+  // "Find Open Roles" CTA on the dashboard sends ?mode=search (and optionally
+  // ?career=<title>). In that case we override the persisted view/selection
+  // so the user lands on the filter page with a focused start, not on stale
+  // results that may not include the career they just clicked.
+  const [freshIntent] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return { mode: p.get('mode'), career: p.get('career') };
+    } catch {
+      return { mode: null as string | null, career: null as string | null };
+    }
+  });
+  const wantsFreshSearch = freshIntent.mode === 'search' || !!freshIntent.career;
+
+  // View / filter state — seeded from the persisted snapshot when present,
+  // unless the URL signals a fresh search intent (in which case we force the
+  // filter view).
+  const [view, setView] = useState<View>(() => {
+    if (wantsFreshSearch) return 'search';
+    if (persisted?.view === 'results' && !persisted?.results?.some((r) => r.status === 'done')) {
+      return 'search'; // had a results view but nothing completed — fall back to the picker
+    }
+    return persisted?.view ?? 'search';
+  });
+  // When entering with a fresh-search intent, start with no selection so the
+  // pre-select effect (below) can replace it cleanly with the clicked career
+  // instead of stacking on top of restored picks.
+  const [selectedCareers, setSelectedCareers] = useState<string[]>(() =>
+    wantsFreshSearch ? [] : (persisted?.selectedCareers ?? []),
   );
-  const [selectedCareers, setSelectedCareers] = useState<string[]>(() => persisted?.selectedCareers ?? []);
   const [primaryCountry, setPrimaryCountry] = useState(() => persisted?.primaryCountry ?? 'us');
   const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
   const [city, setCity] = useState(() => persisted?.city ?? '');
@@ -236,16 +260,24 @@ const Jobs = () => {
     }
   }, [primaryCountry, secondaryCountry]);
 
-  // Pre-select career from query param (?career=first-career).
+  // Pre-select career from ?career= — accepts either a sectionType
+  // ('first-career', 'runner-up', or a full 'runner-up__<uuid>') OR a plain
+  // career title (case-insensitive). The dashboard "Find Open Roles" CTAs pass
+  // the title since CareerMatch doesn't carry a sectionType.
   useEffect(() => {
     const preselect = searchParams.get('career');
-    if (preselect && careerOptions.length > 0) {
-      const matches = careerOptions
-        .filter((c) => c.sectionType === preselect || c.sectionType.startsWith(`${preselect}__`))
-        .map((c) => c.sectionType)
-        .slice(0, 3);
-      if (matches.length > 0) setSelectedCareers(matches);
+    if (!preselect || careerOptions.length === 0) return;
+    const needle = preselect.toLowerCase();
+    let matches = careerOptions
+      .filter((c) => c.sectionType === preselect || c.sectionType.startsWith(`${preselect}__`))
+      .map((c) => c.sectionType);
+    if (matches.length === 0) {
+      matches = careerOptions
+        .filter((c) => c.title.toLowerCase() === needle)
+        .map((c) => c.sectionType);
     }
+    matches = matches.slice(0, 3);
+    if (matches.length > 0) setSelectedCareers(matches);
   }, [searchParams, careerOptions]);
 
   // Default-select the user's top 3 careers ONCE, when sections first load and

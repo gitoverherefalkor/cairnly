@@ -4,7 +4,7 @@
 // profileCountryToCode) are still used.
 
 import React, { useState } from 'react';
-import { CheckCircle2, Clock, Globe, Loader2, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { CheckCircle2, Clock, Globe, Heart, Loader2, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -255,21 +255,24 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             type="button"
             onClick={onOpenSaved}
             style={{
-              background: 'rgba(39,161,161,0.20)',
-              color: '#fff',
-              border: '1px solid rgba(39,161,161,0.36)',
-              padding: '10px 16px',
+              background: PALETTE.gold,
+              color: PALETTE.canvasDeep,
+              border: 'none',
+              padding: '14px 22px',
               borderRadius: 9999,
               fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13,
+              fontWeight: 800,
+              fontSize: 14,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 8,
+              gap: 10,
               cursor: 'pointer',
+              boxShadow: '0 12px 28px -10px rgba(212,160,36,0.55)',
+              whiteSpace: 'nowrap',
             }}
           >
-            Pipeline · {savedCount}
+            <Heart size={15} fill={PALETTE.canvasDeep} />
+            Saved roles · {savedCount}
           </button>
         )}
       </div>

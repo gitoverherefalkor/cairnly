@@ -457,9 +457,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   const jobsFeature = features.find((f) => f.key === 'jobs');
   const jobsUnlocked = jobsFeature?.unlocked ?? false;
 
-  const handleFindRoles = () => {
-    if (jobsUnlocked) onNavigate('/jobs');
-    else onInvite();
+  // Per-career "Find open roles" navigation. Always lands on the filter page
+  // (mode=search) so the user re-runs the search instead of seeing stale prior
+  // results that may not even include the role they just clicked. When a
+  // careerTitle is provided (per-card click), the filter page pre-selects that
+  // career and clears any previous picks for a focused start.
+  const handleFindRoles = (careerTitle?: string) => {
+    if (!jobsUnlocked) {
+      onInvite();
+      return;
+    }
+    const params = new URLSearchParams({ mode: 'search' });
+    if (careerTitle) params.set('career', careerTitle);
+    onNavigate(`/jobs?${params.toString()}`);
   };
 
   const reportDate = reportGeneratedAt
@@ -743,7 +753,7 @@ const HeroMatch: React.FC<{
   match: CareerMatch;
   jobsUnlocked: boolean;
   onOpenBreakdown: () => void;
-  onFindRoles: () => void;
+  onFindRoles: (careerTitle?: string) => void;
   compareCareers: CompareCareer[];
 }> = ({ match, jobsUnlocked, onOpenBreakdown, onFindRoles, compareCareers }) => {
   const [flipped, setFlipped] = useState(false);
@@ -1007,7 +1017,7 @@ const HeroMatch: React.FC<{
         </button>
         <button
           type="button"
-          onClick={onFindRoles}
+          onClick={() => onFindRoles(match.title)}
           style={{
             background: 'transparent',
             color: '#fff',
@@ -1059,7 +1069,7 @@ const HeroMatch: React.FC<{
 const SecondaryMatch: React.FC<{
   match: CareerMatch;
   onOpen: () => void;
-  onFindRoles: () => void;
+  onFindRoles: (careerTitle?: string) => void;
 }> = ({ match, onOpen, onFindRoles }) => (
   <article
     style={{
@@ -1126,7 +1136,7 @@ const SecondaryMatch: React.FC<{
       </button>
       <button
         type="button"
-        onClick={onFindRoles}
+        onClick={() => onFindRoles(match.title)}
         style={{
           flex: 1,
           background: 'transparent',

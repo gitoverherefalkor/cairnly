@@ -26,7 +26,9 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     description: 'Search live job openings matched to your top career recommendations.',
     requiredReferrals: 1,
     builtYet: true,
-    route: '/jobs',
+    // mode=search ensures clicking the toolkit CTA always lands on the filter
+    // page (a fresh start), not on stale results restored from sessionStorage.
+    route: '/jobs?mode=search',
   },
   {
     key: 'resume',
