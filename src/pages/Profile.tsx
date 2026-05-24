@@ -301,18 +301,6 @@ const Profile = () => {
                     Remove
                   </Button>
                 </div>
-
-                <div
-                  className="mt-4 p-[12px_16px] rounded-xl text-[13px] font-medium leading-snug"
-                  style={{
-                    background: 'rgba(57, 137, 175, 0.08)',
-                    border: '1px solid rgba(57, 137, 175, 0.22)',
-                    color: '#1F2937',
-                  }}
-                >
-                  <strong style={{ color: '#122E3B' }}>Want to upload a new resume?</strong>{' '}
-                  You can upload a new resume when starting a new Cairnly Assessment for the best pre-filling experience.
-                </div>
               </>
             ) : (
               <>
