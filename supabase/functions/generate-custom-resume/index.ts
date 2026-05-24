@@ -162,6 +162,38 @@ serve(async (req) => {
       }
     }
 
+    // Resolve each selected career to its enriched_jobs.id (integer PK).
+    // n8n filters by this integer instead of career_title — career titles can
+    // contain commas, which PostgREST treats as filter separators and chokes on.
+    const careerTitles = selected_careers.map((c) => c.career_title);
+    const { data: enrichedRows, error: enrichedError } = await sb
+      .from('enriched_jobs')
+      .select('id, career_title')
+      .eq('report_id', report_id)
+      .in('career_title', careerTitles);
+
+    if (enrichedError) {
+      console.error('enriched_jobs lookup failed:', enrichedError);
+      return errorResponse('Could not look up enriched career data.', 500, corsHeaders);
+    }
+
+    const enrichedIdByTitle = new Map<string, number>();
+    for (const row of enrichedRows ?? []) {
+      if (row.career_title) enrichedIdByTitle.set(row.career_title, row.id);
+    }
+
+    const missingEnriched = selected_careers
+      .map((c) => c.career_title)
+      .filter((t) => !enrichedIdByTitle.has(t));
+    if (missingEnriched.length) {
+      console.error('No enriched_jobs row for:', missingEnriched);
+      return errorResponse(
+        'Selected careers are not fully enriched yet. Please try again in a moment.',
+        409,
+        corsHeaders,
+      );
+    }
+
     // Insert one row per selected career. Frontend uses these IDs to subscribe
     // to status changes via Realtime.
     const rowsToInsert = selected_careers.map((c) => ({
@@ -192,6 +224,7 @@ serve(async (req) => {
     const careersForN8n = selected_careers.map((c) => ({
       ...c,
       custom_resume_id: idBySection.get(c.section_id) ?? null,
+      enriched_job_id: enrichedIdByTitle.get(c.career_title) ?? null,
     }));
 
     const n8nWebhookUrl = Deno.env.get('N8N_CUSTOM_RESUME_WEBHOOK_URL');
