@@ -877,10 +877,15 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           // Also disabled while the latest section reveal still has hidden
           // sub-sections — forces the user to read everything before they
           // can react.
+          //
+          // EXCEPTION: returning users with an autoResumeMessage are NOT new
+          // users — if their history failed to load (network blip, server
+          // hiccup, edge case) we'd rather let them type than trap them in
+          // a disabled welcome state with no escape.
           disabled={
             isSessionCompleted ||
             isWaitingForResponse ||
-            (messages.length === 0 && !isWaitingForResponse) ||
+            (messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) ||
             latestUnrevealedCount !== 0 ||
             wrapUpState !== 'idle'
           }

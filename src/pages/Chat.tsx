@@ -63,9 +63,13 @@ const Chat = () => {
   const [isSessionCompleted, setIsSessionCompleted] = useState(false);
   const [dreamJobsRead, setDreamJobsRead] = useState(false);
   const autoCompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(
-    localStorage.getItem('n8n-chat/sessionId')
-  );
+  // SessionId is derived from reportData.id once it loads. We no longer
+  // read from localStorage as the source of truth — that broke cross-device
+  // returning users (different localStorage = different sessionId = blank
+  // chat). Anchoring to report.id makes chat history portable across
+  // devices for the same user/report. localStorage is still written below
+  // for backward-compatible stale-session detection.
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [autoResumeMessage, setAutoResumeMessage] = useState<string | undefined>(undefined);
 
   const chatMessagesRef = useRef<ChatMessagesHandle>(null);
@@ -333,26 +337,35 @@ const Chat = () => {
   useEffect(() => {
     if (showClosing || sessionId) return;
     if (profileLoading || !profile) return;
+    if (!reportData?.id) return; // Wait for report — sessionId is derived from it
 
-    let sid = localStorage.getItem('n8n-chat/sessionId');
-    const isNewSession = !sid || sessionIsStale;
+    // SessionId = report.id. This makes chat memory + history portable
+    // across devices for the same user/report. n8n's WF5 keys its memory
+    // by sessionId, and chat_messages keys its history by session_id —
+    // both now align on report.id and will resolve correctly regardless
+    // of which device the user signs in from.
+    const sid = reportData.id;
+    const previousSid = localStorage.getItem('n8n-chat/sessionId');
+    const isNewSession = previousSid !== sid || sessionIsStale;
     if (isNewSession) {
-      sid = crypto.randomUUID();
       localStorage.setItem('n8n-chat/sessionId', sid);
     }
     localStorage.setItem('n8n-chat/sessionTimestamp', Date.now().toString());
 
     // For returning users with a stale session, auto-fire a resume prompt.
     // Gated on engagement flag so drive-by visits don't trigger the prompt.
+    // After the report.id sessionId switch, returning users will usually
+    // have their history loaded (so the autoResume effect in ChatContainer
+    // will skip the actual send) but we still surface the message in case
+    // history is empty for any reason.
     const engaged =
-      reportData &&
       localStorage.getItem(`chat_engaged_${reportData.id}`) === '1';
     if (isNewSession && isReturningUser && engaged) {
       setAutoResumeMessage("Hi, I'm back! Let's continue where we left off.");
     }
 
     setSessionId(sid);
-  }, [profileLoading, profile, sessionId, sessionIsStale, isReturningUser, showClosing]);
+  }, [profileLoading, profile, sessionId, sessionIsStale, isReturningUser, showClosing, reportData]);
 
   const loadUserReport = async () => {
     if (!user) {
