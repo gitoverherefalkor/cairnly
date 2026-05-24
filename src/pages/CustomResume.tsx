@@ -94,6 +94,15 @@ const CustomResume = () => {
     return <LockedScreen requiredReferrals={resumeFeature.requiredReferrals} />;
   }
 
+  // Cover letter is a separate tier in the referral ladder. The wizard
+  // checkbox stays disabled until that tier is unlocked.
+  const coverLetterFeature = referralStatus.features.find((f) => f.key === 'cover-letter');
+  const coverLetterUnlocked = coverLetterFeature?.unlocked ?? false;
+  const referralsToCoverLetter = Math.max(
+    0,
+    (coverLetterFeature?.requiredReferrals ?? 3) - referralStatus.referralCount,
+  );
+
   // Résumé prerequisite
   if (!profile?.resume_uploaded_at) {
     return <NoResumeOnFile onUpload={() => navigate('/profile')} />;
@@ -136,6 +145,8 @@ const CustomResume = () => {
           onTemplateChange={setTemplateId}
           includeCoverLetter={includeCoverLetter}
           onCoverLetterChange={setIncludeCoverLetter}
+          coverLetterUnlocked={coverLetterUnlocked}
+          referralsToCoverLetter={referralsToCoverLetter}
           onBack={() => setStep('careers')}
           isGenerating={generate.isPending}
           careersCount={selected.length}
@@ -145,7 +156,10 @@ const CustomResume = () => {
                 reportId: latestReport.id,
                 selectedCareers: selected,
                 templateId,
-                includeCoverLetter,
+                // Belt-and-suspenders: ignore the checkbox state if the user
+                // hasn't unlocked the cover-letter tier (the UI disables it
+                // already, but never trust client state).
+                includeCoverLetter: coverLetterUnlocked && includeCoverLetter,
               });
               setSearchParams({ ids: result.custom_resume_ids.join(',') }, { replace: false });
             } catch {

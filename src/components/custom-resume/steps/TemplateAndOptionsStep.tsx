@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Sparkles, Loader2, ArrowLeft } from 'lucide-react';
+import { FileText, Sparkles, Loader2, ArrowLeft, Lock } from 'lucide-react';
 import { TEMPLATES, type TemplateId } from '../types';
 
 interface TemplateAndOptionsStepProps {
@@ -19,6 +19,11 @@ interface TemplateAndOptionsStepProps {
   onGenerate: () => void;
   isGenerating: boolean;
   careersCount: number;
+  // Cover letter is gated on the 3-referral tier. When the user only has
+  // the resume unlock (2 referrals), the checkbox stays disabled and shows
+  // a "Invite 1 more friend" hint.
+  coverLetterUnlocked: boolean;
+  referralsToCoverLetter: number; // how many more invites needed
 }
 
 export function TemplateAndOptionsStep({
@@ -30,6 +35,8 @@ export function TemplateAndOptionsStep({
   onGenerate,
   isGenerating,
   careersCount,
+  coverLetterUnlocked,
+  referralsToCoverLetter,
 }: TemplateAndOptionsStepProps) {
   const atsTemplates = TEMPLATES.filter((t) => t.category === 'ats');
   const designedTemplates = TEMPLATES.filter((t) => t.category === 'designed');
@@ -83,19 +90,37 @@ export function TemplateAndOptionsStep({
         </div>
       </div>
 
-      <Card className="border-dashed">
+      <Card className={`border-dashed ${!coverLetterUnlocked ? 'opacity-75' : ''}`}>
         <CardContent className="flex items-start gap-3 p-4">
           <Checkbox
             id="cover-letter"
-            checked={includeCoverLetter}
+            checked={coverLetterUnlocked && includeCoverLetter}
+            disabled={!coverLetterUnlocked}
             className="mt-0.5 data-[state=checked]:bg-atlas-teal data-[state=checked]:border-atlas-teal"
             onCheckedChange={(c) => onCoverLetterChange(c === true)}
           />
-          <label htmlFor="cover-letter" className="cursor-pointer flex-1">
-            <div className="font-medium">Also write a cover letter for each career</div>
+          <label
+            htmlFor="cover-letter"
+            className={`flex-1 ${coverLetterUnlocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+          >
+            <div className="flex items-center gap-2 font-medium">
+              Also write a cover letter for each career
+              {!coverLetterUnlocked && (
+                <Badge variant="outline" className="gap-1 border-atlas-orange/40 text-[10px] text-atlas-orange">
+                  <Lock className="h-2.5 w-2.5" /> Locked
+                </Badge>
+              )}
+            </div>
             <div className="mt-0.5 text-sm text-muted-foreground">
-              Drafted from your assessment narrative and the tailored résumé. Free to keep or
-              discard.
+              {coverLetterUnlocked ? (
+                <>Drafted from your assessment narrative and the tailored résumé. Free to keep or discard.</>
+              ) : (
+                <>
+                  Invite {referralsToCoverLetter} more friend{referralsToCoverLetter === 1 ? '' : 's'} to unlock — they
+                  get {/* discount handled by share copy elsewhere */}a discount, you get cover letters thrown in
+                  with every résumé you generate.
+                </>
+              )}
             </div>
           </label>
         </CardContent>

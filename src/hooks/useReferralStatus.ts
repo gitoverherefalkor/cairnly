@@ -43,7 +43,11 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     title: 'Tailor Cover Letters',
     description: 'Generate cover letters customised to each job you have shortlisted.',
     requiredReferrals: 3,
-    builtYet: false,
+    // Cover letter generation lives inside the Custom Résumé wizard as a
+    // checkbox — it doesn't have its own route. Setting builtYet=true so the
+    // dashboard tile shows it as a real unlock instead of "coming soon".
+    builtYet: true,
+    route: '/custom-resume',
   },
 ];
 
