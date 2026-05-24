@@ -27,6 +27,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { ResumeUploadCard } from '@/components/resume/ResumeUploadCard';
+import { useSurveyDerivedProfile } from '@/hooks/useSurveyDerivedProfile';
 
 // ----- Shared cream card shell for every Profile section -----
 interface ProfileCardProps {
@@ -92,6 +93,11 @@ const helperStyle = { color: '#6B7F8B' };
 const Profile = () => {
   const { user } = useAuth();
   const { profile, updateProfile, isUpdating } = useProfile();
+  // Survey-derived fallbacks for fields that already exist as Section 1 answers
+  // (pronouns, age range). When the user submits Save, the chosen values get
+  // persisted to profiles, so this is a one-time pre-fill — after that, the
+  // profile row itself is the source of truth.
+  const { data: surveyDerived } = useSurveyDerivedProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
@@ -103,8 +109,8 @@ const Profile = () => {
     last_name: profile?.last_name || '',
     country: profile?.country || '',
     region: profile?.region || '',
-    pronouns: profile?.pronouns || '',
-    age_range: profile?.age_range || '',
+    pronouns: profile?.pronouns || surveyDerived.pronouns || '',
+    age_range: profile?.age_range || surveyDerived.ageRange || '',
   });
 
   const [emailReminders, setEmailReminders] = useState(
@@ -118,12 +124,13 @@ const Profile = () => {
         last_name: profile.last_name || '',
         country: profile.country || '',
         region: profile.region || '',
-        pronouns: profile.pronouns || '',
-        age_range: profile.age_range || '',
+        // Fall back to survey-derived values when the profile field is empty.
+        pronouns: profile.pronouns || surveyDerived.pronouns || '',
+        age_range: profile.age_range || surveyDerived.ageRange || '',
       });
       setEmailReminders((profile as any)?.email_reminders_enabled ?? true);
     }
-  }, [profile]);
+  }, [profile, surveyDerived.pronouns, surveyDerived.ageRange]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
