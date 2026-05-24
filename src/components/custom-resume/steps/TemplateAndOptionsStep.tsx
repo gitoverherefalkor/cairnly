@@ -1,7 +1,7 @@
 // Step 2 of the wizard: template choice + cover letter toggle.
 //
-// Two ATS-safe templates are live; the 3 designed templates show as
-// "Coming soon" cards (their builtYet flags flip when the designs land).
+// Cards are gated on the TEMPLATES.builtYet flag — unbuilt cards render as
+// disabled "Coming soon"; built ones are selectable.
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -75,9 +75,9 @@ export function TemplateAndOptionsStep({
               key={t.id}
               name={t.name}
               description={t.description}
-              selected={false}
-              disabled
-              onClick={() => {}}
+              selected={templateId === t.id}
+              disabled={!t.builtYet}
+              onClick={() => onTemplateChange(t.id)}
             />
           ))}
         </div>

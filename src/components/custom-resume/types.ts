@@ -131,23 +131,23 @@ export const TEMPLATES: TemplateMeta[] = [
   {
     id: 'designed-minimalist',
     name: 'Modern Minimalist',
-    description: 'For tech, startup, product, UX roles. Coming soon.',
+    description: 'For tech, startup, product, UX roles. Cairnly teal, Inter throughout.',
     category: 'designed',
-    builtYet: false,
+    builtYet: true,
   },
   {
     id: 'designed-executive',
     name: 'Classic Executive',
-    description: 'For finance, consulting, law, senior leadership. Coming soon.',
+    description: 'For finance, consulting, law, senior leadership. Cream paper, serif display.',
     category: 'designed',
-    builtYet: false,
+    builtYet: true,
   },
   {
     id: 'designed-creative',
     name: 'Bold Creative',
-    description: 'For marketing, communications, media. Coming soon.',
+    description: 'For marketing, communications, media. Burnt-sienna accent, asymmetric grid.',
     category: 'designed',
-    builtYet: false,
+    builtYet: true,
   },
 ];
 
