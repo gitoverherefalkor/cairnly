@@ -35,7 +35,8 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     title: 'Tailor Your Resume',
     description: 'Rewrite your uploaded resume to fit the specific jobs you want to apply for.',
     requiredReferrals: 2,
-    builtYet: false,
+    builtYet: true,
+    route: '/custom-resume',
   },
   {
     key: 'cover-letter',
