@@ -26,6 +26,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
+import { ResumeUploadCard } from '@/components/resume/ResumeUploadCard';
 
 // ----- Shared cream card shell for every Profile section -----
 interface ProfileCardProps {
@@ -307,22 +308,39 @@ const Profile = () => {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-3.5">
-                <div
-                  className="w-[38px] h-[38px] rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ border: '2px solid rgba(201,182,144,0.7)' }}
-                >
-                  <div className="w-2 h-2 rounded-full" style={{ background: '#9CA3AF' }} />
+              <>
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-[38px] h-[38px] rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ border: '2px solid rgba(201,182,144,0.7)' }}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ background: '#9CA3AF' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
+                      No resume uploaded
+                    </p>
+                    <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
+                      Upload one here, or do it when starting your next Cairnly Assessment for automatic pre-filling.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
-                    No resume uploaded
-                  </p>
-                  <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
-                    Upload your resume when starting your next Cairnly Assessment for automatic pre-filling
-                  </p>
+
+                {/* Upload affordance — feeds the same useResumeUpload hook the
+                    assessment intake uses, so it writes resume_uploaded_at on
+                    the profile and lands the file in the resumes bucket. */}
+                <div className="mt-4">
+                  <ResumeUploadCard
+                    title="Upload résumé"
+                    description="PDF, Word (.doc, .docx), or plain text. Used to pre-fill your assessment and to tailor résumés for selected careers."
+                    showSuccessMessage
+                    onProcessingComplete={() => {
+                      // Reload so the card flips to the "uploaded" state.
+                      window.location.reload();
+                    }}
+                  />
                 </div>
-              </div>
+              </>
             )}
           </ProfileCard>
 
