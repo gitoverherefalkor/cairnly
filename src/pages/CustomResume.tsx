@@ -1,37 +1,34 @@
-// Custom Résumé page — entry point for the WF_custom_resume flow.
+// Custom Résumé page — v2.
 //
-// State machine (single page, query-param driven):
-//   1. Wizard step 1 (career picker) → step 2 (template + cover letter)
-//   2. On Generate → kicks off edge function, stores returned IDs in
-//      ?ids=… and switches to results view.
-//   3. Reloading with ?ids=… in the URL goes straight to results view,
-//      letting users come back to a generation in progress.
+// Single-page builder (no multi-step wizard) styled like /jobs:
+//   - approach_vis background, dashboard nav at top.
+//   - Hero (gold eyebrow, big heading), career picker (max 3, glassy cards),
+//     template grid (5 tiles), cover-letter pill toggle, gold "Generate" CTA.
+//   - After kicking off generation, the same page swaps to the results view
+//     with one tab per career, live PDF preview, and download buttons.
 //
-// Gates (in order):
-//   - Auth → if signed out, the protected routes already bounce; we still
-//     render a loader until useAuth resolves.
-//   - Completed report → no completed report = no careers to tailor for;
-//     bounce to /dashboard.
-//   - Referral tier 2 → 'resume' feature must be unlocked; otherwise show
-//     a small locked screen.
-//   - Résumé on file → if not, show an upload CTA before letting them in.
+// State machine driven by ?ids= URL params: present → results, absent →
+// builder. Reloading on the results URL goes straight to results.
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Loader2, AlertCircle, ArrowLeft, Upload, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, Lock, Upload } from 'lucide-react';
+import {
+  PALETTE,
+  FONT_DISPLAY,
+  FONT_BODY,
+} from '@/components/dashboard/v2/dashboardV2Shared';
+import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
+import { ApproachBackground, REyebrow, glassCardStyle } from '@/components/custom-resume/v2/customResumeV2Shared';
+import { CustomResumeBuilder } from '@/components/custom-resume/v2/CustomResumeBuilder';
+import { CustomResumeResults } from '@/components/custom-resume/v2/CustomResumeResults';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
-import { CareerPickerStep } from '@/components/custom-resume/steps/CareerPickerStep';
-import { TemplateAndOptionsStep } from '@/components/custom-resume/steps/TemplateAndOptionsStep';
-import { ResultsView } from '@/components/custom-resume/ResultsView';
+import { useReportSections } from '@/hooks/useReportSections';
 import { useGenerateCustomResume } from '@/components/custom-resume/hooks/useGenerateCustomResume';
 import type { CareerSelection, TemplateId } from '@/components/custom-resume/types';
-
-type WizardStep = 'careers' | 'template';
 
 const CustomResume = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -47,51 +44,60 @@ const CustomResume = () => {
     [idsParam],
   );
 
-  // Wizard state
-  const [step, setStep] = useState<WizardStep>('careers');
+  // Builder state
   const [selected, setSelected] = useState<CareerSelection[]>([]);
-  const [templateId, setTemplateId] = useState<TemplateId>('ats-classic');
+  const [templateId, setTemplateId] = useState<TemplateId>('designed-minimalist');
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
 
   const generate = useGenerateCustomResume();
   const latestReport = reports?.length ? reports[0] : null;
+  const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
 
-  // Reset wizard state if user navigates back via "Generate more"
-  const startNew = () => {
-    setSelected([]);
-    setStep('careers');
-    setSearchParams({}, { replace: true });
-  };
+  const firstName = profile?.first_name || '';
 
-  // Loading state
-  const isLoading = authLoading || profileLoading || reportsLoading || referralStatus.isLoading;
-
-  // Bounce to auth if signed out (parent layout should also handle this,
-  // but be defensive — this page makes no sense without a user).
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth', { replace: true });
     }
   }, [authLoading, user, navigate]);
 
+  const isLoading =
+    authLoading ||
+    profileLoading ||
+    reportsLoading ||
+    referralStatus.isLoading ||
+    (latestReport && sectionsLoading);
+
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-atlas-teal" />
-      </div>
+      <ApproachBackground>
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Loader2 size={28} className="animate-spin" color="#fff" />
+        </div>
+      </ApproachBackground>
     );
   }
 
   if (!latestReport || latestReport.status !== 'completed') {
-    // Without a completed report there are no careers to tailor for.
     navigate('/dashboard', { replace: true });
     return null;
   }
 
-  // Referral gate: 'resume' feature must be unlocked
+  // Referral gate
   const resumeFeature = referralStatus.features.find((f) => f.key === 'resume');
   if (resumeFeature && !resumeFeature.unlocked) {
-    return <LockedScreen requiredReferrals={resumeFeature.requiredReferrals} />;
+    return (
+      <PageShell firstName={firstName}>
+        <LockedScreen requiredReferrals={resumeFeature.requiredReferrals} />
+      </PageShell>
+    );
   }
 
   // Cover letter is a separate tier in the referral ladder. The wizard
@@ -105,51 +111,34 @@ const CustomResume = () => {
 
   // Résumé prerequisite
   if (!profile?.resume_uploaded_at) {
-    return <NoResumeOnFile onUpload={() => navigate('/profile')} />;
-  }
-
-  // If we have generated IDs, show the results view.
-  if (customResumeIds.length > 0) {
     return (
-      <Layout>
-        <ResultsView customResumeIds={customResumeIds} onStartNew={startNew} />
-      </Layout>
+      <PageShell firstName={firstName}>
+        <NoResumeScreen onUpload={() => navigate('/profile')} />
+      </PageShell>
     );
   }
 
-  // Wizard
-  return (
-    <Layout>
-      <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard')}
-          className="inline-flex items-center hover:text-foreground"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" /> Dashboard
-        </button>
-        <span className="opacity-50">/</span>
-        <span>Tailored résumé</span>
-      </div>
+  const startNew = () => {
+    setSelected([]);
+    setSearchParams({}, { replace: true });
+  };
 
-      {step === 'careers' ? (
-        <CareerPickerStep
-          reportId={latestReport.id}
-          selected={selected}
-          onChange={setSelected}
-          onNext={() => setStep('template')}
-        />
+  return (
+    <PageShell firstName={firstName}>
+      {customResumeIds.length > 0 ? (
+        <CustomResumeResults customResumeIds={customResumeIds} onStartNew={startNew} />
       ) : (
-        <TemplateAndOptionsStep
+        <CustomResumeBuilder
+          sections={sections}
+          selected={selected}
+          onSelectedChange={setSelected}
           templateId={templateId}
           onTemplateChange={setTemplateId}
           includeCoverLetter={includeCoverLetter}
           onCoverLetterChange={setIncludeCoverLetter}
           coverLetterUnlocked={coverLetterUnlocked}
           referralsToCoverLetter={referralsToCoverLetter}
-          onBack={() => setStep('careers')}
           isGenerating={generate.isPending}
-          careersCount={selected.length}
           onGenerate={async () => {
             try {
               const result = await generate.mutateAsync({
@@ -168,63 +157,130 @@ const CustomResume = () => {
           }}
         />
       )}
-    </Layout>
+    </PageShell>
   );
 };
 
-function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-background pb-12">
-      <div className="mx-auto max-w-4xl px-4 pt-8 sm:px-6">{children}</div>
-    </div>
-  );
-}
-
-function LockedScreen({ requiredReferrals }: { requiredReferrals: number }) {
+// ── Shared page shell ─────────────────────────────────────────
+const PageShell: React.FC<{ firstName: string; children: React.ReactNode }> = ({ firstName, children }) => {
   const navigate = useNavigate();
   return (
-    <Layout>
-      <Card className="border-atlas-gold/40">
-        <CardContent className="space-y-4 p-8 text-center">
-          <Lock className="mx-auto h-10 w-10 text-atlas-gold" />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Tailor your résumé — unlock with {requiredReferrals} invites
-          </h1>
-          <p className="text-muted-foreground">
-            Invite {requiredReferrals} friend{requiredReferrals === 1 ? '' : 's'} to take their
-            assessment and you'll unlock tailored résumés for your top careers.
-          </p>
-          <div className="flex justify-center gap-2 pt-2">
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
-              Back to dashboard
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </Layout>
+    <ApproachBackground>
+      <DashboardAppNav
+        firstName={firstName}
+        pageLabel="Tailor Your Résumé"
+        onProfile={() => navigate('/profile')}
+        onSignOut={() => navigate('/auth')}
+        onBack={() => navigate('/dashboard')}
+        backLabel="Back to dashboard"
+      />
+      {children}
+    </ApproachBackground>
   );
-}
+};
 
-function NoResumeOnFile({ onUpload }: { onUpload: () => void }) {
-  return (
-    <Layout>
-      <Card>
-        <CardContent className="space-y-4 p-8 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-atlas-orange" />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Upload your résumé first
-          </h1>
-          <p className="mx-auto max-w-md text-muted-foreground">
-            We need your current résumé as the base for tailoring. Upload it once and we'll re-use
-            it for every career you pick.
-          </p>
-          <Button onClick={onUpload} className="bg-atlas-teal hover:bg-atlas-teal/90">
-            <Upload className="mr-2 h-4 w-4" /> Upload résumé in Profile
-          </Button>
-        </CardContent>
-      </Card>
-    </Layout>
-  );
-}
+// ── Locked screen ─────────────────────────────────────────────
+const LockedScreen: React.FC<{ requiredReferrals: number }> = ({ requiredReferrals }) => (
+  <div style={{ maxWidth: 760, margin: '0 auto', padding: '80px 32px', textAlign: 'center' }}>
+    <Lock size={48} color={PALETTE.goldBright} style={{ margin: '0 auto 16px' }} />
+    <REyebrow>
+      STEP 2 · {requiredReferrals} FRIEND{requiredReferrals === 1 ? '' : 'S'} TO UNLOCK
+    </REyebrow>
+    <h1
+      style={{
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 900,
+        fontSize: 48,
+        letterSpacing: '-0.03em',
+        color: '#fff',
+        margin: '14px 0 14px 0',
+        lineHeight: 1.0,
+      }}
+    >
+      Help {requiredReferrals} friend{requiredReferrals === 1 ? '' : 's'} find their path,
+      <br />
+      unlock yours.
+    </h1>
+    <p
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 16,
+        fontWeight: 500,
+        color: 'rgba(255,255,255,0.78)',
+        lineHeight: 1.55,
+        margin: '0 auto 36px',
+        maxWidth: 580,
+      }}
+    >
+      Invite {requiredReferrals} friend{requiredReferrals === 1 ? '' : 's'} to take their
+      assessment and we'll unlock tailored résumés for your top careers.
+    </p>
+  </div>
+);
+
+// ── No résumé on file screen ──────────────────────────────────
+const NoResumeScreen: React.FC<{ onUpload: () => void }> = ({ onUpload }) => (
+  <div style={{ maxWidth: 720, margin: '0 auto', padding: '80px 32px' }}>
+    <div
+      style={{
+        ...glassCardStyle(false, false),
+        padding: '40px 32px',
+        textAlign: 'center',
+        cursor: 'default',
+      }}
+    >
+      <Upload size={44} color={PALETTE.goldBright} style={{ margin: '0 auto 14px' }} />
+      <REyebrow>UPLOAD REQUIRED</REyebrow>
+      <h1
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 900,
+          fontSize: 32,
+          letterSpacing: '-0.025em',
+          color: '#fff',
+          margin: '12px 0 10px 0',
+          lineHeight: 1.1,
+        }}
+      >
+        Upload your résumé first.
+      </h1>
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 15,
+          fontWeight: 500,
+          color: 'rgba(255,255,255,0.72)',
+          lineHeight: 1.5,
+          margin: '0 auto 24px',
+          maxWidth: 480,
+        }}
+      >
+        We need your current résumé as the base for tailoring. Upload it once and we'll re-use it
+        for every career you pick.
+      </p>
+      <button
+        type="button"
+        onClick={onUpload}
+        style={{
+          background: PALETTE.gold,
+          color: PALETTE.canvasDeep,
+          border: 'none',
+          padding: '14px 22px',
+          borderRadius: 9999,
+          fontFamily: FONT_BODY,
+          fontWeight: 800,
+          fontSize: 14,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          cursor: 'pointer',
+          boxShadow: '0 14px 32px -10px rgba(212,160,36,0.55)',
+        }}
+      >
+        <Upload size={14} /> Upload résumé in Profile
+      </button>
+    </div>
+  </div>
+);
 
 export default CustomResume;
