@@ -25,3 +25,10 @@ dist-ssr
 *.sw?
 .vercel
 .superpowers/
+
+# Local archive of old handoffs / backups
+/_archive/
+
+# One-off design drops should never be committed at root
+/*.zip
+*.plugin
