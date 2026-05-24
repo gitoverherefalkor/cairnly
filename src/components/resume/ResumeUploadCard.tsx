@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileText, CheckCircle, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useResumeUpload } from './hooks/useResumeUpload';
+import { useAIResumeUpload } from './hooks/useAIResumeUpload';
 
 interface ResumeUploadCardProps {
   onProcessingComplete?: (data: any) => void;
@@ -31,12 +31,12 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
     processingResult,
     uploadAndProcess,
     resetState
-  } = useResumeUpload({
+  } = useAIResumeUpload({
     onSuccess: (data) => {
       if (showSuccessMessage) {
         toast({
-          title: "Resume processed successfully! ✅",
-          description: `Extracted ${data.wordCount} words from your ${uploadedFile?.name}. Ready to pre-fill your assessment!`,
+          title: "Resume uploaded successfully! ✅",
+          description: `Pre-filled ${data.fieldsExtracted ?? 0} survey questions from your ${uploadedFile?.name}.`,
         });
       }
       onProcessingComplete?.(data);
@@ -141,12 +141,11 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
                     <div className="flex items-center space-x-2 text-green-800 mb-2">
                       <CheckCircle className="h-4 w-4" />
-                      <span className="font-medium">Document successfully parsed!</span>
+                      <span className="font-medium">Resume uploaded successfully!</span>
                     </div>
                     <div className="text-green-700 space-y-1">
-                      <p>• Extracted {processingResult.wordCount || 0} words</p>
-                      <p>• Method: {processingResult.processingMethod || 'Text extraction'}</p>
-                      <p>• Ready to pre-fill survey questions</p>
+                      <p>• Pre-filled {processingResult.fieldsExtracted || 0} survey questions</p>
+                      <p>• Ready to use for tailored résumé generation</p>
                     </div>
                   </div>
                 )}

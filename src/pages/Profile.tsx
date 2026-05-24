@@ -283,6 +283,20 @@ const Profile = () => {
                     className="rounded-full font-bold text-[12.5px] bg-transparent"
                     style={{ color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' }}
                     onClick={async () => {
+                      if (!user?.id) return;
+
+                      // Delete the actual files in storage first, otherwise
+                      // they orphan and the next upload's "find latest" picks
+                      // up a stale file.
+                      const { data: files } = await supabase.storage
+                        .from('resumes')
+                        .list(user.id, { limit: 100 });
+
+                      if (files?.length) {
+                        const paths = files.map((f) => `${user.id}/${f.name}`);
+                        await supabase.storage.from('resumes').remove(paths);
+                      }
+
                       const { error } = await supabase
                         .from('profiles')
                         .update({
@@ -291,7 +305,7 @@ const Profile = () => {
                           resume_uploaded_at: null,
                           updated_at: new Date().toISOString(),
                         })
-                        .eq('id', user?.id);
+                        .eq('id', user.id);
 
                       if (!error) {
                         window.location.reload();
