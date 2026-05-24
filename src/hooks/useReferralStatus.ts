@@ -26,7 +26,9 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     description: 'Search live job openings matched to your top career recommendations.',
     requiredReferrals: 1,
     builtYet: true,
-    route: '/jobs',
+    // mode=search ensures clicking the toolkit CTA always lands on the filter
+    // page (a fresh start), not on stale results restored from sessionStorage.
+    route: '/jobs?mode=search',
   },
   {
     key: 'resume',
@@ -41,7 +43,11 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     title: 'Tailor Cover Letters',
     description: 'Generate cover letters customised to each job you have shortlisted.',
     requiredReferrals: 3,
-    builtYet: false,
+    // Cover letter generation lives inside the Custom Résumé wizard as a
+    // checkbox — it doesn't have its own route. Setting builtYet=true so the
+    // dashboard tile shows it as a real unlock instead of "coming soon".
+    builtYet: true,
+    route: '/custom-resume',
   },
 ];
 

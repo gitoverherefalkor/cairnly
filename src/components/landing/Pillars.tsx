@@ -54,7 +54,7 @@ const Pillars: React.FC = () => (
             style={{ background: '#FBF6E8', border: '1px solid #C9B690' }}
           >
             <div className="flex items-start justify-between mb-6">
-              <span className="font-heading font-black text-[44px] text-[#C9B690] leading-none">{num}</span>
+              <span className="font-heading font-bold text-[44px] text-[#C9B690] leading-none">{num}</span>
               <Icon size={32} strokeWidth={1.8} className="opacity-80" color="#27A1A1" />
             </div>
             <h3

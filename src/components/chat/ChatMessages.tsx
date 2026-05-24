@@ -66,13 +66,18 @@ interface ChatMessagesProps {
   // the very first welcome bubble (where Save would be meaningless).
   bookmarkedMessageIds?: string[];
   onBookmarkToggle?: (messageId: string) => void;
+  // Bot messages the user has thumbed-up as impressive. Renders a filled
+  // thumbs-up in the message footer; persisted to content_feedback.
+  likedMessageIds?: string[];
+  onLikeToggle?: (messageId: string, text: string) => void;
   // Posts a comparison explanation into the chat as a bot message.
   onComparisonExplain?: (content: string) => void;
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
+    const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
     const isDreamJobsSection = currentSectionIndex >= ALL_SECTIONS.length - 1;
     // Tracks "every card opened at least once" for ALL multi-card sections
@@ -273,6 +278,8 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   bookmarkable={msg.sender === 'bot' && !!onBookmarkToggle}
                   bookmarked={bookmarkedSet.has(msg.id)}
                   onBookmarkToggle={onBookmarkToggle}
+                  liked={likedSet.has(msg.id)}
+                  onLikeToggle={msg.sender === 'bot' ? onLikeToggle : undefined}
                 />
                 {isLastBotMessage && !isFollowUp && !hasUnrevealedSubsections && wrapUpState !== 'pending' && (
                   <QuickReplies

@@ -1,9 +1,18 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse } from "../_shared/cors.ts";
+import {
+  renderEmail,
+  bodyRow,
+  ctaRow,
+  h1,
+  paragraph,
+  fineprint,
+  callout,
+  escapeHtml,
+} from "../_shared/email-chrome.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2023-10-16",
@@ -29,57 +38,34 @@ function generateAccessCode(): string {
 // Function to send the access code email
 async function sendAccessCodeEmail(email: string, firstName: string, lastName: string, accessCode: string) {
   try {
-    const { data, error } = await resend.emails.send({
+    const bodyHtml = bodyRow(
+      h1("Your Purchase was Successful!") +
+      paragraph(`Hello ${firstName} ${lastName},`) +
+      paragraph("Thank you for purchasing Cairnly. You can continue right where you left off, your assessment is ready on the platform.") +
+      paragraph('<strong style="color:#122E3B;font-weight:700;">Keep this access code safe.</strong> It\'s your backup, use it to log back in any time and pick up your assessment.') +
+      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 8px 0;">
+  <tr><td style="background-color:#122E3B;background-image:linear-gradient(135deg,#122E3B 0%,#213F4F 100%);border-radius:14px;padding:28px 24px;text-align:center;">
+    <p class="code-mob" style="margin:0;color:#FFFFFF;font-size:26px;font-weight:700;letter-spacing:5px;font-family:'SFMono-Regular',Menlo,Consolas,'Courier New',monospace;">${accessCode}</p>
+  </td></tr>
+</table>` +
+      paragraph(
+        'Need to get back to your assessment? Head to your <a href="https://cairnly.io/dashboard" style="color:#1F8282;text-decoration:underline;font-weight:600;">dashboard</a>, you can start a new assessment or continue an existing one from there.',
+        { mb: 0 },
+      ) +
+      fineprint("Your access code is valid for one year from today. If you have any questions, please contact our support team."),
+    );
+
+    const html = renderEmail({
+      title: "Your Cairnly Access Code",
+      preheader: "Your purchase was successful. Keep your access code safe.",
+      bodyHtml,
+    });
+
+    const { error } = await resend.emails.send({
       from: "Cairnly <no-reply@cairnly.io>",
       to: [email],
       subject: "Your Cairnly Access Code",
-      html: `
-        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-          <div style="background-color: #27A1A1; height: 4px; font-size: 0; line-height: 0;">&nbsp;</div>
-          <div style="background-color: #213F4F; padding: 32px 40px 28px; text-align: center;">
-            <img src="https://cairnly.io/cairnly-logo-white.png" alt="Cairnly" width="180" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-            <p style="color: #27A1A1; margin: 12px 0 0 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;">Career Discovery Platform</p>
-          </div>
-
-          <div style="padding: 40px; color: #333333;">
-            <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">Your Purchase was Successful!</h2>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-              Hello ${firstName} ${lastName},
-            </p>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px; color: #444;">
-              Thank you for purchasing Cairnly. You can continue right where you left off, your assessment is ready on the platform.
-            </p>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 8px; color: #444;">
-              <strong>Keep this access code safe.</strong> It's your backup, use it to log back in any time and pick up your assessment.
-            </p>
-
-            <div style="background-color: #213F4F; padding: 20px; border-radius: 8px; text-align: center; margin: 16px 0 24px 0;">
-              <span style="color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: 2px; font-family: 'Courier New', monospace;">
-                ${accessCode}
-              </span>
-            </div>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 0; color: #444;">
-              Need to get back to your assessment? Head to your
-              <a href="https://cairnly.io/dashboard" style="color: #3989AF; text-decoration: none; font-weight: 500;">dashboard</a>,
-              you can start a new assessment or continue an existing one from there.
-            </p>
-
-            <p style="font-size: 14px; color: #888; margin-top: 24px;">
-              Your access code is valid for one year from today. If you have any questions, please contact our support team.
-            </p>
-          </div>
-
-          <div style="text-align: center; padding: 24px 40px; border-top: 1px solid #e8e8e8; background-color: #f8f9fa;">
-            <p style="color: #999; font-size: 12px; margin: 0;">
-              &copy; 2026 Cairnly. All rights reserved.
-            </p>
-          </div>
-        </div>
-      `,
+      html,
     });
 
     if (error) {
@@ -90,6 +76,124 @@ async function sendAccessCodeEmail(email: string, firstName: string, lastName: s
   } catch (error) {
     console.error("Email sending error:", error);
     return false;
+  }
+}
+
+// "A friend joined Cairnly through your code" — sent to the referrer the
+// moment a new conversion crosses the 1, 2, or 3 friend threshold (those
+// are the conversions that actually unlock a tool). After 3, no email —
+// nothing new to celebrate.
+const REFERRAL_UNLOCK_TIERS: Array<{
+  count: number;
+  toolLabel: string;
+  toolBody: string; // sentence describing what it does
+  next: { count: number; toolLabel: string } | null;
+  cta: { label: string; href: string };
+}> = [
+  {
+    count: 1,
+    toolLabel: "Find Open Roles",
+    toolBody: "live job openings matched to your top career recommendations",
+    next: { count: 2, toolLabel: "Tailor Your Resume" },
+    cta: { label: "Find open roles now", href: "https://cairnly.io/jobs" },
+  },
+  {
+    count: 2,
+    toolLabel: "Tailor Your Resume",
+    toolBody: "an AI rewrite of your uploaded resume tailored to specific jobs you want to apply for",
+    next: { count: 3, toolLabel: "Tailor Cover Letters" },
+    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+  },
+  {
+    count: 3,
+    toolLabel: "Tailor Cover Letters",
+    toolBody: "cover letters customised to each job on your shortlist",
+    next: null,
+    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+  },
+];
+
+async function sendReferralUnlockEmail(args: {
+  referrerEmail: string;
+  referrerFirstName: string | null;
+  referrerCode: string | null;
+  inviteeFirstName: string | null;
+  // deno-lint-ignore no-explicit-any
+  supabase: any;
+  referrerUserId: string;
+}): Promise<void> {
+  const { referrerEmail, referrerFirstName, referrerCode, inviteeFirstName, supabase, referrerUserId } = args;
+
+  // Count how many converted referrals this user has now (post-insert).
+  const { count, error: countError } = await supabase
+    .from("referrals")
+    .select("id", { count: "exact", head: true })
+    .eq("referrer_user_id", referrerUserId);
+
+  if (countError) {
+    console.error("Referral count query failed:", countError);
+    return;
+  }
+
+  const tier = REFERRAL_UNLOCK_TIERS.find((t) => t.count === (count ?? 0));
+  if (!tier) {
+    // Past the 3rd unlock — nothing new to celebrate, skip.
+    return;
+  }
+
+  if (!Deno.env.get("RESEND_API_KEY")) {
+    console.warn("RESEND_API_KEY not set; skipping referral unlock email");
+    return;
+  }
+
+  const firstName = referrerFirstName?.trim() || "there";
+  const inviteeName = inviteeFirstName?.trim() || "someone";
+  const subject = `You just unlocked ${tier.toolLabel} for free`;
+  const codeBlock = referrerCode
+    ? `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">Your code: <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${escapeHtml(referrerCode)}</strong> &nbsp;·&nbsp; <a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share it again</a></p>`
+    : `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;"><a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share your code again →</a></p>`;
+
+  const nextLine = tier.next
+    ? paragraph(
+        `Invite one more friend and <strong style="color:#122E3B;font-weight:700;">${escapeHtml(tier.next.toolLabel)}</strong> opens up too.`,
+      )
+    : paragraph(
+        `That's all three tools unlocked. Thank you for helping three people find some clarity, it genuinely matters.`,
+      );
+
+  const bodyHtml =
+    bodyRow(
+      h1("A friend joined Cairnly through your code") +
+        paragraph(
+          `Hey ${escapeHtml(firstName)}, ${escapeHtml(inviteeName)} just used your code and took their first step toward better career clarity.`,
+        ) +
+        paragraph(
+          `<strong style="color:#122E3B;font-weight:700;">${tier.count} of 3 friends joined.</strong> ${escapeHtml(tier.toolLabel)} is now live on your dashboard — ${tier.toolBody}.`,
+        ) +
+        nextLine +
+        paragraph(
+          `Each invite helps someone find clarity, and earns you a tool for your own job hunt.`,
+        ) +
+        callout("YOUR REFERRAL CODE", codeBlock),
+    ) +
+    ctaRow(tier.cta.label, tier.cta.href) +
+    `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint("You're receiving this because someone just joined Cairnly using your referral code.")}</td></tr>`;
+
+  const html = renderEmail({
+    title: subject,
+    preheader: `${tier.toolLabel} is now live on your dashboard.`,
+    bodyHtml,
+  });
+
+  const { error: emailError } = await resend.emails.send({
+    from: "Cairnly <no-reply@cairnly.io>",
+    to: [referrerEmail],
+    subject,
+    html,
+  });
+
+  if (emailError) {
+    console.error("Failed to send referral unlock email:", emailError);
   }
 }
 
@@ -284,7 +388,7 @@ serve(async (req) => {
         // their own code. Compare the buyer email to the referrer's email.
         const { data: referrerProfile } = await supabase
           .from("profiles")
-          .select("email")
+          .select("email, first_name, referral_code")
           .eq("id", referrerUserId)
           .maybeSingle();
 
@@ -309,6 +413,18 @@ serve(async (req) => {
           // 23505 = duplicate stripe_session_id — already credited. Fine.
           if (referralError && referralError.code !== "23505") {
             console.error("Failed to record referral:", referralError);
+          } else if (!referralError && referrerProfile?.email) {
+            // Send the "friend joined, tool unlocked" email to the referrer.
+            // Only fires on conversions 1, 2, and 3 (the moments a tool
+            // actually unlocks). After 3 there's nothing new to celebrate.
+            await sendReferralUnlockEmail({
+              referrerEmail: referrerProfile.email,
+              referrerFirstName: referrerProfile.first_name ?? null,
+              referrerCode: referrerProfile.referral_code ?? null,
+              inviteeFirstName: firstName,
+              supabase,
+              referrerUserId,
+            }).catch((e) => console.error("Referral unlock email failed (non-fatal):", e));
           }
         }
       } catch (e) {

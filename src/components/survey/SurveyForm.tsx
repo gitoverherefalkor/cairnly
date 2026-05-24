@@ -532,7 +532,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
             }`}
           >
             <div
-              className="relative overflow-hidden rounded-[22px] border shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)]"
+              className="relative overflow-hidden rounded-[22px] border bg-white shadow-[0_30px_60px_-24px_rgba(0,0,0,0.45)]"
               style={{
                 background: '#FDFBF2',
                 borderColor: 'rgba(201, 182, 144, 0.6)',
@@ -558,7 +558,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                   style={{
                     color: '#C8891A',
                     letterSpacing: '0.24em',
-                    fontWeight: 900,
+                    fontWeight: 700,
                   }}
                 >
                   Section {currentSectionIndex + 1} · Question {currentQuestionInSection} of {totalQuestionsInSection}

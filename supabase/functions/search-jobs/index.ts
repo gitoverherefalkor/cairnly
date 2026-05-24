@@ -19,7 +19,13 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { career_title, location, alternate_titles, remote_only, report_id } = body;
+    const { career_title, location, alternate_titles, work_arrangement, job_commitment, report_id } = body;
+
+    // Survey-derived "avoid" preferences (industries + career aspects the user
+    // wants to steer clear of). Forwarded to n8n's scorer as a penalty signal.
+    const avoidPreferences: string[] = Array.isArray(body.avoid_preferences)
+      ? body.avoid_preferences.map((s: unknown) => String(s).trim()).filter(Boolean)
+      : [];
 
     // Accept country_codes (array, 1-2 entries) OR country_code (legacy single).
     // Always normalize to a sorted, deduped array internally.
@@ -37,7 +43,20 @@ serve(async (req) => {
       .filter(Boolean)
       .slice(0, 2)
       .sort();
-    const remoteOnly = Boolean(remote_only);
+    // Work arrangement: 'any' (no filter) | 'remote_friendly' (remote+hybrid)
+    // | 'remote_only' (fully remote). Defaults to 'any'. Legacy callers that
+    // still send remote_only=true are mapped to 'remote_only'.
+    const VALID_ARRANGEMENTS = new Set(['any', 'remote_friendly', 'remote_only']);
+    const workArrangement = VALID_ARRANGEMENTS.has(String(work_arrangement))
+      ? String(work_arrangement)
+      : (body.remote_only ? 'remote_only' : 'any');
+
+    // Hours / commitment: 'any' (no filter) | 'full_time' | 'part_time'
+    // (part-time + contract, i.e. fractional/interim). Defaults to 'any'.
+    const VALID_COMMITMENTS = new Set(['any', 'full_time', 'part_time']);
+    const jobCommitment = VALID_COMMITMENTS.has(String(job_commitment))
+      ? String(job_commitment)
+      : 'any';
 
     // User languages — the frontend extracts these from the user's report payload
     // when the survey collected them. Format: [{ language: 'Dutch', proficiency: 'fluent' }, ...]
@@ -92,13 +111,32 @@ serve(async (req) => {
       }
     }
 
-    // Cache key: sorted country list + remote suffix + language signature.
-    // Same query in NL+DE hits the same cache regardless of which order the
-    // user picked; same query for users with the same language profile reuses.
+    // Bump this whenever the n8n search/scoring logic changes, so stale
+    // results cached under the old logic stop matching and fresh searches run.
+    // v2: LLM keyword generator + scoring specialization rule (2026-05-22).
+    // v3: avoid-preferences penalty in scoring (2026-05-22).
+    // v4: scoring sees 400 chars of description (was 200) (2026-05-22).
+    // v5: capture workplace_type + employment_type for result badges (2026-05-22).
+    // v6: apply_url now uses LinkedIn job page instead of offsite applyUrl (2026-05-23).
+    const SEARCH_LOGIC_VERSION = 'v6';
+
+    // Avoid-prefs signature: stable per user, so users with different avoid
+    // lists don't share each other's scored cache. Sorted so order doesn't matter.
+    const avoidSignature = avoidPreferences.length
+      ? [...avoidPreferences].map((s) => s.toLowerCase()).sort().join('|')
+      : 'none';
+
+    // Cache key: logic version + sorted country list + arrangement + language
+    // signature. Same query in NL+DE hits the same cache regardless of which
+    // order the user picked; same query for users with the same language
+    // profile reuses.
     const searchQuery = career_title.toLowerCase().trim();
-    const countryNormalized = countries.join('+')
-      + (remoteOnly ? ':remote' : '')
-      + ':lang=' + langSignature;
+    const countryNormalized = SEARCH_LOGIC_VERSION + ':'
+      + countries.join('+')
+      + (workArrangement !== 'any' ? ':' + workArrangement : '')
+      + (jobCommitment !== 'any' ? ':jt=' + jobCommitment : '')
+      + ':lang=' + langSignature
+      + ':avoid=' + avoidSignature;
 
     // Check cache first
     const { data: cached } = await supabase
@@ -151,7 +189,9 @@ serve(async (req) => {
           career_title,
           alternate_titles: alternate_titles || [],
           country_codes: countries,
-          remote_only: remoteOnly,
+          work_arrangement: workArrangement,
+          job_commitment: jobCommitment,
+          avoid_preferences: avoidPreferences,
           location: location || '',
           // user_languages drives the scoring step's language-awareness.
           // Forwarded as-is; n8n decides how aggressively to weight it.

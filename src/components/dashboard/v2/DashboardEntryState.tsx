@@ -10,15 +10,19 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
   LakeBackground,
-  CairnGlyph,
 } from './dashboardV2Shared';
 import { DashboardAppNav } from './DashboardAppNav';
+import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
 export type EntryMode = 'empty' | 'resume' | 'chat';
 
 interface ResumeProgress {
   sectionsComplete: number;
   totalSections: number;
+  // Optional finer-grained progress: drives the % eyebrow and the bar so a
+  // user on the last question of the last section reads ~98% instead of 86%.
+  questionsAnswered?: number;
+  totalQuestions?: number;
 }
 
 interface DashboardEntryStateProps {
@@ -30,13 +34,16 @@ interface DashboardEntryStateProps {
   resumeProgress?: ResumeProgress;
 }
 
+// Mirrors the survey_sections table in DB order. Update both together when
+// sections change in Supabase.
 const ASSESSMENT_SECTIONS = [
+  'Intake questions',
   'Personality & decision-making',
   'Values & motivations',
-  'Professional interests',
-  'Work environment',
+  'Professional interests & skills',
+  'Work environment & team preferences',
   'Emotional intelligence',
-  'Career goals',
+  'Career goals & development',
 ];
 
 export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
@@ -53,19 +60,34 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
 
   const complete = resumeProgress?.sectionsComplete ?? 0;
   const total = resumeProgress?.totalSections ?? ASSESSMENT_SECTIONS.length;
-  const pct = total > 0 ? Math.round((complete / total) * 100) : 0;
+  // Prefer question-level ratio when available — section-level ratio is too
+  // coarse (1 of 7 sections done jumps the bar in 14% chunks).
+  const answered = resumeProgress?.questionsAnswered;
+  const totalQs = resumeProgress?.totalQuestions;
+  const pct =
+    typeof answered === 'number' && typeof totalQs === 'number' && totalQs > 0
+      ? Math.min(100, Math.round((answered / totalQs) * 100))
+      : total > 0
+        ? Math.round((complete / total) * 100)
+        : 0;
 
-  const headline = isChat
+  const headline: React.ReactNode = isChat
     ? `Your coach is ready, ${name}.`
     : isResume
       ? `Pick up where you left off, ${name}.`
-      : `Welcome, ${name}. Let's start.`;
+      : (
+          <>
+            Welcome, {name}.
+            <br />
+            Let's start.
+          </>
+        );
 
   const sub = isChat
     ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
     : isResume
       ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-      : 'About 25 minutes. One sitting works best, covering psychometrics, work-style and values. After that your coach walks you through the report.';
+      : "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.";
 
   const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
   const ctaEyebrow = isChat
@@ -81,13 +103,18 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 32px 80px' }}>
         {/* ─── CTA hero ─── */}
         <div style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 88, height: 88, marginBottom: 12 }}>
-            <CairnGlyph kind={isChat ? 'capstone' : 'foundation'} size={88} color="rgba(236,228,210,0.95)" accent={PALETTE.goldBright} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <img
+              src={cairnSymbolInvert}
+              alt=""
+              aria-hidden
+              style={{ height: 44, width: 'auto', opacity: 0.9 }}
+            />
           </div>
           <div
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 11,
               letterSpacing: '0.24em',
               textTransform: 'uppercase',
@@ -148,8 +175,16 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                   color: 'rgba(255,255,255,0.55)',
                 }}
               >
-                <span>Section {Math.min(complete + 1, total)} of {total} in progress</span>
-                <span>{complete} / {total} sections complete</span>
+                {complete >= total ? (
+                  <span style={{ width: '100%', textAlign: 'center' }}>
+                    All {total} sections done — submit to finish
+                  </span>
+                ) : (
+                  <>
+                    <span>Section {complete + 1} of {total} in progress</span>
+                    <span>{complete} / {total} sections complete</span>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -196,7 +231,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 11,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
@@ -217,10 +252,10 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               filter: 'saturate(0.6)',
             }}
           >
-            <GhostCard glyph="capstone" title="Top career matches" sub="With AI-impact analysis" />
-            <GhostCard glyph="halo" title="Personality profile" sub="5-axis radar · how you work" />
-            <GhostCard glyph="distant" title="Dream-job reality check" sub="An honest assessment" />
-            <GhostCard glyph="pair" title="Alternative paths" sub="Runner-ups + outside-the-box" />
+            <GhostCard title="Personality profile" sub="How you think, lead, and operate" />
+            <GhostCard title="Top career matches" sub="3 roles tailored to you, AI-impact rated" />
+            <GhostCard title="Alternative paths" sub="Runner-ups + outside-the-box" />
+            <GhostCard title="Dream-job reality check" sub="An honest feasibility check" />
           </div>
 
           {!isChat && (
@@ -242,15 +277,13 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             >
               <div
                 style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 900,
-                  fontSize: 11,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.55)',
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600,
+                  fontSize: 13,
+                  color: 'rgba(255,255,255,0.72)',
                 }}
               >
-                WHAT'S IN THE ASSESSMENT
+                The assessment covers, among other things:
               </div>
               <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
                 {ASSESSMENT_SECTIONS.map((label, i) => {
@@ -299,18 +332,14 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             color: 'rgba(255,255,255,0.5)',
           }}
         >
-          Progress auto-saved · Safe to close and return later · Full refund if you're not satisfied
+          Progress auto-saved · Safe to close and return later
         </div>
       </div>
     </LakeBackground>
   );
 };
 
-const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; title: string; sub: string }> = ({
-  glyph,
-  title,
-  sub,
-}) => (
+const GhostCard: React.FC<{ title: string; sub: string }> = ({ title, sub }) => (
   <div
     style={{
       background: 'rgba(18, 46, 59, 0.50)',
@@ -322,22 +351,9 @@ const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; tit
       display: 'flex',
       flexDirection: 'column',
       gap: 12,
+      textAlign: 'center',
     }}
   >
-    <div
-      style={{
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <CairnGlyph kind={glyph} size={36} color="rgba(236,228,210,0.85)" accent={PALETTE.goldBright} />
-    </div>
     <div>
       <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff', letterSpacing: '-0.01em' }}>
         {title}
@@ -347,6 +363,6 @@ const GhostCard: React.FC<{ glyph: 'capstone' | 'halo' | 'distant' | 'pair'; tit
       </div>
     </div>
     <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999 }} />
-    <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999, width: '70%' }} />
+    <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 9999, width: '70%', margin: '0 auto' }} />
   </div>
 );

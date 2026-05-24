@@ -11,8 +11,12 @@ interface AuthShellProps {
   children: React.ReactNode;
   /** Footer rendered below the card on the dark bg (e.g. "Back to homepage" link). */
   footer?: React.ReactNode;
-  /** Card max-width. 460 default (sign-in/forgot/reset/confirm), 520 for create-account. */
-  width?: 'narrow' | 'wide';
+  /**
+   * Card max-width. 'narrow' = 460 (sign-in/forgot/reset/confirm),
+   * 'wide' = 520 (create-account / payment-success), 'xwide' = 560 (payment),
+   * 'xxwide' = 640 (pre-survey upload). Or pass a number.
+   */
+  width?: 'narrow' | 'wide' | 'xwide' | 'xxwide' | number;
 }
 
 // Shared scaffold for /auth, /auth/confirm, /forgot-password, /reset-password.
@@ -45,7 +49,7 @@ const AuthShell: React.FC<AuthShellProps> = ({
             style={{
               color: '#EFBE48',
               letterSpacing: '0.24em',
-              fontWeight: 900,
+              fontWeight: 700,
             }}
           >
             {eyebrow}
@@ -56,7 +60,7 @@ const AuthShell: React.FC<AuthShellProps> = ({
         <h1
           className="font-heading text-center text-white text-[28px] sm:text-[36px] m-0 max-w-xl"
           style={{
-            fontWeight: 900,
+            fontWeight: 700,
             letterSpacing: '-0.025em',
             lineHeight: 1.1,
             textWrap: 'pretty' as any,
@@ -84,7 +88,16 @@ const AuthShell: React.FC<AuthShellProps> = ({
         <div
           className="relative overflow-hidden w-full mt-8 rounded-[22px] border"
           style={{
-            maxWidth: width === 'wide' ? 520 : 460,
+            maxWidth:
+              typeof width === 'number'
+                ? width
+                : width === 'xxwide'
+                  ? 640
+                  : width === 'xwide'
+                    ? 560
+                    : width === 'wide'
+                      ? 520
+                      : 460,
             background: '#FDFBF2',
             borderColor: 'rgba(201, 182, 144, 0.6)',
             boxShadow: '0 30px 60px -24px rgba(0,0,0,0.55)',

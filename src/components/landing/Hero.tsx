@@ -25,7 +25,7 @@ const Hero: React.FC = () => {
           {/* Copy */}
           <div className="lg:col-span-7">
             <Reveal className="flex items-center gap-3 mb-8">
-              <span className="text-[10px] font-heading font-black tracking-[0.22em] uppercase text-[#D4A024]">
+              <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
                 01 · The question
               </span>
               <span className="h-px w-12 bg-[#D4A024]/40" />

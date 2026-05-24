@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
 import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
-import { useJobSearch, type JobListing, type UserLanguage } from '@/hooks/useJobSearch';
+import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
 import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
@@ -33,6 +33,33 @@ const SECTION_TO_TIER: Record<string, CareerTier & JobsTier> = {
 
 type View = 'search' | 'results' | 'saved';
 
+// Persisted search snapshot so a page refresh restores the user's careers,
+// location filters, and results instead of resetting to defaults. sessionStorage
+// (not localStorage) so it lives for the browsing session and clears on tab
+// close — job results go stale, and the backend re-caches them cheaply anyway.
+const JOBS_STATE_KEY = 'cairnly_jobs_search_v1';
+
+interface PersistedJobsState {
+  view: View;
+  selectedCareers: string[];
+  primaryCountry: string;
+  secondaryCountry: string;
+  city: string;
+  workArrangement: WorkArrangement;
+  jobCommitment: JobCommitment;
+  disabledAvoids: string[];
+  results: import('@/hooks/useJobSearch').JobSearchResult[];
+}
+
+function readPersistedJobsState(): PersistedJobsState | null {
+  try {
+    const raw = sessionStorage.getItem(JOBS_STATE_KEY);
+    return raw ? (JSON.parse(raw) as PersistedJobsState) : null;
+  } catch {
+    return null;
+  }
+}
+
 const Jobs = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
@@ -45,16 +72,51 @@ const Jobs = () => {
   const latestReport = reports?.length ? reports[0] : null;
   const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
 
-  const { results, isSearching, searchJobs } = useJobSearch();
+  const { results, isSearching, searchJobs, restoreResults } = useJobSearch();
   const { savedJobs, saveJob, unsaveJob, updateStatus, isJobSaved } = useSavedJobs();
 
-  // View / filter state
-  const [view, setView] = useState<View>('search');
-  const [selectedCareers, setSelectedCareers] = useState<string[]>([]);
-  const [primaryCountry, setPrimaryCountry] = useState('us');
-  const [secondaryCountry, setSecondaryCountry] = useState('');
-  const [city, setCity] = useState('');
-  const [remoteOnly, setRemoteOnly] = useState(false);
+  // Read the persisted snapshot once (lazy — runs a single time on mount).
+  const [persisted] = useState<PersistedJobsState | null>(() => readPersistedJobsState());
+
+  // Was this page entered with explicit "fresh search" intent? Any
+  // "Find Open Roles" CTA on the dashboard sends ?mode=search (and optionally
+  // ?career=<title>). In that case we override the persisted view/selection
+  // so the user lands on the filter page with a focused start, not on stale
+  // results that may not include the career they just clicked.
+  const [freshIntent] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return { mode: p.get('mode'), career: p.get('career') };
+    } catch {
+      return { mode: null as string | null, career: null as string | null };
+    }
+  });
+  const wantsFreshSearch = freshIntent.mode === 'search' || !!freshIntent.career;
+
+  // View / filter state — seeded from the persisted snapshot when present,
+  // unless the URL signals a fresh search intent (in which case we force the
+  // filter view).
+  const [view, setView] = useState<View>(() => {
+    if (wantsFreshSearch) return 'search';
+    if (persisted?.view === 'results' && !persisted?.results?.some((r) => r.status === 'done')) {
+      return 'search'; // had a results view but nothing completed — fall back to the picker
+    }
+    return persisted?.view ?? 'search';
+  });
+  // When entering with a fresh-search intent, start with no selection so the
+  // pre-select effect (below) can replace it cleanly with the clicked career
+  // instead of stacking on top of restored picks.
+  const [selectedCareers, setSelectedCareers] = useState<string[]>(() =>
+    wantsFreshSearch ? [] : (persisted?.selectedCareers ?? []),
+  );
+  const [primaryCountry, setPrimaryCountry] = useState(() => persisted?.primaryCountry ?? 'us');
+  const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
+  const [city, setCity] = useState(() => persisted?.city ?? '');
+  const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
+  const [jobCommitment, setJobCommitment] = useState<JobCommitment>(() => persisted?.jobCommitment ?? 'any');
+  // Avoid items the user has unchecked for this search (so they can override
+  // assessment preferences they don't remember / no longer want applied).
+  const [disabledAvoids, setDisabledAvoids] = useState<string[]>(() => persisted?.disabledAvoids ?? []);
 
   // Build career options from real report sections.
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
@@ -123,11 +185,72 @@ const Jobs = () => {
     return out;
   }, [latestReport]);
 
-  // Pre-fill primary country from profile.
+  // Cherry-pick the survey's "avoid" answers straight from the report payload
+  // (deterministic — no LLM parsing of the prose summary). These feed the n8n
+  // scorer as a penalty signal so jobs the user told us to avoid rank lower.
+  //   44…447 = industries to avoid, 33…338 = career aspects to avoid.
+  const avoidPreferences = useMemo<string[]>(() => {
+    const AVOID_INDUSTRIES_QID = '44444444-4444-4444-4444-444444444447';
+    const AVOID_ASPECTS_QID = '33333333-3333-3333-3333-333333333338';
+    const resp = (latestReport as any)?.payload?.responses;
+    if (!resp) return [];
+    // Strip markdown bold + trailing "(e.g. …)" examples and newlines.
+    const clean = (s: unknown) =>
+      String(s ?? '')
+        .replace(/\*\*/g, '')
+        .split(/\n|\(e\.g/i)[0]
+        .replace(/\s+/g, ' ')
+        .trim();
+    // "Industry doesn't matter to me…" is a no-preference sentinel, not an avoid.
+    const isNoPref = (s: string) => /doesn'?t matter|no preference|not applicable/i.test(s);
+    const out: string[] = [];
+    for (const qid of [AVOID_INDUSTRIES_QID, AVOID_ASPECTS_QID]) {
+      const v = resp[qid];
+      if (Array.isArray(v)) {
+        for (const item of v) {
+          const c = clean(item);
+          if (c && !isNoPref(c)) out.push(c);
+        }
+      }
+    }
+    return [...new Set(out)];
+  }, [latestReport]);
+
+  // The avoid items actually sent to the scorer = everything the user hasn't
+  // unchecked in the foldout.
+  const activeAvoids = useMemo(
+    () => avoidPreferences.filter((a) => !disabledAvoids.includes(a)),
+    [avoidPreferences, disabledAvoids],
+  );
+  const toggleAvoid = (item: string) =>
+    setDisabledAvoids((prev) => (prev.includes(item) ? prev.filter((p) => p !== item) : [...prev, item]));
+
+  // Restore a completed search from the persisted snapshot once on mount.
   useEffect(() => {
-    if (profile?.country) {
+    if (persisted?.results?.length) restoreResults(persisted.results);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist the search snapshot whenever inputs or results change, so a refresh
+  // restores exactly what the user was looking at.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        JOBS_STATE_KEY,
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results }),
+      );
+    } catch {
+      // sessionStorage full or unavailable — non-fatal, just skip persisting.
+    }
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results]);
+
+  // Pre-fill primary country from profile — only when there's no restored
+  // snapshot, so we don't clobber a country the user already picked.
+  useEffect(() => {
+    if (!persisted && profile?.country) {
       setPrimaryCountry(profileCountryToCode(profile.country));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.country]);
 
   // Defensive: if user picks the same country in both selects, clear the secondary.
@@ -137,27 +260,41 @@ const Jobs = () => {
     }
   }, [primaryCountry, secondaryCountry]);
 
-  // Pre-select career from query param (?career=first-career).
+  // Pre-select career from ?career= — accepts either a sectionType
+  // ('first-career', 'runner-up', or a full 'runner-up__<uuid>') OR a plain
+  // career title (case-insensitive). The dashboard "Find Open Roles" CTAs pass
+  // the title since CareerMatch doesn't carry a sectionType.
   useEffect(() => {
     const preselect = searchParams.get('career');
-    if (preselect && careerOptions.length > 0) {
-      const matches = careerOptions
-        .filter((c) => c.sectionType === preselect || c.sectionType.startsWith(`${preselect}__`))
-        .map((c) => c.sectionType)
-        .slice(0, 3);
-      if (matches.length > 0) setSelectedCareers(matches);
+    if (!preselect || careerOptions.length === 0) return;
+    const needle = preselect.toLowerCase();
+    let matches = careerOptions
+      .filter((c) => c.sectionType === preselect || c.sectionType.startsWith(`${preselect}__`))
+      .map((c) => c.sectionType);
+    if (matches.length === 0) {
+      matches = careerOptions
+        .filter((c) => c.title.toLowerCase() === needle)
+        .map((c) => c.sectionType);
     }
+    matches = matches.slice(0, 3);
+    if (matches.length > 0) setSelectedCareers(matches);
   }, [searchParams, careerOptions]);
 
-  // Default-select the user's top 3 careers when sections load and no
-  // pre-selection or query param has set them yet.
+  // Default-select the user's top 3 careers ONCE, when sections first load and
+  // nothing is already selected (no persisted snapshot or query param). Guarded
+  // by a ref so that later unselecting everything does NOT re-trigger the
+  // default — selecting none is a valid state (the search button just disables).
+  const didAutoSelectRef = useRef(false);
   useEffect(() => {
-    if (selectedCareers.length > 0 || careerOptions.length === 0) return;
+    if (didAutoSelectRef.current || careerOptions.length === 0) return;
+    didAutoSelectRef.current = true;
+    if (selectedCareers.length > 0) return;
     const topThree = careerOptions
       .filter((c) => c.tier === 'top-1' || c.tier === 'top-2' || c.tier === 'top-3')
       .map((c) => c.sectionType);
     if (topThree.length > 0) setSelectedCareers(topThree);
-  }, [careerOptions, selectedCareers.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [careerOptions]);
 
   // Auth gate.
   useEffect(() => {
@@ -166,12 +303,17 @@ const Jobs = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Flip to results once at least one career finishes.
+  // Flip to results once at least one career finishes — but only for a freshly
+  // initiated search. Without this guard, clicking "Edit search" (which sets
+  // view back to 'search') would instantly bounce to 'results' because the
+  // previous run's results are still present.
+  const awaitingSearchRef = useRef(false);
   useEffect(() => {
-    if (results.some((r) => r.status === 'done') && view === 'search') {
+    if (awaitingSearchRef.current && results.some((r) => r.status === 'done')) {
+      awaitingSearchRef.current = false;
       setView('results');
     }
-  }, [results, view]);
+  }, [results]);
 
   const handleToggleCareer = (sectionType: string) => {
     setSelectedCareers((prev) =>
@@ -187,7 +329,8 @@ const Jobs = () => {
       })
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
-    searchJobs(careers, countryCodes, city || undefined, remoteOnly, userLanguages, latestReport?.id);
+    awaitingSearchRef.current = true;
+    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
   };
 
   const handleInvite = async () => {
@@ -269,7 +412,8 @@ const Jobs = () => {
     const summaryParts = [
       `${selectedCareers.length} ${selectedCareers.length === 1 ? 'career' : 'careers'}`,
       [primaryCountry, secondaryCountry].filter(Boolean).map((c) => c.toUpperCase()).join(' + '),
-      remoteOnly ? 'remote OK' : null,
+      workArrangement === 'remote_only' ? 'remote only' : workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
+      jobCommitment === 'full_time' ? 'full-time' : jobCommitment === 'part_time' ? 'part-time / fractional' : null,
     ].filter(Boolean);
     return (
       <JobsResults
@@ -307,8 +451,13 @@ const Jobs = () => {
       onSecondaryCountryChange={setSecondaryCountry}
       city={city}
       onCityChange={setCity}
-      remoteOnly={remoteOnly}
-      onRemoteOnlyChange={setRemoteOnly}
+      workArrangement={workArrangement}
+      onWorkArrangementChange={setWorkArrangement}
+      jobCommitment={jobCommitment}
+      onJobCommitmentChange={setJobCommitment}
+      avoidPreferences={avoidPreferences}
+      disabledAvoids={disabledAvoids}
+      onToggleAvoid={toggleAvoid}
       isSearching={isSearching}
       onSearch={handleSearch}
       onBack={() => navigate('/dashboard')}

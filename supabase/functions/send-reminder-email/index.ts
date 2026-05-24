@@ -1,5 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import {
+  renderEmail,
+  bodyRow,
+  ctaRow,
+  h1,
+  paragraph,
+  callout,
+  bullet,
+} from "../_shared/email-chrome.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -21,82 +30,37 @@ const ALL_SECTIONS = [
 ];
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Email templates
+// Email templates — all use renderEmail() from _shared/email-chrome.ts
 // ──────────────────────────────────────────────────────────────────────────────
-
-const LOGO_URL = "https://cairnly.io/cairnly-logo-white.png";
-
-function wrapEmail(content: string): string {
-  return `
-    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-      <div style="background-color: #27A1A1; height: 4px; font-size: 0; line-height: 0;">&nbsp;</div>
-      <div style="background-color: #213F4F; padding: 32px 40px 28px; text-align: center;">
-        <img src="${LOGO_URL}" alt="Cairnly" width="180" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-        <p style="color: #27A1A1; margin: 12px 0 0 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;">Career Discovery Platform</p>
-      </div>
-      <div style="padding: 40px; color: #333333;">
-        ${content}
-      </div>
-      <div style="text-align: center; padding: 24px 40px; border-top: 1px solid #e8e8e8; background-color: #f8f9fa;">
-        <p style="color: #999; font-size: 12px; margin: 4px 0;">
-          You're receiving this because you have a Cairnly account.
-        </p>
-        <p style="color: #999; font-size: 12px; margin: 4px 0;">
-          To stop these reminders, visit your <a href="${BASE_URL}/profile" style="color: #27A1A1; text-decoration: none;">Profile Settings</a>.
-        </p>
-        <p style="color: #999; font-size: 12px; margin: 16px 0 0 0;">
-          &copy; 2026 Cairnly. All rights reserved.
-        </p>
-      </div>
-    </div>
-  `;
-}
-
-function ctaButton(text: string, url: string): string {
-  return `
-    <div style="text-align: center; margin: 36px 0;">
-      <a href="${url}"
-         style="background-color: #27A1A1; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
-        ${text}
-      </a>
-    </div>
-  `;
-}
 
 // ── Template 1: Signed up, never started ─────────────────────────────────────
 
 function signupNoStartEmail(firstName: string): { subject: string; html: string } {
+  const bodyHtml =
+    bodyRow(
+      h1('Ready to discover your ideal career path?') +
+      paragraph(`Hi ${firstName},`) +
+      paragraph("Your personalized career assessment is set up and ready for you. It takes about 15-20 minutes, and you'll unlock insights most people never get about their career potential.") +
+      callout("Here's what you'll discover", `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${bullet('Your unique personality profile and working style')}
+          ${bullet('Your core strengths and development areas')}
+          ${bullet('5+ career paths tailored to your personality and goals')}
+          ${bullet('A dream job analysis based on your aspirations')}
+        </table>
+      `)
+    ) +
+    ctaRow('Start Your Assessment', `${BASE_URL}/dashboard`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph('The assessment is saved as you go — you can pause and come back anytime.', { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+
   return {
     subject: `Your career assessment is waiting, ${firstName}`,
-    html: wrapEmail(`
-      <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
-        Ready to discover your ideal career path?
-      </h2>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-        Hi ${firstName},
-      </p>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        Your personalized career assessment is set up and ready for you. It takes about 15-20 minutes, and you'll unlock insights most people never get about their career potential.
-      </p>
-
-      <div style="background-color: #f0f7fa; border-left: 4px solid #27A1A1; padding: 20px; margin-bottom: 28px; border-radius: 0 8px 8px 0;">
-        <p style="color: #213F4F; font-weight: 600; margin: 0 0 12px 0; font-size: 15px;">Here's what you'll discover:</p>
-        <ul style="color: #555; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li>Your unique personality profile and working style</li>
-          <li>Your core strengths and development areas</li>
-          <li>5+ career paths tailored to your personality and goals</li>
-          <li>A dream job analysis based on your aspirations</li>
-        </ul>
-      </div>
-
-      ${ctaButton("Start Your Assessment", `${BASE_URL}/dashboard`)}
-
-      <p style="font-size: 13px; color: #888; text-align: center;">
-        The assessment is saved as you go — you can pause and come back anytime.
-      </p>
-    `),
+    html: renderEmail({
+      title: 'Your career assessment is waiting',
+      preheader: 'Your personalized career assessment is set up and ready.',
+      bodyHtml,
+      footer: 'reminder',
+    }),
   };
 }
 
@@ -111,44 +75,39 @@ function surveyAbandonedEmail(
   const total = totalSections ?? 7;
   const percentDone = Math.round(((section + 1) / total) * 100);
 
+  const bodyHtml =
+    bodyRow(
+      h1(`You're ${percentDone}% through your assessment`) +
+      paragraph(`Hi ${firstName},`) +
+      paragraph("You've already made great progress on your career assessment — all your answers are saved and waiting for you.") +
+      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 28px 0;">
+  <tr>
+    <td style="font-size:12px;color:#6B7480;font-family:'Poppins',Arial,sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Section ${section + 1} of ${total}</td>
+    <td style="font-size:14px;font-weight:700;color:#B5860B;text-align:right;font-family:'Poppins',Arial,sans-serif;letter-spacing:0.2px;">${percentDone}%</td>
+  </tr>
+  <tr><td colspan="2" style="padding-top:10px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#DCCFAE;border-radius:8px;height:12px;">
+      <tr><td style="background-color:#DCCFAE;border-radius:8px;height:12px;font-size:0;line-height:0;">
+        <table role="presentation" width="${percentDone}%" cellpadding="0" cellspacing="0" border="0" style="background-color:#27A1A1;background-image:linear-gradient(90deg,#27A1A1 0%,#EFBE48 100%);border-radius:8px;">
+          <tr><td style="height:12px;font-size:0;line-height:0;">&nbsp;</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>` +
+      paragraph('Once you finish, our AI will generate your personalized career report with tailored recommendations — it only takes a few more minutes.')
+    ) +
+    ctaRow('Continue Your Assessment', `${BASE_URL}/assessment`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph("Your progress is saved — you'll pick up right where you stopped.", { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+
   return {
     subject: `Pick up where you left off, ${firstName}`,
-    html: wrapEmail(`
-      <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
-        You're ${percentDone}% through your assessment
-      </h2>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-        Hi ${firstName},
-      </p>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        You've already made great progress on your career assessment — all your answers are saved and waiting for you.
-      </p>
-
-      <!-- Progress bar -->
-      <div style="margin: 24px 0 28px 0;">
-        <table style="width: 100%; margin-bottom: 8px;" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="font-size: 13px; color: #666;">Section ${section + 1} of ${total}</td>
-            <td style="font-size: 13px; font-weight: 600; color: #27A1A1; text-align: right;">${percentDone}% complete</td>
-          </tr>
-        </table>
-        <div style="height: 8px; background-color: #e8e8e8; border-radius: 4px; overflow: hidden;">
-          <div style="height: 100%; width: ${percentDone}%; background-color: #27A1A1; border-radius: 4px;"></div>
-        </div>
-      </div>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        Once you finish, our AI will generate your personalized career report with tailored recommendations — it only takes a few more minutes.
-      </p>
-
-      ${ctaButton("Continue Your Assessment", `${BASE_URL}/assessment`)}
-
-      <p style="font-size: 13px; color: #888; text-align: center;">
-        Your progress is saved — you'll pick up right where you stopped.
-      </p>
-    `),
+    html: renderEmail({
+      title: 'Pick up where you left off',
+      preheader: 'Your progress is saved. A few more minutes unlocks your full report.',
+      bodyHtml,
+      footer: 'reminder',
+    }),
   };
 }
 
@@ -167,93 +126,73 @@ function chatNotCompletedEmail(
   const moreCount = remainingSections.length - previewSections.length;
 
   const sectionListHtml = previewSections
-    .map(
-      (s) =>
-        `<li style="padding: 4px 0;"><span style="color: #27A1A1; margin-right: 8px;">&#10148;</span>${s}</li>`,
-    )
-    .join("");
+    .map((s) => `<tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;"><span style="color:#D4A024;margin-right:10px;font-weight:700;">&#10148;</span>${s}</td></tr>`)
+    .join('');
 
   const moreHtml =
     moreCount > 0
-      ? `<li style="padding: 4px 0; color: #888; font-style: italic;">...and ${moreCount} more insight${moreCount > 1 ? "s" : ""}</li>`
-      : "";
+      ? `<tr><td style="padding:5px 0;color:#6B7480;font-size:14.5px;line-height:1.55;font-style:italic;font-family:'Inter',Arial,sans-serif;">...and ${moreCount} more insight${moreCount > 1 ? 's' : ''}</td></tr>`
+      : '';
+
+  const remainingBlock = remainingSections.length > 0
+    ? callout("Insights you haven't explored yet", `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${sectionListHtml}
+          ${moreHtml}
+        </table>
+      `)
+    : '';
+
+  const bodyHtml =
+    bodyRow(
+      h1(`You've unlocked ${sectionsCompleted} of ${totalSections} career insights`) +
+      paragraph(`Hi ${firstName},`) +
+      paragraph("Your AI career coach has more to share with you. You've explored some great insights so far, but there's still more waiting — including personalized career matches and your dream job analysis.") +
+      remainingBlock
+    ) +
+    ctaRow('Continue Your Session', `${BASE_URL}/chat`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph('Your conversation is saved — your coach remembers where you left off.', { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
 
   return {
     subject: `Your career insights are waiting, ${firstName}`,
-    html: wrapEmail(`
-      <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
-        You've unlocked ${sectionsCompleted} of ${totalSections} career insights
-      </h2>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-        Hi ${firstName},
-      </p>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        Your AI career coach has more to share with you. You've explored some great insights so far, but there's still more waiting — including personalized career matches and your dream job analysis.
-      </p>
-
-      ${
-        remainingSections.length > 0
-          ? `
-      <div style="background-color: #f0f7fa; border-left: 4px solid #27A1A1; padding: 20px; margin-bottom: 28px; border-radius: 0 8px 8px 0;">
-        <p style="color: #213F4F; font-weight: 600; margin: 0 0 12px 0; font-size: 15px;">Insights you haven't explored yet:</p>
-        <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; color: #444; line-height: 1.8;">
-          ${sectionListHtml}
-          ${moreHtml}
-        </ul>
-      </div>
-      `
-          : ""
-      }
-
-      ${ctaButton("Continue Your Session", `${BASE_URL}/chat`)}
-
-      <p style="font-size: 13px; color: #888; text-align: center;">
-        Your conversation is saved — your coach remembers where you left off.
-      </p>
-    `),
+    html: renderEmail({
+      title: 'Your career insights are waiting',
+      preheader: 'Your AI career coach has more to share with you.',
+      bodyHtml,
+      footer: 'reminder',
+    }),
   };
 }
 
 // ── Template 4: Chat completed but hasn't visited dashboard/report ──────────
 
 function reportNotViewedEmail(firstName: string): { subject: string; html: string } {
+  const bodyHtml =
+    bodyRow(
+      h1('Your personalized career report is waiting') +
+      paragraph(`Hi ${firstName},`) +
+      paragraph('Great news — your AI career session is complete, and your full report has been generated. It combines everything from your assessment with the insights from your coaching session into one comprehensive overview.') +
+      callout("What's in your report", `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;"><strong style="color:#122E3B;font-weight:700;">Executive Summary</strong> &mdash; your personality, strengths, and top career matches at a glance</td></tr>
+          <tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;"><strong style="color:#122E3B;font-weight:700;">Detailed Career Matches</strong> &mdash; with your coaching feedback incorporated</td></tr>
+          <tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;"><strong style="color:#122E3B;font-weight:700;">Dream Job Analysis</strong> &mdash; how your aspirations align with your profile</td></tr>
+          <tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;"><strong style="color:#122E3B;font-weight:700;">Actionable Next Steps</strong> &mdash; tailored to your goals</td></tr>
+        </table>
+      `) +
+      paragraph('Your report is saved permanently and you can return to it anytime. We keep improving the platform, so check back regularly to get the most out of your assessment.')
+    ) +
+    ctaRow('View Your Report', `${BASE_URL}/dashboard`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph('Your report is permanently saved in your dashboard — access it anytime.', { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+
   return {
     subject: `Your full career report is ready, ${firstName}`,
-    html: wrapEmail(`
-      <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
-        Your personalized career report is waiting
-      </h2>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-        Hi ${firstName},
-      </p>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        Great news — your AI career session is complete, and your full report has been generated. It combines everything from your assessment with the insights from your coaching session into one comprehensive overview.
-      </p>
-
-      <div style="background-color: #f0f7fa; border-left: 4px solid #27A1A1; padding: 20px; margin-bottom: 28px; border-radius: 0 8px 8px 0;">
-        <p style="color: #213F4F; font-weight: 600; margin: 0 0 12px 0; font-size: 15px;">What's in your report:</p>
-        <ul style="color: #555; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
-          <li><strong>Executive Summary</strong> — your personality, strengths, and top career matches at a glance</li>
-          <li><strong>Detailed Career Matches</strong> — with your coaching feedback incorporated</li>
-          <li><strong>Dream Job Analysis</strong> — how your aspirations align with your profile</li>
-          <li><strong>Actionable Next Steps</strong> — tailored to your goals</li>
-        </ul>
-      </div>
-
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #444;">
-        Your report is saved permanently and you can return to it anytime. We keep improving the platform, so check back regularly to get the most out of your assessment.
-      </p>
-
-      ${ctaButton("View Your Report", `${BASE_URL}/dashboard`)}
-
-      <p style="font-size: 13px; color: #888; text-align: center;">
-        Your report is permanently saved in your dashboard — access it anytime.
-      </p>
-    `),
+    html: renderEmail({
+      title: 'Your full career report is ready',
+      preheader: 'Your full report is saved and waiting in your dashboard.',
+      bodyHtml,
+      footer: 'reminder',
+    }),
   };
 }
 

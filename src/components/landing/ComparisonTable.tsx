@@ -182,7 +182,7 @@ const ComparisonTable: React.FC = () => (
             className="rounded-2xl p-6"
             style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(201,182,144,0.7)' }}
           >
-            <summary className="font-heading font-black text-[#122E3B] cursor-pointer">{card.t}</summary>
+            <summary className="font-heading font-bold text-[#122E3B] cursor-pointer">{card.t}</summary>
             <ul className="mt-3 space-y-2 text-[14px] text-[#4B6373] font-medium">
               {card.items.map((it) => <li key={it}>{it}</li>)}
             </ul>

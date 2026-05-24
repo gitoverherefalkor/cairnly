@@ -137,7 +137,8 @@ const ResponsiveRanking: React.FC<{
   value: any;
   onChange: (value: any) => void;
   formatTextWithEmphasis: (text: string) => { __html: string };
-}> = ({ question, value, onChange, formatTextWithEmphasis }) => {
+  renderChoiceLabel: (choice: string) => React.ReactNode;
+}> = ({ question, value, onChange, formatTextWithEmphasis, renderChoiceLabel }) => {
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -294,10 +295,9 @@ const ResponsiveRanking: React.FC<{
                 </div>
                 
                 <div className="flex-1">
-                  <span 
-                    className="text-base font-light leading-relaxed"
-                    dangerouslySetInnerHTML={formatTextWithEmphasis(item)}
-                  />
+                  <span className="text-base font-light leading-relaxed">
+                    {renderChoiceLabel(item)}
+                  </span>
                 </div>
                 
                 <div className="flex flex-col gap-1 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -341,10 +341,9 @@ const ResponsiveRanking: React.FC<{
                   <div className="flex items-center justify-center w-8 h-8 bg-background text-white rounded-full font-bold text-sm flex-shrink-0">
                     {currentRank}
                   </div>
-                  <span 
-                    className="text-base font-light leading-relaxed"
-                    dangerouslySetInnerHTML={formatTextWithEmphasis(item)}
-                  />
+                  <span className="text-base font-light leading-relaxed">
+                    {renderChoiceLabel(item)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between sm:justify-end space-x-3">
                   <span className="text-sm text-gray-500 font-medium">Rank:</span>
@@ -383,7 +382,9 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
 
-  // Initialize "Other" value from stored response
+  // Initialize "Other" value from stored response.
+  // Array may contain either 'Other: <text>' (filled) or 'other' (sentinel:
+  // checked but empty — present so the validator can block Continue).
   React.useEffect(() => {
     if (typeof value === 'string' && value.startsWith('Other: ')) {
       const extractedValue = value.replace('Other: ', '');
@@ -394,6 +395,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         const extractedValue = otherResponse.replace('Other: ', '');
         setOtherValue(extractedValue);
         setShowOther(true);
+      } else if (value.includes('other')) {
+        setShowOther(true);
       }
     }
   }, [value]);
@@ -403,7 +406,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     if (question.type === 'multiple_choice' && question.allow_multiple && Array.isArray(value) && value.length > 0) {
       const validChoices = question.config?.choices || [];
       const cleaned = value.filter((v: string) =>
-        v.startsWith('Other: ') || validChoices.includes(v)
+        v === 'other' || v.startsWith('Other: ') || validChoices.includes(v)
       );
       if (cleaned.length !== value.length) {
         onChange(cleaned);
@@ -429,17 +432,25 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     setOtherValue(otherText);
     const currentValues = Array.isArray(value) ? value : [];
     const maxSelections = question.max_selections;
-    const hasExistingOther = currentValues.some((v: string) => v.startsWith('Other: '));
+    const hasOtherSlot = currentValues.some(
+      (v: string) => v === 'other' || v.startsWith('Other: ')
+    );
+
+    // Strip both filled and sentinel forms, then re-add whichever is correct.
+    const withoutOther = currentValues.filter(
+      (v: string) => v !== 'other' && !v.startsWith('Other: ')
+    );
 
     if (otherText) {
-      const filteredValues = currentValues.filter((v: string) => !v.startsWith('Other: '));
-      // If adding new Other (not updating existing), check the limit
-      if (!hasExistingOther && maxSelections && filteredValues.length >= maxSelections) {
-        return; // At limit, can't add Other
+      // Adding a brand-new Other: enforce the selection limit.
+      if (!hasOtherSlot && maxSelections && withoutOther.length >= maxSelections) {
+        return;
       }
-      onChange([...filteredValues, `Other: ${otherText}`]);
+      onChange([...withoutOther, `Other: ${otherText}`]);
     } else {
-      onChange(currentValues.filter((v: string) => !v.startsWith('Other: ')));
+      // Empty text: keep the 'other' sentinel so the validator blocks Continue
+      // until the user types at least OTHER_MIN_CHARS chars.
+      onChange([...withoutOther, 'other']);
     }
   };
 
@@ -528,7 +539,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Enter your response..."
-            className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-base leading-relaxed resize-y min-h-[120px]"
+            className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-base leading-relaxed resize-y min-h-[120px]"
             rows={5}
           />
         </div>
@@ -776,16 +787,25 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   <div
                     onClick={(e) => {
                       e.preventDefault();
-                      const hasOtherResponse = currentValues.some((v: string) => v.startsWith('Other: '));
-                      if (!showOther && !hasOtherResponse) {
+                      const hasOtherSlot = currentValues.some(
+                        (v: string) => v === 'other' || v.startsWith('Other: ')
+                      );
+                      if (!showOther && !hasOtherSlot) {
                         // Block opening Other if selection limit is already reached
                         if (isSelectionLimitReached()) return;
                         setShowOther(true);
-                      } else if (hasOtherResponse) {
-                        // Remove the "Other" response
-                        handleOtherChange('');
+                        // Push sentinel immediately so Continue is blocked
+                        // until the user types something.
+                        onChange([...currentValues, 'other']);
+                      } else {
+                        // Remove the "Other" response (sentinel or filled)
                         setOtherValue('');
                         setShowOther(false);
+                        onChange(
+                          currentValues.filter(
+                            (v: string) => v !== 'other' && !v.startsWith('Other: ')
+                          )
+                        );
                       }
                     }}
                     className={`
@@ -801,16 +821,33 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   >
                     <Checkbox
                       id="other-checkbox"
-                      checked={showOther || currentValues.some((v: string) => v.startsWith('Other: '))}
+                      checked={
+                        showOther ||
+                        currentValues.some(
+                          (v: string) => v === 'other' || v.startsWith('Other: ')
+                        )
+                      }
                       onCheckedChange={(checked) => {
-                        const hasOtherResponse = currentValues.some((v: string) => v.startsWith('Other: '));
-                        if (checked && !showOther && !hasOtherResponse && isSelectionLimitReached()) {
+                        const hasOtherSlot = currentValues.some(
+                          (v: string) => v === 'other' || v.startsWith('Other: ')
+                        );
+                        if (checked && !showOther && !hasOtherSlot && isSelectionLimitReached()) {
                           return;
                         }
                         setShowOther(checked as boolean);
-                        if (!checked) {
-                          handleOtherChange('');
+                        if (checked) {
+                          if (!hasOtherSlot) {
+                            // Push sentinel immediately so Continue is blocked
+                            // until the user types something.
+                            onChange([...currentValues, 'other']);
+                          }
+                        } else {
                           setOtherValue('');
+                          onChange(
+                            currentValues.filter(
+                              (v: string) => v !== 'other' && !v.startsWith('Other: ')
+                            )
+                          );
                         }
                       }}
                       className={`
@@ -903,6 +940,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             value={value}
             onChange={onChange}
             formatTextWithEmphasis={formatTextWithEmphasis}
+            renderChoiceLabel={renderChoiceLabel}
           />
         </div>
       );
@@ -1809,7 +1847,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <textarea
                         value={generalText}
                         onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
+                        className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
                         rows={4}
                         placeholder="Describe your key achievements..."
                       />
@@ -1848,7 +1886,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           <textarea
                             value={match?.text || ''}
                             onChange={(e) => updateCompanyAchievement(career.companyName, yearRange, e.target.value)}
-                            className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
+                            className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
                             rows={3}
                             placeholder={`Key achievements at ${career.companyName}...`}
                           />
@@ -1865,7 +1903,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <AutoResizeTextarea
                         value={skillsValue.achievements.find(a => a.company === 'Other')?.text || ''}
                         onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
-                        className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 text-sm leading-relaxed"
+                        className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed"
                         minHeightPx={60}
                         placeholder="Any other achievements not tied to a specific company..."
                       />
@@ -2078,7 +2116,7 @@ const LongTextWithVoice: React.FC<{
           onChange={(e) => onChange(e.target.value)}
           placeholder="Enter your response..."
           disabled={isCleaning}
-          className="w-full rounded-md border border-gray-300 bg-background text-foreground px-3 py-2 pr-12 text-base leading-relaxed resize-y min-h-[350px] disabled:opacity-70"
+          className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 pr-12 text-base leading-relaxed resize-y min-h-[350px] disabled:opacity-70"
           rows={10}
           maxLength={question.config?.max_length}
         />

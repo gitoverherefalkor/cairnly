@@ -41,11 +41,30 @@ serve(async (req) => {
 
     console.log("Creating checkout session for:", email, "Country:", country);
 
-    // For now, only use card payments
-    const paymentMethods: string[] = ["card"];
-
     // Get the origin from request headers or use the live domain
     const origin = req.headers.get("origin") || "https://cairnly.io";
+
+    // Resolve to a Stripe Customer so Stripe Checkout can pre-fill the
+    // buyer's name on the payment form — avoids re-typing the name for
+    // iDEAL / Bancontact / etc., which Stripe always collects regardless
+    // of the chosen method. Re-uses an existing customer when one matches
+    // the email; creates one otherwise. A failure here is non-fatal — we
+    // fall back to customer_email below.
+    let customer: Stripe.Customer | null = null;
+    try {
+      const fullName = `${firstName} ${lastName}`.trim();
+      const existing = await stripe.customers.list({ email, limit: 1 });
+      if (existing.data[0]) {
+        customer = existing.data[0];
+        if (fullName && customer.name !== fullName) {
+          customer = await stripe.customers.update(customer.id, { name: fullName });
+        }
+      } else {
+        customer = await stripe.customers.create({ email, name: fullName });
+      }
+    } catch (e) {
+      console.warn("Could not resolve Stripe customer; falling back to customer_email:", e);
+    }
 
     // If the buyer arrived via a referral code, resolve it to a live Stripe
     // promotion code so we can pre-apply the 25% discount.
@@ -66,8 +85,10 @@ serve(async (req) => {
     // Build the session. Stripe forbids `discounts` and `allow_promotion_codes`
     // together — so pre-apply the referral discount when we have one, otherwise
     // leave the manual promotion-code field open at Stripe checkout.
+    // Omitting payment_method_types makes Stripe Checkout use the methods
+    // enabled in the Stripe Dashboard, filtered by the buyer's eligibility
+    // (iDEAL for NL buyers, Bancontact for BE, Klarna where supported, etc.).
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      payment_method_types: paymentMethods,
       line_items: [
         {
           price_data: {
@@ -83,8 +104,13 @@ serve(async (req) => {
       ],
       mode: "payment",
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/#pricing`,
-      customer_email: email,
+      // Back/cancel from Stripe returns the buyer to the checkout form, not
+      // the marketing homepage — they're mid-purchase and usually want to
+      // tweak a field (country, email) and try again.
+      cancel_url: `${origin}/payment`,
+      // `customer` (with pre-set name) gives us the pre-fill; fall back to
+      // `customer_email` only if the customer resolution above failed.
+      ...(customer ? { customer: customer.id } : { customer_email: email }),
       metadata: {
         firstName,
         lastName,

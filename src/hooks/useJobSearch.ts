@@ -14,6 +14,9 @@ export interface JobListing {
   apply_url: string;
   posted_date?: string;
   source: string;
+  // Structured LinkedIn fields for result badges (null when LinkedIn omits them).
+  workplace_type?: string | null; // 'Remote' | 'Hybrid' | null (on-site)
+  employment_type?: string | null; // 'Full-time' | 'Part-time' | 'Contract' | …
   // AI-scored relevance to the recommended career (0-10) + a short reason.
   // Set by the n8n scoring step; null when scoring failed/skipped.
   match_score?: number | null;
@@ -44,6 +47,18 @@ export interface UserLanguage {
   proficiency: 'native' | 'fluent' | 'conversational' | 'basic';
 }
 
+// Where the user is willing to work. Maps to LinkedIn's work-type filter:
+//   any            → no filter (on-site + hybrid + remote in the chosen countries)
+//   remote_friendly → remote + hybrid
+//   remote_only    → fully remote
+export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
+
+// Hours / engagement commitment. Maps to LinkedIn's job-type filter (f_JT):
+//   any        → no filter
+//   full_time  → F
+//   part_time  → P,C (part-time + contract — covers fractional/interim)
+export type JobCommitment = 'any' | 'full_time' | 'part_time';
+
 /**
  * Hook for searching jobs sequentially (one career at a time).
  * Returns per-career results and an overall progress state.
@@ -58,9 +73,11 @@ export const useJobSearch = () => {
     careers: SearchCareer[],
     countryCodes: string[],
     location?: string,
-    remoteOnly?: boolean,
+    workArrangement?: WorkArrangement,
+    jobCommitment?: JobCommitment,
     userLanguages?: UserLanguage[],
     reportId?: string,
+    avoidPreferences?: string[],
   ) => {
     if (careers.length === 0 || countryCodes.length === 0) return;
 
@@ -91,10 +108,12 @@ export const useJobSearch = () => {
           body: {
             career_title: careers[i].careerTitle,
             country_codes: countryCodes,
-            remote_only: Boolean(remoteOnly),
+            work_arrangement: workArrangement || 'any',
+            job_commitment: jobCommitment || 'any',
             location: location || '',
             alternate_titles: careers[i].alternateTitles || [],
             user_languages: userLanguages || [],
+            avoid_preferences: avoidPreferences || [],
             // report_id lets the n8n workflow look up enriched_jobs.alternate_titles
             // for this career when the primary search returns sparse results.
             report_id: reportId || null,
@@ -135,11 +154,18 @@ export const useJobSearch = () => {
     setIsSearching(false);
   };
 
+  // Re-seed results from a persisted snapshot (e.g. sessionStorage after a
+  // page refresh) so the user doesn't lose a completed search.
+  const restoreResults = (saved: JobSearchResult[]) => {
+    if (Array.isArray(saved) && saved.length > 0) setResults(saved);
+  };
+
   return {
     results,
     currentIndex,
     isSearching,
     searchJobs,
     clearResults,
+    restoreResults,
   };
 };

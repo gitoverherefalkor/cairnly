@@ -9,13 +9,17 @@ import React, { useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { ArrowRight, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Map as MapIcon, RotateCw, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
-import { extractAIImpact } from '@/components/chat/CareerScoreCard';
-import { PersonalityRadar } from '@/components/dashboard/PersonalityRadar';
-import { CareerQuadrant } from '@/components/dashboard/CareerQuadrant';
+import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
+import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
+import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
+import { V4ChartBanner } from './V4ChartBanner';
+import { V4PersonalityRadarSVG, type RadarAxis } from './V4PersonalityRadarSVG';
+import { V4CareerMapSVG, V4CareerMapLegend, type CareerPoint } from './V4CareerMapSVG';
+import { V4CompareRadarSVG, V4CompareLegend, type CompareCareer } from './V4CompareRadarSVG';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -94,15 +98,31 @@ function getMatch(
 }
 
 // ── Report accordion model ────────────────────────────────────
+interface CareerEntry {
+  title: string;
+  content: string;
+}
+
 interface ReportRow {
   id: string;
   title: string;
   oneLiner: string;
-  // Raw section content (HTML/Markdown mix from n8n). Rendered through the
-  // sanitize → markdown pipeline below when the row is open.
-  content: string;
-  // Photo-chip key into SECTION_VISUALS. Defaults to row.id.
+  // Single-section rows carry `content`; multi-career groupings (runners,
+  // outside, dream) carry `careers` instead and render as tabs.
+  content?: string;
+  careers?: CareerEntry[];
+  // Photo-chip key into SECTION_VISUALS for About-You rows.
   visualKey?: string;
+  // Cairn-glyph slot for Career Suggestion rows — uses CareerSlotIcon on a
+  // cream chip instead of a nature photograph.
+  careerSlot?: CareerSlot;
+  // Career-fit radar payload for top-2 / top-3 (where fit_scores +
+  // comparison metadata are present). Plots this career against the
+  // higher-ranked ones. Mirrors what the chat shows on each career section.
+  comparison?: {
+    headline: string;
+    careers: RadarCareer[];
+  };
 }
 
 // Generic, non-personalised descriptors.
@@ -213,48 +233,243 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
-    // Top 3 → one accordion row per career so hero/secondary "Open" buttons
+    // Top 3 — one accordion row per career so hero/secondary "Open" buttons
     // can target the specific career the user clicked.
-    const topMap: { id: string; type: string; rank: 1 | 2 | 3 }[] = [
-      { id: 'top-1', type: 'top_career_1', rank: 1 },
-      { id: 'top-2', type: 'top_career_2', rank: 2 },
-      { id: 'top-3', type: 'top_career_3', rank: 3 },
+    const topMap: {
+      id: string;
+      type: string;
+      rank: 1 | 2 | 3;
+      slot: CareerSlot;
+    }[] = [
+      { id: 'top-1', type: 'top_career_1', rank: 1, slot: 'primary' },
+      { id: 'top-2', type: 'top_career_2', rank: 2, slot: 'second' },
+      { id: 'top-3', type: 'top_career_3', rank: 3, slot: 'third' },
     ];
-    for (const { id, type } of topMap) {
+    // Colors match the chat's CareerComparisonCard so the radar reads
+    // identically in both places.
+    const RADAR_FOCAL_COLOR = '#0d9488';
+    const RADAR_NON_FOCAL: Record<string, string> = {
+      top_career_1: '#d97706',
+      top_career_2: '#6366f1',
+    };
+    const TOP_TYPES = ['top_career_1', 'top_career_2', 'top_career_3'];
+
+    for (const { id, type, slot } of topMap) {
       const s = sections.find((x) => x.section_type === type);
       if (!s) continue;
+
+      // Build the comparison radar payload for top-2 and top-3 (where the
+      // chat surfaces "How it differs from your other top role(s)").
+      let comparison: ReportRow['comparison'];
+      const focalIndex = TOP_TYPES.indexOf(type);
+      const fit = s.metadata?.fit_scores;
+      const cmp = s.metadata?.comparison;
+      if (focalIndex >= 1 && fit && cmp) {
+        const careersForRadar: RadarCareer[] = [];
+        for (let i = 0; i <= focalIndex; i++) {
+          const peerType = TOP_TYPES[i];
+          const peer = sections.find((x) => x.section_type === peerType);
+          const peerFit = peer?.metadata?.fit_scores;
+          if (!peer || !peerFit) continue;
+          const isFocal = peerType === type;
+          careersForRadar.push({
+            label: stripHtml(peer.title || `Career ${i + 1}`),
+            scores: peerFit,
+            color: isFocal ? RADAR_FOCAL_COLOR : RADAR_NON_FOCAL[peerType] ?? '#64748b',
+            focal: isFocal,
+          });
+        }
+        if (careersForRadar.length >= 2) {
+          comparison = { headline: cmp.headline, careers: careersForRadar };
+        }
+      }
+
       rows.push({
         id,
         title: stripHtml(s.title || 'Career match'),
         oneLiner: ONE_LINERS[id],
         content: s.content || '',
-        visualKey: 'top3',
+        careerSlot: slot,
+        comparison,
       });
     }
-    const extras: { id: string; type: string }[] = [
-      { id: 'runners', type: 'runner_ups' },
-      { id: 'outside', type: 'outside_box' },
-      { id: 'dream', type: 'dream_jobs' },
+
+    // Runner-ups / outside-box / dream — these section_types repeat in the
+    // DB (one row per career, split on ---CAREER_SPLIT--- by WF4). Collect
+    // all matching sections per group and render as one accordion row with
+    // inner tabs, one tab per career.
+    const groups: { id: string; type: string; slot: CareerSlot }[] = [
+      { id: 'runners', type: 'runner_ups', slot: 'runnerups' },
+      { id: 'outside', type: 'outside_box', slot: 'outside' },
+      { id: 'dream', type: 'dream_jobs', slot: 'dream' },
     ];
-    for (const { id, type } of extras) {
-      const s = sections.find((x) => x.section_type === type);
-      if (!s) continue;
+    for (const { id, type, slot } of groups) {
+      const matches = sections.filter((x) => x.section_type === type);
+      if (matches.length === 0) continue;
       rows.push({
         id,
-        title: stripHtml(s.title || FALLBACK_TITLES[id]),
+        title: FALLBACK_TITLES[id],
         oneLiner: ONE_LINERS[id],
-        content: s.content || '',
+        careers: matches.map((s) => ({
+          title: stripHtml(s.title || 'Career'),
+          content: s.content || '',
+        })),
+        careerSlot: slot,
       });
     }
     return rows;
   }, [sections]);
 
+  // ── Chart data builders ──────────────────────────────────────
+  // Personality radar — read from the `approach` section's structured
+  // metadata.personality_scores (5 axes, 1–10).
+  const radarAxes = useMemo<RadarAxis[]>(() => {
+    const approach = sections.find(
+      (s) => s.section_type === 'approach' || s.section_type === 'personality_team',
+    );
+    const ps = approach?.metadata?.personality_scores;
+    if (!ps) return [];
+    const map: { key: string; label: string; short: string }[] = [
+      { key: 'strategic_depth', label: 'Strategic Depth', short: 'Strategic\nDepth' },
+      { key: 'execution_bias', label: 'Execution', short: 'Execution' },
+      { key: 'people_intuition', label: 'People Intuition', short: 'People\nIntuition' },
+      { key: 'ambiguity_tolerance', label: 'Ambiguity Tolerance', short: 'Ambiguity\nTolerance' },
+      { key: 'recognition_pull', label: 'Recognition Pull', short: 'Recognition\nPull' },
+    ];
+    return map
+      .map((m) => {
+        const score = ps[m.key];
+        if (typeof score !== 'number') return null;
+        return { label: m.label, short: m.short, v: score / 10, score };
+      })
+      .filter(Boolean) as RadarAxis[];
+  }, [sections]);
+
+  // Career map points — top 3 colored bubbles + runner-ups as secondaries.
+  // x = AI exposure (Safe 0.15 / Augmented 0.45 / Transforming 0.7 / At Risk 0.9).
+  // y = 1 - match%/100  (top of chart = strongest).
+  const careerMapPoints = useMemo<CareerPoint[]>(() => {
+    const xFor = (impact: AIImpactLevel | null): number => {
+      switch (impact) {
+        case 'Safe':
+          return 0.18;
+        case 'Augmented':
+          return 0.45;
+        case 'Transforming':
+          return 0.7;
+        case 'At Risk':
+          return 0.88;
+        default:
+          return 0.5;
+      }
+    };
+    const points: CareerPoint[] = [];
+
+    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
+      { type: 'top_career_1', rank: 1 },
+      { type: 'top_career_2', rank: 2 },
+      { type: 'top_career_3', rank: 3 },
+    ];
+    for (const { type, rank } of tops) {
+      const s = sections.find((x) => x.section_type === type);
+      if (!s) continue;
+      const score = s.score != null ? Number(s.score) : NaN;
+      if (!Number.isFinite(score)) continue;
+      const impact = extractAIImpact(s.content || '');
+      points.push({
+        x: xFor(impact),
+        y: 1 - score / 100,
+        label: stripHtml(s.title || `Career ${rank}`),
+        rank,
+      });
+    }
+
+    // Runner-ups as secondaries — repeating section_type with one career each.
+    const runners = sections.filter((x) => x.section_type === 'runner_ups');
+    for (const s of runners) {
+      const score = s.score != null ? Number(s.score) : NaN;
+      if (!Number.isFinite(score)) continue;
+      const impact = extractAIImpact(s.content || '');
+      points.push({
+        x: xFor(impact),
+        y: 1 - score / 100,
+        label: stripHtml(s.title || 'Runner-up'),
+      });
+    }
+
+    return points;
+  }, [sections]);
+
+  // Comparison radar — top 3 careers with their fit_scores (1–5) on the five
+  // work-life axes. Normalised to 0–1 for V4CompareRadarSVG.
+  const compareCareers = useMemo<CompareCareer[]>(() => {
+    const out: CompareCareer[] = [];
+    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
+      { type: 'top_career_1', rank: 1 },
+      { type: 'top_career_2', rank: 2 },
+      { type: 'top_career_3', rank: 3 },
+    ];
+    for (const { type, rank } of tops) {
+      const s = sections.find((x) => x.section_type === type);
+      const f = s?.metadata?.fit_scores;
+      if (!s || !f) continue;
+      const norm = (n: number) => Math.max(0, Math.min(1, n / 5));
+      const tuple: [number, number, number, number, number] = [
+        norm(f.autonomy),
+        norm(f.stability),
+        norm(f.schedule),
+        norm(f.pace),
+        norm(f.social),
+      ];
+      out.push({ rank, label: stripHtml(s.title || `Career ${rank}`), scores: tuple });
+    }
+    return out;
+  }, [sections]);
+
+  // Personality stat — names only, no numeric value. With a 1–10 integer
+  // scale across 5 axes the digits tie too often to be meaningful; the
+  // banner instead names the dimension(s) carrying the strongest signal.
+  const radarLeadStat = useMemo<{ label: string } | null>(() => {
+    if (radarAxes.length === 0) return null;
+    const max = Math.max(...radarAxes.map((a) => a.score));
+    const leads = radarAxes.filter((a) => Math.abs(a.score - max) < 0.05);
+
+    if (leads.length === radarAxes.length) {
+      return { label: `Balanced across all ${radarAxes.length} dimensions.` };
+    }
+    const names = leads.map((a) => a.label);
+    if (leads.length === 1) {
+      return { label: `Strongest dimension: ${names[0]}.` };
+    }
+    if (leads.length === 2) {
+      return { label: `Strongest dimensions: ${names[0]} and ${names[1]}.` };
+    }
+    // 3+ leaders — comma list with Oxford-style "and" on the last item.
+    const head = names.slice(0, -1).join(', ');
+    const tail = names[names.length - 1];
+    return { label: `Strongest dimensions: ${head}, and ${tail}.` };
+  }, [radarAxes]);
+  const sweetSpotCount = useMemo(
+    () => careerMapPoints.filter((p) => p.x <= 0.5 && p.y <= 0.5 && p.rank).length,
+    [careerMapPoints],
+  );
+
   const jobsFeature = features.find((f) => f.key === 'jobs');
   const jobsUnlocked = jobsFeature?.unlocked ?? false;
 
-  const handleFindRoles = () => {
-    if (jobsUnlocked) onNavigate('/jobs');
-    else onInvite();
+  // Per-career "Find open roles" navigation. Always lands on the filter page
+  // (mode=search) so the user re-runs the search instead of seeing stale prior
+  // results that may not even include the role they just clicked. When a
+  // careerTitle is provided (per-card click), the filter page pre-selects that
+  // career and clears any previous picks for a focused start.
+  const handleFindRoles = (careerTitle?: string) => {
+    if (!jobsUnlocked) {
+      onInvite();
+      return;
+    }
+    const params = new URLSearchParams({ mode: 'search' });
+    if (careerTitle) params.set('career', careerTitle);
+    onNavigate(`/jobs?${params.toString()}`);
   };
 
   const reportDate = reportGeneratedAt
@@ -334,7 +549,13 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               marginBottom: 24,
             }}
           >
-            <HeroMatch match={hero} onOpenBreakdown={() => handleOpenSection('top-1')} onFindRoles={handleFindRoles} jobsUnlocked={jobsUnlocked} />
+            <HeroMatch
+              match={hero}
+              onOpenBreakdown={() => handleOpenSection('top-1')}
+              onFindRoles={handleFindRoles}
+              jobsUnlocked={jobsUnlocked}
+              compareCareers={compareCareers}
+            />
             {secondary.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {secondary.map((m) => (
@@ -370,20 +591,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </section>
         )}
 
-        {/* ─── Profile at a glance ─── */}
-        <section style={{ marginBottom: 48 }}>
-          <div style={{ marginBottom: 16 }}>
-            <Eyebrow>PROFILE AT A GLANCE</Eyebrow>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            <ProfilePanel title="Personality Radar" sub="How you work">
-              <PersonalityRadar sections={sections} bare />
-            </ProfilePanel>
-            <ProfilePanel title="Career Map" sub="AI exposure × match">
-              <CareerQuadrant sections={sections} variant="compact" bare />
-            </ProfilePanel>
-          </div>
-        </section>
+        {/* "Profile at a glance" row removed — the personality radar and
+            career map are now full-width banner headers for each report
+            group below. */}
 
         {/* ─── Unlock toolkit ─── */}
         <UnlockToolkit
@@ -397,37 +607,53 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         {/* ─── Share promo ─── */}
         <SharePromoBlock heroTitle={hero?.title ?? 'Your best-fit career'} heroShape={hero?.shape ?? null} heroPct={hero?.matchPct ?? 0} onGenerate={onOpenShareCard} />
 
-        {/* ─── Full report accordion ─── */}
+        {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (
-          <section style={{ marginBottom: 16 }}>
-            <div style={{ marginBottom: 20 }}>
-              <Eyebrow>YOUR FULL REPORT · REFERENCE</Eyebrow>
-              <h3
-                style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 28,
-                  letterSpacing: '-0.02em',
-                  color: '#fff',
-                  margin: '8px 0 4px 0',
-                }}
-              >
-                Everything you walked through with your coach
-              </h3>
-              <p
-                style={{
-                  fontFamily: FONT_BODY,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: 'rgba(255,255,255,0.6)',
-                  margin: 0,
-                  maxWidth: 540,
-                }}
-              >
-                Closed by default. You've already been here, so open any section to revisit.
-              </p>
-            </div>
+          <div style={{ marginBottom: 20 }}>
+            <Eyebrow>YOUR FULL REPORT · REFERENCE</Eyebrow>
+            <h3
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 28,
+                letterSpacing: '-0.02em',
+                color: '#fff',
+                margin: '8px 0 4px 0',
+              }}
+            >
+              Everything you walked through with your coach
+            </h3>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 14,
+                fontWeight: 500,
+                color: 'rgba(255,255,255,0.6)',
+                margin: 0,
+                maxWidth: 540,
+              }}
+            >
+              Closed by default. You've already been here, so open any section to revisit.
+            </p>
+          </div>
+        )}
 
+        {/* ─── About you — banner + accordion ─── */}
+        {aboutRows.length > 0 && (
+          <section style={{ marginBottom: 32 }}>
+            {radarAxes.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <V4ChartBanner
+                  eyebrow="PERSONALITY RADAR"
+                  icon={<Activity size={14} />}
+                  title="How you actually work"
+                  blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
+                  meta={`${radarAxes.length} axes`}
+                  stat={radarLeadStat ?? undefined}
+                  chart={<V4PersonalityRadarSVG axes={radarAxes} />}
+                />
+              </div>
+            )}
             <div
               style={{
                 background: 'rgba(18, 46, 59, 0.62)',
@@ -439,35 +665,69 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
               }}
             >
-              {aboutRows.length > 0 && (
-                <div style={{ padding: '18px 28px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <Eyebrow subtle>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
-                </div>
-              )}
+              <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
+              </div>
               {aboutRows.map((row, i) => (
                 <ReportAccordionRow
                   key={row.id}
                   row={row}
                   isOpen={openSection === row.id}
-                  isLast={careerRows.length === 0 && i === aboutRows.length - 1}
+                  isLast={i === aboutRows.length - 1}
                   onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
                   registerRef={(node) => {
                     accordionRowRefs.current[row.id] = node;
                   }}
                 />
               ))}
-              {careerRows.length > 0 && (
-                <div
-                  style={{
-                    padding: '18px 28px 14px',
-                    borderTop: '1px solid rgba(255,255,255,0.06)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    background: 'rgba(39,161,161,0.04)',
-                  }}
-                >
-                  <Eyebrow subtle>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
-                </div>
-              )}
+            </div>
+          </section>
+        )}
+
+        {/* ─── Career suggestions — banner + accordion ─── */}
+        {careerRows.length > 0 && (
+          <section style={{ marginBottom: 16 }}>
+            {careerMapPoints.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <V4ChartBanner
+                  eyebrow="CAREER MAP"
+                  icon={<MapIcon size={14} />}
+                  title="Where the matches sit"
+                  blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
+                  stat={
+                    sweetSpotCount > 0
+                      ? {
+                          value: String(sweetSpotCount),
+                          label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
+                        }
+                      : undefined
+                  }
+                  legend={<V4CareerMapLegend points={careerMapPoints} />}
+                  chart={<V4CareerMapSVG points={careerMapPoints} />}
+                  chartWidth="1.7fr"
+                />
+              </div>
+            )}
+            <div
+              style={{
+                background: 'rgba(18, 46, 59, 0.62)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
+              }}
+            >
+              <div
+                style={{
+                  padding: '22px 28px 16px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  background: 'rgba(39,161,161,0.04)',
+                }}
+              >
+                <Eyebrow>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
+              </div>
               {careerRows.map((row, i) => (
                 <ReportAccordionRow
                   key={row.id}
@@ -488,163 +748,328 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   );
 };
 
-// ── Hero match (#1) ───────────────────────────────────────────
+// ── Hero match (#1) — hover-flips to a comparison radar ──────
 const HeroMatch: React.FC<{
   match: CareerMatch;
   jobsUnlocked: boolean;
   onOpenBreakdown: () => void;
-  onFindRoles: () => void;
-}> = ({ match, jobsUnlocked, onOpenBreakdown, onFindRoles }) => (
-  <article
-    style={{
-      position: 'relative',
-      overflow: 'hidden',
-      background: 'rgba(18, 46, 59, 0.62)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
-      border: '1px solid rgba(255, 255, 255, 0.10)',
-      borderRadius: 28,
-      padding: 36,
-      boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 18,
-    }}
-  >
-    <div
+  onFindRoles: (careerTitle?: string) => void;
+  compareCareers: CompareCareer[];
+}> = ({ match, jobsUnlocked, onOpenBreakdown, onFindRoles, compareCareers }) => {
+  const [flipped, setFlipped] = useState(false);
+  const [keyboardFlip, setKeyboardFlip] = useState(false);
+  const isFlipped = flipped || keyboardFlip;
+  // Only flip when there's something to compare against.
+  const canFlip = compareCareers.length >= 2;
+  return (
+    <article
       style={{
-        position: 'absolute',
-        top: -60,
-        right: -60,
-        width: 320,
-        height: 320,
-        background: 'radial-gradient(circle, rgba(212,160,36,0.20) 0%, rgba(212,160,36,0) 70%)',
-        pointerEvents: 'none',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'rgba(18, 46, 59, 0.62)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        border: '1px solid rgba(255, 255, 255, 0.10)',
+        borderRadius: 28,
+        padding: 36,
+        boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 18,
       }}
-    />
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', gap: 16 }}>
-      <div>
-        <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
-        {match.shape && (
-          <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
-            {match.shape}
+    >
+      {/* Soft gold glow — sits behind everything, not part of the flip */}
+      <div
+        style={{
+          position: 'absolute',
+          top: -60,
+          right: -60,
+          width: 320,
+          height: 320,
+          background: 'radial-gradient(circle, rgba(212,160,36,0.20) 0%, rgba(212,160,36,0) 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Flip container — hover-only listener, perspective parent.
+          Inside, the flipper uses a CSS-grid stack so both faces share one
+          cell. That cell auto-sizes to the taller face, which prevents the
+          back face (radar + legend) from being clipped when the front face
+          (text + bullets) is shorter. */}
+      <div
+        onMouseEnter={canFlip ? () => setFlipped(true) : undefined}
+        onMouseLeave={canFlip ? () => setFlipped(false) : undefined}
+        style={{
+          position: 'relative',
+          perspective: 1600,
+          flex: 1,
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateAreas: '"stack"',
+            transformStyle: 'preserve-3d',
+            transition: 'transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          }}
+        >
+          {/* FRONT */}
+          <div
+            style={{
+              gridArea: 'stack',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+              <div>
+                <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
+                {match.shape && (
+                  <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
+                    {match.shape}
+                  </div>
+                )}
+              </div>
+              {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+            </div>
+
+            <h2
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 44,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.05,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              {match.title}
+            </h2>
+
+            <MatchMeter pct={match.matchPct} large />
+
+            {match.teaser && (
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontWeight: 500,
+                  fontSize: 15.5,
+                  lineHeight: 1.55,
+                  color: 'rgba(255,255,255,0.85)',
+                  margin: 0,
+                }}
+              >
+                {match.teaser}
+              </p>
+            )}
+
+            {match.why && match.why.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
+                <Eyebrow>WHY THIS FITS YOU</Eyebrow>
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: '4px 0 0 0',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  {match.why.map((line, i) => (
+                    <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <CheckCircle2 size={16} color={PALETTE.goldBright} style={{ flexShrink: 0, marginTop: 3 }} />
+                      <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: 'rgba(255,255,255,0.88)' }}>
+                        {line}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Hover-hint pill — only when there's a back face to flip to.
+                In the flow (not absolute) so it can't overlap content above. */}
+            {canFlip && (
+              <div
+                style={{
+                  marginTop: 'auto',
+                  alignSelf: 'flex-end',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px',
+                  borderRadius: 9999,
+                  background: 'rgba(212,160,36,0.08)',
+                  border: '1px solid rgba(212,160,36,0.22)',
+                  color: PALETTE.goldBright,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 700,
+                  fontSize: 10.5,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  pointerEvents: 'none',
+                  opacity: isFlipped ? 0 : 1,
+                  transition: 'opacity 200ms ease',
+                }}
+              >
+                <RotateCw size={11} /> Hover to compare paths
+              </div>
+            )}
           </div>
+
+          {/* BACK — cream paper, comparison radar. Lives in the same grid
+              cell as the front so the cell sizes to whichever face is taller. */}
+          {canFlip && (
+            <div
+              style={{
+                gridArea: 'stack',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+                background:
+                  'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
+                  'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
+                  '#ECE4D2',
+                border: '1px solid rgba(201, 182, 144, 0.5)',
+                borderRadius: 20,
+                padding: '20px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                <span
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 900,
+                    fontSize: 11,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: PALETTE.tealDeep,
+                  }}
+                >
+                  HOW IT DIFFERS FROM YOUR OTHER TOP ROLES
+                </span>
+                <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: PALETTE.inkSoft }}>
+                  Work-life fit · 5 axes
+                </span>
+              </div>
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: PALETTE.inkMuted,
+                  lineHeight: 1.5,
+                  margin: 0,
+                }}
+              >
+                Five axes that shape day-to-day fit. Filled polygon is the strongest match; dashed lines are your
+                other top roles for comparison.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
+              </div>
+              <V4CompareLegend careers={compareCareers} focalRank={1} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Button bar — outside the flip, always visible */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          paddingTop: 18,
+          borderTop: '1px solid rgba(255,255,255,0.10)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <button
+          type="button"
+          onClick={onOpenBreakdown}
+          style={{
+            background: PALETTE.teal,
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 14,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+            boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
+          }}
+        >
+          Open breakdown <ArrowRight size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => onFindRoles(match.title)}
+          style={{
+            background: 'transparent',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.22)',
+            padding: '12px 18px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 13.5,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+          }}
+        >
+          {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
+          {jobsUnlocked ? 'Find open roles' : 'Find open roles · locked'}
+        </button>
+        {canFlip && (
+          <button
+            type="button"
+            onClick={() => setKeyboardFlip((f) => !f)}
+            aria-pressed={keyboardFlip}
+            style={{
+              marginLeft: 'auto',
+              background: 'transparent',
+              color: 'rgba(255,255,255,0.7)',
+              border: '1px solid rgba(255,255,255,0.16)',
+              padding: '10px 14px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 12.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer',
+            }}
+          >
+            <RotateCw size={12} /> {isFlipped ? 'Show match' : 'Compare top 3'}
+          </button>
         )}
       </div>
-      {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
-    </div>
-
-    <h2
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 44,
-        letterSpacing: '-0.03em',
-        lineHeight: 1.05,
-        color: '#fff',
-        margin: 0,
-        position: 'relative',
-      }}
-    >
-      {match.title}
-    </h2>
-
-    <MatchMeter pct={match.matchPct} large />
-
-    {match.teaser && (
-      <p
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 500,
-          fontSize: 15.5,
-          lineHeight: 1.55,
-          color: 'rgba(255,255,255,0.85)',
-          margin: 0,
-          position: 'relative',
-        }}
-      >
-        {match.teaser}
-      </p>
-    )}
-
-    {match.why && match.why.length > 0 && (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4, position: 'relative' }}>
-        <Eyebrow>WHY THIS FITS YOU</Eyebrow>
-        <ul style={{ listStyle: 'none', padding: 0, margin: '4px 0 0 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {match.why.map((line, i) => (
-            <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <CheckCircle2 size={16} color={PALETTE.goldBright} style={{ flexShrink: 0, marginTop: 3 }} />
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: 'rgba(255,255,255,0.88)' }}>
-                {line}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-
-    <div
-      style={{
-        display: 'flex',
-        gap: 12,
-        marginTop: 'auto',
-        position: 'relative',
-        paddingTop: 18,
-        borderTop: '1px solid rgba(255,255,255,0.10)',
-        flexWrap: 'wrap',
-      }}
-    >
-      <button
-        type="button"
-        onClick={onOpenBreakdown}
-        style={{
-          background: PALETTE.teal,
-          color: '#fff',
-          border: 'none',
-          padding: '12px 20px',
-          borderRadius: 9999,
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 14,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          cursor: 'pointer',
-          boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
-        }}
-      >
-        Open breakdown <ArrowRight size={16} />
-      </button>
-      <button
-        type="button"
-        onClick={onFindRoles}
-        style={{
-          background: 'transparent',
-          color: '#fff',
-          border: '1px solid rgba(255,255,255,0.22)',
-          padding: '12px 18px',
-          borderRadius: 9999,
-          fontFamily: FONT_BODY,
-          fontWeight: 700,
-          fontSize: 13.5,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          cursor: 'pointer',
-        }}
-      >
-        {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-        {jobsUnlocked ? 'Find open roles' : 'Find open roles · locked'}
-      </button>
-    </div>
-  </article>
-);
+    </article>
+  );
+};
 
 // ── Secondary match (#2 / #3) ─────────────────────────────────
 const SecondaryMatch: React.FC<{
   match: CareerMatch;
   onOpen: () => void;
-  onFindRoles: () => void;
+  onFindRoles: (careerTitle?: string) => void;
 }> = ({ match, onOpen, onFindRoles }) => (
   <article
     style={{
@@ -711,7 +1136,7 @@ const SecondaryMatch: React.FC<{
       </button>
       <button
         type="button"
-        onClick={onFindRoles}
+        onClick={() => onFindRoles(match.title)}
         style={{
           flex: 1,
           background: 'transparent',
@@ -743,7 +1168,7 @@ const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = f
         style={{
           fontFamily: FONT_DISPLAY,
           fontSize: 11,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: '0.20em',
           textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.5)',
@@ -775,7 +1200,7 @@ const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = f
     <span
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: large ? 18 : 14,
         color: PALETTE.goldBright,
         minWidth: large ? 50 : undefined,
@@ -811,7 +1236,7 @@ const PathsTile: React.FC<{ title: string; accent: string; teaser: string; onOpe
     <span
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 11,
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
@@ -855,42 +1280,6 @@ const PathsTile: React.FC<{ title: string; accent: string; teaser: string; onOpe
       See full breakdown <ArrowRight size={14} />
     </button>
   </article>
-);
-
-// ── Profile panel (cream on dark) ─────────────────────────────
-const ProfilePanel: React.FC<{ title: string; sub: string; children: React.ReactNode }> = ({
-  title,
-  sub,
-  children,
-}) => (
-  <div
-    style={{
-      background: 'rgba(236, 228, 210, 0.94)',
-      borderRadius: 20,
-      padding: 24,
-      border: '1px solid rgba(201, 182, 144, 0.5)',
-      boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
-    }}
-  >
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-      <span
-        style={{
-          fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
-          fontSize: 11,
-          letterSpacing: '0.22em',
-          textTransform: 'uppercase',
-          color: PALETTE.tealDeep,
-        }}
-      >
-        {title}
-      </span>
-      <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: PALETTE.inkSoft, letterSpacing: '0.04em' }}>
-        {sub}
-      </span>
-    </div>
-    {children}
-  </div>
 );
 
 // ── Unlock toolkit ────────────────────────────────────────────
@@ -1023,7 +1412,7 @@ const UnlockToolkit: React.FC<{
                   style={{
                     fontFamily: FONT_DISPLAY,
                     fontSize: 16,
-                    fontWeight: 900,
+                    fontWeight: 700,
                     color: PALETTE.goldBright,
                     letterSpacing: '0.12em',
                   }}
@@ -1095,13 +1484,26 @@ const ToolCard: React.FC<{
             width: 42,
             height: 42,
             borderRadius: 9999,
-            background: unlocked ? 'rgba(39, 161, 161, 0.14)' : 'rgba(18,46,59,0.08)',
-            color: unlocked ? PALETTE.tealDeep : PALETTE.inkSoft,
-            border: unlocked ? '1px solid rgba(39, 161, 161, 0.30)' : '1px solid rgba(18,46,59,0.10)',
+            background: actionable
+              ? 'rgba(212, 160, 36, 0.18)'
+              : unlocked
+                ? 'rgba(39, 161, 161, 0.14)'
+                : 'rgba(18,46,59,0.08)',
+            color: actionable
+              ? PALETTE.gold
+              : unlocked
+                ? PALETTE.tealDeep
+                : PALETTE.inkSoft,
+            border: actionable
+              ? '1px solid rgba(212, 160, 36, 0.45)'
+              : unlocked
+                ? '1px solid rgba(39, 161, 161, 0.30)'
+                : '1px solid rgba(18,46,59,0.10)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
           }}
         >
           {unlocked ? meta.icon : <Lock size={18} />}
@@ -1113,13 +1515,15 @@ const ToolCard: React.FC<{
           <div
             style={{
               fontFamily: FONT_BODY,
-              fontWeight: 500,
+              fontWeight: 700,
               fontSize: 12,
-              color: unlocked ? PALETTE.teal : PALETTE.inkMuted,
+              color: actionable ? PALETTE.gold : unlocked ? PALETTE.teal : PALETTE.inkMuted,
               marginTop: 2,
+              letterSpacing: actionable ? '0.04em' : undefined,
+              textTransform: actionable ? 'uppercase' : undefined,
             }}
           >
-            {unlocked ? (feature.builtYet ? 'Unlocked' : 'Unlocked · coming soon') : meta.unlockCopy}
+            {unlocked ? (feature.builtYet ? 'Unlocked!' : 'Unlocked · coming soon') : meta.unlockCopy}
           </div>
         </div>
       </div>
@@ -1145,19 +1549,26 @@ const ToolCard: React.FC<{
         }}
         style={{
           marginTop: 'auto',
-          background: 'transparent',
-          color: unlocked && !feature.builtYet ? PALETTE.inkSoft : PALETTE.tealDeep,
-          border: `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
+          background: actionable ? PALETTE.gold : 'transparent',
+          color: actionable
+            ? PALETTE.canvasDeep
+            : unlocked && !feature.builtYet
+              ? PALETTE.inkSoft
+              : PALETTE.tealDeep,
+          border: actionable
+            ? '1px solid transparent'
+            : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
           padding: '11px 14px',
           borderRadius: 9999,
           fontFamily: FONT_BODY,
-          fontWeight: 700,
+          fontWeight: actionable ? 800 : 700,
           fontSize: 13,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
           cursor: unlocked && !feature.builtYet ? 'default' : 'pointer',
+          boxShadow: actionable ? '0 10px 24px -8px rgba(212,160,36,0.55)' : undefined,
           opacity: unlocked && !feature.builtYet ? 0.7 : 1,
         }}
       >
@@ -1192,7 +1603,7 @@ const SharePromoBlock: React.FC<{
       <span
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 11,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
@@ -1300,7 +1711,7 @@ const SharePromoBlock: React.FC<{
         <span
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 9,
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
@@ -1349,7 +1760,9 @@ const ReportAccordionRow: React.FC<{
   onToggle: () => void;
   registerRef: (node: HTMLDivElement | null) => void;
 }> = ({ row, isOpen, isLast, onToggle, registerRef }) => {
-  const photo = SECTION_VISUALS[row.visualKey || row.id];
+  const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
+  // Inner-tabs state for multi-career rows (runners, outside, dream).
+  const [activeCareer, setActiveCareer] = useState(0);
   return (
     <div
       ref={registerRef}
@@ -1375,7 +1788,11 @@ const ReportAccordionRow: React.FC<{
           gap: 20,
         }}
       >
-        <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={72} />
+        {row.careerSlot ? (
+          <CareerSlotChip slot={row.careerSlot} />
+        ) : (
+          <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={72} />
+        )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
@@ -1414,17 +1831,177 @@ const ReportAccordionRow: React.FC<{
           </svg>
         </div>
       </button>
-      {isOpen && row.content && (
+      {isOpen && row.careers && row.careers.length > 0 && (
+        <div className="cairnly-accordion-body" style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}>
+          <CareerTabs
+            careers={row.careers}
+            activeIndex={Math.min(activeCareer, row.careers.length - 1)}
+            onSelect={setActiveCareer}
+          />
+          <AccordionContent
+            content={row.careers[Math.min(activeCareer, row.careers.length - 1)].content}
+          />
+        </div>
+      )}
+      {isOpen && row.content && !row.careers && (
         <div
           className="cairnly-accordion-body"
           style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}
         >
           <AccordionContent content={row.content} />
+          {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}
         </div>
       )}
     </div>
   );
 };
+
+// Cream paper panel wrapping the chat's CareerComparisonRadar — the radar's
+// rings, spokes, and axis labels use light tones that need a cream surface
+// behind them to read. Same component the chat uses, no theme overrides.
+const CareerComparisonPanel: React.FC<{
+  comparison: NonNullable<ReportRow['comparison']>;
+}> = ({ comparison }) => {
+  const heading =
+    comparison.careers.length === 2
+      ? 'How it differs from your other top role'
+      : 'How it differs from your other top roles';
+  return (
+    <div
+      style={{
+        marginTop: 24,
+        background: 'rgba(236, 228, 210, 0.94)',
+        borderRadius: 20,
+        padding: 24,
+        border: '1px solid rgba(201, 182, 144, 0.5)',
+        boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 11,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: PALETTE.tealDeep,
+          marginBottom: 10,
+        }}
+      >
+        {heading}
+      </div>
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 14.5,
+          fontWeight: 500,
+          color: PALETTE.ink,
+          lineHeight: 1.55,
+          margin: '0 0 14px 0',
+        }}
+      >
+        {comparison.headline}
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+        <CareerComparisonRadar careers={comparison.careers} size={380} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {comparison.careers.map((c, i) => (
+          <span
+            key={c.label}
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 13.5,
+              fontWeight: 700,
+              color: c.color,
+            }}
+          >
+            {i + 1}. {c.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Cream chip carrying a cairn-glyph career icon — replaces the nature
+// photograph for Career Suggestion rows.
+const CareerSlotChip: React.FC<{ slot: CareerSlot }> = ({ slot }) => (
+  <div
+    style={{
+      width: 72,
+      height: 72,
+      borderRadius: 12,
+      flexShrink: 0,
+      background: PALETTE.cream,
+      border: `1px solid ${PALETTE.tan}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.4)',
+    }}
+  >
+    <CareerSlotIcon slot={slot} size={44} />
+  </div>
+);
+
+// Horizontal pill tabs shown inside the runner-up / outside-box / dream-jobs
+// accordion rows. Each tab is one career.
+const CareerTabs: React.FC<{
+  careers: CareerEntry[];
+  activeIndex: number;
+  onSelect: (i: number) => void;
+}> = ({ careers, activeIndex, onSelect }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 18,
+      paddingBottom: 14,
+      borderBottom: '1px solid rgba(255,255,255,0.08)',
+    }}
+  >
+    {careers.map((c, i) => {
+      const active = i === activeIndex;
+      return (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onSelect(i)}
+          style={{
+            background: active ? PALETTE.goldBright : 'rgba(255,255,255,0.04)',
+            color: active ? PALETTE.canvasDeep : 'rgba(255,255,255,0.78)',
+            border: `1px solid ${active ? PALETTE.goldBright : 'rgba(255,255,255,0.12)'}`,
+            padding: '7px 14px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 12.5,
+            letterSpacing: '0.005em',
+            cursor: 'pointer',
+            transition: 'all 150ms ease',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 10,
+              opacity: active ? 0.7 : 0.5,
+            }}
+          >
+            {i + 1}
+          </span>
+          {c.title}
+        </button>
+      );
+    })}
+  </div>
+);
 
 // Render the section content the same way ExpandedSectionView used to —
 // HTML → markdown → DOMPurify → react-markdown. Styled for the dark-glass
@@ -1465,7 +2042,7 @@ const ACCORDION_MD_COMPONENTS = {
       {...p}
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 11,
         letterSpacing: '0.18em',
         textTransform: 'uppercase',

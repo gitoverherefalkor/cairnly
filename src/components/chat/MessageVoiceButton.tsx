@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Volume2, Square, Settings2, Loader2, Bookmark } from 'lucide-react';
+import { Volume2, Square, Settings2, Loader2, Bookmark, ThumbsUp } from 'lucide-react';
 import { useTTS } from '@/contexts/TTSContext';
 
 interface MessageVoiceButtonProps {
@@ -12,6 +12,10 @@ interface MessageVoiceButtonProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: () => void;
+  // Thumbs-up "I'm impressed" feedback, stored in the DB to learn from.
+  // Optional so non-feedback contexts simply don't render it.
+  liked?: boolean;
+  onLikeToggle?: () => void;
 }
 
 export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
@@ -20,6 +24,8 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  liked = false,
+  onLikeToggle,
 }) => {
   const {
     isSupported,
@@ -124,26 +130,49 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
         )}
       </div>
 
-      {bookmarkable && onBookmarkToggle && (
-        <button
-          type="button"
-          onClick={onBookmarkToggle}
-          title={
-            bookmarked
-              ? 'Saved to your report — click to unsave'
-              : 'Save this response to your report'
-          }
-          aria-pressed={bookmarked}
-          className={`ml-auto flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-            bookmarked
-              ? 'bg-atlas-teal/10 text-atlas-teal'
-              : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
-          }`}
-        >
-          <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
-          <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
-        </button>
-      )}
+      {/* Right-aligned actions: thumbs-up (impressed) + bookmark (save) */}
+      <div className="ml-auto flex items-center gap-2">
+        {onLikeToggle && (
+          <button
+            type="button"
+            onClick={onLikeToggle}
+            title={
+              liked
+                ? "You marked this as impressive — click to undo"
+                : 'Impressed? Give it a thumbs up'
+            }
+            aria-pressed={liked}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+              liked
+                ? 'bg-atlas-teal/10 text-atlas-teal'
+                : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
+            }`}
+          >
+            <ThumbsUp size={13} fill={liked ? 'currentColor' : 'none'} />
+          </button>
+        )}
+
+        {bookmarkable && onBookmarkToggle && (
+          <button
+            type="button"
+            onClick={onBookmarkToggle}
+            title={
+              bookmarked
+                ? 'Saved to your report — click to unsave'
+                : 'Save this response to your report'
+            }
+            aria-pressed={bookmarked}
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+              bookmarked
+                ? 'bg-atlas-teal/10 text-atlas-teal'
+                : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
+            }`}
+          >
+            <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
+            <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 };

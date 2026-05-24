@@ -11,7 +11,7 @@
 //   - Generate CTA (gold)
 
 import React from 'react';
-import { Award, Lightbulb, Loader2, Mail, Sparkles, FileText } from 'lucide-react';
+import { Award, Lightbulb, Loader2, Lock, Mail, Sparkles, FileText } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -56,6 +56,11 @@ interface CustomResumeBuilderProps {
   onTemplateChange: (next: TemplateId) => void;
   includeCoverLetter: boolean;
   onCoverLetterChange: (next: boolean) => void;
+  // Cover letter sits behind a higher referral tier than the résumé itself.
+  // When locked, the pill toggle is disabled and shows an "invite N more"
+  // hint instead of the on-by-default state.
+  coverLetterUnlocked: boolean;
+  referralsToCoverLetter: number;
   isGenerating: boolean;
   onGenerate: () => void;
 }
@@ -68,6 +73,8 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
   onTemplateChange,
   includeCoverLetter,
   onCoverLetterChange,
+  coverLetterUnlocked,
+  referralsToCoverLetter,
   isGenerating,
   onGenerate,
 }) => {
@@ -208,7 +215,12 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
             : `Generate ${selected.length} ${selected.length === 1 ? 'résumé' : 'résumés'}`}
         </button>
 
-        <CoverLetterToggle checked={includeCoverLetter} onChange={onCoverLetterChange} />
+        <CoverLetterToggle
+          checked={coverLetterUnlocked && includeCoverLetter}
+          onChange={onCoverLetterChange}
+          locked={!coverLetterUnlocked}
+          invitesNeeded={referralsToCoverLetter}
+        />
 
         <div
           style={{
@@ -522,38 +534,60 @@ const Bar: React.FC<{ color: string; w: string; h: number }> = ({ color, w, h })
 );
 
 // ── Cover-letter toggle (pill, matches Jobs "Remote-friendly only") ──
-const CoverLetterToggle: React.FC<{ checked: boolean; onChange: (next: boolean) => void }> = ({
-  checked,
-  onChange,
-}) => (
-  <label
-    style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 10,
-      cursor: 'pointer',
-      padding: '10px 14px',
-      borderRadius: 9999,
-      border: `1px solid ${checked ? PALETTE.teal : 'rgba(255,255,255,0.16)'}`,
-      background: checked ? 'rgba(39,161,161,0.14)' : 'transparent',
-      fontFamily: FONT_BODY,
-      fontWeight: 700,
-      fontSize: 13,
-      color: checked ? PALETTE.tealBright : '#fff',
-      whiteSpace: 'nowrap',
-      height: 42,
-      boxSizing: 'border-box',
-    }}
-  >
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-      style={{ display: 'none' }}
-    />
-    <Mail size={14} /> Include cover letters
-  </label>
-);
+// When `locked` is true, the toggle visually mutes and swaps its label to a
+// "invite N more" hint. Click is a no-op — the page also forces
+// includeCoverLetter=false on submit, so this is belt-and-suspenders.
+const CoverLetterToggle: React.FC<{
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  locked: boolean;
+  invitesNeeded: number;
+}> = ({ checked, onChange, locked, invitesNeeded }) => {
+  const border = locked
+    ? '1px dashed rgba(212,160,36,0.45)'
+    : `1px solid ${checked ? PALETTE.teal : 'rgba(255,255,255,0.16)'}`;
+  const background = locked
+    ? 'rgba(212,160,36,0.08)'
+    : checked
+      ? 'rgba(39,161,161,0.14)'
+      : 'transparent';
+  const color = locked ? PALETTE.goldBright : checked ? PALETTE.tealBright : '#fff';
+
+  return (
+    <label
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 10,
+        cursor: locked ? 'not-allowed' : 'pointer',
+        padding: '10px 14px',
+        borderRadius: 9999,
+        border,
+        background,
+        fontFamily: FONT_BODY,
+        fontWeight: 700,
+        fontSize: 13,
+        color,
+        whiteSpace: 'nowrap',
+        height: 42,
+        boxSizing: 'border-box',
+        opacity: locked ? 0.85 : 1,
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={locked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ display: 'none' }}
+      />
+      {locked ? <Lock size={13} /> : <Mail size={14} />}
+      {locked
+        ? `Cover letters · invite ${invitesNeeded} more to unlock`
+        : 'Include cover letters'}
+    </label>
+  );
+};
 
 const EmptyHint: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div

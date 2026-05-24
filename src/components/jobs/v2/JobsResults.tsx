@@ -5,7 +5,7 @@
 // through the search-jobs edge function yet.
 
 import React from 'react';
-import { ArrowRight, ExternalLink, FilePlus, FileText, Heart, Lock, Sliders } from 'lucide-react';
+import { ArrowRight, ExternalLink, FilePlus, FileText, Heart, Loader2, Lock, Sliders } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -206,7 +206,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
           </div>
         )}
 
-        {finished.length === 0 && (
+        {results.length === 0 && (
           <div
             style={{
               padding: 40,
@@ -223,20 +223,35 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
           </div>
         )}
 
-        {finished.map((result) => {
+        {/* Render every career in its original order. Completed ones show
+            results; the rest show a live "searching" / "queued" state so the
+            user knows more is still coming below, not that the list is done. */}
+        {results.map((result) => {
           const career = careersBySectionType.get(result.sectionType);
+          const careerTitle = career?.title ?? result.careerTitle;
+          if (result.status === 'done') {
+            return (
+              <CareerGrouping
+                key={result.sectionType}
+                career={career}
+                careerTitle={careerTitle}
+                jobs={result.jobs}
+                isJobSaved={isJobSaved}
+                onSaveJob={(job) => onSaveJob(job, careerTitle)}
+                onUnsaveJob={onUnsaveJob}
+                resumeUnlocked={resumeUnlocked}
+                coverUnlocked={coverUnlocked}
+                onInvite={onInvite}
+              />
+            );
+          }
           return (
-            <CareerGrouping
+            <CareerSearching
               key={result.sectionType}
               career={career}
-              careerTitle={career?.title ?? result.careerTitle}
-              jobs={result.jobs}
-              isJobSaved={isJobSaved}
-              onSaveJob={(job) => onSaveJob(job, career?.title ?? result.careerTitle)}
-              onUnsaveJob={onUnsaveJob}
-              resumeUnlocked={resumeUnlocked}
-              coverUnlocked={coverUnlocked}
-              onInvite={onInvite}
+              careerTitle={careerTitle}
+              status={result.status}
+              error={result.error}
             />
           );
         })}
@@ -273,7 +288,7 @@ const CareerGrouping: React.FC<{
         <h2
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 28,
             letterSpacing: '-0.025em',
             color: '#fff',
@@ -323,6 +338,88 @@ const CareerGrouping: React.FC<{
       </div>
     )}
   </section>
+);
+
+// ── Per-career searching / queued placeholder ─────────────────
+// Keeps in-progress careers visible (with the same header as a finished one)
+// so streamed results don't appear to "pop in" out of nowhere.
+const CareerSearching: React.FC<{
+  career?: JobsResultsCareer;
+  careerTitle: string;
+  status: JobSearchResult['status'];
+  error?: string;
+}> = ({ career, careerTitle, status, error }) => {
+  const isError = status === 'error';
+  const isSearching = status === 'searching';
+  return (
+    <section style={{ marginBottom: 44 }}>
+      <div style={{ marginBottom: 16 }}>
+        {career && <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} />}
+        <h2
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 28,
+            letterSpacing: '-0.025em',
+            color: '#fff',
+            margin: '8px 0 0 0',
+            lineHeight: 1.05,
+            opacity: isError ? 1 : 0.85,
+          }}
+        >
+          {careerTitle}
+        </h2>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: 20,
+          background: 'rgba(18,46,59,0.40)',
+          border: '1px dashed rgba(255,255,255,0.12)',
+          borderRadius: 14,
+          fontFamily: FONT_BODY,
+          fontSize: 13.5,
+          fontWeight: 500,
+          color: 'rgba(255,255,255,0.7)',
+        }}
+      >
+        {isError ? (
+          <span style={{ color: 'rgba(255,180,180,0.9)' }}>
+            {error || 'Search failed for this career. Try again.'}
+          </span>
+        ) : (
+          <>
+            <Loader2 size={16} className="animate-spin" style={{ color: PALETTE.goldBright }} />
+            <span>{isSearching ? 'Searching live openings…' : 'Queued — searching next…'}</span>
+          </>
+        )}
+      </div>
+    </section>
+  );
+};
+
+// ── Workplace / employment badge ──────────────────────────────
+// `highlight` = gold fill (used for Remote, the thing we want to draw the eye).
+const JobBadge: React.FC<{ label: string; highlight?: boolean }> = ({ label, highlight }) => (
+  <span
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '3px 10px',
+      borderRadius: 9999,
+      fontFamily: FONT_BODY,
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: '0.02em',
+      background: highlight ? PALETTE.gold : 'rgba(18,46,59,0.08)',
+      color: highlight ? PALETTE.canvasDeep : PALETTE.inkMuted,
+      border: highlight ? '1px solid transparent' : `1px solid ${PALETTE.tan}`,
+    }}
+  >
+    {label}
+  </span>
 );
 
 // ── Cream job card ────────────────────────────────────────────
@@ -381,7 +478,7 @@ const JobCardCream: React.FC<{
             <h4
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 18,
                 letterSpacing: '-0.015em',
                 color: PALETTE.canvasDeep,
@@ -413,6 +510,17 @@ const JobCardCream: React.FC<{
             >
               {[job.location, postedText].filter(Boolean).join(' · ')}
             </div>
+            {(job.workplace_type || job.employment_type) && (
+              <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {job.workplace_type && (
+                  <JobBadge
+                    label={job.workplace_type}
+                    highlight={/remote/i.test(job.workplace_type)}
+                  />
+                )}
+                {job.employment_type && <JobBadge label={job.employment_type} />}
+              </div>
+            )}
           </div>
         </div>
         {job.description && (
@@ -443,7 +551,7 @@ const JobCardCream: React.FC<{
               fontStyle: 'italic',
             }}
           >
-            Why: {job.match_reason}.
+            Why: {job.match_reason.replace(/[.\s]+$/, '')}...
           </div>
         )}
       </div>
@@ -486,7 +594,7 @@ const JobCardCream: React.FC<{
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 17,
                 color: tone,
                 letterSpacing: '-0.01em',

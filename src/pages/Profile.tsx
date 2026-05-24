@@ -2,31 +2,115 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, User, Save, FileText, CheckCircle, Bell, Download, Trash2, Shield } from 'lucide-react';
+import {
+  User,
+  Save,
+  FileText,
+  CheckCircle,
+  Bell,
+  Download,
+  Trash2,
+  Shield,
+  Loader2,
+} from 'lucide-react';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
+import { ResumeUploadCard } from '@/components/resume/ResumeUploadCard';
+import { useSurveyDerivedProfile } from '@/hooks/useSurveyDerivedProfile';
+
+// ----- Shared cream card shell for every Profile section -----
+interface ProfileCardProps {
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  title: string;
+  danger?: boolean;
+  children: React.ReactNode;
+}
+
+const ProfileCard: React.FC<ProfileCardProps> = ({ icon: Icon, title, danger = false, children }) => (
+  <section
+    className="relative overflow-hidden rounded-[20px] border"
+    style={{
+      background: '#FDFBF2',
+      borderColor: danger ? 'rgba(220,38,38,0.32)' : 'rgba(201, 182, 144, 0.6)',
+      boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
+      padding: '24px 28px 22px',
+    }}
+  >
+    {/* Soft gold radial bloom — suppressed on danger card */}
+    {!danger && (
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute"
+        style={{
+          top: -60,
+          right: -60,
+          width: 240,
+          height: 240,
+          background:
+            'radial-gradient(circle, rgba(212,160,36,0.14) 0%, rgba(212,160,36,0) 70%)',
+        }}
+      />
+    )}
+    <div className="relative">
+      <div className="flex items-center gap-2.5 mb-1">
+        <Icon className="h-[18px] w-[18px]" style={{ color: danger ? '#DC2626' : '#1F8282' }} />
+        <span
+          className="font-heading uppercase text-[11px]"
+          style={{
+            color: danger ? '#DC2626' : '#1F8282',
+            letterSpacing: '0.22em',
+            fontWeight: 700,
+          }}
+        >
+          {title}
+        </span>
+      </div>
+      <div className="mt-3.5">{children}</div>
+    </div>
+  </section>
+);
+
+// ----- Shared form styles for cream-card inputs -----
+const inputCls =
+  'bg-[#FFFDF5] border-[rgba(201,182,144,0.8)] text-[#122E3B] placeholder:text-[#9CA3AF] focus-visible:ring-atlas-teal/40';
+const inputDisabledCls = 'bg-[#F3EEDC] border-[rgba(201,182,144,0.8)] text-[#6B7F8B] cursor-not-allowed';
+const labelCls = 'block text-[13px] font-semibold mb-1.5';
+const labelStyle = { color: '#122E3B' };
+const helperCls = 'text-[11.5px] font-medium mt-1.5';
+const helperStyle = { color: '#6B7F8B' };
 
 const Profile = () => {
   const { user } = useAuth();
   const { profile, updateProfile, isUpdating } = useProfile();
+  // Survey-derived fallbacks for fields that already exist as Section 1 answers
+  // (pronouns, age range). When the user submits Save, the chosen values get
+  // persisted to profiles, so this is a one-time pre-fill — after that, the
+  // profile row itself is the source of truth.
+  const { data: surveyDerived } = useSurveyDerivedProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     first_name: profile?.first_name || '',
     last_name: profile?.last_name || '',
     country: profile?.country || '',
     region: profile?.region || '',
-    pronouns: profile?.pronouns || '',
-    age_range: profile?.age_range || '',
+    pronouns: profile?.pronouns || surveyDerived.pronouns || '',
+    age_range: profile?.age_range || surveyDerived.ageRange || '',
   });
 
   const [emailReminders, setEmailReminders] = useState(
@@ -40,17 +124,18 @@ const Profile = () => {
         last_name: profile.last_name || '',
         country: profile.country || '',
         region: profile.region || '',
-        pronouns: profile.pronouns || '',
-        age_range: profile.age_range || '',
+        // Fall back to survey-derived values when the profile field is empty.
+        pronouns: profile.pronouns || surveyDerived.pronouns || '',
+        age_range: profile.age_range || surveyDerived.ageRange || '',
       });
       setEmailReminders((profile as any)?.email_reminders_enabled ?? true);
     }
-  }, [profile]);
+  }, [profile, surveyDerived.pronouns, surveyDerived.ageRange]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -79,7 +164,11 @@ const Profile = () => {
       toast({ title: 'Data exported', description: 'Your data has been downloaded as a JSON file.' });
     } catch (err: any) {
       console.error('Export error:', err);
-      toast({ title: 'Export failed', description: 'Something went wrong. Please try again or contact support.', variant: 'destructive' });
+      toast({
+        title: 'Export failed',
+        description: 'Something went wrong. Please try again or contact support.',
+        variant: 'destructive',
+      });
     } finally {
       setIsExporting(false);
     }
@@ -96,10 +185,19 @@ const Profile = () => {
       navigate('/');
     } catch (err: any) {
       console.error('Delete error:', err);
-      toast({ title: 'Deletion failed', description: 'Something went wrong. Please contact support at privacy@cairnly.io', variant: 'destructive' });
+      toast({
+        title: 'Deletion failed',
+        description: 'Something went wrong. Please contact support at privacy@cairnly.io',
+        variant: 'destructive',
+      });
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut({ scope: 'local' });
+    navigate('/');
   };
 
   // Redirect in useEffect, not during render (prevents blank page flash)
@@ -113,48 +211,77 @@ const Profile = () => {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
-            <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mr-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            <h1 className="text-2xl font-bold text-atlas-navy">Profile Settings</h1>
-          </div>
-        </div>
-      </div>
+  const firstName = profile?.first_name || '';
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        {/* Resume Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="h-5 w-5 mr-2" />
-              Resume/CV Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+  return (
+    <div className="min-h-screen survey-bg">
+      {/* Sticky cream top nav — same pattern as /dashboard, /jobs, /chat */}
+      <DashboardAppNav
+        firstName={firstName}
+        pageLabel="Profile Settings"
+        onProfile={() => {/* already on profile */}}
+        onSignOut={handleSignOut}
+        onBack={() => navigate('/dashboard')}
+        backLabel="Back to dashboard"
+      />
+
+      <div className="max-w-[880px] mx-auto px-6 sm:px-8 pt-10 pb-20">
+        {/* Page header */}
+        <div className="mb-8">
+          <span
+            className="font-heading uppercase text-[11px]"
+            style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
+          >
+            Your Account
+          </span>
+          <h1
+            className="font-heading text-white m-0 mt-2.5"
+            style={{
+              fontSize: 'clamp(28px, 5vw, 44px)',
+              fontWeight: 700,
+              letterSpacing: '-0.025em',
+              lineHeight: 1.05,
+            }}
+          >
+            Profile settings
+          </h1>
+          <p
+            className="text-[15px] mt-1.5 max-w-xl"
+            style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 500, lineHeight: 1.5 }}
+          >
+            Manage what we know about you, how we email you, and your data.
+          </p>
+        </div>
+
+        {/* Cards stack */}
+        <div className="flex flex-col gap-[18px]">
+          {/* ----- Resume Status ----- */}
+          <ProfileCard icon={FileText} title="Resume / CV status">
             {profile?.resume_uploaded_at ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                    <div>
-                      <p className="font-medium">Resume uploaded successfully</p>
-                      <p className="text-sm text-gray-500">
-                        Uploaded on {new Date(profile.resume_uploaded_at).toLocaleDateString()}
-                      </p>
-                    </div>
+              <>
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-[38px] h-[38px] rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: 'rgba(34, 197, 94, 0.14)',
+                      border: '1px solid rgba(34, 197, 94, 0.32)',
+                    }}
+                  >
+                    <CheckCircle className="h-5 w-5" style={{ color: '#16A34A' }} />
                   </div>
-                  <Button 
-                    variant="outline" 
+                  <div className="flex-1">
+                    <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
+                      Resume uploaded successfully
+                    </p>
+                    <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
+                      Uploaded on {new Date(profile.resume_uploaded_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
                     size="sm"
+                    className="rounded-full font-bold text-[12.5px] bg-transparent"
+                    style={{ color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' }}
                     onClick={async () => {
                       const { error } = await supabase
                         .from('profiles')
@@ -162,10 +289,10 @@ const Profile = () => {
                           resume_data: null,
                           resume_parsed_data: null,
                           resume_uploaded_at: null,
-                          updated_at: new Date().toISOString()
+                          updated_at: new Date().toISOString(),
                         })
                         .eq('id', user?.id);
-                      
+
                       if (!error) {
                         window.location.reload();
                       }
@@ -174,43 +301,51 @@ const Profile = () => {
                     Remove
                   </Button>
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Want to upload a new resume?</strong> You can upload a new resume when starting a new Cairnly Assessment for the best pre-filling experience.
-                  </p>
-                </div>
-              </div>
+              </>
             ) : (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="h-6 w-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                    <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
+              <>
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-[38px] h-[38px] rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ border: '2px solid rgba(201,182,144,0.7)' }}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ background: '#9CA3AF' }} />
                   </div>
-                  <div>
-                    <p className="font-medium">No resume uploaded</p>
-                    <p className="text-sm text-gray-500">
-                      Upload your resume when starting your next Cairnly Assessment for automatic pre-filling
+                  <div className="flex-1">
+                    <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
+                      No resume uploaded
+                    </p>
+                    <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
+                      Upload one here, or do it when starting your next Cairnly Assessment for automatic pre-filling.
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* Personal Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="h-5 w-5 mr-2" />
-              Personal Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Upload affordance — feeds the same useResumeUpload hook the
+                    assessment intake uses, so it writes resume_uploaded_at on
+                    the profile and lands the file in the resumes bucket. */}
+                <div className="mt-4">
+                  <ResumeUploadCard
+                    title="Upload résumé"
+                    description="PDF, Word (.doc, .docx), or plain text. Used to pre-fill your assessment and to tailor résumés for selected careers."
+                    showSuccessMessage
+                    onProcessingComplete={() => {
+                      // Reload so the card flips to the "uploaded" state.
+                      window.location.reload();
+                    }}
+                  />
+                </div>
+              </>
+            )}
+          </ProfileCard>
+
+          {/* ----- Personal Information ----- */}
+          <ProfileCard icon={User} title="Personal information">
+            <form onSubmit={handleSubmit}>
+              {/* First + Last */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-4">
                 <div>
-                  <label htmlFor="first_name" className="block text-sm font-medium mb-2">
+                  <label htmlFor="first_name" className={labelCls} style={labelStyle}>
                     First Name
                   </label>
                   <Input
@@ -218,10 +353,11 @@ const Profile = () => {
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     placeholder="Enter your first name"
+                    className={inputCls}
                   />
                 </div>
                 <div>
-                  <label htmlFor="last_name" className="block text-sm font-medium mb-2">
+                  <label htmlFor="last_name" className={labelCls} style={labelStyle}>
                     Last Name
                   </label>
                   <Input
@@ -229,12 +365,14 @@ const Profile = () => {
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     placeholder="Enter your last name"
+                    className={inputCls}
                   />
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+              {/* Email (disabled) */}
+              <div className="mb-4">
+                <label htmlFor="email" className={labelCls} style={labelStyle}>
                   Email Address
                 </label>
                 <Input
@@ -242,36 +380,41 @@ const Profile = () => {
                   type="email"
                   value={profile?.email || user?.email || ''}
                   disabled
-                  className="bg-gray-50"
+                  className={inputDisabledCls}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={helperCls} style={helperStyle}>
                   Email cannot be changed from this page
                 </p>
               </div>
 
-              <div>
-                <label htmlFor="auth_provider" className="block text-sm font-medium mb-2">
+              {/* Sign-in Method (disabled) */}
+              <div className="mb-4">
+                <label htmlFor="auth_provider" className={labelCls} style={labelStyle}>
                   Sign-in Method
                 </label>
                 <Input
                   id="auth_provider"
                   value={
-                    profile?.auth_provider === 'google' ? 'Google' :
-                    profile?.auth_provider === 'linkedin_oidc' ? 'LinkedIn' :
-                    profile?.auth_provider === 'email' ? 'Email/Password' :
-                    'Email/Password'
+                    profile?.auth_provider === 'google'
+                      ? 'Google'
+                      : profile?.auth_provider === 'linkedin_oidc'
+                        ? 'LinkedIn'
+                        : profile?.auth_provider === 'email'
+                          ? 'Email/Password'
+                          : 'Email/Password'
                   }
                   disabled
-                  className="bg-gray-50"
+                  className={inputDisabledCls}
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className={helperCls} style={helperStyle}>
                   The authentication method used to create your account
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Country + Region */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-4">
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium mb-2">
+                  <label htmlFor="country" className={labelCls} style={labelStyle}>
                     Country
                   </label>
                   <Input
@@ -279,34 +422,39 @@ const Profile = () => {
                     value={formData.country}
                     onChange={(e) => handleInputChange('country', e.target.value)}
                     placeholder="Enter your country"
+                    className={inputCls}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className={helperCls} style={helperStyle}>
                     From payment form
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="region" className="block text-sm font-medium mb-2">
+                  <label htmlFor="region" className={labelCls} style={labelStyle}>
                     Region
                   </label>
                   <Input
                     id="region"
                     value={formData.region}
                     disabled
-                    className="bg-gray-50"
+                    className={inputDisabledCls}
                     placeholder="No region set"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className={helperCls} style={helperStyle}>
                     From survey Section 1
                   </p>
                 </div>
               </div>
 
-              <div className="w-1/3 min-w-[160px]">
-                <label htmlFor="pronouns" className="block text-sm font-medium mb-2">
+              {/* Pronouns */}
+              <div className="mb-4" style={{ width: '40%', minWidth: 200 }}>
+                <label htmlFor="pronouns" className={labelCls} style={labelStyle}>
                   Pronouns
                 </label>
-                <Select value={formData.pronouns} onValueChange={(value) => handleInputChange('pronouns', value)}>
-                  <SelectTrigger>
+                <Select
+                  value={formData.pronouns}
+                  onValueChange={(value) => handleInputChange('pronouns', value)}
+                >
+                  <SelectTrigger className={inputCls}>
                     <SelectValue placeholder="Select your pronouns" />
                   </SelectTrigger>
                   <SelectContent>
@@ -319,12 +467,16 @@ const Profile = () => {
                 </Select>
               </div>
 
-              <div className="w-1/3 min-w-[160px]">
-                <label htmlFor="age_range" className="block text-sm font-medium mb-2">
+              {/* Age Range */}
+              <div style={{ width: '40%', minWidth: 200 }}>
+                <label htmlFor="age_range" className={labelCls} style={labelStyle}>
                   Age Range
                 </label>
-                <Select value={formData.age_range} onValueChange={(value) => handleInputChange('age_range', value)}>
-                  <SelectTrigger>
+                <Select
+                  value={formData.age_range}
+                  onValueChange={(value) => handleInputChange('age_range', value)}
+                >
+                  <SelectTrigger className={inputCls}>
                     <SelectValue placeholder="Select your age range" />
                   </SelectTrigger>
                   <SelectContent>
@@ -338,11 +490,19 @@ const Profile = () => {
                 </Select>
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={isUpdating}>
+              {/* Save button row with hairline divider */}
+              <div
+                className="flex justify-end mt-[18px] pt-4"
+                style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
+              >
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13.5px] px-5 shadow-[0_10px_24px_-8px_rgba(39,161,161,0.45)]"
+                >
                   {isUpdating ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
@@ -354,22 +514,19 @@ const Profile = () => {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </ProfileCard>
 
-        {/* Email Preferences */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Bell className="h-5 w-5 mr-2" />
-              Email Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
+          {/* ----- Email Preferences ----- */}
+          <ProfileCard icon={Bell} title="Email preferences">
+            <div className="flex items-center justify-between gap-6">
               <div>
-                <p className="font-medium text-sm">Email Reminders</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-[14px] font-bold" style={{ color: '#122E3B' }}>
+                  Email Reminders
+                </p>
+                <p
+                  className="text-[13px] font-medium mt-1 max-w-md"
+                  style={{ color: '#6B7F8B', lineHeight: 1.5 }}
+                >
                   Receive helpful reminders to continue your assessment and explore your career insights
                 </p>
               </div>
@@ -382,7 +539,7 @@ const Profile = () => {
                     .from('profiles')
                     .update({
                       email_reminders_enabled: checked,
-                      updated_at: new Date().toISOString()
+                      updated_at: new Date().toISOString(),
                     } as any)
                     .eq('id', user?.id);
 
@@ -391,64 +548,59 @@ const Profile = () => {
                     setEmailReminders(!checked); // revert on error
                   }
                 }}
+                className="data-[state=checked]:bg-atlas-teal data-[state=unchecked]:bg-[rgba(75,99,115,0.3)]"
               />
             </div>
-          </CardContent>
-        </Card>
+          </ProfileCard>
 
-        {/* Your Data (GDPR) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Shield className="h-5 w-5 mr-2" />
-              Your Data
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-gray-600">
-              You have the right to download a copy of all your personal data, or request its permanent deletion.
-              See our <a href="/privacy-policy" className="text-atlas-blue underline">Privacy Policy</a> for more details.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                variant="outline"
-                onClick={handleExportData}
-                disabled={isExporting}
+          {/* ----- Your Data (GDPR) ----- */}
+          <ProfileCard icon={Shield} title="Your data">
+            <p className="text-[14px] font-medium mb-4" style={{ color: '#1F2937', lineHeight: 1.6 }}>
+              You have the right to download a copy of all your personal data, or request its
+              permanent deletion. See our{' '}
+              <a
+                href="/privacy-policy"
+                className="underline hover:opacity-80"
+                style={{ color: '#1F8282' }}
               >
-                {isExporting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" />
-                    Exporting...
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download My Data
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                Privacy Policy
+              </a>{' '}
+              for more details.
+            </p>
+            <Button
+              variant="outline"
+              onClick={handleExportData}
+              disabled={isExporting}
+              className="rounded-full bg-transparent font-bold text-[13px]"
+              style={{ color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' }}
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download My Data
+                </>
+              )}
+            </Button>
+          </ProfileCard>
 
-        {/* Delete Account */}
-        <Card className="border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center text-red-700">
-              <Trash2 className="h-5 w-5 mr-2" />
-              Delete Account
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          {/* ----- Delete Account ----- */}
+          <ProfileCard icon={Trash2} title="Delete account" danger>
             {!showDeleteConfirm ? (
               <>
-                <p className="text-sm text-gray-600">
-                  Permanently delete your account and all associated data including assessment results,
-                  career reports, chat history, and uploaded documents. This action cannot be undone.
+                <p className="text-[14px] font-medium mb-4" style={{ color: '#1F2937', lineHeight: 1.6 }}>
+                  Permanently delete your account and all associated data including assessment
+                  results, career reports, chat history, and uploaded documents. This action
+                  cannot be undone.
                 </p>
                 <Button
                   variant="outline"
-                  className="border-red-300 text-red-700 hover:bg-red-50"
+                  className="rounded-full bg-transparent font-bold text-[13px]"
+                  style={{ color: '#DC2626', borderColor: 'rgba(220,38,38,0.4)' }}
                   onClick={() => setShowDeleteConfirm(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -456,47 +608,62 @@ const Profile = () => {
                 </Button>
               </>
             ) : (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-4">
-                <p className="text-sm font-medium text-red-800">
+              <div
+                className="rounded-xl p-[18px]"
+                style={{
+                  background: 'rgba(220, 38, 38, 0.06)',
+                  border: '1px solid rgba(220, 38, 38, 0.28)',
+                }}
+              >
+                <p className="text-[14px] font-bold mb-3" style={{ color: '#991B1B' }}>
                   Are you sure? This will permanently delete:
                 </p>
-                <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                <ul
+                  className="list-disc pl-[22px] text-[13.5px] font-medium mb-3.5"
+                  style={{ color: '#B91C1C', lineHeight: 1.8 }}
+                >
                   <li>Your profile and personal information</li>
                   <li>All assessment responses</li>
                   <li>Career reports and recommendations</li>
                   <li>Chat conversation history</li>
                   <li>Uploaded resume/CV files</li>
                 </ul>
-                <p className="text-sm text-red-800 font-medium">
+                <p className="text-[13.5px] font-bold mb-4" style={{ color: '#991B1B' }}>
                   This cannot be undone. You will be signed out immediately.
                 </p>
-                <div className="flex gap-3">
+                <div className="flex gap-2.5 flex-wrap">
                   <Button
                     variant="outline"
                     onClick={() => setShowDeleteConfirm(false)}
                     disabled={isDeleting}
+                    className="rounded-full bg-transparent font-bold text-[13px]"
+                    style={{ color: '#4B6373', borderColor: 'rgba(75,99,115,0.3)' }}
                   >
                     Cancel
                   </Button>
                   <Button
-                    variant="destructive"
                     onClick={handleDeleteAccount}
                     disabled={isDeleting}
+                    className="rounded-full text-white font-bold text-[13px] shadow-[0_8px_20px_-8px_rgba(220,38,38,0.55)] hover:opacity-90"
+                    style={{ background: '#DC2626' }}
                   >
                     {isDeleting ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Deleting...
                       </>
                     ) : (
-                      'Yes, Delete Everything'
+                      <>
+                        <Trash2 className="h-3.5 w-3.5 mr-2" />
+                        Yes, Delete Everything
+                      </>
                     )}
                   </Button>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </ProfileCard>
+        </div>
       </div>
     </div>
   );

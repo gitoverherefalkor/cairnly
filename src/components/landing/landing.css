@@ -23,7 +23,7 @@
 
 /* Eyebrow — premium tag idiom */
 .lp-eyebrow {
-  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
 }
 
@@ -130,7 +130,7 @@ button.lp-screenshot-slot {
 /* Cairn rail */
 .lp-cairn-rail { position: sticky; top: 130px; }
 .lp-cairn-rail__label {
-  font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 10px;
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 10px;
   letter-spacing: 0.22em; text-transform: uppercase; color: #6B7F8B;
 }
 
@@ -304,7 +304,7 @@ button.lp-screenshot-slot {
 }
 .lp-prose ul li::before {
   content: "·"; position: absolute; left: 8px; top: -2px;
-  color: #D4A024; font-weight: 900; font-size: 22px;
+  color: #D4A024; font-weight: 700; font-size: 22px;
 }
 .lp-prose .lp-source {
   display: block; margin-top: 1.2em;
@@ -316,7 +316,7 @@ button.lp-screenshot-slot {
   border-top: 1px solid rgba(201, 182, 144, 0.55);
 }
 .lp-chapter__num {
-  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
   color: #D4A024; margin-bottom: 0.6em;
 }
@@ -392,7 +392,7 @@ button.lp-screenshot-slot {
   font-size: 13px; font-weight: 500; line-height: 1.5;
 }
 .lp-toc__title {
-  font-family: 'Poppins', sans-serif; font-weight: 900;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
   color: #1F8282; margin-bottom: 14px;
 }

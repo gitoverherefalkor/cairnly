@@ -64,7 +64,7 @@ export const JEyebrow: React.FC<{ children: React.ReactNode; color?: string }> =
   <span
     style={{
       fontFamily: FONT_DISPLAY,
-      fontWeight: 900,
+      fontWeight: 700,
       fontSize: 11,
       letterSpacing: '0.24em',
       textTransform: 'uppercase',
@@ -97,7 +97,7 @@ export const CareerTierBadge: React.FC<{
           justifyContent: 'center',
           fontFamily: FONT_DISPLAY,
           fontSize: 11,
-          fontWeight: 900,
+          fontWeight: 700,
         }}
       >
         {number ? number : tier === 'runner-up' ? <Award size={12} /> : <Lightbulb size={12} />}
@@ -105,7 +105,7 @@ export const CareerTierBadge: React.FC<{
       <span
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 10,
           letterSpacing: '0.20em',
           textTransform: 'uppercase',
@@ -200,7 +200,7 @@ export const CompanyLogo: React.FC<{ company: string; src?: string | null; size?
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: size * 0.4,
         letterSpacing: '-0.01em',
         boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.10)',

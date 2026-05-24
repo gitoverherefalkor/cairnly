@@ -1,9 +1,62 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse } from "../_shared/cors.ts";
+import {
+  renderEmail,
+  bodyRow,
+  ctaRow,
+  h1,
+  paragraph,
+  fineprint,
+  callout,
+  bullet,
+} from "../_shared/email-chrome.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// ─── Email body builders ──────────────────────────────────────────────────
+
+function confirmationEmailBody(firstName: string, confirmationUrl: string): string {
+  return bodyRow(
+    h1(`Welcome to Cairnly, ${firstName}!`) +
+    paragraph("Thank you for creating your account. You're just one step away from starting your personalized career discovery journey.") +
+    paragraph("Please confirm your email address by clicking the button below:")
+  ) +
+  ctaRow("Confirm Your Email Address", confirmationUrl) +
+  `<tr><td style="padding:0 48px 8px;background-color:#ECE4D2;" class="px-mob">
+    ${paragraph("If the button doesn't work, copy and paste this link into your browser:", { size: 13, color: "#6B7480", mb: 8 })}
+    <p style="margin:0;padding:12px 14px;background-color:#F6EFD8;border:1px solid #DCCFAE;border-radius:8px;color:#1F8282;font-size:12px;line-height:1.5;word-break:break-all;font-family:'SFMono-Regular',Menlo,Consolas,'Courier New',monospace;">${confirmationUrl}</p>
+  </td></tr>
+  <tr><td style="padding:32px 48px 8px;background-color:#ECE4D2;" class="px-mob">
+    ${callout("What's Next?", `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${bullet("Confirm your email address")}
+        ${bullet("Complete your personalized career assessment")}
+        ${bullet("Receive your detailed career insights report")}
+        ${bullet("Discover career opportunities aligned with your strengths")}
+      </table>
+    `)}
+    ${fineprint("This confirmation link will expire in 24 hours for security reasons. If you didn't create a Cairnly account, you can safely ignore this email.")}
+  </td></tr>
+  <tr><td style="height:20px;font-size:0;line-height:0;background-color:#ECE4D2;">&nbsp;</td></tr>`;
+}
+
+function passwordResetEmailBody(firstName: string, confirmationUrl: string): string {
+  return bodyRow(
+    h1("Password Reset Request") +
+    paragraph(`Hi ${firstName},`) +
+    paragraph("We received a request to reset your Cairnly password. Click the button below to create a new password:")
+  ) +
+  ctaRow("Reset Your Password", confirmationUrl) +
+  `<tr><td style="padding:0 48px 8px;background-color:#ECE4D2;" class="px-mob">
+    ${paragraph("If the button doesn't work, copy and paste this link into your browser:", { size: 13, color: "#6B7480", mb: 8 })}
+    <p style="margin:0;padding:12px 14px;background-color:#F6EFD8;border:1px solid #DCCFAE;border-radius:8px;color:#1F8282;font-size:12px;line-height:1.5;word-break:break-all;font-family:'SFMono-Regular',Menlo,Consolas,'Courier New',monospace;">${confirmationUrl}</p>
+    ${fineprint("This password reset link will expire in 24 hours for security reasons. If you didn't request a password reset, you can safely ignore this email.")}
+  </td></tr>
+  <tr><td style="height:24px;font-size:0;line-height:0;background-color:#ECE4D2;">&nbsp;</td></tr>`;
+}
+
+// ─── Handler ──────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -72,113 +125,23 @@ serve(async (req) => {
     // Check if this is a password reset email
     const isPasswordReset = emailActionType === 'recovery';
 
-    const { data, error } = await resend.emails.send({
+    const html = isPasswordReset
+      ? renderEmail({
+          title: "Reset Your Cairnly Password",
+          preheader: "Use this secure link to choose a new password.",
+          bodyHtml: passwordResetEmailBody(firstName, confirmationUrl),
+        })
+      : renderEmail({
+          title: "Confirm Your Cairnly Account",
+          preheader: "Please confirm your email address to activate your account.",
+          bodyHtml: confirmationEmailBody(firstName, confirmationUrl),
+        });
+
+    const { error } = await resend.emails.send({
       from: "Cairnly <no-reply@cairnly.io>",
       to: [user.email],
       subject: isPasswordReset ? "Reset Your Cairnly Password" : "Confirm Your Cairnly Account",
-      html: isPasswordReset ? `
-        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-          <div style="background-color: #27A1A1; height: 4px; font-size: 0; line-height: 0;">&nbsp;</div>
-          <div style="background-color: #213F4F; padding: 32px 40px 28px; text-align: center;">
-            <img src="https://cairnly.io/cairnly-logo-white.png" alt="Cairnly" width="180" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-            <p style="color: #27A1A1; margin: 12px 0 0 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;">Career Discovery Platform</p>
-          </div>
-
-          <div style="padding: 40px; color: #333333;">
-            <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">Password Reset Request</h2>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-              Hi ${firstName},
-            </p>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 28px; color: #444;">
-              We received a request to reset your Cairnly password. Click the button below to create a new password:
-            </p>
-
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${confirmationUrl}"
-                 style="background-color: #27A1A1; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
-                Reset Your Password
-              </a>
-            </div>
-
-            <p style="font-size: 13px; color: #888; margin-top: 28px;">
-              If the button doesn't work, copy and paste this link into your browser:
-            </p>
-            <p style="font-size: 13px; color: #3989AF; word-break: break-all; background-color: #f0f7fa; padding: 12px; border-radius: 4px;">
-              ${confirmationUrl}
-            </p>
-          </div>
-
-          <div style="text-align: center; padding: 24px 40px; border-top: 1px solid #e8e8e8; background-color: #f8f9fa;">
-            <p style="color: #999; font-size: 12px; margin: 4px 0;">
-              This password reset link will expire in 24 hours for security reasons.
-            </p>
-            <p style="color: #999; font-size: 12px; margin: 4px 0;">
-              If you didn't request a password reset, you can safely ignore this email.
-            </p>
-            <p style="color: #999; font-size: 12px; margin: 16px 0 0 0;">
-              &copy; 2026 Cairnly. All rights reserved.
-            </p>
-          </div>
-        </div>
-      ` : `
-        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-          <div style="background-color: #27A1A1; height: 4px; font-size: 0; line-height: 0;">&nbsp;</div>
-          <div style="background-color: #213F4F; padding: 32px 40px 28px; text-align: center;">
-            <img src="https://cairnly.io/cairnly-logo-white.png" alt="Cairnly" width="180" style="max-width: 180px; height: auto; display: block; margin: 0 auto;" />
-            <p style="color: #27A1A1; margin: 12px 0 0 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;">Career Discovery Platform</p>
-          </div>
-
-          <div style="padding: 40px; color: #333333;">
-            <h2 style="color: #213F4F; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">Welcome to Cairnly, ${firstName}!</h2>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: #444;">
-              Thank you for creating your account. You're just one step away from starting your personalized career discovery journey.
-            </p>
-
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 28px; color: #444;">
-              Please confirm your email address by clicking the button below:
-            </p>
-
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${confirmationUrl}"
-                 style="background-color: #27A1A1; color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; font-size: 16px; letter-spacing: 0.3px;">
-                Confirm Your Email Address
-              </a>
-            </div>
-
-            <p style="font-size: 13px; color: #888; margin-top: 28px;">
-              If the button doesn't work, copy and paste this link into your browser:
-            </p>
-            <p style="font-size: 13px; color: #3989AF; word-break: break-all; background-color: #f0f7fa; padding: 12px; border-radius: 4px;">
-              ${confirmationUrl}
-            </p>
-          </div>
-
-          <div style="padding: 24px 40px; background-color: #f0f7fa; border-left: 4px solid #27A1A1;">
-            <h3 style="color: #213F4F; margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">What's Next?</h3>
-            <ul style="color: #555; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
-              <li>Confirm your email address</li>
-              <li>Complete your personalized career assessment</li>
-              <li>Receive your detailed career insights report</li>
-              <li>Discover career opportunities aligned with your strengths</li>
-            </ul>
-          </div>
-
-          <div style="text-align: center; padding: 24px 40px; border-top: 1px solid #e8e8e8; background-color: #f8f9fa;">
-            <p style="color: #999; font-size: 12px; margin: 4px 0;">
-              This confirmation link will expire in 24 hours for security reasons.
-            </p>
-            <p style="color: #999; font-size: 12px; margin: 4px 0;">
-              If you didn't create a Cairnly account, you can safely ignore this email.
-            </p>
-            <p style="color: #999; font-size: 12px; margin: 16px 0 0 0;">
-              &copy; 2026 Cairnly. All rights reserved.
-            </p>
-          </div>
-        </div>
-      `,
+      html,
     });
 
     if (error) {

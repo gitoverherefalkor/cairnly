@@ -46,7 +46,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
       <span
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 11,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
@@ -58,7 +58,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
       <h1
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 56,
           letterSpacing: '-0.035em',
           color: '#fff',
@@ -126,7 +126,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             style={{
               fontFamily: FONT_DISPLAY,
               fontSize: 18,
-              fontWeight: 900,
+              fontWeight: 700,
               color: PALETTE.goldBright,
               letterSpacing: '0.14em',
             }}
@@ -162,7 +162,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
         <span
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -224,7 +224,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             <div
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 15,
                 color: '#fff',
                 letterSpacing: '-0.01em',

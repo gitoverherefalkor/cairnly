@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowLeft, ArrowRight, Loader2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
+import AuthShell from '@/components/auth/AuthShell';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -20,40 +21,40 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     const isDemo = searchParams.get('demo') === 'true';
-    
+
     // Handle demo mode
     if (isDemo) {
       setIsProcessing(false);
       setIsComplete(true);
       setAccessCode('CAIRNLY-DEMO12345');
       toast({
-        title: "Demo Purchase Successful!",
-        description: "This is a demo purchase with a sample access code.",
+        title: 'Demo Purchase Successful!',
+        description: 'This is a demo purchase with a sample access code.',
       });
       return;
     }
-    
+
     if (!sessionId) {
       navigate('/');
       return;
     }
-    
+
     const processPayment = async () => {
       try {
         setIsProcessing(true);
-        
+
         const { data, error } = await supabase.functions.invoke('payment-success', {
           body: { sessionId },
         });
-        
+
         if (error) {
           throw new Error(error.message);
         }
-        
+
         if (data?.accessCode) {
           setAccessCode(data.accessCode);
         }
@@ -62,38 +63,41 @@ const PaymentSuccess = () => {
         // (persists across OAuth redirects and page navigations)
         if (data?.purchaseData) {
           setPurchaseData(data.purchaseData);
-          localStorage.setItem('purchase_data', JSON.stringify({
-            email: data.purchaseData.email,
-            firstName: data.purchaseData.firstName,
-            lastName: data.purchaseData.lastName,
-            accessCode: data.accessCode
-          }));
+          localStorage.setItem(
+            'purchase_data',
+            JSON.stringify({
+              email: data.purchaseData.email,
+              firstName: data.purchaseData.firstName,
+              lastName: data.purchaseData.lastName,
+              accessCode: data.accessCode,
+            })
+          );
         }
-        
+
         // A referral code (if any) has now been spent on this purchase —
         // clear it so it can't apply to a later unrelated checkout.
         clearStoredReferralCode();
 
         setIsComplete(true);
         toast({
-          title: "Purchase Successful!",
-          description: "Check your email for your access code.",
+          title: 'Purchase Successful!',
+          description: 'Check your email for your access code.',
         });
       } catch (error) {
         console.error('Payment processing error:', error);
         toast({
-          title: "Payment Processing Error",
-          description: error instanceof Error ? error.message : "An unexpected error occurred",
-          variant: "destructive",
+          title: 'Payment Processing Error',
+          description: error instanceof Error ? error.message : 'An unexpected error occurred',
+          variant: 'destructive',
         });
-        
+
         // Redirect to home after error
         setTimeout(() => navigate('/'), 5000);
       } finally {
         setIsProcessing(false);
       }
     };
-    
+
     processPayment();
   }, [searchParams, navigate, toast]);
 
@@ -102,112 +106,173 @@ const PaymentSuccess = () => {
       // Build URL with access code and purchase data for pre-filling
       const params = new URLSearchParams({
         code: accessCode || '',
-        flow: 'signup'
+        flow: 'signup',
       });
-      
+
       // Add purchase data if available
       if (purchaseData.email) params.append('email', purchaseData.email);
       if (purchaseData.firstName) params.append('firstName', purchaseData.firstName);
       if (purchaseData.lastName) params.append('lastName', purchaseData.lastName);
-      
+
       navigate(`/auth?${params.toString()}`);
     } else {
       // User is authenticated - go directly to assessment with access code
       navigate(`/assessment?code=${accessCode}`);
     }
   };
-  
+
+  const primaryBtnCls =
+    'w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]';
+  const ghostBtnCls = 'w-full rounded-full border bg-transparent font-bold';
+  const ghostBtnStyle = { color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' };
+
+  // --- Loading state ---
+  if (isProcessing) {
+    return (
+      <AuthShell eyebrow="One moment" title="Processing Payment...">
+        <div className="flex justify-center mb-4">
+          <div
+            className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+            style={{
+              background: 'rgba(39,161,161,0.10)',
+              borderColor: 'rgba(39,161,161,0.30)',
+            }}
+          >
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#1F8282' }} />
+          </div>
+        </div>
+        <p
+          className="text-center text-[15px] font-medium mx-auto"
+          style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 360 }}
+        >
+          Please wait while we confirm your payment and generate your access code.
+        </p>
+      </AuthShell>
+    );
+  }
+
+  // --- Error state ---
+  if (!isComplete) {
+    return (
+      <AuthShell eyebrow="Payment error" title="Something went wrong">
+        <div className="flex justify-center mb-4">
+          <div
+            className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+            style={{
+              background: 'rgba(220,38,38,0.10)',
+              borderColor: 'rgba(220,38,38,0.28)',
+            }}
+          >
+            <XCircle className="h-8 w-8" style={{ color: '#DC2626' }} />
+          </div>
+        </div>
+        <p
+          className="text-center text-[15px] font-medium mx-auto mb-6"
+          style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 380 }}
+        >
+          We were unable to process your payment. You will be redirected back to the homepage shortly.
+        </p>
+        <Button onClick={() => navigate('/')} className={primaryBtnCls}>
+          Return to Home Now
+        </Button>
+      </AuthShell>
+    );
+  }
+
+  // --- Success state ---
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-        {isProcessing ? (
-          <div className="py-10">
-            <div className="animate-pulse flex flex-col items-center">
-              <div className="rounded-full bg-primary/20 h-20 w-20 mb-4"></div>
-              <div className="h-8 bg-primary/20 rounded w-3/4 mb-4"></div>
-              <div className="h-4 bg-primary/20 rounded w-full mb-2"></div>
-              <div className="h-4 bg-primary/20 rounded w-5/6"></div>
-            </div>
-          </div>
-        ) : isComplete ? (
-          <>
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold mb-4">Payment Successful!</h1>
-            
-            {accessCode && (
-              <div className="mb-6">
-                <p className="text-gray-600 mb-2">Your access code:</p>
-                <div className="bg-muted border border-border text-atlas-navy p-4 rounded-lg font-mono text-lg tracking-widest">
-                  {accessCode}
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {searchParams.get('demo') === 'true' 
-                    ? 'This is a demo access code for testing purposes only.'
-                    : 'This code has also been sent to your email.'}
-                </p>
-              </div>
-            )}
-            
-            <p className="text-gray-600 mb-8">
-              {!user ? (
-                <>
-                  Thank you for your purchase! To start your assessment, you'll need to create an account first. 
-                  {searchParams.get('demo') !== 'true' && ' Your purchase details will help pre-fill the registration form.'}
-                </>
-              ) : (
-                searchParams.get('demo') === 'true' 
-                  ? 'Thank you for trying our demo purchase flow. You can now start the assessment!'
-                  : 'Thank you for your purchase. We\'ve sent your access code to your email as well. You can now start your assessment!'
-              )}
-            </p>
-            
-            <div className="space-y-3">
-              <Button 
-                onClick={handleStartAssessment} 
-                className="w-full flex items-center justify-center gap-2 bg-atlas-teal hover:bg-atlas-teal/90"
-                size="lg"
-              >
-                {!user ? (
-                  <>
-                    Create Account
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                ) : (
-                  <>
-                    Start Assessment Now
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/')} 
-                className="w-full flex items-center justify-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Return to Home
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="py-10">
-            <h1 className="text-xl font-bold mb-4">Something went wrong</h1>
-            <p className="text-gray-600 mb-6">
-              We were unable to process your payment. You will be redirected back to the homepage shortly.
-            </p>
-            <Button 
-              onClick={() => navigate('/')} 
-              variant="secondary"
-            >
-              Return to Home Now
-            </Button>
-          </div>
-        )}
+    <AuthShell
+      eyebrow="Payment successful"
+      title="Thank you for your purchase!"
+      width="wide"
+    >
+      <div className="flex justify-center mb-5">
+        <div
+          className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+          style={{
+            background: 'rgba(34,197,94,0.12)',
+            borderColor: 'rgba(34,197,94,0.32)',
+          }}
+        >
+          <CheckCircle className="h-8 w-8" style={{ color: '#16A34A' }} />
+        </div>
       </div>
-    </div>
+
+      {accessCode && (
+        <div className="mb-5">
+          <span
+            className="block text-center font-heading uppercase text-[11px] mb-2.5"
+            style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
+          >
+            Your Access Code
+          </span>
+          <div
+            className="text-center rounded-xl"
+            style={{
+              background: '#F5EFE2',
+              border: '1px dashed rgba(201, 182, 144, 0.9)',
+              padding: '10px 16px',
+            }}
+          >
+            <p
+              className="m-0"
+              style={{
+                fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
+                fontSize: 16,
+                fontWeight: 700,
+                color: '#122E3B',
+                letterSpacing: '0.14em',
+                lineHeight: 1.1,
+              }}
+            >
+              {accessCode}
+            </p>
+          </div>
+          <p
+            className="text-[12px] font-medium text-center mt-2.5"
+            style={{ color: '#6B7F8B' }}
+          >
+            {searchParams.get('demo') === 'true'
+              ? 'This is a demo access code for testing purposes only.'
+              : 'This code will be automatically pre-filled and verified later, but as a backup it is also sent to your email.'}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-2.5">
+        {!user && (
+          <p
+            className="text-[14px] font-medium text-center mb-1"
+            style={{ color: '#1F2937', lineHeight: 1.5 }}
+          >
+            To start your assessment, you'll need to create an account first.
+          </p>
+        )}
+        <Button onClick={handleStartAssessment} size="lg" className={primaryBtnCls}>
+          {!user ? (
+            <>
+              Create Account
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </>
+          ) : (
+            <>
+              Start Assessment Now
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </>
+          )}
+        </Button>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate('/')}
+          className={ghostBtnCls}
+          style={ghostBtnStyle}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Return to Home
+        </Button>
+      </div>
+    </AuthShell>
   );
 };
 

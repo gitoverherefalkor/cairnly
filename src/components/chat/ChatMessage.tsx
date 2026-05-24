@@ -57,6 +57,10 @@ interface ChatMessageProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: (messageId: string) => void;
+  // Thumbs-up "I'm impressed" feedback, stored in content_feedback to learn
+  // from. State lives in ChatContainer (loaded from + written to the DB).
+  liked?: boolean;
+  onLikeToggle?: (messageId: string, text: string) => void;
   // Posts the pre-written comparison explanation into the chat as a bot
   // message. Supplied by ChatContainer; only used by Career 2/3 messages.
   onComparisonExplain?: (content: string) => void;
@@ -408,7 +412,7 @@ const markdownComponents = {
       className="text-[28px] mt-8 mb-4 font-heading first:mt-0 scroll-mt-[120px]"
       style={{
         color: '#122E3B',
-        fontWeight: 900,
+        fontWeight: 700,
         letterSpacing: '-0.02em',
         lineHeight: 1.15,
         textWrap: 'pretty' as any,
@@ -442,7 +446,7 @@ const markdownComponents = {
         style={{
           color: '#1F8282',
           fontSize: 11,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: '0.24em',
         }}
         {...props}
@@ -593,7 +597,7 @@ const SequentialSubsections: React.FC<{
               className="text-[28px] mt-8 mb-4 font-heading first:mt-0"
               style={{
                 color: '#122E3B',
-                fontWeight: 900,
+                fontWeight: 700,
                 letterSpacing: '-0.02em',
                 lineHeight: 1.15,
                 textWrap: 'pretty' as any,
@@ -939,6 +943,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  liked = false,
+  onLikeToggle,
   onComparisonExplain,
 }) => {
   const messageRef = useRef<HTMLDivElement>(null);
@@ -1122,7 +1128,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               className="text-[28px] mt-4 mb-4 font-heading"
               style={{
                 color: '#122E3B',
-                fontWeight: 900,
+                fontWeight: 700,
                 letterSpacing: '-0.02em',
                 lineHeight: 1.15,
                 textWrap: 'pretty' as any,
@@ -1260,6 +1266,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             bookmarked={bookmarked}
             onBookmarkToggle={
               onBookmarkToggle ? () => onBookmarkToggle(messageId) : undefined
+            }
+            liked={liked}
+            onLikeToggle={
+              onLikeToggle ? () => onLikeToggle(messageId, sanitized) : undefined
             }
           />
         )}
