@@ -288,8 +288,14 @@ function BoldHeader({ data }: { data: ResumeJson }) {
 }
 
 function BoldSection({ num, label, children }: { num: string; label: string; children: React.ReactNode }) {
+  // minPresenceAhead requires ~140pt of vertical room before the section
+  // breaks. If less than that is available on the current page, react-pdf
+  // pushes the WHOLE section (gutter label + first job) to the next page.
+  // Without this, individual Jobs with wrap={false} would push to the next
+  // page while the absolute-positioned gutter ("02 EXPERIENCE") rendered
+  // orphaned at the bottom of the previous page.
   return (
-    <View style={styles.sectionWrap}>
+    <View style={styles.sectionWrap} minPresenceAhead={140}>
       <View style={styles.sectionGutter}>
         <Text style={styles.sectionNum}>{num}</Text>
         <Text style={styles.sectionLabel}>{label}</Text>

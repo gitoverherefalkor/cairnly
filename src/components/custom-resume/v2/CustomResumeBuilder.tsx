@@ -11,7 +11,7 @@
 //   - Generate CTA (gold)
 
 import React from 'react';
-import { Award, CheckCircle2, Lightbulb, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
+import { ArrowDown, Award, BookOpen, CheckCircle2, Lightbulb, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -65,6 +65,11 @@ interface CustomResumeBuilderProps {
   referralsToCoverLetter: number;
   isGenerating: boolean;
   onGenerate: () => void;
+  // When the user already has saved résumés, show a "Jump to saved (N)"
+  // anchor button next to the hero so it's obvious there's a list further
+  // down the page.
+  savedCount?: number;
+  onJumpToSaved?: () => void;
 }
 
 export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
@@ -77,6 +82,8 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
   referralsToCoverLetter,
   isGenerating,
   onGenerate,
+  savedCount = 0,
+  onJumpToSaved,
 }) => {
   const careers = sections.filter((s) => CAREER_SECTION_TYPES.has(s.section_type));
   const selectedIds = new Set(selected.map((s) => s.section_id));
@@ -106,36 +113,75 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
 
   return (
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 32px 80px' }}>
-      {/* Hero */}
-      <div style={{ marginBottom: 36, maxWidth: 760 }}>
-        <REyebrow>STEP 2 · TAILORED RÉSUMÉ · TIER 2 OF 3</REyebrow>
-        <h1
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
-            fontSize: 48,
-            letterSpacing: '-0.03em',
-            color: '#fff',
-            margin: '12px 0 8px 0',
-            lineHeight: 1.0,
-          }}
-        >
-          Tailor your résumé.
-        </h1>
-        <p
-          style={{
-            fontFamily: FONT_BODY,
-            fontSize: 16,
-            fontWeight: 500,
-            color: 'rgba(255,255,255,0.72)',
-            lineHeight: 1.5,
-            margin: 0,
-          }}
-        >
-          Pick up to 3 careers from your report and we'll generate a tailored résumé for each,
-          re-framed toward the role and ATS-scored. Once they're ready, swap between 5 visual
-          styles (2 ATS-safe, 2 designed) without re-generating. Free to download.
-        </p>
+      {/* Hero — heading on the left, "jump to saved" anchor on the right when
+          the user already has past résumés further down the page. */}
+      <div
+        style={{
+          marginBottom: 36,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 24,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ maxWidth: 760 }}>
+          <REyebrow>STEP 2 · TAILORED RÉSUMÉ · TIER 2 OF 3</REyebrow>
+          <h1
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 900,
+              fontSize: 48,
+              letterSpacing: '-0.03em',
+              color: '#fff',
+              margin: '12px 0 8px 0',
+              lineHeight: 1.0,
+            }}
+          >
+            Tailor your résumé.
+          </h1>
+          <p
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 16,
+              fontWeight: 500,
+              color: 'rgba(255,255,255,0.72)',
+              lineHeight: 1.5,
+              margin: 0,
+            }}
+          >
+            Pick up to 3 careers from your report and we'll generate a tailored résumé for each,
+            re-framed toward the role and ATS-scored. Once they're ready, swap between 5 visual
+            styles (2 ATS-safe, 2 designed) without re-generating. Free to download.
+          </p>
+        </div>
+        {savedCount > 0 && onJumpToSaved ? (
+          <button
+            type="button"
+            onClick={onJumpToSaved}
+            style={{
+              background: 'rgba(39,161,161,0.14)',
+              color: PALETTE.tealBright,
+              border: '1px solid rgba(39,161,161,0.42)',
+              padding: '10px 16px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 8px 20px -10px rgba(39,161,161,0.5)',
+            }}
+            title={`Jump to ${savedCount} saved ${savedCount === 1 ? 'résumé' : 'résumés'}`}
+          >
+            <BookOpen size={14} />
+            Saved résumés ({savedCount})
+            <ArrowDown size={13} />
+          </button>
+        ) : null}
       </div>
 
       {/* Careers */}

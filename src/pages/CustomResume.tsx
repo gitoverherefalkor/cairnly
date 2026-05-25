@@ -23,6 +23,7 @@ import { ApproachBackground, REyebrow, glassCardStyle } from '@/components/custo
 import { CustomResumeBuilder } from '@/components/custom-resume/v2/CustomResumeBuilder';
 import { CustomResumeIndex } from '@/components/custom-resume/v2/CustomResumeIndex';
 import { CustomResumeResults } from '@/components/custom-resume/v2/CustomResumeResults';
+import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
@@ -132,20 +133,12 @@ const CustomResume = () => {
       {customResumeIds.length > 0 ? (
         <CustomResumeResults customResumeIds={customResumeIds} onStartNew={startNew} />
       ) : (
-        <>
-          {/* Past résumés appear above the builder so a returning user sees
-              both "make new" and "view existing" without having to remember
-              the ?ids= URL. Empty/no-data state is handled inside the index
-              component — it renders nothing if the user has no saved rows. */}
-          <CustomResumeIndex
-            onView={(id) => setSearchParams({ ids: id }, { replace: false })}
-          />
-          <CustomResumeBuilder
+        <BuilderWithSaved
           sections={sections}
           selected={selected}
-          onSelectedChange={setSelected}
+          setSelected={setSelected}
           includeCoverLetter={includeCoverLetter}
-          onCoverLetterChange={setIncludeCoverLetter}
+          setIncludeCoverLetter={setIncludeCoverLetter}
           coverLetterUnlocked={coverLetterUnlocked}
           referralsToCoverLetter={referralsToCoverLetter}
           isGenerating={generate.isPending}
@@ -165,10 +158,70 @@ const CustomResume = () => {
               // Toast already shown by the hook.
             }
           }}
+          onView={(id) => setSearchParams({ ids: id }, { replace: false })}
         />
-        </>
       )}
     </PageShell>
+  );
+};
+
+// ── Builder + saved résumés composition ──────────────────────
+// Wraps the builder and the past-résumés index in a single layout. Lives
+// in its own component so the `useCustomResumeList()` count can be passed
+// to the builder for its "Saved résumés (N)" anchor button without leaking
+// the hook into the page-level component.
+const SAVED_ANCHOR_ID = 'saved-resumes';
+
+const BuilderWithSaved: React.FC<{
+  sections: ReturnType<typeof useReportSections>['sections'];
+  selected: CareerSelection[];
+  setSelected: (next: CareerSelection[]) => void;
+  includeCoverLetter: boolean;
+  setIncludeCoverLetter: (next: boolean) => void;
+  coverLetterUnlocked: boolean;
+  referralsToCoverLetter: number;
+  isGenerating: boolean;
+  onGenerate: () => void;
+  onView: (id: string) => void;
+}> = ({
+  sections,
+  selected,
+  setSelected,
+  includeCoverLetter,
+  setIncludeCoverLetter,
+  coverLetterUnlocked,
+  referralsToCoverLetter,
+  isGenerating,
+  onGenerate,
+  onView,
+}) => {
+  const { data: savedRows } = useCustomResumeList();
+  const savedCount = savedRows?.length ?? 0;
+
+  return (
+    <>
+      <CustomResumeBuilder
+        sections={sections}
+        selected={selected}
+        onSelectedChange={setSelected}
+        includeCoverLetter={includeCoverLetter}
+        onCoverLetterChange={setIncludeCoverLetter}
+        coverLetterUnlocked={coverLetterUnlocked}
+        referralsToCoverLetter={referralsToCoverLetter}
+        isGenerating={isGenerating}
+        onGenerate={onGenerate}
+        savedCount={savedCount}
+        onJumpToSaved={() =>
+          document.getElementById(SAVED_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      />
+      {/* Saved résumés sit beneath the builder now — the anchor button in
+          the builder hero scrolls here in one click so users coming back
+          to the page know exactly where to find what they generated before. */}
+      <div id={SAVED_ANCHOR_ID} style={{ scrollMarginTop: 100 }}>
+        <CustomResumeIndex onView={onView} />
+      </div>
+    </>
   );
 };
 
