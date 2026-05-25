@@ -39,12 +39,16 @@ const CAREER_SECTION_TYPES = new Set([
 
 const MAX_SELECT = 3;
 
+// Forest green for "Outside the Box" — distinct from the top-three gold,
+// the runner-up teal, and the dream-job blue so each tier reads at a glance.
+const FOREST_GREEN = '#6BA66A';
+
 const TIER_FOR_TYPE: Record<string, { label: string; color: string; icon: 'num' | 'award' | 'lightbulb'; num?: number }> = {
   top_career_1: { label: 'Top Career #1', color: PALETTE.goldBright, icon: 'num', num: 1 },
   top_career_2: { label: 'Top Career #2', color: PALETTE.goldBright, icon: 'num', num: 2 },
   top_career_3: { label: 'Top Career #3', color: PALETTE.goldBright, icon: 'num', num: 3 },
   runner_ups: { label: 'Runner-up', color: PALETTE.tealBright, icon: 'award' },
-  outside_box: { label: 'Outside the Box', color: PALETTE.goldBright, icon: 'lightbulb' },
+  outside_box: { label: 'Outside the Box', color: FOREST_GREEN, icon: 'lightbulb' },
   dream_jobs: { label: 'Dream Job', color: PALETTE.blue, icon: 'lightbulb' },
 };
 

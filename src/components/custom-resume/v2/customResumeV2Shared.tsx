@@ -19,8 +19,11 @@ export const APPROACH_VIS_URL = '/dashboard/sections/jendi-coursey-bg.jpg';
 const OVERLAY =
   'linear-gradient(180deg, rgba(33,63,79,0.55) 0%, rgba(18,46,59,0.78) 60%, rgba(18,46,59,0.92) 100%)';
 
-// Full-bleed background wrapper for the Custom Résumé pages. Same shape as
-// dashboardV2Shared.LakeBackground but uses approach_vis.jpg.
+// Full-bleed background wrapper for the Custom Résumé pages. The image is
+// cropped so the cairn sits at ~92% horizontally; with backgroundSize
+// '100% auto' the image fills the viewport width and the cairn lands just
+// past where column 3 of the picker ends. backgroundRepeat is none so the
+// bottom of taller pages just shows the canvas-deep gradient.
 export const ApproachBackground: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div
     style={{
@@ -28,8 +31,9 @@ export const ApproachBackground: React.FC<{ children: React.ReactNode }> = ({ ch
       minHeight: '100vh',
       background: PALETTE.canvasDeep,
       backgroundImage: `${OVERLAY}, url(${APPROACH_VIS_URL})`,
-      backgroundSize: 'cover',
+      backgroundSize: '100% auto',
       backgroundPosition: 'center top',
+      backgroundRepeat: 'no-repeat',
       backgroundAttachment: 'scroll',
     }}
   >
