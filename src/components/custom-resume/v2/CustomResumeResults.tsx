@@ -406,6 +406,9 @@ const AtsScoreContext: React.FC<{ templateId: TemplateId; hasScore: boolean }> =
   return (
     <div
       style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
         fontFamily: FONT_BODY,
         fontSize: 12,
         fontWeight: 500,
@@ -414,19 +417,21 @@ const AtsScoreContext: React.FC<{ templateId: TemplateId; hasScore: boolean }> =
         marginTop: -4,
       }}
     >
-      Score reflects how well the résumé text covers must-have keywords for this
-      career. It's a directional smell test, not a real ATS scanner.{' '}
+      <div>
+        Score reflects how well the résumé text covers must-have keywords for this
+        career. It's a directional smell test, not a real ATS scanner.
+      </div>
       {isDesigned ? (
-        <span style={{ color: PALETTE.goldBright }}>
+        <div style={{ color: PALETTE.goldBright }}>
           Heads-up: designed templates (columns, custom fonts) can lose 10–20 points
           in real ATSes because parsers garble multi-column layouts. For high-volume
           online applications, use an ATS-safe template.
-        </span>
+        </div>
       ) : (
-        <span>
+        <div>
           You're on an ATS-safe template — plain text layer, single column,
           everything parses cleanly.
-        </span>
+        </div>
       )}
     </div>
   );

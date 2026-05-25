@@ -421,52 +421,33 @@ interface ModernResumeProps {
 }
 
 export function ModernResume({ data }: ModernResumeProps) {
-  const expCount = data.experience?.length ?? 0;
-  const isMulti = expCount >= 4;
-  const splitAt = 3;
-  const p1 = isMulti ? data.experience.slice(0, splitAt) : data.experience;
-  const p2 = isMulti ? data.experience.slice(splitAt) : [];
-
+  // Single-Page natural-flow approach:
+  // - Previously we manually split experience into p1/p2 across two Page
+  //   components. That guaranteed an "Experience, continued" header but left
+  //   half-page gaps when a job wouldn't fit in p2's remaining space — the
+  //   item pushed to a 3rd page and p2 ended early with a huge blank.
+  // - Now everything sits on one Page with wrap behaviour. Each Job allows
+  //   bullets to break across page boundaries (see Job above). React-pdf
+  //   handles pagination naturally, and the PageMark stays correct via its
+  //   `fixed` + `render({pageNumber, totalPages})` prop.
   return (
     <Document title={`${data.contact.name} — Résumé`} author={data.contact.name}>
       <Page size="LETTER" style={styles.page}>
         <Header data={data} />
         {data.summary ? <Summary summary={data.summary} /> : null}
-        {p1.length > 0 ? (
+        {data.experience?.length ? (
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Experience</Text>
-            {p1.map((j, i) => (
+            {data.experience.map((j, i) => (
               <Job key={i} job={j} />
             ))}
           </View>
         ) : null}
-        {!isMulti ? (
-          <>
-            <Skills skills={data.skills_grouped} />
-            <Education education={data.education} />
-            <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
-          </>
-        ) : null}
-        {isMulti ? <PageMark name={data.contact.name} /> : null}
+        <Skills skills={data.skills_grouped} />
+        <Education education={data.education} />
+        <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
+        <PageMark name={data.contact.name} />
       </Page>
-
-      {isMulti ? (
-        <Page size="LETTER" style={styles.page}>
-          <View style={styles.page2Header}>
-            <Text style={styles.page2HeaderName}>{data.contact.name}</Text>
-            <Text>Experience, continued</Text>
-          </View>
-          <View style={styles.section}>
-            {p2.map((j, i) => (
-              <Job key={i} job={j} />
-            ))}
-          </View>
-          <Skills skills={data.skills_grouped} />
-          <Education education={data.education} />
-          <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
-          <PageMark name={data.contact.name} />
-        </Page>
-      ) : null}
     </Document>
   );
 }
