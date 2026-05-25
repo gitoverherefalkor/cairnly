@@ -21,6 +21,7 @@ import {
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { ApproachBackground, REyebrow, glassCardStyle } from '@/components/custom-resume/v2/customResumeV2Shared';
 import { CustomResumeBuilder } from '@/components/custom-resume/v2/CustomResumeBuilder';
+import { CustomResumeIndex } from '@/components/custom-resume/v2/CustomResumeIndex';
 import { CustomResumeResults } from '@/components/custom-resume/v2/CustomResumeResults';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -131,7 +132,15 @@ const CustomResume = () => {
       {customResumeIds.length > 0 ? (
         <CustomResumeResults customResumeIds={customResumeIds} onStartNew={startNew} />
       ) : (
-        <CustomResumeBuilder
+        <>
+          {/* Past résumés appear above the builder so a returning user sees
+              both "make new" and "view existing" without having to remember
+              the ?ids= URL. Empty/no-data state is handled inside the index
+              component — it renders nothing if the user has no saved rows. */}
+          <CustomResumeIndex
+            onView={(id) => setSearchParams({ ids: id }, { replace: false })}
+          />
+          <CustomResumeBuilder
           sections={sections}
           selected={selected}
           onSelectedChange={setSelected}
@@ -157,6 +166,7 @@ const CustomResume = () => {
             }
           }}
         />
+        </>
       )}
     </PageShell>
   );

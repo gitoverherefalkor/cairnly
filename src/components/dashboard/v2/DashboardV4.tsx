@@ -9,9 +9,10 @@ import React, { useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { Activity, ArrowRight, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Map as MapIcon, RotateCw, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Map as MapIcon, RotateCw, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
+import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
@@ -1465,6 +1466,19 @@ const ToolCard: React.FC<{
   const unlocked = feature.unlocked;
   const actionable = unlocked && feature.builtYet && !!feature.route;
 
+  // For the resume tool, surface a summary of past tailored résumés so the
+  // user knows there's work to return to (and can jump to the index view
+  // without re-generating). Hook is unconditionally called but only renders
+  // anything when feature.key === 'resume' AND there's at least one row.
+  const { data: savedResumes } = useCustomResumeList();
+  const showSavedSummary =
+    feature.key === 'resume' &&
+    unlocked &&
+    feature.builtYet &&
+    (savedResumes?.length ?? 0) > 0;
+  const mostRecentSaved = showSavedSummary ? savedResumes![0] : null;
+  const savedCount = savedResumes?.length ?? 0;
+
   return (
     <article
       style={{
@@ -1540,6 +1554,50 @@ const ToolCard: React.FC<{
       >
         {feature.description}
       </p>
+      {showSavedSummary && mostRecentSaved ? (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 12px',
+            background: 'rgba(39,161,161,0.10)',
+            border: '1px solid rgba(39,161,161,0.28)',
+            borderRadius: 12,
+          }}
+        >
+          <BookOpen size={14} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 11.5,
+                fontWeight: 700,
+                color: PALETTE.tealDeep,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {savedCount} saved {savedCount === 1 ? 'résumé' : 'résumés'}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 12.5,
+                fontWeight: 600,
+                color: PALETTE.canvasDeep,
+                marginTop: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+              title={mostRecentSaved.career_title}
+            >
+              Most recent: {mostRecentSaved.career_title}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <button
         type="button"
         disabled={unlocked && !feature.builtYet}
