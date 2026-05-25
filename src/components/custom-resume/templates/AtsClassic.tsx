@@ -13,8 +13,8 @@ import { realCertifications, renderDateRange } from './utils';
 // custom font for this template. Trade-off: no italics for company location.
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 48,
-    paddingBottom: 40,
+    paddingTop: 64,
+    paddingBottom: 48,
     paddingHorizontal: 56,
     fontFamily: 'Times-Roman',
     fontSize: 10.5,
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   title: {
     fontSize: 11.5,

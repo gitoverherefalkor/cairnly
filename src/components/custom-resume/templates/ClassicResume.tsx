@@ -39,15 +39,15 @@ const styles = StyleSheet.create({
     width: SIDEBAR_W,
     flexShrink: 0,
     backgroundColor: CL.sidebar,
-    paddingTop: 44,
-    paddingBottom: 36,
+    paddingTop: 60,
+    paddingBottom: 40,
     paddingHorizontal: 22,
     borderRightWidth: 0.75,
     borderRightStyle: 'solid',
     borderRightColor: CL.rule,
     fontSize: 8.75,
   },
-  sidebarBlock: { marginBottom: 18 },
+  sidebarBlock: { marginBottom: 16 },
   sidebarLabel: {
     fontFamily: 'Source Serif 4',
     fontSize: 9,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     color: CL.accent,
     marginBottom: 6,
   },
-  sidebarLine: { color: CL.ink2, marginBottom: 2, lineHeight: 1.55 },
+  sidebarLine: { color: CL.ink2, marginBottom: 1, lineHeight: 1.3 },
   sidebarItem: {
     color: CL.ink2,
     marginBottom: 3,
@@ -84,13 +84,13 @@ const styles = StyleSheet.create({
 
   main: {
     flex: 1,
-    paddingTop: 44,
-    paddingBottom: 36,
+    paddingTop: 60,
+    paddingBottom: 40,
     paddingLeft: 28,
     paddingRight: 30,
   },
 
-  headerWrap: { marginBottom: 14 },
+  headerWrap: { marginBottom: 22 },
   name: {
     fontFamily: 'Source Serif 4',
     fontSize: 30,
@@ -244,14 +244,18 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
   const langs = data.skills_grouped.languages ?? [];
   return (
     <View style={styles.sidebar}>
-      <View style={styles.sidebarBlock}>
-        <Text style={styles.sidebarLabel}>Contact</Text>
-        {c.email ? <Text style={styles.sidebarLine}>{c.email}</Text> : null}
-        {c.phone ? <Text style={styles.sidebarLine}>{c.phone}</Text> : null}
-        {c.location ? <Text style={styles.sidebarLine}>{c.location}</Text> : null}
-        {c.linkedin ? <Text style={styles.sidebarLine}>{c.linkedin}</Text> : null}
-        {c.portfolio ? <Text style={styles.sidebarLine}>{c.portfolio}</Text> : null}
-      </View>
+      {/* Contact is only useful on page 1 — repeating the same email/phone/
+          LinkedIn on page 2 wastes column space and looks redundant. */}
+      {!slim ? (
+        <View style={styles.sidebarBlock}>
+          <Text style={styles.sidebarLabel}>Contact</Text>
+          {c.email ? <Text style={styles.sidebarLine}>{c.email}</Text> : null}
+          {c.phone ? <Text style={styles.sidebarLine}>{c.phone}</Text> : null}
+          {c.location ? <Text style={styles.sidebarLine}>{c.location}</Text> : null}
+          {c.linkedin ? <Text style={styles.sidebarLine}>{c.linkedin}</Text> : null}
+          {c.portfolio ? <Text style={styles.sidebarLine}>{c.portfolio}</Text> : null}
+        </View>
+      ) : null}
 
       {!slim && skills.length > 0 ? (
         <View style={styles.sidebarBlock}>
@@ -379,7 +383,15 @@ export function ClassicResume({ data }: ClassicResumeProps) {
               ))}
             </View>
           ) : null}
-          {isMulti ? <Text style={styles.pageMark}>Page 1 of 2</Text> : null}
+          {/* Dynamic page marker — react-pdf re-evaluates this per page,
+              so if the second Page wraps further, the numbering stays right. */}
+          {isMulti ? (
+            <Text
+              style={styles.pageMark}
+              fixed
+              render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+            />
+          ) : null}
         </View>
       </Page>
 
@@ -389,7 +401,11 @@ export function ClassicResume({ data }: ClassicResumeProps) {
           <View style={styles.main}>
             <View style={styles.continuationHeader}>
               <Text style={styles.continuationName}>{data.contact.name}</Text>
-              <Text style={styles.continuationPage}>Page 2 of 2</Text>
+              <Text
+                style={styles.continuationPage}
+                fixed
+                render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+              />
             </View>
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>Experience, continued</Text>

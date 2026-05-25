@@ -10,8 +10,8 @@ const ACCENT = '#27A1A1'; // atlas-teal — accent rule under name + section div
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 44,
-    paddingBottom: 40,
+    paddingTop: 60,
+    paddingBottom: 48,
     paddingHorizontal: 52,
     fontFamily: 'Helvetica',
     fontSize: 10.5,
@@ -19,21 +19,23 @@ const styles = StyleSheet.create({
     lineHeight: 1.45,
   },
   header: {
-    marginBottom: 18,
+    marginBottom: 22,
   },
   name: {
     fontFamily: 'Helvetica-Bold',
     fontSize: 24,
     letterSpacing: 0.5,
-    marginBottom: 2,
+    marginBottom: 8,
   },
+  // Title sits under the name. Softer dark-grey instead of full teal —
+  // the teal was overpowering the name on long, multi-line titles.
   title: {
-    fontSize: 12,
-    color: ACCENT,
+    fontSize: 11,
+    color: '#3d4a52',
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 6,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+    marginBottom: 8,
+    letterSpacing: 0.8,
+    lineHeight: 1.35,
   },
   accentRule: {
     height: 2,

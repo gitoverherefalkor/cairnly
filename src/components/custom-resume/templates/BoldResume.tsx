@@ -34,9 +34,9 @@ const styles = StyleSheet.create({
 
   // Header band — full-bleed top, divider rule beneath.
   header: {
-    paddingTop: BD.pad,
+    paddingTop: BD.pad + 14,
     paddingHorizontal: BD.pad,
-    paddingBottom: 18,
+    paddingBottom: 20,
     borderBottomWidth: 1.5,
     borderBottomStyle: 'solid',
     borderBottomColor: BD.rule,
@@ -220,9 +220,9 @@ const styles = StyleSheet.create({
   },
 
   page2Header: {
-    paddingTop: BD.pad - 10,
+    paddingTop: BD.pad + 4,
     paddingHorizontal: BD.pad,
-    paddingBottom: 12,
+    paddingBottom: 14,
     borderBottomWidth: 1.5,
     borderBottomStyle: 'solid',
     borderBottomColor: BD.rule,
@@ -362,16 +362,21 @@ function flatSkills(s: ResumeJson['skills_grouped']): string[] {
   ];
 }
 
-function Footer({ data, page, total }: { data: ResumeJson; page?: number; total?: number }) {
-  const right =
-    total && total > 1
-      ? `Page ${String(page).padStart(2, '0')} / ${String(total).padStart(2, '0')}`
-      : (data.contact.portfolio || data.contact.email || '');
+function Footer({ data }: { data: ResumeJson }) {
   const leftBits = [data.contact.name, data.contact.title].filter(Boolean).join(' · ');
+  const fallbackRight = data.contact.portfolio || data.contact.email || '';
   return (
-    <View style={styles.footer}>
+    <View style={styles.footer} fixed>
       <Text>{leftBits}</Text>
-      <Text>{right}</Text>
+      {/* react-pdf re-evaluates render() per page, so this stays correct even
+          when the second Page auto-wraps onto a third / fourth physical page. */}
+      <Text
+        render={({ pageNumber, totalPages }) =>
+          totalPages > 1
+            ? `Page ${String(pageNumber).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`
+            : fallbackRight
+        }
+      />
     </View>
   );
 }
@@ -461,14 +466,19 @@ export function BoldResume({ data }: BoldResumeProps) {
             {HighlightsSection}
           </>
         ) : null}
-        <Footer data={data} page={1} total={isMulti ? 2 : 1} />
+        <Footer data={data} />
       </Page>
 
       {isMulti ? (
         <Page size="LETTER" style={styles.page}>
           <View style={styles.page2Header}>
             <Text style={styles.page2HeaderName}>{data.contact.name}</Text>
-            <Text style={styles.page2HeaderMeta}>Page 02 / 02</Text>
+            <Text
+              style={styles.page2HeaderMeta}
+              render={({ pageNumber, totalPages }) =>
+                `Page ${String(pageNumber).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`
+              }
+            />
           </View>
           <BoldSection num="02" label="Experience, cont.">
             {p2.map((j, i) => (
@@ -478,7 +488,7 @@ export function BoldResume({ data }: BoldResumeProps) {
           {SkillsSection}
           {EducationSection}
           {HighlightsSection}
-          <Footer data={data} page={2} total={2} />
+          <Footer data={data} />
         </Page>
       ) : null}
     </Document>

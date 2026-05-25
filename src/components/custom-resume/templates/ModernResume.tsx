@@ -23,8 +23,8 @@ const MOD = {
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: MOD.pad,
-    paddingBottom: MOD.pad - 8,
+    paddingTop: MOD.pad + 12,
+    paddingBottom: MOD.pad - 4,
     paddingHorizontal: MOD.pad,
     backgroundColor: MOD.page,
     fontFamily: 'Inter',
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     color: MOD.ink2,
   },
 
-  headerWrap: { marginBottom: 18 },
+  headerWrap: { marginBottom: 24 },
   name: {
     fontSize: 30,
     fontWeight: 700,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 500,
     color: MOD.accent,
-    marginTop: 3,
+    marginTop: 8,
   },
   contactRow: {
     marginTop: 14,
@@ -379,14 +379,20 @@ function CertsOrHighlights({
   );
 }
 
-function PageMark({ name, n, total }: { name: string; n: number; total: number }) {
+function PageMark({ name }: { name: string }) {
   const parts = name.split(/\s+/).filter(Boolean);
   const first = (parts[0] ?? '').toUpperCase();
   const last = (parts.length > 1 ? parts[parts.length - 1] : '').toUpperCase();
+  // react-pdf re-evaluates render() per page, so the numbering stays right
+  // even if the second Page auto-wraps onto a third / fourth physical page.
   return (
-    <Text style={styles.pageMark} fixed>
-      {first} {last} · {n}/{total}
-    </Text>
+    <Text
+      style={styles.pageMark}
+      fixed
+      render={({ pageNumber, totalPages }) =>
+        `${first} ${last} · ${pageNumber}/${totalPages}`
+      }
+    />
   );
 }
 
@@ -400,7 +406,6 @@ export function ModernResume({ data }: ModernResumeProps) {
   const splitAt = 3;
   const p1 = isMulti ? data.experience.slice(0, splitAt) : data.experience;
   const p2 = isMulti ? data.experience.slice(splitAt) : [];
-  const total = isMulti ? 2 : 1;
 
   return (
     <Document title={`${data.contact.name} — Résumé`} author={data.contact.name}>
@@ -422,7 +427,7 @@ export function ModernResume({ data }: ModernResumeProps) {
             <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
           </>
         ) : null}
-        {isMulti ? <PageMark name={data.contact.name} n={1} total={total} /> : null}
+        {isMulti ? <PageMark name={data.contact.name} /> : null}
       </Page>
 
       {isMulti ? (
@@ -439,7 +444,7 @@ export function ModernResume({ data }: ModernResumeProps) {
           <Skills skills={data.skills_grouped} />
           <Education education={data.education} />
           <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
-          <PageMark name={data.contact.name} n={2} total={total} />
+          <PageMark name={data.contact.name} />
         </Page>
       ) : null}
     </Document>
