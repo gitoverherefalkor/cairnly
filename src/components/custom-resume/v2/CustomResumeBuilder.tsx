@@ -132,8 +132,9 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
             margin: 0,
           }}
         >
-          Pick up to 3 careers from your report, choose a template, and we'll generate a tailored
-          résumé for each — re-framed toward the role, ATS-scored, and free to download.
+          Pick up to 3 careers from your report and we'll generate a tailored résumé for each,
+          re-framed toward the role and ATS-scored. Once they're ready, swap between 5 visual
+          styles (2 ATS-safe, 3 designed) without re-generating. Free to download.
         </p>
       </div>
 
