@@ -252,8 +252,17 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   }
 
   // status === 'completed'
-  const resumeJson = row.resume_json as unknown as ResumeJson;
-  const coverLetterJson = row.cover_letter_json as unknown as CoverLetterJson | null;
+  // Defensive: older rows stored resume_json/cover_letter_json as a stringified
+  // JSON instead of an object (n8n double-encoded the LLM output). Parse-if-string
+  // so those rows still render. New rows arrive as objects already.
+  const parseIfString = <T,>(v: unknown): T | null => {
+    if (typeof v === 'string') {
+      try { return JSON.parse(v) as T; } catch { return null; }
+    }
+    return (v as T) ?? null;
+  };
+  const resumeJson = parseIfString<ResumeJson>(row.resume_json) as ResumeJson;
+  const coverLetterJson = parseIfString<CoverLetterJson>(row.cover_letter_json);
   const coverage = row.keyword_coverage as unknown as KeywordCoverage | null;
 
   return (
