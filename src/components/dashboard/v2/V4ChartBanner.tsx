@@ -62,7 +62,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
             alignItems: 'center',
             gap: 8,
             fontFamily: FONT_DISPLAY,
-            fontWeight: 900,
+            fontWeight: 700,
             fontSize: 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
@@ -89,7 +89,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
       <h3
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 22,
           letterSpacing: '-0.018em',
           color: PALETTE.canvasDeep,
@@ -128,7 +128,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 30,
                 letterSpacing: '-0.02em',
                 color: stat.color || PALETTE.teal,

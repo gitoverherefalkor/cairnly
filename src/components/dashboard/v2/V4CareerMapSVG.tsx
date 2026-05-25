@@ -295,7 +295,7 @@ export const V4CareerMapLegend: React.FC<{ points: CareerPoint[] }> = ({ points 
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: "'Poppins', sans-serif",
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 10,
               flexShrink: 0,
             }}

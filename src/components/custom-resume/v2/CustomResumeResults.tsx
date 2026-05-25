@@ -356,7 +356,7 @@ const PanelHeader: React.FC<{
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 900,
+                fontWeight: 700,
                 fontSize: 18,
                 letterSpacing: '-0.02em',
               }}

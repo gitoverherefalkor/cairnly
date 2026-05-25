@@ -130,7 +130,7 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
           <h1
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 48,
               letterSpacing: '-0.03em',
               color: '#fff',
@@ -349,7 +349,7 @@ const CareerCard: React.FC<{
       <div
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 17,
           letterSpacing: '-0.01em',
           color: '#fff',
@@ -384,7 +384,7 @@ const CareerCard: React.FC<{
           <span
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 13,
               color: PALETTE.goldBright,
             }}
@@ -428,7 +428,7 @@ const TierIcon: React.FC<{
     justifyContent: 'center',
     fontFamily: FONT_DISPLAY,
     fontSize: 11,
-    fontWeight: 900,
+    fontWeight: 700,
     flexShrink: 0,
   };
   if (icon === 'num' && num != null) return <span style={baseStyle}>{num}</span>;

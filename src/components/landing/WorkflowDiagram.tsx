@@ -66,15 +66,15 @@ const WorkflowDiagram: React.FC = () => (
         {/* Top badge */}
         <g transform="translate(30, 28)">
           <rect width="168" height="22" rx="11" fill="#D4A024" />
-          <text x="84" y="15" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="900" fill="#1A1A1A" letterSpacing="2.5">7 AI WORKFLOWS</text>
+          <text x="84" y="15" textAnchor="middle" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#1A1A1A" letterSpacing="2.5">7 AI WORKFLOWS</text>
         </g>
         <text x="30" y="68" fontFamily="Inter" fontSize="11" fill="rgba(255,255,255,0.55)" fontWeight="500">Months of work · Multiple LLMs · Coach-tuned at every step</text>
 
-        <text x="772" y="42" textAnchor="end" fontFamily="Poppins" fontSize="10" fontWeight="900" fill="#D4A024" letterSpacing="2">→ YOUR REPORT</text>
+        <text x="772" y="42" textAnchor="end" fontFamily="Poppins" fontSize="10" fontWeight="700" fill="#D4A024" letterSpacing="2">→ YOUR REPORT</text>
 
         {/* Report panel */}
         <rect x="600" y="110" width="170" height="400" rx="16" fill="#FBF6E8" stroke="#D4A024" strokeWidth="1.5" strokeOpacity="0.8" />
-        <text x="685" y="140" textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="900" fill="#1F8282" letterSpacing="2">REPORT</text>
+        <text x="685" y="140" textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill="#1F8282" letterSpacing="2">REPORT</text>
         <line x1="618" y1="155" x2="752" y2="155" stroke="rgba(31,130,130,0.2)" />
         <g fontFamily="Inter" fontSize="10.5" fontWeight="600" fill="#122E3B">
           {REPORT_ROWS.map((row, i) => (
@@ -91,7 +91,7 @@ const WorkflowDiagram: React.FC = () => (
         <text x="685" y="498" textAnchor="middle" fontFamily="Inter" fontSize="9" fill="rgba(18,46,59,0.55)">refined by your coaching chat</text>
 
         {/* Lane labels */}
-        <g fontFamily="Poppins" fontSize="9" fontWeight="900" fill="rgba(255,255,255,0.6)" letterSpacing="1.2" textAnchor="end">
+        <g fontFamily="Poppins" fontSize="9" fontWeight="700" fill="rgba(255,255,255,0.6)" letterSpacing="1.2" textAnchor="end">
           {LANE_LABELS.map(([label, y]) => (
             <text key={label} x="108" y={y}>{label}</text>
           ))}

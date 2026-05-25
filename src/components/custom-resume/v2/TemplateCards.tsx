@@ -88,7 +88,7 @@ const TemplateTile: React.FC<{
         style={{
           fontFamily: FONT_DISPLAY,
           fontSize: 9,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: '0.20em',
           textTransform: 'uppercase',
           color: selected ? PALETTE.tealBright : PALETTE.goldBright,

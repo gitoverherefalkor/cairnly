@@ -28,7 +28,7 @@ const FourOhFour = () => (
       y="148"
       textAnchor="middle"
       fontFamily="Poppins, sans-serif"
-      fontWeight="900"
+      fontWeight="700"
       fontSize="148"
       fill="rgba(236,228,210,0.95)"
       letterSpacing="-6"

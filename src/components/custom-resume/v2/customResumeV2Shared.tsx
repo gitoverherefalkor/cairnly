@@ -50,7 +50,7 @@ export const REyebrow: React.FC<{ children: React.ReactNode; color?: string }> =
   <span
     style={{
       fontFamily: FONT_DISPLAY,
-      fontWeight: 900,
+      fontWeight: 700,
       fontSize: 11,
       letterSpacing: '0.24em',
       textTransform: 'uppercase',
@@ -95,7 +95,7 @@ export const TierPill: React.FC<{ label: string; selected?: boolean; color?: str
       border: selected ? 'none' : '1px solid rgba(212,160,36,0.36)',
       fontFamily: FONT_DISPLAY,
       fontSize: 10,
-      fontWeight: 900,
+      fontWeight: 700,
       letterSpacing: '0.16em',
       textTransform: 'uppercase',
       whiteSpace: 'nowrap',

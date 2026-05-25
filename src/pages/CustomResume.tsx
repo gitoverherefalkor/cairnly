@@ -253,7 +253,7 @@ const LockedScreen: React.FC<{ requiredReferrals: number }> = ({ requiredReferra
     <h1
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 900,
+        fontWeight: 700,
         fontSize: 48,
         letterSpacing: '-0.03em',
         color: '#fff',
@@ -298,7 +298,7 @@ const NoResumeScreen: React.FC<{ onUpload: () => void }> = ({ onUpload }) => (
       <h1
         style={{
           fontFamily: FONT_DISPLAY,
-          fontWeight: 900,
+          fontWeight: 700,
           fontSize: 32,
           letterSpacing: '-0.025em',
           color: '#fff',
