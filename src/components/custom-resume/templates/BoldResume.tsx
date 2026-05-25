@@ -4,6 +4,7 @@
 //
 // Ported from /handoff-package/resume-templates/templates/bold.jsx.
 
+import React from 'react';
 import { Document, Page, StyleSheet, Svg, Path, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
 import { renderDateRange } from './utils';
@@ -98,17 +99,21 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingHorizontal: BD.pad,
     paddingBottom: 10,
-    position: 'relative',
   },
-  // Absolute-positioned gutter: when a section wraps across pages, the
-  // continued content keeps its left padding (paddingLeft on sectionContent)
-  // without the "02 / EXPERIENCE" label visually duplicating on page 2.
-  // The label appears once at the top of the section, the indent is
-  // maintained the whole way.
+  // The header bundle holds the gutter label + the first child, kept together
+  // via wrap={false} so the "02 EXPERIENCE" label never orphans above a
+  // page break. Subsequent children render in sectionRest below it.
+  sectionHeadBundle: {
+    position: 'relative',
+    minHeight: 60, // ensures gutter has room even if first child is short
+  },
+  // Absolute gutter sits at the top-left of the head bundle. Because the
+  // bundle is wrap={false}, the gutter is guaranteed to travel with the
+  // first child to whichever page that child lands on.
   sectionGutter: {
     position: 'absolute',
-    top: 22,
-    left: BD.pad,
+    top: 0,
+    left: 0,
     width: 60,
   },
   sectionNum: {
@@ -128,6 +133,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   sectionContent: { paddingTop: 2, paddingLeft: 78 },
+  sectionRest: { paddingLeft: 78 },
 
   summaryBlock: {
     paddingLeft: 14,
@@ -288,19 +294,23 @@ function BoldHeader({ data }: { data: ResumeJson }) {
 }
 
 function BoldSection({ num, label, children }: { num: string; label: string; children: React.ReactNode }) {
-  // minPresenceAhead requires ~140pt of vertical room before the section
-  // breaks. If less than that is available on the current page, react-pdf
-  // pushes the WHOLE section (gutter label + first job) to the next page.
-  // Without this, individual Jobs with wrap={false} would push to the next
-  // page while the absolute-positioned gutter ("02 EXPERIENCE") rendered
-  // orphaned at the bottom of the previous page.
+  // Split children so the gutter label + the FIRST child render together
+  // inside a wrap={false} bundle. If the first job doesn't fit on the
+  // current page, the whole bundle (label + first job) moves to the next
+  // page as one — no orphan label hanging at the bottom of page 1.
+  // Subsequent children flow normally in sectionRest below it.
+  const kids = React.Children.toArray(children);
+  const [first, ...rest] = kids;
   return (
-    <View style={styles.sectionWrap} minPresenceAhead={140}>
-      <View style={styles.sectionGutter}>
-        <Text style={styles.sectionNum}>{num}</Text>
-        <Text style={styles.sectionLabel}>{label}</Text>
+    <View style={styles.sectionWrap}>
+      <View style={styles.sectionHeadBundle} wrap={false}>
+        <View style={styles.sectionGutter}>
+          <Text style={styles.sectionNum}>{num}</Text>
+          <Text style={styles.sectionLabel}>{label}</Text>
+        </View>
+        <View style={styles.sectionContent}>{first}</View>
       </View>
-      <View style={styles.sectionContent}>{children}</View>
+      {rest.length > 0 ? <View style={styles.sectionRest}>{rest}</View> : null}
     </View>
   );
 }
