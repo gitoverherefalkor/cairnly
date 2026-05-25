@@ -35,11 +35,16 @@ const styles = StyleSheet.create({
 
   headerWrap: { marginBottom: 24 },
   name: {
+    fontFamily: 'Inter',
     fontSize: 30,
     fontWeight: 700,
-    letterSpacing: -0.75,
+    // Negative letter-spacing combined with the variable-Inter wght=700 axis
+    // has rendered weirdly in some browser PDF viewers (only the first glyph
+    // showing). Setting letterSpacing to 0 — a safer value that still reads
+    // tight enough for a display name — until we ship a static Inter-Bold.ttf.
+    letterSpacing: 0,
     color: MOD.ink,
-    lineHeight: 1.05,
+    lineHeight: 1.1,
   },
   title: {
     fontSize: 12,
@@ -280,18 +285,33 @@ function Summary({ summary }: { summary: string }) {
 }
 
 function Job({ job }: { job: ResumeExperience }) {
+  // wrap left default (true) so long jobs can split their bullets across
+  // a page boundary. The previous wrap={false} forced an atomic job and was
+  // pushing an 8-bullet item to the next page, leaving half a page of
+  // whitespace behind. The title row stays glued to at least the first
+  // bullet via the inner `wrap={false}` on jobRow + first bullet.
   return (
-    <View style={styles.jobWrap} wrap={false}>
-      <View style={styles.jobRow}>
-        <Text style={styles.jobTitle}>{job.title}</Text>
-        <Text style={styles.jobDates}>{renderDateRange(job)}</Text>
+    <View style={styles.jobWrap}>
+      {/* Keep the job header + first bullet together so we never page-break
+          a job at "company line, then nothing". */}
+      <View wrap={false}>
+        <View style={styles.jobRow}>
+          <Text style={styles.jobTitle}>{job.title}</Text>
+          <Text style={styles.jobDates}>{renderDateRange(job)}</Text>
+        </View>
+        <Text style={styles.jobMeta}>
+          <Text style={styles.jobMetaCompany}>{job.company}</Text>
+          {job.location ? <Text style={styles.jobMetaLoc}> · {job.location}</Text> : null}
+        </Text>
+        {job.bullets?.[0] ? (
+          <View style={styles.bullet}>
+            <Text style={styles.bulletDot}>·</Text>
+            <Text style={styles.bulletText}>{job.bullets[0]}</Text>
+          </View>
+        ) : null}
       </View>
-      <Text style={styles.jobMeta}>
-        <Text style={styles.jobMetaCompany}>{job.company}</Text>
-        {job.location ? <Text style={styles.jobMetaLoc}> · {job.location}</Text> : null}
-      </Text>
-      {job.bullets?.map((b, i) => (
-        <View key={i} style={styles.bullet}>
+      {job.bullets?.slice(1).map((b, i) => (
+        <View key={i + 1} style={styles.bullet}>
           <Text style={styles.bulletDot}>·</Text>
           <Text style={styles.bulletText}>{b}</Text>
         </View>
