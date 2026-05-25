@@ -7,7 +7,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
 import {
   AlertCircle,
   ArrowLeft,
@@ -89,12 +89,12 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
           <h1
             style={{
               fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
-              fontSize: 44,
-              letterSpacing: '-0.03em',
+              fontWeight: 700,
+              fontSize: 40,
+              letterSpacing: '-0.02em',
               color: '#fff',
               margin: '12px 0 8px 0',
-              lineHeight: 1.0,
+              lineHeight: 1.05,
             }}
           >
             {ready} of {rows.length} ready
@@ -124,50 +124,54 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
         </div>
       </div>
 
-      {/* Career tabs */}
-      <div
-        style={{
-          display: 'flex',
-          gap: 8,
-          flexWrap: 'wrap',
-          marginBottom: 20,
-        }}
-      >
-        {rows.map((row) => {
-          const active = row.id === activeRow.id;
-          return (
-            <button
-              key={row.id}
-              type="button"
-              onClick={() => setActiveId(row.id)}
-              style={{
-                ...glassCardStyle(active, false),
-                padding: '10px 14px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                cursor: 'pointer',
-              }}
-            >
-              <span
+      {/* Career tabs — only shown when there's more than one to switch between.
+          With a single résumé the tabs were just decorative + confused users
+          into thinking they did something on click. */}
+      {rows.length > 1 && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            flexWrap: 'wrap',
+            marginBottom: 20,
+          }}
+        >
+          {rows.map((row) => {
+            const active = row.id === activeRow.id;
+            return (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => setActiveId(row.id)}
                 style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 800,
-                  fontSize: 13,
-                  color: '#fff',
-                  maxWidth: 220,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
+                  ...glassCardStyle(active, false),
+                  padding: '10px 14px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  cursor: 'pointer',
                 }}
               >
-                {row.career_title}
-              </span>
-              <StatusPill status={row.status as 'processing' | 'completed' | 'failed'} />
-            </button>
-          );
-        })}
-      </div>
+                <span
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 800,
+                    fontSize: 13,
+                    color: '#fff',
+                    maxWidth: 220,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {row.career_title}
+                </span>
+                <StatusPill status={row.status as 'processing' | 'completed' | 'failed'} />
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Active panel */}
       <ResumeResultPanel row={activeRow} />
@@ -409,16 +413,18 @@ const DocumentTabs: React.FC<{
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-        <TabButton active={tab === 'resume'} onClick={() => setTab('resume')}>
-          <FileText size={13} /> Résumé
-        </TabButton>
-        {hasCover && (
+      {/* Doc-type tabs — only when there's a cover letter to switch to.
+          Without one, a lone "Résumé" tab is dead chrome. */}
+      {hasCover && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+          <TabButton active={tab === 'resume'} onClick={() => setTab('resume')}>
+            <FileText size={13} /> Résumé
+          </TabButton>
           <TabButton active={tab === 'cover-letter'} onClick={() => setTab('cover-letter')}>
             <Mail size={13} /> Cover letter
           </TabButton>
-        )}
-      </div>
+        </div>
+      )}
       {tab === 'resume' ? (
         <PdfFrame
           doc={<ResumeDoc templateId={templateId} data={resumeJson} />}
@@ -468,61 +474,113 @@ const ResumeDoc: React.FC<{ templateId: TemplateId; data: ResumeJson }> = ({ tem
 };
 
 const PdfFrame: React.FC<{ doc: React.ReactElement; fileName: string }> = ({ doc, fileName }) => (
-  <div
-    style={{
-      background: 'rgba(18, 46, 59, 0.55)',
-      backdropFilter: 'blur(14px)',
-      WebkitBackdropFilter: 'blur(14px)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      borderRadius: 18,
-      padding: 12,
-    }}
-  >
-    <div
-      style={{
-        background: '#1a1a1a',
-        borderRadius: 12,
-        overflow: 'hidden',
-        marginBottom: 12,
-        boxShadow: '0 18px 50px -20px rgba(0,0,0,0.6)',
-      }}
-    >
-      <PDFViewer
-        showToolbar={false}
-        style={{ width: '100%', height: 780, border: 0, background: 'transparent' }}
+  // BlobProvider renders the doc once and hands us {url, blob, loading, error}.
+  // We embed the blob URL ourselves so we can show an explicit loading state
+  // and surface errors — PDFViewer used to fail silently and leave a black box.
+  <BlobProvider document={doc}>
+    {({ url, loading, error }) => (
+      <div
+        style={{
+          background: 'rgba(18, 46, 59, 0.55)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: 18,
+          padding: 12,
+        }}
       >
-        {doc}
-      </PDFViewer>
-    </div>
-    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-      <PDFDownloadLink document={doc} fileName={fileName}>
-        {({ loading }) => (
-          <button
-            type="button"
-            disabled={loading}
-            style={{
-              background: PALETTE.gold,
-              color: PALETTE.canvasDeep,
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 800,
-              fontSize: 13.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 10px 24px -8px rgba(212,160,36,0.5)',
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            <Download size={14} /> {loading ? 'Preparing…' : 'Download PDF'}
-          </button>
-        )}
-      </PDFDownloadLink>
-    </div>
-  </div>
+        <div
+          style={{
+            position: 'relative',
+            background: '#f4efe2',
+            borderRadius: 12,
+            overflow: 'hidden',
+            marginBottom: 12,
+            boxShadow: '0 18px 50px -20px rgba(0,0,0,0.6)',
+            height: 780,
+          }}
+        >
+          {loading && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                color: PALETTE.canvasDeep,
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              <Loader2 size={16} className="animate-spin" /> Rendering preview…
+            </div>
+          )}
+          {error && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: 24,
+                textAlign: 'center',
+                color: PALETTE.canvasDeep,
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+              }}
+            >
+              <AlertCircle size={20} color="#b91c1c" />
+              <div style={{ fontWeight: 700 }}>Preview couldn't render.</div>
+              <div style={{ fontSize: 12, color: PALETTE.inkSoft }}>
+                You can still download the PDF below.
+              </div>
+            </div>
+          )}
+          {url && !error && (
+            <iframe
+              src={url}
+              title="Résumé preview"
+              style={{ width: '100%', height: '100%', border: 0, background: 'transparent' }}
+            />
+          )}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <PDFDownloadLink document={doc} fileName={fileName}>
+            {({ loading: dlLoading }) => (
+              <button
+                type="button"
+                disabled={dlLoading}
+                style={{
+                  background: PALETTE.gold,
+                  color: PALETTE.canvasDeep,
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: 9999,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 800,
+                  fontSize: 13.5,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  cursor: dlLoading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 10px 24px -8px rgba(212,160,36,0.5)',
+                  opacity: dlLoading ? 0.7 : 1,
+                }}
+              >
+                <Download size={14} /> {dlLoading ? 'Preparing…' : 'Download PDF'}
+              </button>
+            )}
+          </PDFDownloadLink>
+        </div>
+      </div>
+    )}
+  </BlobProvider>
 );
 
 // ── Keyword coverage ──────────────────────────────────────────
