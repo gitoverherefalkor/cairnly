@@ -135,13 +135,11 @@ export const TEMPLATES: TemplateMeta[] = [
     category: 'designed',
     builtYet: true,
   },
-  {
-    id: 'designed-executive',
-    name: 'Classic Executive',
-    description: 'For finance, consulting, law, senior leadership. Cream paper, serif display.',
-    category: 'designed',
-    builtYet: true,
-  },
+  // Classic Executive retired — sidebar-heavy layout produced too many
+  // edge-case rendering issues (page-2 misalignment, redundant contact
+  // block, hardcoded page counts) and didn't earn its keep next to the
+  // other four. Keep the ClassicResume component file around in case we
+  // want to revive a cleaner version later, just don't expose it here.
   {
     id: 'designed-creative',
     name: 'Bold Creative',

@@ -93,14 +93,20 @@ const styles = StyleSheet.create({
   },
 
   sectionWrap: {
-    paddingTop: 14,
+    paddingTop: 22,
     paddingHorizontal: BD.pad,
-    paddingBottom: 4,
+    paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 18,
   },
+  // Gutter stays the same width whether or not it contains a number/label,
+  // so content stays left-aligned at the same X coordinate on every page.
+  // Page 2's "Experience, cont." section uses a populated gutter; if we ever
+  // render content with no gutter label, we pass `phantomGutter` instead so
+  // alignment doesn't shift.
   sectionGutter: { width: 60, flexShrink: 0 },
+  phantomGutter: { width: 60, flexShrink: 0 },
   sectionNum: {
     fontFamily: 'Bricolage Grotesque',
     fontSize: 22,
