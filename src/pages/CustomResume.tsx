@@ -44,12 +44,12 @@ const CustomResume = () => {
     [idsParam],
   );
 
-  // Builder state
+  // Builder state.
+  // Template is fixed to the ATS-safe default at generation time — switching
+  // templates only re-renders the PDF and doesn't affect the AI output, so we
+  // surface that choice on the Results screen instead of forcing it up-front.
   const [selected, setSelected] = useState<CareerSelection[]>([]);
-  // No default template — the user must consciously pick one before we
-  // generate. Lets them see the ATS-safe vs Designed split rather than
-  // sliding in with whatever we'd pre-chosen.
-  const [templateId, setTemplateId] = useState<TemplateId | null>(null);
+  const [templateId] = useState<TemplateId>('ats-classic');
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
 
   const generate = useGenerateCustomResume();
@@ -135,17 +135,12 @@ const CustomResume = () => {
           sections={sections}
           selected={selected}
           onSelectedChange={setSelected}
-          templateId={templateId}
-          onTemplateChange={setTemplateId}
           includeCoverLetter={includeCoverLetter}
           onCoverLetterChange={setIncludeCoverLetter}
           coverLetterUnlocked={coverLetterUnlocked}
           referralsToCoverLetter={referralsToCoverLetter}
           isGenerating={generate.isPending}
           onGenerate={async () => {
-            // Builder already disables the CTA when there's no template, but
-            // narrow the type here so we can pass a non-null TemplateId.
-            if (!templateId) return;
             try {
               const result = await generate.mutateAsync({
                 reportId: latestReport.id,
