@@ -32,7 +32,7 @@ import { toast } from 'sonner';
 import { useCustomResumes, type CustomResumeRow } from '../hooks/useCustomResumes';
 import { getTemplateComponent } from '../templates';
 import { CoverLetter } from '../templates/CoverLetter';
-import { TEMPLATES, type TemplateId, type ResumeJson, type CoverLetterJson, type KeywordCoverage } from '../types';
+import { TEMPLATES, getTemplate, type TemplateId, type ResumeJson, type CoverLetterJson, type KeywordCoverage } from '../types';
 
 interface CustomResumeResultsProps {
   customResumeIds: string[];
@@ -386,6 +386,48 @@ const PanelHeader: React.FC<{
       {picker === 'cards' ? (
         <TemplateCards value={templateId} onChange={onTemplateChange} compact />
       ) : null}
+      {/* Honest framing about what the score does and doesn't capture.
+          The pill measures keyword fit in the document text. Real ATSes
+          ALSO care about parser-friendliness — single-column, plain fonts.
+          Adapt the copy to the active template category so the user sees
+          relevant context. */}
+      <AtsScoreContext templateId={templateId} hasScore={score != null} />
+    </div>
+  );
+};
+
+const AtsScoreContext: React.FC<{ templateId: TemplateId; hasScore: boolean }> = ({
+  templateId,
+  hasScore,
+}) => {
+  if (!hasScore) return null;
+  const meta = getTemplate(templateId);
+  const isDesigned = meta?.category === 'designed';
+  return (
+    <div
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 12,
+        fontWeight: 500,
+        color: 'rgba(255,255,255,0.55)',
+        lineHeight: 1.5,
+        marginTop: -4,
+      }}
+    >
+      Score reflects how well the résumé text covers must-have keywords for this
+      career. It's a directional smell test, not a real ATS scanner.{' '}
+      {isDesigned ? (
+        <span style={{ color: PALETTE.goldBright }}>
+          Heads-up: designed templates (columns, custom fonts) can lose 10–20 points
+          in real ATSes because parsers garble multi-column layouts. For high-volume
+          online applications, use an ATS-safe template.
+        </span>
+      ) : (
+        <span>
+          You're on an ATS-safe template — plain text layer, single column,
+          everything parses cleanly.
+        </span>
+      )}
     </div>
   );
 };
