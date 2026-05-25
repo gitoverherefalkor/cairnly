@@ -14,6 +14,8 @@ import {
   ChevronDown,
   Download,
   FileText,
+  LayoutGrid,
+  List,
   Loader2,
   Mail,
   Plus,
@@ -24,6 +26,7 @@ import {
   FONT_BODY,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { REyebrow, StatusPill, glassCardStyle } from './customResumeV2Shared';
+import { TemplateCards } from './TemplateCards';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useCustomResumes, type CustomResumeRow } from '../hooks/useCustomResumes';
@@ -307,6 +310,22 @@ const PanelHeader: React.FC<{
   templateId: TemplateId;
   onTemplateChange: (id: TemplateId) => void;
 }> = ({ row, templateId, onTemplateChange }) => {
+  // 'dropdown' is the compact form (one-line, no descriptions),
+  // 'cards' is the rich form (5 tiles with mini-previews + descriptions).
+  // Persist the preference per-session so it doesn't reset when the user
+  // switches between career tabs.
+  const [picker, setPicker] = useState<'dropdown' | 'cards'>(() => {
+    try {
+      const stored = sessionStorage.getItem('customResume.templatePicker');
+      return stored === 'cards' ? 'cards' : 'dropdown';
+    } catch {
+      return 'dropdown';
+    }
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem('customResume.templatePicker', picker); } catch { /* fine */ }
+  }, [picker]);
+
   const score = row.ats_score != null ? Math.round(Number(row.ats_score)) : null;
   const tone = score == null
     ? PALETTE.tealBright
@@ -317,49 +336,113 @@ const PanelHeader: React.FC<{
         : '#F59E0B';
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-      {score != null ? (
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '6px 14px',
-            borderRadius: 9999,
-            background: `${tone}1A`,
-            border: `1px solid ${tone}55`,
-            color: tone,
-          }}
-        >
-          <span
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        {score != null ? (
+          <div
             style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 900,
-              fontSize: 18,
-              letterSpacing: '-0.02em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '6px 14px',
+              borderRadius: 9999,
+              background: `${tone}1A`,
+              border: `1px solid ${tone}55`,
+              color: tone,
             }}
           >
-            {score}
-          </span>
-          <span
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 800,
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-            }}
-          >
-            ATS · {score >= 80 ? 'Strong' : score >= 60 ? 'Decent' : 'Adjacent'}
-          </span>
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 900,
+                fontSize: 18,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {score}
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 800,
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}
+            >
+              ATS · {score >= 80 ? 'Strong' : score >= 60 ? 'Decent' : 'Adjacent'}
+            </span>
+          </div>
+        ) : null}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <PickerModeToggle mode={picker} onChange={setPicker} />
+          {picker === 'dropdown' ? (
+            <TemplateSelect value={templateId} onChange={onTemplateChange} />
+          ) : null}
         </div>
-      ) : null}
-      <div style={{ marginLeft: 'auto' }}>
-        <TemplateSelect value={templateId} onChange={onTemplateChange} />
       </div>
+      {picker === 'cards' ? (
+        <TemplateCards value={templateId} onChange={onTemplateChange} compact />
+      ) : null}
     </div>
   );
 };
+
+// Segmented two-button pill — switches between the compact dropdown and
+// the rich card grid. Mirrors the visual language of the small ATS pill
+// above so the header has a consistent rhythm of pill controls.
+const PickerModeToggle: React.FC<{
+  mode: 'dropdown' | 'cards';
+  onChange: (next: 'dropdown' | 'cards') => void;
+}> = ({ mode, onChange }) => (
+  <div
+    style={{
+      display: 'inline-flex',
+      padding: 3,
+      borderRadius: 9999,
+      background: 'rgba(18,46,59,0.55)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      gap: 2,
+    }}
+  >
+    <SegmentButton active={mode === 'dropdown'} onClick={() => onChange('dropdown')} ariaLabel="Compact dropdown">
+      <List size={14} />
+    </SegmentButton>
+    <SegmentButton active={mode === 'cards'} onClick={() => onChange('cards')} ariaLabel="Template cards">
+      <LayoutGrid size={14} />
+    </SegmentButton>
+  </div>
+);
+
+const SegmentButton: React.FC<{
+  active: boolean;
+  onClick: () => void;
+  ariaLabel: string;
+  children: React.ReactNode;
+}> = ({ active, onClick, ariaLabel, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={ariaLabel}
+    aria-pressed={active}
+    title={ariaLabel}
+    style={{
+      width: 32,
+      height: 30,
+      borderRadius: 9999,
+      border: 'none',
+      background: active ? PALETTE.teal : 'transparent',
+      color: active ? '#fff' : 'rgba(255,255,255,0.65)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      transition: 'all 160ms ease',
+    }}
+  >
+    {children}
+  </button>
+);
 
 // Cream-on-dark select matching the JobsSearch field style.
 const TemplateSelect: React.FC<{ value: TemplateId; onChange: (id: TemplateId) => void }> = ({
