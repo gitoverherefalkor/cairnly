@@ -30,11 +30,13 @@ const styles = StyleSheet.create({
     fontSize: 9.5,
     lineHeight: 1.5,
     color: BD.ink2,
+    paddingTop: BD.pad,
+    paddingBottom: BD.pad,
   },
 
-  // Header band — full-bleed top, divider rule beneath.
+  // Header band — divider rule beneath.
   header: {
-    paddingTop: BD.pad + 14,
+    paddingTop: 14,
     paddingHorizontal: BD.pad,
     paddingBottom: 20,
     borderBottomWidth: 1.5,
@@ -96,17 +98,19 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingHorizontal: BD.pad,
     paddingBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 18,
+    position: 'relative',
   },
-  // Gutter stays the same width whether or not it contains a number/label,
-  // so content stays left-aligned at the same X coordinate on every page.
-  // Page 2's "Experience, cont." section uses a populated gutter; if we ever
-  // render content with no gutter label, we pass `phantomGutter` instead so
-  // alignment doesn't shift.
-  sectionGutter: { width: 60, flexShrink: 0 },
-  phantomGutter: { width: 60, flexShrink: 0 },
+  // Absolute-positioned gutter: when a section wraps across pages, the
+  // continued content keeps its left padding (paddingLeft on sectionContent)
+  // without the "02 / EXPERIENCE" label visually duplicating on page 2.
+  // The label appears once at the top of the section, the indent is
+  // maintained the whole way.
+  sectionGutter: {
+    position: 'absolute',
+    top: 22,
+    left: BD.pad,
+    width: 60,
+  },
   sectionNum: {
     fontFamily: 'Bricolage Grotesque',
     fontSize: 22,
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
     color: BD.ink,
     marginTop: 6,
   },
-  sectionContent: { flex: 1, minWidth: 0, paddingTop: 2 },
+  sectionContent: { paddingTop: 2, paddingLeft: 78 },
 
   summaryBlock: {
     paddingLeft: 14,
@@ -205,50 +209,6 @@ const styles = StyleSheet.create({
     color: BD.accent,
     fontWeight: 700,
     fontSize: 10,
-  },
-
-  footer: {
-    marginTop: 18,
-    paddingTop: 8,
-    paddingBottom: 18,
-    paddingHorizontal: BD.pad,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    fontFamily: 'JetBrains Mono',
-    fontSize: 7.25,
-    letterSpacing: 1.3,
-    textTransform: 'uppercase',
-    color: BD.ink3,
-    borderTopWidth: 0.75,
-    borderTopStyle: 'solid',
-    borderTopColor: BD.rule2,
-  },
-
-  page2Header: {
-    paddingTop: BD.pad + 4,
-    paddingHorizontal: BD.pad,
-    paddingBottom: 14,
-    borderBottomWidth: 1.5,
-    borderBottomStyle: 'solid',
-    borderBottomColor: BD.rule,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
-  page2HeaderName: {
-    fontFamily: 'Bricolage Grotesque',
-    fontSize: 22,
-    fontWeight: 700,
-    letterSpacing: -0.66,
-    color: BD.ink,
-  },
-  page2HeaderMeta: {
-    fontFamily: 'JetBrains Mono',
-    fontSize: 7.5,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: BD.accent,
   },
 });
 
@@ -368,35 +328,11 @@ function flatSkills(s: ResumeJson['skills_grouped']): string[] {
   ];
 }
 
-function Footer({ data }: { data: ResumeJson }) {
-  const leftBits = [data.contact.name, data.contact.title].filter(Boolean).join(' · ');
-  const fallbackRight = data.contact.portfolio || data.contact.email || '';
-  return (
-    <View style={styles.footer} fixed>
-      <Text>{leftBits}</Text>
-      {/* react-pdf re-evaluates render() per page, so this stays correct even
-          when the second Page auto-wraps onto a third / fourth physical page. */}
-      <Text
-        render={({ pageNumber, totalPages }) =>
-          totalPages > 1
-            ? `Page ${String(pageNumber).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`
-            : fallbackRight
-        }
-      />
-    </View>
-  );
-}
-
 interface BoldResumeProps {
   data: ResumeJson;
 }
 
 export function BoldResume({ data }: BoldResumeProps) {
-  const isMulti = (data.experience?.length ?? 0) >= 4;
-  const splitAt = 3;
-  const p1 = isMulti ? data.experience.slice(0, splitAt) : data.experience;
-  const p2 = isMulti ? data.experience.slice(splitAt) : [];
-
   const skills = flatSkills(data.skills_grouped);
 
   const SkillsSection =
@@ -458,45 +394,17 @@ export function BoldResume({ data }: BoldResumeProps) {
             <Text style={styles.summaryBlock}>{data.summary}</Text>
           </BoldSection>
         ) : null}
-        {p1.length > 0 ? (
+        {(data.experience?.length ?? 0) > 0 ? (
           <BoldSection num="02" label="Experience">
-            {p1.map((j, i) => (
+            {data.experience.map((j, i) => (
               <Job key={i} job={j} />
             ))}
           </BoldSection>
         ) : null}
-        {!isMulti ? (
-          <>
-            {SkillsSection}
-            {EducationSection}
-            {HighlightsSection}
-          </>
-        ) : null}
-        <Footer data={data} />
+        {SkillsSection}
+        {EducationSection}
+        {HighlightsSection}
       </Page>
-
-      {isMulti ? (
-        <Page size="LETTER" style={styles.page}>
-          <View style={styles.page2Header}>
-            <Text style={styles.page2HeaderName}>{data.contact.name}</Text>
-            <Text
-              style={styles.page2HeaderMeta}
-              render={({ pageNumber, totalPages }) =>
-                `Page ${String(pageNumber).padStart(2, '0')} / ${String(totalPages).padStart(2, '0')}`
-              }
-            />
-          </View>
-          <BoldSection num="02" label="Experience, cont.">
-            {p2.map((j, i) => (
-              <Job key={i} job={j} />
-            ))}
-          </BoldSection>
-          {SkillsSection}
-          {EducationSection}
-          {HighlightsSection}
-          <Footer data={data} />
-        </Page>
-      ) : null}
     </Document>
   );
 }

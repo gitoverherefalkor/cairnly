@@ -145,10 +145,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: 'Bold Creative',
     description: 'For marketing, communications, media. Burnt-sienna accent, asymmetric grid.',
     category: 'designed',
-    // Temporarily disabled — handoff to Claude Design for layout fixes
-    // (cross-page alignment + section spacing). Will flip back to true
-    // once the styling pass lands.
-    builtYet: false,
+    builtYet: true,
   },
 ];
 
