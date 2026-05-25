@@ -310,16 +310,18 @@ const PanelHeader: React.FC<{
   templateId: TemplateId;
   onTemplateChange: (id: TemplateId) => void;
 }> = ({ row, templateId, onTemplateChange }) => {
-  // 'dropdown' is the compact form (one-line, no descriptions),
-  // 'cards' is the rich form (5 tiles with mini-previews + descriptions).
+  // 'cards' is the rich form (5 tiles with mini-previews + descriptions) —
+  // the default since they explain what each template is for.
+  // 'dropdown' is the compact form for users who already know which one
+  // they want and just want to flip between fast.
   // Persist the preference per-session so it doesn't reset when the user
   // switches between career tabs.
   const [picker, setPicker] = useState<'dropdown' | 'cards'>(() => {
     try {
       const stored = sessionStorage.getItem('customResume.templatePicker');
-      return stored === 'cards' ? 'cards' : 'dropdown';
+      return stored === 'dropdown' ? 'dropdown' : 'cards';
     } catch {
-      return 'dropdown';
+      return 'cards';
     }
   });
   useEffect(() => {
