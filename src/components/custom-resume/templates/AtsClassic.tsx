@@ -7,7 +7,7 @@
 
 import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
-import { renderDateRange } from './utils';
+import { realCertifications, renderDateRange } from './utils';
 
 // Use Times Roman (built-in to react-pdf) so we don't need to register a
 // custom font for this template. Trade-off: no italics for company location.
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-    marginBottom: 4,
+    marginBottom: 10,
   },
   title: {
     fontSize: 11.5,
@@ -233,18 +233,22 @@ export function AtsClassic({ data }: AtsClassicProps) {
           </View>
         ) : null}
 
-        {data.certifications && data.certifications.length > 0 ? (
-          <View>
-            <Text style={styles.sectionHeading}>Certifications</Text>
-            {data.certifications.map((cert, i) => (
-              <Text key={i} style={styles.certificationItem}>
-                {cert.name}
-                {cert.issuer ? ` — ${cert.issuer}` : ''}
-                {cert.year ? ` (${cert.year})` : ''}
-              </Text>
-            ))}
-          </View>
-        ) : null}
+        {(() => {
+          const real = realCertifications(data.certifications);
+          if (real.length === 0) return null;
+          return (
+            <View>
+              <Text style={styles.sectionHeading}>Certifications</Text>
+              {real.map((cert, i) => (
+                <Text key={i} style={styles.certificationItem}>
+                  {cert.name}
+                  {cert.issuer ? ` — ${cert.issuer}` : ''}
+                  {cert.year ? ` (${cert.year})` : ''}
+                </Text>
+              ))}
+            </View>
+          );
+        })()}
       </Page>
     </Document>
   );

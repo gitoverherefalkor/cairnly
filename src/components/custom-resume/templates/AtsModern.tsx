@@ -3,7 +3,7 @@
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
-import { renderDateRange } from './utils';
+import { realCertifications, renderDateRange } from './utils';
 
 // Helvetica is built into react-pdf, so no Font.register() needed.
 const ACCENT = '#27A1A1'; // atlas-teal — accent rule under name + section dividers.
@@ -249,19 +249,23 @@ export function AtsModern({ data }: AtsModernProps) {
           </View>
         ) : null}
 
-        {data.certifications && data.certifications.length > 0 ? (
-          <View>
-            <Text style={styles.sectionHeading}>Certifications</Text>
-            <View style={styles.sectionRule} />
-            {data.certifications.map((cert, i) => (
-              <Text key={i} style={styles.certificationItem}>
-                {cert.name}
-                {cert.issuer ? ` — ${cert.issuer}` : ''}
-                {cert.year ? ` (${cert.year})` : ''}
-              </Text>
-            ))}
-          </View>
-        ) : null}
+        {(() => {
+          const real = realCertifications(data.certifications);
+          if (real.length === 0) return null;
+          return (
+            <View>
+              <Text style={styles.sectionHeading}>Certifications</Text>
+              <View style={styles.sectionRule} />
+              {real.map((cert, i) => (
+                <Text key={i} style={styles.certificationItem}>
+                  {cert.name}
+                  {cert.issuer ? ` — ${cert.issuer}` : ''}
+                  {cert.year ? ` (${cert.year})` : ''}
+                </Text>
+              ))}
+            </View>
+          );
+        })()}
       </Page>
     </Document>
   );
