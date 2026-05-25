@@ -11,7 +11,7 @@
 //   - Generate CTA (gold)
 
 import React from 'react';
-import { Award, Lightbulb, Loader2, Lock, Mail, Sparkles, FileText } from 'lucide-react';
+import { Award, CheckCircle2, Lightbulb, Loader2, Lock, Mail, Sparkles, FileText } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -52,7 +52,8 @@ interface CustomResumeBuilderProps {
   sections: ReportSection[];
   selected: CareerSelection[];
   onSelectedChange: (next: CareerSelection[]) => void;
-  templateId: TemplateId;
+  // null = no template chosen yet — Generate stays disabled until the user picks.
+  templateId: TemplateId | null;
   onTemplateChange: (next: TemplateId) => void;
   includeCoverLetter: boolean;
   onCoverLetterChange: (next: boolean) => void;
@@ -187,33 +188,60 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
 
       {/* Cover letter + CTA */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-        <button
-          type="button"
-          onClick={onGenerate}
-          disabled={selected.length === 0 || isGenerating}
-          style={{
-            background:
-              selected.length === 0 || isGenerating ? 'rgba(212,160,36,0.4)' : PALETTE.gold,
-            color: PALETTE.canvasDeep,
-            border: 'none',
-            padding: '16px 28px',
-            borderRadius: 9999,
-            fontFamily: FONT_BODY,
-            fontWeight: 800,
-            fontSize: 15,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            cursor: selected.length === 0 || isGenerating ? 'not-allowed' : 'pointer',
-            boxShadow: '0 14px 32px -10px rgba(212,160,36,0.55)',
-            opacity: selected.length === 0 ? 0.7 : 1,
-          }}
-        >
-          {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-          {isGenerating
-            ? 'Starting…'
-            : `Generate ${selected.length} ${selected.length === 1 ? 'résumé' : 'résumés'}`}
-        </button>
+        {(() => {
+          const disabled = selected.length === 0 || !templateId || isGenerating;
+          const hint = isGenerating
+            ? null
+            : selected.length === 0
+              ? 'Pick at least one career'
+              : !templateId
+                ? 'Pick a template'
+                : null;
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button
+                type="button"
+                onClick={onGenerate}
+                disabled={disabled}
+                style={{
+                  background: disabled ? 'rgba(212,160,36,0.4)' : PALETTE.gold,
+                  color: PALETTE.canvasDeep,
+                  border: 'none',
+                  padding: '16px 28px',
+                  borderRadius: 9999,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 800,
+                  fontSize: 15,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  cursor: disabled ? 'not-allowed' : 'pointer',
+                  boxShadow: disabled ? 'none' : '0 14px 32px -10px rgba(212,160,36,0.55)',
+                  opacity: disabled ? 0.7 : 1,
+                }}
+              >
+                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                {isGenerating
+                  ? 'Starting…'
+                  : `Generate ${selected.length || 0} ${(selected.length || 0) === 1 ? 'résumé' : 'résumés'}`}
+              </button>
+              {hint && (
+                <span
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    color: PALETTE.goldBright,
+                    letterSpacing: '0.02em',
+                    paddingLeft: 4,
+                  }}
+                >
+                  {hint}
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         <CoverLetterToggle
           checked={coverLetterUnlocked && includeCoverLetter}
@@ -233,6 +261,20 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
           }}
         >
           Typical generation takes 20–40 seconds. Each résumé updates live as it completes.
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 12,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.42)',
+            flexBasis: '100%',
+            marginTop: 2,
+          }}
+        >
+          * ATS = Applicant Tracking System, the software most employers use to
+          scan and filter résumés before a human ever sees them. ATS-safe
+          templates use clean text-only layouts so nothing gets dropped.
         </div>
       </div>
     </div>
@@ -402,6 +444,11 @@ const TemplateTile: React.FC<{
         <Sparkles size={11} color={selected ? PALETTE.tealBright : PALETTE.goldBright} />
       )}
       <span
+        title={
+          category === 'ats'
+            ? 'ATS = Applicant Tracking System. Plain-text-friendly layout that scanners parse reliably.'
+            : 'Visually designed layout with custom typography and colour.'
+        }
         style={{
           fontFamily: FONT_DISPLAY,
           fontSize: 9,
@@ -409,9 +456,10 @@ const TemplateTile: React.FC<{
           letterSpacing: '0.20em',
           textTransform: 'uppercase',
           color: selected ? PALETTE.tealBright : PALETTE.goldBright,
+          cursor: 'help',
         }}
       >
-        {category === 'ats' ? 'ATS-safe' : 'Designed'}
+        {category === 'ats' ? 'ATS*-safe' : 'Designed'}
       </span>
       {disabled && (
         <span
@@ -543,15 +591,27 @@ const CoverLetterToggle: React.FC<{
   locked: boolean;
   invitesNeeded: number;
 }> = ({ checked, onChange, locked, invitesNeeded }) => {
+  // Checked state needs to read clearly as "selected" — filled teal background
+  // with the canvas-deep text and a soft glow, mirroring the gold CTA next to
+  // it. The unchecked state stays subtle (transparent w/ thin border).
   const border = locked
     ? '1px dashed rgba(212,160,36,0.45)'
-    : `1px solid ${checked ? PALETTE.teal : 'rgba(255,255,255,0.16)'}`;
+    : checked
+      ? `1.5px solid ${PALETTE.tealBright}`
+      : '1px solid rgba(255,255,255,0.22)';
   const background = locked
     ? 'rgba(212,160,36,0.08)'
     : checked
-      ? 'rgba(39,161,161,0.14)'
+      ? PALETTE.teal
       : 'transparent';
-  const color = locked ? PALETTE.goldBright : checked ? PALETTE.tealBright : '#fff';
+  const color = locked
+    ? PALETTE.goldBright
+    : checked
+      ? '#fff'
+      : 'rgba(255,255,255,0.92)';
+  const boxShadow = checked && !locked
+    ? '0 10px 28px -10px rgba(39,161,161,0.65)'
+    : undefined;
 
   return (
     <label
@@ -572,6 +632,7 @@ const CoverLetterToggle: React.FC<{
         height: 42,
         boxSizing: 'border-box',
         opacity: locked ? 0.85 : 1,
+        boxShadow,
       }}
     >
       <input
@@ -581,10 +642,18 @@ const CoverLetterToggle: React.FC<{
         onChange={(e) => onChange(e.target.checked)}
         style={{ display: 'none' }}
       />
-      {locked ? <Lock size={13} /> : <Mail size={14} />}
+      {locked ? (
+        <Lock size={13} />
+      ) : checked ? (
+        <CheckCircle2 size={15} />
+      ) : (
+        <Mail size={14} />
+      )}
       {locked
         ? `Cover letters · invite ${invitesNeeded} more to unlock`
-        : 'Include cover letters'}
+        : checked
+          ? 'Cover letters included'
+          : 'Add cover letters'}
     </label>
   );
 };

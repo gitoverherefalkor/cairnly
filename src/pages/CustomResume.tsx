@@ -46,7 +46,10 @@ const CustomResume = () => {
 
   // Builder state
   const [selected, setSelected] = useState<CareerSelection[]>([]);
-  const [templateId, setTemplateId] = useState<TemplateId>('designed-minimalist');
+  // No default template — the user must consciously pick one before we
+  // generate. Lets them see the ATS-safe vs Designed split rather than
+  // sliding in with whatever we'd pre-chosen.
+  const [templateId, setTemplateId] = useState<TemplateId | null>(null);
   const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
 
   const generate = useGenerateCustomResume();
@@ -140,6 +143,9 @@ const CustomResume = () => {
           referralsToCoverLetter={referralsToCoverLetter}
           isGenerating={generate.isPending}
           onGenerate={async () => {
+            // Builder already disables the CTA when there's no template, but
+            // narrow the type here so we can pass a non-null TemplateId.
+            if (!templateId) return;
             try {
               const result = await generate.mutateAsync({
                 reportId: latestReport.id,

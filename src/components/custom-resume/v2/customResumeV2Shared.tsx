@@ -10,11 +10,11 @@ import {
   FONT_BODY,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 
-// New section background — handoff image from the Cairnly editorial set.
-// Lands at /public/dashboard/sections/approach_vis.jpg when the asset is
-// pushed; the page renders gracefully without it (just the canvas-deep
-// gradient) while it's missing.
-export const APPROACH_VIS_URL = '/dashboard/sections/approach_vis.jpg';
+// Section background — Jendi Coursey on Unsplash, downsized to 1600px wide
+// (~350 KB) so it stays crisp on retina laptops without ballooning the page
+// weight. The original 5+ MB file lives in the same folder if we ever need
+// to re-export at different sizes.
+export const APPROACH_VIS_URL = '/dashboard/sections/jendi-coursey-bg.jpg';
 
 const OVERLAY =
   'linear-gradient(180deg, rgba(33,63,79,0.55) 0%, rgba(18,46,59,0.78) 60%, rgba(18,46,59,0.92) 100%)';
