@@ -1343,7 +1343,7 @@ const UnlockToolkit: React.FC<{
                 margin: '10px 0 8px 0',
               }}
             >
-              Unlock more tools as you help friends find their path.
+              Unlock tools as you help friends find their path.
             </h3>
             <p
               style={{
@@ -1356,8 +1356,8 @@ const UnlockToolkit: React.FC<{
                 maxWidth: 540,
               }}
             >
-              Each friend you bring in unlocks the next tool, for free, forever. They get clarity. You get the
-              next step in the job hunt.
+              Each friend you bring in unlocks the next tool, for free, forever.<br />
+              They get clarity. You get the next step in the job hunt.
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 280 }}>
