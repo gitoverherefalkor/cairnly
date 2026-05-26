@@ -123,7 +123,8 @@ serve(async (req) => {
     // v8: scoring tightened (role-function + seniority rules) + desc slice 400→600 (2026-05-26).
     // v9: rebuild descriptions from descriptionHtml so headings/paragraphs no longer smash together (2026-05-26).
     // v10: scoring upgraded to Claude Sonnet 4.5 + Apply Scores threshold 5→3 (frontend partitions 3-5 vs 6+) (2026-05-26).
-    const SEARCH_LOGIC_VERSION = 'v10';
+    // v11: scorer now sees alt titles + alt-search uses up to 3 (was 1) + Apify count cap 15→40 (2026-05-26).
+    const SEARCH_LOGIC_VERSION = 'v11';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
