@@ -362,3 +362,73 @@ export function extractBullets(raw: string, max = 3): string[] {
 
   return items.filter((i) => i.length > 3 && i.length < 200).slice(0, max);
 }
+
+// ---------- Subsection extraction ----------
+// Find the content under a specific heading in a section body. Career bodies
+// use <h3>/<h4>/<h5> tags like "Why this role fits you" or "Why this might be
+// a fit". Returns the HTML between that heading and the next heading of the
+// same-or-higher level. Pattern match is case-insensitive and loose so the
+// caller can pass a few variants in one call.
+export function extractSubsectionContent(
+  body: string,
+  headingPatterns: string[],
+): string | null {
+  if (!body || headingPatterns.length === 0) return null;
+  const patterns = headingPatterns.map((p) => p.toLowerCase().trim());
+  // Walk through all heading tags and find the first whose text matches.
+  const headingRegex = /<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi;
+  const matches: { level: number; text: string; index: number; length: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = headingRegex.exec(body)) !== null) {
+    matches.push({
+      level: Number(m[1]),
+      text: stripHtml(m[2]).toLowerCase(),
+      index: m.index,
+      length: m[0].length,
+    });
+  }
+  if (matches.length === 0) return null;
+  const hitIdx = matches.findIndex((h) => patterns.some((p) => h.text.includes(p)));
+  if (hitIdx === -1) return null;
+  const hit = matches[hitIdx];
+  const start = hit.index + hit.length;
+  // End at the next heading of the same-or-higher level (i.e. lower or equal
+  // numeric level — <h3> ends at the next <h2>/<h3>, not the next <h4>).
+  const next = matches.slice(hitIdx + 1).find((h) => h.level <= hit.level);
+  const end = next ? next.index : body.length;
+  return body.slice(start, end);
+}
+
+// Pick sentences usable as shareable quotes from a section body. Strips a
+// known section-title prefix from the front when provided (otherwise the
+// first "quote" ends up being literally the section heading bleeding into
+// sentence 1, e.g. "Identifying Your Core Strengths You build things.").
+// Returns 30-220 char sentences, deduped, capped at `max`.
+export function pickShareSentences(
+  body: string,
+  sectionTitleToStrip: string | null = null,
+  max = 4,
+): string[] {
+  let text = stripHtml(body || '');
+  if (!text) return [];
+  if (sectionTitleToStrip) {
+    const title = stripHtml(sectionTitleToStrip).trim();
+    if (title) {
+      // Case-insensitive prefix strip when the body starts with the title.
+      const re = new RegExp(`^\\s*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*[:.\\-]?\\s*`, 'i');
+      text = text.replace(re, '');
+    }
+  }
+  const parts = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of parts) {
+    const s = raw.trim().replace(/\s+/g, ' ');
+    if (s.length < 30 || s.length > 220) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+    if (out.length >= max) break;
+  }
+  return out;
+}

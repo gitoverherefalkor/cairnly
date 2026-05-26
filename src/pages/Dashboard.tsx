@@ -14,7 +14,11 @@ import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
 import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
 import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/DashboardEntryState';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
-import { firstSentences } from '@/components/dashboard/v2/dashboardV2Shared';
+import {
+  extractSubsectionContent,
+  pickShareSentences,
+  stripHtml,
+} from '@/components/dashboard/v2/dashboardV2Shared';
 
 // Helper to get assessment session from localStorage.
 // Live survey progress is written by useSurveyState/useSurveySession under
@@ -258,21 +262,74 @@ const Dashboard = () => {
     }
   }, [needsAuthRedirect, needsProcessingRedirect, needsChatRedirect, navigate]);
 
-  // Candidate quotes for the share card — pulled from real report sections.
-  const shareQuotes = useMemo(() => {
-    const order = ['strengths', 'values', 'exec_summary', 'executive_summary', 'approach'];
-    const seen = new Set<string>();
-    const quotes: string[] = [];
-    for (const type of order) {
+  // Share-card data — two share types, each with its own pickable items.
+  //   personalityShares: one entry per personality section the user has
+  //     (strengths/values/approach/development/exec-summary), with 3-4
+  //     candidate sentences pulled from the body.
+  //   roleShares: one entry per shareable career (top 1/2/3 + outside-box),
+  //     with sentences pulled from the "Why this role fits you" subsection
+  //     (or "Why this might be a fit" for outside-box).
+  const personalityShares = useMemo(() => {
+    const order: { types: string[]; fallbackTitle: string }[] = [
+      { types: ['strengths'], fallbackTitle: 'Core strengths' },
+      { types: ['values'], fallbackTitle: 'Core values' },
+      { types: ['approach', 'personality_team'], fallbackTitle: 'Approach' },
+      { types: ['development'], fallbackTitle: 'Development' },
+      { types: ['exec_summary', 'executive_summary'], fallbackTitle: 'Executive summary' },
+    ];
+    return order
+      .map(({ types, fallbackTitle }) => {
+        const s = reportSections.find((x) => types.includes(x.section_type));
+        if (!s) return null;
+        const title = stripHtml(s.title || '') || fallbackTitle;
+        const quotes = pickShareSentences(s.content || '', title, 4);
+        if (quotes.length === 0) return null;
+        return { sectionType: s.section_type, title, quotes };
+      })
+      .filter(Boolean) as { sectionType: string; title: string; quotes: string[] }[];
+  }, [reportSections]);
+
+  const roleShares = useMemo(() => {
+    type Role = {
+      sectionType: string;
+      title: string;
+      matchPct: number | null;
+      quotes: string[];
+      isOutsideBox: boolean;
+    };
+    const out: Role[] = [];
+    const cleanTitle = (raw: string | null | undefined) =>
+      stripHtml(raw || '').replace(/^\d+[.)]\s*/, '').trim();
+
+    for (const type of ['top_career_1', 'top_career_2', 'top_career_3']) {
       const s = reportSections.find((x) => x.section_type === type);
       if (!s) continue;
-      const q = firstSentences(s.content || '', 1);
-      if (q && q.length > 12 && q.length < 220 && !seen.has(q)) {
-        seen.add(q);
-        quotes.push(q);
-      }
+      const title = cleanTitle(s.title) || 'Best-fit career';
+      const sub = extractSubsectionContent(s.content || '', ['why this role fits you']);
+      const quotes = pickShareSentences(sub || s.content || '', null, 4);
+      if (quotes.length === 0) continue;
+      const matchPct = s.score != null ? Math.round(Number(s.score)) || 0 : null;
+      out.push({ sectionType: type, title, matchPct, quotes, isOutsideBox: false });
     }
-    return quotes;
+
+    const outsideBox = reportSections.filter((x) => x.section_type === 'outside_box');
+    for (const s of outsideBox) {
+      const title = cleanTitle(s.title) || 'Outside-the-box career';
+      const sub = extractSubsectionContent(s.content || '', [
+        'why this might be a fit',
+        'why this role fits you',
+      ]);
+      const quotes = pickShareSentences(sub || s.content || '', null, 4);
+      if (quotes.length === 0) continue;
+      out.push({
+        sectionType: 'outside_box',
+        title,
+        matchPct: null,
+        quotes,
+        isOutsideBox: true,
+      });
+    }
+    return out;
   }, [reportSections]);
 
   // Copy the personal invite link to the clipboard.
@@ -310,13 +367,6 @@ const Dashboard = () => {
 
   // ── Completed report → V4 dashboard ──────────────────────────
   if (latestReport && latestReport.status === 'completed') {
-    const heroSection = reportSections.find((s) => s.section_type === 'top_career_1');
-    const heroTitle = heroSection?.title?.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim() || 'Your best-fit career';
-    const heroShape = heroSection?.company_size_type
-      ? heroSection.company_size_type.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim()
-      : null;
-    const heroPct = heroSection?.score != null ? Math.round(Number(heroSection.score)) || 0 : 0;
-
     return (
       <>
         <DashboardV4
@@ -339,10 +389,8 @@ const Dashboard = () => {
             open={showShareCard}
             onClose={() => setShowShareCard(false)}
             firstName={firstName}
-            heroTitle={heroTitle}
-            heroShape={heroShape}
-            heroMatchPct={heroPct}
-            quotes={shareQuotes}
+            personalityShares={personalityShares}
+            roleShares={roleShares}
           />
         )}
 
