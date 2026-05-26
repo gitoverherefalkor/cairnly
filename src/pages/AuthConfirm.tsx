@@ -6,11 +6,21 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AuthShell from '@/components/auth/AuthShell';
+import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-// Check if user has a profile (existing user) or is brand new.
-// Returns '/payment' for new users, '/dashboard' for returning users.
-async function resolvePostAuthRedirect(userId: string): Promise<string> {
+// Decide where to send the user after a successful auth handshake.
+// Returns null if the caller has already signed the user out (not entitled).
+async function resolvePostAuthRedirect(userId: string, userEmail: string | null | undefined): Promise<string | null> {
+  const { entitled } = await checkEntitlement();
+  if (!entitled) {
+    await signOutNoPurchase(userEmail);
+    return null;
+  }
+  // Entitled — keep existing behavior: new vs returning is based on whether a
+  // profile row exists. (The profile trigger runs synchronously on auth user
+  // insert, so by this point a profile always exists; returning users hit
+  // /dashboard.)
   const { data } = await supabase
     .from('profiles')
     .select('id')
@@ -62,7 +72,8 @@ const AuthConfirm = () => {
           setMessage('Successfully signed in!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(sessionData.user?.id);
+          const dest = await resolvePostAuthRedirect(sessionData.user?.id, sessionData.user?.email);
+          if (dest === null) return; // signOutNoPurchase already navigated away
           setTimeout(() => {
             window.location.href = dest;
           }, 1000);
@@ -124,7 +135,8 @@ const AuthConfirm = () => {
           setMessage('Successfully signed in!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(user.id);
+          const dest = await resolvePostAuthRedirect(user.id, user.email);
+          if (dest === null) return;
           setTimeout(() => {
             window.location.href = dest;
           }, 1000);
@@ -156,7 +168,8 @@ const AuthConfirm = () => {
         // Check if user is already logged in
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          const dest = await resolvePostAuthRedirect(session.user.id);
+          const dest = await resolvePostAuthRedirect(session.user.id, session.user.email);
+          if (dest === null) return;
           navigate(dest);
           return;
         }
@@ -191,7 +204,8 @@ const AuthConfirm = () => {
           setMessage('Your email has been confirmed successfully!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(data.user.id);
+          const dest = await resolvePostAuthRedirect(data.user.id, data.user.email);
+          if (dest === null) return;
           setTimeout(() => {
             navigate(dest);
           }, 2000);
