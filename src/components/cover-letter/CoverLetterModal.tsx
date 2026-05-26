@@ -75,10 +75,24 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({ job, reportI
   // Pull the contact block off the chosen résumé so the letter PDF can
   // render with the user's name + contact line, even before the row's own
   // resume_json (if any) is back.
+  //
+  // Older custom_resumes rows store resume_json as a stringified JSON blob
+  // instead of a parsed object (see CustomResumeResults.parseIfString). We
+  // mirror that defense here — without it, `resumeJson.contact` is undefined
+  // and the CoverLetter PDF crashes on `contact.email`.
   const sourceResumeJson = useMemo<ResumeJson | null>(() => {
     if (!selectedResumeId) return null;
     const row = completedResumes.find((r) => r.id === selectedResumeId);
-    return (row?.resume_json as unknown as ResumeJson) ?? null;
+    const raw = row?.resume_json;
+    if (!raw) return null;
+    if (typeof raw === 'string') {
+      try {
+        return JSON.parse(raw) as ResumeJson;
+      } catch {
+        return null;
+      }
+    }
+    return raw as unknown as ResumeJson;
   }, [selectedResumeId, completedResumes]);
 
   const status = letterRow?.status ?? (coverLetterId ? 'processing' : 'idle');
@@ -208,7 +222,10 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({ job, reportI
 
           {status === 'completed' && letterRow?.letter_json && sourceResumeJson && (
             <CompletedView
-              letterJson={letterRow.letter_json}
+              // letter_json can come back stringified if n8n's Supabase node
+              // sent JSON.stringify(...) into a JSONB column. parseIfString
+              // narrows it back to a real CoverLetterJson object.
+              letterJson={parseIfString<CoverLetterJson>(letterRow.letter_json)}
               resumeJson={sourceResumeJson}
               job={job}
             />
@@ -439,12 +456,16 @@ const CompletedView: React.FC<{
   resumeJson: ResumeJson;
   job: JobListing;
 }> = ({ letterJson, resumeJson, job }) => {
-  const safeName = (resumeJson.contact?.name || 'Cover_Letter').replace(/[^\w\-]+/g, '_');
+  // The PDF template dereferences `contact.email` etc. unconditionally —
+  // older résumés may not have a contact block at all, so synthesize a
+  // minimal one rather than letting the renderer crash.
+  const contact = resumeJson.contact ?? { name: 'Applicant' };
+  const safeName = (contact.name || 'Cover_Letter').replace(/[^\w\-]+/g, '_');
   const safeCompany = job.company.replace(/[^\w\-]+/g, '_');
   const fileName = `${safeName}__${safeCompany}__cover_letter.pdf`;
 
   const doc = (
-    <CoverLetter letter={letterJson} contact={resumeJson.contact} careerTitle={job.title} />
+    <CoverLetter letter={letterJson} contact={contact} careerTitle={job.title} />
   );
 
   return (
@@ -581,3 +602,19 @@ const CompletedView: React.FC<{
     </div>
   );
 };
+
+// ── Helpers ───────────────────────────────────────────────────
+// Older Supabase rows sometimes store JSONB as a stringified blob (when n8n
+// sends JSON.stringify(...) into a JSONB column). This narrows it back to a
+// real object whatever the storage shape is. Mirrors the same defense in
+// CustomResumeResults.tsx.
+function parseIfString<T>(value: unknown): T {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return value as unknown as T;
+    }
+  }
+  return value as T;
+}
