@@ -122,7 +122,8 @@ serve(async (req) => {
     // v7: split commitment 'part_time' (was P,C) into 'part_time' (P) + 'contract' (C) (2026-05-23).
     // v8: scoring tightened (role-function + seniority rules) + desc slice 400→600 (2026-05-26).
     // v9: rebuild descriptions from descriptionHtml so headings/paragraphs no longer smash together (2026-05-26).
-    const SEARCH_LOGIC_VERSION = 'v9';
+    // v10: scoring upgraded to Claude Sonnet 4.5 + Apply Scores threshold 5→3 (frontend partitions 3-5 vs 6+) (2026-05-26).
+    const SEARCH_LOGIC_VERSION = 'v10';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.

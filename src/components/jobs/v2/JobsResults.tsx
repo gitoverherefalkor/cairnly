@@ -300,75 +300,132 @@ const CareerGrouping: React.FC<{
   coverUnlocked,
   onInvite,
   onGenerateCoverLetter,
-}) => (
-  <section style={{ marginBottom: 44 }}>
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-        marginBottom: 16,
-        flexWrap: 'wrap',
-        gap: 12,
-      }}
-    >
-      <div>
-        {career && <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} />}
-        <h2
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 700,
-            fontSize: 28,
-            letterSpacing: '-0.025em',
-            color: '#fff',
-            margin: '8px 0 0 0',
-            lineHeight: 1.05,
-          }}
-        >
-          {careerTitle}
-        </h2>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <MatchHistogram jobs={jobs} />
-        <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
-          {jobs.length} {jobs.length === 1 ? 'role' : 'roles'}
-        </span>
-      </div>
-    </div>
-    {jobs.length === 0 ? (
+}) => {
+  // Score buckets (backend already drops 0-2):
+  //   6+    → main results (strong matches)
+  //   3-5   → collapsed "filtered" panel (weaker matches with visible reasoning)
+  //   null  → scoring failed; treat as main (don't penalize for infra issues)
+  const mainJobs = jobs.filter((j) => j.match_score == null || j.match_score >= 6);
+  const lowJobs = jobs.filter((j) => typeof j.match_score === 'number' && j.match_score >= 3 && j.match_score <= 5);
+  const [showLow, setShowLow] = useState(false);
+
+  return (
+    <section style={{ marginBottom: 44 }}>
       <div
         style={{
-          padding: 20,
-          background: 'rgba(18,46,59,0.40)',
-          border: '1px dashed rgba(255,255,255,0.10)',
-          borderRadius: 14,
-          fontFamily: FONT_BODY,
-          fontSize: 13,
-          color: 'rgba(255,255,255,0.5)',
-          textAlign: 'center',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          marginBottom: 16,
+          flexWrap: 'wrap',
+          gap: 12,
         }}
       >
-        No openings found for this career right now. Try widening location filters.
+        <div>
+          {career && <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} />}
+          <h2
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 28,
+              letterSpacing: '-0.025em',
+              color: '#fff',
+              margin: '8px 0 0 0',
+              lineHeight: 1.05,
+            }}
+          >
+            {careerTitle}
+          </h2>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <MatchHistogram jobs={jobs} />
+          <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
+            {mainJobs.length} {mainJobs.length === 1 ? 'strong match' : 'strong matches'}
+          </span>
+        </div>
       </div>
-    ) : (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {jobs.map((job) => (
-          <JobCardCream
-            key={job.id}
-            job={job}
-            saved={isJobSaved(job.id)}
-            onSave={() => onSaveJob(job)}
-            onUnsave={() => onUnsaveJob(job.id)}
-            resumeUnlocked={resumeUnlocked}
-            coverUnlocked={coverUnlocked}
-            onLockedAction={onInvite}
-            onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
-          />
-        ))}
-      </div>
-    )}
-  </section>
-);
+      {mainJobs.length === 0 ? (
+        <div
+          style={{
+            padding: 20,
+            background: 'rgba(18,46,59,0.40)',
+            border: '1px dashed rgba(255,255,255,0.10)',
+            borderRadius: 14,
+            fontFamily: FONT_BODY,
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.5)',
+            textAlign: 'center',
+          }}
+        >
+          {lowJobs.length > 0
+            ? 'No strong matches (6+/10) found. Lower-scoring matches are listed below.'
+            : 'No openings found for this career right now. Try widening location filters.'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {mainJobs.map((job) => (
+            <JobCardCream
+              key={job.id}
+              job={job}
+              saved={isJobSaved(job.id)}
+              onSave={() => onSaveJob(job)}
+              onUnsave={() => onUnsaveJob(job.id)}
+              resumeUnlocked={resumeUnlocked}
+              coverUnlocked={coverUnlocked}
+              onLockedAction={onInvite}
+              onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Lower-scoring matches (3-5/10): collapsed by default. Lets users
+          sanity-check what the AI cut and override if they disagree. */}
+      {lowJobs.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <button
+            type="button"
+            onClick={() => setShowLow((v) => !v)}
+            style={{
+              background: 'transparent',
+              color: 'rgba(255,255,255,0.65)',
+              border: '1px solid rgba(255,255,255,0.16)',
+              padding: '10px 16px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 600,
+              fontSize: 12.5,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            {showLow ? '▾' : '▸'} {lowJobs.length} more {lowJobs.length === 1 ? 'role' : 'roles'} scored 3-5
+            {showLow ? ' — hide' : ' — show why'}
+          </button>
+          {showLow && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14, opacity: 0.78 }}>
+              {lowJobs.map((job) => (
+                <JobCardCream
+                  key={job.id}
+                  job={job}
+                  saved={isJobSaved(job.id)}
+                  onSave={() => onSaveJob(job)}
+                  onUnsave={() => onUnsaveJob(job.id)}
+                  resumeUnlocked={resumeUnlocked}
+                  coverUnlocked={coverUnlocked}
+                  onLockedAction={onInvite}
+                  onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+};
 
 // ── Per-career searching / queued placeholder ─────────────────
 // Keeps in-progress careers visible (with the same header as a finished one)
