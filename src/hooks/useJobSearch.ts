@@ -56,8 +56,9 @@ export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
 // Hours / engagement commitment. Maps to LinkedIn's job-type filter (f_JT):
 //   any        → no filter
 //   full_time  → F
-//   part_time  → P,C (part-time + contract — covers fractional/interim)
-export type JobCommitment = 'any' | 'full_time' | 'part_time';
+//   part_time  → P
+//   contract   → C  (covers fractional, interim, freelance, consultant gigs)
+export type JobCommitment = 'any' | 'full_time' | 'part_time' | 'contract';
 
 /**
  * Hook for searching jobs sequentially (one career at a time).

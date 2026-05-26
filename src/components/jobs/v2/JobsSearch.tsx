@@ -36,7 +36,8 @@ const WORK_OPTIONS: { value: WorkArrangement; label: string }[] = [
 const COMMITMENT_OPTIONS: { value: JobCommitment; label: string }[] = [
   { value: 'any', label: 'Any hours' },
   { value: 'full_time', label: 'Full-time' },
-  { value: 'part_time', label: 'Part-time / fractional' },
+  { value: 'part_time', label: 'Part-time' },
+  { value: 'contract', label: 'Contract / Freelance' },
 ];
 
 // Collapsible panel showing the "avoid" preferences pulled from the user's
@@ -465,9 +466,9 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                 maxWidth: 640,
               }}
             >
-              Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time / fractional
-              roles are rarer, so this can return noticeably fewer results. Leave it on "Any hours" for
-              the widest search.
+              Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract
+              roles are rarer than full-time, so these can return noticeably fewer results. Leave it on
+              "Any hours" for the widest search.
             </p>
           </div>
         </div>

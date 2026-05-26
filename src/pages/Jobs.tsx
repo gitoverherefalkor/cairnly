@@ -413,11 +413,18 @@ const Jobs = () => {
       `${selectedCareers.length} ${selectedCareers.length === 1 ? 'career' : 'careers'}`,
       [primaryCountry, secondaryCountry].filter(Boolean).map((c) => c.toUpperCase()).join(' + '),
       workArrangement === 'remote_only' ? 'remote only' : workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
-      jobCommitment === 'full_time' ? 'full-time' : jobCommitment === 'part_time' ? 'part-time / fractional' : null,
+      jobCommitment === 'full_time'
+        ? 'full-time'
+        : jobCommitment === 'part_time'
+          ? 'part-time'
+          : jobCommitment === 'contract'
+            ? 'contract / freelance'
+            : null,
     ].filter(Boolean);
     return (
       <JobsResults
         firstName={firstName}
+        reportId={latestReport.id}
         results={results}
         careersBySectionType={careersBySectionType}
         savedCount={savedCount}

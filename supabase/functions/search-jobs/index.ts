@@ -51,9 +51,10 @@ serve(async (req) => {
       ? String(work_arrangement)
       : (body.remote_only ? 'remote_only' : 'any');
 
-    // Hours / commitment: 'any' (no filter) | 'full_time' | 'part_time'
-    // (part-time + contract, i.e. fractional/interim). Defaults to 'any'.
-    const VALID_COMMITMENTS = new Set(['any', 'full_time', 'part_time']);
+    // Hours / commitment: 'any' (no filter) | 'full_time' | 'part_time' |
+    // 'contract' (covers fractional/interim/freelance/consultant). Defaults
+    // to 'any'.
+    const VALID_COMMITMENTS = new Set(['any', 'full_time', 'part_time', 'contract']);
     const jobCommitment = VALID_COMMITMENTS.has(String(job_commitment))
       ? String(job_commitment)
       : 'any';
@@ -118,7 +119,8 @@ serve(async (req) => {
     // v4: scoring sees 400 chars of description (was 200) (2026-05-22).
     // v5: capture workplace_type + employment_type for result badges (2026-05-22).
     // v6: apply_url now uses LinkedIn job page instead of offsite applyUrl (2026-05-23).
-    const SEARCH_LOGIC_VERSION = 'v6';
+    // v7: split commitment 'part_time' (was P,C) into 'part_time' (P) + 'contract' (C) (2026-05-23).
+    const SEARCH_LOGIC_VERSION = 'v7';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
