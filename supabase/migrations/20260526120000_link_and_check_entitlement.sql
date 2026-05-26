@@ -65,10 +65,12 @@ BEGIN
 END;
 $$;
 
--- Lock the function down. SECURITY DEFINER + revoke from PUBLIC + grant to
--- authenticated only. Anon callers (no session) would get NULL auth.uid()
--- anyway, but this is explicit.
+-- Lock the function down. SECURITY DEFINER + revoke from PUBLIC + revoke
+-- from anon (Supabase's pg_default_acl auto-grants EXECUTE to anon on every
+-- new function in public, which the FROM PUBLIC revoke does NOT strip) +
+-- grant to authenticated only.
 REVOKE ALL ON FUNCTION public.link_and_check_entitlement() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.link_and_check_entitlement() FROM anon;
 GRANT EXECUTE ON FUNCTION public.link_and_check_entitlement() TO authenticated;
 
 COMMENT ON FUNCTION public.link_and_check_entitlement() IS
