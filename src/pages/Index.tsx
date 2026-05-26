@@ -2,6 +2,7 @@ import React from 'react';
 import './../components/landing/landing.css';
 import LandingNav from '@/components/landing/LandingNav';
 import Hero from '@/components/landing/Hero';
+import NoPurchaseBanner from '@/components/landing/NoPurchaseBanner';
 import Pillars from '@/components/landing/Pillars';
 import HowItWorks from '@/components/landing/HowItWorks';
 import ForkDivider from '@/components/landing/ForkDivider';
@@ -25,6 +26,7 @@ const Index: React.FC = () => (
     className="min-h-screen font-sans overflow-x-clip"
     style={{ background: '#F4ECDA', color: '#122E3B' }}
   >
+    <NoPurchaseBanner />
     <LandingNav variant="home" />
     <main>
       <Hero />
