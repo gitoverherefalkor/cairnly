@@ -13,6 +13,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Lock, Upload } from 'lucide-react';
+// Cover-letter generation was decoupled from the résumé builder — it's now
+// triggered per posting from the Found Roles page (each JobCard has its own
+// "Cover letter" action), since a good letter is per-application, not per
+// career type. The toggle and referral-tier read have been removed below.
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -52,7 +56,6 @@ const CustomResume = () => {
   // surface that choice on the Results screen instead of forcing it up-front.
   const [selected, setSelected] = useState<CareerSelection[]>([]);
   const [templateId] = useState<TemplateId>('ats-classic');
-  const [includeCoverLetter, setIncludeCoverLetter] = useState(true);
 
   const generate = useGenerateCustomResume();
   const latestReport = reports?.length ? reports[0] : null;
@@ -105,15 +108,6 @@ const CustomResume = () => {
     );
   }
 
-  // Cover letter is a separate tier in the referral ladder. The wizard
-  // checkbox stays disabled until that tier is unlocked.
-  const coverLetterFeature = referralStatus.features.find((f) => f.key === 'cover-letter');
-  const coverLetterUnlocked = coverLetterFeature?.unlocked ?? false;
-  const referralsToCoverLetter = Math.max(
-    0,
-    (coverLetterFeature?.requiredReferrals ?? 3) - referralStatus.referralCount,
-  );
-
   // Résumé prerequisite
   if (!profile?.resume_uploaded_at) {
     return (
@@ -137,10 +131,6 @@ const CustomResume = () => {
           sections={sections}
           selected={selected}
           setSelected={setSelected}
-          includeCoverLetter={includeCoverLetter}
-          setIncludeCoverLetter={setIncludeCoverLetter}
-          coverLetterUnlocked={coverLetterUnlocked}
-          referralsToCoverLetter={referralsToCoverLetter}
           isGenerating={generate.isPending}
           onGenerate={async () => {
             try {
@@ -148,10 +138,6 @@ const CustomResume = () => {
                 reportId: latestReport.id,
                 selectedCareers: selected,
                 templateId,
-                // Belt-and-suspenders: ignore the checkbox state if the user
-                // hasn't unlocked the cover-letter tier (the UI disables it
-                // already, but never trust client state).
-                includeCoverLetter: coverLetterUnlocked && includeCoverLetter,
               });
               setSearchParams({ ids: result.custom_resume_ids.join(',') }, { replace: false });
             } catch {
@@ -176,10 +162,6 @@ const BuilderWithSaved: React.FC<{
   sections: ReturnType<typeof useReportSections>['sections'];
   selected: CareerSelection[];
   setSelected: (next: CareerSelection[]) => void;
-  includeCoverLetter: boolean;
-  setIncludeCoverLetter: (next: boolean) => void;
-  coverLetterUnlocked: boolean;
-  referralsToCoverLetter: number;
   isGenerating: boolean;
   onGenerate: () => void;
   onView: (id: string) => void;
@@ -187,10 +169,6 @@ const BuilderWithSaved: React.FC<{
   sections,
   selected,
   setSelected,
-  includeCoverLetter,
-  setIncludeCoverLetter,
-  coverLetterUnlocked,
-  referralsToCoverLetter,
   isGenerating,
   onGenerate,
   onView,
@@ -204,10 +182,6 @@ const BuilderWithSaved: React.FC<{
         sections={sections}
         selected={selected}
         onSelectedChange={setSelected}
-        includeCoverLetter={includeCoverLetter}
-        onCoverLetterChange={setIncludeCoverLetter}
-        coverLetterUnlocked={coverLetterUnlocked}
-        referralsToCoverLetter={referralsToCoverLetter}
         isGenerating={isGenerating}
         onGenerate={onGenerate}
         savedCount={savedCount}

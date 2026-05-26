@@ -16,7 +16,6 @@ interface GenerateArgs {
   reportId: string;
   selectedCareers: CareerSelection[];
   templateId: TemplateId;
-  includeCoverLetter: boolean;
   userOverrides?: UserOverrides;
 }
 
@@ -28,7 +27,10 @@ export function useGenerateCustomResume() {
           report_id: args.reportId,
           selected_careers: args.selectedCareers,
           template_id: args.templateId,
-          include_cover_letter: args.includeCoverLetter,
+          // Cover letters were decoupled from this flow — they're generated
+          // per posting from the Found Roles page. Always force false here
+          // so any stale n8n branch that reads the flag stays inactive.
+          include_cover_letter: false,
           user_overrides: args.userOverrides ?? {},
         },
       });

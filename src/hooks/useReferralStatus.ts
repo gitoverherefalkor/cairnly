@@ -41,13 +41,14 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
   {
     key: 'cover-letter',
     title: 'Tailor Cover Letters',
-    description: 'Generate cover letters customised to each job you have shortlisted.',
+    description:
+      'Generate a tailored cover letter for each role from your job search — written to the specific posting and organisation.',
     requiredReferrals: 3,
-    // Cover letter generation lives inside the Custom Résumé wizard as a
-    // checkbox — it doesn't have its own route. Setting builtYet=true so the
-    // dashboard tile shows it as a real unlock instead of "coming soon".
+    // Cover letters are generated per posting from the Find Open Roles page —
+    // each scraped role on /jobs has its own "Cover letter" action that opens
+    // the modal. So this tile routes to /jobs (fresh search), not /custom-resume.
     builtYet: true,
-    route: '/custom-resume',
+    route: '/jobs?mode=search',
   },
 ];
 

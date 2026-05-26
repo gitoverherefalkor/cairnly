@@ -89,7 +89,6 @@ export interface GenerateRequest {
   report_id: string;
   selected_careers: CareerSelection[];
   template_id: string;
-  include_cover_letter: boolean;
   user_overrides?: UserOverrides;
 }
 

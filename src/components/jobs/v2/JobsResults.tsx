@@ -4,7 +4,7 @@
 // employment / actively-hiring is dropped because those fields aren't wired
 // through the search-jobs edge function yet.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, ExternalLink, FilePlus, FileText, Heart, Loader2, Lock, Sliders } from 'lucide-react';
 import {
   PALETTE,
@@ -14,6 +14,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { JobListing, JobSearchResult } from '@/hooks/useJobSearch';
+import { CoverLetterModal } from '@/components/cover-letter/CoverLetterModal';
 import {
   CareerTierBadge,
   CompanyLogo,
@@ -33,6 +34,7 @@ export interface JobsResultsCareer {
 
 interface JobsResultsProps {
   firstName: string;
+  reportId: string;
   results: JobSearchResult[];
   careersBySectionType: Map<string, JobsResultsCareer>;
   savedCount: number;
@@ -52,6 +54,7 @@ interface JobsResultsProps {
 
 export const JobsResults: React.FC<JobsResultsProps> = ({
   firstName,
+  reportId,
   results,
   careersBySectionType,
   savedCount,
@@ -73,6 +76,11 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
   const finished = results.filter((r) => r.status === 'done');
   const totalJobs = finished.reduce((sum, r) => sum + r.jobs.length, 0);
   const showInviteHint = !resumeUnlocked || !coverUnlocked;
+
+  // Which job has the cover-letter modal open. null = modal closed.
+  // Lives here so a single modal instance can be controlled from any
+  // JobCardCream below.
+  const [coverLetterJob, setCoverLetterJob] = useState<JobListing | null>(null);
 
   return (
     <LakeBackground intensity="normal">
@@ -242,6 +250,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
                 resumeUnlocked={resumeUnlocked}
                 coverUnlocked={coverUnlocked}
                 onInvite={onInvite}
+                onGenerateCoverLetter={(job) => setCoverLetterJob(job)}
               />
             );
           }
@@ -256,6 +265,14 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
           );
         })}
       </div>
+
+      {coverLetterJob && (
+        <CoverLetterModal
+          job={coverLetterJob}
+          reportId={reportId}
+          onClose={() => setCoverLetterJob(null)}
+        />
+      )}
     </LakeBackground>
   );
 };
@@ -271,7 +288,19 @@ const CareerGrouping: React.FC<{
   resumeUnlocked: boolean;
   coverUnlocked: boolean;
   onInvite: () => void;
-}> = ({ career, careerTitle, jobs, isJobSaved, onSaveJob, onUnsaveJob, resumeUnlocked, coverUnlocked, onInvite }) => (
+  onGenerateCoverLetter: (job: JobListing) => void;
+}> = ({
+  career,
+  careerTitle,
+  jobs,
+  isJobSaved,
+  onSaveJob,
+  onUnsaveJob,
+  resumeUnlocked,
+  coverUnlocked,
+  onInvite,
+  onGenerateCoverLetter,
+}) => (
   <section style={{ marginBottom: 44 }}>
     <div
       style={{
@@ -333,6 +362,7 @@ const CareerGrouping: React.FC<{
             resumeUnlocked={resumeUnlocked}
             coverUnlocked={coverUnlocked}
             onLockedAction={onInvite}
+            onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
           />
         ))}
       </div>
@@ -431,7 +461,17 @@ const JobCardCream: React.FC<{
   resumeUnlocked: boolean;
   coverUnlocked: boolean;
   onLockedAction: () => void;
-}> = ({ job, saved, onSave, onUnsave, resumeUnlocked, coverUnlocked, onLockedAction }) => {
+  onGenerateCoverLetter: () => void;
+}> = ({
+  job,
+  saved,
+  onSave,
+  onUnsave,
+  resumeUnlocked,
+  coverUnlocked,
+  onLockedAction,
+  onGenerateCoverLetter,
+}) => {
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const postedText = fmtPostedAgo(job.posted_date);
@@ -638,10 +678,12 @@ const JobCardCream: React.FC<{
           onLocked={onLockedAction}
         />
         <LockedActionButton
+          tone="gold"
           unlocked={coverUnlocked}
           icon={<FilePlus size={12} />}
           label="Cover letter"
           onLocked={onLockedAction}
+          onClick={onGenerateCoverLetter}
         />
         <button
           type="button"
@@ -670,39 +712,73 @@ const JobCardCream: React.FC<{
   );
 };
 
+// Card-side action button used for the "Tailor resume" and "Cover letter"
+// CTAs. `tone="teal"` (default) stays outlined-teal to keep the secondary
+// hierarchy; `tone="gold"` fills with mustard so the unlocked action reads
+// as a primary CTA on the cream card. Locked state uses the same muted
+// grey + lock icon regardless of tone, so the contrast between locked and
+// unlocked is unmistakable.
 const LockedActionButton: React.FC<{
   unlocked: boolean;
   icon: React.ReactNode;
   label: string;
   onLocked: () => void;
-}> = ({ unlocked, icon, label, onLocked }) => (
-  <button
-    type="button"
-    onClick={() => {
-      if (!unlocked) onLocked();
-      // When unlocked, the actual resume/cover flow is out of scope for this
-      // redesign; the parent /jobs page will wire it later. For now, no-op.
-    }}
-    style={{
-      background: 'transparent',
-      border: `1px solid ${PALETTE.tan}`,
-      padding: '8px 14px',
-      borderRadius: 9999,
-      color: unlocked ? PALETTE.tealDeep : PALETTE.inkMuted,
-      fontFamily: FONT_BODY,
-      fontWeight: 700,
-      fontSize: 12.5,
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      cursor: 'pointer',
-    }}
-  >
-    {unlocked ? icon : <Lock size={12} />}
-    {label}
-  </button>
-);
+  // Fired when the user clicks the button and the feature *is* unlocked.
+  // Optional — buttons that don't have a wired-up flow yet (e.g. Tailor
+  // resume from a job posting) leave it undefined and become no-ops.
+  onClick?: () => void;
+  tone?: 'teal' | 'gold';
+}> = ({ unlocked, icon, label, onLocked, onClick, tone = 'teal' }) => {
+  const lockedStyle: React.CSSProperties = {
+    background: 'rgba(18, 46, 59, 0.04)',
+    border: `1px dashed ${PALETTE.tan}`,
+    color: PALETTE.inkMuted,
+    boxShadow: 'none',
+  };
+  const unlockedStyle: React.CSSProperties =
+    tone === 'gold'
+      ? {
+          background: PALETTE.gold,
+          border: '1px solid transparent',
+          color: PALETTE.canvasDeep,
+          boxShadow: '0 8px 18px -8px rgba(212,160,36,0.55)',
+        }
+      : {
+          background: 'transparent',
+          border: `1px solid ${PALETTE.tan}`,
+          color: PALETTE.tealDeep,
+          boxShadow: 'none',
+        };
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (!unlocked) {
+          onLocked();
+          return;
+        }
+        onClick?.();
+      }}
+      style={{
+        padding: '8px 14px',
+        borderRadius: 9999,
+        fontFamily: FONT_BODY,
+        fontWeight: 700,
+        fontSize: 12.5,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        cursor: 'pointer',
+        ...(unlocked ? unlockedStyle : lockedStyle),
+      }}
+    >
+      {unlocked ? icon : <Lock size={12} />}
+      {label}
+    </button>
+  );
+};
 
 // "110–180k" with no currency symbol (per product decision — no currency in schema).
 function formatSalaryRange(min: number | null | undefined, max: number | null | undefined): string {

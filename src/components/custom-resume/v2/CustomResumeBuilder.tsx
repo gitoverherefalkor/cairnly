@@ -6,12 +6,13 @@
 // Sections, top to bottom:
 //   - Hero (eyebrow + headline + sub)
 //   - Careers picker (max 3 selectable, grouped by tier)
-//   - Template picker (5 cards — 2 ATS-safe, 3 designed)
-//   - Cover-letter toggle (pill-style)
 //   - Generate CTA (gold)
+//
+// Cover-letter generation lives on /jobs (each posting has its own action)
+// since a good letter is per-application, not per career type.
 
 import React from 'react';
-import { ArrowDown, Award, BookOpen, CheckCircle2, Lightbulb, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
+import { ArrowDown, Award, BookOpen, Lightbulb, Loader2, Sparkles } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -56,13 +57,6 @@ interface CustomResumeBuilderProps {
   sections: ReportSection[];
   selected: CareerSelection[];
   onSelectedChange: (next: CareerSelection[]) => void;
-  includeCoverLetter: boolean;
-  onCoverLetterChange: (next: boolean) => void;
-  // Cover letter sits behind a higher referral tier than the résumé itself.
-  // When locked, the pill toggle is disabled and shows an "invite N more"
-  // hint instead of the on-by-default state.
-  coverLetterUnlocked: boolean;
-  referralsToCoverLetter: number;
   isGenerating: boolean;
   onGenerate: () => void;
   // When the user already has saved résumés, show a "Jump to saved (N)"
@@ -76,10 +70,6 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
   sections,
   selected,
   onSelectedChange,
-  includeCoverLetter,
-  onCoverLetterChange,
-  coverLetterUnlocked,
-  referralsToCoverLetter,
   isGenerating,
   onGenerate,
   savedCount = 0,
@@ -220,7 +210,7 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
           The Results screen has a dropdown to switch between all templates
           on already-generated data. */}
 
-      {/* Cover letter + CTA */}
+      {/* Generate CTA */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         {(() => {
           const disabled = selected.length === 0 || isGenerating;
@@ -275,13 +265,6 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
           );
         })()}
 
-        <CoverLetterToggle
-          checked={coverLetterUnlocked && includeCoverLetter}
-          onChange={onCoverLetterChange}
-          locked={!coverLetterUnlocked}
-          invitesNeeded={referralsToCoverLetter}
-        />
-
         <div
           style={{
             fontFamily: FONT_BODY,
@@ -293,6 +276,23 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
           }}
         >
           Typical generation takes 20–40 seconds. Each résumé updates live as it completes.
+        </div>
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.6)',
+            flexBasis: '100%',
+            marginTop: 2,
+          }}
+        >
+          Looking for cover letters? Open a posting from{' '}
+          <a href="/jobs" style={{ color: PALETTE.goldBright, textDecoration: 'underline' }}>
+            Find Open Roles
+          </a>{' '}
+          — each one has its own "Cover letter" action so we can tailor the letter to the
+          organization and posting.
         </div>
         <div
           style={{
@@ -442,83 +442,6 @@ const TierIcon: React.FC<{
     <span style={baseStyle}>
       <Lightbulb size={12} />
     </span>
-  );
-};
-
-// ── Cover-letter toggle (pill, matches Jobs "Remote-friendly only") ──
-// When `locked` is true, the toggle visually mutes and swaps its label to a
-// "invite N more" hint. Click is a no-op — the page also forces
-// includeCoverLetter=false on submit, so this is belt-and-suspenders.
-const CoverLetterToggle: React.FC<{
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  locked: boolean;
-  invitesNeeded: number;
-}> = ({ checked, onChange, locked, invitesNeeded }) => {
-  // Checked state needs to read clearly as "selected" — filled teal background
-  // with the canvas-deep text and a soft glow, mirroring the gold CTA next to
-  // it. The unchecked state stays subtle (transparent w/ thin border).
-  const border = locked
-    ? '1px dashed rgba(212,160,36,0.45)'
-    : checked
-      ? `1.5px solid ${PALETTE.tealBright}`
-      : '1px solid rgba(255,255,255,0.22)';
-  const background = locked
-    ? 'rgba(212,160,36,0.08)'
-    : checked
-      ? PALETTE.teal
-      : 'transparent';
-  const color = locked
-    ? PALETTE.goldBright
-    : checked
-      ? '#fff'
-      : 'rgba(255,255,255,0.92)';
-  const boxShadow = checked && !locked
-    ? '0 10px 28px -10px rgba(39,161,161,0.65)'
-    : undefined;
-
-  return (
-    <label
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 10,
-        cursor: locked ? 'not-allowed' : 'pointer',
-        padding: '10px 14px',
-        borderRadius: 9999,
-        border,
-        background,
-        fontFamily: FONT_BODY,
-        fontWeight: 700,
-        fontSize: 13,
-        color,
-        whiteSpace: 'nowrap',
-        height: 42,
-        boxSizing: 'border-box',
-        opacity: locked ? 0.85 : 1,
-        boxShadow,
-      }}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        disabled={locked}
-        onChange={(e) => onChange(e.target.checked)}
-        style={{ display: 'none' }}
-      />
-      {locked ? (
-        <Lock size={13} />
-      ) : checked ? (
-        <CheckCircle2 size={15} />
-      ) : (
-        <Mail size={14} />
-      )}
-      {locked
-        ? `Cover letters · invite ${invitesNeeded} more to unlock`
-        : checked
-          ? 'Cover letters included'
-          : 'Add cover letters'}
-    </label>
   );
 };
 
