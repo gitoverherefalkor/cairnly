@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
-import { useReportSections } from '@/hooks/useReportSections';
+import { useReportSections, type ReportSection } from '@/hooks/useReportSections';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
 import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
@@ -15,7 +16,6 @@ import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
 import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/DashboardEntryState';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import {
-  extractSubsectionContent,
   pickShareSentences,
   stripHtml,
 } from '@/components/dashboard/v2/dashboardV2Shared';
@@ -69,6 +69,7 @@ const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
   const { reports, isLoading: reportsLoading } = useReports();
+  const queryClient = useQueryClient();
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
   const [showExecSummaryModal, setShowExecSummaryModal] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
@@ -289,12 +290,17 @@ const Dashboard = () => {
       .filter(Boolean) as { sectionType: string; title: string; quotes: string[] }[];
   }, [reportSections]);
 
+  // Role shares — Top 1/2/3 + every outside-the-box career. Quotes come from
+  // the cached `share_quotes` jsonb column on report_sections, which is
+  // populated on-demand by the generate-share-quotes edge function. The
+  // modal kicks off generation if any role's quotes are null.
   const roleShares = useMemo(() => {
     type Role = {
+      sectionId: string;
       sectionType: string;
       title: string;
       matchPct: number | null;
-      quotes: string[];
+      quotes: string[] | null;
       isOutsideBox: boolean;
     };
     const out: Role[] = [];
@@ -305,27 +311,26 @@ const Dashboard = () => {
       const s = reportSections.find((x) => x.section_type === type);
       if (!s) continue;
       const title = cleanTitle(s.title) || 'Best-fit career';
-      const sub = extractSubsectionContent(s.content || '', ['why this role fits you']);
-      const quotes = pickShareSentences(sub || s.content || '', null, 4);
-      if (quotes.length === 0) continue;
       const matchPct = s.score != null ? Math.round(Number(s.score)) || 0 : null;
-      out.push({ sectionType: type, title, matchPct, quotes, isOutsideBox: false });
+      out.push({
+        sectionId: s.id,
+        sectionType: type,
+        title,
+        matchPct,
+        quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
+        isOutsideBox: false,
+      });
     }
 
     const outsideBox = reportSections.filter((x) => x.section_type === 'outside_box');
     for (const s of outsideBox) {
       const title = cleanTitle(s.title) || 'Outside-the-box career';
-      const sub = extractSubsectionContent(s.content || '', [
-        'why this might be a fit',
-        'why this role fits you',
-      ]);
-      const quotes = pickShareSentences(sub || s.content || '', null, 4);
-      if (quotes.length === 0) continue;
       out.push({
+        sectionId: s.id,
         sectionType: 'outside_box',
         title,
         matchPct: null,
-        quotes,
+        quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
         isOutsideBox: true,
       });
     }
@@ -389,8 +394,23 @@ const Dashboard = () => {
             open={showShareCard}
             onClose={() => setShowShareCard(false)}
             firstName={firstName}
+            reportId={latestReport.id}
             personalityShares={personalityShares}
             roleShares={roleShares}
+            onQuotesGenerated={(updates) => {
+              // After the edge function returns, merge cached quotes into the
+              // react-query cache for report-sections so the next render
+              // (and any future modal opens) get them without a refetch.
+              queryClient.setQueryData(
+                ['report-sections', latestReport.id],
+                (old: ReportSection[] | undefined) => {
+                  if (!old) return old;
+                  return old.map((s) =>
+                    updates[s.id] ? { ...s, share_quotes: updates[s.id] } : s,
+                  );
+                },
+              );
+            }}
           />
         )}
 

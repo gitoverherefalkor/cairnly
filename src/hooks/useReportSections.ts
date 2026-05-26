@@ -46,6 +46,11 @@ export interface ReportSection {
     fit_scores?: FitScores;
     comparison?: CareerComparison;
   } | null;
+  // AI-summarized shareable quotes for the share-card modal. Generated
+  // on-demand by the generate-share-quotes edge function and persisted
+  // here. Null until first generation. Only populated on top_career_1/2/3
+  // and outside_box sections.
+  share_quotes: string[] | null;
   created_at: string;
   updated_at: string;
 }

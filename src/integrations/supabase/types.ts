@@ -253,6 +253,116 @@ export type Database = {
           },
         ]
       }
+      content_feedback: {
+        Row: {
+          content_snapshot: string | null
+          created_at: string
+          id: string
+          rating: string
+          report_id: string | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Insert: {
+          content_snapshot?: string | null
+          created_at?: string
+          id?: string
+          rating?: string
+          report_id?: string | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Update: {
+          content_snapshot?: string | null
+          created_at?: string
+          id?: string
+          rating?: string
+          report_id?: string | null
+          target_id?: string
+          target_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_feedback_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cover_letters: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          job_apply_url: string | null
+          job_company: string
+          job_description: string | null
+          job_external_id: string | null
+          job_location: string | null
+          job_title: string
+          letter_json: Json | null
+          report_id: string
+          source_resume_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_apply_url?: string | null
+          job_company: string
+          job_description?: string | null
+          job_external_id?: string | null
+          job_location?: string | null
+          job_title: string
+          letter_json?: Json | null
+          report_id: string
+          source_resume_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_apply_url?: string | null
+          job_company?: string
+          job_description?: string | null
+          job_external_id?: string | null
+          job_location?: string | null
+          job_title?: string
+          letter_json?: Json | null
+          report_id?: string
+          source_resume_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cover_letters_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cover_letters_source_resume_id_fkey"
+            columns: ["source_resume_id"]
+            isOneToOne: false
+            referencedRelation: "custom_resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_resumes: {
         Row: {
           ats_score: number | null
@@ -772,6 +882,7 @@ export type Database = {
           report_id: string
           score: number | null
           section_type: string
+          share_quotes: Json | null
           title: string | null
           updated_at: string
         }
@@ -790,6 +901,7 @@ export type Database = {
           report_id: string
           score?: number | null
           section_type: string
+          share_quotes?: Json | null
           title?: string | null
           updated_at?: string
         }
@@ -808,6 +920,7 @@ export type Database = {
           report_id?: string
           score?: number | null
           section_type?: string
+          share_quotes?: Json | null
           title?: string | null
           updated_at?: string
         }
@@ -936,51 +1049,72 @@ export type Database = {
       }
       saved_jobs: {
         Row: {
+          applied_at: string | null
           apply_url: string | null
+          archived_reason: string | null
           company_name: string | null
           description_snippet: string | null
           external_job_id: string
+          from_career: string | null
           id: string
           job_search_id: string | null
           job_title: string
           location: string | null
+          match_score: number | null
+          note: string | null
           posted_date: string | null
           salary_max: number | null
           salary_min: number | null
           saved_at: string | null
           source: string
+          stage: string | null
+          status: string
           user_id: string
         }
         Insert: {
+          applied_at?: string | null
           apply_url?: string | null
+          archived_reason?: string | null
           company_name?: string | null
           description_snippet?: string | null
           external_job_id: string
+          from_career?: string | null
           id?: string
           job_search_id?: string | null
           job_title: string
           location?: string | null
+          match_score?: number | null
+          note?: string | null
           posted_date?: string | null
           salary_max?: number | null
           salary_min?: number | null
           saved_at?: string | null
           source?: string
+          stage?: string | null
+          status?: string
           user_id: string
         }
         Update: {
+          applied_at?: string | null
           apply_url?: string | null
+          archived_reason?: string | null
           company_name?: string | null
           description_snippet?: string | null
           external_job_id?: string
+          from_career?: string | null
           id?: string
           job_search_id?: string | null
           job_title?: string
           location?: string | null
+          match_score?: number | null
+          note?: string | null
           posted_date?: string | null
           salary_max?: number | null
           salary_min?: number | null
           saved_at?: string | null
           source?: string
+          stage?: string | null
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -1527,3 +1661,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

@@ -7,6 +7,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { Download, Loader2, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -28,10 +29,13 @@ export interface PersonalityShare {
 }
 
 export interface RoleShare {
+  sectionId: string;
   sectionType: string;
   title: string;
   matchPct: number | null;
-  quotes: string[];
+  // Cached AI-summarized quotes from the report_sections.share_quotes column.
+  // Null means the modal needs to call generate-share-quotes to populate them.
+  quotes: string[] | null;
   isOutsideBox: boolean;
 }
 
@@ -39,8 +43,13 @@ interface ShareCardModalProps {
   open: boolean;
   onClose: () => void;
   firstName: string;
+  reportId: string;
   personalityShares: PersonalityShare[];
   roleShares: RoleShare[];
+  // Called after the edge function returns with freshly-generated quotes,
+  // keyed by section id. Lets the parent update the report-sections query
+  // cache so future opens skip the LLM call.
+  onQuotesGenerated?: (updates: Record<string, string[]>) => void;
 }
 
 type CardType = 'personality' | 'role';
@@ -49,8 +58,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   open,
   onClose,
   firstName,
+  reportId,
   personalityShares,
   roleShares,
+  onQuotesGenerated,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +73,21 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   const [personalityIdx, setPersonalityIdx] = useState(0);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [exporting, setExporting] = useState(false);
+
+  // Local cache of role quotes — hydrated from props, updated when the
+  // generate-share-quotes edge function returns. Lets the modal show fresh
+  // quotes immediately without waiting for the parent to refetch.
+  const [generatedQuotes, setGeneratedQuotes] = useState<Record<string, string[]>>({});
+  const [generatingQuotes, setGeneratingQuotes] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+
+  // Compute the effective role quotes: prefer freshly-generated (this session),
+  // then the persisted share_quotes from props, else null = needs generation.
+  const effectiveRoleQuotes = (role: RoleShare | undefined): string[] | null => {
+    if (!role) return null;
+    if (generatedQuotes[role.sectionId]) return generatedQuotes[role.sectionId];
+    return role.quotes;
+  };
 
   // Body scroll lock + Escape to close.
   useEffect(() => {
@@ -85,10 +111,52 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
     setQuoteIdx(0);
   }, [cardType, roleIdx, personalityIdx]);
 
+  // Trigger AI summarization the first time the modal opens (or whenever
+  // it opens with role quotes still missing). Idempotent: the edge function
+  // returns cached quotes from the DB if they exist, otherwise generates +
+  // saves them. One call covers all role sections in a single request.
+  useEffect(() => {
+    if (!open) return;
+    if (!reportId) return;
+    if (roleShares.length === 0) return;
+    const anyMissing = roleShares.some(
+      (r) => !generatedQuotes[r.sectionId] && (!r.quotes || r.quotes.length === 0),
+    );
+    if (!anyMissing) return;
+    let cancelled = false;
+    setGeneratingQuotes(true);
+    setGenerateError(null);
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-share-quotes', {
+          body: { report_id: reportId },
+        });
+        if (cancelled) return;
+        if (error) throw error;
+        const updates = (data?.quotes ?? {}) as Record<string, string[]>;
+        if (updates && typeof updates === 'object') {
+          setGeneratedQuotes((prev) => ({ ...prev, ...updates }));
+          onQuotesGenerated?.(updates);
+        }
+      } catch (e) {
+        if (cancelled) return;
+        console.error('[ShareCardModal] generate-share-quotes failed:', e);
+        setGenerateError('Could not generate quotes. Try closing and re-opening.');
+      } finally {
+        if (!cancelled) setGeneratingQuotes(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, reportId]);
+
   const activeQuotes = useMemo(() => {
-    if (cardType === 'role') return roleShares[roleIdx]?.quotes ?? [];
+    if (cardType === 'role') return effectiveRoleQuotes(roleShares[roleIdx]) ?? [];
     return personalityShares[personalityIdx]?.quotes ?? [];
-  }, [cardType, roleIdx, personalityIdx, roleShares, personalityShares]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardType, roleIdx, personalityIdx, roleShares, personalityShares, generatedQuotes]);
 
   const quote = activeQuotes[quoteIdx] || activeQuotes[0] || '';
   const role = roleShares[roleIdx];
@@ -249,21 +317,53 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         )}
 
         {/* Quote picker */}
-        {activeQuotes.length > 0 && (
-          <div style={{ marginTop: 20 }}>
+        <div style={{ marginTop: 20 }}>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: PALETTE.inkSoft,
+              marginBottom: 8,
+            }}
+          >
+            Choose the line
+          </div>
+          {cardType === 'role' && generatingQuotes && activeQuotes.length === 0 ? (
             <div
               style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: PALETTE.inkSoft,
-                marginBottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                background: '#fff',
+                border: `1px dashed ${PALETTE.tan}`,
+                borderRadius: 12,
+                padding: '14px 16px',
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                color: PALETTE.inkMuted,
               }}
             >
-              Choose the line
+              <Loader2 size={14} className="animate-spin" />
+              Generating shareable quotes from your report…
             </div>
+          ) : cardType === 'role' && generateError && activeQuotes.length === 0 ? (
+            <div
+              style={{
+                background: '#fff',
+                border: `1px solid ${PALETTE.tan}`,
+                borderRadius: 12,
+                padding: '12px 14px',
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                color: PALETTE.inkMuted,
+              }}
+            >
+              {generateError}
+            </div>
+          ) : activeQuotes.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {activeQuotes.map((q, i) => (
                 <button
@@ -288,8 +388,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          ) : null}
+        </div>
 
         <div style={{ display: 'flex', gap: 10, marginTop: 22, justifyContent: 'flex-end' }}>
           <button
