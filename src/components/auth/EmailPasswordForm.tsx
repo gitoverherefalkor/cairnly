@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, CheckCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getPostAuthRedirect } from '@/hooks/useAuth';
+import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 
 interface EmailPasswordFormProps {
   isLogin: boolean;
@@ -101,6 +102,14 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
         }
 
         if (data.user) {
+          // Entitlement gate: if this user has no purchase / no product activity,
+          // sign them back out and bounce to the landing page with a banner.
+          const { entitled } = await checkEntitlement();
+          if (!entitled) {
+            await signOutNoPurchase(data.user.email);
+            return;
+          }
+
           localStorage.setItem('atlas_auth_method', 'email');
           toast({
             title: t('toasts.welcomeBack'),
