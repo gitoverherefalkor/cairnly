@@ -17,6 +17,11 @@
 // (option picked, nothing typed) never counts.
 const OTHER_MIN_CHARS = 4;
 
+// Career-happiness "Why this score?" minimum length. Without enough context
+// behind a score, downstream personalization either pads with vague claims
+// or invents reasoning — so we require a short justification per role.
+export const CAREER_HAPPINESS_MIN_REASON_CHARS = 15;
+
 function isOtherValueComplete(value: unknown): boolean {
   if (typeof value !== 'string') return true;
   if (value === 'other') return false;
@@ -76,6 +81,19 @@ export function isQuestionAnswered(question: any, response: any): boolean {
       if (hasLang && hasProf) validCount++;
     }
     return validCount >= 1;
+  }
+
+  if (question.type === 'career_happiness') {
+    // Every active role needs a happiness rating AND a justification of at
+    // least CAREER_HAPPINESS_MIN_REASON_CHARS characters — see the constant's
+    // comment for the reasoning.
+    if (!Array.isArray(response) || response.length === 0) return false;
+    for (const entry of response) {
+      if (typeof entry?.happiness !== 'number' || entry.happiness < 1) return false;
+      const reason = typeof entry?.reason === 'string' ? entry.reason.trim() : '';
+      if (reason.length < CAREER_HAPPINESS_MIN_REASON_CHARS) return false;
+    }
+    return true;
   }
 
   if (question.type === 'career_history') {

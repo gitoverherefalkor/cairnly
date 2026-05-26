@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { GripVertical, Mic, Loader2 } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { CAREER_HAPPINESS_MIN_REASON_CHARS } from './questionValidation';
 
 interface QuestionRendererProps {
   question: Question;
@@ -1501,9 +1502,20 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs text-atlas-navy font-medium mb-1">
-                      Why this score? (optional)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs text-atlas-navy font-medium">
+                        Why this score? <span className="text-red-500">*</span>
+                      </label>
+                      {(() => {
+                        const reasonLen = (entry.reason || '').trim().length;
+                        const under = reasonLen < CAREER_HAPPINESS_MIN_REASON_CHARS;
+                        return (
+                          <span className={`text-xs ${under ? 'text-amber-600' : 'text-green-600'}`}>
+                            {reasonLen} / {CAREER_HAPPINESS_MIN_REASON_CHARS} min
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <Input
                       value={entry.reason}
                       onChange={(e) => updateHappiness(index, 'reason', e.target.value)}
