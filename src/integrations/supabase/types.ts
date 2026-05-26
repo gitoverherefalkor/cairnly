@@ -1516,6 +1516,7 @@ export type Database = {
               salary: Json
             }[]
           }
+      link_and_check_entitlement: { Args: never; Returns: Json }
       match_documents: {
         Args: { filter?: Json; match_count?: number; query_embedding: string }
         Returns: {
@@ -1661,4 +1662,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
