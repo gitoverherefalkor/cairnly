@@ -162,30 +162,20 @@ export function AtsClassic({ data }: AtsClassicProps) {
         {data.experience?.length > 0 ? (
           <View>
             <Text style={styles.sectionHeading}>Experience</Text>
+            {/* Pure natural flow: no wrap={false} anywhere. Heading, job
+                headers, and bullets land where they fit. Mirrors how Word /
+                Pages / Google Docs handle long résumés. */}
             {data.experience.map((exp, i) => (
-              // Normal PDF flow — no wrap={false} so a long job can split
-              // its bullets across a page boundary instead of forcing a
-              // half-blank page above it. The job header + first bullet are
-              // kept together via the inner wrap={false} so we never get a
-              // company title on its own at the bottom of a page.
               <View key={i} style={styles.experienceItem}>
-                <View wrap={false}>
-                  <View style={styles.experienceHeader}>
-                    <Text style={styles.experienceTitle}>{exp.title}</Text>
-                    <Text style={styles.experienceDates}>{renderDateRange(exp)}</Text>
-                  </View>
-                  <Text style={styles.experienceCompany}>
-                    {[exp.company, exp.location].filter(Boolean).join(' · ')}
-                  </Text>
-                  {exp.bullets?.[0] ? (
-                    <View style={styles.bullet}>
-                      <Text style={styles.bulletDot}>•</Text>
-                      <Text style={styles.bulletText}>{exp.bullets[0]}</Text>
-                    </View>
-                  ) : null}
+                <View style={styles.experienceHeader}>
+                  <Text style={styles.experienceTitle}>{exp.title}</Text>
+                  <Text style={styles.experienceDates}>{renderDateRange(exp)}</Text>
                 </View>
-                {exp.bullets?.slice(1).map((b, j) => (
-                  <View key={j + 1} style={styles.bullet}>
+                <Text style={styles.experienceCompany}>
+                  {[exp.company, exp.location].filter(Boolean).join(' · ')}
+                </Text>
+                {exp.bullets?.map((b, j) => (
+                  <View key={j} style={styles.bullet}>
                     <Text style={styles.bulletDot}>•</Text>
                     <Text style={styles.bulletText}>{b}</Text>
                   </View>
