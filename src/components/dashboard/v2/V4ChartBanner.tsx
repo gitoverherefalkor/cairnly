@@ -23,8 +23,12 @@ interface V4ChartBannerProps {
   // right column for a wider chart.
   legend?: React.ReactNode;
   // Right-column width — the radar is square-ish (1.25fr), the career map
-  // wants more room (1.55fr).
+  // wants more room (1.55fr). Only applies when `layout === 'horizontal'`.
   chartWidth?: string;
+  // 'horizontal' is the default full-width banner. 'vertical' stacks the
+  // text on top and the chart underneath in a single column — used when the
+  // banner sits inside a narrow side column next to a report accordion.
+  layout?: 'horizontal' | 'vertical';
 }
 
 export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
@@ -37,6 +41,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
   chart,
   legend,
   chartWidth = '1.25fr',
+  layout = 'horizontal',
 }) => (
   <section
     style={{
@@ -47,11 +52,11 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
       border: '1px solid rgba(201, 182, 144, 0.5)',
       borderRadius: 22,
       boxShadow: '0 18px 36px -16px rgba(0,0,0,0.4)',
-      padding: '22px 26px',
+      padding: layout === 'vertical' ? 22 : '22px 26px',
       display: 'grid',
-      gridTemplateColumns: `minmax(0, 1fr) minmax(0, ${chartWidth})`,
-      gap: 20,
-      alignItems: 'center',
+      gridTemplateColumns: layout === 'vertical' ? '1fr' : `minmax(0, 1fr) minmax(0, ${chartWidth})`,
+      gap: layout === 'vertical' ? 14 : 20,
+      alignItems: layout === 'vertical' ? 'stretch' : 'center',
     }}
   >
     <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>

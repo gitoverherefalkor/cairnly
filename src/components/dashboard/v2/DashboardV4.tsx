@@ -729,108 +729,131 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </div>
         )}
 
-        {/* ─── About you — banner + accordion ─── */}
+        {/* ─── About you — accordion (left) + sticky radar (right) ─── */}
         {aboutRows.length > 0 && (
           <section style={{ marginBottom: 32 }}>
-            {radarAxes.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <V4ChartBanner
-                  eyebrow="PERSONALITY RADAR"
-                  icon={<Activity size={14} />}
-                  title="How you actually work"
-                  blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
-                  meta={`${radarAxes.length} axes`}
-                  stat={radarLeadStat ?? undefined}
-                  chart={<V4PersonalityRadarSVG axes={radarAxes} />}
-                />
-              </div>
-            )}
             <div
               style={{
-                background: 'rgba(18, 46, 59, 0.62)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: 24,
-                overflow: 'hidden',
-                boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
-              }}
-            >
-              <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
-              </div>
-              {aboutRows.map((row, i) => (
-                <ReportAccordionRow
-                  key={row.id}
-                  row={row}
-                  isOpen={openSection === row.id}
-                  isLast={i === aboutRows.length - 1}
-                  onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
-                  registerRef={(node) => {
-                    accordionRowRefs.current[row.id] = node;
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─── Career suggestions — banner + accordion ─── */}
-        {careerRows.length > 0 && (
-          <section style={{ marginBottom: 16 }}>
-            {careerMapPoints.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <V4ChartBanner
-                  eyebrow="CAREER MAP"
-                  icon={<MapIcon size={14} />}
-                  title="Where the matches sit"
-                  blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
-                  stat={
-                    sweetSpotCount > 0
-                      ? {
-                          value: String(sweetSpotCount),
-                          label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
-                        }
-                      : undefined
-                  }
-                  legend={<V4CareerMapLegend points={careerMapPoints} />}
-                  chart={<V4CareerMapSVG points={careerMapPoints} />}
-                  chartWidth="1.7fr"
-                />
-              </div>
-            )}
-            <div
-              style={{
-                background: 'rgba(18, 46, 59, 0.62)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: 24,
-                overflow: 'hidden',
-                boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
+                display: 'grid',
+                gridTemplateColumns:
+                  radarAxes.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
+                gap: 24,
+                alignItems: 'flex-start',
               }}
             >
               <div
                 style={{
-                  padding: '22px 28px 16px',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  background: 'rgba(39,161,161,0.04)',
+                  background: 'rgba(18, 46, 59, 0.62)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                  boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
                 }}
               >
-                <Eyebrow>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
+                <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
+                </div>
+                {aboutRows.map((row, i) => (
+                  <ReportAccordionRow
+                    key={row.id}
+                    row={row}
+                    isOpen={openSection === row.id}
+                    isLast={i === aboutRows.length - 1}
+                    onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
+                    registerRef={(node) => {
+                      accordionRowRefs.current[row.id] = node;
+                    }}
+                  />
+                ))}
               </div>
-              {careerRows.map((row, i) => (
-                <ReportAccordionRow
-                  key={row.id}
-                  row={row}
-                  isOpen={openSection === row.id}
-                  isLast={i === careerRows.length - 1}
-                  onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
-                  registerRef={(node) => {
-                    accordionRowRefs.current[row.id] = node;
+
+              {radarAxes.length > 0 && (
+                <div style={{ position: 'sticky', top: 24 }}>
+                  <V4ChartBanner
+                    layout="vertical"
+                    eyebrow="PERSONALITY RADAR"
+                    icon={<Activity size={14} />}
+                    title="How you actually work"
+                    blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
+                    meta={`${radarAxes.length} axes`}
+                    stat={radarLeadStat ?? undefined}
+                    chart={<V4PersonalityRadarSVG axes={radarAxes} />}
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ─── Career suggestions — accordion (left) + sticky map (right) ─── */}
+        {careerRows.length > 0 && (
+          <section style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns:
+                  careerMapPoints.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
+                gap: 24,
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  background: 'rgba(18, 46, 59, 0.62)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                  boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '22px 28px 16px',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    background: 'rgba(39,161,161,0.04)',
                   }}
-                />
-              ))}
+                >
+                  <Eyebrow>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
+                </div>
+                {careerRows.map((row, i) => (
+                  <ReportAccordionRow
+                    key={row.id}
+                    row={row}
+                    isOpen={openSection === row.id}
+                    isLast={i === careerRows.length - 1}
+                    onToggle={() => setOpenSection(openSection === row.id ? null : row.id)}
+                    registerRef={(node) => {
+                      accordionRowRefs.current[row.id] = node;
+                    }}
+                  />
+                ))}
+              </div>
+
+              {careerMapPoints.length > 0 && (
+                <div style={{ position: 'sticky', top: 24 }}>
+                  <V4ChartBanner
+                    layout="vertical"
+                    eyebrow="CAREER MAP"
+                    icon={<MapIcon size={14} />}
+                    title="Where the matches sit"
+                    blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
+                    stat={
+                      sweetSpotCount > 0
+                        ? {
+                            value: String(sweetSpotCount),
+                            label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
+                          }
+                        : undefined
+                    }
+                    legend={<V4CareerMapLegend points={careerMapPoints} />}
+                    chart={<V4CareerMapSVG points={careerMapPoints} />}
+                  />
+                </div>
+              )}
             </div>
           </section>
         )}
