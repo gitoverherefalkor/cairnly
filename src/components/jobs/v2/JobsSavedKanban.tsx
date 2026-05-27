@@ -35,6 +35,16 @@ interface JobsSavedKanbanProps {
   onInvite: () => void;
   onProfile: () => void;
   onSignOut: () => void;
+  // For each saved-job card, does the user already have tailored résumés for
+  // the originating career? Lookup by lowercased `from_career`.
+  resumesByCareerKey: Map<string, number>;
+  // And does the user already have a cover letter for THIS specific posting?
+  // Lookup by `external_job_id` → cover_letter id.
+  coverLetterByJobKey: Map<string, string>;
+  // Click handlers — open the relevant modal at the page level.
+  onOpenResumes: (careerTitle: string) => void;
+  onCreateLetter: (job: SavedJob) => void;
+  onViewLetter: (job: SavedJob, coverLetterId: string) => void;
 }
 
 interface ColumnDef {
@@ -63,6 +73,11 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
   onInvite,
   onProfile,
   onSignOut,
+  resumesByCareerKey,
+  coverLetterByJobKey,
+  onOpenResumes,
+  onCreateLetter,
+  onViewLetter,
 }) => {
   // Require a small drag distance before activating so click-to-apply isn't
   // hijacked by a drag intent.
@@ -144,6 +159,11 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
                 resumeUnlocked={resumeUnlocked}
                 coverUnlocked={coverUnlocked}
                 onInvite={onInvite}
+                resumesByCareerKey={resumesByCareerKey}
+                coverLetterByJobKey={coverLetterByJobKey}
+                onOpenResumes={onOpenResumes}
+                onCreateLetter={onCreateLetter}
+                onViewLetter={onViewLetter}
               />
             ))}
           </div>
@@ -160,7 +180,23 @@ const KanbanColumn: React.FC<{
   resumeUnlocked: boolean;
   coverUnlocked: boolean;
   onInvite: () => void;
-}> = ({ col, jobs, resumeUnlocked, coverUnlocked, onInvite }) => {
+  resumesByCareerKey: Map<string, number>;
+  coverLetterByJobKey: Map<string, string>;
+  onOpenResumes: (careerTitle: string) => void;
+  onCreateLetter: (job: SavedJob) => void;
+  onViewLetter: (job: SavedJob, coverLetterId: string) => void;
+}> = ({
+  col,
+  jobs,
+  resumeUnlocked,
+  coverUnlocked,
+  onInvite,
+  resumesByCareerKey,
+  coverLetterByJobKey,
+  onOpenResumes,
+  onCreateLetter,
+  onViewLetter,
+}) => {
   const { isOver, setNodeRef } = useDroppable({ id: col.id });
   return (
     <div>
@@ -212,9 +248,27 @@ const KanbanColumn: React.FC<{
           transition: 'background 120ms ease',
         }}
       >
-        {jobs.map((job) => (
-          <KanbanJobCard key={job.id} job={job} resumeUnlocked={resumeUnlocked} coverUnlocked={coverUnlocked} onInvite={onInvite} />
-        ))}
+        {jobs.map((job) => {
+          const careerKey = (job.from_career || '').toLowerCase().trim();
+          const resumeCount = careerKey ? resumesByCareerKey.get(careerKey) ?? 0 : 0;
+          const existingLetterId = job.external_job_id
+            ? coverLetterByJobKey.get(job.external_job_id) ?? null
+            : null;
+          return (
+            <KanbanJobCard
+              key={job.id}
+              job={job}
+              resumeUnlocked={resumeUnlocked}
+              coverUnlocked={coverUnlocked}
+              onInvite={onInvite}
+              resumeCount={resumeCount}
+              existingLetterId={existingLetterId}
+              onOpenResumes={onOpenResumes}
+              onCreateLetter={onCreateLetter}
+              onViewLetter={onViewLetter}
+            />
+          );
+        })}
         {jobs.length === 0 && (
           <div
             style={{
@@ -243,7 +297,25 @@ const KanbanJobCard: React.FC<{
   resumeUnlocked: boolean;
   coverUnlocked: boolean;
   onInvite: () => void;
-}> = ({ job, resumeUnlocked, coverUnlocked, onInvite }) => {
+  // How many tailored résumés the user already has for this card's origin
+  // career (matched on from_career). > 0 → button goes gold + opens modal.
+  resumeCount: number;
+  // Existing cover letter for this specific posting, if any.
+  existingLetterId: string | null;
+  onOpenResumes: (careerTitle: string) => void;
+  onCreateLetter: (job: SavedJob) => void;
+  onViewLetter: (job: SavedJob, coverLetterId: string) => void;
+}> = ({
+  job,
+  resumeUnlocked,
+  coverUnlocked,
+  onInvite,
+  resumeCount,
+  existingLetterId,
+  onOpenResumes,
+  onCreateLetter,
+  onViewLetter,
+}) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: job.external_job_id });
   const tone = matchTone(job.match_score, 'dark');
   const salaryText = formatSavedSalary(job.salary_min, job.salary_max);
@@ -340,8 +412,31 @@ const KanbanJobCard: React.FC<{
               <ExternalLink size={11} /> Apply
             </a>
           )}
-          <MiniNextStep label="Resume" unlocked={resumeUnlocked} onLocked={onInvite} />
-          <MiniNextStep label="Cover" unlocked={coverUnlocked} onLocked={onInvite} />
+          <MiniNextStep
+            label={resumeCount > 0 ? (resumeCount === 1 ? 'Résumé' : `${resumeCount} résumés`) : 'Résumé'}
+            unlocked={resumeUnlocked}
+            highlight={resumeCount > 0}
+            onLocked={onInvite}
+            onClick={
+              resumeCount > 0 && job.from_career
+                ? (e) => {
+                    e.stopPropagation();
+                    onOpenResumes(job.from_career!);
+                  }
+                : undefined
+            }
+          />
+          <MiniNextStep
+            label={existingLetterId ? 'View letter' : 'Create letter'}
+            unlocked={coverUnlocked}
+            highlight={!!existingLetterId}
+            onLocked={onInvite}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (existingLetterId) onViewLetter(job, existingLetterId);
+              else onCreateLetter(job);
+            }}
+          />
         </div>
       )}
     </article>
@@ -405,35 +500,59 @@ const StatusLine: React.FC<{ job: SavedJob }> = ({ job }) => {
   );
 };
 
-const MiniNextStep: React.FC<{ label: string; unlocked: boolean; onLocked: () => void }> = ({
-  label,
-  unlocked,
-  onLocked,
-}) => (
-  <button
-    type="button"
-    onClick={() => {
-      if (!unlocked) onLocked();
-    }}
-    style={{
-      background: 'transparent',
-      color: unlocked ? '#fff' : 'rgba(255,255,255,0.5)',
-      border: `1px solid ${unlocked ? 'rgba(255,255,255,0.20)' : 'rgba(255,255,255,0.10)'}`,
-      padding: '5px 10px',
-      borderRadius: 9999,
-      fontFamily: FONT_BODY,
-      fontWeight: 700,
-      fontSize: 11,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      cursor: 'pointer',
-    }}
-  >
-    {!unlocked && <Lock size={10} />}
-    {label}
-  </button>
-);
+const MiniNextStep: React.FC<{
+  label: string;
+  unlocked: boolean;
+  // When true, render in the mustard "you already have one of these" state.
+  highlight?: boolean;
+  onLocked: () => void;
+  // Click handler when the feature is unlocked. Receives the event so the
+  // caller can stop propagation (kanban cards are draggable, mustn't fire drag).
+  onClick?: (e: React.MouseEvent) => void;
+}> = ({ label, unlocked, highlight = false, onLocked, onClick }) => {
+  const goldBg = 'rgba(212,160,36,0.18)';
+  const goldBorder = PALETTE.gold;
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        if (!unlocked) {
+          e.stopPropagation();
+          onLocked();
+          return;
+        }
+        onClick?.(e);
+      }}
+      style={{
+        background: unlocked && highlight ? goldBg : 'transparent',
+        color: !unlocked
+          ? 'rgba(255,255,255,0.5)'
+          : highlight
+            ? PALETTE.goldBright
+            : '#fff',
+        border: `1px solid ${
+          !unlocked
+            ? 'rgba(255,255,255,0.10)'
+            : highlight
+              ? goldBorder
+              : 'rgba(255,255,255,0.20)'
+        }`,
+        padding: '5px 10px',
+        borderRadius: 9999,
+        fontFamily: FONT_BODY,
+        fontWeight: 700,
+        fontSize: 11,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        cursor: 'pointer',
+      }}
+    >
+      {!unlocked && <Lock size={10} />}
+      {label}
+    </button>
+  );
+};
 
 function daysAgo(iso: string | null | undefined): string {
   if (!iso) return '';

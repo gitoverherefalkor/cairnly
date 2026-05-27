@@ -12,10 +12,16 @@ import { useToast } from '@/hooks/use-toast';
 import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
 import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
-import { JobsSearch, type JobsSearchCareerOption } from '@/components/jobs/v2/JobsSearch';
+import { JobsSearch, type JobsSearchCareerOption, type RecentSearch } from '@/components/jobs/v2/JobsSearch';
 import { JobsResults, type JobsResultsCareer } from '@/components/jobs/v2/JobsResults';
 import { JobsSavedKanban } from '@/components/jobs/v2/JobsSavedKanban';
 import type { JobsTier } from '@/components/jobs/v2/jobsV2Shared';
+import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
+import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
+import { ResumeViewerModal } from '@/components/custom-resume/v2/ResumeViewerModal';
+import { CoverLetterModal } from '@/components/cover-letter/CoverLetterModal';
+import type { CustomResumeRow } from '@/components/custom-resume/hooks/useCustomResumes';
+import type { SavedJob } from '@/hooks/useSavedJobs';
 
 const stripHtml = (html: string): string =>
   html.replace(/<[^>]*>/g, '').replace(/\*+/g, '').trim();
@@ -58,6 +64,50 @@ function readPersistedJobsState(): PersistedJobsState | null {
   } catch {
     return null;
   }
+}
+
+// Recent searches — last N search configs the user ran, stored in
+// localStorage so they survive tab close. Shown as a chip-list under the
+// Search button so the user can re-apply a previous setup in one click
+// (backend cache makes that re-run effectively free).
+const RECENT_SEARCHES_KEY = 'cairnly_recent_jobs_searches_v1';
+const RECENT_SEARCHES_MAX = 5;
+
+function readRecentSearches(): RecentSearch[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function snapshotsEqual(a: RecentSearch, b: Omit<RecentSearch, 'ranAt'>): boolean {
+  return (
+    a.primaryCountry === b.primaryCountry &&
+    a.secondaryCountry === b.secondaryCountry &&
+    a.city === b.city &&
+    a.workArrangement === b.workArrangement &&
+    a.jobCommitment === b.jobCommitment &&
+    a.selectedCareers.length === b.selectedCareers.length &&
+    a.selectedCareers.every((c, i) => c === b.selectedCareers[i])
+  );
+}
+
+function pushRecentSearch(snapshot: Omit<RecentSearch, 'ranAt'>): RecentSearch[] {
+  const current = readRecentSearches();
+  const deduped = current.filter((s) => !snapshotsEqual(s, snapshot));
+  const next: RecentSearch[] = [{ ...snapshot, ranAt: Date.now() }, ...deduped].slice(
+    0,
+    RECENT_SEARCHES_MAX,
+  );
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+  } catch {
+    /* quota / unavailable — best-effort only */
+  }
+  return next;
 }
 
 const Jobs = () => {
@@ -345,6 +395,8 @@ const Jobs = () => {
     );
   };
 
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>(() => readRecentSearches());
+
   const handleSearch = () => {
     const careers = selectedCareers
       .map((st) => {
@@ -356,9 +408,35 @@ const Jobs = () => {
         };
       })
       .filter((c) => c.careerTitle);
+    if (careers.length === 0) return;
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
     awaitingSearchRef.current = true;
+    // Capture this search in the recent-searches list (localStorage) so users
+    // can replay it later without re-picking. Stays out of sessionStorage on
+    // purpose — that holds the live results snapshot, this holds inputs only.
+    setRecentSearches(
+      pushRecentSearch({
+        selectedCareers,
+        primaryCountry,
+        secondaryCountry,
+        city,
+        workArrangement,
+        jobCommitment,
+      }),
+    );
     searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
+  };
+
+  // Clicking a recent-search chip restores the inputs (selection + filters).
+  // The user then clicks Search to actually run it — keeps behavior explicit
+  // and avoids any state/effect timing issues with auto-firing.
+  const applyRecentSearch = (s: RecentSearch) => {
+    setSelectedCareers(s.selectedCareers);
+    setPrimaryCountry(s.primaryCountry);
+    setSecondaryCountry(s.secondaryCountry);
+    setCity(s.city);
+    setWorkArrangement(s.workArrangement);
+    setJobCommitment(s.jobCommitment);
   };
 
   const handleInvite = async () => {
@@ -417,21 +495,107 @@ const Jobs = () => {
   const coverUnlocked = !!coverFeature?.unlocked;
   const savedCount = savedJobs.length;
 
+  // ── Lookup maps for kanban "Résumé" / "Cover" affordances ────
+  // The kanban needs to know whether the user already has a tailored résumé
+  // for each card's origin career and/or a cover letter for each specific
+  // posting, so the buttons can light up gold + open the right modal instead
+  // of being dead.
+  const { data: savedResumes } = useCustomResumeList();
+  const { data: savedLetters } = useCoverLetterList();
+
+  // career_title (lowercased) → résumés for that career.
+  const resumesByCareerTitle = useMemo(() => {
+    const map = new Map<string, CustomResumeRow[]>();
+    (savedResumes ?? []).forEach((r) => {
+      if (r.status !== 'completed') return;
+      const key = (r.career_title || '').toLowerCase().trim();
+      if (!key) return;
+      const list = map.get(key) ?? [];
+      list.push(r);
+      map.set(key, list);
+    });
+    return map;
+  }, [savedResumes]);
+
+  // career_title (lowercased) → count, for the kanban (uses count only).
+  const resumesByCareerKey = useMemo(() => {
+    const map = new Map<string, number>();
+    resumesByCareerTitle.forEach((list, key) => map.set(key, list.length));
+    return map;
+  }, [resumesByCareerTitle]);
+
+  // job_external_id → cover_letter id (latest completed letter wins, since
+  // savedLetters is ordered newest first).
+  const coverLetterByJobKey = useMemo(() => {
+    const map = new Map<string, string>();
+    (savedLetters ?? []).forEach((l) => {
+      if (l.status !== 'completed' || !l.job_external_id) return;
+      if (!map.has(l.job_external_id)) map.set(l.job_external_id, l.id);
+    });
+    return map;
+  }, [savedLetters]);
+
+  // Modal state for the two affordances opened from the kanban.
+  const [resumeModalCareer, setResumeModalCareer] = useState<string | null>(null);
+  const [coverModalState, setCoverModalState] = useState<
+    { job: JobListing; existingId: string | null } | null
+  >(null);
+
+  // Adapt a SavedJob row into the JobListing shape CoverLetterModal expects.
+  const savedJobToListing = (j: SavedJob): JobListing => ({
+    id: j.external_job_id,
+    title: j.job_title,
+    company: j.company_name || '',
+    location: j.location || '',
+    description: j.description_snippet || '',
+    apply_url: j.apply_url || '',
+    posted_date: j.posted_date || undefined,
+    source: j.source || 'LinkedIn',
+    match_score: j.match_score ?? null,
+  });
+
   // ── Saved kanban ─────────────────────────────────────────────
   if (view === 'saved') {
+    const resumesForModal = resumeModalCareer
+      ? resumesByCareerTitle.get(resumeModalCareer.toLowerCase().trim()) ?? []
+      : [];
     return (
-      <JobsSavedKanban
-        firstName={firstName}
-        savedJobs={savedJobs}
-        resumeUnlocked={resumeUnlocked}
-        coverUnlocked={coverUnlocked}
-        onUpdateStatus={(jobId, status) => updateStatus({ externalJobId: jobId, status })}
-        onBackToSearch={() => setView('search')}
-        onBack={() => navigate('/dashboard')}
-        onInvite={handleInvite}
-        onProfile={() => navigate('/profile')}
-        onSignOut={() => navigate('/auth')}
-      />
+      <>
+        <JobsSavedKanban
+          firstName={firstName}
+          savedJobs={savedJobs}
+          resumeUnlocked={resumeUnlocked}
+          coverUnlocked={coverUnlocked}
+          onUpdateStatus={(jobId, status) => updateStatus({ externalJobId: jobId, status })}
+          onBackToSearch={() => setView('search')}
+          onBack={() => navigate('/dashboard')}
+          onInvite={handleInvite}
+          onProfile={() => navigate('/profile')}
+          onSignOut={() => navigate('/auth')}
+          resumesByCareerKey={resumesByCareerKey}
+          coverLetterByJobKey={coverLetterByJobKey}
+          onOpenResumes={(careerTitle) => setResumeModalCareer(careerTitle)}
+          onCreateLetter={(j) => setCoverModalState({ job: savedJobToListing(j), existingId: null })}
+          onViewLetter={(j, id) =>
+            setCoverModalState({ job: savedJobToListing(j), existingId: id })
+          }
+        />
+        {resumeModalCareer && resumesForModal.length > 0 && (
+          <ResumeViewerModal
+            careerTitle={resumeModalCareer}
+            resumes={resumesForModal}
+            onClose={() => setResumeModalCareer(null)}
+          />
+        )}
+        {coverModalState && (
+          <CoverLetterModal
+            job={coverModalState.job}
+            reportId={latestReport.id}
+            existingCoverLetterId={coverModalState.existingId}
+            onClose={() => setCoverModalState(null)}
+          />
+        )}
+      </>
     );
   }
 
@@ -503,6 +667,11 @@ const Jobs = () => {
       onSignOut={() => navigate('/auth')}
       savedCount={savedCount}
       onOpenSaved={() => setView('saved')}
+      recentSearches={recentSearches}
+      onApplyRecentSearch={applyRecentSearch}
+      countryLabelByCode={(code: string) =>
+        COUNTRIES.find((c) => c.code === code)?.label ?? code.toUpperCase()
+      }
     />
   );
 };

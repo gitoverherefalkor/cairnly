@@ -15,6 +15,19 @@ import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier, TIER_LABEL } from './jobsV2Shared';
 import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
 
+// A previously-run search the user can replay in one click. Lives in
+// localStorage on the page side; the type is declared here so both Jobs.tsx
+// (owner) and JobsSearch (consumer) share a single shape.
+export interface RecentSearch {
+  selectedCareers: string[];
+  primaryCountry: string;
+  secondaryCountry: string;
+  city: string;
+  workArrangement: WorkArrangement;
+  jobCommitment: JobCommitment;
+  ranAt: number;
+}
+
 export interface JobsSearchCareerOption {
   sectionType: string;
   title: string;
@@ -75,6 +88,13 @@ interface JobsSearchProps {
   // Optional saved-jobs CTA in the top-right when the user has a pipeline.
   savedCount: number;
   onOpenSaved: () => void;
+  // Previous searches (most recent first), rendered as a chip-list under the
+  // Search button. Clicking a chip restores the inputs; the user re-clicks
+  // Search to actually run it (and hits the backend cache for free).
+  recentSearches: RecentSearch[];
+  onApplyRecentSearch: (s: RecentSearch) => void;
+  // Resolves a country code to its display label, for the chip text.
+  countryLabelByCode: (code: string) => string;
 }
 
 export const JobsSearch: React.FC<JobsSearchProps> = ({
@@ -103,6 +123,9 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onSignOut,
   savedCount,
   onOpenSaved,
+  recentSearches,
+  onApplyRecentSearch,
+  countryLabelByCode,
 }) => (
   <LakeBackground intensity="normal">
     <DashboardAppNav
@@ -477,9 +500,90 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           Typical search takes 20 to 40 seconds. Live results stream in as each career completes.
         </div>
       </div>
+
+      {/* Recent searches — replay a previous configuration with one click.
+          Backend cache makes the re-run effectively free. */}
+      {recentSearches.length > 0 && (
+        <div style={{ marginTop: 22 }}>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.45)',
+              marginBottom: 10,
+            }}
+          >
+            Recent searches
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {recentSearches.map((s, i) => {
+              const parts = [
+                `${s.selectedCareers.length} ${s.selectedCareers.length === 1 ? 'career' : 'careers'}`,
+                [s.primaryCountry, s.secondaryCountry]
+                  .filter(Boolean)
+                  .map(countryLabelByCode)
+                  .join(' + '),
+                s.workArrangement === 'remote_only'
+                  ? 'Remote only'
+                  : s.workArrangement === 'remote_friendly'
+                    ? 'Remote-friendly'
+                    : null,
+                s.jobCommitment === 'full_time'
+                  ? 'Full-time'
+                  : s.jobCommitment === 'part_time'
+                    ? 'Part-time'
+                    : s.jobCommitment === 'contract'
+                      ? 'Contract'
+                      : null,
+                relativeAgo(s.ranAt),
+              ].filter(Boolean);
+              return (
+                <button
+                  key={`${s.ranAt}-${i}`}
+                  type="button"
+                  onClick={() => onApplyRecentSearch(s)}
+                  style={{
+                    background: 'rgba(18, 46, 59, 0.55)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    color: 'rgba(255,255,255,0.78)',
+                    padding: '8px 14px',
+                    borderRadius: 9999,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 600,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Restore these filters — click Search to run"
+                >
+                  {parts.join(' · ')}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   </LakeBackground>
 );
+
+// "12m ago" / "3h ago" / "2d ago" — compact relative timestamp for the
+// recent-searches chip text. Falls back to a date for anything older than a
+// week so we don't end up with "63d ago" eyesores.
+function relativeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  if (diff < 60_000) return 'just now';
+  const min = Math.floor(diff / 60_000);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const days = Math.floor(hr / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
 
 // ── Career picker card ────────────────────────────────────────
 const CareerPickerCard: React.FC<{

@@ -27,9 +27,18 @@ interface CoverLetterModalProps {
   job: JobListing;
   reportId: string;
   onClose: () => void;
+  // When set, the modal opens straight into "view existing letter" mode
+  // (skips the resume picker / generate step). Used from the pipeline where
+  // each saved-job card already knows whether a letter exists for it.
+  existingCoverLetterId?: string | null;
 }
 
-export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({ job, reportId, onClose }) => {
+export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
+  job,
+  reportId,
+  onClose,
+  existingCoverLetterId = null,
+}) => {
   const { data: savedResumes, isLoading: resumesLoading } = useCustomResumeList();
   const completedResumes = useMemo(
     () => (savedResumes ?? []).filter((r) => r.status === 'completed'),
@@ -45,7 +54,9 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({ job, reportI
     }
   }, [completedResumes, selectedResumeId]);
 
-  const [coverLetterId, setCoverLetterId] = useState<string | null>(null);
+  // Seed coverLetterId from the existing-letter prop so the modal jumps
+  // straight to the preview without re-generating.
+  const [coverLetterId, setCoverLetterId] = useState<string | null>(existingCoverLetterId);
   const generate = useGenerateCoverLetter();
   const letterQuery = useCoverLetter({ id: coverLetterId });
   const letterRow = letterQuery.data;
