@@ -44,11 +44,11 @@ export const REFERRAL_FEATURES: ReferralFeature[] = [
     description:
       'Generate a tailored cover letter for each role from your job search — written to the specific posting and organisation.',
     requiredReferrals: 3,
-    // Cover letters are generated per posting from the Find Open Roles page —
-    // each scraped role on /jobs has its own "Cover letter" action that opens
-    // the modal. So this tile routes to /jobs (fresh search), not /custom-resume.
+    // Cover letters live on the saved-jobs kanban: each saved job card has
+    // its own Cover letter affordance (create / view). So route this tile
+    // straight to the saved view rather than the search filters page.
     builtYet: true,
-    route: '/jobs?mode=search',
+    route: '/jobs?mode=saved',
   },
 ];
 

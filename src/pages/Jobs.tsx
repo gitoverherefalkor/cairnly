@@ -128,11 +128,13 @@ const Jobs = () => {
   // Read the persisted snapshot once (lazy — runs a single time on mount).
   const [persisted] = useState<PersistedJobsState | null>(() => readPersistedJobsState());
 
-  // Was this page entered with explicit "fresh search" intent? Any
-  // "Find Open Roles" CTA on the dashboard sends ?mode=search (and optionally
-  // ?career=<title>). In that case we override the persisted view/selection
-  // so the user lands on the filter page with a focused start, not on stale
-  // results that may not include the career they just clicked.
+  // Was this page entered with explicit deep-link intent? Dashboard CTAs send:
+  //   ?mode=search         → land on the filter page (Find Open Roles tile)
+  //   ?mode=search&career= → land on filter page with a specific career pre-selected
+  //   ?mode=saved          → land on the saved-jobs kanban (Tailor Cover Letters tile,
+  //                          since cover letters are tied to saved postings)
+  // Deep-link intent overrides the persisted snapshot so the user always lands
+  // where the CTA promised, not on stale state.
   const [freshIntent] = useState(() => {
     try {
       const p = new URLSearchParams(window.location.search);
@@ -142,11 +144,12 @@ const Jobs = () => {
     }
   });
   const wantsFreshSearch = freshIntent.mode === 'search' || !!freshIntent.career;
+  const wantsSavedView = freshIntent.mode === 'saved';
 
   // View / filter state — seeded from the persisted snapshot when present,
-  // unless the URL signals a fresh search intent (in which case we force the
-  // filter view).
+  // unless the URL signals a deep-link intent (search or saved).
   const [view, setView] = useState<View>(() => {
+    if (wantsSavedView) return 'saved';
     if (wantsFreshSearch) return 'search';
     if (persisted?.view === 'results' && !persisted?.results?.some((r) => r.status === 'done')) {
       return 'search'; // had a results view but nothing completed — fall back to the picker
