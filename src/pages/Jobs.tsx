@@ -400,6 +400,51 @@ const Jobs = () => {
 
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>(() => readRecentSearches());
 
+  // ── Lookup maps for the pipeline (kanban) "Résumé" / "Cover" buttons ─
+  // Declared UP HERE (above the early returns below) so the hook order stays
+  // stable across renders — React error #310 otherwise. Their values are
+  // only consumed inside the `view === 'saved'` branch.
+  const { data: savedResumes } = useCustomResumeList();
+  const { data: savedLetters } = useCoverLetterList();
+
+  // career_title (lowercased) → résumés for that career.
+  const resumesByCareerTitle = useMemo(() => {
+    const map = new Map<string, CustomResumeRow[]>();
+    (savedResumes ?? []).forEach((r) => {
+      if (r.status !== 'completed') return;
+      const key = (r.career_title || '').toLowerCase().trim();
+      if (!key) return;
+      const list = map.get(key) ?? [];
+      list.push(r);
+      map.set(key, list);
+    });
+    return map;
+  }, [savedResumes]);
+
+  // career_title (lowercased) → count, for the kanban (uses count only).
+  const resumesByCareerKey = useMemo(() => {
+    const map = new Map<string, number>();
+    resumesByCareerTitle.forEach((list, key) => map.set(key, list.length));
+    return map;
+  }, [resumesByCareerTitle]);
+
+  // job_external_id → cover_letter id (latest completed letter wins, since
+  // savedLetters is ordered newest first).
+  const coverLetterByJobKey = useMemo(() => {
+    const map = new Map<string, string>();
+    (savedLetters ?? []).forEach((l) => {
+      if (l.status !== 'completed' || !l.job_external_id) return;
+      if (!map.has(l.job_external_id)) map.set(l.job_external_id, l.id);
+    });
+    return map;
+  }, [savedLetters]);
+
+  // Modal state for the two affordances opened from the kanban.
+  const [resumeModalCareer, setResumeModalCareer] = useState<string | null>(null);
+  const [coverModalState, setCoverModalState] = useState<
+    { job: JobListing; existingId: string | null } | null
+  >(null);
+
   const handleSearch = () => {
     const careers = selectedCareers
       .map((st) => {
@@ -497,52 +542,6 @@ const Jobs = () => {
   const resumeUnlocked = !!resumeFeature?.unlocked;
   const coverUnlocked = !!coverFeature?.unlocked;
   const savedCount = savedJobs.length;
-
-  // ── Lookup maps for kanban "Résumé" / "Cover" affordances ────
-  // The kanban needs to know whether the user already has a tailored résumé
-  // for each card's origin career and/or a cover letter for each specific
-  // posting, so the buttons can light up gold + open the right modal instead
-  // of being dead.
-  const { data: savedResumes } = useCustomResumeList();
-  const { data: savedLetters } = useCoverLetterList();
-
-  // career_title (lowercased) → résumés for that career.
-  const resumesByCareerTitle = useMemo(() => {
-    const map = new Map<string, CustomResumeRow[]>();
-    (savedResumes ?? []).forEach((r) => {
-      if (r.status !== 'completed') return;
-      const key = (r.career_title || '').toLowerCase().trim();
-      if (!key) return;
-      const list = map.get(key) ?? [];
-      list.push(r);
-      map.set(key, list);
-    });
-    return map;
-  }, [savedResumes]);
-
-  // career_title (lowercased) → count, for the kanban (uses count only).
-  const resumesByCareerKey = useMemo(() => {
-    const map = new Map<string, number>();
-    resumesByCareerTitle.forEach((list, key) => map.set(key, list.length));
-    return map;
-  }, [resumesByCareerTitle]);
-
-  // job_external_id → cover_letter id (latest completed letter wins, since
-  // savedLetters is ordered newest first).
-  const coverLetterByJobKey = useMemo(() => {
-    const map = new Map<string, string>();
-    (savedLetters ?? []).forEach((l) => {
-      if (l.status !== 'completed' || !l.job_external_id) return;
-      if (!map.has(l.job_external_id)) map.set(l.job_external_id, l.id);
-    });
-    return map;
-  }, [savedLetters]);
-
-  // Modal state for the two affordances opened from the kanban.
-  const [resumeModalCareer, setResumeModalCareer] = useState<string | null>(null);
-  const [coverModalState, setCoverModalState] = useState<
-    { job: JobListing; existingId: string | null } | null
-  >(null);
 
   // Adapt a SavedJob row into the JobListing shape CoverLetterModal expects.
   const savedJobToListing = (j: SavedJob): JobListing => ({
