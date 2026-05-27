@@ -20,6 +20,12 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { career_title, location, alternate_titles, work_arrangement, job_commitment, report_id } = body;
+    // 25-40 word plain-English description of the role from the report section's
+    // Overview heading. Forwarded to n8n's keyword generator + scorer so they
+    // have concrete context for niche careers.
+    const careerOverview: string = typeof body.career_overview === 'string'
+      ? body.career_overview.slice(0, 600)
+      : '';
 
     // Survey-derived "avoid" preferences (industries + career aspects the user
     // wants to steer clear of). Forwarded to n8n's scorer as a penalty signal.
@@ -125,7 +131,8 @@ serve(async (req) => {
     // v10: scoring upgraded to Claude Sonnet 4.5 + Apply Scores threshold 5→3 (frontend partitions 3-5 vs 6+) (2026-05-26).
     // v11: scorer now sees alt titles + alt-search uses up to 3 (was 1) + Apify count cap 15→40 (2026-05-26).
     // v12: keyword generator now sees alt titles too (informs the primary search keyword) (2026-05-26).
-    const SEARCH_LOGIC_VERSION = 'v12';
+    // v13: keyword generator + scorer now receive the report's Overview blurb for the career (2026-05-26).
+    const SEARCH_LOGIC_VERSION = 'v13';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
@@ -198,6 +205,7 @@ serve(async (req) => {
           country_codes: countries,
           work_arrangement: workArrangement,
           job_commitment: jobCommitment,
+          career_overview: careerOverview,
           avoid_preferences: avoidPreferences,
           location: location || '',
           // user_languages drives the scoring step's language-awareness.

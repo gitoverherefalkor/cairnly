@@ -37,6 +37,10 @@ interface SearchCareer {
   careerTitle: string;
   sectionType: string;
   alternateTitles?: string[];
+  // 25-40 word plain-English description of the role (from the report section's
+  // Overview heading). Gives the n8n keyword generator + scorer concrete
+  // context for niche careers, not just the title.
+  overview?: string;
 }
 
 // Languages spoken by the user, extracted from the report payload's
@@ -113,6 +117,7 @@ export const useJobSearch = () => {
             job_commitment: jobCommitment || 'any',
             location: location || '',
             alternate_titles: careers[i].alternateTitles || [],
+            career_overview: careers[i].overview || '',
             user_languages: userLanguages || [],
             avoid_preferences: avoidPreferences || [],
             // report_id lets the n8n workflow look up enriched_jobs.alternate_titles

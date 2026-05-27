@@ -20,6 +20,11 @@ export interface JobsSearchCareerOption {
   title: string;
   tier: JobsTier;
   shape?: string | null;
+  // 25-40 word plain-English "what the role actually is" blurb extracted from
+  // the report section's Overview heading. Plumbed through to n8n so the
+  // keyword generator + scorer have concrete context for niche careers, not
+  // just the title alone.
+  overview?: string | null;
 }
 
 export interface JobsSearchCountry {

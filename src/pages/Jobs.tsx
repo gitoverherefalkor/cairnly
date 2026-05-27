@@ -119,6 +119,28 @@ const Jobs = () => {
   const [disabledAvoids, setDisabledAvoids] = useState<string[]>(() => persisted?.disabledAvoids ?? []);
 
   // Build career options from real report sections.
+  // Pull the "<h5>Overview</h5>" paragraph out of a report section's content
+  // and return it as plain text. Sections look like:
+  //   <h5>Overview</h5>\n\n<25-40 word paragraph>\n\n<h5>Why this role fits…
+  // Strip HTML, collapse whitespace, cap at 400 chars for safety.
+  const extractOverview = (content: string | null | undefined): string | null => {
+    if (!content) return null;
+    const m = content.match(/<h\d>\s*Overview\s*<\/h\d>\s*([\s\S]*?)(?=<h\d>|$)/i);
+    if (!m) return null;
+    const text = m[1]
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 400);
+    return text || null;
+  };
+
   const careerOptions = useMemo<JobsSearchCareerOption[]>(() => {
     const opts: JobsSearchCareerOption[] = [];
     for (const sectionId of CAREER_SECTION_IDS) {
@@ -136,6 +158,7 @@ const Jobs = () => {
             title,
             tier,
             shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
+            overview: extractOverview(s.content),
           });
         }
       } else {
@@ -147,6 +170,7 @@ const Jobs = () => {
           title,
           tier,
           shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
+          overview: extractOverview(s.content),
         });
       }
     }
@@ -325,7 +349,11 @@ const Jobs = () => {
     const careers = selectedCareers
       .map((st) => {
         const option = careerOptions.find((c) => c.sectionType === st);
-        return { careerTitle: option?.title || '', sectionType: st };
+        return {
+          careerTitle: option?.title || '',
+          sectionType: st,
+          overview: option?.overview ?? undefined,
+        };
       })
       .filter((c) => c.careerTitle);
     const countryCodes = secondaryCountry ? [primaryCountry, secondaryCountry] : [primaryCountry];
