@@ -882,141 +882,147 @@ const HeroMatch: React.FC<{
         </p>
       )}
 
-      {match.alignment && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
-          <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
-          <p
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 500,
-              fontSize: 14,
-              lineHeight: 1.55,
-              color: 'rgba(255,255,255,0.88)',
-              margin: '4px 0 0 0',
-            }}
-          >
-            {match.alignment}
-          </p>
+      {/* Middle row: alignment text on the left, comparison radar on the right.
+          On narrow viewports the row wraps so the radar drops below the text. */}
+      {(match.alignment || showRadar) && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 24,
+            alignItems: 'flex-start',
+            flexWrap: 'wrap',
+            paddingTop: 4,
+          }}
+        >
+          {match.alignment && (
+            <div style={{ flex: '1 1 280px', minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontWeight: 500,
+                  fontSize: 14,
+                  lineHeight: 1.55,
+                  color: 'rgba(255,255,255,0.88)',
+                  margin: '4px 0 0 0',
+                }}
+              >
+                {match.alignment}
+              </p>
+            </div>
+          )}
+
+          {showRadar && (
+            <div
+              style={{
+                flex: '1 1 280px',
+                minWidth: 240,
+                background:
+                  'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
+                  'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
+                  '#ECE4D2',
+                border: '1px solid rgba(201, 182, 144, 0.5)',
+                borderRadius: 20,
+                padding: '14px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 10.5,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: PALETTE.tealDeep,
+                }}
+              >
+                How it compares
+              </span>
+              <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
+              <V4CompareLegend careers={compareCareers} focalRank={1} />
+            </div>
+          )}
         </div>
       )}
 
-      {/* Bottom row: stacked actions on the left, comparison radar on the right.
-          The radar lives in a rounded cream panel so it reads as a distinct
-          visual element on the dark glass card. On narrow viewports the row
-          collapses (radar drops below the actions). */}
+      {/* Action bar — three horizontal buttons, wraps to a stack on narrow widths */}
       <div
         style={{
           display: 'flex',
-          gap: 24,
+          alignItems: 'center',
+          gap: 12,
           paddingTop: 18,
           marginTop: 'auto',
           borderTop: '1px solid rgba(255,255,255,0.10)',
-          alignItems: 'flex-start',
           flexWrap: 'wrap',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: '1 1 220px', minWidth: 200 }}>
-          <button
-            type="button"
-            onClick={onOpenBreakdown}
-            style={{
-              background: PALETTE.teal,
-              color: '#fff',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 14,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
-              justifyContent: 'center',
-            }}
-          >
-            Why this fits <ArrowRight size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onFindRoles(match.title)}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.22)',
-              padding: '12px 18px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              justifyContent: 'center',
-            }}
-          >
-            {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-            {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
-          </button>
-          <button
-            type="button"
-            onClick={() => onTailorCV(match.title)}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.22)',
-              padding: '12px 18px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              justifyContent: 'center',
-            }}
-          >
-            {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
-            {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
-          </button>
-        </div>
-
-        {showRadar && (
-          <div
-            style={{
-              flex: '1 1 280px',
-              minWidth: 240,
-              background:
-                'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
-                'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
-                '#ECE4D2',
-              border: '1px solid rgba(201, 182, 144, 0.5)',
-              borderRadius: 20,
-              padding: '14px 16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 10.5,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: PALETTE.tealDeep,
-              }}
-            >
-              How it compares
-            </span>
-            <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
-            <V4CompareLegend careers={compareCareers} focalRank={1} />
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={onOpenBreakdown}
+          style={{
+            background: PALETTE.teal,
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 14,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+            boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
+          }}
+        >
+          Why this fits <ArrowRight size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => onFindRoles(match.title)}
+          style={{
+            background: 'transparent',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.22)',
+            padding: '12px 18px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 13.5,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+          }}
+        >
+          {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
+          {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
+        </button>
+        <button
+          type="button"
+          onClick={() => onTailorCV(match.title)}
+          style={{
+            background: 'transparent',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.22)',
+            padding: '12px 18px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 13.5,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+          }}
+        >
+          {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
+          {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
+        </button>
       </div>
     </article>
   );
