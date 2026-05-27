@@ -948,81 +948,85 @@ const HeroMatch: React.FC<{
         </div>
       )}
 
-      {/* Action bar — three horizontal buttons, wraps to a stack on narrow widths */}
+      {/* Action bar — primary CTA on its own row, then two secondary actions
+          on the row below. Wraps further on very narrow widths. */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
           gap: 12,
           paddingTop: 18,
           marginTop: 'auto',
           borderTop: '1px solid rgba(255,255,255,0.10)',
-          flexWrap: 'wrap',
         }}
       >
-        <button
-          type="button"
-          onClick={onOpenBreakdown}
-          style={{
-            background: PALETTE.teal,
-            color: '#fff',
-            border: 'none',
-            padding: '12px 20px',
-            borderRadius: 9999,
-            fontFamily: FONT_BODY,
-            fontWeight: 700,
-            fontSize: 14,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            cursor: 'pointer',
-            boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
-          }}
-        >
-          Why this fits <ArrowRight size={16} />
-        </button>
-        <button
-          type="button"
-          onClick={() => onFindRoles(match.title)}
-          style={{
-            background: 'transparent',
-            color: '#fff',
-            border: '1px solid rgba(255,255,255,0.22)',
-            padding: '12px 18px',
-            borderRadius: 9999,
-            fontFamily: FONT_BODY,
-            fontWeight: 700,
-            fontSize: 13.5,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            cursor: 'pointer',
-          }}
-        >
-          {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-          {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
-        </button>
-        <button
-          type="button"
-          onClick={() => onTailorCV(match.title)}
-          style={{
-            background: 'transparent',
-            color: '#fff',
-            border: '1px solid rgba(255,255,255,0.22)',
-            padding: '12px 18px',
-            borderRadius: 9999,
-            fontFamily: FONT_BODY,
-            fontWeight: 700,
-            fontSize: 13.5,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            cursor: 'pointer',
-          }}
-        >
-          {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
-          {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
-        </button>
+        <div>
+          <button
+            type="button"
+            onClick={onOpenBreakdown}
+            style={{
+              background: PALETTE.teal,
+              color: '#fff',
+              border: 'none',
+              padding: '12px 20px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 14,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+              boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
+            }}
+          >
+            Why this fits <ArrowRight size={16} />
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => onFindRoles(match.title)}
+            style={{
+              background: 'transparent',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.22)',
+              padding: '12px 18px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+            }}
+          >
+            {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
+            {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
+          </button>
+          <button
+            type="button"
+            onClick={() => onTailorCV(match.title)}
+            style={{
+              background: 'transparent',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.22)',
+              padding: '12px 18px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+            }}
+          >
+            {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
+            {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
+          </button>
+        </div>
       </div>
     </article>
   );
