@@ -59,7 +59,7 @@ export interface CareerMatch {
   matchPct: number;
   aiImpact: AIImpactLevel | null;
   teaser?: string;
-  why?: string[];
+  alignment?: string;
 }
 
 // ---------- SECTION_VISUALS ----------

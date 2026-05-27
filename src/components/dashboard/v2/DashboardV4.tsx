@@ -9,7 +9,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, FileText, FilePlus, Lock, Map as MapIcon, RotateCw, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
@@ -32,7 +32,6 @@ import {
   SECTION_VISUALS,
   stripHtml,
   firstSentences,
-  extractBullets,
   extractSubsectionContent,
   type CareerMatch,
 } from './dashboardV2Shared';
@@ -95,16 +94,22 @@ function getMatch(
   const teaser = overviewHtml
     ? firstSentences(overviewHtml, 2)
     : firstSentences(s.content || '', 2);
+  // Hero card supporting copy: first two sentences of the "Alignment with
+  // your ambitions" section. Prose, not bullets — fits compactly under the
+  // Overview without restating it.
+  const alignmentHtml = withDetail
+    ? extractSubsectionContent(s.content || '', ['Alignment with your ambitions'])
+    : null;
+  const alignment = alignmentHtml ? firstSentences(alignmentHtml, 2) : undefined;
   return {
     rank,
     title: stripHtml(s.title || 'Career match'),
     shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
     matchPct: Math.round(score),
     aiImpact: extractAIImpact(s.content || ''),
-    // Teaser shows on all three career cards. The detailed bullet list under
-    // "Why this fits you" still only renders for the Hero (#1).
+    // Teaser shows on all three career cards. Alignment prose only on the Hero.
     teaser,
-    why: withDetail ? extractBullets(s.content || '', 3) : undefined,
+    alignment,
   };
 }
 
@@ -768,8 +773,7 @@ const HeroMatch: React.FC<{
   compareCareers: CompareCareer[];
 }> = ({ match, jobsUnlocked, onOpenBreakdown, onFindRoles, compareCareers }) => {
   const [flipped, setFlipped] = useState(false);
-  const [keyboardFlip, setKeyboardFlip] = useState(false);
-  const isFlipped = flipped || keyboardFlip;
+  const isFlipped = flipped;
   // Only flip when there's something to compare against.
   const canFlip = compareCareers.length >= 2;
   return (
@@ -879,59 +883,24 @@ const HeroMatch: React.FC<{
               </p>
             )}
 
-            {match.why && match.why.length > 0 && (
+            {match.alignment && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
-                <Eyebrow>WHY THIS FITS YOU</Eyebrow>
-                <ul
+                <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
+                <p
                   style={{
-                    listStyle: 'none',
-                    padding: 0,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: 1.55,
+                    color: 'rgba(255,255,255,0.88)',
                     margin: '4px 0 0 0',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
                   }}
                 >
-                  {match.why.map((line, i) => (
-                    <li key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      <CheckCircle2 size={16} color={PALETTE.goldBright} style={{ flexShrink: 0, marginTop: 3 }} />
-                      <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: 'rgba(255,255,255,0.88)' }}>
-                        {line}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                  {match.alignment}
+                </p>
               </div>
             )}
 
-            {/* Hover-hint pill — only when there's a back face to flip to.
-                In the flow (not absolute) so it can't overlap content above. */}
-            {canFlip && (
-              <div
-                style={{
-                  marginTop: 'auto',
-                  alignSelf: 'flex-end',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '6px 12px',
-                  borderRadius: 9999,
-                  background: 'rgba(212,160,36,0.08)',
-                  border: '1px solid rgba(212,160,36,0.22)',
-                  color: PALETTE.goldBright,
-                  fontFamily: FONT_BODY,
-                  fontWeight: 700,
-                  fontSize: 10.5,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  pointerEvents: 'none',
-                  opacity: isFlipped ? 0 : 1,
-                  transition: 'opacity 200ms ease',
-                }}
-              >
-                <RotateCw size={11} /> Hover to compare paths
-              </div>
-            )}
           </div>
 
           {/* BACK — cream paper, comparison radar. Lives in the same grid
@@ -1047,30 +1016,6 @@ const HeroMatch: React.FC<{
           {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
           {jobsUnlocked ? 'Find open roles' : 'Find open roles · locked'}
         </button>
-        {canFlip && (
-          <button
-            type="button"
-            onClick={() => setKeyboardFlip((f) => !f)}
-            aria-pressed={keyboardFlip}
-            style={{
-              marginLeft: 'auto',
-              background: 'transparent',
-              color: 'rgba(255,255,255,0.7)',
-              border: '1px solid rgba(255,255,255,0.16)',
-              padding: '10px 14px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 12.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              cursor: 'pointer',
-            }}
-          >
-            <RotateCw size={12} /> {isFlipped ? 'Show match' : 'Compare top 3'}
-          </button>
-        )}
       </div>
     </article>
   );
