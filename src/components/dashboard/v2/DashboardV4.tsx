@@ -33,6 +33,7 @@ import {
   stripHtml,
   firstSentences,
   extractBullets,
+  extractSubsectionContent,
   type CareerMatch,
 } from './dashboardV2Shared';
 
@@ -87,13 +88,22 @@ function getMatch(
   if (!s) return null;
   const score = s.score != null ? Number(s.score) : NaN;
   if (!Number.isFinite(score)) return null;
+  // Prefer the dedicated "Overview" subsection (one to two plain-English
+  // sentences defining the role). Legacy reports without an Overview block
+  // fall back to the opening sentences of the body.
+  const overviewHtml = extractSubsectionContent(s.content || '', ['Overview']);
+  const teaser = overviewHtml
+    ? firstSentences(overviewHtml, 2)
+    : firstSentences(s.content || '', 2);
   return {
     rank,
     title: stripHtml(s.title || 'Career match'),
     shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
     matchPct: Math.round(score),
     aiImpact: extractAIImpact(s.content || ''),
-    teaser: withDetail ? firstSentences(s.content || '', 2) : undefined,
+    // Teaser shows on all three career cards. The detailed bullet list under
+    // "Why this fits you" still only renders for the Hero (#1).
+    teaser,
     why: withDetail ? extractBullets(s.content || '', 3) : undefined,
   };
 }
@@ -1014,7 +1024,7 @@ const HeroMatch: React.FC<{
             boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
           }}
         >
-          Open breakdown <ArrowRight size={16} />
+          Why this fits you <ArrowRight size={16} />
         </button>
         <button
           type="button"
@@ -1108,6 +1118,20 @@ const SecondaryMatch: React.FC<{
       <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
         {match.shape}
       </div>
+    )}
+    {match.teaser && (
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontWeight: 500,
+          fontSize: 13.5,
+          lineHeight: 1.5,
+          color: 'rgba(255,255,255,0.78)',
+          margin: 0,
+        }}
+      >
+        {match.teaser}
+      </p>
     )}
     <div style={{ marginTop: 'auto' }}>
       <MatchMeter pct={match.matchPct} />
