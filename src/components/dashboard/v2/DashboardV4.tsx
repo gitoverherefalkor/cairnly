@@ -841,30 +841,30 @@ const HeroMatch: React.FC<{
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-              <div>
-                <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
-                {match.shape && (
-                  <div style={{ marginTop: 8, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
-                    {match.shape}
-                  </div>
-                )}
-              </div>
+              <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
               {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
             </div>
 
-            <h2
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 44,
-                letterSpacing: '-0.03em',
-                lineHeight: 1.05,
-                color: '#fff',
-                margin: 0,
-              }}
-            >
-              {match.title}
-            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <h2
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 44,
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.05,
+                  color: '#fff',
+                  margin: 0,
+                }}
+              >
+                {match.title}
+              </h2>
+              {match.shape && (
+                <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
+                  {match.shape}
+                </div>
+              )}
+            </div>
 
             <MatchMeter pct={match.matchPct} large />
 
