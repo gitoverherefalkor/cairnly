@@ -50,6 +50,9 @@ interface JobsResultsProps {
   onOpenSaved: () => void;
   onProfile: () => void;
   onSignOut: () => void;
+  // Fires when the user clicks "Tailor resume" on any job card. Receives the
+  // career the job came from so the resume page can pre-select it.
+  onTailorResume: (careerTitle: string) => void;
 }
 
 export const JobsResults: React.FC<JobsResultsProps> = ({
@@ -70,6 +73,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
   onOpenSaved,
   onProfile,
   onSignOut,
+  onTailorResume,
 }) => {
   // Only render careers that finished. (Idle / searching / error are surfaced
   // separately via SearchProgress when relevant.)
@@ -251,6 +255,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
                 coverUnlocked={coverUnlocked}
                 onInvite={onInvite}
                 onGenerateCoverLetter={(job) => setCoverLetterJob(job)}
+                onTailorResume={onTailorResume}
               />
             );
           }
@@ -289,6 +294,7 @@ const CareerGrouping: React.FC<{
   coverUnlocked: boolean;
   onInvite: () => void;
   onGenerateCoverLetter: (job: JobListing) => void;
+  onTailorResume: (careerTitle: string) => void;
 }> = ({
   career,
   careerTitle,
@@ -300,6 +306,7 @@ const CareerGrouping: React.FC<{
   coverUnlocked,
   onInvite,
   onGenerateCoverLetter,
+  onTailorResume,
 }) => {
   // Score buckets (backend already drops 0-2):
   //   6+    → main results (strong matches)
@@ -374,6 +381,7 @@ const CareerGrouping: React.FC<{
               coverUnlocked={coverUnlocked}
               onLockedAction={onInvite}
               onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
+              onTailorResume={() => onTailorResume(careerTitle)}
             />
           ))}
         </div>
@@ -417,6 +425,7 @@ const CareerGrouping: React.FC<{
                   coverUnlocked={coverUnlocked}
                   onLockedAction={onInvite}
                   onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
+                  onTailorResume={() => onTailorResume(careerTitle)}
                 />
               ))}
             </div>
@@ -519,6 +528,10 @@ const JobCardCream: React.FC<{
   coverUnlocked: boolean;
   onLockedAction: () => void;
   onGenerateCoverLetter: () => void;
+  // Fires when the user clicks "Tailor resume" on this card AND the resume
+  // feature is unlocked. Should send them to /custom-resume with the originating
+  // career pre-selected so they don't have to re-pick it.
+  onTailorResume: () => void;
 }> = ({
   job,
   saved,
@@ -528,6 +541,7 @@ const JobCardCream: React.FC<{
   coverUnlocked,
   onLockedAction,
   onGenerateCoverLetter,
+  onTailorResume,
 }) => {
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
@@ -733,6 +747,7 @@ const JobCardCream: React.FC<{
           icon={<FileText size={12} />}
           label="Tailor resume"
           onLocked={onLockedAction}
+          onClick={onTailorResume}
         />
         <LockedActionButton
           tone="gold"

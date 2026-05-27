@@ -468,6 +468,9 @@ const Jobs = () => {
         onOpenSaved={() => setView('saved')}
         onProfile={() => navigate('/profile')}
         onSignOut={() => navigate('/auth')}
+        onTailorResume={(careerTitle) =>
+          navigate(`/custom-resume?career=${encodeURIComponent(careerTitle)}`)
+        }
       />
     );
   }

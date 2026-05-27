@@ -10,7 +10,7 @@
 // State machine driven by ?ids= URL params: present → results, absent →
 // builder. Reloading on the results URL goes straight to results.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Lock, Upload } from 'lucide-react';
 // Cover-letter generation was decoupled from the résumé builder — it's now
@@ -28,6 +28,7 @@ import { CustomResumeBuilder } from '@/components/custom-resume/v2/CustomResumeB
 import { CustomResumeIndex } from '@/components/custom-resume/v2/CustomResumeIndex';
 import { CustomResumeResults } from '@/components/custom-resume/v2/CustomResumeResults';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
+import { stripHtml } from '@/components/custom-resume/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
@@ -60,6 +61,24 @@ const CustomResume = () => {
   const generate = useGenerateCustomResume();
   const latestReport = reports?.length ? reports[0] : null;
   const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
+
+  // Pre-select the career that brought the user here, if any. The Jobs page
+  // sends `?career=<title>` when the user clicks "Tailor resume" on a job
+  // card, so they don't have to re-pick the career they were just searching
+  // against. Runs once after sections load; guarded so we don't clobber a
+  // manual selection on later re-renders.
+  const careerParam = searchParams.get('career');
+  const didPreselectRef = useRef(false);
+  useEffect(() => {
+    if (didPreselectRef.current || !careerParam || sections.length === 0) return;
+    const needle = careerParam.toLowerCase();
+    const match = sections.find((s) => stripHtml(s.title || '').toLowerCase() === needle);
+    if (match) {
+      const title = stripHtml(match.title || '');
+      setSelected([{ section_id: match.id, section_type: match.section_type, career_title: title }]);
+      didPreselectRef.current = true;
+    }
+  }, [careerParam, sections]);
 
   const firstName = profile?.first_name || '';
 
