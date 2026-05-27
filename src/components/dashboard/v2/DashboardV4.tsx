@@ -832,227 +832,223 @@ const HeroMatch: React.FC<{
 }) => {
   // Only render the radar when there's something to compare against.
   const showRadar = compareCareers.length >= 2;
-  // Hovering the radar panel flips it to a detail view (description + larger
-  // labelled radar). Restricting the hover target to the radar avoids
-  // accidental flips when the user just reads the alignment column.
-  const [radarFlipped, setRadarFlipped] = useState(false);
+  // Hovering the small radar panel flips the WHOLE Hero card to the detail
+  // view on the back. The card stays flipped while the mouse is anywhere on
+  // it; un-flips when the cursor leaves the card entirely. Scoping the flip
+  // trigger to the radar (not the whole card) avoids accidental flips while
+  // the user is just reading the alignment text or about to click a button.
+  const [flipped, setFlipped] = useState(false);
   return (
     <article
+      onMouseLeave={() => setFlipped(false)}
       style={{
         position: 'relative',
-        overflow: 'hidden',
-        background: 'rgba(18, 46, 59, 0.62)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
-        border: '1px solid rgba(255, 255, 255, 0.10)',
-        borderRadius: 28,
-        padding: 36,
-        boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 18,
+        perspective: 1600,
       }}
     >
-      {/* Soft gold glow */}
       <div
         style={{
-          position: 'absolute',
-          top: -60,
-          right: -60,
-          width: 320,
-          height: 320,
-          background: 'radial-gradient(circle, rgba(212,160,36,0.20) 0%, rgba(212,160,36,0) 70%)',
-          pointerEvents: 'none',
+          position: 'relative',
+          display: 'grid',
+          gridTemplateAreas: '"stack"',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
-      />
-
-      {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-        <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
-        {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
-      </div>
-
-      {/* Title + shape */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <h2
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 700,
-            fontSize: 44,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.05,
-            color: '#fff',
-            margin: 0,
-          }}
-        >
-          {match.title}
-        </h2>
-        {match.shape && (
-          <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
-            {match.shape}
-          </div>
-        )}
-      </div>
-
-      <MatchMeter pct={match.matchPct} large />
-
-      {match.teaser && (
-        <p
-          style={{
-            fontFamily: FONT_BODY,
-            fontWeight: 500,
-            fontSize: 15.5,
-            lineHeight: 1.55,
-            color: 'rgba(255,255,255,0.85)',
-            margin: 0,
-          }}
-        >
-          {match.teaser}
-        </p>
-      )}
-
-      {/* Bottom row: left column stacks alignment text + the three actions;
-          right column holds the comparison radar. Putting the buttons inside
-          the left column lets it fill the radar's vertical height instead of
-          pushing the card taller with a separate divider row. On narrow
-          viewports the radar drops below the column. */}
-      {(match.alignment || showRadar) && (
+      >
+        {/* ── FRONT — the standard Hero card ── */}
         <div
           style={{
+            gridArea: 'stack',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            position: 'relative',
+            overflow: 'hidden',
+            background: 'rgba(18, 46, 59, 0.62)',
+            backdropFilter: 'blur(18px)',
+            WebkitBackdropFilter: 'blur(18px)',
+            border: '1px solid rgba(255, 255, 255, 0.10)',
+            borderRadius: 28,
+            padding: 36,
+            boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
             display: 'flex',
-            gap: 24,
-            alignItems: 'stretch',
-            flexWrap: 'wrap',
-            paddingTop: 4,
-            marginTop: 'auto',
+            flexDirection: 'column',
+            gap: 18,
           }}
         >
+          {/* Soft gold glow */}
           <div
             style={{
-              flex: '1 1 280px',
-              minWidth: 220,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16,
+              position: 'absolute',
+              top: -60,
+              right: -60,
+              width: 320,
+              height: 320,
+              background: 'radial-gradient(circle, rgba(212,160,36,0.20) 0%, rgba(212,160,36,0) 70%)',
+              pointerEvents: 'none',
             }}
-          >
-            {match.alignment && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
-                <p
-                  style={{
-                    fontFamily: FONT_BODY,
-                    fontWeight: 500,
-                    fontSize: 14,
-                    lineHeight: 1.55,
-                    color: 'rgba(255,255,255,0.88)',
-                    margin: '4px 0 0 0',
-                  }}
-                >
-                  {match.alignment}
-                </p>
-              </div>
-            )}
+          />
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 'auto' }}>
-              <div>
-                <button
-                  type="button"
-                  onClick={onOpenBreakdown}
-                  style={{
-                    background: PALETTE.teal,
-                    color: '#fff',
-                    border: 'none',
-                    padding: '12px 20px',
-                    borderRadius: 9999,
-                    fontFamily: FONT_BODY,
-                    fontWeight: 700,
-                    fontSize: 14,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    cursor: 'pointer',
-                    boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
-                  }}
-                >
-                  Why this fits <ArrowRight size={16} />
-                </button>
-              </div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={() => onFindRoles(match.title)}
-                  style={{
-                    background: 'transparent',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.22)',
-                    padding: '12px 18px',
-                    borderRadius: 9999,
-                    fontFamily: FONT_BODY,
-                    fontWeight: 700,
-                    fontSize: 13.5,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-                  {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onTailorCV(match.title)}
-                  style={{
-                    background: 'transparent',
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.22)',
-                    padding: '12px 18px',
-                    borderRadius: 9999,
-                    fontFamily: FONT_BODY,
-                    fontWeight: 700,
-                    fontSize: 13.5,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
-                  {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
-                </button>
-              </div>
-            </div>
+          {/* Header row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+            <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
+            {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
           </div>
 
-          {showRadar && (
-            <div
-              onMouseEnter={() => setRadarFlipped(true)}
-              onMouseLeave={() => setRadarFlipped(false)}
+          {/* Title + shape */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <h2
               style={{
-                flex: '1 1 280px',
-                minWidth: 240,
-                perspective: 1600,
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 44,
+                letterSpacing: '-0.03em',
+                lineHeight: 1.05,
+                color: '#fff',
+                margin: 0,
+              }}
+            >
+              {match.title}
+            </h2>
+            {match.shape && (
+              <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
+                {match.shape}
+              </div>
+            )}
+          </div>
+
+          <MatchMeter pct={match.matchPct} large />
+
+          {match.teaser && (
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 500,
+                fontSize: 15.5,
+                lineHeight: 1.55,
+                color: 'rgba(255,255,255,0.85)',
+                margin: 0,
+              }}
+            >
+              {match.teaser}
+            </p>
+          )}
+
+          {(match.alignment || showRadar) && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 24,
+                alignItems: 'stretch',
+                flexWrap: 'wrap',
+                paddingTop: 4,
+                marginTop: 'auto',
               }}
             >
               <div
                 style={{
-                  position: 'relative',
-                  display: 'grid',
-                  gridTemplateAreas: '"stack"',
-                  transformStyle: 'preserve-3d',
-                  transition: 'transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
-                  transform: radarFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  width: '100%',
-                  height: '100%',
+                  flex: '1 1 280px',
+                  minWidth: 220,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 16,
                 }}
               >
-                {/* FRONT — compact summary */}
+                {match.alignment && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
+                    <p
+                      style={{
+                        fontFamily: FONT_BODY,
+                        fontWeight: 500,
+                        fontSize: 14,
+                        lineHeight: 1.55,
+                        color: 'rgba(255,255,255,0.88)',
+                        margin: '4px 0 0 0',
+                      }}
+                    >
+                      {match.alignment}
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 'auto' }}>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={onOpenBreakdown}
+                      style={{
+                        background: PALETTE.teal,
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px 20px',
+                        borderRadius: 9999,
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 14,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
+                      }}
+                    >
+                      Why this fits <ArrowRight size={16} />
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => onFindRoles(match.title)}
+                      style={{
+                        background: 'transparent',
+                        color: '#fff',
+                        border: '1px solid rgba(255,255,255,0.22)',
+                        padding: '12px 18px',
+                        borderRadius: 9999,
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13.5,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
+                      {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onTailorCV(match.title)}
+                      style={{
+                        background: 'transparent',
+                        color: '#fff',
+                        border: '1px solid rgba(255,255,255,0.22)',
+                        padding: '12px 18px',
+                        borderRadius: 9999,
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13.5,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
+                      {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {showRadar && (
                 <div
+                  onMouseEnter={() => setFlipped(true)}
                   style={{
-                    gridArea: 'stack',
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden',
+                    flex: '1 1 280px',
+                    minWidth: 240,
                     background:
                       'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
                       'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
@@ -1075,69 +1071,74 @@ const HeroMatch: React.FC<{
                       color: PALETTE.tealDeep,
                     }}
                   >
-                    How it compares
+                    How it compares · hover for detail
                   </span>
                   <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
                   <V4CompareLegend careers={compareCareers} focalRank={1} />
                 </div>
-
-                {/* BACK — detail view, same footprint, more context */}
-                <div
-                  style={{
-                    gridArea: 'stack',
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden',
-                    transform: 'rotateY(180deg)',
-                    background:
-                      'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
-                      'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
-                      '#ECE4D2',
-                    border: '1px solid rgba(201, 182, 144, 0.5)',
-                    borderRadius: 20,
-                    padding: '14px 16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                    <span
-                      style={{
-                        fontFamily: FONT_DISPLAY,
-                        fontWeight: 700,
-                        fontSize: 10.5,
-                        letterSpacing: '0.22em',
-                        textTransform: 'uppercase',
-                        color: PALETTE.tealDeep,
-                      }}
-                    >
-                      How it differs
-                    </span>
-                    <span style={{ fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 700, color: PALETTE.inkSoft }}>
-                      Work-life fit · 5 axes
-                    </span>
-                  </div>
-                  <p
-                    style={{
-                      fontFamily: FONT_BODY,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      color: PALETTE.inkMuted,
-                      lineHeight: 1.5,
-                      margin: 0,
-                    }}
-                  >
-                    Filled polygon is your strongest match. Dashed lines are your other top roles. Distance from
-                    the centre is the score on each axis.
-                  </p>
-                  <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="full" />
-                  <V4CompareLegend careers={compareCareers} focalRank={1} />
-                </div>
-              </div>
+              )}
             </div>
           )}
         </div>
-      )}
+
+        {/* ── BACK — full detail view, cream paper, full radar ── */}
+        {showRadar && (
+          <div
+            style={{
+              gridArea: 'stack',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              background:
+                'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
+                'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
+                '#ECE4D2',
+              border: '1px solid rgba(201, 182, 144, 0.5)',
+              borderRadius: 28,
+              padding: 36,
+              boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+              <span
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: PALETTE.tealDeep,
+                }}
+              >
+                HOW IT DIFFERS FROM YOUR OTHER TOP ROLES
+              </span>
+              <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: PALETTE.inkSoft }}>
+                Work-life fit · 5 axes
+              </span>
+            </div>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                fontWeight: 500,
+                color: PALETTE.inkMuted,
+                lineHeight: 1.5,
+                margin: 0,
+              }}
+            >
+              Five axes that shape day-to-day fit. The filled polygon is your strongest match; the dashed lines
+              are your other top roles. Distance from the centre is the score on each axis.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
+              <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="full" />
+            </div>
+            <V4CompareLegend careers={compareCareers} focalRank={1} />
+          </div>
+        )}
+      </div>
     </article>
   );
 };
