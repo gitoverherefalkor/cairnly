@@ -161,40 +161,31 @@ export function AtsClassic({ data }: AtsClassicProps) {
 
         {data.experience?.length > 0 ? (
           <View>
-            {/* Bundle the section heading with the first experience item via
-                wrap={false} so the heading never strands at the bottom of a
-                page with all jobs pushed to the next. */}
-            <View wrap={false}>
-              <Text style={styles.sectionHeading}>Experience</Text>
-              {data.experience[0] ? (
-                <View style={styles.experienceItem}>
+            <Text style={styles.sectionHeading}>Experience</Text>
+            {data.experience.map((exp, i) => (
+              // Normal PDF flow — no wrap={false} so a long job can split
+              // its bullets across a page boundary instead of forcing a
+              // half-blank page above it. The job header + first bullet are
+              // kept together via the inner wrap={false} so we never get a
+              // company title on its own at the bottom of a page.
+              <View key={i} style={styles.experienceItem}>
+                <View wrap={false}>
                   <View style={styles.experienceHeader}>
-                    <Text style={styles.experienceTitle}>{data.experience[0].title}</Text>
-                    <Text style={styles.experienceDates}>{renderDateRange(data.experience[0])}</Text>
+                    <Text style={styles.experienceTitle}>{exp.title}</Text>
+                    <Text style={styles.experienceDates}>{renderDateRange(exp)}</Text>
                   </View>
                   <Text style={styles.experienceCompany}>
-                    {[data.experience[0].company, data.experience[0].location].filter(Boolean).join(' · ')}
+                    {[exp.company, exp.location].filter(Boolean).join(' · ')}
                   </Text>
-                  {data.experience[0].bullets?.map((b, j) => (
-                    <View key={j} style={styles.bullet}>
+                  {exp.bullets?.[0] ? (
+                    <View style={styles.bullet}>
                       <Text style={styles.bulletDot}>•</Text>
-                      <Text style={styles.bulletText}>{b}</Text>
+                      <Text style={styles.bulletText}>{exp.bullets[0]}</Text>
                     </View>
-                  ))}
+                  ) : null}
                 </View>
-              ) : null}
-            </View>
-            {data.experience.slice(1).map((exp, i) => (
-              <View key={i + 1} style={styles.experienceItem} wrap={false}>
-                <View style={styles.experienceHeader}>
-                  <Text style={styles.experienceTitle}>{exp.title}</Text>
-                  <Text style={styles.experienceDates}>{renderDateRange(exp)}</Text>
-                </View>
-                <Text style={styles.experienceCompany}>
-                  {[exp.company, exp.location].filter(Boolean).join(' · ')}
-                </Text>
-                {exp.bullets?.map((b, j) => (
-                  <View key={j} style={styles.bullet}>
+                {exp.bullets?.slice(1).map((b, j) => (
+                  <View key={j + 1} style={styles.bullet}>
                     <Text style={styles.bulletDot}>•</Text>
                     <Text style={styles.bulletText}>{b}</Text>
                   </View>

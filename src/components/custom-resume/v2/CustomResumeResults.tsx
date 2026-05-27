@@ -113,8 +113,9 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
               margin: 0,
             }}
           >
-            Switch templates without re-generating. Download both the ATS-safe and designed
-            versions for each career.
+            Switch templates without re-generating — your tailored content is saved automatically
+            and lives in <span style={{ color: PALETTE.tealBright, fontWeight: 700 }}>Saved résumés</span> on
+            the dashboard. The style you pick here sticks the next time you open it.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -286,6 +287,11 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
           if (error) {
             console.error('Failed to persist template change:', error);
             toast.error('Could not save template choice.');
+          } else {
+            // Tiny success toast so the user can see the change actually
+            // persisted. Past sessions opening this résumé will land on the
+            // last-selected template, no re-generation needed.
+            toast.success('Template saved', { duration: 1500 });
           }
         }}
       />
