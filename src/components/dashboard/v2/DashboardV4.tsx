@@ -420,8 +420,17 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     return points;
   }, [sections]);
 
-  // Comparison radar — top 3 careers with their fit_scores (1–5) on the five
-  // work-life axes. Normalised to 0–1 for V4CompareRadarSVG.
+  // Comparison radar payloads. Two shapes for two consumers:
+  //  - compareCareers: tuple-array form for the front-face V4CompareRadarSVG
+  //    (the small at-a-glance preview).
+  //  - compareCareersRich: object form for the back-face CareerComparisonRadar
+  //    (the larger detail view with per-axis hover tooltips). Colours match
+  //    front-face ranking so polygons don't change identity through the flip.
+  const RADAR_COLORS: Record<1 | 2 | 3, string> = {
+    1: '#d97706', // amber
+    2: '#6366f1', // indigo
+    3: '#0d9488', // teal
+  };
   const compareCareers = useMemo<CompareCareer[]>(() => {
     const out: CompareCareer[] = [];
     const tops: { type: string; rank: 1 | 2 | 3 }[] = [
@@ -442,6 +451,27 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         norm(f.social),
       ];
       out.push({ rank, label: stripHtml(s.title || `Career ${rank}`), scores: tuple });
+    }
+    return out;
+  }, [sections]);
+
+  const compareCareersRich = useMemo<RadarCareer[]>(() => {
+    const out: RadarCareer[] = [];
+    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
+      { type: 'top_career_1', rank: 1 },
+      { type: 'top_career_2', rank: 2 },
+      { type: 'top_career_3', rank: 3 },
+    ];
+    for (const { type, rank } of tops) {
+      const s = sections.find((x) => x.section_type === type);
+      const f = s?.metadata?.fit_scores;
+      if (!s || !f) continue;
+      out.push({
+        label: stripHtml(s.title || `Career ${rank}`),
+        scores: f,
+        color: RADAR_COLORS[rank],
+        focal: rank === 1,
+      });
     }
     return out;
   }, [sections]);
@@ -594,6 +624,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               jobsUnlocked={jobsUnlocked}
               resumeUnlocked={resumeUnlocked}
               compareCareers={compareCareers}
+              compareCareersRich={compareCareersRich}
             />
             {secondary.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -821,6 +852,7 @@ const HeroMatch: React.FC<{
   onFindRoles: (careerTitle?: string) => void;
   onTailorCV: (careerTitle?: string) => void;
   compareCareers: CompareCareer[];
+  compareCareersRich: RadarCareer[];
 }> = ({
   match,
   jobsUnlocked,
@@ -829,6 +861,7 @@ const HeroMatch: React.FC<{
   onFindRoles,
   onTailorCV,
   compareCareers,
+  compareCareersRich,
 }) => {
   // Only render the radar when there's something to compare against.
   const showRadar = compareCareers.length >= 2;
@@ -1081,7 +1114,7 @@ const HeroMatch: React.FC<{
           )}
         </div>
 
-        {/* ── BACK — full detail view, cream paper, full radar ── */}
+        {/* ── BACK — full detail view, cream paper, big interactive radar ── */}
         {showRadar && (
           <div
             style={{
@@ -1099,7 +1132,7 @@ const HeroMatch: React.FC<{
               boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
               display: 'flex',
               flexDirection: 'column',
-              gap: 16,
+              gap: 14,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
@@ -1116,26 +1149,48 @@ const HeroMatch: React.FC<{
                 HOW IT DIFFERS FROM YOUR OTHER TOP ROLES
               </span>
               <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: PALETTE.inkSoft }}>
-                Work-life fit · 5 axes
+                Hover an axis label to see what it measures
               </span>
             </div>
             <p
               style={{
                 fontFamily: FONT_BODY,
-                fontSize: 13,
+                fontSize: 13.5,
                 fontWeight: 500,
                 color: PALETTE.inkMuted,
-                lineHeight: 1.5,
+                lineHeight: 1.55,
                 margin: 0,
               }}
             >
-              Five axes that shape day-to-day fit. The filled polygon is your strongest match; the dashed lines
-              are your other top roles. Distance from the centre is the score on each axis.
+              Five axes that shape day-to-day fit. The filled polygon is your strongest match; the outlined
+              polygons are your other top roles. Distance from the centre is the score on each axis.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
-              <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="full" />
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 320,
+              }}
+            >
+              <CareerComparisonRadar careers={compareCareersRich} size={520} />
             </div>
-            <V4CompareLegend careers={compareCareers} focalRank={1} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {compareCareersRich.map((c, i) => (
+                <span
+                  key={c.label}
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    color: c.color,
+                  }}
+                >
+                  {i + 1}. {c.label}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>
