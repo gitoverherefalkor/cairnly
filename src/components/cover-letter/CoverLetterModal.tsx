@@ -13,14 +13,15 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { BlobProvider } from '@react-pdf/renderer';
-import { AlertCircle, Building2, Download, Loader2, Mail, Sparkles, X } from 'lucide-react';
+import { AlertCircle, Building2, Download, FileText, Loader2, Mail, Sparkles, X } from 'lucide-react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { CoverLetter } from '@/components/custom-resume/templates/CoverLetter';
-import type { ResumeJson } from '@/components/custom-resume/types';
+import type { ResumeJson, ResumeContact } from '@/components/custom-resume/types';
 import type { JobListing } from '@/hooks/useJobSearch';
 import { useGenerateCoverLetter } from './hooks/useGenerateCoverLetter';
 import { useCoverLetter } from './hooks/useCoverLetter';
+import { buildCoverLetterDocxBlob } from './buildCoverLetterDocx';
 import type { CoverLetterJson } from './types';
 
 interface CoverLetterModalProps {
@@ -131,8 +132,10 @@ export const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
       <div
         style={{
           width: '100%',
-          maxWidth: 880,
-          maxHeight: '92vh',
+          // Bumped from 880 → 1120 so the PDF iframe can render at near
+          // letter-paper aspect; the letter itself was too cramped to read.
+          maxWidth: 1120,
+          maxHeight: '95vh',
           background: 'rgba(18, 46, 59, 0.96)',
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 22,
@@ -473,7 +476,9 @@ const CompletedView: React.FC<{
   const contact = resumeJson.contact ?? { name: 'Applicant' };
   const safeName = (contact.name || 'Cover_Letter').replace(/[^\w\-]+/g, '_');
   const safeCompany = job.company.replace(/[^\w\-]+/g, '_');
-  const fileName = `${safeName}__${safeCompany}__cover_letter.pdf`;
+  const baseFileName = `${safeName}__${safeCompany}__cover_letter`;
+  const pdfFileName = `${baseFileName}.pdf`;
+  const docxFileName = `${baseFileName}.docx`;
 
   const doc = (
     <CoverLetter letter={letterJson} contact={contact} careerTitle={job.title} />
@@ -488,7 +493,11 @@ const CompletedView: React.FC<{
               background: '#f4efe2',
               borderRadius: 14,
               overflow: 'hidden',
-              height: 520,
+              // Use most of the viewport — the modal already grows to 95vh,
+              // and the header + actions take ~180px. This puts the letter
+              // at a readable size on laptop and desktop screens.
+              height: 'min(75vh, 880px)',
+              minHeight: 540,
               position: 'relative',
               marginBottom: 16,
               boxShadow: '0 18px 50px -20px rgba(0,0,0,0.6)',
@@ -541,76 +550,135 @@ const CompletedView: React.FC<{
         )}
       </BlobProvider>
 
-      <BlobProvider document={doc}>
-        {({ url, loading }) =>
-          url && !loading ? (
-            <a
-              href={url}
-              download={fileName}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: PALETTE.gold,
-                color: PALETTE.canvasDeep,
-                padding: '12px 22px',
-                borderRadius: 9999,
-                fontFamily: FONT_BODY,
-                fontWeight: 800,
-                fontSize: 13,
-                textDecoration: 'none',
-                boxShadow: '0 14px 32px -10px rgba(212,160,36,0.55)',
-              }}
-            >
-              <Download size={14} />
-              Download PDF
-            </a>
-          ) : (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: 'rgba(212,160,36,0.45)',
-                color: PALETTE.canvasDeep,
-                padding: '12px 22px',
-                borderRadius: 9999,
-                fontFamily: FONT_BODY,
-                fontWeight: 800,
-                fontSize: 13,
-              }}
-            >
-              <Loader2 size={14} className="animate-spin" /> Preparing PDF…
-            </span>
-          )
-        }
-      </BlobProvider>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+        <BlobProvider document={doc}>
+          {({ url, loading }) =>
+            url && !loading ? (
+              <a
+                href={url}
+                download={pdfFileName}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: PALETTE.gold,
+                  color: PALETTE.canvasDeep,
+                  padding: '12px 22px',
+                  borderRadius: 9999,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  textDecoration: 'none',
+                  boxShadow: '0 14px 32px -10px rgba(212,160,36,0.55)',
+                }}
+              >
+                <Download size={14} />
+                Download PDF
+              </a>
+            ) : (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(212,160,36,0.45)',
+                  color: PALETTE.canvasDeep,
+                  padding: '12px 22px',
+                  borderRadius: 9999,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 800,
+                  fontSize: 13,
+                }}
+              >
+                <Loader2 size={14} className="animate-spin" /> Preparing PDF…
+              </span>
+            )
+          }
+        </BlobProvider>
 
-      {job.apply_url && (
-        <a
-          href={job.apply_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            marginLeft: 12,
-            background: 'rgba(255,255,255,0.08)',
-            color: '#fff',
-            padding: '12px 18px',
-            borderRadius: 9999,
-            fontFamily: FONT_BODY,
-            fontWeight: 700,
-            fontSize: 13,
-            textDecoration: 'none',
-            border: '1px solid rgba(255,255,255,0.18)',
-          }}
-        >
-          <Mail size={13} /> Open job posting
-        </a>
-      )}
+        <DocxDownloadButton letter={letterJson} contact={contact} fileName={docxFileName} />
+
+        {job.apply_url && (
+          <a
+            href={job.apply_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(255,255,255,0.08)',
+              color: '#fff',
+              padding: '12px 18px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13,
+              textDecoration: 'none',
+              border: '1px solid rgba(255,255,255,0.18)',
+            }}
+          >
+            <Mail size={13} /> Open job posting
+          </a>
+        )}
+      </div>
     </div>
+  );
+};
+
+// Secondary action: DOCX download. Builds the blob lazily on click so we
+// don't pay the docx package cost upfront, and revokes the object URL
+// after the click to keep memory tidy.
+const DocxDownloadButton: React.FC<{
+  letter: CoverLetterJson;
+  contact: ResumeContact;
+  fileName: string;
+}> = ({ letter, contact, fileName }) => {
+  const [busy, setBusy] = useState(false);
+
+  const handle = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const blob = await buildCoverLetterDocxBlob(letter, contact);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handle}
+      disabled={busy}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'rgba(255,255,255,0.08)',
+        color: '#fff',
+        padding: '12px 18px',
+        borderRadius: 9999,
+        fontFamily: FONT_BODY,
+        fontWeight: 700,
+        fontSize: 13,
+        border: `1px solid ${PALETTE.goldBright}`,
+        cursor: busy ? 'wait' : 'pointer',
+        opacity: busy ? 0.75 : 1,
+      }}
+      title="Download as Word (.docx) — opens natively in Word, Pages, and Google Docs"
+    >
+      {busy ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+      {busy ? 'Building DOCX…' : 'Download DOCX'}
+    </button>
   );
 };
 
