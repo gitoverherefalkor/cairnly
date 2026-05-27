@@ -370,20 +370,36 @@ const CareerGrouping: React.FC<{
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {mainJobs.map((job) => (
-            <JobCardCream
-              key={job.id}
-              job={job}
-              saved={isJobSaved(job.id)}
-              onSave={() => onSaveJob(job)}
-              onUnsave={() => onUnsaveJob(job.id)}
-              resumeUnlocked={resumeUnlocked}
-              coverUnlocked={coverUnlocked}
-              onLockedAction={onInvite}
-              onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
-              onTailorResume={() => onTailorResume(careerTitle)}
-            />
-          ))}
+          {mainJobs.map((job) => {
+            // Clicking Cover letter or Tailor resume from a search-result
+            // card implicitly saves the job to the kanban, then opens the
+            // normal saved-job flow. Saved-jobs are the single source of
+            // truth for both résumés and letters, so this keeps the search
+            // page from being a parallel "create from nowhere" entry point.
+            const saveIfNeeded = () => {
+              if (!isJobSaved(job.id)) onSaveJob(job);
+            };
+            return (
+              <JobCardCream
+                key={job.id}
+                job={job}
+                saved={isJobSaved(job.id)}
+                onSave={() => onSaveJob(job)}
+                onUnsave={() => onUnsaveJob(job.id)}
+                resumeUnlocked={resumeUnlocked}
+                coverUnlocked={coverUnlocked}
+                onLockedAction={onInvite}
+                onGenerateCoverLetter={() => {
+                  saveIfNeeded();
+                  onGenerateCoverLetter(job);
+                }}
+                onTailorResume={() => {
+                  saveIfNeeded();
+                  onTailorResume(careerTitle);
+                }}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -414,20 +430,32 @@ const CareerGrouping: React.FC<{
           </button>
           {showLow && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14, opacity: 0.78 }}>
-              {lowJobs.map((job) => (
-                <JobCardCream
-                  key={job.id}
-                  job={job}
-                  saved={isJobSaved(job.id)}
-                  onSave={() => onSaveJob(job)}
-                  onUnsave={() => onUnsaveJob(job.id)}
-                  resumeUnlocked={resumeUnlocked}
-                  coverUnlocked={coverUnlocked}
-                  onLockedAction={onInvite}
-                  onGenerateCoverLetter={() => onGenerateCoverLetter(job)}
-                  onTailorResume={() => onTailorResume(careerTitle)}
-                />
-              ))}
+              {lowJobs.map((job) => {
+                // Same save-then-open wrapper as the main list above.
+                const saveIfNeeded = () => {
+                  if (!isJobSaved(job.id)) onSaveJob(job);
+                };
+                return (
+                  <JobCardCream
+                    key={job.id}
+                    job={job}
+                    saved={isJobSaved(job.id)}
+                    onSave={() => onSaveJob(job)}
+                    onUnsave={() => onUnsaveJob(job.id)}
+                    resumeUnlocked={resumeUnlocked}
+                    coverUnlocked={coverUnlocked}
+                    onLockedAction={onInvite}
+                    onGenerateCoverLetter={() => {
+                      saveIfNeeded();
+                      onGenerateCoverLetter(job);
+                    }}
+                    onTailorResume={() => {
+                      saveIfNeeded();
+                      onTailorResume(careerTitle);
+                    }}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
