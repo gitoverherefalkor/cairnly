@@ -832,6 +832,10 @@ const HeroMatch: React.FC<{
 }) => {
   // Only render the radar when there's something to compare against.
   const showRadar = compareCareers.length >= 2;
+  // Hovering the radar panel flips it to a detail view (description + larger
+  // labelled radar). Restricting the hover target to the radar avoids
+  // accidental flips when the user just reads the alignment column.
+  const [radarFlipped, setRadarFlipped] = useState(false);
   return (
     <article
       style={{
@@ -1023,35 +1027,113 @@ const HeroMatch: React.FC<{
 
           {showRadar && (
             <div
+              onMouseEnter={() => setRadarFlipped(true)}
+              onMouseLeave={() => setRadarFlipped(false)}
               style={{
                 flex: '1 1 280px',
                 minWidth: 240,
-                background:
-                  'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
-                  'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
-                  '#ECE4D2',
-                border: '1px solid rgba(201, 182, 144, 0.5)',
-                borderRadius: 20,
-                padding: '14px 16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
+                perspective: 1600,
               }}
             >
-              <span
+              <div
                 style={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 10.5,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: PALETTE.tealDeep,
+                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateAreas: '"stack"',
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 650ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: radarFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  width: '100%',
+                  height: '100%',
                 }}
               >
-                How it compares
-              </span>
-              <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
-              <V4CompareLegend careers={compareCareers} focalRank={1} />
+                {/* FRONT — compact summary */}
+                <div
+                  style={{
+                    gridArea: 'stack',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    background:
+                      'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
+                      'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
+                      '#ECE4D2',
+                    border: '1px solid rgba(201, 182, 144, 0.5)',
+                    borderRadius: 20,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontWeight: 700,
+                      fontSize: 10.5,
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: PALETTE.tealDeep,
+                    }}
+                  >
+                    How it compares
+                  </span>
+                  <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
+                  <V4CompareLegend careers={compareCareers} focalRank={1} />
+                </div>
+
+                {/* BACK — detail view, same footprint, more context */}
+                <div
+                  style={{
+                    gridArea: 'stack',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                    background:
+                      'radial-gradient(circle at 85% 15%, rgba(39,161,161,0.10), transparent 60%),' +
+                      'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.08), transparent 55%),' +
+                      '#ECE4D2',
+                    border: '1px solid rgba(201, 182, 144, 0.5)',
+                    borderRadius: 20,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                    <span
+                      style={{
+                        fontFamily: FONT_DISPLAY,
+                        fontWeight: 700,
+                        fontSize: 10.5,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: PALETTE.tealDeep,
+                      }}
+                    >
+                      How it differs
+                    </span>
+                    <span style={{ fontFamily: FONT_BODY, fontSize: 10.5, fontWeight: 700, color: PALETTE.inkSoft }}>
+                      Work-life fit · 5 axes
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: PALETTE.inkMuted,
+                      lineHeight: 1.5,
+                      margin: 0,
+                    }}
+                  >
+                    Filled polygon is your strongest match. Dashed lines are your other top roles. Distance from
+                    the centre is the score on each axis.
+                  </p>
+                  <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="full" />
+                  <V4CompareLegend careers={compareCareers} focalRank={1} />
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -1245,7 +1327,21 @@ const PathsTile: React.FC<{
     }}
   >
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <CareerSlotIcon slot={slot} size={44} />
+      <div
+        style={{
+          flexShrink: 0,
+          width: 60,
+          height: 60,
+          borderRadius: 14,
+          background: PALETTE.cream,
+          border: `1px solid ${PALETTE.tan}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CareerSlotIcon slot={slot} size={36} />
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
         <span
           style={{
@@ -1695,9 +1791,11 @@ const SharePromoBlock: React.FC<{
   <section
     style={{
       marginBottom: 48,
-      background: PALETTE.cream,
+      background: 'rgba(18, 46, 59, 0.55)',
+      backdropFilter: 'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
       borderRadius: 24,
-      border: `1px solid ${PALETTE.tan}`,
+      border: '1px solid rgba(255, 255, 255, 0.08)',
       boxShadow: '0 24px 50px -20px rgba(0,0,0,0.4)',
       overflow: 'hidden',
       display: 'grid',
@@ -1712,7 +1810,7 @@ const SharePromoBlock: React.FC<{
           fontSize: 11,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
-          color: PALETTE.tealDeep,
+          color: PALETTE.goldBright,
         }}
       >
         SHAREABLE · LINKEDIN-READY
@@ -1723,7 +1821,7 @@ const SharePromoBlock: React.FC<{
           fontWeight: 700,
           fontSize: 28,
           letterSpacing: '-0.025em',
-          color: PALETTE.canvasDeep,
+          color: '#fff',
           margin: 0,
           lineHeight: 1.1,
         }}
@@ -1735,7 +1833,7 @@ const SharePromoBlock: React.FC<{
           fontFamily: FONT_BODY,
           fontSize: 14,
           fontWeight: 500,
-          color: PALETTE.inkMuted,
+          color: 'rgba(255,255,255,0.72)',
           margin: 0,
           lineHeight: 1.55,
         }}
@@ -1770,8 +1868,8 @@ const SharePromoBlock: React.FC<{
           onClick={onGenerate}
           style={{
             background: 'transparent',
-            color: PALETTE.tealDeep,
-            border: `1px solid ${PALETTE.tan}`,
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.22)',
             padding: '12px 18px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
