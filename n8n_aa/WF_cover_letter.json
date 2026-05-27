@@ -1,8 +1,5 @@
 {
   "name": "WF_cover_letter",
-  "settings": {
-    "executionOrder": "v1"
-  },
   "nodes": [
     {
       "parameters": {
@@ -18,15 +15,15 @@
       "typeVersion": 2,
       "position": [
         240,
-        300
+        356
       ],
+      "webhookId": "cover-letter-webhook",
       "credentials": {
         "httpHeaderAuth": {
           "id": "aiABzg04zbeDSXRc",
           "name": "Supabase Edge Functions \u2014 Shared Secret"
         }
-      },
-      "webhookId": "cover-letter-webhook"
+      }
     },
     {
       "parameters": {
@@ -39,32 +36,31 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        460,
-        300
+        528,
+        208
       ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Write a tailored cover letter for this specific job posting. Return ONLY a JSON object (no markdown, no commentary, no surrounding text):\n\n{\n  \"greeting\": \"Dear Hiring Team,\",\n  \"opening\": \"\",\n  \"body_paragraphs\": [\"\", \"\"],\n  \"closing\": \"\"\n}\n\nRules:\n- 3-4 short paragraphs total. Hiring managers skim \u2014 tight beats verbose.\n- Reference THIS specific posting: mention the company by name and reflect 1-2 things the JD actually asks for.\n- Pull concrete evidence from the candidate's r\u00e9sum\u00e9: company names, project names, measurable outcomes. No vague \"passionate about...\" filler.\n- Voice should feel like the same person who wrote the r\u00e9sum\u00e9 \u2014 not generic AI tone.\n- Never open with \"I am writing to apply for...\". Lead with substance.\n- No fake hiring-manager names in the greeting (use \"Dear Hiring Team,\" unless a real name is in the JD).\n- Closing: one sentence + sign-off (no \"Sincerely,\" \u2014 keep it modern, e.g. \"Looking forward to talking,\").\n\nTARGET ROLE: {{ $('Webhook').item.json.body.job.title }}\nORGANIZATION: {{ $('Webhook').item.json.body.job.company }}\nLOCATION: {{ $('Webhook').item.json.body.job.location || 'not specified' }}\n\nJOB DESCRIPTION:\n{{ $('Webhook').item.json.body.job.description || '(no description provided)' }}\n\nCANDIDATE R\u00c9SUM\u00c9 (JSON, use as voice + evidence source):\n{{ JSON.stringify($('Webhook').item.json.body.source_resume.resume_json) }}\n",
-        "batching": {}
+        "text": "=Write a tailored cover letter for this specific job posting. Return ONLY a JSON object (no markdown, no commentary, no surrounding text):\n\n{\n  \"greeting\": \"Dear Hiring Team,\",\n  \"opening\": \"\",\n  \"body_paragraphs\": [\"\", \"\"],\n  \"closing\": \"\"\n}\n\nRules:\n- 3-4 short paragraphs total. Hiring managers skim, tight beats verbose.\n- LANGUAGE: Detect the language of the JOB DESCRIPTION below and write the entire letter in that same language (greeting, opening, body, closing, sign-off). If the JD is too short or ambiguous to tell with confidence, default to English. Common cases for this app: English, Dutch (Nederlands), German. Match the language exactly, including the greeting phrasing (e.g. \"Geachte heer/mevrouw,\" for Dutch, \"Sehr geehrte Damen und Herren,\" for German).\n- TONE: Business casual. Confident but not stiff. No corporate jargon, no \"synergy\", no \"leveraging\", no \"I am writing to apply for...\". Read like a thoughtful note from a peer who happens to be a strong fit.\n- PUNCTUATION: NEVER use em-dashes (\u2014) or en-dashes (\u2013) anywhere in the letter. This is non-negotiable. Use commas, periods, colons, parentheses, or sentence breaks instead. This applies across all languages.\n- Reference THIS specific posting: mention the company by name and reflect 1-2 things the JD actually asks for.\n- Pull concrete evidence from the candidate's r\u00e9sum\u00e9: company names, project names, measurable outcomes. No vague \"passionate about...\" filler.\n- Voice should feel like the same person who wrote the r\u00e9sum\u00e9, not generic AI tone.\n- No fake hiring-manager names in the greeting (use the language-appropriate generic, e.g. \"Dear Hiring Team,\" / \"Geachte heer/mevrouw,\").\n- Closing: one sentence + sign-off. Keep it modern (no \"Sincerely,\").\n\nTARGET ROLE: {{ $('Webhook').item.json.body.job.title }}\nORGANIZATION: {{ $('Webhook').item.json.body.job.company }}\nLOCATION: {{ $('Webhook').item.json.body.job.location || 'not specified' }}\n\nJOB DESCRIPTION:\n{{ $('Webhook').item.json.body.job.description || '(no description provided)' }}\n\nCANDIDATE R\u00c9SUM\u00c9 (JSON, use as voice + evidence source):\n{{ JSON.stringify($('Webhook').item.json.body.source_resume.resume_json) }}\n"
       },
       "id": "cover-1",
       "name": "Cover Letter",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.6,
       "position": [
-        680,
-        300
+        464,
+        504
       ]
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "claude-sonnet-4-5-20250929",
+          "value": "claude-sonnet-4-6",
           "mode": "list",
-          "cachedResultName": "Claude Sonnet 4.5"
+          "cachedResultName": "Claude Sonnet 4.6"
         },
         "options": {
           "temperature": 0.4
@@ -75,8 +71,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        680,
-        480
+        536,
+        728
       ],
       "credentials": {
         "anthropicApi": {
@@ -94,8 +90,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        300
+        816,
+        504
       ]
     },
     {
@@ -104,7 +100,8 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "strict",
+            "version": 1
           },
           "conditions": [
             {
@@ -126,8 +123,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1120,
-        300
+        1040,
+        504
       ]
     },
     {
@@ -165,8 +162,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1340,
-        200
+        1264,
+        408
       ],
       "credentials": {
         "supabaseApi": {
@@ -210,8 +207,8 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        1340,
-        400
+        1264,
+        600
       ],
       "credentials": {
         "supabaseApi": {
@@ -289,5 +286,8 @@
         ]
       ]
     }
+  },
+  "settings": {
+    "executionOrder": "v1"
   }
 }
