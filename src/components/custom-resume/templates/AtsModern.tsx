@@ -176,10 +176,32 @@ export function AtsModern({ data }: AtsModernProps) {
 
         {data.experience?.length > 0 ? (
           <View>
-            <Text style={styles.sectionHeading}>Experience</Text>
-            <View style={styles.sectionRule} />
-            {data.experience.map((exp, i) => (
-              <View key={i} style={styles.experienceItem} wrap={false}>
+            {/* Section heading + rule + first item kept atomic via wrap={false}
+                so the "Experience" header never lands at the bottom of a page
+                with all jobs pushed to the next one. */}
+            <View wrap={false}>
+              <Text style={styles.sectionHeading}>Experience</Text>
+              <View style={styles.sectionRule} />
+              {data.experience[0] ? (
+                <View style={styles.experienceItem}>
+                  <View style={styles.experienceHeader}>
+                    <Text style={styles.experienceTitle}>{data.experience[0].title}</Text>
+                    <Text style={styles.experienceDates}>{renderDateRange(data.experience[0])}</Text>
+                  </View>
+                  <Text style={styles.experienceCompany}>
+                    {[data.experience[0].company, data.experience[0].location].filter(Boolean).join(' · ')}
+                  </Text>
+                  {data.experience[0].bullets?.map((b, j) => (
+                    <View key={j} style={styles.bullet}>
+                      <Text style={styles.bulletDot}>›</Text>
+                      <Text style={styles.bulletText}>{b}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+            {data.experience.slice(1).map((exp, i) => (
+              <View key={i + 1} style={styles.experienceItem} wrap={false}>
                 <View style={styles.experienceHeader}>
                   <Text style={styles.experienceTitle}>{exp.title}</Text>
                   <Text style={styles.experienceDates}>{renderDateRange(exp)}</Text>
