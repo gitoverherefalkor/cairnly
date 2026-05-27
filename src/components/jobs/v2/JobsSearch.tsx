@@ -3,8 +3,8 @@
 // LocationInput components' UI; their data exports (COUNTRIES,
 // profileCountryToCode) are still used.
 
-import React, { useState } from 'react';
-import { CheckCircle2, Clock, Globe, Heart, Loader2, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import React from 'react';
+import { Ban, CheckCircle2, Clock, Globe, Heart, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -48,116 +48,6 @@ const COMMITMENT_OPTIONS: { value: JobCommitment; label: string }[] = [
 // Collapsible panel showing the "avoid" preferences pulled from the user's
 // assessment. Each item is a toggle — unchecking it means "don't filter this
 // out for this search" (people forget what they marked to avoid months ago).
-const AvoidFoldout: React.FC<{
-  items: string[];
-  disabled: string[];
-  onToggle: (item: string) => void;
-}> = ({ items, disabled, onToggle }) => {
-  const [open, setOpen] = useState(false);
-  if (items.length === 0) return null;
-  const activeCount = items.length - disabled.filter((d) => items.includes(d)).length;
-
-  return (
-    <section style={{ marginBottom: 32 }}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          width: '100%',
-          textAlign: 'left',
-          background: 'rgba(18, 46, 59, 0.55)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: open ? '18px 18px 0 0' : 18,
-          padding: '14px 18px',
-          cursor: 'pointer',
-          fontFamily: FONT_BODY,
-          color: '#fff',
-        }}
-      >
-        <SlidersHorizontal size={15} color={PALETTE.goldBright} />
-        <span style={{ fontSize: 13.5, fontWeight: 700 }}>
-          Hiding roles you said you'd avoid
-        </span>
-        <span style={{ fontSize: 12.5, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
-          {activeCount} of {items.length} active
-        </span>
-        <ChevronDown
-          size={16}
-          style={{
-            marginLeft: 'auto',
-            transition: 'transform 0.15s ease',
-            transform: open ? 'rotate(180deg)' : 'none',
-            color: 'rgba(255,255,255,0.6)',
-          }}
-        />
-      </button>
-      {open && (
-        <div
-          style={{
-            background: 'rgba(18, 46, 59, 0.55)',
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderTop: 'none',
-            borderRadius: '0 0 18px 18px',
-            padding: 18,
-          }}
-        >
-          <p
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 12.5,
-              fontWeight: 500,
-              lineHeight: 1.5,
-              color: 'rgba(255,255,255,0.55)',
-              margin: '0 0 14px 0',
-              maxWidth: 640,
-            }}
-          >
-            From your assessment. We lower the score of roles matching these, so they drop off your
-            list. Uncheck any you'd actually consider for this search.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {items.map((item) => {
-              const active = !disabled.includes(item);
-              return (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => onToggle(item)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    cursor: 'pointer',
-                    padding: '8px 14px',
-                    borderRadius: 9999,
-                    border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
-                    background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
-                    fontFamily: FONT_BODY,
-                    fontWeight: 600,
-                    fontSize: 12.5,
-                    color: active ? PALETTE.goldBright : 'rgba(255,255,255,0.45)',
-                    textDecoration: active ? 'none' : 'line-through',
-                  }}
-                >
-                  {active ? <CheckCircle2 size={13} /> : null}
-                  {item}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </section>
-  );
-};
-
 interface JobsSearchProps {
   firstName: string;
   careers: JobsSearchCareerOption[];
@@ -321,7 +211,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
         )}
       </section>
 
-      {/* Location */}
+      {/* Location + avoid panel (single card, two columns split by a thin divider) */}
       <section style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 14, gap: 8 }}>
           <JEyebrow>WHERE</JEyebrow>
@@ -334,152 +224,226 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: 18,
             padding: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
+            display: 'grid',
+            gridTemplateColumns: avoidPreferences.length > 0 ? 'minmax(0, 1.55fr) minmax(0, 1fr)' : '1fr',
+            gap: 0,
           }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
-            <FormField label="Country">
-              <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
-            </FormField>
-            <FormField label="+ Another country (optional)">
-              <CreamSelect
-                value={secondaryCountry}
-                onChange={onSecondaryCountryChange}
-                options={[{ code: '', label: 'None' }, ...countries.filter((c) => c.code !== primaryCountry)]}
-              />
-            </FormField>
-            <FormField label="City (optional)">
-              <CreamInput value={city} onChange={onCityChange} placeholder="Amsterdam, Berlin…" />
-            </FormField>
+          {/* LEFT: Country/Work-arrangement/Hours */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+              paddingRight: avoidPreferences.length > 0 ? 24 : 0,
+            }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
+              <FormField label="Country">
+                <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
+              </FormField>
+              <FormField label="+ Another country (optional)">
+                <CreamSelect
+                  value={secondaryCountry}
+                  onChange={onSecondaryCountryChange}
+                  options={[{ code: '', label: 'None' }, ...countries.filter((c) => c.code !== primaryCountry)]}
+                />
+              </FormField>
+              <FormField label="City (optional)">
+                <CreamInput value={city} onChange={onCityChange} placeholder="Amsterdam, Berlin…" />
+              </FormField>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.5)',
+                  marginBottom: 8,
+                }}
+              >
+                Work arrangement
+              </div>
+              <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
+                {WORK_OPTIONS.map((opt) => {
+                  const active = workArrangement === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => onWorkArrangementChange(opt.value)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        padding: '10px 16px',
+                        borderRadius: 9999,
+                        border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                        background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        color: active ? PALETTE.goldBright : '#fff',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {opt.value !== 'any' && <Globe size={14} />}
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  color: 'rgba(255,255,255,0.55)',
+                  margin: '12px 0 0 0',
+                  maxWidth: 640,
+                }}
+              >
+                "Remote" surfaces remote roles posted for the countries you picked. We don't yet search
+                for roles that are remote <em>anywhere in the world</em>. Want that? Let us know via the
+                Feedback &amp; Support button, bottom-right.
+              </p>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.5)',
+                  marginBottom: 8,
+                }}
+              >
+                Hours / commitment
+              </div>
+              <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
+                {COMMITMENT_OPTIONS.map((opt) => {
+                  const active = jobCommitment === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => onJobCommitmentChange(opt.value)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        padding: '10px 16px',
+                        borderRadius: 9999,
+                        border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                        background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                        fontFamily: FONT_BODY,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        color: active ? PALETTE.goldBright : '#fff',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {opt.value !== 'any' && <Clock size={14} />}
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  color: 'rgba(255,255,255,0.55)',
+                  margin: '12px 0 0 0',
+                  maxWidth: 640,
+                }}
+              >
+                Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract
+                roles are rarer than full-time, so these can return noticeably fewer results. Leave it on
+                "Any hours" for the widest search.
+              </p>
+            </div>
           </div>
 
-          <div>
+          {/* RIGHT: Avoid panel (always visible, vertical divider on the left) */}
+          {avoidPreferences.length > 0 && (
             <div
               style={{
-                fontFamily: FONT_BODY,
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.5)',
-                marginBottom: 8,
+                borderLeft: '1px solid rgba(255, 255, 255, 0.10)',
+                paddingLeft: 24,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
               }}
             >
-              Work arrangement
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <SlidersHorizontal size={15} color={PALETTE.goldBright} />
+                <span style={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 700, color: '#fff' }}>
+                  Hiding roles you said you'd avoid
+                </span>
+                <span style={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
+                  {avoidPreferences.length - disabledAvoids.filter((d) => avoidPreferences.includes(d)).length} of {avoidPreferences.length} active
+                </span>
+              </div>
+              <p
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  lineHeight: 1.5,
+                  color: 'rgba(255,255,255,0.55)',
+                  margin: 0,
+                }}
+              >
+                From your assessment. We lower the score of roles matching these, so they drop off your
+                list. Uncheck any you'd actually consider for this search.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {avoidPreferences.map((item) => {
+                  const active = !disabledAvoids.includes(item);
+                  return (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => onToggleAvoid(item)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        padding: '8px 14px',
+                        borderRadius: 9999,
+                        border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
+                        background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
+                        fontFamily: FONT_BODY,
+                        fontWeight: 600,
+                        fontSize: 12.5,
+                        color: active ? PALETTE.goldBright : 'rgba(255,255,255,0.45)',
+                        textDecoration: active ? 'none' : 'line-through',
+                      }}
+                    >
+                      {active ? <Ban size={13} /> : null}
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
-              {WORK_OPTIONS.map((opt) => {
-                const active = workArrangement === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => onWorkArrangementChange(opt.value)}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      cursor: 'pointer',
-                      padding: '10px 16px',
-                      borderRadius: 9999,
-                      border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
-                      background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
-                      fontFamily: FONT_BODY,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      color: active ? PALETTE.goldBright : '#fff',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {opt.value !== 'any' && <Globe size={14} />}
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 12.5,
-                fontWeight: 500,
-                lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.55)',
-                margin: '12px 0 0 0',
-                maxWidth: 640,
-              }}
-            >
-              "Remote" surfaces remote roles posted for the countries you picked. We don't yet search
-              for roles that are remote <em>anywhere in the world</em>. Want that? Let us know via the
-              Feedback &amp; Support button, bottom-right.
-            </p>
-          </div>
-
-          <div>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.5)',
-                marginBottom: 8,
-              }}
-            >
-              Hours / commitment
-            </div>
-            <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
-              {COMMITMENT_OPTIONS.map((opt) => {
-                const active = jobCommitment === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => onJobCommitmentChange(opt.value)}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      cursor: 'pointer',
-                      padding: '10px 16px',
-                      borderRadius: 9999,
-                      border: `1px solid ${active ? PALETTE.gold : 'rgba(255,255,255,0.16)'}`,
-                      background: active ? 'rgba(212,160,36,0.14)' : 'transparent',
-                      fontFamily: FONT_BODY,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      color: active ? PALETTE.goldBright : '#fff',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {opt.value !== 'any' && <Clock size={14} />}
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            <p
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 12.5,
-                fontWeight: 500,
-                lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.55)',
-                margin: '12px 0 0 0',
-                maxWidth: 640,
-              }}
-            >
-              Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract
-              roles are rarer than full-time, so these can return noticeably fewer results. Leave it on
-              "Any hours" for the widest search.
-            </p>
-          </div>
+          )}
         </div>
       </section>
-
-      <AvoidFoldout items={avoidPreferences} disabled={disabledAvoids} onToggle={onToggleAvoid} />
 
       {/* Search CTA */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
