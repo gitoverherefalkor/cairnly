@@ -729,29 +729,24 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </div>
         )}
 
-        {/* ─── About you — accordion (left) + sticky radar (right) ─── */}
+        {/* ─── About you — single container, accordion left, chart right ─── */}
         {aboutRows.length > 0 && (
           <section style={{ marginBottom: 32 }}>
             <div
               style={{
+                background: 'rgba(18, 46, 59, 0.62)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
                 display: 'grid',
                 gridTemplateColumns:
                   radarAxes.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
-                gap: 24,
-                alignItems: 'flex-start',
               }}
             >
-              <div
-                style={{
-                  background: 'rgba(18, 46, 59, 0.62)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 24,
-                  overflow: 'hidden',
-                  boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
-                }}
-              >
+              <div style={{ minWidth: 0 }}>
                 <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
                 </div>
@@ -770,46 +765,43 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               </div>
 
               {radarAxes.length > 0 && (
-                <div style={{ position: 'sticky', top: 24 }}>
-                  <V4ChartBanner
-                    layout="vertical"
-                    eyebrow="PERSONALITY RADAR"
-                    icon={<Activity size={14} />}
-                    title="How you actually work"
-                    blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
-                    meta={`${radarAxes.length} axes`}
-                    stat={radarLeadStat ?? undefined}
-                    chart={<V4PersonalityRadarSVG axes={radarAxes} />}
-                  />
+                <div style={{ padding: 20, minWidth: 0 }}>
+                  <div style={{ position: 'sticky', top: 24 }}>
+                    <V4ChartBanner
+                      layout="vertical"
+                      eyebrow="PERSONALITY RADAR"
+                      icon={<Activity size={14} />}
+                      title="How you actually work"
+                      blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
+                      meta={`${radarAxes.length} axes`}
+                      stat={radarLeadStat ?? undefined}
+                      chart={<V4PersonalityRadarSVG axes={radarAxes} />}
+                    />
+                  </div>
                 </div>
               )}
             </div>
           </section>
         )}
 
-        {/* ─── Career suggestions — accordion (left) + sticky map (right) ─── */}
+        {/* ─── Career suggestions — single container, accordion left, map right ─── */}
         {careerRows.length > 0 && (
           <section style={{ marginBottom: 16 }}>
             <div
               style={{
+                background: 'rgba(18, 46, 59, 0.62)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
                 display: 'grid',
                 gridTemplateColumns:
                   careerMapPoints.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
-                gap: 24,
-                alignItems: 'flex-start',
               }}
             >
-              <div
-                style={{
-                  background: 'rgba(18, 46, 59, 0.62)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 24,
-                  overflow: 'hidden',
-                  boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
-                }}
-              >
+              <div style={{ minWidth: 0 }}>
                 <div
                   style={{
                     padding: '22px 28px 16px',
@@ -834,24 +826,26 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               </div>
 
               {careerMapPoints.length > 0 && (
-                <div style={{ position: 'sticky', top: 24 }}>
-                  <V4ChartBanner
-                    layout="vertical"
-                    eyebrow="CAREER MAP"
-                    icon={<MapIcon size={14} />}
-                    title="Where the matches sit"
-                    blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
-                    stat={
-                      sweetSpotCount > 0
-                        ? {
-                            value: String(sweetSpotCount),
-                            label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
-                          }
-                        : undefined
-                    }
-                    legend={<V4CareerMapLegend points={careerMapPoints} />}
-                    chart={<V4CareerMapSVG points={careerMapPoints} />}
-                  />
+                <div style={{ padding: 20, minWidth: 0 }}>
+                  <div style={{ position: 'sticky', top: 24 }}>
+                    <V4ChartBanner
+                      layout="vertical"
+                      eyebrow="CAREER MAP"
+                      icon={<MapIcon size={14} />}
+                      title="Where the matches sit"
+                      blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
+                      stat={
+                        sweetSpotCount > 0
+                          ? {
+                              value: String(sweetSpotCount),
+                              label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
+                            }
+                          : undefined
+                      }
+                      legend={<V4CareerMapLegend points={careerMapPoints} />}
+                      chart={<V4CareerMapSVG points={careerMapPoints} />}
+                    />
+                  </div>
                 </div>
               )}
             </div>
