@@ -882,35 +882,119 @@ const HeroMatch: React.FC<{
         </p>
       )}
 
-      {/* Middle row: alignment text on the left, comparison radar on the right.
-          On narrow viewports the row wraps so the radar drops below the text. */}
+      {/* Bottom row: left column stacks alignment text + the three actions;
+          right column holds the comparison radar. Putting the buttons inside
+          the left column lets it fill the radar's vertical height instead of
+          pushing the card taller with a separate divider row. On narrow
+          viewports the radar drops below the column. */}
       {(match.alignment || showRadar) && (
         <div
           style={{
             display: 'flex',
             gap: 24,
-            alignItems: 'flex-start',
+            alignItems: 'stretch',
             flexWrap: 'wrap',
             paddingTop: 4,
+            marginTop: 'auto',
           }}
         >
-          {match.alignment && (
-            <div style={{ flex: '1 1 280px', minWidth: 220, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
-              <p
-                style={{
-                  fontFamily: FONT_BODY,
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: 1.55,
-                  color: 'rgba(255,255,255,0.88)',
-                  margin: '4px 0 0 0',
-                }}
-              >
-                {match.alignment}
-              </p>
+          <div
+            style={{
+              flex: '1 1 280px',
+              minWidth: 220,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            {match.alignment && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
+                <p
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: 1.55,
+                    color: 'rgba(255,255,255,0.88)',
+                    margin: '4px 0 0 0',
+                  }}
+                >
+                  {match.alignment}
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 'auto' }}>
+              <div>
+                <button
+                  type="button"
+                  onClick={onOpenBreakdown}
+                  style={{
+                    background: PALETTE.teal,
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 20px',
+                    borderRadius: 9999,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                    boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
+                  }}
+                >
+                  Why this fits <ArrowRight size={16} />
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => onFindRoles(match.title)}
+                  style={{
+                    background: 'transparent',
+                    color: '#fff',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    padding: '12px 18px',
+                    borderRadius: 9999,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 13.5,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
+                  {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTailorCV(match.title)}
+                  style={{
+                    background: 'transparent',
+                    color: '#fff',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    padding: '12px 18px',
+                    borderRadius: 9999,
+                    fontFamily: FONT_BODY,
+                    fontWeight: 700,
+                    fontSize: 13.5,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
+                  {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
+                </button>
+              </div>
             </div>
-          )}
+          </div>
 
           {showRadar && (
             <div
@@ -947,87 +1031,6 @@ const HeroMatch: React.FC<{
           )}
         </div>
       )}
-
-      {/* Action bar — primary CTA on its own row, then two secondary actions
-          on the row below. Wraps further on very narrow widths. */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          paddingTop: 18,
-          marginTop: 'auto',
-          borderTop: '1px solid rgba(255,255,255,0.10)',
-        }}
-      >
-        <div>
-          <button
-            type="button"
-            onClick={onOpenBreakdown}
-            style={{
-              background: PALETTE.teal,
-              color: '#fff',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 14,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
-            }}
-          >
-            Why this fits <ArrowRight size={16} />
-          </button>
-        </div>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => onFindRoles(match.title)}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.22)',
-              padding: '12px 18px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-            }}
-          >
-            {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-            {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
-          </button>
-          <button
-            type="button"
-            onClick={() => onTailorCV(match.title)}
-            style={{
-              background: 'transparent',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.22)',
-              padding: '12px 18px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13.5,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-            }}
-          >
-            {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
-            {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
-          </button>
-        </div>
-      </div>
     </article>
   );
 };
