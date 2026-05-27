@@ -12,7 +12,7 @@
 // since a good letter is per-application, not per career type.
 
 import React from 'react';
-import { ArrowDown, Award, BookOpen, Lightbulb, Loader2, Sparkles } from 'lucide-react';
+import { Award, FileText, Lightbulb, Loader2, Sparkles } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -27,6 +27,7 @@ import {
 } from './customResumeV2Shared';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { CareerSelection } from '../types';
+import type { CustomResumeRow } from '../hooks/useCustomResumes';
 import { stripHtml } from '../utils';
 
 const CAREER_SECTION_TYPES = new Set([
@@ -59,11 +60,11 @@ interface CustomResumeBuilderProps {
   onSelectedChange: (next: CareerSelection[]) => void;
   isGenerating: boolean;
   onGenerate: () => void;
-  // When the user already has saved résumés, show a "Jump to saved (N)"
-  // anchor button next to the hero so it's obvious there's a list further
-  // down the page.
-  savedCount?: number;
-  onJumpToSaved?: () => void;
+  // Map of career-section id → existing résumés the user has already
+  // generated for that career. Lets each card surface a "View résumé(s)"
+  // affordance inline instead of relying on a separate saved-résumés list.
+  savedByCareerSectionId?: Map<string, CustomResumeRow[]>;
+  onViewSaved?: (ids: string[]) => void;
 }
 
 export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
@@ -72,8 +73,8 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
   onSelectedChange,
   isGenerating,
   onGenerate,
-  savedCount = 0,
-  onJumpToSaved,
+  savedByCareerSectionId,
+  onViewSaved,
 }) => {
   const careers = sections.filter((s) => CAREER_SECTION_TYPES.has(s.section_type));
   const selectedIds = new Set(selected.map((s) => s.section_id));
@@ -145,33 +146,8 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
             styles (2 ATS-safe, 2 designed) without re-generating. Free to download.
           </p>
         </div>
-        {savedCount > 0 && onJumpToSaved ? (
-          <button
-            type="button"
-            onClick={onJumpToSaved}
-            style={{
-              background: 'rgba(39,161,161,0.14)',
-              color: PALETTE.tealBright,
-              border: '1px solid rgba(39,161,161,0.42)',
-              padding: '10px 16px',
-              borderRadius: 9999,
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 13,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 8px 20px -10px rgba(39,161,161,0.5)',
-            }}
-            title={`Jump to ${savedCount} saved ${savedCount === 1 ? 'résumé' : 'résumés'}`}
-          >
-            <BookOpen size={14} />
-            Saved résumés ({savedCount})
-            <ArrowDown size={13} />
-          </button>
-        ) : null}
+        {/* Saved résumés are surfaced inline on each career card now (View
+            button + gold outline) — no separate jump-to-list anchor needed. */}
       </div>
 
       {/* Careers */}
@@ -190,6 +166,7 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
             {orderedCareers.map((c) => {
               const isSelected = selectedIds.has(c.id);
               const disabled = !isSelected && atLimit;
+              const savedForCard = savedByCareerSectionId?.get(c.id) ?? [];
               return (
                 <CareerCard
                   key={c.id}
@@ -197,6 +174,8 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
                   selected={isSelected}
                   disabled={disabled}
                   onToggle={() => toggle(c)}
+                  savedResumes={savedForCard}
+                  onViewSaved={onViewSaved}
                 />
               );
             })}
@@ -319,19 +298,48 @@ const CareerCard: React.FC<{
   selected: boolean;
   disabled: boolean;
   onToggle: () => void;
-}> = ({ section, selected, disabled, onToggle }) => {
+  // Existing résumés for this career — when present, surfaces a "View résumé(s)"
+  // mini-button and a gold outline so the user sees at a glance that they've
+  // already generated for this one.
+  savedResumes?: CustomResumeRow[];
+  onViewSaved?: (ids: string[]) => void;
+}> = ({ section, selected, disabled, onToggle, savedResumes, onViewSaved }) => {
   const tier = TIER_FOR_TYPE[section.section_type] ?? TIER_FOR_TYPE.runner_ups;
   const title = stripHtml(section.title) || 'Untitled career';
   const altTitles = stripHtml(section.alternate_titles);
   const score = section.score != null ? Math.round(Number(section.score)) : null;
+  const savedCount = savedResumes?.length ?? 0;
+  const hasSaved = savedCount > 0;
+
+  // When the card has saved résumés but isn't selected for re-generation,
+  // override the default thin glass border with a mustard outline + soft glow
+  // so it reads at a glance as "already done." Selected state (teal) keeps
+  // priority when both are true.
+  const savedOutline: React.CSSProperties =
+    hasSaved && !selected
+      ? {
+          border: `1.5px solid ${PALETTE.gold}`,
+          boxShadow: '0 0 0 1px rgba(212, 160, 36, 0.20), 0 14px 28px -14px rgba(212, 160, 36, 0.40)',
+        }
+      : {};
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      aria-pressed={selected}
       onClick={!disabled ? onToggle : undefined}
-      disabled={disabled}
+      onKeyDown={(e) => {
+        if (disabled) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
       style={{
         ...glassCardStyle(selected, disabled),
+        ...savedOutline,
         padding: 20,
         display: 'flex',
         flexDirection: 'column',
@@ -371,41 +379,76 @@ const CareerCard: React.FC<{
           {altTitles}
         </div>
       )}
-      {score != null && (
-        <div
-          style={{
-            marginTop: 'auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            paddingTop: 8,
-          }}
-        >
-          <span
+
+      {/* Footer row: match score (left) + View résumé(s) action (right) */}
+      <div
+        style={{
+          marginTop: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          paddingTop: 8,
+        }}
+      >
+        {score != null ? (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 13,
+                color: PALETTE.goldBright,
+              }}
+            >
+              {score}/100
+            </span>
+            <span
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 11,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.45)',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Match
+            </span>
+          </div>
+        ) : (
+          <span />
+        )}
+        {hasSaved && (
+          <button
+            type="button"
+            onClick={(e) => {
+              // Don't toggle selection — this is the view-existing path.
+              e.stopPropagation();
+              onViewSaved?.(savedResumes!.map((r) => r.id));
+            }}
             style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 13,
+              background: 'transparent',
               color: PALETTE.goldBright,
-            }}
-          >
-            {score}/100
-          </span>
-          <span
-            style={{
+              border: `1px solid ${PALETTE.gold}`,
+              padding: '6px 12px',
+              borderRadius: 9999,
               fontFamily: FONT_BODY,
-              fontSize: 11,
-              fontWeight: 600,
-              color: 'rgba(255,255,255,0.45)',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
+              fontWeight: 700,
+              fontSize: 12,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              whiteSpace: 'nowrap',
             }}
           >
-            Match
-          </span>
-        </div>
-      )}
-    </button>
+            <FileText size={12} />
+            {savedCount === 1 ? 'View résumé' : `View ${savedCount} résumés`}
+          </button>
+        )}
+      </div>
+    </div>
   );
 };
 

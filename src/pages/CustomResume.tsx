@@ -25,7 +25,6 @@ import {
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { ApproachBackground, REyebrow, glassCardStyle } from '@/components/custom-resume/v2/customResumeV2Shared';
 import { CustomResumeBuilder } from '@/components/custom-resume/v2/CustomResumeBuilder';
-import { CustomResumeIndex } from '@/components/custom-resume/v2/CustomResumeIndex';
 import { CustomResumeResults } from '@/components/custom-resume/v2/CustomResumeResults';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { stripHtml } from '@/components/custom-resume/utils';
@@ -163,7 +162,7 @@ const CustomResume = () => {
               // Toast already shown by the hook.
             }
           }}
-          onView={(id) => setSearchParams({ ids: id }, { replace: false })}
+          onView={(ids) => setSearchParams({ ids: ids.join(',') }, { replace: false })}
         />
       )}
     </PageShell>
@@ -171,11 +170,10 @@ const CustomResume = () => {
 };
 
 // ── Builder + saved résumés composition ──────────────────────
-// Wraps the builder and the past-résumés index in a single layout. Lives
-// in its own component so the `useCustomResumeList()` count can be passed
-// to the builder for its "Saved résumés (N)" anchor button without leaking
-// the hook into the page-level component.
-const SAVED_ANCHOR_ID = 'saved-resumes';
+// Each career card surfaces its existing résumés inline (gold outline +
+// "View résumé(s)" button) so there's no need for a separate saved-résumés
+// list below. This wrapper just fetches the saved rows and groups them by
+// career_section_id for the builder to read.
 
 const BuilderWithSaved: React.FC<{
   sections: ReturnType<typeof useReportSections>['sections'];
@@ -183,7 +181,7 @@ const BuilderWithSaved: React.FC<{
   setSelected: (next: CareerSelection[]) => void;
   isGenerating: boolean;
   onGenerate: () => void;
-  onView: (id: string) => void;
+  onView: (ids: string[]) => void;
 }> = ({
   sections,
   selected,
@@ -193,28 +191,29 @@ const BuilderWithSaved: React.FC<{
   onView,
 }) => {
   const { data: savedRows } = useCustomResumeList();
-  const savedCount = savedRows?.length ?? 0;
+
+  const savedByCareerSectionId = useMemo(() => {
+    const map = new Map<string, typeof savedRows extends Array<infer R> ? R[] : never>();
+    (savedRows ?? []).forEach((row) => {
+      const key = row.career_section_id;
+      if (!key) return;
+      const list = map.get(key) ?? [];
+      list.push(row as never);
+      map.set(key, list);
+    });
+    return map as Map<string, NonNullable<typeof savedRows>>;
+  }, [savedRows]);
 
   return (
-    <>
-      <CustomResumeBuilder
-        sections={sections}
-        selected={selected}
-        onSelectedChange={setSelected}
-        isGenerating={isGenerating}
-        onGenerate={onGenerate}
-        savedCount={savedCount}
-        onJumpToSaved={() =>
-          document.getElementById(SAVED_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      />
-      {/* Saved résumés sit beneath the builder now — the anchor button in
-          the builder hero scrolls here in one click so users coming back
-          to the page know exactly where to find what they generated before. */}
-      <div id={SAVED_ANCHOR_ID} style={{ scrollMarginTop: 100 }}>
-        <CustomResumeIndex onView={onView} />
-      </div>
-    </>
+    <CustomResumeBuilder
+      sections={sections}
+      selected={selected}
+      onSelectedChange={setSelected}
+      isGenerating={isGenerating}
+      onGenerate={onGenerate}
+      savedByCareerSectionId={savedByCareerSectionId}
+      onViewSaved={onView}
+    />
   );
 };
 
