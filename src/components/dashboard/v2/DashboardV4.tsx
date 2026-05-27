@@ -204,15 +204,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     return { hero, secondary: [second, third].filter(Boolean) as CareerMatch[] };
   }, [sections]);
 
-  // "More paths" — one teaser tile per group (handoff decision: production
-  // stores each as a single free-text section, not a structured item list).
+  // "More paths" — one tile per group. Each section_type repeats in the DB
+  // (one row per career, split by WF4), so we collect ALL matching rows and
+  // surface the career titles as a list on the tile. Tile prose used to be
+  // the firstSentences of ONE arbitrary section, which mislead readers into
+  // thinking the tile represented a single career.
   const paths = useMemo(() => {
     const build = (type: string, fallbackId: string) => {
-      const s = sections.find((x) => x.section_type === type);
-      if (!s) return null;
+      const matches = sections.filter((x) => x.section_type === type);
+      if (matches.length === 0) return null;
       return {
-        title: stripHtml(s.title || FALLBACK_TITLES[fallbackId]),
-        teaser: firstSentences(s.content || '', 2),
+        title: FALLBACK_TITLES[fallbackId],
+        descriptor: ONE_LINERS[fallbackId],
+        careers: matches.map((s) => stripHtml(s.title || 'Career')),
       };
     };
     return {
@@ -606,6 +610,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </div>
         )}
 
+        {/* ─── Share promo (sits right under the top-3 row) ─── */}
+        <SharePromoBlock heroTitle={hero?.title ?? 'Your best-fit career'} heroShape={hero?.shape ?? null} heroPct={hero?.matchPct ?? 0} onGenerate={onOpenShareCard} />
+
         {/* ─── More paths ─── */}
         {(paths.runners || paths.outside || paths.dream) && (
           <section style={{ marginTop: 16, marginBottom: 48 }}>
@@ -614,13 +621,34 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {paths.runners && (
-                <PathsTile title="Runner-up Careers" accent={PALETTE.teal} teaser={paths.runners.teaser} onOpen={() => handleOpenSection('runners')} />
+                <PathsTile
+                  slot="runnerups"
+                  title={paths.runners.title}
+                  descriptor={paths.runners.descriptor}
+                  accent={PALETTE.teal}
+                  careers={paths.runners.careers}
+                  onOpen={() => handleOpenSection('runners')}
+                />
               )}
               {paths.outside && (
-                <PathsTile title="Outside-the-Box" accent={PALETTE.goldBright} teaser={paths.outside.teaser} onOpen={() => handleOpenSection('outside')} />
+                <PathsTile
+                  slot="outside"
+                  title={paths.outside.title}
+                  descriptor={paths.outside.descriptor}
+                  accent={PALETTE.goldBright}
+                  careers={paths.outside.careers}
+                  onOpen={() => handleOpenSection('outside')}
+                />
               )}
               {paths.dream && (
-                <PathsTile title="Dream Job Analysis" accent={PALETTE.blue} teaser={paths.dream.teaser} onOpen={() => handleOpenSection('dream')} />
+                <PathsTile
+                  slot="dream"
+                  title={paths.dream.title}
+                  descriptor={paths.dream.descriptor}
+                  accent={PALETTE.blue}
+                  careers={paths.dream.careers}
+                  onOpen={() => handleOpenSection('dream')}
+                />
               )}
             </div>
           </section>
@@ -638,9 +666,6 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
-
-        {/* ─── Share promo ─── */}
-        <SharePromoBlock heroTitle={hero?.title ?? 'Your best-fit career'} heroShape={hero?.shape ?? null} heroPct={hero?.matchPct ?? 0} onGenerate={onOpenShareCard} />
 
         {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (
@@ -1197,12 +1222,14 @@ const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = f
 );
 
 // ── Paths tile ────────────────────────────────────────────────
-const PathsTile: React.FC<{ title: string; accent: string; teaser: string; onOpen: () => void }> = ({
-  title,
-  accent,
-  teaser,
-  onOpen,
-}) => (
+const PathsTile: React.FC<{
+  slot: CareerSlot;
+  title: string;
+  descriptor: string;
+  accent: string;
+  careers: string[];
+  onOpen: () => void;
+}> = ({ slot, title, descriptor, accent, careers, onOpen }) => (
   <article
     style={{
       background: 'rgba(18, 46, 59, 0.55)',
@@ -1213,35 +1240,72 @@ const PathsTile: React.FC<{ title: string; accent: string; teaser: string; onOpe
       padding: 22,
       display: 'flex',
       flexDirection: 'column',
-      gap: 12,
+      gap: 14,
       boxShadow: '0 16px 32px -16px rgba(0,0,0,0.4)',
     }}
   >
-    <span
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 11,
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase',
-        color: accent,
-      }}
-    >
-      {title}
-    </span>
-    <p
-      style={{
-        fontFamily: FONT_BODY,
-        fontWeight: 500,
-        fontSize: 13.5,
-        lineHeight: 1.5,
-        color: 'rgba(255,255,255,0.78)',
-        margin: 0,
-        flex: 1,
-      }}
-    >
-      {teaser || 'Open the full report to explore these alternatives.'}
-    </p>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <CareerSlotIcon slot={slot} size={44} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+        <span
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 17,
+            letterSpacing: '-0.01em',
+            color: '#fff',
+            lineHeight: 1.2,
+          }}
+        >
+          {title}
+        </span>
+        <span
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 500,
+            fontSize: 13,
+            lineHeight: 1.4,
+            color: 'rgba(255,255,255,0.7)',
+          }}
+        >
+          {descriptor}
+        </span>
+      </div>
+    </div>
+
+    {careers.length > 0 && (
+      <ul
+        style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          flex: 1,
+        }}
+      >
+        {careers.map((c, i) => (
+          <li
+            key={`${c}-${i}`}
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 500,
+              fontSize: 13.5,
+              lineHeight: 1.4,
+              color: 'rgba(255,255,255,0.82)',
+              display: 'flex',
+              gap: 8,
+              alignItems: 'flex-start',
+            }}
+          >
+            <span style={{ color: accent, flexShrink: 0 }}>•</span>
+            <span>{c}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
     <button
       type="button"
       onClick={onOpen}
