@@ -1,49 +1,344 @@
 {
   "hero": {
-    "title": "Stop Guessing. Start Thriving.",
-    "subtitle": "Ontdek je ideale carrièrepad via een door experts ontwikkelde, AI-versterkte assessment. Krijg gepersonaliseerde inzichten, bruikbare aanbevelingen en carrièreduidelijkheid — aangeboden via een interactieve ervaring."
+    "eyebrow": "01 · De vraag",
+    "titleA": "De richting die je op je",
+    "titleHighlight": "zestiende",
+    "titleB": "koos, bepaalde de twintig jaar die volgden.",
+    "body": "Je koos een algemene richting, business, engineering, healthcare, en die bepaalde stilletjes je studierichting, je eerste baan, en elke baan daarna. Cairnly is één enkel assessment dat de vraag stelt die die 16-jarige nooit had kunnen stellen:",
+    "bodyEmphasis": "met de levenservaring die je sindsdien hebt opgedaan, wat zou je nú eigenlijk kiezen?",
+    "ctaPrimary": "Aan de slag — €39",
+    "ctaSecondary": "Bekijk hoe het werkt",
+    "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
+    "screenshotMeta": "5 : 4 · AI-coachsessie",
+    "screenshotAlt": "Cairnly AI-coachsessie"
+  },
+  "pillars": {
+    "eyebrow": "Waarom Cairnly anders is",
+    "titleA": "Vier dingen die we",
+    "titleHighlight": "nergens anders",
+    "titleB": "konden vinden en waar we klaar mee waren.",
+    "cards": [
+      {
+        "title": "Niet nóg een persoonlijkheidstest",
+        "body": "Persoonlijkheidstesten geven je een label van vier letters. Cairnly geeft je specifieke functietitels: je beste matches, runner-ups, en één out-of-the-box optie die je zelf nooit had overwogen."
+      },
+      {
+        "title": "Interactief, niet statisch",
+        "body": "Elk rapport komt met een coaching chat. Slaat een aanbeveling de plank mis? Geef gerust tegengas. Het rapport past zich aan tot het écht klopt."
+      },
+      {
+        "title": "Toekomstbewust",
+        "body": "Elke voorgestelde rol bevat een eerlijke analyse van hoe AI deze gaat herdefiniëren. We vertellen je wat waarschijnlijk gaat groeien en wat gaat krimpen."
+      },
+      {
+        "title": "Eerlijk, niet vleiend",
+        "body": "Echte reality checks over uitdagingen, trade-offs en de vaardigheden die je moet ontwikkelen. We zijn er niet om je te cheerleaden. We zijn er om je te helpen goed te kiezen."
+      }
+    ]
   },
   "howItWorks": {
-    "title": "Hoe het werkt",
-    "subtitle": "Je weg naar carrièreduidelijkheid in drie simpele stappen",
-    "step1Title": "Vul de assessment in",
-    "step1Description": "Beantwoord doordachte vragen over je ervaring, doelen, persoonlijkheid en voorkeuren. Duurt ongeveer 25 minuten.",
-    "step2Title": "AI-gestuurde inzichten",
-    "step2Description": "Onze AI analyseert je unieke profiel om gepersonaliseerde carrièreaanbevelingen en een gedetailleerd persoonlijkheidsrapport te genereren.",
-    "step3Title": "Onderneem actie",
-    "step3Description": "Bekijk je resultaten via een interactieve chat, stel vragen en krijg concrete vervolgstappen voor je carrière."
+    "eyebrow": "Chapter 02 · Het pad",
+    "titleA": "Van assessment naar",
+    "titleHighlight": "actie",
+    "titleB": ".",
+    "subtitle": "Vijf stappen, van waar je nu staat tot het daadwerkelijk binnenslepen van die baan. Concrete carrièrepaden die passen bij wie je bent geworden, niet bij wie je dacht te zullen zijn.",
+    "stickyLabel": "Stap {{n}} van 5",
+    "stepTitles": [
+      "Doe het assessment",
+      "AI analyseert je",
+      "Chat met de coach",
+      "Ontvang je rapport",
+      "Land de baan"
+    ],
+    "steps": [
+      {
+        "eyebrow": "Doe het assessment",
+        "body": "Een begeleide reeks vragen over je achtergrond, skills, werkstijl, waarden en wat je tot nu toe energie heeft gegeven of juist heeft gekost. Ontworpen om te vangen wat écht telt voor je career fit. Niet alleen persoonlijkheidskenmerken.",
+        "screenshotMeta": "4 : 3 · Assessment",
+        "screenshotAlt": "Assessmentvraag over werken in teams"
+      },
+      {
+        "eyebrow": "AI analyseert je profiel",
+        "body": "Zeven AI-workflows, gebouwd en getuned in samenwerking met actieve carrièrecoaches, lezen je antwoorden van begin tot eind. Ze bouwen je persoonlijkheids- en waardenprofiel op, matchen je met specifieke rollen, berekenen de AI-impact en schrijven een gepersonaliseerde onderbouwing.",
+        "extra": "Geen ChatGPT-prompt die je ook zelf had kunnen schrijven. Geen vibe-coded weekendproject.",
+        "extraEmphasis": "De methodologie is de moat.",
+        "extraLink": "Bekijk elke stap in de methodologie"
+      },
+      {
+        "eyebrow": "Chat met je AI-coach",
+        "body": "Bespreek je resultaten één-op-één. Stel vervolgvragen, verken specifieke rollen in de diepte, en geef tegengas als iets niet matcht. Je krijgt eerlijke antwoorden over trade-offs en volgende stappen. Geen vleierij.",
+        "screenshotMeta": "4 : 3 · Coach chat",
+        "screenshotAlt": "AI-coachsessie met je persoonlijkheidsprofiel"
+      },
+      {
+        "eyebrow": "Ontvang je rapport",
+        "body": "Je definitieve rapport, verfijnd door de chat: persoonlijkheids- en waardenanalyse, alle carrière-aanbevelingen, salarisdata, AI-impact ratings en concrete volgende stappen.",
+        "screenshotMeta": "4 : 3 · Carrièrerapport",
+        "screenshotAlt": "Het Cairnly dashboard met je career signature en top matches"
+      },
+      {
+        "eyebrow": "Land de baan",
+        "body": "Kies de rollen die je aanspreken. Cairnly vindt er actuele vacatures bij. Wanneer je solliciteert, worden je cv en motivatiebrief op maat gemaakt met alles wat Cairnly al over je weet. Geen prompting nodig.",
+        "extra": "De job-landing features zijn momenteel in bèta en gratis te ontgrendelen.",
+        "screenshotMeta": "4 : 3 · Job match",
+        "screenshotLabel": "Live vacatures, op maat gemaakte materialen",
+        "screenshotDesc": "Komt eraan zodra de bèta job-landing flow live gaat."
+      }
+    ]
   },
-  "whyAtlas": {
-    "title": "Waarom Cairnly",
-    "subtitle": "Wat Cairnly anders maakt",
-    "feature1Title": "Door experts ontwikkeld",
-    "feature1Description": "Gebouwd op bewezen loopbaanontwikkelingsraamwerken en beoordelingsmethoden.",
-    "feature2Title": "AI-versterkt",
-    "feature2Description": "Geavanceerde AI biedt diepere analyses en meer gepersonaliseerde aanbevelingen dan traditionele assessments.",
-    "feature3Title": "Interactieve ervaring",
-    "feature3Description": "Bespreek je resultaten in realtime, stel vervolgvragen en verken carrières die je interesseren."
+  "methodology": {
+    "eyebrow": "Chapter 03 · Methodologie",
+    "titleA": "Geen formule. Geen freestyle AI.",
+    "titleHighlight": "Iets daar tussenin.",
+    "intro": "De meeste persoonlijkheidstesten stoppen je in een hokje en vertellen je vervolgens wat mensen in dat hokje meestal doen. Generieke AI-tools negeren de wetenschap volledig en improviseren maar wat. Cairnly doet geen van beide.",
+    "oldCard": {
+      "pill": "Eerst het hokje, dan het label",
+      "title": "De oude aanpak",
+      "p1": "Je beantwoordt een vaste set vragen. Een formule deelt je in bij een van een klein aantal types. Het rapport beschrijft wat mensen van dat type gemiddeld doen, niet wat bij jóú zou passen, met jouw geschiedenis, in jouw leven.",
+      "p2": "De labels zijn catchy. De wetenschap achter sommige ervan is omstreden. En of je nu de ene of de andere letter bent, vertelt je niet of je UX-designer of recruiter moet worden."
+    },
+    "newCard": {
+      "pill": "Fundering + maatwerk",
+      "title": "Cairnly's aanpak",
+      "p1": "Ons assessment is gebouwd op de gevalideerde delen van gevestigd psychometrisch onderzoek; het werk dat daadwerkelijk career fit, match qua waarden en werkvoorkeuren voorspelt.",
+      "p1Emphasis": "We hebben behouden wat standhoudt.",
+      "p2": "Daarbovenop leggen we de laag die formules niet kunnen vangen: je echte carrièregeschiedenis, wat je energie heeft gegeven, wat je heeft leeggezogen en waar je naartoe wilt. Frontier AI, aangestuurd door actieve carrièrecoaches, leest dit allemaal in samenhang en schrijft een rapport voor déze persoon. Niet voor een type."
+    },
+    "engineEyebrow": "Achter de schermen",
+    "engineTitle": "Zeven AI-workflows. Eén coach-getunede pipeline.",
+    "engineSubtitle": "Elke stap heeft een doel. Elke prompt is co-geschreven met actieve carrièrecoaches, zodat het resultaat leest als advies van een pro, niet van een chatbot.",
+    "trust": {
+      "gdpr": "GDPR compliant",
+      "gdprDetail": "Europese servers",
+      "stripe": "Betalingen via Stripe",
+      "stripeDetail": "Wij zien je kaart nooit",
+      "delete": "One-click delete",
+      "deleteDetail": "Je data is van jou"
+    },
+    "closer": "De gevalideerde delen van psychometrisch onderzoek, de praktische intuïtie van echte carrièrecoaches, en moderne AI die dit allemaal tegelijk in gedachten kan houden. Zo krijg je advies dat écht over jou gaat."
+  },
+  "chatRefine": {
+    "eyebrow": "De chat die bij je rapport hoort",
+    "titleA": "Klopt er iets niet? Zeg het gewoon.",
+    "titleHighlight": "Het rapport past zich aan.",
+    "intro": "Elk Cairnly-rapport komt met een interactieve coaching chat, maar niet het soort dat je maandelijks factureert om je vriend te zijn. Het is een refinement loop. Een manier om de AI uit te dagen wanneer iets niet helemaal klopt, zodat het eindrapport dat wel doet.",
+    "staticPdf": {
+      "title": "Een statische PDF",
+      "body": "Leest je één keer, print een antwoord en loopt weg. Als een aanbeveling verkeerd voelt, is je enige optie om deze te negeren."
+    },
+    "cairnly": {
+      "label": "Cairnly",
+      "title": "Een Cairnly-rapport",
+      "body": "Komt met een chat die maar één taak heeft:",
+      "bodyHighlight": "het antwoord aanscherpen",
+      "bodyContinued": ". Geef tegengas. Zeg \"eigenlijk lijkt me dat vreselijk\" of \"vertel me meer over runner-up #2.\" Het eindrapport verwerkt je feedback. Daarna neem je het mee en kun je aan de slag."
+    },
+    "subChat": {
+      "title": "Een chat op abonnementsbasis",
+      "body": "Blijft voor altijd beschikbaar. Ontworpen om je te laten blijven inloggen. Gezellig voor het gezelschap, minder geschikt om de vraag daadwerkelijk te beantwoorden."
+    },
+    "closer": "Het is het verschil tussen een rapport over jou en een rapport met jou. En als het eenmaal klopt, dan klopt het."
+  },
+  "comparison": {
+    "eyebrow": "Een directe vergelijking",
+    "titleA": "Gebouwd voor de vraag",
+    "titleQuote": "wat moet ik nu écht gaan doen?",
+    "intro": "Sommige tools stoppen je in een hokje op basis van je persoonlijkheidstype. Andere vragen een maandelijks bedrag om te blijven zoeken. Cairnly is gebouwd voor één ding: vertalen wie je écht bent naar specifieke rollen die je kunt gaan bemachtigen. Eenmalig. Klaar.",
+    "cols": {
+      "quizTop": "Persoonlijkheids-",
+      "quizBottom": "tests",
+      "quizSub": "16Personalities, MBTI",
+      "aiTop": "AI-carrière-",
+      "aiBottom": "abonnementen",
+      "aiSub": "Maandelijkse platforms",
+      "coachTop": "Coaching-",
+      "coachBottom": "abonnementen",
+      "coachSub": "Human career coaching",
+      "cairnly": "Cairnly",
+      "cairnlySub": "Eén assessment, compleet antwoord"
+    },
+    "rows": [
+      {
+        "name": "Wat je overhoudt",
+        "quiz": "Een persoonlijkheidstype. Brede categorie, generieke suggesties.",
+        "ai": "Een dashboard om op in te loggen. Blijf ontdekken terwijl je maandelijks betaalt.",
+        "coach": "Doorlopende sessies. Richting ontstaat over een periode van weken.",
+        "cairnlyEmphasis": "Een definitief antwoord.",
+        "cairnlyBody": " Concrete functietitels: beste matches, runner-ups en één out-of-the-box optie."
+      },
+      {
+        "name": "Waar het op gebaseerd is",
+        "quiz": "Een korte quiz. Formule-gestuurd.",
+        "ai": "Een bundel van een quiz + AI. Methodologie zelden onthuld.",
+        "coach": "De ervaring van een coach. Varieert sterk per coach.",
+        "cairnlyEmphasis": "Je volledige plaatje.",
+        "cairnlyBody": " Carrièregeschiedenis, skills, waarden en wat je gelukkig of doodongelukkig heeft gemaakt, geanalyseerd met frontier AI, gebouwd met carrièrecoaches."
+      },
+      {
+        "name": "Hoe specifiek het advies is",
+        "quiz": "\"Je houdt ervan om mensen te helpen.\" Op het niveau van karaktereigenschappen.",
+        "ai": "\"Overweeg HR-rollen.\" Matches op categorieniveau.",
+        "coach": "Hangt af van de sessie. Conversational / verkennend.",
+        "cairnlyEmphasis": "Specifieke rollen, salaris, dagelijkse praktijk.",
+        "cairnlyBody": " Met een gepersonaliseerde motivatie waarom elke rol bij je past."
+      },
+      {
+        "name": "Volgende stappen waarmee je vertrekt",
+        "quiz": "Een PDF om te lezen. Je moet zelf maar uitzoeken wat je gaat doen.",
+        "ai": "Een login en een vacature-feed. Zolang je blijft betalen.",
+        "coach": "Actiepunten per sessie. Plus nog meer sessies.",
+        "cairnlyEmphasis": "Een volledige roadmap om de baan te bemachtigen.",
+        "cairnlyBody": " Gematchte live vacatures, plus een op maat gemaakt cv en motivatiebrief voor elke rol."
+      },
+      {
+        "name": "Tijd tot helderheid",
+        "quiz": "10 minuten. Maar oppervlakkig.",
+        "ai": "Doorlopend. Ontworpen voor continue betrokkenheid.",
+        "coach": "Weken tot maanden. Afhankelijk van geplande sessies.",
+        "cairnlyEmphasis": "Eén sessie.",
+        "cairnlyBody": " Klaar nog voordat een coach tijd voor je heeft."
+      },
+      {
+        "name": "Wat het kost",
+        "quiz": "Gratis tot €50. Eenmalig.",
+        "ai": "€20 tot €30 per maand. Ongeveer €240 tot €360 per jaar.",
+        "coach": "€80 tot €280 per maand. Of €80 tot €150 per sessie.",
+        "cairnlyEmphasis": "€39.",
+        "cairnlyBody": " Eenmalig. Nooit meer een abonnement."
+      }
+    ],
+    "mobile": {
+      "cairnlyLabel": "Cairnly",
+      "cairnlyItems": [
+        "**Wat je overhoudt:** Een definitief antwoord met concrete functietitels.",
+        "**Gebaseerd op:** Je volledige plaatje, geschiedenis, skills, waarden, AI + coaches.",
+        "**Specificiteit:** Specifieke rollen, salaris, dagelijkse praktijk, fit-redenen.",
+        "**Volgende stappen:** Gematchte vacatures + op maat gemaakt cv + motivatiebrief.",
+        "**Tijd tot helderheid:** Eén sessie.",
+        "**Kosten:** €39. Eenmalig. Voor altijd."
+      ],
+      "others": [
+        {
+          "title": "Persoonlijkheidstests (MBTI, 16Personalities)",
+          "items": [
+            "Een persoonlijkheidstype, brede categorie.",
+            "Een korte, formule-gestuurde quiz.",
+            "\"Je houdt ervan om mensen te helpen.\" Op trait-niveau.",
+            "Een PDF. Zoek het zelf maar uit.",
+            "10 minuten. Gratis tot €50."
+          ]
+        },
+        {
+          "title": "AI-carrièreabonnementen",
+          "items": [
+            "Een dashboard. Blijf ontdekken terwijl je betaalt.",
+            "Quiz + AI bundel. Methodologie onduidelijk.",
+            "Matches op categorieniveau.",
+            "Een login en een vacature-feed, zolang je betaalt.",
+            "Doorlopend. €20 tot €30/mnd, ~€240 tot €360/jr."
+          ]
+        },
+        {
+          "title": "Coachingabonnementen",
+          "items": [
+            "Doorlopende sessies. Richting ontstaat over weken.",
+            "De ervaring van een coach. Varieert per coach.",
+            "Conversational, hangt van de sessie af.",
+            "Actiepunten + meer sessies.",
+            "Weken tot maanden. €80 tot €280/mnd."
+          ]
+        }
+      ]
+    },
+    "closer": "Betaal één keer voor een duidelijk antwoord, niet elke maand om ernaar te blijven zoeken."
+  },
+  "costMath": {
+    "eyebrow": "De rekensom",
+    "titleA": "Een eenmalig tarief.",
+    "titleHighlight": "Geen maandelijks terugkerende rekening, voor altijd.",
+    "body": "Met een abonnement betaal je voor doorlopende toegang. Met Cairnly betaal je voor een concreet antwoord."
   },
   "pricing": {
-    "title": "Investeer in je toekomst",
-    "betaAccess": "Bèta-toegang",
-    "subtitle": "Krijg gepersonaliseerde carrièreduidelijkheid met ons uitgebreide assessmentpakket",
-    "headline": "Investeer in je toekomst - Bètatoegang",
-    "intro": "Cairnly is momenteel beschikbaar als bètaversie, waardoor je vroege toegang krijgt tegen een introductieprijs. Jouw inzichten en feedback helpen de toekomst van gepersonaliseerde loopbaanbegeleiding vorm te geven.",
-    "productName": "Complete Cairnly Assessment",
-    "limitedTimeNote": "Tijdelijke introductieprijs",
-    "ctaButton": "Krijg nu bètatoegang",
-    "footerNote": "Je reis begint hier. Na aankoop krijg je direct toegang tot de vragenlijst, snelle resultaten en kun je meteen starten met je interactieve AI-coachingsessie.",
-    "features": {
-      "f1": "Analyses afgestemd op je belangrijkste doelen",
-      "f2": "Top 3 suggesties + 7 runner-ups + 3 outside-the-box loopbanen",
-      "f3": "Persoonlijke dynamische AI-coachingchat",
-      "f4": "Stel vervolgvragen en duik diep in rollen",
-      "f5": "Heldere, uitvoerbare inzichten en aanbevelingen",
-      "f6": "Gelokaliseerde rolnuances & salarisranges",
-      "f7": "Sterke punten & groeistrategieën",
-      "f8": "AI-impactscore op voorgestelde rollen",
-      "f9": "Bonus: Realistische droomjob-pivotassessment"
+    "eyebrow": "Het pakket",
+    "titleA": "Alles wat je nodig hebt om je",
+    "titleHighlight": "juiste pad",
+    "features": [
+      "Volledig persoonlijkheids- en carrière-assessment",
+      "AI-analyse afgestemd op jouw doelen",
+      "Interactieve coaching chat met vervolgvragen",
+      "Tot wel 14 carrières in 4 categorieën",
+      "Rol-details en lokale salarisranges",
+      "AI-impact ratings voor elke voorgestelde rol",
+      "Droombaan-haalbaarheidsassessment",
+      "Volledig rapport waarin de feedback uit je chat is verwerkt"
+    ],
+    "bonusA": "Als de suggesties aanslaan, helpen we je de baan te bemachtigen",
+    "bonusBeta": "(bèta)",
+    "betaPill": "Tijdelijk aanbod · Bèta-toegang",
+    "originalPrice": "€69",
+    "price": "€39",
+    "oneOff": "Een eenmalige betaling",
+    "cta": "Krijg Bèta-toegang — €39",
+    "trust": {
+      "stripe": "Stripe",
+      "gdpr": "GDPR",
+      "noSub": "Geen abonnement"
     }
+  },
+  "whoFor": {
+    "eyebrow": "Eerlijke fit",
+    "titleA": "Is Cairnly",
+    "titleHighlight": "iets voor jou?",
+    "rightTitle": "Je bent op de juiste plek.",
+    "rightItems": [
+      "Je vraagt je af of je huidige carrière nog wel bij je past.",
+      "Je hebt vroeg in je leven keuzes gemaakt op basis van beperkte informatie of de verwachtingen van anderen.",
+      "Je staat voor een carrièreswitch en wilt opties die onderbouwd zijn met data.",
+      "Je staat open voor richtingen die je nog nooit serieus hebt overwogen.",
+      "Je wilt concrete vervolgstappen, geen vage persoonlijkheidsinzichten."
+    ],
+    "notTitle": "Dit is waarschijnlijk niets voor jou als:",
+    "notItems": [
+      "Je focus ligt op promotie maken binnen je huidige vakgebied.",
+      "Je specifieke, technische training nodig hebt voor een bepaalde sector.",
+      "Je alleen bevestiging zoekt voor een beslissing die je al hebt genomen."
+    ]
+  },
+  "forkDivider": {
+    "oldLabel": "Hetzelfde als voorheen",
+    "oldSub": "Meer van wat je al weet.",
+    "newLabel": "Een ander pad",
+    "newSub": "Het pad dat je nu zou kiezen, met de kennis van nu.",
+    "footer": "Een wegwijzer, geen roadmap."
+  },
+  "finalCTA": {
+    "titleA": "De richting die je nu zou kiezen, met het leven dat je",
+    "titleHighlight": "geleefd hebt in gedachten.",
+    "cta": "Krijg Bèta-toegang",
+    "footer": "Gebouwd met carrièrecoaches. Aangedreven door frontier AI. Eerlijk over allebei."
+  },
+  "whyBuilt": {
+    "eyebrow": "Waarom we dit hebben gebouwd",
+    "titleA": "De meeste carrières",
+    "titleB": "worden niet echt",
+    "titleHighlight": "bewust gekozen",
+    "titleC": ".",
+    "p1": "Ze zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
+    "p2": "We hebben Cairnly gebouwd omdat de tools om die vraag op een goede manier te stellen simpelweg niet bestonden. Persoonlijkheidstesten geven je een label. Coaching duurt maanden en kost duizenden euro's. Gratis quizzen geven je waarvoor je betaalt. Daarom hebben we één enkel assessment gebouwd, transparant over de methodes, dat kijkt naar wie je nu écht bent en je specifieke rollen geeft waar je maandag al naar kunt gaan kijken. Geen abonnement, geen waslijst aan upsells. Eén duidelijk antwoord, en daarna gaan we weer uit de weg.",
+    "signature": "Het Cairnly team, Utrecht"
+  },
+  "workflow": {
+    "wf1Label": "WF1 RESUME (CV)",
+    "wf2Label": "WF2 PROFILE (PROFIEL)",
+    "wf3Label": "WF3 ENRICH (VERRIJKEN)",
+    "wf4Label": "WF4 RANK",
+    "wf5Label": "WF5 OOB (Out of the Box)",
+    "wf6Label": "WF6 CONTENT",
+    "wf7Label": "WF7 CHAT",
+    "engineLabel": "Engine",
+    "engineDetail": "7 AI-WORKFLOWS · Maanden werk · Meerdere LLM's · Gecoacht en getuned bij elke stap",
+    "reportLabel": "JE RAPPORT",
+    "reportDetail": "Top 3 matches · Runner-up rollen · Out-of-the-box · Droombaan-haalbaarheid · AI-impact ratings · Salarisranges · Gepersonaliseerde match · Volgende stappen · Klaar in ~90s · Verfijnd door je coaching chat"
   },
   "about": {
     "title": "Over ons"

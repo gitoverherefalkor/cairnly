@@ -1,23 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Briefcase } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
-import WorkflowDiagram from './WorkflowDiagram';
-
-const STEP_TITLES = [
-  'Take the assessment',
-  'AI analyzes you',
-  'Chat with the coach',
-  'Get your report',
-  'Land the job',
-];
+import WorkflowDiagramSimple from './WorkflowDiagramSimple';
 
 // Stone pill widths, bottom (index 0, widest) to capstone (index 4, narrowest).
 const STONE_WIDTHS = [74, 62, 51, 41, 29];
 
+interface StepCopy {
+  eyebrow: string;
+  body: string;
+  extra?: string;
+  extraEmphasis?: string;
+  extraLink?: string;
+  screenshotMeta?: string;
+  screenshotAlt?: string;
+  screenshotLabel?: string;
+  screenshotDesc?: string;
+}
+
 const HowItWorks: React.FC = () => {
+  const { t } = useTranslation('landing');
   const [activeStep, setActiveStep] = useState(0);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const stepTitles = t('howItWorks.stepTitles', { returnObjects: true }) as string[];
+  const steps = t('howItWorks.steps', { returnObjects: true }) as StepCopy[];
 
   // The active step is the last row whose top has scrolled past a reference
   // line ~42% down the viewport. A scroll computation (rather than a
@@ -81,16 +90,15 @@ const HowItWorks: React.FC = () => {
     <section id="how-it-works" className="bg-[#ECE4D2] py-24 md:py-32 scroll-mt-32">
       <div className="lp-container">
         <Reveal className="max-w-3xl mb-16">
-          <div className="lp-eyebrow text-[#1F8282] mb-5">Chapter 02 · The path</div>
+          <div className="lp-eyebrow text-[#1F8282] mb-5">{t('howItWorks.eyebrow')}</div>
           <h2
             className="font-heading font-bold text-[#122E3B] leading-[1.12]"
             style={{ fontSize: 'clamp(26px, 3vw, 40px)', letterSpacing: '-0.012em' }}
           >
-            From assessment to <span className="lp-text-teal-grad">action</span>.
+            {t('howItWorks.titleA')} <span className="lp-text-teal-grad">{t('howItWorks.titleHighlight')}</span>{t('howItWorks.titleB')}
           </h2>
           <p className="mt-6 text-lg text-[#4B6373] font-medium leading-relaxed max-w-2xl">
-            Five steps, from where you are now to actually landing the job. Concrete career paths
-            that fit who you've become, not who you thought you'd be.
+            {t('howItWorks.subtitle')}
           </p>
         </Reveal>
 
@@ -99,10 +107,10 @@ const HowItWorks: React.FC = () => {
           <aside className="hidden lg:block col-span-2">
             <div className="lp-cairn-rail">
               <div className="lp-cairn-rail__label mb-1" style={{ color: '#27A1A1' }}>
-                {`Step ${activeCount} of 5`}
+                {t('howItWorks.stickyLabel', { n: activeCount })}
               </div>
               <div className="text-[12px] font-medium text-[#6B7F8B] mb-6 leading-snug">
-                {STEP_TITLES[activeStep]}
+                {stepTitles[activeStep]}
               </div>
               <div className="flex flex-col items-center gap-[6px]">
                 {[4, 3, 2, 1, 0].map((i) => {
@@ -133,83 +141,86 @@ const HowItWorks: React.FC = () => {
           <div className="col-span-12 lg:col-span-10 space-y-20 md:space-y-24">
             <Step
               idx={0}
-              eyebrow="Take the assessment"
+              eyebrow={steps[0]?.eyebrow}
               imageLeft
-              body="A guided set of questions about your background, skills, work style, values, and what's actually energized or drained you so far. Designed to capture what matters for career fit. Not just personality traits."
+              body={steps[0]?.body}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
-                  meta="4 : 3 · Assessment"
+                  meta={steps[0]?.screenshotMeta}
                   src="/images/landing/step1-assessment.png"
-                  alt="Assessment question about working in teams"
+                  alt={steps[0]?.screenshotAlt}
                 />
               }
             />
             <Step
               idx={1}
-              eyebrow="AI analyzes your profile"
+              eyebrow={steps[1]?.eyebrow}
               imageLeft={false}
-              body={
+              body={steps[1]?.body}
+              extra={
                 <>
-                  Seven AI workflows, built and tuned with working career coaches, read your
-                  responses end to end. They build your personality and values profile, match you
-                  to specific roles, score AI-impact, and write personalized justifications.
+                  <p className="text-[15px] text-[#6B7F8B] font-medium leading-relaxed max-w-xl mt-4">
+                    {steps[1]?.extra}{' '}
+                    <span className="text-[#122E3B] font-semibold">{steps[1]?.extraEmphasis}</span>
+                  </p>
+                  <a
+                    href="#methodology"
+                    className="inline-flex items-center gap-1.5 mt-3 text-[14px] font-semibold text-[#1F8282] hover:text-[#122E3B] transition-colors group"
+                  >
+                    {steps[1]?.extraLink}
+                    <span className="transition-transform group-hover:translate-x-1">→</span>
+                  </a>
                 </>
               }
-              extra={
-                <p className="text-[15px] text-[#6B7F8B] font-medium leading-relaxed max-w-xl mt-4">
-                  Not a ChatGPT prompt you could write yourself. Not a vibe-coded weekend project.{' '}
-                  <span className="text-[#122E3B] font-semibold">The methodology is the moat.</span>
-                </p>
-              }
-              visual={<WorkflowDiagram />}
+              visual={<WorkflowDiagramSimple />}
             />
             <Step
               idx={2}
-              eyebrow="Chat with your AI coach"
+              eyebrow={steps[2]?.eyebrow}
               imageLeft
-              body="Discuss your results one-on-one. Ask follow-ups, explore specific roles in depth, push back when something doesn't fit. You'll get honest answers about trade-offs and next steps. Not flattery."
+              body={steps[2]?.body}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
-                  meta="4 : 3 · Coach chat"
+                  meta={steps[2]?.screenshotMeta}
                   src="/images/landing/hero-ai-coach.png"
-                  alt="AI coaching session with your personality profile"
+                  alt={steps[2]?.screenshotAlt}
                 />
               }
             />
             <Step
               idx={3}
-              eyebrow="Get your report"
+              eyebrow={steps[3]?.eyebrow}
               imageLeft={false}
-              body="Your finished report, refined by the chat: personality and values analysis, every career recommendation, salary data, AI-impact ratings, and concrete next steps."
+              body={steps[3]?.body}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
-                  meta="4 : 3 · Career report"
+                  meta={steps[3]?.screenshotMeta}
                   src="/images/landing/step4-dashboard.png"
-                  alt="The Cairnly dashboard with career signature and top matches"
+                  alt={steps[3]?.screenshotAlt}
                 />
               }
             />
             <Step
               idx={4}
-              eyebrow="Land the job"
+              eyebrow={steps[4]?.eyebrow}
               imageLeft
-              body="Pick the roles that resonate. Cairnly finds live openings for them. When you apply, your resume and cover letter are tailored using everything Cairnly already knows about you. No prompting required."
+              body={steps[4]?.body}
               extra={
                 <p className="mt-5 text-[13px] text-[#D4A024] font-extrabold flex items-center gap-2">
                   <Sparkles size={14} strokeWidth={2} />
-                  The job-landing features are in beta and free to unlock.
+                  {steps[4]?.extra}
                 </p>
               }
               visual={
                 <div className="lp-screenshot-slot lp-screenshot-slot--placeholder aspect-[4/3] w-full">
-                  <div className="lp-screenshot-slot__meta">4 : 3 · Job match</div>
+                  <div className="lp-screenshot-slot__meta">{steps[4]?.screenshotMeta}</div>
                   <div className="lp-screenshot-slot__inner">
                     <Briefcase size={36} strokeWidth={1.5} />
-                    <div className="lp-screenshot-slot__label">Live openings, tailored materials</div>
-                    <div className="lp-screenshot-slot__desc">Coming once the beta job-landing flow ships.</div>
+                    <div className="lp-screenshot-slot__label">{steps[4]?.screenshotLabel}</div>
+                    <div className="lp-screenshot-slot__desc">{steps[4]?.screenshotDesc}</div>
                   </div>
                 </div>
               }

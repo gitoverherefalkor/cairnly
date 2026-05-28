@@ -1,49 +1,344 @@
 {
   "hero": {
-    "title": "Stop Guessing. Start Thriving.",
-    "subtitle": "Discover your ideal career path through an expert-developed, AI-enhanced assessment. Get personalized insights, actionable recommendations, and career clarity, delivered through an interactive experience."
+    "eyebrow": "01 · The question",
+    "titleA": "The direction you picked at",
+    "titleHighlight": "16",
+    "titleB": "picked the next twenty years for you.",
+    "body": "You chose a general direction, business, engineering, healthcare, and it quietly chose your major, your first job, and every one after. Cairnly is one assessment to ask the question that 16-year-old never could:",
+    "bodyEmphasis": "with the life you've lived since, what would you actually pick now?",
+    "ctaPrimary": "Get Started — €39",
+    "ctaSecondary": "See how it works",
+    "reassurance": "Done in one sitting. No subscription. No account left dangling.",
+    "screenshotMeta": "5 : 4 · AI coach session",
+    "screenshotAlt": "Cairnly AI coaching session"
+  },
+  "pillars": {
+    "eyebrow": "Why Cairnly is different",
+    "titleA": "Four things we got tired of",
+    "titleHighlight": "not",
+    "titleB": "seeing anywhere else.",
+    "cards": [
+      {
+        "title": "Not another personality test",
+        "body": "Personality tests give you a four-letter label. Cairnly gives you specific job titles: your best fits, runner-ups, and one out-of-the-box option you wouldn't have considered."
+      },
+      {
+        "title": "Interactive, not static",
+        "body": "Every report comes with a coaching chat. If a recommendation doesn't land, push back. The report adapts until it actually fits."
+      },
+      {
+        "title": "Future-aware",
+        "body": "Every suggested role includes an honest read on how AI is set to reshape it. We tell you what's likely to grow and what's likely to shrink."
+      },
+      {
+        "title": "Honest, not flattering",
+        "body": "Real reality checks on challenges, trade-offs, and the skills you'd need to develop. We're not here to cheerlead. We're here to help you choose well."
+      }
+    ]
   },
   "howItWorks": {
-    "title": "How It Works",
-    "subtitle": "Your career clarity journey in three simple steps",
-    "step1Title": "Complete Assessment",
-    "step1Description": "Answer thoughtful questions about your experience, goals, personality and preferences. Takes about 25 minutes.",
-    "step2Title": "AI-Powered Insights",
-    "step2Description": "Our AI analyzes your unique profile to generate personalized career recommendations and a detailed personality report.",
-    "step3Title": "Take Action",
-    "step3Description": "Explore your results through an interactive chat, ask questions, and get actionable next steps for your career."
+    "eyebrow": "Chapter 02 · The path",
+    "titleA": "From assessment to",
+    "titleHighlight": "action",
+    "titleB": ".",
+    "subtitle": "Five steps, from where you are now to actually landing the job. Concrete career paths that fit who you've become, not who you thought you'd be.",
+    "stickyLabel": "Step {{n}} of 5",
+    "stepTitles": [
+      "Take the assessment",
+      "AI analyzes you",
+      "Chat with the coach",
+      "Get your report",
+      "Land the job"
+    ],
+    "steps": [
+      {
+        "eyebrow": "Take the assessment",
+        "body": "A guided set of questions about your background, skills, work style, values, and what's actually energized or drained you so far. Designed to capture what matters for career fit. Not just personality traits.",
+        "screenshotMeta": "4 : 3 · Assessment",
+        "screenshotAlt": "Assessment question about working in teams"
+      },
+      {
+        "eyebrow": "AI analyzes your profile",
+        "body": "Nine AI workflows, built and tuned with working career coaches, read your responses end to end. They build your personality and values profile, match you to specific roles, score AI-impact, and write personalized justifications.",
+        "extra": "Not a ChatGPT prompt you could write yourself. Not a vibe-coded weekend project.",
+        "extraEmphasis": "The methodology is the moat.",
+        "extraLink": "See every step in the methodology"
+      },
+      {
+        "eyebrow": "Chat with your AI coach",
+        "body": "Discuss your results one-on-one. Ask follow-ups, explore specific roles in depth, push back when something doesn't fit. You'll get honest answers about trade-offs and next steps. Not flattery.",
+        "screenshotMeta": "4 : 3 · Coach chat",
+        "screenshotAlt": "AI coaching session with your personality profile"
+      },
+      {
+        "eyebrow": "Get your report",
+        "body": "Your finished report, refined by the chat: personality and values analysis, every career recommendation, salary data, AI-impact ratings, and concrete next steps.",
+        "screenshotMeta": "4 : 3 · Career report",
+        "screenshotAlt": "The Cairnly dashboard with career signature and top matches"
+      },
+      {
+        "eyebrow": "Land the job",
+        "body": "Pick the roles that resonate. Cairnly finds live openings for them. When you apply, your resume and cover letter are tailored using everything Cairnly already knows about you. No prompting required.",
+        "extra": "The job-landing features are in beta and free to unlock.",
+        "screenshotMeta": "4 : 3 · Job match",
+        "screenshotLabel": "Live openings, tailored materials",
+        "screenshotDesc": "Coming once the beta job-landing flow ships."
+      }
+    ]
   },
-  "whyAtlas": {
-    "title": "Why Cairnly",
-    "subtitle": "What makes Cairnly different",
-    "feature1Title": "Expert-Developed",
-    "feature1Description": "Built on proven career development frameworks and personality assessment methodologies.",
-    "feature2Title": "AI-Enhanced",
-    "feature2Description": "Advanced AI provides deeper analysis and more personalized recommendations than traditional assessments.",
-    "feature3Title": "Interactive Experience",
-    "feature3Description": "Discuss your results in real-time, ask follow-up questions, and explore careers that interest you."
+  "methodology": {
+    "eyebrow": "Chapter 03 · Methodology",
+    "titleA": "Not a formula. Not freestyle AI.",
+    "titleHighlight": "Something in between.",
+    "intro": "Most personality frameworks sort you into a box, then tell you what people in that box typically do. Generic AI tools skip the science entirely and improvise. Cairnly does neither.",
+    "oldCard": {
+      "pill": "Box, then label",
+      "title": "The old approach",
+      "p1": "You answer a fixed set of questions. A formula sorts you into one of a small number of types. The report describes what people of that type typically do, not what would suit you, with your history, in your life.",
+      "p2": "The labels are catchy. The science behind some of them is contested. And whether you're one letter or another doesn't tell you whether to be a UX designer or a recruiter."
+    },
+    "newCard": {
+      "pill": "Foundations + customization",
+      "title": "Cairnly's approach",
+      "p1": "Our assessment is built on the validated parts of established psychometric research, the work that actually predicts career fit, values alignment, and work preferences.",
+      "p1Emphasis": "We kept what holds up.",
+      "p2": "On top of that, we layer the part formulas can't capture: your actual career history, what's energized you, what's drained you, where you're trying to go. Frontier AI, guided by working career coaches, reads all of it together and writes a report for this person. Not for a type."
+    },
+    "engineEyebrow": "Inside the engine",
+    "engineTitle": "Nine AI workflows. One coach-tuned pipeline.",
+    "engineSubtitle": "Every step has a purpose. Every prompt was co-written with working career coaches, so the output reads like advice from a pro, not a chatbot.",
+    "trust": {
+      "gdpr": "GDPR compliant",
+      "gdprDetail": "European servers",
+      "stripe": "Payments by Stripe",
+      "stripeDetail": "We never see your card",
+      "delete": "One-click delete",
+      "deleteDetail": "Your data is yours"
+    },
+    "closer": "The validated parts of psychometric research, the practical instincts of real career coaches, and modern AI that can hold all of it in mind at once. So you get advice that's actually about you."
+  },
+  "chatRefine": {
+    "eyebrow": "The chat that comes with your report",
+    "titleA": "If something doesn't fit, tell it.",
+    "titleHighlight": "The report adapts.",
+    "intro": "Every Cairnly report comes with an interactive coaching chat, but not the kind that bills you monthly to be your friend. It's a refinement loop. A way to challenge the AI when something doesn't ring true, so the final report actually does.",
+    "staticPdf": {
+      "title": "A static PDF",
+      "body": "Reads you once, prints an answer, walks away. If a recommendation feels wrong, your only option is to ignore it."
+    },
+    "cairnly": {
+      "label": "Cairnly",
+      "title": "A Cairnly report",
+      "body": "Comes with a chat that has one job:",
+      "bodyHighlight": "sharpen the answer",
+      "bodyContinued": ". Push back. Say \"actually, I'd hate that one\" or \"tell me more about runner-up #2.\" The final report incorporates your feedback. Then you take it and go."
+    },
+    "subChat": {
+      "title": "A subscription chat",
+      "body": "Stays available forever. Designed to keep you logging in. Great for company. Less great for closing the question."
+    },
+    "closer": "It's the difference between a report about you and a report with you. And once it's right, it stays right."
+  },
+  "comparison": {
+    "eyebrow": "A side-by-side",
+    "titleA": "Built for the question",
+    "titleQuote": "what should I actually do next?",
+    "intro": "Some tools box you into a personality type. Others charge you monthly to keep exploring. Cairnly is built for one job: turn who you actually are into specific roles you could go land. Once. Done.",
+    "cols": {
+      "quizTop": "Personality",
+      "quizBottom": "quizzes",
+      "quizSub": "16Personalities, MBTI",
+      "aiTop": "AI career",
+      "aiBottom": "subscriptions",
+      "aiSub": "Monthly platforms",
+      "coachTop": "Coaching",
+      "coachBottom": "subscriptions",
+      "coachSub": "Human career coaching",
+      "cairnly": "Cairnly",
+      "cairnlySub": "One assessment, full answer"
+    },
+    "rows": [
+      {
+        "name": "What you walk away with",
+        "quiz": "A personality type. Broad category, generic suggestions.",
+        "ai": "A dashboard to log into. Keep exploring while billed monthly.",
+        "coach": "Ongoing sessions. Direction emerges over weeks.",
+        "cairnlyEmphasis": "A finished answer.",
+        "cairnlyBody": " Named job titles: top fits, runner-ups, and one out-of-the-box option."
+      },
+      {
+        "name": "What it's based on",
+        "quiz": "A short quiz. Formula-driven.",
+        "ai": "A quiz + AI bundle. Methodology rarely disclosed.",
+        "coach": "A coach's experience. Varies per coach.",
+        "cairnlyEmphasis": "Your full picture.",
+        "cairnlyBody": " Career history, skills, values, and what's made you happy or miserable, analyzed with frontier AI, built with career coaches."
+      },
+      {
+        "name": "How specific the advice is",
+        "quiz": "\"You like helping people.\" Trait-level.",
+        "ai": "\"Consider HR roles.\" Category-level matches.",
+        "coach": "Depends on the session. Conversational.",
+        "cairnlyEmphasis": "Specific roles, salary, day-to-day.",
+        "cairnlyBody": " With a personalized reason each one fits you."
+      },
+      {
+        "name": "Next steps you leave with",
+        "quiz": "A PDF to read. You figure out what to do.",
+        "ai": "A login and a job feed. As long as you keep paying.",
+        "coach": "Action items per session. Plus more sessions.",
+        "cairnlyEmphasis": "A full roadmap to land it.",
+        "cairnlyBody": " Matched live openings, plus a tailored resume and cover letter for each."
+      },
+      {
+        "name": "Time to clarity",
+        "quiz": "10 minutes. But shallow.",
+        "ai": "Ongoing. Designed for continued engagement.",
+        "coach": "Weeks to months. Across scheduled sessions.",
+        "cairnlyEmphasis": "One sitting.",
+        "cairnlyBody": " Done before a coach could fit you in."
+      },
+      {
+        "name": "What it costs",
+        "quiz": "Free–€50. One-off.",
+        "ai": "€20–€30 per month. ~€240–€360 per year.",
+        "coach": "€80–€280 per month. Or €80–€150 per session.",
+        "cairnlyEmphasis": "€39.",
+        "cairnlyBody": " One-off. No subscription, ever."
+      }
+    ],
+    "mobile": {
+      "cairnlyLabel": "Cairnly",
+      "cairnlyItems": [
+        "**Walk away with:** A finished answer with named job titles.",
+        "**Based on:** Your full picture, history, skills, values, AI + coaches.",
+        "**Specificity:** Specific roles, salary, day-to-day, fit reasons.",
+        "**Next steps:** Matched openings + tailored resume + cover letter.",
+        "**Time to clarity:** One sitting.",
+        "**Cost:** €39. One-off. Forever."
+      ],
+      "others": [
+        {
+          "title": "Personality quizzes (MBTI, 16Personalities)",
+          "items": [
+            "A personality type, broad category.",
+            "A short formula-driven quiz.",
+            "\"You like helping people.\" Trait-level.",
+            "A PDF. Figure it out.",
+            "10 minutes. Free–€50."
+          ]
+        },
+        {
+          "title": "AI career subscriptions",
+          "items": [
+            "A dashboard. Keep exploring while billed.",
+            "Quiz + AI bundle. Methodology unclear.",
+            "Category-level matches.",
+            "A login and a job feed, as long as you pay.",
+            "Ongoing. €20–€30/mo, ~€240–€360/yr."
+          ]
+        },
+        {
+          "title": "Coaching subscriptions",
+          "items": [
+            "Ongoing sessions. Direction over weeks.",
+            "A coach's experience. Varies per coach.",
+            "Conversational, depends on session.",
+            "Action items + more sessions.",
+            "Weeks–months. €80–€280/mo."
+          ]
+        }
+      ]
+    },
+    "closer": "Pay once for a clear answer, not every month to keep looking for one."
+  },
+  "costMath": {
+    "eyebrow": "The math",
+    "titleA": "A one-off fee.",
+    "titleHighlight": "Not a monthly bill, forever.",
+    "body": "A subscription pays for ongoing access. Cairnly pays for a finished answer."
   },
   "pricing": {
-    "title": "Invest in Your Future",
-    "headline": "Invest in Your Future - Beta Access",
-    "intro": "Cairnly is currently available as a beta version, giving you early access at an introductory price. Your insights and feedback will help shape the future of personalized career guidance.",
-    "betaAccess": "Beta Access",
-    "subtitle": "Get personalized career clarity with our comprehensive assessment package",
-    "productName": "Complete Cairnly Assessment",
-    "limitedTimeNote": "Limited time introductory price",
-    "ctaButton": "Get Beta Access Now",
-    "footerNote": "Your journey begins here. After purchase, you'll receive immediate access to the questionnaire, get quick results, and start your interactive AI coaching session.",
-    "features": {
-      "f1": "Analyses adjusted to your primary goals",
-      "f2": "Top 3 suggestions + 7 runner-ups + 3 out-of-the-box careers",
-      "f3": "Tailored dynamic AI coaching chat",
-      "f4": "Ask follows up Q's and role deep dives",
-      "f5": "Clear, actionable insights and recommendations",
-      "f6": "Localized role nuances & salary ranges",
-      "f7": "Strengths & growth strategies",
-      "f8": "AI impact rating on suggested roles",
-      "f9": "Bonus: Realistic dream job pivot assessment"
+    "eyebrow": "The package",
+    "titleA": "Everything you need to find your",
+    "titleHighlight": "right path",
+    "features": [
+      "Complete personality and career assessment",
+      "AI analysis tailored to your goals",
+      "Interactive coaching chat with follow-up questions",
+      "Up to 14 careers in 4 categories",
+      "Role details and localized salary ranges",
+      "AI-impact ratings on every suggested role",
+      "Dream-job feasibility assessment",
+      "Full report incorporating your chat feedback"
+    ],
+    "bonusA": "If the suggestions land, we help you land the job",
+    "bonusBeta": "(beta)",
+    "betaPill": "Limited offer · Beta Access",
+    "originalPrice": "€69",
+    "price": "€39",
+    "oneOff": "A one-off payment",
+    "cta": "Get Beta Access — €39",
+    "trust": {
+      "stripe": "Stripe",
+      "gdpr": "GDPR",
+      "noSub": "No subscription"
     }
+  },
+  "whoFor": {
+    "eyebrow": "Honest fit",
+    "titleA": "Is Cairnly",
+    "titleHighlight": "for you?",
+    "rightTitle": "You're in the right place.",
+    "rightItems": [
+      "You're questioning whether your current career still fits.",
+      "You made early choices based on limited information or others' expectations.",
+      "You're facing a career transition and want data-backed options.",
+      "You're open to directions you haven't seriously considered before.",
+      "You want concrete next steps, not vague personality insights."
+    ],
+    "notTitle": "This probably isn't for you if:",
+    "notItems": [
+      "You're focused on getting promoted within your current field.",
+      "You need industry-specific technical training.",
+      "You want validation for a decision you've already made."
+    ]
+  },
+  "forkDivider": {
+    "oldLabel": "Same as before",
+    "oldSub": "More of what you already know.",
+    "newLabel": "A different path",
+    "newSub": "The one you'd pick now, with what you know.",
+    "footer": "A way-marker, not a roadmap."
+  },
+  "finalCTA": {
+    "titleA": "The direction you'd choose now, with the life you've",
+    "titleHighlight": "lived in mind.",
+    "cta": "Get Beta Access",
+    "footer": "Built with career coaches. Backed by frontier AI. Honest about both."
+  },
+  "whyBuilt": {
+    "eyebrow": "Why we built this",
+    "titleA": "Most careers",
+    "titleB": "aren't really",
+    "titleHighlight": "chosen",
+    "titleC": ".",
+    "p1": "They're inherited from a decision someone made at 16, before they knew themselves well enough to make it. A general direction shaped a major. A major shaped a first job. A first job shaped the next ten. By the time you look up, you might be a department manager when you'd have made a better entrepreneur, or a builder, or something you've never even considered.",
+    "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No subscription, no roster of upsells. One clear answer, then we get out of your way.",
+    "signature": "The Cairnly team, Utrecht"
+  },
+  "workflow": {
+    "wf1Label": "WF1 RESUME",
+    "wf2Label": "WF2 PROFILE",
+    "wf3Label": "WF3 ENRICH",
+    "wf4Label": "WF4 RANK",
+    "wf5Label": "WF5 OOB",
+    "wf6Label": "WF6 CONTENT",
+    "wf7Label": "WF7 CHAT",
+    "engineLabel": "Engine",
+    "engineDetail": "7 AI-WORKFLOWS · Months of work · Multiple LLMs · Coached and tuned at every step",
+    "reportLabel": "YOUR REPORT",
+    "reportDetail": "Top 3 matches · Runner-up roles · Out-of-the-box · Dream-job feasibility · AI-impact ratings · Salary ranges · Personalized match · Next steps · Done in ~90s · Refined by your coaching chat"
   },
   "about": {
     "title": "About Us"

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
@@ -7,6 +8,7 @@ import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
 const Hero: React.FC = () => {
   const getStarted = useGetStarted();
+  const { t } = useTranslation('landing');
 
   return (
     <section className="relative bg-[#213F4F] text-white pt-12 md:pt-16 pb-24 md:pb-28 overflow-hidden">
@@ -26,7 +28,7 @@ const Hero: React.FC = () => {
           <div className="lg:col-span-7">
             <Reveal className="flex items-center gap-3 mb-8">
               <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-                01 · The question
+                {t('hero.eyebrow')}
               </span>
               <span className="h-px w-12 bg-[#D4A024]/40" />
             </Reveal>
@@ -37,25 +39,22 @@ const Hero: React.FC = () => {
               style={{ fontSize: 'clamp(28px, 3.2vw, 46px)', letterSpacing: '-0.015em', maxWidth: 720 }}
             >
               <h1>
-                The direction you picked at <span className="lp-text-gold-grad">16</span> picked the
-                next twenty years for you.
+                {t('hero.titleA')} <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
               </h1>
             </Reveal>
 
             <Reveal as="div" className="mt-8 max-w-2xl">
               <p className="text-base md:text-lg text-white/65 font-medium leading-relaxed">
-                You chose a general direction, business, engineering, healthcare, and it quietly
-                chose your major, your first job, and every one after. Cairnly is one assessment to
-                ask the question that 16-year-old never could:{' '}
+                {t('hero.body')}{' '}
                 <span className="text-white font-semibold">
-                  with the life you've lived since, what would you actually pick now?
+                  {t('hero.bodyEmphasis')}
                 </span>
               </p>
             </Reveal>
 
             <Reveal className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-6">
               <button onClick={getStarted} className="lp-btn-primary">
-                Get Started — €39
+                {t('hero.ctaPrimary')}
                 <ArrowRight size={18} strokeWidth={2.4} />
               </button>
               <a
@@ -66,14 +65,14 @@ const Hero: React.FC = () => {
                 }}
                 className="lp-btn-secondary-text"
               >
-                See how it works
+                {t('hero.ctaSecondary')}
                 <ChevronDown size={14} strokeWidth={2} />
               </a>
             </Reveal>
 
             <Reveal as="div" className="mt-7">
               <p className="text-sm text-white/45 font-medium">
-                Done in one sitting. No subscription. No account left dangling.
+                {t('hero.reassurance')}
               </p>
             </Reveal>
           </div>
@@ -83,9 +82,9 @@ const Hero: React.FC = () => {
             <ScreenshotSlot
               onDark
               aspect="aspect-[5/4]"
-              meta="5 : 4 · AI coach session"
+              meta={t('hero.screenshotMeta')}
               src="/images/landing/hero-ai-coach.png"
-              alt="Cairnly AI coaching session"
+              alt={t('hero.screenshotAlt')}
             />
           </Reveal>
         </div>
