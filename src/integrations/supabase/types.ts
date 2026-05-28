@@ -462,6 +462,7 @@ export type Database = {
           salary: Json | null
           soft_skills: string[] | null
           technical_skills: string[] | null
+          translations: Json
           typical_tasks: string[] | null
           updated_at: string | null
           work_schedule: string | null
@@ -491,6 +492,7 @@ export type Database = {
           salary?: Json | null
           soft_skills?: string[] | null
           technical_skills?: string[] | null
+          translations?: Json
           typical_tasks?: string[] | null
           updated_at?: string | null
           work_schedule?: string | null
@@ -520,6 +522,7 @@ export type Database = {
           salary?: Json | null
           soft_skills?: string[] | null
           technical_skills?: string[] | null
+          translations?: Json
           typical_tasks?: string[] | null
           updated_at?: string | null
           work_schedule?: string | null
@@ -790,6 +793,7 @@ export type Database = {
           order_num: number | null
           required: boolean | null
           section_id: string | null
+          translations: Json
           type: string
         }
         Insert: {
@@ -804,6 +808,7 @@ export type Database = {
           order_num?: number | null
           required?: boolean | null
           section_id?: string | null
+          translations?: Json
           type: string
         }
         Update: {
@@ -818,6 +823,7 @@ export type Database = {
           order_num?: number | null
           required?: boolean | null
           section_id?: string | null
+          translations?: Json
           type?: string
         }
         Relationships: [
@@ -877,6 +883,7 @@ export type Database = {
           feedback: string | null
           feedback_category: number | null
           id: string
+          language: string
           metadata: Json | null
           order_number: number | null
           report_id: string
@@ -896,6 +903,7 @@ export type Database = {
           feedback?: string | null
           feedback_category?: number | null
           id?: string
+          language?: string
           metadata?: Json | null
           order_number?: number | null
           report_id: string
@@ -915,6 +923,7 @@ export type Database = {
           feedback?: string | null
           feedback_category?: number | null
           id?: string
+          language?: string
           metadata?: Json | null
           order_number?: number | null
           report_id?: string
@@ -1174,6 +1183,7 @@ export type Database = {
           order_num: number | null
           survey_id: string | null
           title: string | null
+          translations: Json
         }
         Insert: {
           created_at?: string | null
@@ -1182,6 +1192,7 @@ export type Database = {
           order_num?: number | null
           survey_id?: string | null
           title?: string | null
+          translations?: Json
         }
         Update: {
           created_at?: string | null
@@ -1190,6 +1201,7 @@ export type Database = {
           order_num?: number | null
           survey_id?: string | null
           title?: string | null
+          translations?: Json
         }
         Relationships: [
           {
@@ -1438,6 +1450,7 @@ export type Database = {
               salary: Json | null
               soft_skills: string[] | null
               technical_skills: string[] | null
+              translations: Json
               typical_tasks: string[] | null
               updated_at: string | null
               work_schedule: string | null
@@ -1476,6 +1489,7 @@ export type Database = {
               salary: Json | null
               soft_skills: string[] | null
               technical_skills: string[] | null
+              translations: Json
               typical_tasks: string[] | null
               updated_at: string | null
               work_schedule: string | null

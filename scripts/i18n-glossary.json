@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "purpose": "Brand glossary + per-language rules consumed by scripts/i18n-sync.ts and any AI translation call across the project. Single source of truth — edit here, all translation work picks it up next run.",
+    "see": "LOCALIZATION_PLAN.md"
+  },
+
+  "do_not_translate": [
+    "Cairnly",
+    "Atlas Assessments",
+    "outside-the-box",
+    "runner-up",
+    "career card",
+    "AI",
+    "API",
+    "WF1",
+    "WF2",
+    "WF3",
+    "WF4",
+    "WF5"
+  ],
+
+  "preferred": {
+    "en->nl": {
+      "career": "loopbaan",
+      "personality": "persoonlijkheid",
+      "assessment": "assessment",
+      "report": "rapport",
+      "skills": "vaardigheden",
+      "achievements": "prestaties",
+      "values": "waarden",
+      "strengths": "sterke punten",
+      "growth": "groei",
+      "feedback": "feedback",
+      "chat": "chat",
+      "dashboard": "dashboard",
+      "profile": "profiel",
+      "sign up": "registreren",
+      "sign in": "inloggen",
+      "log out": "uitloggen",
+      "resume": "cv",
+      "cover letter": "begeleidende brief"
+    }
+  },
+
+  "rules": {
+    "nl": [
+      "Use je-form (informal Dutch), never u",
+      "Dutch number formatting: €39,00 not €39.00; €1.500 not €1,500",
+      "Keep Markdown structure intact (headers, bullets, bold, links)",
+      "Date format: dd-mm-yyyy",
+      "No em-dashes (—) — use commas, periods, colons, parentheses, or sentence breaks instead",
+      "Translate interjections/CTAs naturally (e.g. 'Let's go!' -> 'Aan de slag!'), not literally",
+      "Preserve placeholders exactly: {{variable}}, {count}, %s, etc.",
+      "When translating button labels or short UI strings, prefer the shorter Dutch equivalent (UI space matters)"
+    ],
+    "de": [
+      "Use Sie-form (formal German) for product copy; du-form only in marketing where appropriate",
+      "German number formatting: €39,00 not €39.00",
+      "Keep Markdown structure intact",
+      "Date format: dd.mm.yyyy",
+      "Compound nouns are fine — don't fear long words",
+      "Preserve placeholders exactly"
+    ]
+  }
+}

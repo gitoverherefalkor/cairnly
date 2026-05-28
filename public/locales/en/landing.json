@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Stop Guessing. Start Thriving.",
-    "subtitle": "Discover your ideal career path through an expert-developed, AI-enhanced assessment. Get personalized insights, actionable recommendations, and career clarity — delivered through an interactive experience."
+    "subtitle": "Discover your ideal career path through an expert-developed, AI-enhanced assessment. Get personalized insights, actionable recommendations, and career clarity, delivered through an interactive experience."
   },
   "howItWorks": {
     "title": "How It Works",
@@ -25,8 +25,25 @@
   },
   "pricing": {
     "title": "Invest in Your Future",
+    "headline": "Invest in Your Future - Beta Access",
+    "intro": "Cairnly is currently available as a beta version, giving you early access at an introductory price. Your insights and feedback will help shape the future of personalized career guidance.",
     "betaAccess": "Beta Access",
-    "subtitle": "Get personalized career clarity with our comprehensive assessment package"
+    "subtitle": "Get personalized career clarity with our comprehensive assessment package",
+    "productName": "Complete Cairnly Assessment",
+    "limitedTimeNote": "Limited time introductory price",
+    "ctaButton": "Get Beta Access Now",
+    "footerNote": "Your journey begins here. After purchase, you'll receive immediate access to the questionnaire, get quick results, and start your interactive AI coaching session.",
+    "features": {
+      "f1": "Analyses adjusted to your primary goals",
+      "f2": "Top 3 suggestions + 7 runner-ups + 3 out-of-the-box careers",
+      "f3": "Tailored dynamic AI coaching chat",
+      "f4": "Ask follows up Q's and role deep dives",
+      "f5": "Clear, actionable insights and recommendations",
+      "f6": "Localized role nuances & salary ranges",
+      "f7": "Strengths & growth strategies",
+      "f8": "AI impact rating on suggested roles",
+      "f9": "Bonus: Realistic dream job pivot assessment"
+    }
   },
   "about": {
     "title": "About Us"
