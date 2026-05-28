@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
@@ -11,6 +12,7 @@ import { X } from 'lucide-react';
  */
 const NoPurchaseBanner: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation('landing');
   const [email, setEmail] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
@@ -31,24 +33,25 @@ const NoPurchaseBanner: React.FC = () => {
     >
       <div className="max-w-5xl mx-auto flex items-start gap-3">
         <div className="flex-1">
-          <p className="font-semibold mb-1">No Cairnly purchase found{email ? ` for ${email}` : ''}.</p>
+          <p className="font-semibold mb-1">
+            {email ? t('noPurchaseBanner.titleWithEmail', { email }) : `${t('noPurchaseBanner.title')}.`}
+          </p>
           <p>
-            If you used a different email or Google account at checkout, please sign in with that one instead.
-            Otherwise, get your assessment below.{' '}
+            {t('noPurchaseBanner.body')}{' '}
             <button
               type="button"
               onClick={() => navigate('/payment')}
               className="font-semibold underline hover:no-underline"
               style={{ color: '#1F8282' }}
             >
-              Buy access
+              {t('noPurchaseBanner.ctaBuy')}
             </button>
           </p>
         </div>
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          aria-label="Dismiss"
+          aria-label={t('noPurchaseBanner.dismissLabel')}
           className="p-1 rounded hover:bg-black/5"
         >
           <X className="h-4 w-4" />

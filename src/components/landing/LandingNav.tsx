@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Menu, X, ArrowRight, Shield, Lock, Trash2 } from 'lucide-react';
@@ -10,16 +11,24 @@ interface LandingNavProps {
   variant?: 'home' | 'page';
 }
 
-const SECTION_LINKS = [
-  { label: 'How it works', hash: '#how-it-works' },
-  { label: 'Methodology', hash: '#methodology' },
-  { label: 'Journal', hash: '/journal', route: true },
-  { label: 'Pricing', hash: '#pricing' },
+interface SectionLink {
+  labelKey: string;
+  hash: string;
+  route?: boolean;
+}
+
+// Stable hash/route targets — labels come from i18n at render time.
+const SECTION_LINKS: SectionLink[] = [
+  { labelKey: 'nav.howItWorks', hash: '#how-it-works' },
+  { labelKey: 'nav.methodology', hash: '#methodology' },
+  { labelKey: 'nav.journal', hash: '/journal', route: true },
+  { labelKey: 'nav.pricing', hash: '#pricing' },
 ];
 
 const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation('common');
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -40,7 +49,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
     navigate(user ? '/dashboard' : '/payment');
   };
 
-  const handleSection = (e: React.MouseEvent, link: typeof SECTION_LINKS[number]) => {
+  const handleSection = (e: React.MouseEvent, link: SectionLink) => {
     setMenuOpen(false);
     if (link.route) {
       e.preventDefault();
@@ -54,7 +63,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
     // variant 'page' lets the browser follow the /#hash link to the homepage.
   };
 
-  const hrefFor = (link: typeof SECTION_LINKS[number]) =>
+  const hrefFor = (link: SectionLink) =>
     link.route ? link.hash : variant === 'home' ? link.hash : `/${link.hash}`;
 
   return (
@@ -64,17 +73,17 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
         <div className="lp-container flex items-center justify-center gap-x-6 gap-y-1 flex-wrap text-[11px] font-medium tracking-wide">
           <div className="flex items-center gap-2">
             <Shield size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">GDPR compliant</strong> · European servers</span>
+            <span><strong className="text-white font-semibold">{t('trust.gdpr')}</strong> · {t('trust.gdprDetail')}</span>
           </div>
           <span className="text-white/20">·</span>
           <div className="flex items-center gap-2">
             <Lock size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">Payments by Stripe</strong> · We never see your card</span>
+            <span><strong className="text-white font-semibold">{t('trust.stripe')}</strong> · {t('trust.stripeDetail')}</span>
           </div>
           <span className="text-white/20">·</span>
           <div className="flex items-center gap-2">
             <Trash2 size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">One-click delete</strong> · Your data is yours</span>
+            <span><strong className="text-white font-semibold">{t('trust.delete')}</strong> · {t('trust.deleteDetail')}</span>
           </div>
         </div>
       </div>
@@ -94,7 +103,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
           <a href="/" className="flex flex-col items-start">
             <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 md:h-16 w-auto -mb-2.5" />
             <span className="text-[9px] md:text-[10px] tracking-[0.22em] text-[#D4A024] ml-8 md:ml-9">
-              career path clarity.
+              {t('nav.tagAuth')}
             </span>
           </a>
 
@@ -102,12 +111,12 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
           <div className="hidden md:flex items-center gap-7 lg:gap-8">
             {SECTION_LINKS.map((link) => (
               <a
-                key={link.label}
+                key={link.labelKey}
                 href={hrefFor(link)}
                 onClick={(e) => handleSection(e, link)}
                 className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors"
               >
-                {link.label}
+                {t(link.labelKey)}
               </a>
             ))}
             {!user && (
@@ -116,18 +125,18 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
                 onClick={(e) => { e.preventDefault(); navigate('/auth'); }}
                 className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors"
               >
-                Sign in
+                {t('nav.signIn')}
               </a>
             )}
             <button onClick={getStarted} className="lp-btn-primary" style={{ padding: '10px 22px', fontSize: 13 }}>
-              {user ? 'Go to dashboard' : 'Get Started — €39'}
+              {user ? t('nav.goToDashboard') : t('nav.getStarted')}
             </button>
           </div>
 
           {/* Mobile toggle */}
           <button
             className="md:hidden text-white p-2 -mr-2"
-            aria-label="Open menu"
+            aria-label={t('nav.openMenu')}
             onClick={() => setMenuOpen(true)}
           >
             <Menu size={26} />
@@ -148,19 +157,19 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center justify-between mb-12">
             <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-12 w-auto" />
-            <button className="text-white p-2 -mr-2" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+            <button className="text-white p-2 -mr-2" aria-label={t('nav.closeMenu')} onClick={() => setMenuOpen(false)}>
               <X size={28} />
             </button>
           </div>
           <nav className="flex flex-col gap-7">
             {SECTION_LINKS.map((link) => (
               <a
-                key={link.label}
+                key={link.labelKey}
                 href={hrefFor(link)}
                 onClick={(e) => handleSection(e, link)}
                 className="text-white text-[22px] font-heading font-bold tracking-tight"
               >
-                {link.label}
+                {t(link.labelKey)}
               </a>
             ))}
             {!user && (
@@ -169,16 +178,16 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
                 onClick={(e) => { e.preventDefault(); setMenuOpen(false); navigate('/auth'); }}
                 className="text-white text-[22px] font-heading font-bold tracking-tight"
               >
-                Sign in
+                {t('nav.signIn')}
               </a>
             )}
           </nav>
           <div className="mt-auto pt-8 border-t border-white/10">
             <button onClick={getStarted} className="lp-btn-primary w-full justify-center">
-              {user ? 'Go to dashboard' : 'Get Started — €39'}
+              {user ? t('nav.goToDashboard') : t('nav.getStarted')}
               <ArrowRight size={18} strokeWidth={2.4} />
             </button>
-            <p className="text-[11px] text-white/40 mt-4 text-center">No subscription · GDPR · Stripe</p>
+            <p className="text-[11px] text-white/40 mt-4 text-center">{t('trust.shortSummary')}</p>
           </div>
         </div>
       </div>

@@ -327,6 +327,14 @@
     "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No subscription, no roster of upsells. One clear answer, then we get out of your way.",
     "signature": "The Cairnly team, Utrecht"
   },
+  "workflowSimple": {
+    "resume": "Résumé",
+    "survey": "Survey",
+    "profile": "Profile",
+    "match": "Match roles",
+    "wild": "Wild cards",
+    "report": "REPORT"
+  },
   "workflow": {
     "wf1Label": "WF1 RESUME",
     "wf2Label": "WF2 PROFILE",
@@ -344,6 +352,41 @@
     "title": "About Us"
   },
   "faq": {
-    "title": "Frequently Asked Questions"
+    "eyebrow": "Common questions",
+    "titleA": "Anything still",
+    "titleHighlight": "unclear?",
+    "items": [
+      {
+        "q": "Isn't this just ChatGPT in a wrapper?",
+        "a": "No. The assessment is built on validated psychometric research and refined with working career coaches. The AI is the engine that processes your specific history and responses against that foundation, it isn't improvising. Generic AI tools skip the science. We don't."
+      },
+      {
+        "q": "How is this different from career coaching?",
+        "a": "Coaching is excellent for executing a direction once you've picked one. But it costs €80–€280 a month indefinitely while you figure out what that direction is. Cairnly is the clarity step that comes before coaching is worth paying for. Roughly half the price of a single coaching session, for the full picture."
+      },
+      {
+        "q": "How is this different from monthly AI career platforms?",
+        "a": "Subscription platforms are designed to keep you exploring. We're designed to give you a finished answer. After two months at €25/month, you've paid more than a Cairnly assessment, and you're still being billed. We give you one clear answer, you take it and act on it."
+      },
+      {
+        "q": "What if the recommendations don't feel right?",
+        "a": "Push back. The coaching chat exists precisely for that. If a role doesn't fit, tell it, and the report adapts. By the time the report is finalized, your feedback is already in it."
+      },
+      {
+        "q": "Is my data safe?",
+        "a": "GDPR-compliant, European servers, payments handled by Stripe (we never see your card), and one-click delete at any time. Your data is yours."
+      },
+      {
+        "q": "How long does it take?",
+        "a": "One sitting. Most people complete the assessment and chat in under an hour. The full report is yours immediately."
+      }
+    ]
+  },
+  "noPurchaseBanner": {
+    "title": "No Cairnly purchase found",
+    "titleWithEmail": "No Cairnly purchase found for {{email}}.",
+    "body": "If you used a different email or Google account at checkout, please sign in with that one instead. Otherwise, get your assessment below.",
+    "ctaBuy": "Buy access",
+    "dismissLabel": "Dismiss"
   }
 }

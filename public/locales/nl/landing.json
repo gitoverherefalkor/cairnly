@@ -327,6 +327,14 @@
     "p2": "We hebben Cairnly gebouwd omdat de tools om die vraag op een goede manier te stellen simpelweg niet bestonden. Persoonlijkheidstesten geven je een label. Coaching duurt maanden en kost duizenden euro's. Gratis quizzen geven je waarvoor je betaalt. Daarom hebben we één enkel assessment gebouwd, transparant over de methodes, dat kijkt naar wie je nu écht bent en je specifieke rollen geeft waar je maandag al naar kunt gaan kijken. Geen abonnement, geen waslijst aan upsells. Eén duidelijk antwoord, en daarna gaan we weer uit de weg.",
     "signature": "Het Cairnly team, Utrecht"
   },
+  "workflowSimple": {
+    "resume": "CV",
+    "survey": "Vragenlijst",
+    "profile": "Profiel",
+    "match": "Match rollen",
+    "wild": "Wild cards",
+    "report": "RAPPORT"
+  },
   "workflow": {
     "wf1Label": "WF1 RESUME (CV)",
     "wf2Label": "WF2 PROFILE (PROFIEL)",
@@ -344,6 +352,41 @@
     "title": "Over ons"
   },
   "faq": {
-    "title": "Veelgestelde vragen"
+    "eyebrow": "Veelgestelde vragen",
+    "titleA": "Is er nog iets",
+    "titleHighlight": "onduidelijk?",
+    "items": [
+      {
+        "q": "Is dit niet gewoon ChatGPT in een jasje?",
+        "a": "Nee. Het assessment is gebouwd op gevalideerd psychometrisch onderzoek en verfijnd met actieve carrièrecoaches. De AI is de motor die jouw specifieke geschiedenis en antwoorden tegen die basis verwerkt, hij improviseert niet. Generieke AI-tools slaan de wetenschap over. Wij niet."
+      },
+      {
+        "q": "Hoe verschilt dit van carrièrecoaching?",
+        "a": "Coaching is geweldig om een richting uit te voeren zodra je er een hebt gekozen. Maar het kost €80 tot €280 per maand, onbeperkt, terwijl je probeert te bedenken wat die richting is. Cairnly is de helderheidsstap die komt vóórdat coaching de moeite waard is. Ongeveer de helft van de prijs van één coachingsessie, voor het volledige plaatje."
+      },
+      {
+        "q": "Hoe verschilt dit van maandelijkse AI-carrièreplatforms?",
+        "a": "Abonnementsplatforms zijn ontworpen om je te blijven laten ontdekken. Wij zijn ontworpen om je een definitief antwoord te geven. Na twee maanden à €25 per maand heb je meer betaald dan een Cairnly-assessment, en je wordt nog steeds gefactureerd. Wij geven je één duidelijk antwoord, jij neemt het mee en gaat er mee aan de slag."
+      },
+      {
+        "q": "Wat als de aanbevelingen niet kloppen?",
+        "a": "Geef tegengas. Daarvoor bestaat de coaching chat juist. Als een rol niet past, zeg het, en het rapport past zich aan. Tegen de tijd dat het rapport definitief is, zit jouw feedback er al in."
+      },
+      {
+        "q": "Is mijn data veilig?",
+        "a": "GDPR-compliant, Europese servers, betalingen via Stripe (wij zien je kaart nooit), en one-click delete op elk moment. Je data is van jou."
+      },
+      {
+        "q": "Hoe lang duurt het?",
+        "a": "Eén sessie. De meeste mensen ronden het assessment en de chat af binnen een uur. Het volledige rapport is direct van jou."
+      }
+    ]
+  },
+  "noPurchaseBanner": {
+    "title": "Geen Cairnly-aankoop gevonden",
+    "titleWithEmail": "Geen Cairnly-aankoop gevonden voor {{email}}.",
+    "body": "Heb je bij het afrekenen een ander e-mailadres of Google-account gebruikt? Log dan in met dat account. Anders kun je hieronder je assessment aanschaffen.",
+    "ctaBuy": "Koop toegang",
+    "dismissLabel": "Sluiten"
   }
 }
