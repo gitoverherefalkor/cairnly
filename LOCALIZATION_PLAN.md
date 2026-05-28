@@ -28,13 +28,14 @@
 - [x] **Phase 0 — Foundation** (2026-05-28): migrations applied (`add_language_to_report_sections`, `add_translations_jsonb`); types regenerated; `scripts/i18n-glossary.json` + `scripts/i18n-sync.ts` created; `npm run i18n:sync` wired; dry-run confirms all 7 namespaces in sync.
 
 ### Pending ❌
-- [ ] Phase 1 — Frontend completion **(scope reduced: app surface only, not landing)** — ALL CODE WORK DONE ✅. Awaiting user decision at the flip-Dutch gate (see below). Completed: pricing utils, Pricing.tsx refactor, date locale fixes (DashboardV4:543, Profile:277), LanguageSwitcher hidden on /chat, i18n:sync ran (15 new Dutch translations). NOT done: Profile language picker (would force full Profile.tsx refactor — 40+ strings, descoped). Build passes.
-- [ ] Phase 1.5 — Landing components (NEW, deferred from Phase 1) — ~150-180 strings across 15 landing components + 24 inline-JSX migrations. Likely needs subagent parallelization.
-- [ ] Phase 2 — Pipeline plumbing (forward-to-n8n + all AI edge functions get language param)
+- [x] **Phase 1 — Frontend completion (app surface only)** (2026-05-28): pricing utils, Pricing.tsx refactor, date locale fixes (DashboardV4:543, Profile:277), LanguageSwitcher hidden on /chat, i18n:sync ran (15 new Dutch translations). Switcher still disabled — Dutch unlocks when Phase 1.5 + 3 + 4 land. Profile language picker descoped (would force 40+ string Profile.tsx refactor).
+- [x] **Phase 2 — Pipeline plumbing** (2026-05-28): all 8 edge functions deployed and language-aware. forward-to-n8n, forward-resume-to-n8n, chat-proxy, deliver-section, wrap-up-extract, generate-share-quotes, generate-cover-letter, generate-custom-resume all inject preferred_language. Boilerplate.ts has Dutch entries reviewed and approved. aiResumeParser prompt extended for Dutch CV conventions.
+- [ ] **Phase 1.5 — Landing components** — Dutch copy received from Sjoerd (manual translation, May 2026) in `cairnly-homepage-copy-nl.md`. Integration in progress: extract keys → `public/locales/{en,nl}/landing.json`, replace hardcoded strings in 15 landing components with t() calls. FAQ/LandingNav/Footer copy not in RTF — fill via i18n:sync as follow-up.
 - [ ] Phase 3 — Emails + static survey content (7 email templates, survey JSONB, legal copy)
 - [ ] Phase 4 — n8n workflows (WF1–WF6 + WF_cover_letter + WF_custom_resume + Finding Selected Roles)
-- [ ] Phase 5 — enriched_jobs lazy translation
-- [ ] Phase 6 — German validation (sanity check that architecture scales)
+- [ ] Phase 5 — German validation (sanity check that architecture scales)
+
+**REMOVED from plan (2026-05-28, per user)**: ~~Phase 5 — enriched_jobs lazy translation~~. Decision: skip. Career data stays in source language (English) in `enriched_jobs.translations`. n8n output already handles user-facing translation at generation time via the output-language instruction.
 
 ### Phase 1.5 — Landing components (deferred scope, NEW)
 **Background**: Phase 1 audit revealed the landing page contains ~150-180 hardcoded strings across 15 components (`ComparisonTable`, `HowItWorks`, `Methodology`, `FAQ`, `CoachCards`, `LandingNav`, `Hero`, `Pillars`, `Methodology`, `WhoFor`, `WhyWeBuiltThis`, `PricingSection`, `FinalCTA`, `NoPurchaseBanner`, `CostMath`, `ForkDivider`, `LandingFooter`, `WorkflowDiagram*`). Original Phase 1 estimate (~50-70 strings, 1-2 sessions) was based on a less-developed landing page. Realistic time: 4-6 hours single-session OR ~2 hours with parallel subagents.
@@ -241,6 +242,12 @@ Before flipping the switcher (Steps 11–12), show user the list of newly-transl
 - **EDITING parameters of existing nodes** → ⛔ STOP. Show user before/after diff. Get explicit per-node approval before calling n8n API.
 - Always export current workflow JSON to `n8n_aa/<workflow>_BEFORE_localization_<timestamp>.json` BEFORE any change.
 
+### Prompt translation policy (clarified 2026-05-28, per user)
+- **n8n LLM prompts STAY in English.** We do NOT translate prompt text into Dutch/German.
+- Per-language behavior is achieved by ADDING an injector node that appends a single instruction to the system prompt: `"Write your final output in {{ language_name }}. Maintain Markdown structure. Brand terms (Cairnly, outside-the-box, runner-up) stay in English."`
+- The LLM does the heavy lifting of translating its own output. The English prompt remains the canonical source.
+- This means: only nodes whose **output reaches the user** need any change. Scoring nodes (numerical), data-fetch nodes, etc. are untouched.
+
 ### Inputs
 - Read: `n8n_aa/SOP_new_Apr.txt`, all `n8n_aa/WF*.json`, MEMORY note `reference_job_search_workflow.md`
 
@@ -301,28 +308,15 @@ Before flipping the switcher (Steps 11–12), show user the list of newly-transl
 
 ---
 
-## Phase 5 — `enriched_jobs` lazy translation
-**Est. 1 session.**
+## ~~Phase 5 — `enriched_jobs` lazy translation~~ — REMOVED 2026-05-28
 
-### Steps
-1. ADD: new sub-workflow node in WF2 (after the 15 careers are selected) that for each career_id:
-   - Query `enriched_jobs.translations->>'nl'`
-   - If missing, send English fields to Claude (structured JSON pass)
-   - Write back to `translations->'nl'`
-   ✅ no approval (all new nodes).
-2. ⛔ EDIT: WF3/WF4 nodes that read `enriched_jobs` fields → use `COALESCE(translations->>'<lang>', english_field)` pattern. **Approval needed per node.**
+Per user decision: the `enriched_jobs.translations` JSONB column (added in Phase 0) stays in place for future use but no lazy-translation step will be built. n8n's per-call output-language instruction handles all user-facing translation at report-generation time, including career narrative — there's no need to pre-translate or cache the source `enriched_jobs` rows.
 
-### ⛔ Gate
-Before deploying: confirm sub-workflow doesn't translate the whole table on first run (cost guard). Show user the exact careers-touched count from a dry-run trace.
-
-### ✅ Verification
-- Generate Dutch report for test user. Career names/descriptions in Dutch on first generation.
-- Inspect `enriched_jobs.translations`: only the 15 user-relevant careers translated.
-- Generate second Dutch report with overlapping careers: cache hit confirmed (no new Claude calls in n8n execution log for cached careers).
+The migration column is harmless if unused; leave it for now.
 
 ---
 
-## Phase 6 — German validation
+## Phase 5 — German validation
 **Est. 1 session. Sanity check, not launch.**
 
 **Acceptance criterion: total elapsed engineering time ≤ 1 week.** If longer, the architecture has a leak — investigate before adding more languages.
