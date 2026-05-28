@@ -10,11 +10,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
-// Dutch is temporarily disabled until all UI is fully translated.
-// To re-enable: set `disabled: false` on the 'nl' entry below.
+// Dutch went live 2026-05-28 with the Phase 1.5 launch.
+// To temporarily disable a language during a content fix, flip its `disabled` flag.
 const languages = [
   { code: 'en', label: 'English', flag: '🇬🇧', disabled: false },
-  { code: 'nl', label: 'Nederlands', flag: '🇳🇱', disabled: true },
+  { code: 'nl', label: 'Nederlands', flag: '🇳🇱', disabled: false },
 ] as const;
 
 interface LanguageSwitcherProps {
@@ -29,7 +29,8 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   // Users can switch language from the dashboard before opening a chat.
   if (pathname.startsWith('/chat')) return null;
 
-  // Force English while other languages are disabled
+  // Pick the matching enabled language; default to English if the stored language
+  // is no longer enabled (e.g. we temporarily flipped one off for a content fix).
   const currentLang = languages.find(l => l.code === i18n.language && !l.disabled) || languages[0];
 
   const handleChange = (code: string, disabled: boolean) => {

@@ -23,10 +23,9 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
-    // Dutch is disabled in the UI until all strings are translated.
-    // Keeping only 'en' here forces any detected/stored 'nl' back to English.
-    // To re-enable Dutch: add 'nl' here and flip `disabled: false` in LanguageSwitcher.
-    supportedLngs: ['en'],
+    // Dutch (nl) is live as of the Phase 1.5 launch (2026-05-28).
+    // See LOCALIZATION_PLAN.md for the rollout history.
+    supportedLngs: ['en', 'nl'],
     ns: ['common', 'auth', 'landing', 'survey', 'chat', 'report', 'dashboard'],
     defaultNS: 'common',
 

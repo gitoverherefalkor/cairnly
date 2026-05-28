@@ -16,12 +16,16 @@
 
 ## Status (update as you go)
 
+## 🇳🇱 Dutch went LIVE 2026-05-28 ⏰
+
+`supportedLngs: ['en', 'nl']`, switcher `disabled: false` for nl. Dutch users now see the full Dutch UI shell. AI-generated chat content reverts to English until Phase 4 wires WF5's output-language injection — beta acceptable.
+
 ### Done ✅
 - [x] `react-i18next` configured with 7 namespaces
 - [x] `profiles.preferred_language` column exists
 - [x] `useLanguage.ts` syncs profile ↔ i18next on login
 - [x] `useAuth.tsx:100` writes `preferred_language` to signup `user_metadata`
-- [x] `LanguageSwitcher.tsx` component exists (Dutch entry present but disabled)
+- [x] `LanguageSwitcher.tsx` component exists (Dutch enabled 2026-05-28)
 - [x] Dutch JSONs translated and key-sync'd with English (all 7 namespaces)
 - [x] Stripe checkout passes `locale: nl` + `currency: eur`
 - [x] Partial component i18n: `Dashboard.tsx` (15 t() calls), `SurveyForm.tsx` (17), `QuickReplies.tsx` (4)
