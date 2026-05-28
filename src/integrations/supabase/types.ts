@@ -748,6 +748,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          stripe_payment_intent_id: string | null
           stripe_session_id: string | null
         }
         Insert: {
@@ -758,6 +759,7 @@ export type Database = {
           first_name: string
           id?: string
           last_name: string
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
         Update: {
@@ -768,6 +770,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
         Relationships: [
@@ -832,6 +835,68 @@ export type Database = {
             columns: ["section_id"]
             isOneToOne: false
             referencedRelation: "survey_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_payouts: {
+        Row: {
+          created_at: string
+          currency: string
+          eligible_at: string
+          failure_reason: string | null
+          id: string
+          metadata: Json
+          payout_amount_cents: number
+          payout_pct: number
+          processed_at: string | null
+          referral_id: string
+          referral_sequence_number: number
+          referrer_payment_intent_id: string
+          referrer_user_id: string
+          status: string
+          stripe_refund_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          eligible_at: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json
+          payout_amount_cents: number
+          payout_pct: number
+          processed_at?: string | null
+          referral_id: string
+          referral_sequence_number: number
+          referrer_payment_intent_id: string
+          referrer_user_id: string
+          status?: string
+          stripe_refund_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          eligible_at?: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json
+          payout_amount_cents?: number
+          payout_pct?: number
+          processed_at?: string | null
+          referral_id?: string
+          referral_sequence_number?: number
+          referrer_payment_intent_id?: string
+          referrer_user_id?: string
+          status?: string
+          stripe_refund_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_payouts_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: true
+            referencedRelation: "referrals"
             referencedColumns: ["id"]
           },
         ]
@@ -1676,3 +1741,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

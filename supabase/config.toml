@@ -7,6 +7,16 @@ verify_jwt = false
 [functions.payment-success]
 verify_jwt = false
 
+# Stripe webhook for refund / dispute events. Auth is via stripe-signature
+# header verification inside the function — Stripe never sends a JWT, so
+# gateway JWT verification must be off.
+[functions.stripe-refund-webhook]
+verify_jwt = false
+
+# process-referral-payouts is intentionally NOT listed here — it relies on the
+# default verify_jwt = true so the Supabase gateway validates the service_role
+# JWT that pg_cron sends in the Authorization header.
+
 [functions.test-email]
 verify_jwt = false
 

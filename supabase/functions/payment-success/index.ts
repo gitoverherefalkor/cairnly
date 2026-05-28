@@ -79,6 +79,147 @@ async function sendAccessCodeEmail(email: string, firstName: string, lastName: s
   }
 }
 
+// Referral payout tiers — % of the referrer's net amount paid, per referral
+// sequence position. Cumulatively 100% recoverable across 3 referrals. After
+// 3, no payout (cap reached). Matches the existing 3-tier tool unlock cadence
+// so the user-facing story is "3 friends = all tools unlocked AND your
+// purchase fully refunded".
+const REFERRAL_PAYOUT_TIERS: Record<number, number> = {
+  1: 25,
+  2: 25,
+  3: 50,
+};
+
+// Schedule a referral payout for a successful referral. Best-effort: any
+// failure here is logged but never breaks the purchase flow. The actual
+// refund is issued later by the process-referral-payouts cron, 14 days after
+// the referred purchase (so we're past Stripe's chargeback window).
+//
+// Skip-without-error cases (these are NOT failures, just "nothing to pay"):
+//   - Referrer has no completed purchase recorded -> nothing to refund TO
+//   - Referrer paid 0 (100%-off promo)            -> payout would be 0
+//   - Sequence number > 3                          -> cap reached
+async function queueReferralPayout(args: {
+  // deno-lint-ignore no-explicit-any
+  supabase: any;
+  referralId: string;
+  referrerUserId: string;
+  referrerEmail: string;
+  fallbackCurrency: string;
+}): Promise<void> {
+  const { supabase, referralId, referrerUserId, referrerEmail, fallbackCurrency } = args;
+
+  try {
+    // Sequence number = total referrals for this user (we just inserted, so
+    // this includes the current one). Theoretical race: two near-simultaneous
+    // referrals could both see the same count. The UNIQUE constraint on
+    // (referrer_user_id, sequence) in the DB catches that — one of the two
+    // INSERTs gets a 23505 and we log + skip.
+    const { count: totalReferrals, error: countError } = await supabase
+      .from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("referrer_user_id", referrerUserId);
+
+    if (countError || !totalReferrals) {
+      console.error("Failed to count referrals for payout:", countError);
+      return;
+    }
+
+    const sequenceNumber = totalReferrals;
+    const tierPct = REFERRAL_PAYOUT_TIERS[sequenceNumber];
+    if (!tierPct) {
+      // Beyond tier 3 — cap reached, no payout owed. Quietly skip.
+      return;
+    }
+
+    // Find the referrer's own purchase to read both the payment_intent (the
+    // refund destination) and the price_paid (the basis for the % payout).
+    // Use ilike for case-insensitive email match — purchases.email casing has
+    // historically been inconsistent. Most-recent-with-payment-intent wins.
+    const { data: referrerPurchase } = await supabase
+      .from("purchases")
+      .select("stripe_payment_intent_id, access_code_id, created_at")
+      .ilike("email", referrerEmail)
+      .not("stripe_payment_intent_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!referrerPurchase?.stripe_payment_intent_id || !referrerPurchase.access_code_id) {
+      console.warn(
+        "Referrer has no completed purchase with a stored payment_intent — skipping payout",
+        { referrerUserId, referrerEmail },
+      );
+      return;
+    }
+
+    const { data: referrerCode } = await supabase
+      .from("access_codes")
+      .select("price_paid, currency")
+      .eq("id", referrerPurchase.access_code_id)
+      .maybeSingle();
+
+    const netPaid = Number(referrerCode?.price_paid ?? 0);
+    if (!netPaid || netPaid <= 0) {
+      console.log(
+        "Referrer paid 0 (free / 100%-off promo) — no payout possible",
+        { referrerUserId },
+      );
+      return;
+    }
+
+    const payoutAmountCents = Math.round(netPaid * 100 * (tierPct / 100));
+    if (payoutAmountCents <= 0) {
+      return;
+    }
+
+    const currency = referrerCode?.currency || fallbackCurrency;
+
+    // 14-day delay before the cron will issue the refund — keeps us safely
+    // past the typical Stripe chargeback window for the *referred* purchase.
+    const eligibleAt = new Date();
+    eligibleAt.setDate(eligibleAt.getDate() + 14);
+
+    const { error: payoutError } = await supabase
+      .from("referral_payouts")
+      .insert({
+        referral_id: referralId,
+        referrer_user_id: referrerUserId,
+        referrer_payment_intent_id: referrerPurchase.stripe_payment_intent_id,
+        referral_sequence_number: sequenceNumber,
+        payout_amount_cents: payoutAmountCents,
+        payout_pct: tierPct,
+        currency,
+        eligible_at: eligibleAt.toISOString(),
+      });
+
+    if (payoutError) {
+      // 23505 = unique_violation on (referrer_user_id, sequence_number) —
+      // a concurrent referral grabbed the same slot. The winner's payout is
+      // valid; ours is a no-op duplicate, log and move on.
+      if (payoutError.code === "23505") {
+        console.warn("Payout slot already taken (concurrent referral race) — skipping", {
+          referrerUserId,
+          sequenceNumber,
+        });
+      } else {
+        console.error("Failed to insert referral payout:", payoutError);
+      }
+    } else {
+      console.log("Referral payout queued", {
+        referrerUserId,
+        sequenceNumber,
+        tierPct,
+        payoutAmountCents,
+        currency,
+        eligibleAt: eligibleAt.toISOString(),
+      });
+    }
+  } catch (e) {
+    console.error("Payout queueing error (non-fatal):", e);
+  }
+}
+
 // "A friend joined Cairnly through your code" — sent to the referrer the
 // moment a new conversion crosses the 1, 2, or 3 friend threshold (those
 // are the conversions that actually unlock a tool). After 3, no email —
@@ -334,6 +475,15 @@ serve(async (req) => {
     const lastName = session.metadata?.lastName || "";
     const country = session.metadata?.country || "Unknown";
 
+    // Capture the Stripe payment_intent for this purchase. Required later
+    // for the referral-payout system (refunds are issued against a
+    // payment_intent). On a Checkout Session in mode='payment' this is a
+    // string ID; defensive about other shapes.
+    const stripePaymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null;
+
     // Store the purchase details. Race-safe: if another concurrent call won
     // the insert, the UNIQUE constraint on stripe_session_id throws and we
     // fall back to the existing code (whoever inserted wins).
@@ -346,6 +496,7 @@ serve(async (req) => {
         country: country,
         stripe_session_id: session.id,
         access_code_id: codeData.id,
+        stripe_payment_intent_id: stripePaymentIntentId,
       });
 
     if (purchaseError) {
@@ -400,7 +551,7 @@ serve(async (req) => {
         if (isSelfReferral) {
           console.warn("Self-referral blocked", { referrerUserId });
         } else {
-          const { error: referralError } = await supabase
+          const { data: newReferral, error: referralError } = await supabase
             .from("referrals")
             .insert({
               referrer_user_id: referrerUserId,
@@ -409,7 +560,9 @@ serve(async (req) => {
               promotion_code_used: referralPromoCode,
               amount_paid: amountTotal,
               currency: currency,
-            });
+            })
+            .select("id")
+            .maybeSingle();
           // 23505 = duplicate stripe_session_id — already credited. Fine.
           if (referralError && referralError.code !== "23505") {
             console.error("Failed to record referral:", referralError);
@@ -425,6 +578,20 @@ serve(async (req) => {
               supabase,
               referrerUserId,
             }).catch((e) => console.error("Referral unlock email failed (non-fatal):", e));
+
+            // Queue the cashback payout (25/25/50% of the referrer's net
+            // paid, refunded 14 days from now via Stripe). Strictly
+            // additive — any failure here logs and moves on, never breaks
+            // the purchase response.
+            if (newReferral?.id) {
+              await queueReferralPayout({
+                supabase,
+                referralId: newReferral.id,
+                referrerUserId,
+                referrerEmail: referrerProfile.email,
+                fallbackCurrency: currency,
+              }).catch((e) => console.error("Payout queueing failed (non-fatal):", e));
+            }
           }
         }
       } catch (e) {
