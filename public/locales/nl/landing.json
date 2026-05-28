@@ -6,7 +6,7 @@
     "titleB": "koos, bepaalde de twintig jaar die volgden.",
     "body": "Je koos een algemene richting, business, engineering, healthcare, en die bepaalde stilletjes je studierichting, je eerste baan, en elke baan daarna. Cairnly is één enkel assessment dat de vraag stelt die die 16-jarige nooit had kunnen stellen:",
     "bodyEmphasis": "met de levenservaring die je sindsdien hebt opgedaan, wat zou je nú eigenlijk kiezen?",
-    "ctaPrimary": "Aan de slag — €39",
+    "ctaPrimary": "Aan de slag · €39",
     "ctaSecondary": "Bekijk hoe het werkt",
     "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
@@ -32,7 +32,7 @@
       },
       {
         "title": "Eerlijk, niet vleiend",
-        "body": "Echte reality checks over uitdagingen, trade-offs en de vaardigheden die je moet ontwikkelen. We zijn er niet om je te cheerleaden. We zijn er om je te helpen goed te kiezen."
+        "body": "Echte reality checks over uitdagingen, trade-offs en de vaardigheden die je moet ontwikkelen. We zijn er niet om je naar de mond te praten. We zijn er om je te helpen goed te kiezen."
       }
     ]
   },
@@ -278,7 +278,7 @@
     "originalPrice": "€69",
     "price": "€39",
     "oneOff": "Een eenmalige betaling",
-    "cta": "Krijg Bèta-toegang — €39",
+    "cta": "Krijg Bèta-toegang · €39",
     "trust": {
       "stripe": "Stripe",
       "gdpr": "GDPR",
@@ -366,7 +366,7 @@
       },
       {
         "q": "Hoe verschilt dit van maandelijkse AI-carrièreplatforms?",
-        "a": "Abonnementsplatforms zijn ontworpen om je te blijven laten ontdekken. Wij zijn ontworpen om je een definitief antwoord te geven. Na twee maanden à €25 per maand heb je meer betaald dan een Cairnly-assessment, en je wordt nog steeds gefactureerd. Wij geven je één duidelijk antwoord, jij neemt het mee en gaat er mee aan de slag."
+        "a": "Abonnementsplatforms zijn ontworpen om je te blijven laten ontdekken. Wij zijn ontworpen om je een definitief antwoord te geven. Na twee maanden à €25 per maand heb je meer betaald dan een Cairnly-assessment, en je wordt nog steeds gefactureerd. Wij geven je één duidelijk antwoord, jij neemt het mee en gaat ermee aan de slag."
       },
       {
         "q": "Wat als de aanbevelingen niet kloppen?",

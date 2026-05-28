@@ -8,7 +8,7 @@
   },
   "failed": {
     "title": "Indienen mislukt",
-    "description": "Geen zorgen — je antwoorden zijn opgeslagen!",
+    "description": "Geen zorgen, je antwoorden zijn opgeslagen!",
     "retry": "Opnieuw indienen",
     "retrying": "Bezig met opnieuw indienen..."
   },

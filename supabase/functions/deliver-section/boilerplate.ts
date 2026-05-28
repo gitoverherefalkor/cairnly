@@ -143,7 +143,7 @@ const NL: Record<SectionType, Boilerplate> = {
     intro:
       "**Soms zijn de beste loopbaanpaden niet de meest voor de hand liggende.** Gebaseerd op je persoonlijkheid, interesses en waarden hebben we een paar **outside-the-box loopbaanopties** geïdentificeerd. Rollen die passen bij wie je bent, maar misschien nog niet op je radar stonden. Deze kunnen onverwachte maar zeer bevredigende kansen openen. Laten we kijken:",
     outro:
-      "**Spreken een van deze rollen je aan?** Ook als ze buiten je gebruikelijke domein vallen, kunnen ze nieuwe manieren bieden om je sterke punten en interesses in te zetten op een manier die spannend en lonend voelt. **Laat je gedachten weten**: wil je meer details over een van deze rollen, of liever andere richtingen verkennen? Zo niet, dan kunnen we door naar een bonussegment: de haalbaarheid van je 'droombanen'!",
+      "**Spreekt een van deze rollen je aan?** Ook als ze buiten je gebruikelijke domein vallen, kunnen ze nieuwe manieren bieden om je sterke punten en interesses in te zetten op een manier die spannend en lonend voelt. **Laat je gedachten weten**: wil je meer details over een van deze rollen, of liever andere richtingen verkennen? Zo niet, dan kunnen we door naar een bonussegment: de haalbaarheid van je 'droombanen'!",
   },
   dream_jobs: {
     intro:
@@ -171,7 +171,7 @@ export function getBoilerplate(language: string): Record<SectionType, Boilerplat
 // Triggered by the "All done, wrap up session" QuickReply.
 const DREAM_JOBS_WRAP_UP_BY_LANG: Record<Language, string> = {
   en: "That concludes your Cairnly career chat session. Behind the scenes, we're now generating your personalized executive summary based on everything we discussed, including your feedback. Your complete report with the executive summary and all career recommendations will be ready shortly in your dashboard.\n\nYou'll receive an email when it's available. You can revisit this report anytime to reflect on these findings or share it with mentors, career advisors, or anyone else who can support your next steps.\n\nYou know where you stand. Now decide where you're going.",
-  nl: "Hiermee sluiten we je Cairnly loopbaanchat-sessie af. Achter de schermen genereren we nu je persoonlijke samenvatting op basis van alles wat we besproken hebben, inclusief je feedback. Je volledige rapport met de samenvatting en alle loopbaanaanbevelingen is binnenkort klaar in je dashboard.\n\nJe krijgt een mail zodra het beschikbaar is. Je kunt dit rapport altijd opnieuw bekijken om over deze inzichten te reflecteren, of deel het met mentoren, loopbaanadviseurs, of iedereen die je verdere stappen kan ondersteunen.\n\nJe weet waar je staat. Nu bepalen waar je heen gaat.",
+  nl: "Hiermee sluiten we je Cairnly loopbaanchat-sessie af. Achter de schermen genereren we nu je persoonlijke samenvatting op basis van alles wat we besproken hebben, inclusief je feedback. Je volledige rapport met de samenvatting en alle loopbaanaanbevelingen is binnenkort klaar in je dashboard.\n\nJe krijgt een mail zodra het beschikbaar is. Je kunt dit rapport altijd opnieuw bekijken om over deze inzichten te reflecteren, of deel het met mentoren, loopbaanadviseurs, of iedereen die je verdere stappen kan ondersteunen.\n\nJe weet waar je staat. Bepaal nu waar je heen gaat.",
 };
 
 export function getDreamJobsWrapUp(language: string): string {

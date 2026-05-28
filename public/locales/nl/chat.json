@@ -18,7 +18,7 @@
   },
   "session": {
     "viewReport": "Bekijk je rapport",
-    "completed": "Sessie afgerond — je rapport staat hierboven klaar.",
+    "completed": "Sessie afgerond. Je rapport staat hierboven klaar.",
     "completeSession": "Sessie afronden",
     "reportSections": "Rapportonderdelen",
     "progress": "Voortgang"
