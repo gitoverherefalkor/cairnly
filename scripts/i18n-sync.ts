@@ -26,7 +26,9 @@ import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join, basename } from "node:path";
 import { config as loadEnv } from "dotenv";
 
-loadEnv();
+// override: true so .env wins over empty shell-exported vars
+// (common gotcha: ANTHROPIC_API_KEY exported empty in zsh shadows the .env value).
+loadEnv({ override: true });
 
 const LOCALES_DIR = join(process.cwd(), "public", "locales");
 const GLOSSARY_PATH = join(process.cwd(), "scripts", "i18n-glossary.json");

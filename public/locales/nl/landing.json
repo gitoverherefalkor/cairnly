@@ -26,7 +26,24 @@
   "pricing": {
     "title": "Investeer in je toekomst",
     "betaAccess": "Bèta-toegang",
-    "subtitle": "Krijg gepersonaliseerde carrièreduidelijkheid met ons uitgebreide assessmentpakket"
+    "subtitle": "Krijg gepersonaliseerde carrièreduidelijkheid met ons uitgebreide assessmentpakket",
+    "headline": "Investeer in je toekomst - Bètatoegang",
+    "intro": "Cairnly is momenteel beschikbaar als bètaversie, waardoor je vroege toegang krijgt tegen een introductieprijs. Jouw inzichten en feedback helpen de toekomst van gepersonaliseerde loopbaanbegeleiding vorm te geven.",
+    "productName": "Complete Cairnly Assessment",
+    "limitedTimeNote": "Tijdelijke introductieprijs",
+    "ctaButton": "Krijg nu bètatoegang",
+    "footerNote": "Je reis begint hier. Na aankoop krijg je direct toegang tot de vragenlijst, snelle resultaten en kun je meteen starten met je interactieve AI-coachingsessie.",
+    "features": {
+      "f1": "Analyses afgestemd op je belangrijkste doelen",
+      "f2": "Top 3 suggesties + 7 runner-ups + 3 outside-the-box loopbanen",
+      "f3": "Persoonlijke dynamische AI-coachingchat",
+      "f4": "Stel vervolgvragen en duik diep in rollen",
+      "f5": "Heldere, uitvoerbare inzichten en aanbevelingen",
+      "f6": "Gelokaliseerde rolnuances & salarisranges",
+      "f7": "Sterke punten & groeistrategieën",
+      "f8": "AI-impactscore op voorgestelde rollen",
+      "f9": "Bonus: Realistische droomjob-pivotassessment"
+    }
   },
   "about": {
     "title": "Over ons"

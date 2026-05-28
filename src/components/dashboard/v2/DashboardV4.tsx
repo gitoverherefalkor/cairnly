@@ -6,9 +6,11 @@
 // glance · Unlock toolkit · Share promo · Full report accordion.
 
 import React, { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
+import { formatDate } from '@/lib/format';
 import { Activity, ArrowRight, BookOpen, Briefcase, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
@@ -182,6 +184,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   onInvite,
   onOpenShareCard,
 }) => {
+  const { i18n } = useTranslation();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const accordionRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -540,7 +543,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   };
 
   const reportDate = reportGeneratedAt
-    ? new Date(reportGeneratedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    ? formatDate(reportGeneratedAt, i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
 
   return (

@@ -28,12 +28,20 @@
 - [x] **Phase 0 — Foundation** (2026-05-28): migrations applied (`add_language_to_report_sections`, `add_translations_jsonb`); types regenerated; `scripts/i18n-glossary.json` + `scripts/i18n-sync.ts` created; `npm run i18n:sync` wired; dry-run confirms all 7 namespaces in sync.
 
 ### Pending ❌
-- [ ] Phase 1 — Frontend completion (extract remaining strings, pricing/format utils, flip switcher)
+- [ ] Phase 1 — Frontend completion **(scope reduced: app surface only, not landing)** — ALL CODE WORK DONE ✅. Awaiting user decision at the flip-Dutch gate (see below). Completed: pricing utils, Pricing.tsx refactor, date locale fixes (DashboardV4:543, Profile:277), LanguageSwitcher hidden on /chat, i18n:sync ran (15 new Dutch translations). NOT done: Profile language picker (would force full Profile.tsx refactor — 40+ strings, descoped). Build passes.
+- [ ] Phase 1.5 — Landing components (NEW, deferred from Phase 1) — ~150-180 strings across 15 landing components + 24 inline-JSX migrations. Likely needs subagent parallelization.
 - [ ] Phase 2 — Pipeline plumbing (forward-to-n8n + all AI edge functions get language param)
 - [ ] Phase 3 — Emails + static survey content (7 email templates, survey JSONB, legal copy)
 - [ ] Phase 4 — n8n workflows (WF1–WF6 + WF_cover_letter + WF_custom_resume + Finding Selected Roles)
 - [ ] Phase 5 — enriched_jobs lazy translation
 - [ ] Phase 6 — German validation (sanity check that architecture scales)
+
+### Phase 1.5 — Landing components (deferred scope, NEW)
+**Background**: Phase 1 audit revealed the landing page contains ~150-180 hardcoded strings across 15 components (`ComparisonTable`, `HowItWorks`, `Methodology`, `FAQ`, `CoachCards`, `LandingNav`, `Hero`, `Pillars`, `Methodology`, `WhoFor`, `WhyWeBuiltThis`, `PricingSection`, `FinalCTA`, `NoPurchaseBanner`, `CostMath`, `ForkDivider`, `LandingFooter`, `WorkflowDiagram*`). Original Phase 1 estimate (~50-70 strings, 1-2 sessions) was based on a less-developed landing page. Realistic time: 4-6 hours single-session OR ~2 hours with parallel subagents.
+
+**Approach** (recommended): spawn 3-4 parallel subagents, each handling 3-4 landing components. Shared brief on namespace structure (extend `landing.json`), `<Trans>` component usage for inline JSX (`<strong>`, `<em>`, `<br>`), and key naming conventions. Main agent consolidates after, runs i18n:sync once.
+
+**UX consideration**: when Phase 1 ships (app+chat Dutch, landing English), Dutch-switching users on the landing page see English. Options: (a) accept and rely on .nl domain → app deep link, (b) block Dutch on landing routes until Phase 1.5, (c) banner explaining mixed state. Decide at Phase 1 flip gate.
 
 ---
 

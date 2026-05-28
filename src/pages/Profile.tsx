@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/format';
 import {
   Select,
   SelectContent,
@@ -91,6 +93,7 @@ const helperCls = 'text-[11.5px] font-medium mt-1.5';
 const helperStyle = { color: '#6B7F8B' };
 
 const Profile = () => {
+  const { i18n } = useTranslation();
   const { user } = useAuth();
   const { profile, updateProfile, isUpdating } = useProfile();
   // Survey-derived fallbacks for fields that already exist as Section 1 answers
@@ -274,7 +277,7 @@ const Profile = () => {
                       Resume uploaded successfully
                     </p>
                     <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
-                      Uploaded on {new Date(profile.resume_uploaded_at).toLocaleDateString()}
+                      Uploaded on {formatDate(profile.resume_uploaded_at, i18n.language)}
                     </p>
                   </div>
                   <Button

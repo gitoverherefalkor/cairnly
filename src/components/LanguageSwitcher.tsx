@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,6 +23,11 @@ interface LanguageSwitcherProps {
 
 const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
   const { i18n } = useTranslation();
+  const { pathname } = useLocation();
+
+  // Hide the switcher on /chat to prevent mixed-language chat history mid-session.
+  // Users can switch language from the dashboard before opening a chat.
+  if (pathname.startsWith('/chat')) return null;
 
   // Force English while other languages are disabled
   const currentLang = languages.find(l => l.code === i18n.language && !l.disabled) || languages[0];
