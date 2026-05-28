@@ -8,6 +8,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
+import { buildResumeDocxBlob } from '../templates/docx/resumeToDocx';
+import { buildCoverLetterDocxBlob } from '../templates/docx/coverLetterToDocx';
 import {
   AlertCircle,
   ArrowLeft,
@@ -567,12 +569,16 @@ const DocumentTabs: React.FC<{
         <PdfFrame
           doc={<ResumeDoc templateId={templateId} data={resumeJson} />}
           fileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'resume')}
+          docxFileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'resume').replace(/\.pdf$/, '.docx')}
+          buildDocx={() => buildResumeDocxBlob(resumeJson)}
         />
       ) : (
         coverLetterJson && (
           <PdfFrame
             doc={<CoverLetter letter={coverLetterJson} contact={resumeJson.contact} careerTitle={careerTitle} />}
             fileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'cover_letter')}
+            docxFileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'cover_letter').replace(/\.pdf$/, '.docx')}
+            buildDocx={() => buildCoverLetterDocxBlob(coverLetterJson, resumeJson.contact, careerTitle)}
           />
         )
       )}
@@ -611,7 +617,71 @@ const ResumeDoc: React.FC<{ templateId: TemplateId; data: ResumeJson }> = ({ tem
   return <TemplateComponent data={data} />;
 };
 
-const PdfFrame: React.FC<{ doc: React.ReactElement; fileName: string }> = ({ doc, fileName }) => (
+// Ghost-style outline button — sits next to the gold "Download PDF" CTA
+// without competing with it. Builds the Word file on click (lazy) so we
+// don't pay the docx-pack cost for résumés that are only ever previewed.
+const DocxDownloadButton: React.FC<{
+  build: () => Promise<Blob>;
+  fileName: string;
+}> = ({ build, fileName }) => {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        if (busy) return;
+        setBusy(true);
+        try {
+          const blob = await build();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          // Release the blob URL after the browser has had a chance to grab
+          // the download. setTimeout 0 is enough in practice.
+          setTimeout(() => URL.revokeObjectURL(url), 0);
+        } catch (e) {
+          console.error('DOCX export failed:', e);
+          toast.error('Could not build Word file. Try the PDF instead.');
+        } finally {
+          setBusy(false);
+        }
+      }}
+      style={{
+        background: 'transparent',
+        color: '#fff',
+        border: '1px solid rgba(255,255,255,0.32)',
+        padding: '12px 18px',
+        borderRadius: 9999,
+        fontFamily: FONT_BODY,
+        fontWeight: 700,
+        fontSize: 13.5,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        cursor: busy ? 'not-allowed' : 'pointer',
+        opacity: busy ? 0.6 : 1,
+      }}
+      title="Editable Word version. Layout is simplified — the PDF is the polished one."
+    >
+      <Download size={14} /> {busy ? 'Preparing…' : 'Download Word'}
+    </button>
+  );
+};
+
+const PdfFrame: React.FC<{
+  doc: React.ReactElement;
+  fileName: string;
+  // Optional DOCX export. When provided, a second download button appears
+  // next to the PDF one. The builder is called lazily on click so we don't
+  // hold a serialised Word doc in memory for résumés the user never exports.
+  buildDocx?: () => Promise<Blob>;
+  docxFileName?: string;
+}> = ({ doc, fileName, buildDocx, docxFileName }) => (
   // BlobProvider renders the doc once and hands us {url, blob, loading, error}.
   // We embed the blob URL ourselves so we can show an explicit loading state
   // and surface errors — PDFViewer used to fail silently and leave a black box.
@@ -688,7 +758,10 @@ const PdfFrame: React.FC<{ doc: React.ReactElement; fileName: string }> = ({ doc
             />
           )}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
+          {buildDocx && docxFileName ? (
+            <DocxDownloadButton build={buildDocx} fileName={docxFileName} />
+          ) : null}
           <PDFDownloadLink document={doc} fileName={fileName}>
             {({ loading: dlLoading }) => (
               <button
