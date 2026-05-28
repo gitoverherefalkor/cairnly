@@ -63,8 +63,9 @@ RULES:
 - Extract actual company names (e.g., "Google", "Stripe", "Acme Corp")
 - sector examples: Technology, Legal Tech, FinTech, Healthcare, Consulting, Retail, Manufacturing, Media, SaaS
 - startMonth/startYear/endMonth/endYear: Extract from job dates (e.g., "Jan 2020 - Present" → startMonth: "Jan", startYear: 2020, endMonth: null, endYear: null, isCurrent: true)
-- Month format MUST be 3-letter abbreviation: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-- isCurrent: true if job says "Present" or is the current/most recent role, false otherwise
+- Month format MUST be 3-letter ENGLISH abbreviation: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+- DUTCH CV CONVENTIONS: If the CV is in Dutch, dates use dd-mm-yyyy (e.g. "01-2020" or "januari 2020"). Translate Dutch month names to English abbreviations: januari/jan→Jan, februari/feb→Feb, maart/mrt→Mar, april/apr→Apr, mei→May, juni/jun→Jun, juli/jul→Jul, augustus/aug→Aug, september/sep→Sep, oktober/okt→Oct, november/nov→Nov, december/dec→Dec. Dutch "Heden" or "Nu" means "Present" — set isCurrent: true, endMonth: null, endYear: null. Dutch section headers: "Werkervaring"=Work Experience, "Opleiding"=Education, "Vaardigheden"=Skills, "Certificeringen"/"Diploma's"=Certifications.
+- isCurrent: true if job says "Present", "Heden", "Nu", or is the current/most recent role, false otherwise
 - top_skills: Extract ALL professional skills in the exact order they appear on the CV (e.g., from a "Skills" or "Top Skills" section). Preserve the candidate's own ordering — do NOT reorder or rank them. Max 9 skills. If the CV has fewer, return fewer.
 - certifications: Extract from certifications/licenses section. Max 3 certifications.
 - achievements: Extract notable accomplishments from job descriptions, intro summary, or achievements section. Include company name and year when available. Focus on concrete results (founded company, led team, achieved X%, etc).

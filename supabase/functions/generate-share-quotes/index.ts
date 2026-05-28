@@ -99,7 +99,16 @@ interface ReportSectionRow {
 async function summarizeOne(
   passage: string,
   openaiKey: string,
+  language: string,
 ): Promise<string[]> {
+  // Append a language instruction when the user prefers a non-English locale.
+  // Brand terms stay English. See LOCALIZATION_PLAN.md.
+  const LANG_NAMES: Record<string, string> = { nl: 'Dutch (Nederlands)', de: 'German (Deutsch)' };
+  const langInstruction = language !== 'en' && LANG_NAMES[language]
+    ? `\n\nWrite the quotes in ${LANG_NAMES[language]}. Brand terms (Cairnly, outside-the-box, runner-up) stay in English.`
+    : '';
+  const finalSystemPrompt = SYSTEM_PROMPT + langInstruction;
+
   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -110,7 +119,7 @@ async function summarizeOne(
       model: 'gpt-5.4-mini-2026-03-17',
       temperature: 0.5,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: finalSystemPrompt },
         { role: 'user', content: `Distill into 1-3 share quotes:\n\n${passage}` },
       ],
       response_format: { type: 'json_object' },
@@ -205,6 +214,15 @@ serve(async (req) => {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 
+  // Lookup preferred_language so share quotes are written in the user's
+  // language. See LOCALIZATION_PLAN.md Phase 2.
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', authUserId)
+    .maybeSingle();
+  const preferredLanguage = profileRow?.preferred_language || 'en';
+
   // Pull the role sections for this report.
   const { data: sections, error: secErr } = await supabase
     .from('report_sections')
@@ -236,7 +254,7 @@ serve(async (req) => {
     }
 
     try {
-      const quotes = await summarizeOne(passage, openaiKey);
+      const quotes = await summarizeOne(passage, openaiKey, preferredLanguage);
       result[sec.id] = quotes;
       // Persist for next time.
       const { error: updateErr } = await supabase

@@ -157,10 +157,20 @@ serve(async (req) => {
       return errorResponse('Cover letter generation is temporarily unavailable.', 503, corsHeaders);
     }
 
+    // Lookup preferred_language so the n8n cover-letter workflow can generate
+    // the letter in the user's language. See LOCALIZATION_PLAN.md Phase 2.
+    const { data: profileForLang } = await sb
+      .from('profiles')
+      .select('preferred_language')
+      .eq('id', userId)
+      .maybeSingle();
+    const preferred_language = profileForLang?.preferred_language || 'en';
+
     const n8nPayload = {
       user_id: userId,
       report_id,
       cover_letter_id: inserted.id,
+      preferred_language,
       job,
       source_resume: sourceResume
         ? {

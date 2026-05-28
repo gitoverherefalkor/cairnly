@@ -247,9 +247,20 @@ serve(async (req) => {
     // Fire-and-forget n8n call. We don't await it — the workflow takes ~30-40s
     // and the frontend will pick up status changes via Realtime. Any failure
     // on the n8n side will mark the affected rows as 'failed'.
+    // Lookup preferred_language so the n8n custom-resume workflow can generate
+    // the resume (and optional cover letter) in the user's language.
+    // See LOCALIZATION_PLAN.md Phase 2.
+    const { data: profileForLang } = await sb
+      .from('profiles')
+      .select('preferred_language')
+      .eq('id', userId)
+      .maybeSingle();
+    const preferred_language = profileForLang?.preferred_language || 'en';
+
     const n8nPayload = {
       user_id: userId,
       report_id,
+      preferred_language,
       resume_file_url: signed.signedUrl,
       selected_careers: careersForN8n,
       include_cover_letter,

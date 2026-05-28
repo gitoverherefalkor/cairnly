@@ -111,6 +111,15 @@ serve(async (req) => {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 
+  // Lookup preferred_language so the highlights are written in the user's
+  // language. See LOCALIZATION_PLAN.md Phase 2.
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', authUserId)
+    .maybeSingle();
+  const preferredLanguage = profileRow?.preferred_language || 'en';
+
   // Pull the full chat for this report. Order ascending so the LLM sees
   // the natural conversational flow.
   const { data: messages, error: msgErr } = await supabase
@@ -179,6 +188,14 @@ serve(async (req) => {
     transcript = transcript.slice(transcript.length - MAX_CHARS);
   }
 
+  // Append a language instruction when the user prefers a non-English locale.
+  // Brand terms stay English per glossary. See LOCALIZATION_PLAN.md.
+  const LANG_NAMES: Record<string, string> = { nl: 'Dutch (Nederlands)', de: 'German (Deutsch)' };
+  const langInstruction = preferredLanguage !== 'en' && LANG_NAMES[preferredLanguage]
+    ? `\n\nWrite your final output in ${LANG_NAMES[preferredLanguage]}. Maintain Markdown structure. Brand terms (Cairnly, outside-the-box, runner-up) stay in English.`
+    : '';
+  const finalSystemPrompt = SYSTEM_PROMPT + langInstruction;
+
   const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -189,7 +206,7 @@ serve(async (req) => {
       model: 'gpt-5.4-mini-2026-03-17',
       temperature: 0.4,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: finalSystemPrompt },
         {
           role: 'user',
           content: `Distill this conversation into Discussion Highlights:\n\n${transcript}`,

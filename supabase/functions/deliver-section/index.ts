@@ -138,6 +138,16 @@ serve(async (req) => {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 
+  // Look up the user's preferred_language so the renderer can pick the right
+  // boilerplate map. Defaults to 'en' if the column is null or the row missing.
+  // See LOCALIZATION_PLAN.md Phase 2.
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', authUserId)
+    .maybeSingle();
+  const preferredLanguage = profileRow?.preferred_language || 'en';
+
   // 1. Fetch the section row(s) we need to render.
   const { data: rows, error: fetchErr } = await supabase
     .from('report_sections')
@@ -163,7 +173,11 @@ serve(async (req) => {
   // 2. Render to markdown.
   let rendered: string;
   try {
-    rendered = renderSection(section_type as SectionType, rows as ReportSectionRow[]);
+    rendered = renderSection(
+      section_type as SectionType,
+      rows as ReportSectionRow[],
+      preferredLanguage,
+    );
   } catch (e) {
     console.error('[deliver-section] render error:', e);
     return errorResponse('Failed to render section', 500, corsHeaders);
