@@ -35,6 +35,9 @@ interface ChatRequestBody {
     report_id?: string;
     first_name?: string;
     country?: string;
+    // Injected by useN8nWebhook so n8n WF5 can respond in the user's language.
+    // See LOCALIZATION_PLAN.md Phase 2.
+    preferred_language?: string;
   };
 }
 

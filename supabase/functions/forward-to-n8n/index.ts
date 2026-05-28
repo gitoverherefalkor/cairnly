@@ -34,6 +34,16 @@ serve(async (req) => {
       Deno.env.get('NEW_N8N_SERVICE_ROLE_KEY')!
     );
 
+    // Look up the user's preferred language so n8n workflows can generate
+    // language-aware report content. Defaults to 'en' if the column is null
+    // or the profile row is missing. See LOCALIZATION_PLAN.md Phase 2.
+    const { data: profileRow } = await supabase
+      .from('profiles')
+      .select('preferred_language')
+      .eq('id', userId)
+      .maybeSingle();
+    const preferredLanguage = profileRow?.preferred_language || 'en';
+
     // Step 1: Create a report record first
     const { data: reportData, error: reportError } = await supabase.from('reports').insert({
       user_id: userId,
@@ -51,6 +61,7 @@ serve(async (req) => {
     const n8nData = {
       user_id: userId,
       report_id: reportData.id,
+      preferred_language: preferredLanguage,
       survey_responses: surveyData,
       created_at: new Date().toISOString(),
       processing_status: 'started'

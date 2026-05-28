@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, getAuthenticatedUser } from "../_shared/cors.ts";
 
 serve(async (req) => {
@@ -29,6 +30,20 @@ serve(async (req) => {
       return errorResponse('file_url does not belong to authenticated user', 403, corsHeaders);
     }
 
+    // Look up the user's preferred language so n8n's resume-parsing prompt
+    // can handle Dutch CV conventions (dd-mm-yyyy dates, "Heden", section
+    // headers). See LOCALIZATION_PLAN.md Phase 2.
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('NEW_N8N_SERVICE_ROLE_KEY')!
+    );
+    const { data: profileRow } = await supabase
+      .from('profiles')
+      .select('preferred_language')
+      .eq('id', user_id)
+      .maybeSingle();
+    const preferred_language = profileRow?.preferred_language || 'en';
+
     const n8nWebhookUrl = Deno.env.get("N8N_RESUME_WEBHOOK_URL");
     if (!n8nWebhookUrl) {
       console.error('N8N_RESUME_WEBHOOK_URL not set');
@@ -44,7 +59,7 @@ serve(async (req) => {
       resp = await fetch(n8nWebhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file_url, user_id }),
+        body: JSON.stringify({ file_url, user_id, preferred_language }),
         signal: controller.signal,
       });
     } catch (fetchError) {

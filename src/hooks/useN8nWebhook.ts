@@ -4,11 +4,18 @@
 // authenticates the user JWT + rate-limits before forwarding.
 
 import { supabase } from '@/integrations/supabase/client';
+import i18n from '@/i18n';
 
 interface WebhookMetadata {
   report_id: string;
   first_name: string;
   country: string;
+  /**
+   * Optional override. If not provided, the hook injects `i18n.language`
+   * automatically so n8n WF5 can respond in the user's language.
+   * See LOCALIZATION_PLAN.md Phase 2.
+   */
+  preferred_language?: string;
 }
 
 interface PreviousMessage {
@@ -52,6 +59,10 @@ export function useN8nWebhook() {
 
     try {
       const headers = await buildHeaders();
+      const enrichedMetadata = {
+        ...metadata,
+        preferred_language: metadata.preferred_language || i18n.language || 'en',
+      };
       const res = await fetch(PROXY_URL, {
         method: 'POST',
         headers,
@@ -61,7 +72,7 @@ export function useN8nWebhook() {
           action: 'sendMessage',
           'n8n-chat/sessionId': sessionId,
           chatInput: message,
-          metadata,
+          metadata: enrichedMetadata,
         }),
       });
 
@@ -89,6 +100,10 @@ export function useN8nWebhook() {
   ): Promise<Array<{ sender: 'user' | 'bot'; content: string }>> => {
     try {
       const headers = await buildHeaders();
+      const enrichedMetadata = {
+        ...metadata,
+        preferred_language: metadata.preferred_language || i18n.language || 'en',
+      };
       const res = await fetch(PROXY_URL, {
         method: 'POST',
         headers,
@@ -96,7 +111,7 @@ export function useN8nWebhook() {
         body: JSON.stringify({
           action: 'loadPreviousSession',
           'n8n-chat/sessionId': sessionId,
-          metadata,
+          metadata: enrichedMetadata,
         }),
       });
 
