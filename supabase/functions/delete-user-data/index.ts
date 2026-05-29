@@ -39,66 +39,32 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const errors: string[] = [];
-
-    // 1. Delete chat messages
-    const { error: chatError } = await supabase
-      .from('chat_messages')
-      .delete()
-      .eq('user_id', userId);
-    if (chatError) errors.push(`chat_messages: ${chatError.message}`);
-
-    // 2. Delete report sections (via report ownership)
-    const { data: reports } = await supabase
-      .from('reports')
-      .select('id')
-      .eq('user_id', userId);
-
-    if (reports && reports.length > 0) {
-      const reportIds = reports.map(r => r.id);
-      const { error: sectionsError } = await supabase
-        .from('report_sections')
-        .delete()
-        .in('report_id', reportIds);
-      if (sectionsError) errors.push(`report_sections: ${sectionsError.message}`);
+    // Delete all personal data + anonymize retained financial records in one
+    // transactional RPC. This replaces the old per-table delete list, which
+    // silently missed answers, saved_jobs, cover_letters, and several more.
+    const { error: rpcError } = await supabase.rpc('delete_user_personal_data', {
+      p_user_id: userId,
+    });
+    if (rpcError) {
+      console.error(`[delete-user-data] RPC failed for ${userId}:`, rpcError);
+      // Abort BEFORE deleting the auth user so the user can retry.
+      // The RPC is idempotent, so a retry is safe.
+      return errorResponse('Failed to delete account data. Please contact support.', 500, corsHeaders);
     }
 
-    // 3. Delete reports
-    const { error: reportsError } = await supabase
-      .from('reports')
-      .delete()
-      .eq('user_id', userId);
-    if (reportsError) errors.push(`reports: ${reportsError.message}`);
+    const errors: string[] = [];
 
-    // 4. Delete engagement tracking
-    const { error: engagementError } = await supabase
-      .from('user_engagement_tracking')
-      .delete()
-      .eq('user_id', userId);
-    if (engagementError) errors.push(`engagement_tracking: ${engagementError.message}`);
-
-    // 5. Delete resume files from storage
+    // Delete resume files from storage (best-effort; not covered by the RPC).
     try {
-      const { data: files } = await supabase.storage
-        .from('resumes')
-        .list(userId);
-
+      const { data: files } = await supabase.storage.from('resumes').list(userId);
       if (files && files.length > 0) {
-        const filePaths = files.map(f => `${userId}/${f.name}`);
-        await supabase.storage.from('resumes').remove(filePaths);
+        await supabase.storage.from('resumes').remove(files.map((f) => `${userId}/${f.name}`));
       }
     } catch (storageError) {
       errors.push(`storage: ${String(storageError)}`);
     }
 
-    // 6. Delete profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', userId);
-    if (profileError) errors.push(`profiles: ${profileError.message}`);
-
-    // 7. Delete the auth user
+    // Delete the auth user last — also clears auth-schema sessions/identities.
     const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
     if (authDeleteError) errors.push(`auth: ${authDeleteError.message}`);
 
