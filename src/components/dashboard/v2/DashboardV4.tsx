@@ -11,9 +11,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
-import { Activity, ArrowRight, BookOpen, Briefcase, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, ChevronRight, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature } from '@/hooks/useReferralStatus';
+import { formatEuro } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
@@ -71,6 +72,8 @@ interface DashboardV4Props {
   referralCode: string | null;
   referralCount: number;
   features: ResolvedFeature[];
+  earnedRefundCents: number | null;
+  maxRefundCents: number | null;
   onNavigate: (route: string) => void;
   onProfile: () => void;
   onSignOut: () => void;
@@ -178,6 +181,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   referralCode,
   referralCount,
   features,
+  earnedRefundCents,
+  maxRefundCents,
   onNavigate,
   onProfile,
   onSignOut,
@@ -697,6 +702,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           referralCode={referralCode}
           referralCount={referralCount}
           features={features}
+          earnedRefundCents={earnedRefundCents}
+          maxRefundCents={maxRefundCents}
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
@@ -1513,10 +1520,15 @@ const UnlockToolkit: React.FC<{
   referralCode: string | null;
   referralCount: number;
   features: ResolvedFeature[];
+  earnedRefundCents: number | null;
+  maxRefundCents: number | null;
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ referralCode, referralCount, features, onInvite, onNavigate }) => {
+}> = ({ referralCode, referralCount, features, earnedRefundCents, maxRefundCents, onInvite, onNavigate }) => {
   const earned = Math.min(referralCount, 3);
+  const fullyRefunded = earned >= 3;
+  // Only show the euro tracker once we actually know what the user paid.
+  const showMoney = maxRefundCents !== null && maxRefundCents > 0;
   return (
     <section style={{ marginBottom: 28 }}>
       <div
@@ -1551,7 +1563,7 @@ const UnlockToolkit: React.FC<{
           }}
         >
           <div>
-            <Eyebrow>JOB-HUNT TOOLKIT · EARN BY INVITING</Eyebrow>
+            <Eyebrow>JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK</Eyebrow>
             <h3
               style={{
                 fontFamily: FONT_DISPLAY,
@@ -1562,7 +1574,7 @@ const UnlockToolkit: React.FC<{
                 margin: '10px 0 8px 0',
               }}
             >
-              Unlock tools as you help friends find their path.
+              Refer 3 friends, get your assessment free.
             </h3>
             <p
               style={{
@@ -1575,11 +1587,61 @@ const UnlockToolkit: React.FC<{
                 maxWidth: 540,
               }}
             >
-              Each friend you bring in unlocks the next tool, for free, forever.<br />
-              They get clarity. You get the next step in the job hunt.
+              {showMoney ? (
+                <>Each friend unlocks a tool <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>and</em> refunds part of what you paid. Three friends = {formatEuro(maxRefundCents!)} back, your full purchase, returned to your card.</>
+              ) : (
+                <>Each friend unlocks a tool <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>and</em> refunds part of what you paid. Three friends = 100% back, your full purchase, returned to your card.</>
+              )}
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 280 }}>
+            {/* Money tracker — cumulative cash-back earned vs full potential */}
+            {showMoney && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  fontFamily: FONT_BODY,
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontWeight: 800,
+                      fontSize: 26,
+                      color: PALETTE.goldBright,
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {formatEuro(earnedRefundCents ?? 0)}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
+                    of {formatEuro(maxRefundCents!)} back
+                  </span>
+                </span>
+                {fullyRefunded && (
+                  <span
+                    style={{
+                      fontFamily: FONT_BODY,
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: PALETTE.canvasDeep,
+                      background: PALETTE.goldBright,
+                      padding: '3px 10px',
+                      borderRadius: 9999,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Fully refunded 🎉
+                  </span>
+                )}
+              </div>
+            )}
             <div
               style={{
                 display: 'flex',
@@ -1667,14 +1729,41 @@ const UnlockToolkit: React.FC<{
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-        {features.map((f) => (
-          <ToolCard key={f.key} feature={f} onInvite={onInvite} onNavigate={onNavigate} />
+      {/* Tool cards in one row, with flow-arrows showing left-to-right progression */}
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+        {features.map((f, i) => (
+          <React.Fragment key={f.key}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
+              <ToolCard feature={f} onInvite={onInvite} onNavigate={onNavigate} />
+            </div>
+            {i < features.length - 1 && (
+              <FlowArrow lit={features[i + 1].unlocked} />
+            )}
+          </React.Fragment>
         ))}
       </div>
     </section>
   );
 };
+
+// Gold flow-arrow between unlock cards. Lights up once the card to its RIGHT
+// is unlocked, so the trail fills in left-to-right as the user refers friends.
+const FlowArrow: React.FC<{ lit: boolean }> = ({ lit }) => (
+  <div
+    style={{
+      flexShrink: 0,
+      width: 34,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: lit ? PALETTE.goldBright : 'rgba(255,255,255,0.22)',
+      transition: 'color 0.3s ease',
+    }}
+    aria-hidden
+  >
+    <ChevronRight size={26} strokeWidth={2.5} />
+  </div>
+);
 
 const ToolCard: React.FC<{
   feature: ResolvedFeature;
@@ -1684,6 +1773,8 @@ const ToolCard: React.FC<{
   const meta = TOOL_META[feature.key];
   const unlocked = feature.unlocked;
   const actionable = unlocked && feature.builtYet && !!feature.route;
+  // Show the real euro figure when we know what the user paid, else the %.
+  const refundLabel = feature.refundCents !== null ? formatEuro(feature.refundCents) : `${feature.refundPct}%`;
 
   // For the resume tool, surface a summary of past tailored résumés so the
   // user knows there's work to return to (and can jump to the index view
@@ -1702,62 +1793,90 @@ const ToolCard: React.FC<{
     <article
       style={{
         background: PALETTE.cream,
-        borderRadius: 20,
-        padding: 22,
+        borderRadius: 18,
+        padding: 18,
         border: `1px solid ${PALETTE.tan}`,
         boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 14,
+        gap: 12,
+        width: '100%',
+        minWidth: 0,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 9999,
-            background: actionable
-              ? 'rgba(212, 160, 36, 0.18)'
-              : unlocked
-                ? 'rgba(39, 161, 161, 0.14)'
-                : 'rgba(18,46,59,0.08)',
-            color: actionable
-              ? PALETTE.gold
-              : unlocked
-                ? PALETTE.tealDeep
-                : PALETTE.inkSoft,
-            border: actionable
-              ? '1px solid rgba(212, 160, 36, 0.45)'
-              : unlocked
-                ? '1px solid rgba(39, 161, 161, 0.30)'
-                : '1px solid rgba(18,46,59,0.10)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
-          }}
-        >
-          {unlocked ? meta.icon : <Lock size={18} />}
-        </div>
-        <div>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PALETTE.canvasDeep }}>
-            {feature.title}
-          </div>
+      {/* Refund badge — top-right pill showing this tier's cash-back value */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 12,
-              color: actionable ? PALETTE.gold : unlocked ? PALETTE.teal : PALETTE.inkMuted,
-              marginTop: 2,
-              letterSpacing: actionable ? '0.04em' : undefined,
-              textTransform: actionable ? 'uppercase' : undefined,
+              width: 40,
+              height: 40,
+              borderRadius: 9999,
+              background: actionable
+                ? 'rgba(212, 160, 36, 0.18)'
+                : unlocked
+                  ? 'rgba(39, 161, 161, 0.14)'
+                  : 'rgba(18,46,59,0.08)',
+              color: actionable
+                ? PALETTE.gold
+                : unlocked
+                  ? PALETTE.tealDeep
+                  : PALETTE.inkSoft,
+              border: actionable
+                ? '1px solid rgba(212, 160, 36, 0.45)'
+                : unlocked
+                  ? '1px solid rgba(39, 161, 161, 0.30)'
+                  : '1px solid rgba(18,46,59,0.10)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
             }}
           >
-            {unlocked ? (feature.builtYet ? 'Unlocked!' : 'Unlocked · coming soon') : meta.unlockCopy}
+            {unlocked ? meta.icon : <Lock size={17} />}
           </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15.5, color: PALETTE.canvasDeep, lineHeight: 1.2 }}>
+              {feature.title}
+            </div>
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 11.5,
+                color: actionable ? PALETTE.gold : unlocked ? PALETTE.teal : PALETTE.inkMuted,
+                marginTop: 3,
+                letterSpacing: actionable ? '0.04em' : undefined,
+                textTransform: actionable ? 'uppercase' : undefined,
+              }}
+            >
+              {unlocked ? (feature.builtYet ? 'Unlocked!' : 'Unlocked · coming soon') : meta.unlockCopy}
+            </div>
+          </div>
+        </div>
+        {/* Cash-back pill */}
+        <div
+          style={{
+            flexShrink: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '5px 10px',
+            borderRadius: 9999,
+            background: unlocked ? 'rgba(39,161,161,0.12)' : 'rgba(212,160,36,0.14)',
+            border: `1px solid ${unlocked ? 'rgba(39,161,161,0.32)' : 'rgba(212,160,36,0.40)'}`,
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 800,
+            fontSize: 13,
+            color: unlocked ? PALETTE.tealDeep : PALETTE.gold,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {refundLabel}
+          <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 10.5, opacity: 0.8 }}>
+            {unlocked ? 'back' : 'back'}
+          </span>
         </div>
       </div>
       <p
@@ -1778,43 +1897,29 @@ const ToolCard: React.FC<{
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            padding: '8px 12px',
+            gap: 8,
+            padding: '6px 10px',
             background: 'rgba(39,161,161,0.10)',
             border: '1px solid rgba(39,161,161,0.28)',
-            borderRadius: 12,
+            borderRadius: 10,
+            minWidth: 0,
           }}
+          title={`Most recent: ${mostRecentSaved.career_title}`}
         >
-          <BookOpen size={14} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: PALETTE.tealDeep,
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {savedCount} saved {savedCount === 1 ? 'résumé' : 'résumés'}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 12.5,
-                fontWeight: 600,
-                color: PALETTE.canvasDeep,
-                marginTop: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-              title={mostRecentSaved.career_title}
-            >
-              Most recent: {mostRecentSaved.career_title}
-            </div>
-          </div>
+          <BookOpen size={13} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
+          <span
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 12,
+              fontWeight: 600,
+              color: PALETTE.canvasDeep,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <strong style={{ fontWeight: 700, color: PALETTE.tealDeep }}>{savedCount}</strong> saved · {mostRecentSaved.career_title}
+          </span>
         </div>
       ) : null}
       <button

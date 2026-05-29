@@ -382,6 +382,8 @@ const Dashboard = () => {
           referralCode={referralStatus.referralCode}
           referralCount={referralStatus.referralCount}
           features={referralStatus.features}
+          earnedRefundCents={referralStatus.earnedRefundCents}
+          maxRefundCents={referralStatus.maxRefundCents}
           onNavigate={(route) => navigate(route)}
           onProfile={() => navigate('/profile')}
           onSignOut={handleSignOut}
