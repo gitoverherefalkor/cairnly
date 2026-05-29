@@ -170,11 +170,14 @@ button.lp-screenshot-slot {
   border-right: 2px solid rgba(212, 160, 36, 0.25);
   width: 20%;
 }
+.lp-compare-table tbody td:first-child .lp-row-name {
+  display: flex; align-items: flex-start; gap: 8px;
+}
 .lp-compare-table tbody td:first-child .lp-row-name::before {
-  content: ""; display: inline-block;
+  content: ""; flex-shrink: 0;
   width: 6px; height: 6px; border-radius: 9999px;
   background: #D4A024;
-  margin-right: 8px; margin-bottom: 2px; vertical-align: middle;
+  margin-top: 7px; /* aligns with first-line text middle for 14px / 1.5 line-height */
 }
 .lp-compare-table tbody td p {
   font-size: 14px; line-height: 1.5; color: #4B6373; font-weight: 500; margin: 0;

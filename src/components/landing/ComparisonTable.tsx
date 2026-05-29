@@ -59,6 +59,10 @@ const ComparisonTable: React.FC = () => {
             <thead>
               <tr>
                 <th style={{ width: '18%', paddingLeft: 28 }} />
+                <th className="lp-compare-cairnly-top" style={{ paddingTop: 20 }}>
+                  <span className="text-[#1F8282]">{t('comparison.cols.cairnly')}</span>
+                  <span className="block lp-row-name font-medium text-[#6B7F8B]">{t('comparison.cols.cairnlySub')}</span>
+                </th>
                 <th>
                   {t('comparison.cols.quizTop')}<br />{t('comparison.cols.quizBottom')}{' '}
                   <span className="block lp-row-name font-medium text-[#6B7F8B]">{t('comparison.cols.quizSub')}</span>
@@ -71,10 +75,6 @@ const ComparisonTable: React.FC = () => {
                   {t('comparison.cols.coachTop')}<br />{t('comparison.cols.coachBottom')}{' '}
                   <span className="block lp-row-name font-medium text-[#6B7F8B]">{t('comparison.cols.coachSub')}</span>
                 </th>
-                <th className="lp-compare-cairnly-top" style={{ paddingTop: 20 }}>
-                  <span className="text-[#1F8282]">{t('comparison.cols.cairnly')}</span>
-                  <span className="block lp-row-name font-medium text-[#6B7F8B]">{t('comparison.cols.cairnlySub')}</span>
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -86,14 +86,14 @@ const ComparisonTable: React.FC = () => {
                     <td style={{ paddingLeft: 28 }}>
                       <div className="lp-row-name">{row.name}</div>
                     </td>
-                    <td><p>{row.quiz}</p></td>
-                    <td><p>{row.ai}</p></td>
-                    <td><p>{row.coach}</p></td>
                     <td className={cairnlyClass}>
                       <p>
                         <strong>{row.cairnlyEmphasis}</strong>{row.cairnlyBody}
                       </p>
                     </td>
+                    <td><p>{row.quiz}</p></td>
+                    <td><p>{row.ai}</p></td>
+                    <td><p>{row.coach}</p></td>
                   </tr>
                 );
               })}
