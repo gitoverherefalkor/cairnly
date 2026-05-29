@@ -2,11 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, XCircle } from 'lucide-react';
 import Reveal from './Reveal';
+import { tArray } from '@/lib/i18nArray';
 
 const WhoFor: React.FC = () => {
   const { t } = useTranslation('landing');
-  const rightItems = t('whoFor.rightItems', { returnObjects: true }) as string[];
-  const notItems = t('whoFor.notItems', { returnObjects: true }) as string[];
+  const rightItems = tArray<string>(t, 'whoFor.rightItems');
+  const notItems = tArray<string>(t, 'whoFor.notItems');
 
   return (
     <section className="bg-[#FAF5E8] py-24 md:py-32">

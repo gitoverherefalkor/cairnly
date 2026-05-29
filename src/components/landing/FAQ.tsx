@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import Reveal from './Reveal';
+import { tArray } from '@/lib/i18nArray';
 
 interface FaqItem {
   q: string;
@@ -10,7 +11,7 @@ interface FaqItem {
 
 const FAQ: React.FC = () => {
   const { t } = useTranslation('landing');
-  const items = t('faq.items', { returnObjects: true }) as FaqItem[];
+  const items = tArray<FaqItem>(t, 'faq.items');
 
   return (
     <section className="bg-[#ECE4D2] py-24 md:py-32">

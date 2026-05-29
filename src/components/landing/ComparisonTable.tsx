@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Reveal from './Reveal';
+import { tArray } from '@/lib/i18nArray';
 
 interface Row {
   name: string;
@@ -31,9 +32,9 @@ const renderBoldMarkdown = (text: string): React.ReactNode => {
 
 const ComparisonTable: React.FC = () => {
   const { t } = useTranslation('landing');
-  const rows = t('comparison.rows', { returnObjects: true }) as Row[];
-  const cairnlyItems = t('comparison.mobile.cairnlyItems', { returnObjects: true }) as string[];
-  const others = t('comparison.mobile.others', { returnObjects: true }) as MobileOther[];
+  const rows = tArray<Row>(t, 'comparison.rows');
+  const cairnlyItems = tArray<string>(t, 'comparison.mobile.cairnlyItems');
+  const others = tArray<MobileOther>(t, 'comparison.mobile.others');
 
   return (
     <section className="bg-[#ECE4D2] py-24 md:py-32">

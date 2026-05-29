@@ -4,6 +4,7 @@ import { Sparkles, Briefcase } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
 import WorkflowDiagramSimple from './WorkflowDiagramSimple';
+import { tArray } from '@/lib/i18nArray';
 
 // Stone pill widths, bottom (index 0, widest) to capstone (index 4, narrowest).
 const STONE_WIDTHS = [74, 62, 51, 41, 29];
@@ -25,8 +26,8 @@ const HowItWorks: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const stepTitles = t('howItWorks.stepTitles', { returnObjects: true }) as string[];
-  const steps = t('howItWorks.steps', { returnObjects: true }) as StepCopy[];
+  const stepTitles = tArray<string>(t, 'howItWorks.stepTitles');
+  const steps = tArray<StepCopy>(t, 'howItWorks.steps');
 
   // The active step is the last row whose top has scrolled past a reference
   // line ~42% down the viewport. A scroll computation (rather than a

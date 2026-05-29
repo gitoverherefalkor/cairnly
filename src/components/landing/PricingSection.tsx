@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Sparkles, ArrowRight, Lock, Shield, ClipboardCheck } from 'lucide-react';
 import Reveal from './Reveal';
 import { useGetStarted } from './useGetStarted';
+import { tArray } from '@/lib/i18nArray';
 
 const PricingSection: React.FC = () => {
   const getStarted = useGetStarted();
   const { t } = useTranslation('landing');
-  const features = t('pricing.features', { returnObjects: true }) as string[];
+  const features = tArray<string>(t, 'pricing.features');
 
   return (
     <section id="pricing" className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden">

@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigation, MessageSquare, BarChart3, CheckCircle2 } from 'lucide-react';
 import Reveal from './Reveal';
+import { tArray } from '@/lib/i18nArray';
 
 // Icons stay fixed across languages — only title/body translate.
 const PILLAR_META = [
@@ -13,9 +14,9 @@ const PILLAR_META = [
 
 const Pillars: React.FC = () => {
   const { t } = useTranslation('landing');
-  // Pillar copy comes from landing.json `pillars.cards` array; returnObjects=true
-  // tells i18next to return the array rather than stringify it.
-  const cards = t('pillars.cards', { returnObjects: true }) as Array<{ title: string; body: string }>;
+  // Pillar copy comes from landing.json `pillars.cards` array. tArray guards
+  // against the pre-load render where i18next returns the key string, not the array.
+  const cards = tArray<{ title: string; body: string }>(t, 'pillars.cards');
 
   return (
     <section className="bg-[#FAF5E8] py-24 md:py-32">
