@@ -1770,35 +1770,32 @@ const StepCard: React.FC<{
   const route = isTool ? step.route : undefined;
   const actionable = isTool && unlocked && builtYet && !!route;
 
-  // Per-tool activity summary (teal one-liner): résumés on the resume step,
-  // saved jobs on the jobs step, cover letters on the cover-letter step. All
-  // hooks are called unconditionally (rules of hooks) but only the matching
-  // one is surfaced for this card.
+  // Per-tool activity badge (teal, clickable): a simple count + noun that
+  // links to where that work lives. All hooks are called unconditionally
+  // (rules of hooks) but only the matching one is surfaced for this card.
   const { data: savedResumes } = useCustomResumeList();
   const { savedJobs } = useSavedJobs();
   const { data: coverLetters } = useCoverLetterList();
 
   let summaryCount = 0;
   let summaryNoun = '';
-  let summaryRecent: string | null = null;
+  let summaryRoute: string | null = null;
   if (isTool && unlocked && builtYet) {
     if (step.featureKey === 'resume') {
       summaryCount = savedResumes?.length ?? 0;
-      summaryNoun = summaryCount === 1 ? 'résumé' : 'résumés';
-      summaryRecent = savedResumes?.[0]?.career_title ?? null;
+      summaryNoun = summaryCount === 1 ? 'optimized resume' : 'optimized resumes';
+      summaryRoute = '/custom-resume';
     } else if (step.featureKey === 'jobs') {
       summaryCount = savedJobs?.length ?? 0;
       summaryNoun = summaryCount === 1 ? 'saved job' : 'saved jobs';
-      const top = savedJobs?.[0];
-      summaryRecent = top ? [top.job_title, top.company_name].filter(Boolean).join(' · ') : null;
+      summaryRoute = '/jobs?mode=saved';
     } else if (step.featureKey === 'cover-letter') {
       summaryCount = coverLetters?.length ?? 0;
-      summaryNoun = summaryCount === 1 ? 'cover letter' : 'cover letters';
-      const top = coverLetters?.[0];
-      summaryRecent = top ? [top.job_title, top.job_company].filter(Boolean).join(' · ') : null;
+      summaryNoun = summaryCount === 1 ? 'custom coverletter' : 'custom coverletters';
+      summaryRoute = '/jobs?mode=saved';
     }
   }
-  const showSummary = summaryCount > 0 && !!summaryRecent;
+  const showSummary = summaryCount > 0 && !!summaryRoute;
 
   // Status line under the title.
   const statusText = unlocked
@@ -1922,9 +1919,11 @@ const StepCard: React.FC<{
         </p>
       )}
 
-      {/* Per-tool activity one-liner (teal): résumés / saved jobs / cover letters */}
+      {/* Per-tool activity badge (teal, clickable) — simple count + noun */}
       {showSummary ? (
-        <div
+        <button
+          type="button"
+          onClick={() => onNavigate(summaryRoute!)}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -1934,8 +1933,11 @@ const StepCard: React.FC<{
             border: '1px solid rgba(39,161,161,0.28)',
             borderRadius: 9,
             minWidth: 0,
+            cursor: 'pointer',
+            textAlign: 'left',
+            width: '100%',
           }}
-          title={`${summaryCount} ${summaryNoun} · most recent: ${summaryRecent}`}
+          title={`View your ${summaryCount} ${summaryNoun}`}
         >
           <BookOpen size={12} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
           <span
@@ -1949,9 +1951,10 @@ const StepCard: React.FC<{
               whiteSpace: 'nowrap',
             }}
           >
-            <strong style={{ fontWeight: 700, color: PALETTE.tealDeep }}>{summaryCount}</strong> {summaryNoun} · {summaryRecent}
+            <strong style={{ fontWeight: 700, color: PALETTE.tealDeep }}>{summaryCount}</strong> {summaryNoun}
           </span>
-        </div>
+          <ChevronRight size={12} color={PALETTE.tealDeep} style={{ flexShrink: 0, marginLeft: 'auto' }} />
+        </button>
       ) : null}
 
       {/* CTA — tools get an action / invite button; refunds show a quiet status */}
