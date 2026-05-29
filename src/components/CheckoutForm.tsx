@@ -219,6 +219,13 @@ export function CheckoutForm() {
       }
 
       if (data?.url) {
+        // Mark THIS device/browser as the one that started checkout. When a
+        // buyer confirms payment on their phone bank app after starting on a
+        // computer, the phone lands on /payment-success WITHOUT this flag, so
+        // we can show a "go back to your other device" message there instead
+        // of the signup CTA. localStorage is per-browser, so the phone won't
+        // have it unless the buyer also started on the phone.
+        localStorage.setItem('checkout_initiated_here', '1');
         // Redirect to Stripe checkout
         window.location.href = data.url;
       } else {

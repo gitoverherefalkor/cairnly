@@ -21,6 +21,12 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  // Did THIS device/browser start the checkout? CheckoutForm sets this flag
+  // right before the Stripe redirect. If it's missing, the buyer almost
+  // certainly paid on a different device (e.g. confirmed in their phone bank
+  // app after starting on a computer), so we point them back rather than
+  // pushing the signup flow here.
+  const [initiatedHere] = useState(() => localStorage.getItem('checkout_initiated_here') === '1');
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -179,6 +185,106 @@ const PaymentSuccess = () => {
     );
   }
 
+  // Reusable access-code panel, shown in both success variants.
+  const accessCodeBlock = accessCode ? (
+    <div className="mb-5">
+      <span
+        className="block text-center font-heading uppercase text-[11px] mb-2.5"
+        style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
+      >
+        Your Access Code
+      </span>
+      <div
+        className="text-center rounded-xl"
+        style={{
+          background: '#F5EFE2',
+          border: '1px dashed rgba(201, 182, 144, 0.9)',
+          padding: '10px 16px',
+        }}
+      >
+        <p
+          className="m-0"
+          style={{
+            fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
+            fontSize: 16,
+            fontWeight: 700,
+            color: '#122E3B',
+            letterSpacing: '0.14em',
+            lineHeight: 1.1,
+          }}
+        >
+          {accessCode}
+        </p>
+      </div>
+      <p
+        className="text-[12px] font-medium text-center mt-2.5"
+        style={{ color: '#6B7F8B' }}
+      >
+        {searchParams.get('demo') === 'true'
+          ? 'This is a demo access code for testing purposes only.'
+          : 'This code will be automatically pre-filled and verified later, but as a backup it is also sent to your email.'}
+      </p>
+    </div>
+  ) : null;
+
+  // --- Success state on a device that did NOT start this checkout ---
+  // Most commonly: the buyer started on their computer and confirmed payment in
+  // their phone bank app, so Stripe redirected the phone here. Pushing the
+  // "Create Account" flow on the phone is confusing, so we point them back to
+  // the device they started on. A secondary option still lets them continue
+  // here if they really want to.
+  if (!initiatedHere && searchParams.get('demo') !== 'true') {
+    return (
+      <AuthShell eyebrow="Payment successful" title="Thank you for your purchase!" width="wide">
+        <div className="flex justify-center mb-5">
+          <div
+            className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
+            style={{ background: 'rgba(34,197,94,0.12)', borderColor: 'rgba(34,197,94,0.32)' }}
+          >
+            <CheckCircle className="h-8 w-8" style={{ color: '#16A34A' }} />
+          </div>
+        </div>
+
+        {accessCodeBlock}
+
+        <p
+          className="text-center text-[15px] font-medium mx-auto mb-2"
+          style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 380 }}
+        >
+          Your payment went through. To continue, head back to the device where
+          you started. Your assessment is ready and waiting for you there.
+        </p>
+        <p
+          className="text-center text-[13px] font-medium mx-auto mb-5"
+          style={{ color: '#6B7F8B', maxWidth: 380 }}
+        >
+          We also emailed your access code as a backup.
+        </p>
+
+        <div className="space-y-2.5">
+          <Button
+            variant="outline"
+            onClick={handleStartAssessment}
+            className={ghostBtnCls}
+            style={ghostBtnStyle}
+          >
+            Continue on this device instead
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/')}
+            className={ghostBtnCls}
+            style={ghostBtnStyle}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Return to Home
+          </Button>
+        </div>
+      </AuthShell>
+    );
+  }
+
   // --- Success state ---
   return (
     <AuthShell
@@ -198,46 +304,7 @@ const PaymentSuccess = () => {
         </div>
       </div>
 
-      {accessCode && (
-        <div className="mb-5">
-          <span
-            className="block text-center font-heading uppercase text-[11px] mb-2.5"
-            style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
-          >
-            Your Access Code
-          </span>
-          <div
-            className="text-center rounded-xl"
-            style={{
-              background: '#F5EFE2',
-              border: '1px dashed rgba(201, 182, 144, 0.9)',
-              padding: '10px 16px',
-            }}
-          >
-            <p
-              className="m-0"
-              style={{
-                fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace",
-                fontSize: 16,
-                fontWeight: 700,
-                color: '#122E3B',
-                letterSpacing: '0.14em',
-                lineHeight: 1.1,
-              }}
-            >
-              {accessCode}
-            </p>
-          </div>
-          <p
-            className="text-[12px] font-medium text-center mt-2.5"
-            style={{ color: '#6B7F8B' }}
-          >
-            {searchParams.get('demo') === 'true'
-              ? 'This is a demo access code for testing purposes only.'
-              : 'This code will be automatically pre-filled and verified later, but as a backup it is also sent to your email.'}
-          </p>
-        </div>
-      )}
+      {accessCodeBlock}
 
       <div className="space-y-2.5">
         {!user && (
