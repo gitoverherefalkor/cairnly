@@ -37,7 +37,12 @@
 - [x] **Phase 1.5 — Landing components** (2026-05-28): 15 of 16 components language-aware. Hero, Pillars, HowItWorks, Methodology, CoachCards, ComparisonTable, CostMath, PricingSection, WhoFor, ForkDivider, FinalCTA, WhyWeBuiltThis, FAQ, LandingNav, LandingFooter, NoPurchaseBanner, WorkflowDiagramSimple all done. Dutch from Sjoerd's manual translation (`cairnly-homepage-copy-nl.md`) + FAQ written by hand. landing.json + common.json both extended (nav/trust/footer/workflowSimple namespaces added). **Deferred**: WorkflowDiagramV2 (27 short technical labels inside Methodology diagram) — visible but not high-priority, can ship after flip. Build passes. Switcher still disabled pending final flip-live gate.
 - [ ] Phase 3 — Emails + static survey content (in progress)
   - [x] **Survey content** (2026-05-29): 60 questions + 7 sections translated to Dutch via `scripts/translate-survey.ts` (display-only; answer VALUES stay English so n8n + profiles.region are unaffected). `useSurvey.ts` + `QuestionRenderer.tsx` wired (choiceLabels EN→NL map). Casual-tone rule added to glossary. DB populated, build + deploy green. Follow-up: Skills/Achievements languages sub-card (languages_presets/proficiency_levels) not yet localized.
-  - [ ] **Emails** — 7 templates (send-confirmation-email, send-reminder-email, payment-success, journal-subscribe/confirm/unsubscribe, analysis-completed) still English. Externalize HTML to `_shared/emails/*.{en,nl}.ts`, translate, redeploy.
+  - [ ] **Emails** — in progress (per-language COPY tables, lang from preferred_language)
+    - [x] `send-confirmation-email` (signup confirm + password reset) — deployed 2026-05-29
+    - [x] `send-reminder-email` (4 templates) — deployed 2026-05-29 (lang from cron payload or batched profiles lookup)
+    - [x] `analysis-completed` (report-ready) — deployed 2026-05-29
+    - [ ] `payment-success` (access-code receipt + referral-unlock) — needs `preferred_language` threaded through Stripe checkout session metadata (create-checkout) → read in payment-success. Touches the payment path, do carefully.
+    - [ ] `journal-subscribe` / `journal-confirm` / `journal-unsubscribe` — standalone English newsletter (subscriber is email-only, no profile/language). Needs frontend to pass UI language on subscribe + a product decision on whether the Journal itself is bilingual. Lower priority.
   - [ ] **Legal copy** — privacy / ToS / consent / cookie. Locate, translate, user sign-off before live.
 - [ ] Phase 4 — n8n workflows (WF1–WF6 + WF_cover_letter + WF_custom_resume + Finding Selected Roles)
 - [ ] Phase 5 — German validation (sanity check that architecture scales)
