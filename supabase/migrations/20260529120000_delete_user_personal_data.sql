@@ -7,6 +7,23 @@
 -- Pure personal/behavioral data is hard-deleted. Financial records
 -- (purchases, referrals, referral_payouts) are RETAINED for statutory
 -- bookkeeping retention and instead anonymized, per GDPR Art. 17(3)(b).
+
+-- ---- Schema fix: protect retained referral rows from cascade deletes ----
+-- referrals.referrer_user_id was NOT NULL with an ON DELETE CASCADE FK to
+-- auth.users. That meant deleting a referrer's auth user would cascade-delete
+-- their referral rows (destroying retained financial records, and collaterally
+-- the invitee's data on those rows). Worse, once referral_payouts exist the
+-- payouts.referral_id RESTRICT FK blocks that cascade, failing the whole
+-- account deletion. Make the column nullable and flip the FK to SET NULL so
+-- the financial row survives an auth-user delete (defense-in-depth, even
+-- outside the RPC).
+ALTER TABLE public.referrals ALTER COLUMN referrer_user_id DROP NOT NULL;
+
+ALTER TABLE public.referrals DROP CONSTRAINT referrals_referrer_user_id_fkey;
+ALTER TABLE public.referrals
+  ADD CONSTRAINT referrals_referrer_user_id_fkey
+  FOREIGN KEY (referrer_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+
 CREATE OR REPLACE FUNCTION public.delete_user_personal_data(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -83,6 +100,11 @@ BEGIN
   UPDATE public.referrals
      SET invitee_user_id = NULL, invitee_email = v_anon_email
    WHERE invitee_user_id = p_user_id;
+
+  -- This user as the referrer: detach them so the retained financial row
+  -- survives the eventual auth.users delete (FK is SET NULL). Keep the
+  -- invitee's identifiers — they belong to a different person.
+  UPDATE public.referrals SET referrer_user_id = NULL WHERE referrer_user_id = p_user_id;
 
   -- De-link access codes (not PII; referenced by retained purchase rows).
   UPDATE public.access_codes SET user_id = NULL WHERE user_id = p_user_id;
