@@ -62,6 +62,28 @@ const flatten = (obj: Nested, prefix = ""): Record<string, string> => {
   return out;
 };
 
+// Rebuild arrays from objects whose keys are exactly 0..n-1. flatten() turns
+// arrays into numeric-keyed entries (pricing.features.0, comparison.rows.0.name,
+// ...), so without this step the round-trip would emit {"0":..,"1":..} objects.
+// Components read these via tArray() which requires real arrays — an object
+// would silently render as an empty section. See LOCALIZATION_PLAYBOOK.md.
+const arrayify = (node: unknown): unknown => {
+  if (Array.isArray(node)) return node.map(arrayify);
+  if (node && typeof node === "object") {
+    const obj = node as Record<string, unknown>;
+    const keys = Object.keys(obj);
+    const isArrayLike =
+      keys.length > 0 &&
+      keys.every((k, i) => k === String(i));
+    const values = keys.map((k) => arrayify(obj[k]));
+    if (isArrayLike) return values;
+    const rebuilt: Record<string, unknown> = {};
+    keys.forEach((k, i) => (rebuilt[k] = values[i]));
+    return rebuilt;
+  }
+  return node;
+};
+
 const unflatten = (flat: Record<string, string>): Nested => {
   const out: Nested = {};
   for (const [key, val] of Object.entries(flat)) {
@@ -73,7 +95,7 @@ const unflatten = (flat: Record<string, string>): Nested => {
     }
     cur[parts[parts.length - 1]] = val;
   }
-  return out;
+  return arrayify(out) as Nested;
 };
 
 const loadJSON = (path: string): Nested => (existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : {});
