@@ -35,36 +35,71 @@ function generateAccessCode(): string {
   return code;
 }
 
+// ─── Localized copy ─────────────────────────────────────────────────────────
+// English is the source. Dutch follows the i18n glossary (casual je-form, no
+// em-dashes, brand + feature names stay in English). Mirrors the inline-COPY
+// pattern used by send-confirmation-email / send-reminder-email.
+type Lang = "en" | "nl";
+
+const pickLang = (v: string | null | undefined): Lang => (v === "nl" ? "nl" : "en");
+
+const ACCESS_CODE_COPY = {
+  en: {
+    subject: "Your Cairnly Access Code",
+    preheader: "Your purchase was successful. Keep your access code safe.",
+    heading: "Your Purchase was Successful!",
+    greeting: (f: string, l: string) => `Hello ${f} ${l},`,
+    p1: "Thank you for purchasing Cairnly. You can continue right where you left off, your assessment is ready on the platform.",
+    keepSafe:
+      '<strong style="color:#122E3B;font-weight:700;">Keep this access code safe.</strong> It\'s your backup, use it to log back in any time and pick up your assessment.',
+    backToDashboard:
+      'Need to get back to your assessment? Head to your <a href="https://cairnly.io/dashboard" style="color:#1F8282;text-decoration:underline;font-weight:600;">dashboard</a>, you can start a new assessment or continue an existing one from there.',
+    fineprint:
+      "Your access code is valid for one year from today. If you have any questions, please contact our support team.",
+  },
+  nl: {
+    subject: "Je Cairnly-toegangscode",
+    preheader: "Je aankoop is gelukt. Bewaar je toegangscode goed.",
+    heading: "Je aankoop is gelukt!",
+    greeting: (f: string, l: string) => `Hallo ${f} ${l},`,
+    p1: "Bedankt voor je aankoop van Cairnly. Je kunt verdergaan waar je was gebleven, je assessment staat klaar op het platform.",
+    keepSafe:
+      '<strong style="color:#122E3B;font-weight:700;">Bewaar deze toegangscode goed.</strong> Het is je back-up: gebruik hem om op elk moment weer in te loggen en verder te gaan met je assessment.',
+    backToDashboard:
+      'Wil je terug naar je assessment? Ga naar je <a href="https://cairnly.io/dashboard" style="color:#1F8282;text-decoration:underline;font-weight:600;">dashboard</a>, daar kun je een nieuw assessment starten of verdergaan met een bestaand assessment.',
+    fineprint:
+      "Je toegangscode is vanaf vandaag een jaar geldig. Heb je vragen? Neem dan contact op met ons supportteam.",
+  },
+} as const;
+
 // Function to send the access code email
-async function sendAccessCodeEmail(email: string, firstName: string, lastName: string, accessCode: string) {
+async function sendAccessCodeEmail(email: string, firstName: string, lastName: string, accessCode: string, lang: Lang) {
   try {
+    const c = ACCESS_CODE_COPY[lang];
     const bodyHtml = bodyRow(
-      h1("Your Purchase was Successful!") +
-      paragraph(`Hello ${firstName} ${lastName},`) +
-      paragraph("Thank you for purchasing Cairnly. You can continue right where you left off, your assessment is ready on the platform.") +
-      paragraph('<strong style="color:#122E3B;font-weight:700;">Keep this access code safe.</strong> It\'s your backup, use it to log back in any time and pick up your assessment.') +
+      h1(c.heading) +
+      paragraph(c.greeting(firstName, lastName)) +
+      paragraph(c.p1) +
+      paragraph(c.keepSafe) +
       `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 8px 0;">
   <tr><td style="background-color:#122E3B;background-image:linear-gradient(135deg,#122E3B 0%,#213F4F 100%);border-radius:14px;padding:28px 24px;text-align:center;">
     <p class="code-mob" style="margin:0;color:#FFFFFF;font-size:26px;font-weight:700;letter-spacing:5px;font-family:'SFMono-Regular',Menlo,Consolas,'Courier New',monospace;">${accessCode}</p>
   </td></tr>
 </table>` +
-      paragraph(
-        'Need to get back to your assessment? Head to your <a href="https://cairnly.io/dashboard" style="color:#1F8282;text-decoration:underline;font-weight:600;">dashboard</a>, you can start a new assessment or continue an existing one from there.',
-        { mb: 0 },
-      ) +
-      fineprint("Your access code is valid for one year from today. If you have any questions, please contact our support team."),
+      paragraph(c.backToDashboard, { mb: 0 }) +
+      fineprint(c.fineprint),
     );
 
     const html = renderEmail({
-      title: "Your Cairnly Access Code",
-      preheader: "Your purchase was successful. Keep your access code safe.",
+      title: c.subject,
+      preheader: c.preheader,
       bodyHtml,
     });
 
     const { error } = await resend.emails.send({
       from: "Cairnly <no-reply@cairnly.io>",
       to: [email],
-      subject: "Your Cairnly Access Code",
+      subject: c.subject,
       html,
     });
 
@@ -233,35 +268,94 @@ async function queueReferralPayout(args: {
 // moment a new conversion crosses the 1, 2, or 3 friend threshold (those
 // are the conversions that actually unlock a tool). After 3, no email —
 // nothing new to celebrate.
+// Tool LABELS stay in English in both languages on purpose: the dashboard
+// referral toolkit (useReferralStatus.ts) still renders these names in English
+// even for Dutch users, so the email must match what they actually click.
+// Only the descriptive `toolBody` and the CTA label are localized.
 const REFERRAL_UNLOCK_TIERS: Array<{
   count: number;
   toolLabel: string;
-  toolBody: string; // sentence describing what it does
+  toolBody: Record<Lang, string>; // sentence describing what it does
   next: { count: number; toolLabel: string } | null;
-  cta: { label: string; href: string };
+  cta: { label: Record<Lang, string>; href: string };
 }> = [
   {
     count: 1,
     toolLabel: "Find Open Roles",
-    toolBody: "live job openings matched to your top career recommendations",
+    toolBody: {
+      en: "live job openings matched to your top career recommendations",
+      nl: "live vacatures die passen bij je beste loopbaanaanbevelingen",
+    },
     next: { count: 2, toolLabel: "Tailor Your Resume" },
-    cta: { label: "Find open roles now", href: "https://cairnly.io/jobs" },
+    cta: { label: { en: "Find open roles now", nl: "Vind nu vacatures" }, href: "https://cairnly.io/jobs" },
   },
   {
     count: 2,
     toolLabel: "Tailor Your Resume",
-    toolBody: "an AI rewrite of your uploaded resume tailored to specific jobs you want to apply for",
+    toolBody: {
+      en: "an AI rewrite of your uploaded resume tailored to specific jobs you want to apply for",
+      nl: "een AI-herschrijving van je geüploade cv, op maat gemaakt voor de specifieke vacatures waarop je wilt solliciteren",
+    },
     next: { count: 3, toolLabel: "Tailor Cover Letters" },
-    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+    cta: { label: { en: "See your unlocked tool", nl: "Bekijk je ontgrendelde tool" }, href: "https://cairnly.io/dashboard" },
   },
   {
     count: 3,
     toolLabel: "Tailor Cover Letters",
-    toolBody: "cover letters customised to each job on your shortlist",
+    toolBody: {
+      en: "cover letters customised to each job on your shortlist",
+      nl: "motivatiebrieven op maat voor elke vacature op je shortlist",
+    },
     next: null,
-    cta: { label: "See your unlocked tool", href: "https://cairnly.io/dashboard" },
+    cta: { label: { en: "See your unlocked tool", nl: "Bekijk je ontgrendelde tool" }, href: "https://cairnly.io/dashboard" },
   },
 ];
+
+// Prose around the unlock tiers. Tool names interpolated into these strings
+// stay in English (see note on REFERRAL_UNLOCK_TIERS). No em-dashes in either
+// language per the glossary.
+const UNLOCK_COPY = {
+  en: {
+    subject: (tool: string) => `You just unlocked ${tool} for free`,
+    preheader: (tool: string) => `${tool} is now live on your dashboard.`,
+    nameFallback: "there",
+    inviteeFallback: "someone",
+    heading: "A friend joined Cairnly through your code",
+    intro: (first: string, invitee: string) =>
+      `Hey ${first}, ${invitee} just used your code and took their first step toward better career clarity.`,
+    unlock: (count: number, tool: string, body: string) =>
+      `<strong style="color:#122E3B;font-weight:700;">${count} of 3 friends joined.</strong> ${tool} is now live on your dashboard: ${body}.`,
+    next: (nextTool: string) =>
+      `Invite one more friend and <strong style="color:#122E3B;font-weight:700;">${nextTool}</strong> opens up too.`,
+    allDone: `That's all three tools unlocked. Thank you for helping three people find some clarity, it genuinely matters.`,
+    incentive: `Each invite helps someone find clarity, and earns you a tool for your own job hunt.`,
+    codeLabel: "YOUR REFERRAL CODE",
+    yourCode: "Your code:",
+    shareAgain: "Share it again",
+    shareAgainOnly: "Share your code again →",
+    fineprint: "You're receiving this because someone just joined Cairnly using your referral code.",
+  },
+  nl: {
+    subject: (tool: string) => `Je hebt zojuist ${tool} gratis ontgrendeld`,
+    preheader: (tool: string) => `${tool} staat nu live op je dashboard.`,
+    nameFallback: "daar",
+    inviteeFallback: "iemand",
+    heading: "Een vriend is via jouw code lid geworden van Cairnly",
+    intro: (first: string, invitee: string) =>
+      `Hoi ${first}, ${invitee} heeft zojuist jouw code gebruikt en de eerste stap gezet naar meer loopbaanduidelijkheid.`,
+    unlock: (count: number, tool: string, body: string) =>
+      `<strong style="color:#122E3B;font-weight:700;">${count} van de 3 vrienden aangemeld.</strong> ${tool} staat nu live op je dashboard: ${body}.`,
+    next: (nextTool: string) =>
+      `Nodig nog één vriend uit en ook <strong style="color:#122E3B;font-weight:700;">${nextTool}</strong> komt beschikbaar.`,
+    allDone: `Daarmee heb je alle drie de tools ontgrendeld. Bedankt dat je drie mensen hebt geholpen aan wat meer duidelijkheid, dat betekent echt veel.`,
+    incentive: `Elke uitnodiging helpt iemand aan meer duidelijkheid, en levert jou een tool op voor je eigen zoektocht naar werk.`,
+    codeLabel: "JOUW REFERRALCODE",
+    yourCode: "Jouw code:",
+    shareAgain: "Deel hem opnieuw",
+    shareAgainOnly: "Deel je code opnieuw →",
+    fineprint: "Je ontvangt deze e-mail omdat iemand zich zojuist bij Cairnly heeft aangemeld met jouw referralcode.",
+  },
+} as const;
 
 async function sendReferralUnlockEmail(args: {
   referrerEmail: string;
@@ -271,8 +365,9 @@ async function sendReferralUnlockEmail(args: {
   // deno-lint-ignore no-explicit-any
   supabase: any;
   referrerUserId: string;
+  lang: Lang;
 }): Promise<void> {
-  const { referrerEmail, referrerFirstName, referrerCode, inviteeFirstName, supabase, referrerUserId } = args;
+  const { referrerEmail, referrerFirstName, referrerCode, inviteeFirstName, supabase, referrerUserId, lang } = args;
 
   // Count how many converted referrals this user has now (post-insert).
   const { count, error: countError } = await supabase
@@ -296,42 +391,33 @@ async function sendReferralUnlockEmail(args: {
     return;
   }
 
-  const firstName = referrerFirstName?.trim() || "there";
-  const inviteeName = inviteeFirstName?.trim() || "someone";
-  const subject = `You just unlocked ${tier.toolLabel} for free`;
+  const t = UNLOCK_COPY[lang];
+  const firstName = referrerFirstName?.trim() || t.nameFallback;
+  const inviteeName = inviteeFirstName?.trim() || t.inviteeFallback;
+  const subject = t.subject(tier.toolLabel);
   const codeBlock = referrerCode
-    ? `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">Your code: <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${escapeHtml(referrerCode)}</strong> &nbsp;·&nbsp; <a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share it again</a></p>`
-    : `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;"><a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">Share your code again →</a></p>`;
+    ? `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">${t.yourCode} <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${escapeHtml(referrerCode)}</strong> &nbsp;·&nbsp; <a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">${t.shareAgain}</a></p>`
+    : `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;"><a href="https://cairnly.io/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">${t.shareAgainOnly}</a></p>`;
 
   const nextLine = tier.next
-    ? paragraph(
-        `Invite one more friend and <strong style="color:#122E3B;font-weight:700;">${escapeHtml(tier.next.toolLabel)}</strong> opens up too.`,
-      )
-    : paragraph(
-        `That's all three tools unlocked. Thank you for helping three people find some clarity, it genuinely matters.`,
-      );
+    ? paragraph(t.next(escapeHtml(tier.next.toolLabel)))
+    : paragraph(t.allDone);
 
   const bodyHtml =
     bodyRow(
-      h1("A friend joined Cairnly through your code") +
-        paragraph(
-          `Hey ${escapeHtml(firstName)}, ${escapeHtml(inviteeName)} just used your code and took their first step toward better career clarity.`,
-        ) +
-        paragraph(
-          `<strong style="color:#122E3B;font-weight:700;">${tier.count} of 3 friends joined.</strong> ${escapeHtml(tier.toolLabel)} is now live on your dashboard — ${tier.toolBody}.`,
-        ) +
+      h1(t.heading) +
+        paragraph(t.intro(escapeHtml(firstName), escapeHtml(inviteeName))) +
+        paragraph(t.unlock(tier.count, escapeHtml(tier.toolLabel), tier.toolBody[lang])) +
         nextLine +
-        paragraph(
-          `Each invite helps someone find clarity, and earns you a tool for your own job hunt.`,
-        ) +
-        callout("YOUR REFERRAL CODE", codeBlock),
+        paragraph(t.incentive) +
+        callout(t.codeLabel, codeBlock),
     ) +
-    ctaRow(tier.cta.label, tier.cta.href) +
-    `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint("You're receiving this because someone just joined Cairnly using your referral code.")}</td></tr>`;
+    ctaRow(tier.cta.label[lang], tier.cta.href) +
+    `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint(t.fineprint)}</td></tr>`;
 
   const html = renderEmail({
     title: subject,
-    preheader: `${tier.toolLabel} is now live on your dashboard.`,
+    preheader: t.preheader(tier.toolLabel),
     bodyHtml,
   });
 
@@ -484,6 +570,14 @@ serve(async (req) => {
     const lastName = session.metadata?.lastName || "";
     const country = session.metadata?.country || "Unknown";
 
+    // Language for the buyer's receipt email. Primary signal is the UI language
+    // threaded through create-checkout metadata. Fallback for sessions created
+    // before this field existed (or webhook replays): infer from country, else
+    // default English.
+    const buyerLang: Lang = pickLang(
+      session.metadata?.preferred_language || (country === "Netherlands" ? "nl" : "en"),
+    );
+
     // Capture the Stripe payment_intent for this purchase. Required later
     // for the referral-payout system (refunds are issued against a
     // payment_intent). On a Checkout Session in mode='payment' this is a
@@ -548,7 +642,7 @@ serve(async (req) => {
         // their own code. Compare the buyer email to the referrer's email.
         const { data: referrerProfile } = await supabase
           .from("profiles")
-          .select("email, first_name, referral_code")
+          .select("email, first_name, referral_code, preferred_language")
           .eq("id", referrerUserId)
           .maybeSingle();
 
@@ -586,6 +680,9 @@ serve(async (req) => {
               inviteeFirstName: firstName,
               supabase,
               referrerUserId,
+              // The referrer is a different person from the buyer — their email
+              // follows THEIR saved language preference, not the buyer's.
+              lang: pickLang(referrerProfile.preferred_language),
             }).catch((e) => console.error("Referral unlock email failed (non-fatal):", e));
 
             // Queue the cashback payout (25/25/50% of the referrer's net
@@ -635,7 +732,7 @@ serve(async (req) => {
 
     // Send the access code via email
     if (customerEmail) {
-      const emailSent = await sendAccessCodeEmail(customerEmail, firstName, lastName, accessCode);
+      const emailSent = await sendAccessCodeEmail(customerEmail, firstName, lastName, accessCode, buyerLang);
       if (!emailSent) {
         console.warn("Warning: Email could not be sent, but purchase was successful");
       }

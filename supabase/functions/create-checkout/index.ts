@@ -33,7 +33,7 @@ serve(async (req) => {
       return errorResponse("Payment system is temporarily unavailable. Please try again later.", 500, corsHeaders);
     }
 
-    const { firstName, lastName, email, country, referralCode } = await req.json();
+    const { firstName, lastName, email, country, referralCode, preferredLanguage } = await req.json();
 
     if (!firstName || !lastName || !email || !country) {
       return errorResponse("First name, last name, email, and country are required", 400, corsHeaders);
@@ -116,6 +116,9 @@ serve(async (req) => {
         lastName,
         email,
         country,
+        // Language the buyer checked out in. Read by payment-success to send
+        // the access-code receipt in the right language. Default 'en'.
+        preferred_language: preferredLanguage === "nl" ? "nl" : "en",
       },
       locale: country === "Netherlands" ? "nl" : country === "Germany" ? "de" : "auto",
     };

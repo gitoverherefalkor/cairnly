@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { getStoredReferralCode } from '@/lib/referral';
+import i18n from '@/i18n';
 
 import {
   Form,
@@ -201,6 +202,10 @@ export function CheckoutForm() {
           // Pre-applies the 25% referral discount if the visitor arrived via
           // a ?ref= link.
           referralCode: getStoredReferralCode(),
+          // UI language the buyer is checking out in — threaded into the Stripe
+          // session metadata so payment-success can send the receipt email in
+          // the right language (the buyer may have no profile yet).
+          preferredLanguage: i18n.language || 'en',
         },
       });
 

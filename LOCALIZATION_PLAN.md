@@ -41,9 +41,9 @@
     - [x] `send-confirmation-email` (signup confirm + password reset) — deployed 2026-05-29
     - [x] `send-reminder-email` (4 templates) — deployed 2026-05-29 (lang from cron payload or batched profiles lookup)
     - [x] `analysis-completed` (report-ready) — deployed 2026-05-29
-    - [ ] `payment-success` (access-code receipt + referral-unlock) — needs `preferred_language` threaded through Stripe checkout session metadata (create-checkout) → read in payment-success. Touches the payment path, do carefully.
-    - [ ] `journal-subscribe` / `journal-confirm` / `journal-unsubscribe` — standalone English newsletter (subscriber is email-only, no profile/language). Needs frontend to pass UI language on subscribe + a product decision on whether the Journal itself is bilingual. Lower priority.
-  - [ ] **Legal copy** — privacy / ToS / consent / cookie. Locate, translate, user sign-off before live.
+    - [x] `payment-success` (access-code receipt + referral-unlock) — deployed 2026-05-29. Buyer's receipt language threaded through Stripe checkout metadata: `CheckoutForm.tsx` sends `preferredLanguage: i18n.language` → `create-checkout` writes `metadata.preferred_language` → `payment-success` reads it (fallback: country=Netherlands→nl, else en). Referral-unlock email goes to a *different* person (the referrer), so it uses THAT user's `profiles.preferred_language`, not the buyer's metadata. Tool names (Find Open Roles etc.) kept English in both langs to match the still-English dashboard toolkit; only prose + CTAs localized. Existing en em-dash in the unlock line replaced with a colon. All 3 files committed; both edge functions redeployed + smoke-tested (boot + validation paths green, no errors in logs).
+    - [~] `journal-subscribe` / `journal-confirm` / `journal-unsubscribe` — **DESCOPED 2026-05-29 (per user): Journal stays English-only.** Standalone low-frequency English newsletter; subscriber is email-only (no profile/language). Localizing would require frontend to pass UI language on subscribe + a product decision on whether the Journal itself goes bilingual. Not doing it.
+  - [ ] **Legal copy** — privacy / ToS / consent / cookie. **Awaiting NL copy from Sjoerd (2026-05-29):** he's writing the Dutch legal text himself; once delivered, implement in the landing/legal namespace.
 - [ ] Phase 4 — n8n workflows (WF1–WF6 + WF_cover_letter + WF_custom_resume + Finding Selected Roles)
 - [ ] Phase 5 — German validation (sanity check that architecture scales)
 
