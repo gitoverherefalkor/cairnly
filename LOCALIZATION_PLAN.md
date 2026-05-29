@@ -22,7 +22,7 @@
 
 ### Done ✅
 - [x] `react-i18next` configured with 7 namespaces
-- [x] `profiles.preferred_language` column exists
+- [x] `profiles.preferred_language` column exists — **actually applied 2026-05-29.** The April migration file (`20260402100000_add_preferred_language_to_profiles.sql`) was written but never pushed to prod, so the column was missing for months and 400'd every `useLanguage` profile sync (PGRST204). Re-applied via Supabase MCP (`add_preferred_language_to_profiles`), idempotent, all 14 existing rows defaulted to `en`. NB: repo migration history is a Lovable/MCP hybrid — local filename versions ≠ recorded versions, so `supabase db push` is unsafe here; apply individual migrations via MCP.
 - [x] `useLanguage.ts` syncs profile ↔ i18next on login
 - [x] `useAuth.tsx:100` writes `preferred_language` to signup `user_metadata`
 - [x] `LanguageSwitcher.tsx` component exists (Dutch enabled 2026-05-28)
