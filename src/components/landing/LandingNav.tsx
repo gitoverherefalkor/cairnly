@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Menu, X, ArrowRight, Shield, Lock, Trash2 } from 'lucide-react';
 import CairnlyWordmarkInverted from '@/logos/cairnly-logo/cairnly_logo_wordmark_inverted.png';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface LandingNavProps {
   /** 'home' enables in-page smooth-scroll for section anchors. 'page' links
@@ -128,19 +129,23 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
                 {t('nav.signIn')}
               </a>
             )}
+            <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
             <button onClick={getStarted} className="lp-btn-primary" style={{ padding: '10px 22px', fontSize: 13 }}>
               {user ? t('nav.goToDashboard') : t('nav.getStarted')}
             </button>
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            className="md:hidden text-white p-2 -mr-2"
-            aria-label={t('nav.openMenu')}
-            onClick={() => setMenuOpen(true)}
-          >
-            <Menu size={26} />
-          </button>
+          {/* Mobile toggle + language switcher */}
+          <div className="md:hidden flex items-center gap-1">
+            <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
+            <button
+              className="text-white p-2 -mr-2"
+              aria-label={t('nav.openMenu')}
+              onClick={() => setMenuOpen(true)}
+            >
+              <Menu size={26} />
+            </button>
+          </div>
         </div>
       </nav>
 
