@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, CheckCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getPostAuthRedirect } from '@/hooks/useAuth';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 
 interface EmailPasswordFormProps {
@@ -115,10 +114,17 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             title: t('toasts.welcomeBack'),
             description: t('toasts.loggedInSuccess'),
           });
-          // ensureProfile may have set the new-user flag via onAuthStateChange
-          // Give it a tick to run, then consume the flag
-          await new Promise(r => setTimeout(r, 100));
-          navigate(getPostAuthRedirect());
+          // Resolve destination from the DB (not the localStorage new-user flag,
+          // which can be stale across accounts on a shared browser and wrongly
+          // send a returning user to /payment). A user with a profile goes to
+          // the dashboard; the rare profile-less case falls through to /payment,
+          // matching the OAuth path in AuthConfirm.
+          const { data: profileRow } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', data.user.id)
+            .maybeSingle();
+          navigate(profileRow ? '/dashboard' : '/payment');
         }
       } else {
         // Verify passwords match
