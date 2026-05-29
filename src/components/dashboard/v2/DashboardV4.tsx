@@ -1691,20 +1691,61 @@ const UnlockToolkit: React.FC<{
         </div>
       </div>
 
-      {/* Six-step ladder in one row, flow-arrows lighting up left-to-right */}
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
-        {ladder.map((item, i) => (
-          <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
-            <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-              <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
-            </div>
-            {i < ladder.length - 1 && <FlowArrow lit={ladder[i + 1].unlocked} />}
-          </React.Fragment>
-        ))}
+      {/* Two compact rows: tools (1–3) on top, refunds (4–6) below. Each row
+          flows left-to-right with arrows that light up as steps unlock. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <LadderRow label="Tools" items={ladder.slice(0, 3)} onInvite={onInvite} onNavigate={onNavigate} />
+        <LadderRow label="Money back" items={ladder.slice(3, 6)} onInvite={onInvite} onNavigate={onNavigate} />
       </div>
     </section>
   );
 };
+
+// One row of the unlock ladder (3 step cards + flow-arrows between them),
+// prefixed by a small vertical label.
+const LadderRow: React.FC<{
+  label: string;
+  items: ResolvedUnlockStep[];
+  onInvite: () => void;
+  onNavigate: (route: string) => void;
+}> = ({ label, items, onInvite, onNavigate }) => (
+  <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+    <div
+      style={{
+        flexShrink: 0,
+        width: 30,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 6,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 9.5,
+          fontWeight: 800,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.45)',
+          writingMode: 'vertical-rl',
+          transform: 'rotate(180deg)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </span>
+    </div>
+    {items.map((item, i) => (
+      <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
+          <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
+        </div>
+        {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} />}
+      </React.Fragment>
+    ))}
+  </div>
+);
 
 // Gold flow-arrow between unlock cards. Lights up once the card to its RIGHT
 // is unlocked, so the trail fills in left-to-right as the user refers friends.
@@ -1754,24 +1795,24 @@ const StepCard: React.FC<{
     <article
       style={{
         background: PALETTE.cream,
-        borderRadius: 16,
-        padding: 14,
+        borderRadius: 14,
+        padding: '11px 12px',
         border: `1px solid ${unlocked ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`,
-        boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
+        boxShadow: '0 14px 28px -16px rgba(0,0,0,0.32)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 10,
+        gap: 8,
         width: '100%',
         minWidth: 0,
         opacity: unlocked ? 1 : 0.92,
       }}
     >
-      {/* Icon / % badge */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+      {/* Icon / % badge + title + status — single compact header row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
         <div
           style={{
-            width: 38,
-            height: 38,
+            width: 32,
+            height: 32,
             borderRadius: 9999,
             flexShrink: 0,
             display: 'flex',
@@ -1779,7 +1820,7 @@ const StepCard: React.FC<{
             justifyContent: 'center',
             fontFamily: FONT_DISPLAY,
             fontWeight: 800,
-            fontSize: 13,
+            fontSize: 12,
             background: !unlocked
               ? 'rgba(18,46,59,0.08)'
               : isTool
@@ -1797,21 +1838,24 @@ const StepCard: React.FC<{
           }}
         >
           {!unlocked ? (
-            <Lock size={16} />
+            <Lock size={14} />
           ) : isTool ? (
             TOOL_META[step.featureKey].icon
           ) : (
             `${step.refundPct}%`
           )}
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div
             style={{
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
-              fontSize: 13.5,
+              fontSize: 13,
               color: PALETTE.canvasDeep,
-              lineHeight: 1.2,
+              lineHeight: 1.15,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {step.title}
@@ -1820,9 +1864,9 @@ const StepCard: React.FC<{
             style={{
               fontFamily: FONT_BODY,
               fontWeight: 700,
-              fontSize: 10.5,
+              fontSize: 10,
               color: unlocked ? (isTool ? PALETTE.gold : PALETTE.tealDeep) : PALETTE.inkMuted,
-              marginTop: 2,
+              marginTop: 1,
               letterSpacing: '0.03em',
               textTransform: 'uppercase',
             }}
@@ -1832,20 +1876,23 @@ const StepCard: React.FC<{
         </div>
       </div>
 
-      {/* Short description */}
-      <p
-        style={{
-          fontFamily: FONT_BODY,
-          fontWeight: 500,
-          fontSize: 12,
-          color: PALETTE.inkMuted,
-          lineHeight: 1.45,
-          margin: 0,
-          flex: 1,
-        }}
-      >
-        {step.description}
-      </p>
+      {/* Short description — tool cards only; refund cards are self-evident
+          and stay shorter to keep the money row tight. */}
+      {isTool && (
+        <p
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 500,
+            fontSize: 11.5,
+            color: PALETTE.inkMuted,
+            lineHeight: 1.4,
+            margin: 0,
+            flex: 1,
+          }}
+        >
+          {step.description}
+        </p>
+      )}
 
       {/* Saved-résumé one-liner (resume step only) */}
       {showSavedSummary && mostRecentSaved ? (
@@ -1899,7 +1946,7 @@ const StepCard: React.FC<{
             border: actionable
               ? '1px solid transparent'
               : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
-            padding: '9px 10px',
+            padding: '8px 10px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
             fontWeight: actionable ? 800 : 700,
@@ -1936,7 +1983,7 @@ const StepCard: React.FC<{
             gap: 6,
           }}
         >
-          {unlocked ? 'Refund on its way' : <><Lock size={12} /> {step.refundPct}% back</>}
+          {unlocked ? '✓ Refund on its way' : <><Lock size={12} /> Refer friend #{step.requiredReferrals}</>}
         </div>
       )}
     </article>
