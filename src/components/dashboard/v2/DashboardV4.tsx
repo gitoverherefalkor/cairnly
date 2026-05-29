@@ -1804,20 +1804,31 @@ const StepCard: React.FC<{
       : 'Unlocked · soon'
     : `Friend #${step.requiredReferrals}`;
 
+  // Refund cards get a prominent gold outline + glow so the money tier draws
+  // the eye, locked or not. Tool cards keep the quieter teal/tan treatment.
+  const isRefund = step.kind === 'refund';
+  const border = isRefund
+    ? `1.5px solid ${PALETTE.goldBright}`
+    : `1px solid ${unlocked ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`;
+  const boxShadow = isRefund
+    ? '0 14px 28px -16px rgba(0,0,0,0.32), 0 0 0 3px rgba(212,160,36,0.16)'
+    : '0 14px 28px -16px rgba(0,0,0,0.32)';
+
   return (
     <article
       style={{
         background: PALETTE.cream,
         borderRadius: 14,
         padding: '11px 12px',
-        border: `1px solid ${unlocked ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`,
-        boxShadow: '0 14px 28px -16px rgba(0,0,0,0.32)',
+        border,
+        boxShadow,
         display: 'flex',
         flexDirection: 'column',
         gap: 8,
         width: '100%',
         minWidth: 0,
-        opacity: unlocked ? 1 : 0.92,
+        // Refund cards stay full-opacity even when locked — they're the carrot.
+        opacity: isRefund ? 1 : unlocked ? 1 : 0.92,
       }}
     >
       {/* Icon / % badge + title + status — single compact header row */}

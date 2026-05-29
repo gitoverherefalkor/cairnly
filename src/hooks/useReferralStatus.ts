@@ -86,8 +86,8 @@ export const UNLOCK_LADDER: UnlockStep[] = [
   { kind: 'tool', featureKey: 'resume', requiredReferrals: 2, title: 'Tailor Your Resume', description: 'Rewrite your uploaded resume to fit the specific jobs you want to apply for.', builtYet: true, route: '/custom-resume' },
   { kind: 'tool', featureKey: 'cover-letter', requiredReferrals: 3, title: 'Tailor Cover Letters', description: 'Generate a tailored cover letter for each role, written to the specific posting.', builtYet: true, route: '/jobs?mode=saved' },
   { kind: 'refund', requiredReferrals: 4, refundPct: 25, title: '25% refund', description: 'Get a quarter of what you paid back to your card.' },
-  { kind: 'refund', requiredReferrals: 5, refundPct: 25, title: '25% refund', description: 'Another quarter back — now half your purchase recovered.' },
-  { kind: 'refund', requiredReferrals: 6, refundPct: 50, title: '50% refund', description: 'The final half back. Your assessment is now completely free.' },
+  { kind: 'refund', requiredReferrals: 5, refundPct: 25, title: 'Additional 25% refund', description: 'Another quarter back — now half your purchase recovered.' },
+  { kind: 'refund', requiredReferrals: 6, refundPct: 50, title: 'Remaining 50% refund', description: 'The final half back. Your assessment is now completely free.' },
 ];
 
 const PRODUCTION_ORIGIN = 'https://cairnly.io';
