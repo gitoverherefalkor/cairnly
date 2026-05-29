@@ -24,6 +24,19 @@ ALTER TABLE public.referrals
   ADD CONSTRAINT referrals_referrer_user_id_fkey
   FOREIGN KEY (referrer_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
 
+-- Same class of bug on the sibling table: referral_payouts.referrer_user_id was
+-- NOT NULL with an ON DELETE CASCADE FK to auth.users. referral_payouts is a
+-- financial record (payout_amount_cents, stripe_refund_id, payout_pct, ...) that
+-- our retention policy RETAINS + anonymizes, so a referrer deleting their account
+-- must NOT cascade-delete their payout rows. Make the column nullable and flip the
+-- FK to SET NULL so the financial row survives the auth-user delete.
+ALTER TABLE public.referral_payouts ALTER COLUMN referrer_user_id DROP NOT NULL;
+
+ALTER TABLE public.referral_payouts DROP CONSTRAINT referral_payouts_referrer_user_id_fkey;
+ALTER TABLE public.referral_payouts
+  ADD CONSTRAINT referral_payouts_referrer_user_id_fkey
+  FOREIGN KEY (referrer_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+
 CREATE OR REPLACE FUNCTION public.delete_user_personal_data(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -105,6 +118,10 @@ BEGIN
   -- survives the eventual auth.users delete (FK is SET NULL). Keep the
   -- invitee's identifiers — they belong to a different person.
   UPDATE public.referrals SET referrer_user_id = NULL WHERE referrer_user_id = p_user_id;
+
+  -- This user as a referrer with payouts: detach so the retained financial
+  -- payout record survives the auth.users delete (FK is SET NULL).
+  UPDATE public.referral_payouts SET referrer_user_id = NULL WHERE referrer_user_id = p_user_id;
 
   -- De-link access codes (not PII; referenced by retained purchase rows).
   UPDATE public.access_codes SET user_id = NULL WHERE user_id = p_user_id;
