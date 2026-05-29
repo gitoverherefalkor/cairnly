@@ -1958,7 +1958,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           checked={isChecked}
                           onCheckedChange={(c) => togglePreset(lang, !!c)}
                         />
-                        <span className="text-base font-medium text-gray-800">{lang}</span>
+                        <span className="text-base font-medium text-gray-800">{question.langLabels?.presets?.[lang] ?? lang}</span>
                       </label>
                       {isChecked && (
                         <Select
@@ -1971,7 +1971,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           <SelectContent>
                             {langProficiencyLevels.map((p) => (
                               <SelectItem key={p.value} value={p.value}>
-                                {p.label}
+                                {question.langLabels?.proficiency?.[p.label] ?? p.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -2009,7 +2009,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <SelectContent>
                         {langOtherChoices.map((lang) => (
                           <SelectItem key={lang} value={lang}>
-                            {lang}
+                            {question.langLabels?.other?.[lang] ?? lang}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -2025,7 +2025,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         <SelectContent>
                           {langProficiencyLevels.map((p) => (
                             <SelectItem key={p.value} value={p.value}>
-                              {p.label}
+                              {question.langLabels?.proficiency?.[p.label] ?? p.label}
                             </SelectItem>
                           ))}
                         </SelectContent>

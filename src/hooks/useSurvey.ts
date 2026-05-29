@@ -27,6 +27,16 @@ export interface Question {
    * Empty for English or when no translation exists. See LOCALIZATION_PLAYBOOK.md.
    */
   choiceLabels?: Record<string, string>;
+  /**
+   * Display-only label maps for the skills_achievements languages sub-card.
+   * Keyed by the English value; the renderer shows the translation but the
+   * stored value (language name / proficiency value) stays English.
+   */
+  langLabels?: {
+    presets?: Record<string, string>;
+    other?: Record<string, string>;
+    proficiency?: Record<string, string>;
+  };
 }
 
 export interface Section {
@@ -43,7 +53,14 @@ export interface Survey {
   sections: Section[];
 }
 
-interface QuestionTranslation { label?: string; description?: string; choices?: Record<string, string>; }
+interface QuestionTranslation {
+  label?: string;
+  description?: string;
+  choices?: Record<string, string>;
+  languages_presets?: Record<string, string>;
+  languages_other?: Record<string, string>;
+  languages_proficiency_levels?: Record<string, string>;
+}
 interface SectionTranslation { title?: string; description?: string; }
 
 export const useSurvey = (surveyId: string) => {
@@ -110,6 +127,13 @@ export const useSurvey = (surveyId: string) => {
                     description: qt.description || baseConfig.description,
                   },
                   choiceLabels: qt.choices ?? {},
+                  langLabels: useTranslations
+                    ? {
+                        presets: qt.languages_presets ?? {},
+                        other: qt.languages_other ?? {},
+                        proficiency: qt.languages_proficiency_levels ?? {},
+                      }
+                    : undefined,
                 } as Question;
               })
           };
