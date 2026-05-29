@@ -11,10 +11,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
-import { Activity, ArrowRight, BookOpen, Briefcase, ChevronRight, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, ChevronRight, Coins, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
+import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
+import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
@@ -1693,7 +1695,7 @@ const UnlockToolkit: React.FC<{
 
       {/* Two compact rows: tools (1–3) on top, refunds (4–6) below. Each row
           flows left-to-right with arrows that light up as steps unlock. */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <LadderRow label="Tools" items={ladder.slice(0, 3)} onInvite={onInvite} onNavigate={onNavigate} />
         <LadderRow label="Money back" items={ladder.slice(3, 6)} onInvite={onInvite} onNavigate={onNavigate} />
       </div>
@@ -1702,48 +1704,39 @@ const UnlockToolkit: React.FC<{
 };
 
 // One row of the unlock ladder (3 step cards + flow-arrows between them),
-// prefixed by a small vertical label.
+// with a small heading above. Cards stay flush with the rest of the dashboard
+// width — the label sits above, not beside, so nothing shifts the grid.
 const LadderRow: React.FC<{
   label: string;
   items: ResolvedUnlockStep[];
   onInvite: () => void;
   onNavigate: (route: string) => void;
 }> = ({ label, items, onInvite, onNavigate }) => (
-  <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+  <div>
     <div
       style={{
-        flexShrink: 0,
-        width: 30,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 6,
+        fontFamily: FONT_BODY,
+        fontSize: 10,
+        fontWeight: 800,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        color: 'rgba(255,255,255,0.45)',
+        marginBottom: 8,
+        paddingLeft: 2,
       }}
     >
-      <span
-        style={{
-          fontFamily: FONT_BODY,
-          fontSize: 9.5,
-          fontWeight: 800,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.45)',
-          writingMode: 'vertical-rl',
-          transform: 'rotate(180deg)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {label}
-      </span>
+      {label}
     </div>
-    {items.map((item, i) => (
-      <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
-        <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-          <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
-        </div>
-        {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} />}
-      </React.Fragment>
-    ))}
+    <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+      {items.map((item, i) => (
+        <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
+          <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
+            <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
+          </div>
+          {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} />}
+        </React.Fragment>
+      ))}
+    </div>
   </div>
 );
 
@@ -1777,12 +1770,35 @@ const StepCard: React.FC<{
   const route = isTool ? step.route : undefined;
   const actionable = isTool && unlocked && builtYet && !!route;
 
-  // Saved-résumé summary lives on the resume step only.
+  // Per-tool activity summary (teal one-liner): résumés on the resume step,
+  // saved jobs on the jobs step, cover letters on the cover-letter step. All
+  // hooks are called unconditionally (rules of hooks) but only the matching
+  // one is surfaced for this card.
   const { data: savedResumes } = useCustomResumeList();
-  const showSavedSummary =
-    isTool && step.featureKey === 'resume' && unlocked && builtYet && (savedResumes?.length ?? 0) > 0;
-  const mostRecentSaved = showSavedSummary ? savedResumes![0] : null;
-  const savedCount = savedResumes?.length ?? 0;
+  const { savedJobs } = useSavedJobs();
+  const { data: coverLetters } = useCoverLetterList();
+
+  let summaryCount = 0;
+  let summaryNoun = '';
+  let summaryRecent: string | null = null;
+  if (isTool && unlocked && builtYet) {
+    if (step.featureKey === 'resume') {
+      summaryCount = savedResumes?.length ?? 0;
+      summaryNoun = summaryCount === 1 ? 'résumé' : 'résumés';
+      summaryRecent = savedResumes?.[0]?.career_title ?? null;
+    } else if (step.featureKey === 'jobs') {
+      summaryCount = savedJobs?.length ?? 0;
+      summaryNoun = summaryCount === 1 ? 'saved job' : 'saved jobs';
+      const top = savedJobs?.[0];
+      summaryRecent = top ? [top.job_title, top.company_name].filter(Boolean).join(' · ') : null;
+    } else if (step.featureKey === 'cover-letter') {
+      summaryCount = coverLetters?.length ?? 0;
+      summaryNoun = summaryCount === 1 ? 'cover letter' : 'cover letters';
+      const top = coverLetters?.[0];
+      summaryRecent = top ? [top.job_title, top.job_company].filter(Boolean).join(' · ') : null;
+    }
+  }
+  const showSummary = summaryCount > 0 && !!summaryRecent;
 
   // Status line under the title.
   const statusText = unlocked
@@ -1821,28 +1837,40 @@ const StepCard: React.FC<{
             fontFamily: FONT_DISPLAY,
             fontWeight: 800,
             fontSize: 12,
-            background: !unlocked
-              ? 'rgba(18,46,59,0.08)'
-              : isTool
+            // Tools: gold when unlocked, grey when locked. Refunds: always a
+            // teal "money" tint when unlocked, soft gold-tint coin when locked.
+            background: isTool
+              ? unlocked
                 ? 'rgba(212,160,36,0.18)'
-                : 'rgba(39,161,161,0.16)',
-            color: !unlocked ? PALETTE.inkSoft : isTool ? PALETTE.gold : PALETTE.tealDeep,
+                : 'rgba(18,46,59,0.08)'
+              : unlocked
+                ? 'rgba(39,161,161,0.16)'
+                : 'rgba(212,160,36,0.12)',
+            color: isTool
+              ? unlocked
+                ? PALETTE.gold
+                : PALETTE.inkSoft
+              : unlocked
+                ? PALETTE.tealDeep
+                : PALETTE.gold,
             border: `1px solid ${
-              !unlocked
-                ? 'rgba(18,46,59,0.10)'
-                : isTool
+              isTool
+                ? unlocked
                   ? 'rgba(212,160,36,0.45)'
-                  : 'rgba(39,161,161,0.32)'
+                  : 'rgba(18,46,59,0.10)'
+                : unlocked
+                  ? 'rgba(39,161,161,0.32)'
+                  : 'rgba(212,160,36,0.32)'
             }`,
             boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
           }}
         >
-          {!unlocked ? (
-            <Lock size={14} />
-          ) : isTool ? (
-            TOOL_META[step.featureKey].icon
+          {isTool ? (
+            unlocked ? TOOL_META[step.featureKey].icon : <Lock size={14} />
           ) : (
-            `${step.refundPct}%`
+            // Refund steps: coins icon in both states (the % is in the title;
+            // the lock lives in the button below, no need to double up).
+            <Coins size={16} />
           )}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
@@ -1894,8 +1922,8 @@ const StepCard: React.FC<{
         </p>
       )}
 
-      {/* Saved-résumé one-liner (resume step only) */}
-      {showSavedSummary && mostRecentSaved ? (
+      {/* Per-tool activity one-liner (teal): résumés / saved jobs / cover letters */}
+      {showSummary ? (
         <div
           style={{
             display: 'flex',
@@ -1907,7 +1935,7 @@ const StepCard: React.FC<{
             borderRadius: 9,
             minWidth: 0,
           }}
-          title={`Most recent: ${mostRecentSaved.career_title}`}
+          title={`${summaryCount} ${summaryNoun} · most recent: ${summaryRecent}`}
         >
           <BookOpen size={12} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
           <span
@@ -1921,7 +1949,7 @@ const StepCard: React.FC<{
               whiteSpace: 'nowrap',
             }}
           >
-            <strong style={{ fontWeight: 700, color: PALETTE.tealDeep }}>{savedCount}</strong> saved · {mostRecentSaved.career_title}
+            <strong style={{ fontWeight: 700, color: PALETTE.tealDeep }}>{summaryCount}</strong> {summaryNoun} · {summaryRecent}
           </span>
         </div>
       ) : null}
