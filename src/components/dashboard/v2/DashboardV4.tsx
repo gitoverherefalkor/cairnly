@@ -5,7 +5,7 @@
 // Section order: Welcome · Hero match + #2/#3 · More paths · Profile at a
 // glance · Unlock toolkit · Share promo · Full report accordion.
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -1814,8 +1814,30 @@ const StepCard: React.FC<{
     ? '0 14px 28px -16px rgba(0,0,0,0.32), 0 0 0 3px rgba(212,160,36,0.16)'
     : '0 14px 28px -16px rgba(0,0,0,0.32)';
 
+  // Refund cards pulse ONCE the first time they scroll into view, then settle
+  // back to the static gold outline. IntersectionObserver fires the CSS class,
+  // disconnects after the first trigger so it never repeats this session.
+  const cardRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!isRefund) return;
+    const el = cardRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          el.classList.add('refund-pulse');
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isRefund]);
+
   return (
     <article
+      ref={cardRef}
       style={{
         background: PALETTE.cream,
         borderRadius: 14,
