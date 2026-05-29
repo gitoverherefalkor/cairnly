@@ -1,4 +1,5 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 /**
  * Error boundary that catches failed lazy-loaded chunks and reloads the page.
@@ -17,6 +18,11 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  // True when we've detected a stale-deploy chunk error and a hard reload is
+  // imminent. In this window we show a neutral spinner, not the error card,
+  // so the user never sees a scary "Something went wrong" flash before the
+  // page silently reloads itself.
+  reloading: boolean;
 }
 
 function isChunkLoadError(error: unknown): boolean {
@@ -39,7 +45,7 @@ const RELOAD_TS_KEY = 'chunk_reload_ts';
 const RELOAD_LOOP_WINDOW_MS = 10_000;
 
 export class ChunkLoadErrorBoundary extends React.Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, reloading: false };
 
   static getDerivedStateFromError(error: unknown): State {
     if (isChunkLoadError(error)) {
@@ -49,9 +55,15 @@ export class ChunkLoadErrorBoundary extends React.Component<Props, State> {
       if (Date.now() - lastReload > RELOAD_LOOP_WINDOW_MS) {
         sessionStorage.setItem(RELOAD_TS_KEY, String(Date.now()));
         window.location.reload();
+        // Reload is on its way — render a spinner, not the error card.
+        return { hasError: true, reloading: true };
       }
+      // We already reloaded once in the last window and the chunk STILL failed,
+      // so it's genuinely broken (not just stale). Fall through to the card.
+      return { hasError: true, reloading: false };
     }
-    return { hasError: true };
+    // Non-chunk render error: a real bug. Show the error card (no auto-reload).
+    return { hasError: true, reloading: false };
   }
 
   componentDidCatch(error: unknown) {
@@ -62,6 +74,15 @@ export class ChunkLoadErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      // Stale-deploy chunk error with a reload already in flight: show a calm
+      // spinner for the split second before the browser reloads. No scary text.
+      if (this.state.reloading) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <Loader2 className="h-8 w-8 animate-spin text-atlas-blue" />
+          </div>
+        );
+      }
       return (
         this.props.fallback ?? (
           <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
