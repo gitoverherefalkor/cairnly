@@ -51,10 +51,10 @@ serve(async (req) => {
       return errorResponse('Failed to update report status', 500, serverHeaders);
     }
 
-    // Fetch user email
+    // Fetch user email + language
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('email, first_name')
+      .select('email, first_name, preferred_language')
       .eq('id', updated.user_id)
       .single();
 
@@ -77,25 +77,55 @@ serve(async (req) => {
 
     const firstName = profile.first_name || 'there';
     const titleSuffix = updated.title ? ` "${updated.title}"` : '';
-    const subject = 'Your Cairnly career report is ready';
+    const lang: 'en' | 'nl' =
+      (profile as { preferred_language?: string }).preferred_language === 'nl' ? 'nl' : 'en';
+
+    // English is the source. Dutch follows the glossary tone (casual je-form,
+    // no em-dashes, brand terms in English). See LOCALIZATION_PLAYBOOK.md.
+    const COPY = {
+      en: {
+        subject: 'Your Cairnly career report is ready',
+        preheader: 'Your assessment has been analyzed and is ready to walk through.',
+        h1: `Your career analysis is ready, ${firstName}`,
+        p1: `Your assessment${titleSuffix} has been analyzed and your AI career coach is ready to walk you through the results.`,
+        p2: "The coaching chat is the core of the Cairnly experience. It covers your personality profile, strengths, career matches, and dream job analysis, section by section, with you in the driver's seat.",
+        calloutTitle: 'Typically takes 20-30 minutes',
+        calloutBody: 'Your session is saved if you need to pause and come back.',
+        cta: 'Start Your Coaching Session',
+        fineprint: 'If you did not request this, you can ignore this email.',
+      },
+      nl: {
+        subject: 'Je Cairnly loopbaanrapport is klaar',
+        preheader: 'Je assessment is geanalyseerd en klaar om door te nemen.',
+        h1: `Je loopbaananalyse is klaar, ${firstName}`,
+        p1: `Je assessment${titleSuffix} is geanalyseerd en je AI-loopbaancoach staat klaar om je door de resultaten te loodsen.`,
+        p2: "De coaching chat is de kern van de Cairnly-ervaring. Hij behandelt je persoonlijkheidsprofiel, sterke punten, loopbaanmatches en droombaan-analyse, sectie voor sectie, met jou aan het stuur.",
+        calloutTitle: 'Duurt meestal 20-30 minuten',
+        calloutBody: 'Je sessie wordt opgeslagen als je even wilt pauzeren en later verder wilt.',
+        cta: 'Start je coachingsessie',
+        fineprint: 'Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren.',
+      },
+    } as const;
+    const c = COPY[lang];
+    const subject = c.subject;
 
     const bodyHtml =
       bodyRow(
-        h1(`Your career analysis is ready, ${firstName}`) +
-        paragraph(`Your assessment${titleSuffix} has been analyzed and your AI career coach is ready to walk you through the results.`) +
-        paragraph("The coaching chat is the core of the Cairnly experience. It covers your personality profile, strengths, career matches, and dream job analysis, section by section, with you in the driver's seat.") +
-        callout('Typically takes 20-30 minutes', `
+        h1(c.h1) +
+        paragraph(c.p1) +
+        paragraph(c.p2) +
+        callout(c.calloutTitle, `
           <p style="margin:0;color:#3D4A53;font-size:14.5px;line-height:1.65;font-family:'Inter',Arial,sans-serif;font-weight:500;">
-            Your session is saved if you need to pause and come back.
+            ${c.calloutBody}
           </p>
         `)
       ) +
-      ctaRow('Start Your Coaching Session', chatUrl) +
-      `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint('If you did not request this, you can ignore this email.')}</td></tr>`;
+      ctaRow(c.cta, chatUrl) +
+      `<tr><td style="padding:0 48px 24px;background-color:#ECE4D2;" class="px-mob">${fineprint(c.fineprint)}</td></tr>`;
 
     const html = renderEmail({
       title: subject,
-      preheader: 'Your assessment has been analyzed and is ready to walk through.',
+      preheader: c.preheader,
       bodyHtml,
     });
 
