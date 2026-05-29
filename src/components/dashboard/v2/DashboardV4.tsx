@@ -13,8 +13,7 @@ import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
 import { Activity, ArrowRight, BookOpen, Briefcase, ChevronRight, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
-import type { ResolvedFeature } from '@/hooks/useReferralStatus';
-import { formatEuro } from '@/hooks/useReferralStatus';
+import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
@@ -72,8 +71,7 @@ interface DashboardV4Props {
   referralCode: string | null;
   referralCount: number;
   features: ResolvedFeature[];
-  earnedRefundCents: number | null;
-  maxRefundCents: number | null;
+  ladder: ResolvedUnlockStep[];
   onNavigate: (route: string) => void;
   onProfile: () => void;
   onSignOut: () => void;
@@ -181,8 +179,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   referralCode,
   referralCount,
   features,
-  earnedRefundCents,
-  maxRefundCents,
+  ladder,
   onNavigate,
   onProfile,
   onSignOut,
@@ -701,9 +698,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         <UnlockToolkit
           referralCode={referralCode}
           referralCount={referralCount}
-          features={features}
-          earnedRefundCents={earnedRefundCents}
-          maxRefundCents={maxRefundCents}
+          ladder={ladder}
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
@@ -1510,25 +1505,23 @@ const PathsTile: React.FC<{
 );
 
 // ── Unlock toolkit ────────────────────────────────────────────
-const TOOL_META: Record<string, { label: string; icon: React.ReactNode; unlockCopy: string }> = {
-  jobs: { label: 'Find open roles', icon: <Briefcase size={20} />, unlockCopy: 'Invite a first friend to unlock' },
-  resume: { label: 'Tailor your resume', icon: <FileText size={20} />, unlockCopy: 'Invite a second friend to unlock' },
-  'cover-letter': { label: 'Generate cover letters', icon: <FilePlus size={20} />, unlockCopy: 'Invite a third friend to unlock' },
+// Icons + CTA labels for the three tool steps (refund steps render a % badge
+// instead of an icon, handled inline below).
+const TOOL_META: Record<string, { label: string; icon: React.ReactNode }> = {
+  jobs: { label: 'Find open roles', icon: <Briefcase size={18} /> },
+  resume: { label: 'Tailor your resume', icon: <FileText size={18} /> },
+  'cover-letter': { label: 'Generate cover letters', icon: <FilePlus size={18} /> },
 };
 
 const UnlockToolkit: React.FC<{
   referralCode: string | null;
   referralCount: number;
-  features: ResolvedFeature[];
-  earnedRefundCents: number | null;
-  maxRefundCents: number | null;
+  ladder: ResolvedUnlockStep[];
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ referralCode, referralCount, features, earnedRefundCents, maxRefundCents, onInvite, onNavigate }) => {
-  const earned = Math.min(referralCount, 3);
-  const fullyRefunded = earned >= 3;
-  // Only show the euro tracker once we actually know what the user paid.
-  const showMoney = maxRefundCents !== null && maxRefundCents > 0;
+}> = ({ referralCode, referralCount, ladder, onInvite, onNavigate }) => {
+  const earned = Math.min(referralCount, 6);
+  const fullyRefunded = referralCount >= 6;
   return (
     <section style={{ marginBottom: 28 }}>
       <div
@@ -1574,7 +1567,7 @@ const UnlockToolkit: React.FC<{
                 margin: '10px 0 8px 0',
               }}
             >
-              Refer 3 friends, get your assessment free.
+              Six friends, and your assessment paid for itself.
             </h3>
             <p
               style={{
@@ -1587,61 +1580,12 @@ const UnlockToolkit: React.FC<{
                 maxWidth: 540,
               }}
             >
-              {showMoney ? (
-                <>Each friend unlocks a tool <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>and</em> refunds part of what you paid. Three friends = {formatEuro(maxRefundCents!)} back, your full purchase, returned to your card.</>
-              ) : (
-                <>Each friend unlocks a tool <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>and</em> refunds part of what you paid. Three friends = 100% back, your full purchase, returned to your card.</>
-              )}
+              Your first three friends unlock the job-hunt tools. The next three
+              refund your purchase, <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>25% + 25% + 50%</em>, back
+              to your card. They get clarity, you get paid back.
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 280 }}>
-            {/* Money tracker — cumulative cash-back earned vs full potential */}
-            {showMoney && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  fontFamily: FONT_BODY,
-                }}
-              >
-                <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span
-                    style={{
-                      fontFamily: FONT_DISPLAY,
-                      fontWeight: 800,
-                      fontSize: 26,
-                      color: PALETTE.goldBright,
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {formatEuro(earnedRefundCents ?? 0)}
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>
-                    of {formatEuro(maxRefundCents!)} back
-                  </span>
-                </span>
-                {fullyRefunded && (
-                  <span
-                    style={{
-                      fontFamily: FONT_BODY,
-                      fontSize: 11,
-                      fontWeight: 800,
-                      color: PALETTE.canvasDeep,
-                      background: PALETTE.goldBright,
-                      padding: '3px 10px',
-                      borderRadius: 9999,
-                      letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Fully refunded 🎉
-                  </span>
-                )}
-              </div>
-            )}
             <div
               style={{
                 display: 'flex',
@@ -1653,17 +1597,35 @@ const UnlockToolkit: React.FC<{
                 color: 'rgba(255,255,255,0.7)',
               }}
             >
-              <span style={{ whiteSpace: 'nowrap' }}>{earned} of 3 friends joined</span>
+              <span style={{ whiteSpace: 'nowrap' }}>{earned} of 6 friends joined</span>
               <span style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.10)', borderRadius: 9999, overflow: 'hidden' }}>
                 <span
                   style={{
                     display: 'block',
-                    width: `${(earned / 3) * 100}%`,
+                    width: `${(earned / 6) * 100}%`,
                     height: '100%',
                     background: `linear-gradient(90deg, ${PALETTE.gold} 0%, ${PALETTE.goldBright} 100%)`,
                   }}
                 />
               </span>
+              {fullyRefunded && (
+                <span
+                  style={{
+                    fontFamily: FONT_BODY,
+                    fontSize: 10.5,
+                    fontWeight: 800,
+                    color: PALETTE.canvasDeep,
+                    background: PALETTE.goldBright,
+                    padding: '3px 9px',
+                    borderRadius: 9999,
+                    letterSpacing: '0.03em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  All unlocked 🎉
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <div
@@ -1729,16 +1691,14 @@ const UnlockToolkit: React.FC<{
         </div>
       </div>
 
-      {/* Tool cards in one row, with flow-arrows showing left-to-right progression */}
+      {/* Six-step ladder in one row, flow-arrows lighting up left-to-right */}
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
-        {features.map((f, i) => (
-          <React.Fragment key={f.key}>
+        {ladder.map((item, i) => (
+          <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
             <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-              <ToolCard feature={f} onInvite={onInvite} onNavigate={onNavigate} />
+              <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
             </div>
-            {i < features.length - 1 && (
-              <FlowArrow lit={features[i + 1].unlocked} />
-            )}
+            {i < ladder.length - 1 && <FlowArrow lit={ladder[i + 1].unlocked} />}
           </React.Fragment>
         ))}
       </div>
@@ -1752,165 +1712,161 @@ const FlowArrow: React.FC<{ lit: boolean }> = ({ lit }) => (
   <div
     style={{
       flexShrink: 0,
-      width: 34,
+      width: 22,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: lit ? PALETTE.goldBright : 'rgba(255,255,255,0.22)',
+      color: lit ? PALETTE.goldBright : 'rgba(255,255,255,0.20)',
       transition: 'color 0.3s ease',
     }}
     aria-hidden
   >
-    <ChevronRight size={26} strokeWidth={2.5} />
+    <ChevronRight size={20} strokeWidth={2.5} />
   </div>
 );
 
-const ToolCard: React.FC<{
-  feature: ResolvedFeature;
+const StepCard: React.FC<{
+  item: ResolvedUnlockStep;
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ feature, onInvite, onNavigate }) => {
-  const meta = TOOL_META[feature.key];
-  const unlocked = feature.unlocked;
-  const actionable = unlocked && feature.builtYet && !!feature.route;
-  // Show the real euro figure when we know what the user paid, else the %.
-  const refundLabel = feature.refundCents !== null ? formatEuro(feature.refundCents) : `${feature.refundPct}%`;
+}> = ({ item, onInvite, onNavigate }) => {
+  const { step, unlocked } = item;
+  const isTool = step.kind === 'tool';
+  const builtYet = isTool ? step.builtYet : true;
+  const route = isTool ? step.route : undefined;
+  const actionable = isTool && unlocked && builtYet && !!route;
 
-  // For the resume tool, surface a summary of past tailored résumés so the
-  // user knows there's work to return to (and can jump to the index view
-  // without re-generating). Hook is unconditionally called but only renders
-  // anything when feature.key === 'resume' AND there's at least one row.
+  // Saved-résumé summary lives on the resume step only.
   const { data: savedResumes } = useCustomResumeList();
   const showSavedSummary =
-    feature.key === 'resume' &&
-    unlocked &&
-    feature.builtYet &&
-    (savedResumes?.length ?? 0) > 0;
+    isTool && step.featureKey === 'resume' && unlocked && builtYet && (savedResumes?.length ?? 0) > 0;
   const mostRecentSaved = showSavedSummary ? savedResumes![0] : null;
   const savedCount = savedResumes?.length ?? 0;
+
+  // Status line under the title.
+  const statusText = unlocked
+    ? builtYet
+      ? 'Unlocked!'
+      : 'Unlocked · soon'
+    : `Friend #${step.requiredReferrals}`;
 
   return (
     <article
       style={{
         background: PALETTE.cream,
-        borderRadius: 18,
-        padding: 18,
-        border: `1px solid ${PALETTE.tan}`,
+        borderRadius: 16,
+        padding: 14,
+        border: `1px solid ${unlocked ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`,
         boxShadow: '0 18px 36px -16px rgba(0,0,0,0.35)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
+        gap: 10,
         width: '100%',
         minWidth: 0,
+        opacity: unlocked ? 1 : 0.92,
       }}
     >
-      {/* Refund badge — top-right pill showing this tier's cash-back value */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 9999,
-              background: actionable
-                ? 'rgba(212, 160, 36, 0.18)'
-                : unlocked
-                  ? 'rgba(39, 161, 161, 0.14)'
-                  : 'rgba(18,46,59,0.08)',
-              color: actionable
-                ? PALETTE.gold
-                : unlocked
-                  ? PALETTE.tealDeep
-                  : PALETTE.inkSoft,
-              border: actionable
-                ? '1px solid rgba(212, 160, 36, 0.45)'
-                : unlocked
-                  ? '1px solid rgba(39, 161, 161, 0.30)'
-                  : '1px solid rgba(18,46,59,0.10)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
-            }}
-          >
-            {unlocked ? meta.icon : <Lock size={17} />}
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15.5, color: PALETTE.canvasDeep, lineHeight: 1.2 }}>
-              {feature.title}
-            </div>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontWeight: 700,
-                fontSize: 11.5,
-                color: actionable ? PALETTE.gold : unlocked ? PALETTE.teal : PALETTE.inkMuted,
-                marginTop: 3,
-                letterSpacing: actionable ? '0.04em' : undefined,
-                textTransform: actionable ? 'uppercase' : undefined,
-              }}
-            >
-              {unlocked ? (feature.builtYet ? 'Unlocked!' : 'Unlocked · coming soon') : meta.unlockCopy}
-            </div>
-          </div>
-        </div>
-        {/* Cash-back pill */}
+      {/* Icon / % badge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
         <div
           style={{
-            flexShrink: 0,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '5px 10px',
+            width: 38,
+            height: 38,
             borderRadius: 9999,
-            background: unlocked ? 'rgba(39,161,161,0.12)' : 'rgba(212,160,36,0.14)',
-            border: `1px solid ${unlocked ? 'rgba(39,161,161,0.32)' : 'rgba(212,160,36,0.40)'}`,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontFamily: FONT_DISPLAY,
             fontWeight: 800,
             fontSize: 13,
-            color: unlocked ? PALETTE.tealDeep : PALETTE.gold,
-            whiteSpace: 'nowrap',
+            background: !unlocked
+              ? 'rgba(18,46,59,0.08)'
+              : isTool
+                ? 'rgba(212,160,36,0.18)'
+                : 'rgba(39,161,161,0.16)',
+            color: !unlocked ? PALETTE.inkSoft : isTool ? PALETTE.gold : PALETTE.tealDeep,
+            border: `1px solid ${
+              !unlocked
+                ? 'rgba(18,46,59,0.10)'
+                : isTool
+                  ? 'rgba(212,160,36,0.45)'
+                  : 'rgba(39,161,161,0.32)'
+            }`,
+            boxShadow: actionable ? '0 6px 16px -6px rgba(212,160,36,0.45)' : undefined,
           }}
         >
-          {refundLabel}
-          <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 10.5, opacity: 0.8 }}>
-            {unlocked ? 'back' : 'back'}
-          </span>
+          {!unlocked ? (
+            <Lock size={16} />
+          ) : isTool ? (
+            TOOL_META[step.featureKey].icon
+          ) : (
+            `${step.refundPct}%`
+          )}
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div
+            style={{
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              color: PALETTE.canvasDeep,
+              lineHeight: 1.2,
+            }}
+          >
+            {step.title}
+          </div>
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 10.5,
+              color: unlocked ? (isTool ? PALETTE.gold : PALETTE.tealDeep) : PALETTE.inkMuted,
+              marginTop: 2,
+              letterSpacing: '0.03em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {statusText}
+          </div>
         </div>
       </div>
+
+      {/* Short description */}
       <p
         style={{
           fontFamily: FONT_BODY,
           fontWeight: 500,
-          fontSize: 13.5,
+          fontSize: 12,
           color: PALETTE.inkMuted,
-          lineHeight: 1.5,
+          lineHeight: 1.45,
           margin: 0,
           flex: 1,
         }}
       >
-        {feature.description}
+        {step.description}
       </p>
+
+      {/* Saved-résumé one-liner (resume step only) */}
       {showSavedSummary && mostRecentSaved ? (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
-            padding: '6px 10px',
+            gap: 6,
+            padding: '5px 8px',
             background: 'rgba(39,161,161,0.10)',
             border: '1px solid rgba(39,161,161,0.28)',
-            borderRadius: 10,
+            borderRadius: 9,
             minWidth: 0,
           }}
           title={`Most recent: ${mostRecentSaved.career_title}`}
         >
-          <BookOpen size={13} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
+          <BookOpen size={12} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
           <span
             style={{
               fontFamily: FONT_BODY,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 600,
               color: PALETTE.canvasDeep,
               overflow: 'hidden',
@@ -1922,42 +1878,67 @@ const ToolCard: React.FC<{
           </span>
         </div>
       ) : null}
-      <button
-        type="button"
-        disabled={unlocked && !feature.builtYet}
-        onClick={() => {
-          if (actionable) onNavigate(feature.route!);
-          else if (!unlocked) onInvite();
-        }}
-        style={{
-          marginTop: 'auto',
-          background: actionable ? PALETTE.gold : 'transparent',
-          color: actionable
-            ? PALETTE.canvasDeep
-            : unlocked && !feature.builtYet
-              ? PALETTE.inkSoft
-              : PALETTE.tealDeep,
-          border: actionable
-            ? '1px solid transparent'
-            : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
-          padding: '11px 14px',
-          borderRadius: 9999,
-          fontFamily: FONT_BODY,
-          fontWeight: actionable ? 800 : 700,
-          fontSize: 13,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          cursor: unlocked && !feature.builtYet ? 'default' : 'pointer',
-          boxShadow: actionable ? '0 10px 24px -8px rgba(212,160,36,0.55)' : undefined,
-          opacity: unlocked && !feature.builtYet ? 0.7 : 1,
-        }}
-      >
-        {!unlocked && <Lock size={13} />}
-        {actionable ? meta.label : unlocked ? 'Coming soon' : 'Invite a friend to unlock'}
-        {actionable && <ArrowRight size={13} />}
-      </button>
+
+      {/* CTA — tools get an action / invite button; refunds show a quiet status */}
+      {isTool ? (
+        <button
+          type="button"
+          disabled={unlocked && !builtYet}
+          onClick={() => {
+            if (actionable) onNavigate(route!);
+            else if (!unlocked) onInvite();
+          }}
+          style={{
+            marginTop: 'auto',
+            background: actionable ? PALETTE.gold : 'transparent',
+            color: actionable
+              ? PALETTE.canvasDeep
+              : unlocked && !builtYet
+                ? PALETTE.inkSoft
+                : PALETTE.tealDeep,
+            border: actionable
+              ? '1px solid transparent'
+              : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
+            padding: '9px 10px',
+            borderRadius: 9999,
+            fontFamily: FONT_BODY,
+            fontWeight: actionable ? 800 : 700,
+            fontSize: 11.5,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            cursor: unlocked && !builtYet ? 'default' : 'pointer',
+            boxShadow: actionable ? '0 10px 24px -8px rgba(212,160,36,0.55)' : undefined,
+            opacity: unlocked && !builtYet ? 0.7 : 1,
+          }}
+        >
+          {!unlocked && <Lock size={12} />}
+          {actionable ? TOOL_META[step.featureKey].label : unlocked ? 'Coming soon' : 'Invite to unlock'}
+          {actionable && <ArrowRight size={12} />}
+        </button>
+      ) : (
+        <div
+          style={{
+            marginTop: 'auto',
+            padding: '9px 10px',
+            borderRadius: 9999,
+            textAlign: 'center',
+            fontFamily: FONT_BODY,
+            fontWeight: 700,
+            fontSize: 11.5,
+            background: unlocked ? 'rgba(39,161,161,0.12)' : 'transparent',
+            border: `1px solid ${unlocked ? 'rgba(39,161,161,0.40)' : 'rgba(18,46,59,0.14)'}`,
+            color: unlocked ? PALETTE.tealDeep : PALETTE.inkSoft,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+          }}
+        >
+          {unlocked ? 'Refund on its way' : <><Lock size={12} /> {step.refundPct}% back</>}
+        </div>
+      )}
     </article>
   );
 };

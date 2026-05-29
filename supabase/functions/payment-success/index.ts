@@ -79,15 +79,22 @@ async function sendAccessCodeEmail(email: string, firstName: string, lastName: s
   }
 }
 
-// Referral payout tiers — % of the referrer's net amount paid, per referral
-// sequence position. Cumulatively 100% recoverable across 3 referrals. After
-// 3, no payout (cap reached). Matches the existing 3-tier tool unlock cadence
-// so the user-facing story is "3 friends = all tools unlocked AND your
-// purchase fully refunded".
+// Referral payout tiers — % of the referrer's net amount paid, keyed by
+// referral sequence position. The unlock ladder is 6 steps per converted
+// referral:
+//   1 → Find Job Openings   (tool, no payout)
+//   2 → Tailor Your Resume  (tool, no payout)
+//   3 → Tailor Cover Letters(tool, no payout)
+//   4 → 25% refund
+//   5 → 25% refund
+//   6 → 50% refund  (cumulative 100% — purchase fully refunded)
+//   7+ → nothing (cap reached)
+// So tools come first (1–3), then the money comes back (4–6). Refunds are
+// issued via Stripe 14 days after the triggering purchase.
 const REFERRAL_PAYOUT_TIERS: Record<number, number> = {
-  1: 25,
-  2: 25,
-  3: 50,
+  4: 25,
+  5: 25,
+  6: 50,
 };
 
 // Schedule a referral payout for a successful referral. Best-effort: any
@@ -96,9 +103,10 @@ const REFERRAL_PAYOUT_TIERS: Record<number, number> = {
 // the referred purchase (so we're past Stripe's chargeback window).
 //
 // Skip-without-error cases (these are NOT failures, just "nothing to pay"):
+//   - Referrals 1–3 (tool unlocks)                -> no payout tier, skip
 //   - Referrer has no completed purchase recorded -> nothing to refund TO
 //   - Referrer paid 0 (100%-off promo)            -> payout would be 0
-//   - Sequence number > 3                          -> cap reached
+//   - Sequence number > 6                          -> cap reached
 async function queueReferralPayout(args: {
   // deno-lint-ignore no-explicit-any
   supabase: any;
@@ -128,7 +136,8 @@ async function queueReferralPayout(args: {
     const sequenceNumber = totalReferrals;
     const tierPct = REFERRAL_PAYOUT_TIERS[sequenceNumber];
     if (!tierPct) {
-      // Beyond tier 3 — cap reached, no payout owed. Quietly skip.
+      // Referrals 1–3 (tool unlocks, no money) or 7+ (cap reached). No payout
+      // owed at this sequence position — quietly skip.
       return;
     }
 
