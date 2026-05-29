@@ -1,0 +1,673 @@
+{
+  "_meta": {
+    "lang": "nl",
+    "generatedBy": "scripts/translate-survey.ts",
+    "note": "Review then apply via Supabase MCP. Answer values stay English; choices is a map keyed by the English string."
+  },
+  "sections": {
+    "10000000-0000-0000-0000-000000000001": {
+      "title": "Intakevragen",
+      "description": "Laten we beginnen met kennismaken en je achtergrond in kaart brengen."
+    },
+    "20000000-0000-0000-0000-000000000001": {
+      "title": "Persoonlijkheid en Besluitvorming",
+      "description": "Door te begrijpen hoe je beslissingen neemt en situaties benadert, kunnen we je carrièreaanbevelingen beter op je afstemmen."
+    },
+    "30000000-0000-0000-0000-000000000001": {
+      "title": "Waarden en Motivatie",
+      "description": "Jouw kernwaarden en wat je motiveert zijn essentieel om het juiste carrièrepad te vinden."
+    },
+    "40000000-0000-0000-0000-000000000001": {
+      "title": "Professionele interesses en vaardigheden",
+      "description": "Tijd om te duiken in je interesses, vaardigheden en carrièreambities."
+    },
+    "50000000-0000-0000-0000-000000000001": {
+      "title": "Werkomgeving en teamvoorkeuren",
+      "description": "Laten we kijken welke werkomgeving en teamdynamiek het beste bij je past."
+    },
+    "60000000-0000-0000-0000-000000000001": {
+      "title": "Emotionele intelligentie",
+      "description": "Inzicht in je emotionele intelligentie helpt ons rollen aan te raden die passen bij je interpersoonlijke sterke punten."
+    },
+    "70000000-0000-0000-0000-000000000001": {
+      "title": "Carrièredoelen en Ontwikkeling",
+      "description": "Laatste sectie (echt waar), laten we het hebben over je carrièredoelen en ontwikkelingsvoorkeuren."
+    }
+  },
+  "questions": {
+    "11111111-1111-1111-1111-11111111111a": {
+      "label": "Je naam",
+      "description": "Voor- en achternaam",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-11111111111b": {
+      "label": "Je voornaamwoord",
+      "description": null,
+      "choices": {
+        "She / Her": "Zij / Haar",
+        "He / Him": "Hij / Hem",
+        "They / Them": "Hen / Hun",
+        "Not defined": "Niet gedefinieerd"
+      }
+    },
+    "11111111-1111-1111-1111-111111111113": {
+      "label": "Je leeftijd",
+      "description": null,
+      "choices": null
+    },
+    "11111111-1111-1111-1111-111111111114": {
+      "label": "In welke regio woon je?",
+      "description": "Als je van plan bent binnenkort te verhuizen, kies dan die regio.",
+      "choices": {
+        "Northern and Western Europe": "Noord- en West-Europa",
+        "Southern and Eastern Europe": "Zuid- en Oost-Europa",
+        "United Kingdom (London)": "Verenigd Koninkrijk (Londen)",
+        "United Kingdom (Other)": "Verenigd Koninkrijk (Overig)",
+        "United States (High-Cost Regions)": "Verenigde Staten (Dure regio's)",
+        "United States (Average-Cost Regions)": "Verenigde Staten (Gemiddelde regio's)",
+        "United States (Lower-Cost Regions)": "Verenigde Staten (Goedkopere regio's)",
+        "Canada": "Canada",
+        "Australia and New Zealand": "Australië en Nieuw-Zeeland",
+        "Switzerland": "Zwitserland"
+      }
+    },
+    "11111111-1111-1111-1111-111111111115": {
+      "label": "Mijn belangrijkste doel/doelen voor het invullen van deze vragenlijst en het ontvangen van een rapport",
+      "description": "Kies maximaal 2 opties die het best bij je doelen passen, of geef het aan bij 'anders'",
+      "choices": {
+        "Looking for guidance on my **first job or career path**": "Op zoek naar advies voor mijn **eerste baan of loopbaan**",
+        "Finding a **new career path** that better suits my skills and interests": "Op zoek naar een **nieuw carrièrepad** dat beter bij mijn vaardigheden en interesses past",
+        "Assessing my work preferences and values for a **better work-life balance**": "Mijn werkvoorkeuren en waarden in kaart brengen voor een **betere werk-privébalans**",
+        "Identifying **strengths and areas for improvement** for professional growth": "**Sterke punten en verbeterpunten** identificeren voor professionele groei",
+        "Considering a career change due to **burnout or lack of fulfillment**": "Overweeg een carrièreswitch vanwege **burn-out of gebrek aan voldoening**"
+      }
+    },
+    "11111111-1111-1111-1111-111111111116": {
+      "label": "Wat is je hoogst afgeronde opleidingsniveau?",
+      "description": null,
+      "choices": {
+        "No formal education": "Geen formele opleiding",
+        "High school diploma or equivalent": "Middelbare school diploma of equivalent",
+        "Associate's degree (e.g., technical college or vocational training)": "MBO-diploma (bijv. technische opleiding of beroepsopleiding)",
+        "Bachelor's degree": "HBO- of WO-bachelor",
+        "Master's degree": "Master",
+        "Doctorate or professional degree (e.g., PhD, MD, JD)": "Doctoraat of professionele titel (bijv. PhD, arts, advocaat)"
+      }
+    },
+    "11111111-1111-1111-1111-111111111117": {
+      "label": "Welke richting of specialisatie heb je gestudeerd?",
+      "description": "(Optioneel: vul dit in als je wilt dat het meegenomen wordt in loopbaansuggesties)",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-111111111118": {
+      "label": "Hoeveel jaar werkervaring heb je?",
+      "description": "Tel vanaf je eerste echte baan",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-111111111119": {
+      "label": "Wat beschrijft jouw huidige loopbaansituatie het beste?",
+      "description": null,
+      "choices": {
+        "**Non-leadership or individual contributor role** (no direct reports)": "**Niet-leidinggevende of individuele rol** (geen mensen onder je)",
+        "**Managerial or leadership role** (Managing 1–4 direct reports, focusing on team coordination and supervision)": "**Leidinggevende rol** (1–4 directe medewerkers, gericht op teamcoördinatie en begeleiding)",
+        "**Senior managerial role** (Managing 5 or more direct reports, involved in strategic decision-making and broader team oversight)": "**Senior leidinggevende rol** (5 of meer directe medewerkers, betrokken bij strategische beslissingen en breder teammanagement)",
+        "**Executive function** (VP to C-suite roles or equivalent senior leadership positions with comprehensive organizational responsibilities)": "**Directiefunctie** (VP tot C-suite of gelijkwaardige senior leiderschapsposities met brede organisatieverantwoordelijkheden)",
+        "**Entrepreneur seeking an employed role**": "**Ondernemer op zoek naar een baan in loondienst**",
+        "**Currently on a career break or transition**": "**Momenteel in een loopbaanpauze of transitie**",
+        "**Looking to re-enter the workforce**": "**Op zoek naar terugkeer op de arbeidsmarkt**"
+      }
+    },
+    "11111111-1111-1111-1111-111111111110": {
+      "label": "Wat zijn je meest recente professionele rollen?",
+      "description": null,
+      "choices": null
+    },
+    "11111111-1111-1111-1111-11111111111d": {
+      "label": "Hoe gelukkig was je in elk van deze rollen?",
+      "description": "Geef je geluk een cijfer (1-10) en leg uit wat er aan de verantwoordelijkheden en het werk zelf je tevredenheid beïnvloedde, niet de bedrijfscultuur, specifieke mensen of omstandigheden.",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-11111111111f": {
+      "label": "Vaardigheden, prestaties & talen",
+      "description": "Vertel ons over wat jij ziet als je belangrijkste professionele vaardigheden en noemenswaardige prestaties. Dit helpt ons je sterke punten en successen te begrijpen.",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-111111111120": {
+      "label": "Noem persoonlijke interesses of hobbies die belangrijk voor je zijn",
+      "description": "Geef er **maximaal 3** (bijv. klussen, tuinieren, verzamelen van ..., mode, Lego, schrijven, etc.)",
+      "choices": null
+    },
+    "11111111-1111-1111-1111-111111111121": {
+      "label": "Extra context",
+      "description": "Nog iets dat we moeten weten? (Optioneel, sla over als er niets te melden is)",
+      "choices": null
+    },
+    "22222222-2222-2222-2222-222222222221": {
+      "label": "Wat doen werkgerelateerde sociale interacties met je energie?",
+      "description": "Denk aan meetings, samenwerken in een team, contact met klanten en netwerken.",
+      "choices": {
+        "**Energized** (I thrive on interaction)": "**Geeft energie** (Ik krijg er energie van)",
+        "**Somewhat Energized** (I enjoy it, but have a limit)": "**Geeft wat energie** (Ik vind het leuk, maar tot op zekere hoogte)",
+        "**Somewhat Drained** (I can handle it, but prefer quiet)": "**Kost wat energie** (Ik kan het aan, maar geef de voorkeur aan rust)",
+        "**Drained** (I need significant alone time to reset)": "**Kost energie** (Ik heb echt tijd voor mezelf nodig om op te laden)"
+      }
+    },
+    "22222222-2222-2222-2222-222222222222": {
+      "label": "Waar focus je van nature op als je een beslissing neemt?",
+      "description": null,
+      "choices": {
+        "The immediate, practical details and data": "De directe, praktische details en data",
+        "The long-term, big-picture ideas and impact": "De lange termijn, het grotere plaatje en de impact",
+        "My gut feeling and how it affects others emotionally": "Mijn onderbuikgevoel en hoe het anderen emotioneel raakt"
+      }
+    },
+    "22222222-2222-2222-2222-222222222223": {
+      "label": "Hoe benader je doorgaans beslissingen binnen projecten?",
+      "description": "Besluitvormingsstijl bij projecten",
+      "choices": {
+        "**Decisive** (Decide immediately to keep moving)": "**Besluitvaardig** (Direct beslissen om door te gaan)",
+        "**Leaning Deliberative** (Explore options, but can decide when needed)": "**Iets afwachtend** (Opties verkennen, maar kan beslissen als het nodig is)",
+        "**Leaning Open** (Explore options, but can decide if forced)": "**Iets open** (Opties verkennen, maar kan beslissen als het moet)",
+        "**Deliberative** (Gather data and keep options open as long as possible)": "**Afwachtend** (Data verzamelen en opties zo lang mogelijk openhouden)"
+      }
+    },
+    "22222222-2222-2222-2222-222222222224": {
+      "label": "Hoe communiceer je doorgaans complexe ideeën op je werk?",
+      "description": null,
+      "choices": {
+        "Direct and to the point - focus on key facts": "Direct en to the point, focus op de belangrijkste feiten",
+        "Use analogies and metaphors to explain concepts": "Ik gebruik analogieën en metaforen om concepten uit te leggen",
+        "Provide detailed context and background first": "Ik geef eerst gedetailleerde context en achtergrond",
+        "Adapt my style based on the audience": "Ik pas mijn stijl aan op basis van mijn publiek"
+      }
+    },
+    "22222222-2222-2222-2222-222222222225": {
+      "label": "Hoe reageer je op verandering en onzekerheid op je werk?",
+      "description": "Denk aan situaties zoals rolveranderingen, nieuwe projecten met onduidelijke scope of verschuivende prioriteiten.",
+      "choices": {
+        "**Strong Structure** (I prefer clear guidelines and predictability)": "**Veel structuur** (Ik geef de voorkeur aan duidelijke richtlijnen en voorspelbaarheid)",
+        "**Leaning Structure** (I handle ambiguity well, but appreciate some structure)": "**Iets structuur** (Ik kan goed met onduidelijkheid om, maar waardeer wat structuur)",
+        "**Leaning Novelty** (I embrace the unknown, but like a safety net)": "**Iets nieuwigheid** (Ik omarm het onbekende, maar hou wel van een vangnet)",
+        "**Embrace Novelty** (I thrive on the unknown and see it as opportunity)": "**Omarm nieuwigheid** (Ik krijg energie van het onbekende en zie het als kans)"
+      }
+    },
+    "22222222-2222-2222-2222-222222222226": {
+      "label": "Hoe benader je conflicten of onderhandelingen?",
+      "description": null,
+      "choices": {
+        "I address issues assertively and focus on finding a balanced solution": "Ik pak problemen direct aan en focus op het vinden van een evenwichtige oplossing",
+        "I seek compromise to maintain harmony, even if I have to concede": "Ik zoek compromissen om de harmonie te bewaren, ook al moet ik wat toegeven",
+        "I prioritize securing the best outcome for myself or my team first": "Ik geef prioriteit aan het beste resultaat voor mezelf of mijn team",
+        "I tend to defer or avoid direct conflict": "Ik neig ernaar conflicten uit te stellen of te vermijden"
+      }
+    },
+    "22222222-2222-2222-2222-222222222227": {
+      "label": "Wat voor werkomgeving geef je de voorkeur?",
+      "description": "Voorkeur werkstijl",
+      "choices": {
+        "**Highly Flexible** (Minimal structure and maximum autonomy)": "**Heel flexibel** (Minimale structuur en maximale autonomie)",
+        "**Somewhat Structured** (I prefer a process but not rigid rules)": "**Iets gestructureerd** (Ik geef de voorkeur aan een proces, maar geen strikte regels)",
+        "**Somewhat Flexible** (I prefer fluidity but appreciate some process)": "**Iets flexibel** (Ik geef de voorkeur aan flexibiliteit, maar waardeer wat proces)",
+        "**Highly Flexible** (I find structure stifling)": "**Heel flexibel** (Ik vind structuur beklemmend)"
+      }
+    },
+    "22222222-2222-2222-2222-222222222228": {
+      "label": "Hoe comfortabel voel je je bij het nemen van berekende risico's in je werk?",
+      "description": "Denk aan situaties zoals het voorstellen van onconventionele oplossingen, uitdagende projecten oppakken of beslissingen nemen met incomplete informatie.",
+      "choices": {
+        "Very comfortable": "Heel comfortabel",
+        "Comfortable": "Comfortabel",
+        "Uncomfortable": "Oncomfortabel",
+        "Very uncomfortable": "Heel oncomfortabel"
+      }
+    },
+    "22222222-2222-2222-2222-222222222229": {
+      "label": "Hoe reageer je doorgaans als je werkdruk hebt of tegen strakke deadlines aanloopt?",
+      "description": "Stressreactie",
+      "choices": {
+        "**Action-First** (Push forward immediately and handle it)": "**Actiegericht** (Direct in actie komen en het aanpakken)",
+        "**Leaning Action** (Tend to act quickly, with a brief pause)": "**Iets actiegericht** (Neig naar snel handelen, met een korte pauze)",
+        "**Leaning Analysis** (Tend to step back, but can act if urgent)": "**Iets analyserend** (Neig naar even pas op de plaats, maar kan handelen als het urgent is)",
+        "**Analysis-First** (Instinct is to stop and analyze deeply)": "**Analyserend** (Instinct is om te stoppen en diep te analyseren)"
+      }
+    },
+    "22222222-2222-2222-2222-22222222222a": {
+      "label": "Welke van de volgende tendensen heb je wel eens ervaren die soms je effectiviteit op het werk in de weg kunnen zitten?",
+      "description": "Selecteer alles wat van toepassing is. Wees eerlijk, iedereen heeft groeipunten.",
+      "choices": {
+        "Perfectionism leading to delays": "Perfectionisme waardoor dingen vertragen",
+        "Difficulty delegating tasks": "Moeite met delegeren van taken",
+        "Taking on too much responsibility": "Te veel verantwoordelijkheid op me nemen",
+        "Being overly critical of self or others": "Te kritisch zijn op mezelf of anderen",
+        "Avoiding confrontation": "Confrontatie vermijden",
+        "Difficulty adapting to change": "Moeite met aanpassen aan verandering",
+        "Becoming easily stressed under pressure": "Snel gestrest raken onder druk",
+        "Struggling with time management": "Moeite met timemanagement",
+        "Being indecisive": "Besluiteloos zijn",
+        "Rushing through tasks": "Door taken heen jagen",
+        "Difficulty accepting feedback": "Moeite met het accepteren van feedback",
+        "Procrastination": "Uitstellen",
+        "Overanalyzing decisions": "Beslissingen te veel analyseren"
+      }
+    },
+    "33333333-3333-3333-3333-333333333331": {
+      "label": "Zet de volgende carrièrewaarden op volgorde van belangrijkheid",
+      "description": "",
+      "choices": {
+        "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)": "**Werkplezier** (bijvoorbeeld plezier hebben in je dagelijkse werk, betrokken en gemotiveerd zijn)",
+        "**Autonomy** (e.g., having independence in work, making decisions)": "**Autonomie** (bijvoorbeeld zelfstandig kunnen werken, eigen beslissingen nemen)",
+        "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)": "**Work-Life Balance** (bijvoorbeeld balans tussen privé en werk, flexibele werktijden)",
+        "**Creativity** (e.g., having the freedom to innovate, engaging in creative problem-solving)": "**Creativiteit** (bijvoorbeeld vrijheid om te innoveren, creatief problemen oplossen)",
+        "**Job Stability & Financial Security** (e.g., long-term stability, financial reliability)": "**Werkzekerheid & Financiële Zekerheid** (bijvoorbeeld stabiliteit op lange termijn, financiële betrouwbaarheid)",
+        "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)": "**Anderen Helpen & Impact Maken** (bijvoorbeeld bijdragen aan een goed doel, collega's of klanten ondersteunen)",
+        "**Accomplishment & Recognition** (e.g., reaching significant milestones, excelling in work, receiving awards)": "**Prestaties & Erkenning** (bijvoorbeeld belangrijke doelen bereiken, uitblinken in je werk, prijzen ontvangen)",
+        "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)": "**Persoonlijke Groei & Uitdaging** (bijvoorbeeld nieuwe vaardigheden leren, moeilijke uitdagingen overwinnen, je persoonlijke en professionele grenzen verleggen)"
+      }
+    },
+    "33333333-3333-3333-3333-333333333332": {
+      "label": "Hoe belangrijk is het dat de waarden van je werkgever aansluiten bij die van jou?",
+      "description": null,
+      "choices": {
+        "Not": "Niet",
+        "Somewhat": "Enigszins",
+        "Very": "Erg",
+        "Essential": "Essentieel"
+      }
+    },
+    "33333333-3333-3333-3333-333333333333": {
+      "label": "Hoe belangrijk is work-life balance voor jou?",
+      "description": null,
+      "choices": {
+        "Not": "Niet",
+        "Somewhat": "Enigszins",
+        "Very": "Erg",
+        "Essential": "Essentieel"
+      }
+    },
+    "33333333-3333-3333-3333-333333333334": {
+      "label": "Welk soort werkschema past het beste bij jou?",
+      "description": null,
+      "choices": {
+        "Standard 9-to-5 schedule": "Standaard 9-tot-5 schema",
+        "Flexible hours": "Flexibele werktijden",
+        "Project-based deadlines": "Projectgebonden deadlines",
+        "Part-time work": "Parttime werk"
+      }
+    },
+    "33333333-3333-3333-3333-333333333335": {
+      "label": "Hoe belangrijk is salaris voor jou in verhouding tot andere werkfactoren?",
+      "description": null,
+      "choices": {
+        "Very important: salary is a primary factor": "Erg belangrijk: salaris is een primaire factor",
+        "Moderately important: I value salary but also consider other factors": "Redelijk belangrijk: ik vind salaris belangrijk maar kijk ook naar andere factoren",
+        "Less important: I prioritize factors like job satisfaction and growth": "Minder belangrijk: ik geef voorrang aan factoren zoals werkplezier en groei"
+      }
+    },
+    "33333333-3333-3333-3333-333333333336": {
+      "label": "Wat is je gewenste salarisindicatie voor een nieuwe functie?",
+      "description": "Bruto basissalaris + bonus\n• Voor fulltime (1 FTE)\n• Exclusief aandelen\n• In je eigen valuta",
+      "choices": {
+        "Under 50,000": "Onder 50.000",
+        "50,000–75,000": "50.000–75.000",
+        "75,000–100,000": "75.000–100.000",
+        "100,000–150,000": "100.000–150.000",
+        "150,000–250,000": "150.000–250.000",
+        "250,000-500,000": "250.000–500.000",
+        "500,000-1,000,000": "500.000–1.000.000"
+      }
+    },
+    "33333333-3333-3333-3333-333333333337": {
+      "label": "Wat is het belangrijkste voor jou qua beloning?",
+      "description": null,
+      "choices": {
+        "High salary": "Hoog salaris",
+        "Comprehensive benefits": "Uitgebreid pakket arbeidsvoorwaarden",
+        "Performance-based rewards": "Prestatiegebonden beloningen",
+        "Equity or ownership opportunities": "Aandelen of eigendomsmogelijkheden",
+        "Work-life balance perks": "Work-life balance voordelen"
+      }
+    },
+    "33333333-3333-3333-3333-333333333338": {
+      "label": "Welke aspecten van een nieuwe carrière wil je graag **vermijden**?",
+      "description": "(Selecteer alles wat van toepassing is, dit helpt ons om ongeschikte rollen uit te sluiten van je aanbevelingen.)",
+      "choices": {
+        "**High-pressure or fast-paced environments** \n\n(e.g., strict deadlines, constant urgency, unpredictable workloads)": "**Hoge werkdruk of snel tempo** \n\n(bijvoorbeeld strikte deadlines, constante urgentie, onvoorspelbare werkdruk)",
+        "**Frequent decision-making responsibilities** \n(e.g., autonomy in critical decisions, strategic planning, high accountability)": "**Regelmatig beslissingen nemen** \n(bijvoorbeeld autonomie in cruciale beslissingen, strategische planning, grote verantwoordelijkheid)",
+        "**Leadership or management duties** (e.g., overseeing teams, setting vision, managing direct reports)": "**Leidinggeven of managementtaken** (bijvoorbeeld teams aansturen, visie bepalen, leiding geven aan directe medewerkers)",
+        "**Limited learning or growth opportunities** (e.g., repetitive tasks, no clear professional development path)": "**Beperkte leer- of groeimogelijkheden** (bijvoorbeeld repetitieve taken, geen duidelijk professioneel ontwikkelpad)",
+        "**Frequent teamwork and collaboration** (e.g., working closely with others daily, team-based projects, group decision-making)": "**Veel samenwerken en teamwork** (bijvoorbeeld dagelijks nauw samenwerken met anderen, teamprojecten, groepsbeslissingen)",
+        "**Solo or independent work** (e.g., minimal interaction with colleagues, self-directed projects, remote individual tasks)": "**Solo of zelfstandig werk** (bijvoorbeeld minimale interactie met collega's, zelfgestuurde projecten, individuele remote taken)",
+        "**Sales, negotiation, or client-facing roles** (e.g., pitching ideas, persuading clients, managing external relationships)": "**Sales, onderhandelen of klantcontact** (bijvoorbeeld ideeën pitchen, klanten overtuigen, externe relaties beheren)",
+        "**Data-heavy or analytical roles** (e.g., working extensively with spreadsheets, statistics, or research-heavy tasks)": "**Data-intensieve of analytische rollen** (bijvoorbeeld veel werken met spreadsheets, statistieken of onderzoekstaken)",
+        "**Finance-related work** (e.g., financial analysis, accounting, budgeting, or investment-related roles)": "**Financieel werk** (bijvoorbeeld financiële analyse, boekhouding, budgettering of beleggingsgerelateerde functies)"
+      }
+    },
+    "44444444-4444-4444-4444-444444444441": {
+      "label": "Welke van deze gebieden interesseren je het meest?",
+      "description": "(Kies er maximaal 3)",
+      "choices": {
+        "Technology & Software": "Technologie & software",
+        "AI, Data & Automation": "AI, data & automatisering",
+        "Business Strategy & Consulting": "Bedrijfsstrategie & consultancy",
+        "Finance, Markets & Investment": "Financiën, markten & investeringen",
+        "Marketing & Communications": "Marketing & communicatie",
+        "Human Resources & People Operations": "HR & people operations",
+        "Product & Innovation": "Product & innovatie",
+        "Design & Creative": "Design & creatie",
+        "Healthcare & Life Sciences": "Gezondheidszorg & life sciences",
+        "Education & Learning": "Onderwijs & leren",
+        "Sustainability & Environment": "Duurzaamheid & milieu",
+        "Law & Public Policy": "Recht & overheidsbeleid",
+        "Engineering & Manufacturing": "Engineering & productie",
+        "Science & Research": "Wetenschap & onderzoek",
+        "Social Impact & Nonprofit": "Maatschappelijke impact & non-profit",
+        "Entertainment & Sports": "Entertainment & sport"
+      }
+    },
+    "44444444-4444-4444-4444-444444444442": {
+      "label": "Welke 2 archetypen passen het beste bij jou?",
+      "description": "(Kies er 2)",
+      "choices": {
+        "**The Analyzer** (logical problem-solver, data-driven, thrives on digging into details)": "**The Analyzer** (logische probleemoplosser, datagestuurd, krijgt energie van details uitpluizen)",
+        "**The Visionary** (creative, thinks outside the box, envisions new possibilities)": "**The Visionary** (creatief, denkt outside-the-box, ziet nieuwe mogelijkheden)",
+        "**The Leader** (motivates teams, sets direction, takes initiative)": "**The Leader** (motiveert teams, bepaalt de koers, neemt initiatief)",
+        "**The Adapter** (comfortable with change, flexible, quick to adjust)": "**The Adapter** (voelt zich prettig bij verandering, flexibel, past zich snel aan)",
+        "**The Communicator** (articulates ideas effectively, fosters understanding)": "**The Communicator** (brengt ideeën helder over, zorgt voor begrip)",
+        "**The Empath** (understands emotions, supports others, builds relationships)": "**The Empath** (begrijpt emoties, ondersteunt anderen, bouwt relaties op)",
+        "**The Organizer** (plans tasks, sets priorities, keeps structure)": "**The Organizer** (plant taken, stelt prioriteiten, houdt structuur)",
+        "**The Implementer** (gets tasks done, focuses on execution and timely deliverables)": "**The Implementer** (krijgt dingen voor elkaar, focust op uitvoering en tijdige oplevering)"
+      }
+    },
+    "44444444-4444-4444-4444-444444444443": {
+      "label": "Welke bedrijfscultuur past het beste bij jou?",
+      "description": null,
+      "choices": {
+        "Innovative and forward-thinking": "Innovatief en vooruitstrevend",
+        "Traditional and established": "Traditioneel en gevestigd",
+        "Collaborative and team-oriented": "Samenwerkend en teamgericht",
+        "Competitive and high-achieving": "Competitief en prestatiegericht"
+      }
+    },
+    "44444444-4444-4444-4444-444444444444": {
+      "label": "Zijn er onderwerpen of vakgebieden waar jij veel meer van weet dan de meeste mensen?",
+      "description": "Dit kan professionele kennis zijn of een persoonlijke interesse, alles waarbij je merkbaar meer weet dan de gemiddelde persoon. Bijvoorbeeld: luchtvaart, arbeidsrecht, voeding, architectuur of financiële markten.\nMeerdere invoeren toegestaan.",
+      "choices": null
+    },
+    "44444444-4444-4444-4444-444444444445": {
+      "label": "Hoe bekend ben je met generatieve AI-technologieën (bijv. ChatGPT, CoPilot, AI-workflows, etc.)?",
+      "description": null,
+      "choices": {
+        "Not familiar at all": "Helemaal niet bekend",
+        "Somewhat familiar. I have a basic understanding": "Een beetje bekend. Ik heb er basiskennis van",
+        "Moderately familiar. I have used AI tools occasionally": "Redelijk bekend. Ik heb af en toe AI-tools gebruikt",
+        "Very familiar. I frequently use AI tools": "Goed bekend. Ik gebruik regelmatig AI-tools",
+        "Extremely familiar. I work with AI technologies professionally": "Zeer goed bekend. Ik werk professioneel met AI-technologieën"
+      }
+    },
+    "44444444-4444-4444-4444-444444444446": {
+      "label": "Als je de kans kreeg om een workshop of seminar te geven binnen je bedrijf, welk(e) onderwerp(en) zou je kiezen waar je enthousiast over bent en vol vertrouwen over kunt praten?",
+      "description": "Selecteer maximaal 2. Kies 'anders' als jouw favoriete onderwerp niet in de lijst staat",
+      "choices": {
+        "**Data Analysis and Business Intelligence** (e.g., leveraging data for strategic decisions, advanced analytics)": "**Data-analyse en business intelligence** (bijv. data inzetten voor strategische beslissingen, geavanceerde analytics)",
+        "**Project Management and Leadership** (e.g., effective team leadership, managing large-scale projects)": "**Projectmanagement en leiderschap** (bijv. effectief teamleiderschap, grootschalige projecten aansturen)",
+        "**Marketing Strategies and Brand Development** (e.g., digital marketing trends, building a strong brand presence)": "**Marketingstrategieën en merkontwikkeling** (bijv. digitale marketingtrends, sterke merkidentiteit opbouwen)",
+        "**Artificial Intelligence and Automation** (e.g., implementing AI solutions, the future of automation in business)": "**Artificial Intelligence en automatisering** (bijv. AI-oplossingen implementeren, de toekomst van automatisering in business)",
+        "**Sustainability and Corporate Social Responsibility** (e.g., sustainable business practices, CSR initiatives)": "**Duurzaamheid en maatschappelijk verantwoord ondernemen** (bijv. duurzame bedrijfspraktijken, CSR-initiatieven)",
+        "**Innovation and Product Development** (e.g., fostering a culture of innovation, developing new products)": "**Innovatie en productontwikkeling** (bijv. een innovatiecultuur creëren, nieuwe producten ontwikkelen)",
+        "**Financial Planning and Investment Strategies** (e.g., budgeting for growth, investment opportunities)": "**Financiële planning en investeringsstrategieën** (bijv. budgetteren voor groei, investeringsmogelijkheden)",
+        "**People Management and Recruitment** (e.g., employee engagement and happiness, talent acquisition strategies)": "**People management en recruitment** (bijv. werknemersbetrokkenheid en geluk, talentacquisitiestrategieën)",
+        "**Technology Integration and IT Infrastructure** (e.g., upgrading IT systems, coding, integrating new technologies)": "**Technologie-integratie en IT-infrastructuur** (bijv. IT-systemen upgraden, coderen, nieuwe technologieën integreren)"
+      }
+    },
+    "44444444-4444-4444-4444-444444444447": {
+      "label": "Zijn er sectoren die je juist **liever wilt vermijden** in je volgende carrièrestap?",
+      "description": "(Selecteer alles wat van toepassing is. Hiermee sluiten we hele sectoren uit van je aanbevelingen.)",
+      "choices": {
+        "Industry doesn't matter to me, it about the job": "De sector maakt me niet uit, het gaat om de baan",
+        "Finance and Banking": "Financiën en bankwezen",
+        "Sales and Business Development": "Sales en business development",
+        "Technology and IT": "Technologie en IT",
+        "Healthcare and Wellness": "Gezondheidszorg en wellness",
+        "Legal Professions": "Juridische beroepen",
+        "Education and Training": "Onderwijs en training",
+        "Manufacturing and Physical Labor": "Productie en fysiek werk",
+        "Retail, Hospitality, and Customer Service": "Retail, horeca en klantenservice",
+        "Marketing, Media, and Creative Fields": "Marketing, media en creatieve sectoren",
+        "Government and Public Sector": "Overheid en publieke sector",
+        "Nonprofits and Social Work": "Non-profits en maatschappelijk werk",
+        "Agriculture and Outdoor Work": "Landbouw en buitenwerk",
+        "Law Enforcement and Defence": "Handhaving en defensie"
+      }
+    },
+    "44444444-4444-4444-4444-444444444448": {
+      "label": "Wat is jouw droombaan? Zonder beperkende factoren.",
+      "description": "Maak je geen zorgen over je persoonlijke situatie, salaris, vaardigheden of andere praktische dingen: Welke één of twee banen zou je ECHT het allerliefste doen?\n(Bijv. sportcommentator, acteur, eigen bedrijf dat ... verkoopt, zeilinstructeur, tuinier, schrijver, etc.). Maximaal 3.",
+      "choices": null
+    },
+    "55555555-5555-5555-5555-555555555551": {
+      "label": "In een team heb je de neiging om:",
+      "description": null,
+      "choices": {
+        "Take charge and guide the direction of the group.": "De leiding te nemen en richting te geven aan de groep.",
+        "Ensure execution by keeping tasks organized and on track.": "De uitvoering te bewaken door taken georganiseerd en op schema te houden.",
+        "Offer ideas and actively engage in discussions.": "Ideeën aan te dragen en actief mee te doen in discussies.",
+        "Step back to analyze before contributing.": "Een stapje terug te doen om te analyseren voordat je bijdraagt.",
+        "Work independently but provide support when needed.": "Zelfstandig te werken, maar ondersteuning te bieden wanneer nodig."
+      }
+    },
+    "55555555-5555-5555-5555-555555555552": {
+      "label": "Wat motiveert je het meest in een team?",
+      "description": null,
+      "choices": {
+        "Achieving common goals": "Het behalen van gezamenlijke doelen",
+        "Recognition of individual contributions": "Erkenning van mijn individuele bijdrage",
+        "Learning from others": "Leren van anderen",
+        "Building relationships": "Het opbouwen van relaties"
+      }
+    },
+    "55555555-5555-5555-5555-555555555553": {
+      "label": "Wat is je voorkeur qua teamgrootte?",
+      "description": null,
+      "choices": {
+        "Small (2-5 people)": "Klein (2-5 mensen)",
+        "Medium (6-10 people)": "Middelgroot (6-10 mensen)",
+        "Large (11+ people)": "Groot (11+ mensen)",
+        "No preference": "Geen voorkeur"
+      }
+    },
+    "55555555-5555-5555-5555-555555555554": {
+      "label": "Wanneer er meningsverschillen zijn over werktaken binnen je team (van collega's), doe je meestal:",
+      "description": null,
+      "choices": {
+        "Address them directly to find a solution": "Ze direct aankaarten om tot een oplossing te komen",
+        "Seek a compromise to maintain harmony": "Op zoek gaan naar een compromis om de harmonie te bewaren",
+        "Defer to others to avoid conflict": "Het overlaten aan anderen om conflicten te vermijden"
+      }
+    },
+    "55555555-5555-5555-5555-555555555555": {
+      "label": "Welke uitdagingen heb je ervaren bij het werken in teams?",
+      "description": "(Selecteer alles wat van toepassing is)",
+      "choices": {
+        "Difficulty communicating ideas": "Moeite met het overbrengen van ideeën",
+        "Challenges with delegation": "Uitdagingen met delegeren",
+        "Conflict resolution": "Conflicten oplossen",
+        "Trusting team members to complete tasks": "Vertrouwen in teamleden om taken af te ronden",
+        "Feeling overshadowed by others": "Het gevoel in de schaduw te staan van anderen",
+        "Managing different work styles": "Omgaan met verschillende werkstijlen",
+        "Lack of clear leadership": "Gebrek aan duidelijk leiderschap",
+        "Disagreements over team goals": "Meningsverschillen over teamdoelen",
+        "Balancing individual and team responsibilities": "Balans vinden tussen individuele en teamverantwoordelijkheden",
+        "Difficulty giving or receiving feedback": "Moeite met het geven of ontvangen van feedback"
+      }
+    },
+    "55555555-5555-5555-5555-555555555556": {
+      "label": "Hoe ga je om met deadlines en tijdmanagement?",
+      "description": "Denk aan hoe je **echt** werkt, niet hoe je zou willen werken.",
+      "choices": {
+        "**Steady Planner** (I plan well ahead and work consistently to avoid last-minute pressure)": "**Stabiele Planner** (Ik plan ruim van tevoren en werk gestaag om last-minute stress te voorkomen)",
+        "**Deadline-Aware** (I start early but my pace picks up significantly as deadlines approach)": "**Deadline-bewust** (Ik begin op tijd maar mijn tempo gaat flink omhoog naarmate de deadline nadert)",
+        "**Pressure-Dependent** (I need the urgency of approaching deadlines to focus effectively)": "**Druk-afhankelijk** (Ik heb de urgentie van naderende deadlines nodig om goed te kunnen focussen)",
+        "**Last-Minute Sprinter** (I do my best work in intense bursts right before deadlines)": "**Last-minute Sprinter** (Ik lever mijn beste werk in intensieve spurts vlak voor de deadline)"
+      }
+    },
+    "55555555-5555-5555-5555-555555555557": {
+      "label": "Onder welke leiderschapsstijl werk je het liefst?",
+      "description": null,
+      "choices": {
+        "Delegating autonomy and trusting me to figure things out": "Autonomie geven en erop vertrouwen dat ik dingen zelf uitzoek",
+        "Coaching style where I focuss on personal/professional growth": "Coachende stijl met focus op persoonlijke en professionele groei",
+        "Task-oriented style with clear targets and strict follow-up": "Taakgerichte stijl met duidelijke doelen en strakke opvolging"
+      }
+    },
+    "55555555-5555-5555-5555-555555555558": {
+      "label": "Als je het oneens bent met de richting die een manager of leidinggevende kiest, doe je meestal:",
+      "description": null,
+      "choices": {
+        "Voice concerns openly and try to discuss the issue": "Je zorgen openlijk uiten en proberen het te bespreken",
+        "Approach them privately to share your point of view": "Privé naar ze toestappen om je standpunt te delen",
+        "Let it slide unless it significantly impacts you or your team": "Het laten gaan, tenzij het jou of je team aanzienlijk raakt"
+      }
+    },
+    "66666666-6666-6666-6666-666666666661": {
+      "label": "Hoe ga je om met feedback of opbouwende kritiek?",
+      "description": null,
+      "choices": {
+        "I actively seek it and use it to improve": "Ik zoek het actief op en gebruik het om beter te worden",
+        "I find it challenging and may struggle to apply it": "Ik vind het lastig en kan moeite hebben om het toe te passen"
+      }
+    },
+    "66666666-6666-6666-6666-666666666662": {
+      "label": "Wanneer je opbouwende kritiek geeft aan anderen, dan:",
+      "description": null,
+      "choices": {
+        "Try to be encouraging but are careful not to offend.": "Probeer je bemoedigend te zijn maar let je op dat je niemand beledigt.",
+        "Are straightforward and focus on the facts.": "Ben je direct en focus je op de feiten.",
+        "Struggle with giving feedback and often avoid it.": "Vind je het moeilijk om feedback te geven en vermijd je het vaak."
+      }
+    },
+    "66666666-6666-6666-6666-666666666663": {
+      "label": "Wanneer een collega persoonlijke stress of emotionele problemen heeft, dan:",
+      "description": null,
+      "choices": {
+        "Offer support and listen empathetically": "Bied je steun en luister je empathisch",
+        "Provide practical help or solutions": "Bied je praktische hulp of oplossingen",
+        "Respect their privacy and give them space": "Respecteer je hun privacy en geef je ze ruimte",
+        "Defer them to someone who you think can assist better": "Verwijs je ze door naar iemand die volgens jou beter kan helpen"
+      }
+    },
+    "66666666-6666-6666-6666-666666666664": {
+      "label": "Hoe ga je om met je emoties wanneer je bij een conflict op het werk betrokken bent?",
+      "description": null,
+      "choices": {
+        "Remain calm and control your emotions effectively": "Blijf je kalm en heb je je emoties goed onder controle",
+        "Find it challenging to manage your emotions": "Vind je het lastig om je emoties te beheersen",
+        "Express your emotions openly, regardless of the setting": "Uit je je emoties openlijk, ongeacht de situatie"
+      }
+    },
+    "66666666-6666-6666-6666-666666666665": {
+      "label": "Welke strategieën gebruik je om je emoties onder stress te managen?",
+      "description": null,
+      "choices": {
+        "Practice mindfulness or stress-reduction techniques": "Ik pas mindfulness of stressreductietechnieken toe",
+        "Talk to colleagues or friends for support": "Ik praat met collega's of vrienden voor steun",
+        "Internalize stress without specific coping strategies": "Ik verwerk stress intern zonder specifieke copingstrategieën"
+      }
+    },
+    "66666666-6666-6666-6666-666666666666": {
+      "label": "Hoe ga je het liefst om met collega's?",
+      "description": null,
+      "choices": {
+        "Actively engage in social interactions, both during and outside work.": "Ik zoek actief sociale interactie, zowel tijdens als buiten werktijd.",
+        "Keep it mostly work-focused but join social events occasionally.": "Ik houd het meestal werkgericht maar doe af en toe mee aan sociale activiteiten.",
+        "Stick to professional interactions and rarely join social gathering outside work hours.": "Ik houd het professioneel en doe zelden mee aan sociale bijeenkomsten buiten werktijd."
+      }
+    },
+    "66666666-6666-6666-6666-666666666667": {
+      "label": "Welke aspecten van emotionele intelligentie vind je het meest uitdagend?",
+      "description": "(Kies er maximaal 3)",
+      "choices": {
+        "Managing stress effectively": "Effectief omgaan met stress",
+        "Recognizing and controlling own emotions": "Je eigen emoties herkennen en beheersen",
+        "Empathizing with others": "Empathie tonen naar anderen",
+        "Handling conflict constructively": "Constructief omgaan met conflicten",
+        "Adapting to change": "Je aanpassen aan verandering",
+        "Building and maintaining relationships": "Relaties opbouwen en onderhouden",
+        "Providing constructive feedback": "Opbouwende feedback geven",
+        "Receiving criticism without defensiveness": "Kritiek ontvangen zonder defensief te worden",
+        "Remaining calm under pressure": "Kalm blijven onder druk",
+        "Motivating myself and others": "Mezelf en anderen motiveren"
+      }
+    },
+    "77777777-7777-7777-7777-777777777771": {
+      "label": "Wat zijn je carrièredoelen op korte termijn (komende 1-2 jaar)?",
+      "description": "(Kies maximaal 2 of kies 'anders')",
+      "choices": {
+        "Develop new skills or certifications": "Nieuwe vaardigheden of certificaten behalen",
+        "Gain experience in a different role or industry": "Ervaring opdoen in een andere rol of sector",
+        "Expand my professional network": "Mijn professionele netwerk uitbreiden",
+        "Achieve a promotion or salary increase": "Een promotie of salarisverhoging krijgen",
+        "Improve work-life balance": "Betere work-life balance creëren",
+        "Explore entrepreneurial opportunities": "Ondernemersmogelijkheden verkennen"
+      }
+    },
+    "77777777-7777-7777-7777-777777777772": {
+      "label": "Wat zijn je carrièredoelen op lange termijn (komende 5-10 jaar)?",
+      "description": "(Kies maximaal 2 of kies 'anders')",
+      "choices": {
+        "Reach a senior leadership or executive position": "Een senior leiderschaps- of directiepositie bereiken",
+        "Establish expertise and recognition in my field": "Expertise en erkenning opbouwen in mijn vakgebied",
+        "Own or run a successful business": "Een succesvol bedrijf bezitten of leiden",
+        "Achieve financial independence": "Financiële onafhankelijkheid bereiken",
+        "Make a significant contribution to society or a cause": "Een belangrijke bijdrage leveren aan de maatschappij of een goed doel",
+        "Continuously learn and adapt to new challenges": "Blijven leren en me aanpassen aan nieuwe uitdagingen",
+        "Achieve complete autonomy and freedom in my career": "Volledige autonomie en vrijheid in mijn carrière bereiken"
+      }
+    },
+    "77777777-7777-7777-7777-777777777773": {
+      "label": "Welke obstakels ervaar je nu (of verwacht je) bij het bereiken van je carrièredoelen?",
+      "description": "(Kies maximaal 2)",
+      "choices": {
+        "Limited growth opportunities in my current organization/field": "Beperkte groeimogelijkheden in mijn huidige organisatie/vakgebied",
+        "Work-life balance constraints or family commitments": "Work-life balance beperkingen of gezinsverplichtingen",
+        "Burnout or lack of engagement": "Burn-out of gebrek aan betrokkenheid",
+        "Gaps in skills or professional development": "Hiaten in vaardigheden of professionele ontwikkeling",
+        "Misalignment with personal values or interests": "Niet in lijn met mijn persoonlijke waarden of interesses",
+        "Uncertainty about my next career step": "Onzekerheid over mijn volgende carrièrestap",
+        "Financial limitations or concerns": "Financiële beperkingen of zorgen",
+        "External factors (e.g., economic conditions, industry changes)": "Externe factoren (bijv. economische situatie, veranderingen in de sector)",
+        "Personal doubts or lack of confidence": "Persoonlijke twijfels of gebrek aan zelfvertrouwen"
+      }
+    },
+    "77777777-7777-7777-7777-777777777774": {
+      "label": "Ben je geïnteresseerd in het leren van nieuwe vaardigheden buiten je huidige expertise?",
+      "description": null,
+      "choices": {
+        "Yes, always seeking new skills": "Ja, altijd op zoek naar nieuwe vaardigheden",
+        "Prefer to focus on existing skills": "Liever focussen op bestaande vaardigheden",
+        "Yes, if relevant to my career": "Ja, als het relevant is voor mijn carrière"
+      }
+    },
+    "77777777-7777-7777-7777-777777777775": {
+      "label": "Tot slot, welke gebieden of competenties vind je leuk en wil je (verder) ontwikkelen als onderdeel van een volgende/nieuwe baan?",
+      "description": "Kies maximaal 3 gebieden waarvan je **persoonlijk gemotiveerd** bent om te ontwikkelen, ongeacht je huidige (veronderstelde) niveau",
+      "choices": {
+        "Leadership & Team Management": "Leiderschap & Teammanagement",
+        "People & Culture (HR)": "People & Culture (HR)",
+        "Communication & Public Speaking": "Communicatie & Spreken in het Openbaar",
+        "AI & Automation": "AI & Automatisering",
+        "Technical & Digital Skills": "Technische & Digitale Vaardigheden",
+        "Data Analysis & Problem-Solving": "Data-analyse & Problemen Oplossen",
+        "Creative Thinking & Innovation": "Creatief Denken & Innovatie",
+        "Project & Product Management": "Project- & Productmanagement",
+        "Strategic Planning & Big-Picture Thinking": "Strategische Planning & Helicopter View",
+        "Entrepreneurship / Intrapreneurship": "Ondernemerschap / Intrapreneurship",
+        "Sales, Relationship-Building & Networking": "Sales, Relatiemanagement & Netwerken",
+        "Operations & Process Optimization": "Operatie & Procesoptimalisatie",
+        "Marketing & Brand Strategy": "Marketing & Merkstrategie",
+        "Customer Experience & Service": "Klantbeleving & Service",
+        "Financial & Business Acumen": "Financieel & Zakelijk Inzicht",
+        "Change Management & Resilience": "Verandermanagement & Veerkracht"
+      }
+    }
+  }
+}

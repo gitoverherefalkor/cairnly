@@ -463,13 +463,19 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     return { __html: DOMPurify.sanitize(formattedText, { ALLOWED_TAGS: ['strong', 'br', 'em'] }) };
   };
 
+  // Display-only translation of a choice. The English `choice` stays the
+  // stored/submitted value; we only swap what the user sees. Falls back to
+  // English when no translation exists. See LOCALIZATION_PLAYBOOK.md.
+  const displayChoice = (choice: string) => question.choiceLabels?.[choice] ?? choice;
+
   // Renders a choice label with the bold title on the first line and any
   // trailing "(e.g., ...)" description on its own line below, smaller and
   // muted. Display only — the choice string and stored value never change.
   const renderChoiceLabel = (choice: string) => {
-    const match = choice.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/);
+    const shown = displayChoice(choice);
+    const match = shown.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/);
     if (!match) {
-      return <span dangerouslySetInnerHTML={formatTextWithEmphasis(choice)} />;
+      return <span dangerouslySetInnerHTML={formatTextWithEmphasis(shown)} />;
     }
     const [, title, description] = match;
     const trimmedDescription = description.trim();
@@ -590,7 +596,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             <SelectContent>
               {question.config?.choices?.map((choice) => (
                 <SelectItem key={choice} value={choice}>
-                  <span dangerouslySetInnerHTML={formatTextWithEmphasis(choice)} />
+                  <span dangerouslySetInnerHTML={formatTextWithEmphasis(displayChoice(choice))} />
                 </SelectItem>
               ))}
             </SelectContent>

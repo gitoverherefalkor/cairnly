@@ -45,6 +45,8 @@
   "rules": {
     "nl": [
       "Use je-form (informal Dutch), never u",
+      "Tone: casual, modern, conversational — the way a friendly Dutch colleague actually talks, not a formal questionnaire. Avoid stiff, old-fashioned, or 'dusty' phrasing. Prefer everyday words over bookish ones.",
+      "Concrete tone examples (apply the spirit, not just these literals): 'I thrive on interaction' -> 'Ik krijg er energie van' (not 'Ik fleur ervan op'); 'I enjoy it, but have a limit' -> 'Ik vind het leuk, maar tot op zekere hoogte' (not the stiff 'Ik vind het fijn'); 'enjoying daily tasks' -> 'plezier hebben in je dagelijkse werk' (not 'genieten van dagelijkse taken').",
       "Dutch number formatting: €39,00 not €39.00; €1.500 not €1,500",
       "Keep Markdown structure intact (headers, bullets, bold, links)",
       "Date format: dd-mm-yyyy",
