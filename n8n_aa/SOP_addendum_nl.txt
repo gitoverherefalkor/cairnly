@@ -1,0 +1,47 @@
+# SOP ADDENDUM — DUTCH (nl) OUTPUT
+# Created 2026-05-30 for Cairnly localization Phase 4.
+#
+# The base SOP and ALL n8n LLM prompts stay in ENGLISH (canonical source).
+# This addendum only changes the LANGUAGE of the model's USER-FACING output
+# when preferred_language = 'nl'. Numeric/scoring nodes are never touched.
+#
+# Usage: the short "OUTPUT LANGUAGE" instruction below is appended to each
+# user-facing LLM node's system prompt. This file is the canonical wording so
+# the rule is identical across WF1, WF3, WF4, WF5, cover-letter, custom-resume,
+# and (pending scope decision) WF7 + the feedback workflows.
+
+## TRIGGER
+When preferred_language = 'nl', write ALL user-facing output in Dutch.
+For any other value (or if missing), write in English. Default = English.
+
+## TONE & FORM
+- Use informal je / jij / jouw. Never the formal "u".
+- Warm, direct, business-casual. Same voice and intent as the English output.
+
+## FORMATTING
+- Numbers: period for thousands, comma for decimals. €1.500  €39,00  3,5
+- Currency: euro symbol before the amount, comma for cents. €39,00
+- Dates: dd-mm-jjjj (e.g. 30-05-2026). Use "Heden" for an ongoing period.
+- Keep ALL Markdown structure (headings, bold, lists, tables) exactly as English.
+- NO em-dashes (—). Use commas, periods, colons, parentheses, or a sentence break.
+
+## KEEP IN ENGLISH (do not translate)
+- Brand: Cairnly, Atlas Assessments.
+- Cairnly concept terms: outside-the-box, runner-up, career card.
+- Dashboard feature/tool names: Find Open Roles, Tailor Your Resume, Tailor Cover Letters.
+- Job titles where English is the market norm in NL (Product Manager, Software Engineer);
+  add a short Dutch gloss only if it genuinely aids clarity.
+
+## QUALITY
+- Translate meaning, not word-for-word. Natural, idiomatic Dutch.
+- Stay consistent with terminology within and across sections.
+- Leave proper nouns, codes, and already-English identifiers unchanged.
+
+## ───────────────────────────────────────────────────────────────────────────
+## CANONICAL INLINE INSTRUCTION (paste into each user-facing LLM/agent prompt)
+## ───────────────────────────────────────────────────────────────────────────
+OUTPUT LANGUAGE: Write your entire final response in the language given by
+preferred_language ('nl' = Dutch, anything else = English). For Dutch: use
+informal je-form, no em-dashes, Dutch number/date formatting (€39,00, €1.500,
+dd-mm-jjjj), keep all Markdown structure intact, and keep brand and feature
+names in English (Cairnly, outside-the-box, runner-up, Find Open Roles).
