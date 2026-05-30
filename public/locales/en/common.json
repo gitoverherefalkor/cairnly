@@ -8,7 +8,7 @@
     "aboutUs": "About Us",
     "dashboard": "Dashboard",
     "signIn": "Sign in",
-    "getStarted": "Get Started — €39",
+    "getStarted": "Get Started · €39",
     "goToDashboard": "Go to dashboard",
     "tagAuth": "career path clarity.",
     "openMenu": "Open menu",
@@ -26,7 +26,8 @@
   "footer": {
     "brand": "Cairnly",
     "description": "Gain personalized, actionable career clarity through an expert-developed, AI-enhanced assessment delivered via a unique, interactive chat experience. Stop guessing, start directing your career.",
-    "copyright": "© Cairnly — Built in Utrecht.",
+    "copyright": "© Cairnly. Built in Utrecht.",
+    "legalEntity": "Cairnly is a product of Human in the Loop BV",
     "journal": "Journal",
     "privacy": "Privacy",
     "terms": "Terms",

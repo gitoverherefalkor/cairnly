@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import CairnlyWordmarkInverted from '@/logos/cairnly-logo/cairnly_logo_wordmark_inverted.png';
 
 const LandingFooter: React.FC = () => {
@@ -22,6 +21,7 @@ const LandingFooter: React.FC = () => {
             <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 w-auto -mb-2.5" />
             <p className="text-[10px] tracking-[0.22em] text-[#D4A024] ml-8">{t('nav.tagAuth')}</p>
             <p className="mt-6 text-[13px] text-white/40">{t('footer.copyright')}</p>
+            <p className="mt-1.5 text-[12px] text-white/30">{t('footer.legalEntity')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-[13px] font-medium">
             {LINKS.map((l) => (
