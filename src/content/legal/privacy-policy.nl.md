@@ -2,13 +2,13 @@
 
 Laatst bijgewerkt: 30 mei 2026
 
-# 1. Inleiding
+## 1. Inleiding
 
 Cairnly (“wij”, “ons”, “onze”), een handelsnaam van Human in the Loop B.V., exploiteert het Cairnly-platform. Deze Privacyverklaring legt uit hoe wij jouw persoonsgegevens verzamelen, gebruiken, verwerken en beschermen wanneer je gebruikmaakt van onze carrière-assessmentdiensten.
 
 Door gebruik te maken van onze diensten ga je akkoord met het verzamelen en gebruik van gegevens zoals beschreven in deze Privacyverklaring.
 
-# 2. Welke gegevens verzamelen wij?
+## 2. Welke gegevens verzamelen wij?
 
 ### 2.1 Persoonsgegevens
 
@@ -33,7 +33,7 @@ Door gebruik te maken van onze diensten ga je akkoord met het verzamelen en gebr
 - Gebruiksanalyses en interactiegegevens
 - Cookies en vergelijkbare technologieën
 
-# 3. Hoe gebruiken wij jouw gegevens en op welke grondslag?
+## 3. Hoe gebruiken wij jouw gegevens en op welke grondslag?
 
 Op grond van de AVG (artikel 6) verwerken wij jouw gegevens op basis van de volgende grondslagen:
 
@@ -44,7 +44,7 @@ Op grond van de AVG (artikel 6) verwerken wij jouw gegevens op basis van de volg
 - Toestemming: het versturen van marketingcommunicatie en optionele reminder-e-mails (je kunt je hiervoor op elk moment afmelden via jouw profielinstellingen)
 - Toestemming (Journal-nieuwsbrief): als je je abonneert op de Cairnly Journal, bewaren wij jouw e-mailadres uitsluitend om drie tot vier uitgaven per jaar te versturen. We gebruiken een bevestigde double opt-in en voegen in elke e-mail een 1-klik afmeldlink toe.
 
-# 4. LinkedIn-integratie
+## 4. LinkedIn-integratie
 
 Als je ervoor kiest om jouw LinkedIn-account te koppelen, hebben wij toegang tot beperkte profielinformatie om jouw assessment-ervaring te verbeteren:
 
@@ -54,7 +54,7 @@ Als je ervoor kiest om jouw LinkedIn-account te koppelen, hebben wij toegang tot
 
 Deze integratie is optioneel en kan op elk moment worden losgekoppeld via jouw profielinstellingen.
 
-# 5. Delen en doorgifte van gegevens
+## 5. Delen en doorgifte van gegevens
 
 Wij verkopen jouw persoonsgegevens niet. Wij delen gegevens met de volgende verwerkers om ons platform te exploiteren:
 
@@ -71,7 +71,7 @@ Wij kunnen daarnaast gegevens delen wanneer:
 - Bedrijfsovernames: bij fusies, overnames of verkoop van bedrijfsonderdelen
 - Toestemming: met jouw uitdrukkelijke toestemming voor andere doeleinden
 
-# 6. Beveiliging van gegevens
+## 6. Beveiliging van gegevens
 
 Wij hanteren marktconforme beveiligingsmaatregelen om jouw persoonsgegevens te beschermen:
 
@@ -80,7 +80,7 @@ Wij hanteren marktconforme beveiligingsmaatregelen om jouw persoonsgegevens te b
 - Regelmatige beveiligingsbeoordelingen en updates
 - Beperkte toegang tot persoonsgegevens op basis van need-to-know
 
-# 7. Jouw rechten (AVG)
+## 7. Jouw rechten (AVG)
 
 Op grond van de AVG heb je de volgende rechten:
 
@@ -102,17 +102,17 @@ Belangrijk: deze AI-aanbevelingen zijn uitsluitend adviserend en vormen geen bin
 
 Op grond van artikel 22 AVG heb je het recht om menselijke beoordeling van een geautomatiseerd assessment aan te vragen. Neem hiervoor contact op via privacy@cairnly.io.
 
-# 8. Bewaartermijnen
+## 8. Bewaartermijnen
 
 Wij bewaren jouw persoonsgegevens tot maximaal 3 jaar na jouw laatste login, of zolang jouw account bestaat, afhankelijk van welke periode langer is. Je kunt jouw account en alle bijbehorende gegevens op elk moment verwijderen via jouw profielinstellingen. Na accountverwijdering worden alle persoonsgegevens binnen 30 dagen definitief verwijderd.
 
 Uitzondering voor fiscale en administratieve gegevens: gegevens over aankopen, betalingen, terugbetalingen (waaronder uitkeringen in het kader van het Referral Programma) en facturen bewaren wij voor de duur die op grond van de Nederlandse fiscale en boekhoudwetgeving is vereist (op dit moment zeven jaar), ook als je jouw account in de tussentijd verwijdert. Deze gegevens worden afgeschermd en uitsluitend gebruikt om aan onze wettelijke verplichtingen te voldoen.
 
-# 9. Cookies en tracking
+## 9. Cookies en tracking
 
 Wij gebruiken uitsluitend essentiële cookies die nodig zijn voor het functioneren van het platform (authenticatie). Wij gebruiken geen analytische, tracking- of advertentie-cookies. Zie ons Cookiebeleid voor details.
 
-# 10. Internationale gegevensoverdracht
+## 10. Internationale gegevensoverdracht
 
 Sommige van onze dienstverleners verwerken gegevens buiten de EU/EER:
 
@@ -123,11 +123,11 @@ Sommige van onze dienstverleners verwerken gegevens buiten de EU/EER:
 
 Wij zorgen ervoor dat er voor alle internationale overdrachten passende waarborgen aanwezig zijn conform Hoofdstuk V van de AVG.
 
-# 11. Wijzigingen van deze Privacyverklaring
+## 11. Wijzigingen van deze Privacyverklaring
 
 Wij kunnen deze Privacyverklaring van tijd tot tijd bijwerken. Bij materiële wijzigingen plaatsen wij de bijgewerkte Privacyverklaring op deze pagina en passen wij de “Laatst bijgewerkt”-datum aan.
 
-# 12. Contact
+## 12. Contact
 
 Heb je vragen over deze Privacyverklaring of wil je een van jouw rechten uitoefenen? Neem dan contact met ons op:
 

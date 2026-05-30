@@ -2,13 +2,13 @@
 
 Laatst bijgewerkt: 30 mei 2026
 
-# 1. Aanvaarding van de voorwaarden
+## 1. Aanvaarding van de voorwaarden
 
 Door toegang tot en gebruik van het Cairnly-platform, geëxploiteerd door Human in the Loop B.V., handelend onder de naam Cairnly (“wij”, “ons”, “onze”), aanvaard je en stem je ermee in gebonden te zijn aan deze Algemene Voorwaarden (“Voorwaarden”). Als je niet akkoord gaat met deze Voorwaarden, gebruik onze dienst dan niet.
 
 Deze Voorwaarden gelden voor alle bezoekers, gebruikers en anderen die toegang hebben tot of gebruikmaken van onze carrière-assessmentdiensten.
 
-# 2. Omschrijving van de dienst
+## 2. Omschrijving van de dienst
 
 Cairnly biedt AI-ondersteunde carrière-assessmentdiensten die zijn ontworpen om gepersonaliseerd loopbaaninzicht te leveren via interactieve, chat-gebaseerde evaluaties. Onze diensten omvatten:
 
@@ -20,7 +20,7 @@ Cairnly biedt AI-ondersteunde carrière-assessmentdiensten die zijn ontworpen om
 
 Ons platform bevindt zich op dit moment in de Beta-fase en wij verbeteren onze diensten doorlopend op basis van gebruikersfeedback en technologische ontwikkelingen.
 
-# 3. Gebruikersaccounts en registratie
+## 3. Gebruikersaccounts en registratie
 
 Voor toegang tot onze diensten moet je een account aanmaken met juiste en volledige informatie. Je bent verantwoordelijk voor:
 
@@ -31,7 +31,7 @@ Voor toegang tot onze diensten moet je een account aanmaken met juiste en volled
 
 Je moet 18 jaar of ouder zijn om onze diensten te gebruiken. Door een account aan te maken, verklaar je aan deze leeftijdseis te voldoen.
 
-# 4. Toegangscodes en betaling
+## 4. Toegangscodes en betaling
 
 ### 4.1 Toegangscodes
 
@@ -54,7 +54,7 @@ Vanwege de aard van onze digitale assessmentdiensten zijn alle aankopen definiti
 
 In afwijking van het voorgaande kunnen gedeeltelijke terugbetalingen worden uitgekeerd aan gebruikers die deelnemen aan het Cairnly Referral Programma. Deze terugbetalingen worden geregeld door de afzonderlijke Voorwaarden Referral Programma en worden behandeld als terugwerkende verlaging van de oorspronkelijke aankoopprijs.
 
-# 5. Aanvaardbaar gebruik
+## 5. Aanvaardbaar gebruik
 
 Je stemt ermee in om niet:
 
@@ -66,7 +66,7 @@ Je stemt ermee in om niet:
 - Geautomatiseerde scripts of bots in te zetten om onze diensten te benaderen
 - Intellectuele-eigendomsrechten van Cairnly of derden te schenden
 
-# 6. Intellectuele-eigendomsrechten
+## 6. Intellectuele-eigendomsrechten
 
 Het Cairnly-platform, inclusief alle content, functies, functionaliteit en technologie, is eigendom van Human in the Loop B.V. en wordt beschermd door auteursrecht, merkenrecht en andere intellectuele-eigendomsrechten.
 
@@ -82,13 +82,13 @@ Je behoudt het eigendom van de informatie die je verstrekt tijdens assessments. 
 
 De voor jou gegenereerde rapporten zijn voor persoonlijk gebruik. Je mag deze rapporten niet herdistribueren, verkopen of commercieel exploiteren zonder onze schriftelijke toestemming.
 
-# 7. Privacy en gegevensbescherming
+## 7. Privacy en gegevensbescherming
 
 Privacy is belangrijk voor ons. Het verzamelen, gebruiken en beschermen van jouw persoonsgegevens is geregeld in onze Privacyverklaring, die door verwijzing onderdeel uitmaakt van deze Voorwaarden.
 
 Door onze diensten te gebruiken, stem je in met het verzamelen en gebruik van jouw gegevens zoals beschreven in onze Privacyverklaring.
 
-# 8. Disclaimers en beperkingen
+## 8. Disclaimers en beperkingen
 
 ### 8.1 Dienstdisclaimers
 
@@ -112,13 +112,13 @@ Ons platform bevindt zich op dit moment in de Beta-fase. Dit betekent:
 
 Voor zover wettelijk toegestaan, is Cairnly niet aansprakelijk voor indirecte, incidentele, bijzondere, gevolg- of punitieve schade, waaronder maar niet beperkt tot verlies van winst, gegevens of zakelijke kansen, voortvloeiend uit jouw gebruik van onze diensten. Niets in deze Voorwaarden beperkt aansprakelijkheid die op grond van dwingend recht niet kan worden uitgesloten, waaronder consumentenrecht.
 
-# 9. Integraties met derden
+## 9. Integraties met derden
 
 Ons platform kan integreren met diensten van derden, zoals LinkedIn. Deze integraties vallen onder de voorwaarden en privacyverklaringen van de betreffende derden. Wij zijn niet verantwoordelijk voor de praktijken of inhoud van deze diensten van derden.
 
 Je kunt integraties met derden op elk moment loskoppelen via jouw profielinstellingen.
 
-# 10. Beëindiging
+## 10. Beëindiging
 
 Wij mogen jouw account en de toegang tot onze diensten naar eigen inzicht beëindigen of opschorten, zonder voorafgaande kennisgeving, bij gedrag waarvan wij redelijkerwijs menen dat dit:
 
@@ -128,7 +128,7 @@ Wij mogen jouw account en de toegang tot onze diensten naar eigen inzicht beëin
 
 Je kunt jouw account op elk moment beëindigen via jouw profielinstellingen of door contact met ons op te nemen. Bij beëindiging vervalt jouw recht op gebruik van de dienst onmiddellijk.
 
-# 11. Toepasselijk recht en geschillen
+## 11. Toepasselijk recht en geschillen
 
 Op deze Voorwaarden is Nederlands recht van toepassing, met uitsluiting van conflictenrechtelijke bepalingen. Als je consument bent met woonplaats in de Europese Unie, behoud je de bescherming van de dwingendrechtelijke consumentenregels van jouw woonland.
 
@@ -138,7 +138,7 @@ Lukt het ons niet om de zaak op te lossen, dan kun je een procedure aanhangig ma
 
 EU-consumenten kunnen daarnaast gebruikmaken van het ODR-platform van de Europese Commissie op https://ec.europa.eu/consumers/odr om een geschil buitengerechtelijk te beslechten.
 
-# 12. Wijzigingen van de Voorwaarden
+## 12. Wijzigingen van de Voorwaarden
 
 Wij behouden ons het recht voor om deze Voorwaarden op elk moment te wijzigen. Wij informeren gebruikers over materiële wijzigingen door:
 
@@ -148,15 +148,15 @@ Wij behouden ons het recht voor om deze Voorwaarden op elk moment te wijzigen. W
 
 Jouw voortgezette gebruik van onze diensten na inwerkingtreding van wijzigingen geldt als aanvaarding van de gewijzigde Voorwaarden.
 
-# 13. Deelbaarheid
+## 13. Deelbaarheid
 
 Als een bepaling van deze Voorwaarden ongeldig of niet-afdwingbaar wordt geacht, blijven de overige bepalingen onverminderd van kracht. De ongeldige bepaling wordt vervangen door een geldige bepaling die de bedoeling van de oorspronkelijke bepaling zo dicht mogelijk benadert.
 
-# 14. Volledige overeenkomst
+## 14. Volledige overeenkomst
 
 Deze Voorwaarden vormen, samen met onze Privacyverklaring en, indien van toepassing, de Voorwaarden Referral Programma, de volledige overeenkomst tussen jou en Cairnly met betrekking tot het gebruik van onze diensten en treden in de plaats van alle eerdere overeenkomsten en afspraken.
 
-# 15. Contactgegevens
+## 15. Contactgegevens
 
 Vragen over deze Algemene Voorwaarden? Neem contact met ons op:
 

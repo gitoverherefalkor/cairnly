@@ -52,6 +52,27 @@ def heading_level(style, text):
     if re.match(r"^\d+\.\s", text): return 2
     return 0
 
+def normalize_headings(lines):
+    """First heading -> h1; subsequent headings -> h2, except numeric "N.M"
+    prefixes -> h3. Robust against docx files that style every section as
+    Word Heading 1."""
+    seen_h1 = False
+    out = []
+    for l in lines:
+        m = re.match(r"^#+\s+(.*)$", l)
+        if m:
+            text = m.group(1)
+            if not seen_h1:
+                out.append(f"# {text}"); seen_h1 = True
+            elif re.match(r"^\d+\.\d+", text):
+                out.append(f"### {text}")
+            else:
+                out.append(f"## {text}")
+        else:
+            out.append(l)
+    return out
+
+
 def convert(path):
     z = zipfile.ZipFile(path)
     root = ET.fromstring(z.read("word/document.xml"))
@@ -80,6 +101,7 @@ def convert(path):
             out.append(f"### {text}")
         else:
             out.append(text)
+    out = normalize_headings(out)
     # join with blank lines, but keep consecutive list items tight
     md = []
     for i, line in enumerate(out):
