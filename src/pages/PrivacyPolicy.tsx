@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 const PrivacyPolicy = () => {
   return (
@@ -197,7 +197,7 @@ const PrivacyPolicy = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <LandingFooter />
     </div>
   );
 };

@@ -26,7 +26,8 @@
   "footer": {
     "brand": "Cairnly",
     "description": "Krijg gepersonaliseerde, bruikbare carrièreduidelijkheid via een door experts ontwikkelde, AI-versterkte assessment die wordt aangeboden via een unieke, interactieve chatervaring. Stop met gissen, begin met het sturen van je carrière.",
-    "copyright": "© Cairnly · Gebouwd in Utrecht.",
+    "copyright": "© Cairnly. Gebouwd in Utrecht.",
+    "legalEntity": "Cairnly is een product van Human in the Loop BV",
     "journal": "Journal",
     "privacy": "Privacy",
     "terms": "Voorwaarden",

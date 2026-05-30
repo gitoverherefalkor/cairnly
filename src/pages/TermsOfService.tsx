@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 const TermsOfService = () => {
   return (
@@ -242,7 +242,7 @@ const TermsOfService = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <LandingFooter />
     </div>
   );
 };

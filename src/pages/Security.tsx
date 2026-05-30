@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 const Security = () => {
   return (
@@ -70,7 +70,7 @@ const Security = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <LandingFooter />
     </div>
   );
 };
