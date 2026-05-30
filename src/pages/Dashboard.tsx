@@ -10,6 +10,8 @@ import { useReports } from '@/hooks/useReports';
 import { useReportSections, type ReportSection } from '@/hooks/useReportSections';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
+import { useSurvey } from '@/hooks/useSurvey';
+import { computeSurveyProgress } from '@/lib/surveyProgress';
 import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
 import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
 import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
@@ -78,6 +80,12 @@ const Dashboard = () => {
   // started the survey on a different device (or after clearing localStorage)
   // but haven't submitted yet.
   const [hasDraftAnswers, setHasDraftAnswers] = useState(false);
+  // Draft answer payload + its survey id, recovered from the DB in the effect
+  // below. Used to compute exact resume progress (questions answered, sections
+  // complete) that matches what the live survey considers done — covers the
+  // fresh-device case where there's no localStorage session to read.
+  const [draftPayload, setDraftPayload] = useState<Record<string, any> | null>(null);
+  const [draftSurveyId, setDraftSurveyId] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -98,6 +106,15 @@ const Dashboard = () => {
 
   // Referral / virality status — invite code, count, feature unlocks.
   const referralStatus = useReferralStatus();
+
+  // Load the draft's survey structure (no-op until the effect resolves the id)
+  // and compute exact progress from the recovered payload. Falls back to null
+  // until both are available, so the render can use a coarse estimate meanwhile.
+  const { data: draftSurvey } = useSurvey(draftSurveyId ?? '');
+  const dbProgress = useMemo(
+    () => computeSurveyProgress(draftSurvey, draftPayload),
+    [draftSurvey, draftPayload]
+  );
 
   // Track dashboard visit for users who have completed chat.
   const { trackDashboardVisit } = useEngagementTracking();
@@ -171,16 +188,22 @@ const Dashboard = () => {
 
         setUserAccessCode(verifiedCode.code);
 
-        // Does this code have an in-progress (draft) survey?
+        // Does this code have an in-progress (draft) survey? Pull the payload +
+        // survey id too, so we can compute exact resume progress for the
+        // dashboard even on a fresh device with no localStorage session.
         const { data: answersRow } = await supabase
           .from('answers')
-          .select('status')
+          .select('status, payload, survey_id')
           .eq('access_code_id', verifiedCode.id)
           .maybeSingle();
         const hasDraft = answersRow?.status === 'draft';
 
         if (hasDraft) {
           setHasDraftAnswers(true);
+          if (answersRow?.payload && typeof answersRow.payload === 'object') {
+            setDraftPayload(answersRow.payload as Record<string, any>);
+          }
+          if (answersRow?.survey_id) setDraftSurveyId(answersRow.survey_id);
           if (!hasLocalSession) {
             const session = {
               isVerified: true,
@@ -436,7 +459,10 @@ const Dashboard = () => {
 
   const resumeProgress =
     mode === 'resume'
-      ? {
+      ? // Prefer the exact DB-payload computation (matches the live survey).
+        // Until the survey structure loads, fall back to the coarse estimate
+        // derived from whatever localStorage session we have.
+        dbProgress ?? {
           sectionsComplete: Math.min(savedSession?.currentSectionIndex ?? 0, TOTAL_SURVEY_SECTIONS),
           totalSections: TOTAL_SURVEY_SECTIONS,
           questionsAnswered: Math.min(

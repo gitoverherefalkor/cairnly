@@ -70,6 +70,9 @@ export const useSurvey = (surveyId: string) => {
   return useQuery({
     // Language is part of the key so switching language re-applies translations.
     queryKey: ['survey', surveyId, lang],
+    // Don't fire when there's no id yet (e.g. the dashboard resolves the draft's
+    // survey id asynchronously). Avoids an erroring `.eq('id','')` query.
+    enabled: !!surveyId,
     queryFn: async (): Promise<Survey> => {
       // Single query using Supabase's relational select (PostgREST foreign key traversal).
       // `translations` is fetched alongside English content; coalescing happens below.
