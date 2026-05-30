@@ -568,6 +568,9 @@ serve(async (req) => {
     const customerEmail = session.customer_details?.email;
     const firstName = session.metadata?.firstName || "Customer";
     const lastName = session.metadata?.lastName || "";
+    // Buyer's language for transactional emails, from the Stripe session metadata
+    // (set in create-checkout from the frontend's cairnly_language). Default 'en'.
+    const buyerLang: Lang = session.metadata?.preferred_language === "nl" ? "nl" : "en";
     const country = session.metadata?.country || "Unknown";
 
     // Language for the buyer's receipt email. Primary signal is the UI language
