@@ -15,6 +15,7 @@ OUT = "src/content/legal"
 MAP = [
     ("Cairnly_Terms_of_Service_EN.docx",            "terms-of-service.en.md", "en"),
     ("Cairnly_Algemene_Voorwaarden_NL.docx",        "terms-of-service.nl.md", "nl"),
+    ("Cairnly_Privacy_Policy_EN.docx",              "privacy-policy.en.md",   "en"),
     ("Cairnly_Privacyverklaring_NL.docx",           "privacy-policy.nl.md",   "nl"),
     ("Cairnly_Referral_Programme_Terms_EN.docx",    "referral-terms.en.md",   "en"),
     ("Cairnly_Voorwaarden_Referral_Programma_NL.docx","referral-terms.nl.md", "nl"),
@@ -73,6 +74,19 @@ def normalize_headings(lines):
     return out
 
 
+EN_DATE = "May 30, 2026"
+NL_DATE = "30 mei 2026"
+
+def post_process(line, path):
+    """Fill date placeholders and strip em-dashes (glossary: none in public copy)."""
+    nl = path.endswith("_NL.docx")
+    if nl:
+        line = line.replace("Laatst bijgewerkt: [datum invullen]", f"Laatst bijgewerkt: {NL_DATE}")
+    else:
+        line = line.replace("Last updated: [insert date]", f"Last updated: {EN_DATE}")
+    return line.replace("—", ", ").replace("–", "-")
+
+
 def convert(path):
     z = zipfile.ZipFile(path)
     root = ET.fromstring(z.read("word/document.xml"))
@@ -102,6 +116,7 @@ def convert(path):
         else:
             out.append(text)
     out = normalize_headings(out)
+    out = [post_process(l, path) for l in out]
     # join with blank lines, but keep consecutive list items tight
     md = []
     for i, line in enumerate(out):

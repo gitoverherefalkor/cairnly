@@ -44,7 +44,7 @@ Jouw beloning wordt automatisch geactiveerd of uitgekeerd zodra aan al deze voor
 
 Gedeeltelijke terugbetalingen worden uitgevoerd via onze betaaldienstverlener Stripe en gestort op de oorspronkelijke betaalmethode die je voor jouw Cairnly-aankoop hebt gebruikt. Terugbetalingen worden administratief verwerkt als creditfactuur op de oorspronkelijke transactie. De bijbehorende btw-correctie wordt automatisch in onze administratie verwerkt.
 
-Een terugbetaling verschijnt doorgaans binnen 5–10 werkdagen op jouw rekening, afhankelijk van jouw bank of card issuer. Als jouw oorspronkelijke betaalmethode niet meer geldig is (bijvoorbeeld bij een vervallen of opgeheven kaart), nemen wij contact met je op om een alternatieve uitkering via bankoverboeking te regelen.
+Een terugbetaling verschijnt doorgaans binnen 5-10 werkdagen op jouw rekening, afhankelijk van jouw bank of card issuer. Als jouw oorspronkelijke betaalmethode niet meer geldig is (bijvoorbeeld bij een vervallen of opgeheven kaart), nemen wij contact met je op om een alternatieve uitkering via bankoverboeking te regelen.
 
 ## 6. Fiscale behandeling
 

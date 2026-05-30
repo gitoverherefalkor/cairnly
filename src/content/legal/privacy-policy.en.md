@@ -1,10 +1,10 @@
 # Privacy Policy
 
-Last updated: April 2, 2026
+Last updated: May 30, 2026
 
 ## 1. Introduction
 
-Cairnly ("we," "our," or "us") operates the Cairnly platform. This Privacy Policy explains how we collect, use, process, and protect your personal information when you use our career assessment services.
+Cairnly (“we,” “our,” or “us”), a trading name of Human in the Loop B.V., operates the Cairnly platform. This Privacy Policy explains how we collect, use, process, and protect your personal information when you use our career assessment services.
 
 By using our services, you agree to the collection and use of information in accordance with this Privacy Policy.
 
@@ -17,13 +17,14 @@ By using our services, you agree to the collection and use of information in acc
 - Demographics (age range, location, pronouns)
 - LinkedIn profile data (when you connect your LinkedIn account)
 - Resume and CV information
+- Referral relationships (who invited you to Cairnly, and any users you have invited)
 
 ### 2.2 Assessment Data
 
 - Responses to assessment questions
 - Career preferences and goals
 - Skills and competency assessments
-- Personality and behavioral insights
+- Personality and behavioural insights
 
 ### 2.3 Technical Information
 
@@ -36,9 +37,9 @@ By using our services, you agree to the collection and use of information in acc
 
 Under the GDPR (Article 6), we process your data based on the following legal grounds:
 
-- Contract performance: Provide personalized career assessment and recommendations, generate career reports, and process payments
+- Contract performance: Provide personalised career assessment and recommendations, generate career reports, and process payments
 - Contract performance: Communicate with you about your assessment results and provide customer support
-- Legitimate interest: Improve our assessment methodology and platform reliability
+- Legitimate interest: Improve our assessment methodology and platform reliability, and prevent fraud (including in the context of the Referral Programme)
 - Legal obligation: Comply with applicable laws and protect our rights
 - Consent: Send marketing communications and optional reminder emails (you can opt out at any time via your profile settings)
 - Consent (Journal newsletter): If you subscribe to the Cairnly Journal, we store your email address solely to send three to four issues per year. We use a confirmed double opt-in and include a one-click unsubscribe link in every email.
@@ -59,8 +60,8 @@ We do not sell your personal information. We share data with the following proce
 
 - Supabase Inc. (EU/US) ,  Database hosting, authentication, and file storage
 - n8n GmbH (Germany) ,  AI-powered assessment analysis and career report generation
-- Google LLC (US, EU Data Processing Framework) ,  Resume text extraction via Gemini AI
-- Stripe Inc. (US, EU Data Processing Framework) ,  Payment processing
+- Google LLC (US, EU Data Privacy Framework) ,  Resume text extraction via Gemini AI
+- Stripe Inc. (US, EU Data Privacy Framework) ,  Payment processing, including the execution of partial refunds in the context of the Referral Programme
 - Resend Inc. (US) ,  Transactional email delivery
 - Vercel Inc. (US) ,  Website hosting and delivery
 
@@ -93,9 +94,9 @@ Under the GDPR, you have the following rights:
 
 You can exercise your rights to access, export, and delete directly from your Profile Settings page. For other requests, contact us at privacy@cairnly.io.
 
-## 7a. Automated Decision-Making
+7a. Automated Decision-Making
 
-Our platform uses AI to analyze your assessment responses and generate personalized career recommendations. This involves automated profiling of your personality traits, skills, and career preferences.
+Our platform uses AI to analyse your assessment responses and generate personalised career recommendations. This involves automated profiling of your personality traits, skills, and career preferences.
 
 Important: These AI-generated recommendations are advisory only and do not constitute binding decisions about your career, employment, or any other matter. You are free to follow, modify, or disregard any recommendation.
 
@@ -104,6 +105,8 @@ Under GDPR Article 22, you have the right to request human review of any automat
 ## 8. Data Retention
 
 We retain your personal information for up to 3 years after your last login, or for the duration of your account, whichever is longer. You can delete your account and all associated data at any time from your Profile settings. After account deletion, all personal data is permanently removed within 30 days.
+
+Exception for tax and accounting records: data relating to purchases, payments, refunds (including payouts under the Referral Programme), and invoices is retained for the period required by Dutch tax and accounting law (currently seven years), even if you delete your account in the meantime. This data is access-restricted and used solely to comply with our legal obligations.
 
 ## 9. Cookies and Tracking
 
@@ -122,7 +125,7 @@ We ensure appropriate safeguards are in place for all international transfers in
 
 ## 11. Changes to This Privacy Policy
 
-We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new Privacy Policy on this page and updating the “Last updated” date.
 
 ## 12. Contact Us
 
@@ -130,6 +133,6 @@ If you have any questions about this Privacy Policy or wish to exercise your rig
 
 Email: privacy@cairnly.io
 
-Address: Cairnly, Utrecht, The Netherlands
+Address: Cairnly, a trading name of Human in the Loop B.V., Utrecht, the Netherlands
 
 Data Protection Officer: dpo@cairnly.io

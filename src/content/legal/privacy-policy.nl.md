@@ -118,7 +118,7 @@ Sommige van onze dienstverleners verwerken gegevens buiten de EU/EER:
 
 - n8n GmbH ,  Duitsland (EU, geen aanvullende doorgifte nodig)
 - Supabase Inc. ,  EU-regio geselecteerd voor database-hosting
-- Google LLC, Stripe Inc. ,  VS, gedekt door het EU–US Data Privacy Framework
+- Google LLC, Stripe Inc. ,  VS, gedekt door het EU-US Data Privacy Framework
 - Resend Inc., Vercel Inc. ,  VS, gedekt door modelcontractbepalingen (Standard Contractual Clauses)
 
 Wij zorgen ervoor dat er voor alle internationale overdrachten passende waarborgen aanwezig zijn conform Hoofdstuk V van de AVG.

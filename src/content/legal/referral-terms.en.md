@@ -25,7 +25,7 @@ Upon purchase, you receive a unique referral code. When someone you invite signs
 
 Rewards are granted per Valid Referral according to the following schedule:
 
-The total monetary reward you can receive under the Referral Programme is capped at one hundred percent (100%) of the amount you originally paid for your Cairnly account. Once this cap is reached, no further partial refunds are issued, even if additional Valid Referrals occur. Permanent feature unlocks earned at referrals 1–3 remain regardless of the cap.
+The total monetary reward you can receive under the Referral Programme is capped at one hundred percent (100%) of the amount you originally paid for your Cairnly account. Once this cap is reached, no further partial refunds are issued, even if additional Valid Referrals occur. Permanent feature unlocks earned at referrals 1-3 remain regardless of the cap.
 
 The partial refunds described in this Section 3 are issued as retroactive price reductions applied to your original Cairnly purchase. They are not commissions, prizes, or payments for services rendered.
 
@@ -44,7 +44,7 @@ Your reward is automatically activated or paid out only once all of the above co
 
 Partial refunds are issued through our payment provider, Stripe, and are returned to the original payment method used for your Cairnly purchase. Refunds are processed as credit notes against the original transaction. The corresponding VAT correction is handled automatically in our accounting.
 
-Refunds typically appear in your account within 5–10 business days, depending on your bank or card issuer. If your original payment method is no longer valid (for example, an expired or closed card), we will contact you to arrange an alternative payout via bank transfer.
+Refunds typically appear in your account within 5-10 business days, depending on your bank or card issuer. If your original payment method is no longer valid (for example, an expired or closed card), we will contact you to arrange an alternative payout via bank transfer.
 
 ## 6. Tax treatment
 
