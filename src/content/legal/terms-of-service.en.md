@@ -52,7 +52,7 @@ Access to our assessment services requires a valid access code, which can be obt
 
 Due to the nature of our digital assessment services, all sales are final. Refunds may be considered on a case-by-case basis for technical issues that prevent service delivery, subject to our discretion and investigation.
 
-Notwithstanding the above, partial refunds may be issued to users who participate in the Cairnly Referral Programme. Such refunds are governed by the separate Referral Programme Terms and are treated as retroactive reductions of the original purchase price.
+Notwithstanding the above, partial refunds may be issued to users who participate in the Cairnly Referral Programme. Such refunds are governed by the separate [Referral Programme Terms](/referral-terms) and are treated as retroactive reductions of the original purchase price.
 
 ## 5. Acceptable Use
 

@@ -52,7 +52,7 @@ Voor toegang tot onze assessmentdiensten is een geldige toegangscode vereist. De
 
 Vanwege de aard van onze digitale assessmentdiensten zijn alle aankopen definitief. In individuele gevallen kan restitutie worden overwogen bij technische problemen die de levering van de dienst verhinderen, een en ander naar ons redelijke inzicht en na onderzoek.
 
-In afwijking van het voorgaande kunnen gedeeltelijke terugbetalingen worden uitgekeerd aan gebruikers die deelnemen aan het Cairnly Referral Programma. Deze terugbetalingen worden geregeld door de afzonderlijke Voorwaarden Referral Programma en worden behandeld als terugwerkende verlaging van de oorspronkelijke aankoopprijs.
+In afwijking van het voorgaande kunnen gedeeltelijke terugbetalingen worden uitgekeerd aan gebruikers die deelnemen aan het Cairnly Referral Programma. Deze terugbetalingen worden geregeld door de afzonderlijke [Voorwaarden Referral Programma](/referral-terms) en worden behandeld als terugwerkende verlaging van de oorspronkelijke aankoopprijs.
 
 ## 5. Aanvaardbaar gebruik
 
