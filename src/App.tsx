@@ -34,6 +34,7 @@ const Chat = lazy(() => import("./pages/Chat"));
 const ReportProcessing = lazy(() => import("./pages/ReportProcessing"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const ReferralTerms = lazy(() => import("./pages/ReferralTerms"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const Support = lazy(() => import("./pages/Support"));
 const Security = lazy(() => import("./pages/Security"));
@@ -99,6 +100,7 @@ const App = () => {
               <Route path="/report-processing" element={<ReportProcessing />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-conditions" element={<TermsOfService />} />
+              <Route path="/referral-terms" element={<ReferralTerms />} />
               <Route path="/cookie-policy" element={<CookiePolicy />} />
               <Route path="/support" element={<Support />} />
               <Route path="/security" element={<Security />} />
