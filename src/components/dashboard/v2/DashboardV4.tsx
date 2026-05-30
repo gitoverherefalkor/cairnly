@@ -1822,6 +1822,9 @@ const StepCard: React.FC<{
     if (!isRefund) return;
     const el = cardRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
+    // rootMargin pulls the bottom of the observation zone up by 67% of the
+    // viewport, so the card only counts as "in view" once it reaches the top
+    // third of the screen — by then the user is looking right at it.
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -1829,7 +1832,7 @@ const StepCard: React.FC<{
           observer.disconnect();
         }
       },
-      { threshold: 0.5 },
+      { threshold: 0, rootMargin: '0px 0px -67% 0px' },
     );
     observer.observe(el);
     return () => observer.disconnect();
