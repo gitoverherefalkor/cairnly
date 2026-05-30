@@ -31,24 +31,42 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (userError || !user) return json({ found: false });
 
-    // Most recently claimed access code for this user.
-    const { data: accessCode } = await supabase
+    // All access codes claimed by this user, newest first.
+    const { data: codes } = await supabase
       .from('access_codes')
-      .select('id, code, survey_type, max_usage, usage_count')
+      .select('id, code, survey_type, max_usage, usage_count, is_active')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order('created_at', { ascending: false });
 
-    if (!accessCode) return json({ found: false });
+    if (!codes || codes.length === 0) return json({ found: false });
+
+    // Which of those codes have an in-progress (draft) survey? We must prefer a
+    // code that holds the user's unfinished assessment, otherwise a user with
+    // more than one code (e.g. a second purchase, a comp code on top of a paid
+    // one, a re-issue) would be handed the NEWEST code — which may be empty —
+    // and the dashboard would show "Start" as if their progress vanished.
+    const codeIds = codes.map((c) => c.id);
+    const { data: drafts } = await supabase
+      .from('answers')
+      .select('access_code_id')
+      .in('access_code_id', codeIds)
+      .eq('status', 'draft');
+    const draftCodeIds = new Set((drafts ?? []).map((d) => d.access_code_id));
+
+    // Preference order: newest code with a draft → newest active code → newest.
+    // (`codes` is already sorted newest-first, so `.find` yields the newest match.)
+    const chosen =
+      codes.find((c) => draftCodeIds.has(c.id)) ??
+      codes.find((c) => c.is_active !== false) ??
+      codes[0];
 
     return json({
       found: true,
       accessCode: {
-        id: accessCode.id,
-        code: accessCode.code,
-        survey_type: accessCode.survey_type,
-        remaining_uses: accessCode.max_usage - accessCode.usage_count,
+        id: chosen.id,
+        code: chosen.code,
+        survey_type: chosen.survey_type,
+        remaining_uses: chosen.max_usage - chosen.usage_count,
       },
     });
   } catch (error) {
