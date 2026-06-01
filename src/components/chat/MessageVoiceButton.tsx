@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Volume2, Square, Settings2, Loader2, Bookmark, ThumbsUp } from 'lucide-react';
-import { useTTS } from '@/contexts/TTSContext';
+import { useTTS, PLAYBACK_RATES } from '@/contexts/TTSContext';
 
 interface MessageVoiceButtonProps {
   messageId: string;
@@ -35,6 +35,8 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
     stop,
     readAll,
     setReadAll,
+    playbackRate,
+    setPlaybackRate,
   } = useTTS();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -126,6 +128,26 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
                 />
               </span>
             </button>
+
+            <div className="px-3 py-2">
+              <div className="text-sm text-atlas-navy mb-1.5">Playback speed</div>
+              <div className="flex items-center gap-1">
+                {PLAYBACK_RATES.map((rate) => (
+                  <button
+                    key={rate}
+                    type="button"
+                    onClick={() => setPlaybackRate(rate)}
+                    className={`flex-1 px-2 py-1 rounded-md text-sm font-medium transition-colors ${
+                      playbackRate === rate
+                        ? 'bg-atlas-teal text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {rate}x
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

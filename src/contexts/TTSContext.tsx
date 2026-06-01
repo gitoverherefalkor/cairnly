@@ -2,6 +2,13 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { supabase } from '@/integrations/supabase/client';
 
 const STORAGE_KEY_READ_ALL = 'cairnly:tts:read-all';
+const STORAGE_KEY_RATE = 'cairnly:tts:rate';
+
+// User-selectable playback speeds. Backend audio is always rendered at 1.0;
+// these only change how fast the browser plays it back. Pitch is preserved by
+// the browser where supported, so the voice stays natural.
+export const PLAYBACK_RATES = [1, 1.1, 1.2] as const;
+const DEFAULT_RATE = 1;
 
 // Resolve the TTS edge function URL from the same env var the supabase client
 // uses. Prevents drift between staging/prod.
@@ -22,6 +29,10 @@ interface TTSContextValue {
   loadingId: string | null;
   readAll: boolean;
   setReadAll: (v: boolean) => void;
+  // Browser-side playback speed (1, 1.1, 1.2). Does not change the backend
+  // audio — only how fast it plays.
+  playbackRate: number;
+  setPlaybackRate: (v: number) => void;
   speak: (text: string, id: string) => void;
   stop: () => void;
 }
@@ -57,6 +68,18 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (typeof window === 'undefined') return false;
     return localStorage.getItem(STORAGE_KEY_READ_ALL) === 'true';
   });
+  const [playbackRate, setPlaybackRateState] = useState<number>(() => {
+    if (typeof window === 'undefined') return DEFAULT_RATE;
+    const stored = Number(localStorage.getItem(STORAGE_KEY_RATE));
+    return PLAYBACK_RATES.includes(stored as (typeof PLAYBACK_RATES)[number])
+      ? stored
+      : DEFAULT_RATE;
+  });
+
+  // Keep the latest rate in a ref so `speak` (memoized) can read it without
+  // re-creating the callback on every rate change.
+  const rateRef = useRef(playbackRate);
+  rateRef.current = playbackRate;
 
   // Single shared audio element + abort controller. We re-use them so the
   // user can spam play/stop on different messages without leaking handles.
@@ -131,6 +154,7 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         const audio = new Audio();
+        audio.playbackRate = rateRef.current;
         audioRef.current = audio;
 
         audio.onplay = () => {
@@ -237,6 +261,17 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  const setPlaybackRate = useCallback((v: number) => {
+    setPlaybackRateState(v);
+    // Apply immediately to anything currently playing.
+    if (audioRef.current) {
+      audioRef.current.playbackRate = v;
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY_RATE, String(v));
+    }
+  }, []);
+
   const value: TTSContextValue = {
     isSupported: true,
     isSpeaking,
@@ -245,6 +280,8 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loadingId,
     readAll,
     setReadAll,
+    playbackRate,
+    setPlaybackRate,
     speak,
     stop,
   };
@@ -263,6 +300,8 @@ export function useTTS(): TTSContextValue {
       loadingId: null,
       readAll: false,
       setReadAll: () => {},
+      playbackRate: DEFAULT_RATE,
+      setPlaybackRate: () => {},
       speak: () => {},
       stop: () => {},
     };

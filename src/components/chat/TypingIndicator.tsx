@@ -41,6 +41,12 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
     }
     if (mode !== 'agent') return;
 
+    // Always start a fresh wait from "I'm thinking" at 0s. Without this, a
+    // previous turn's `isLate=true` can leak into the next turn if isVisible
+    // doesn't actually flip false between them (e.g. mode transitions while
+    // staying visible), making "Still thinking" appear within ~1s of submit.
+    setMessageIndex(0);
+    setIsLate(false);
     startedAtRef.current = Date.now();
 
     const rotateInterval = setInterval(() => {
