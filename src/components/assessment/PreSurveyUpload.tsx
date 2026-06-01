@@ -604,18 +604,23 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
 
             {/* Footer action buttons */}
             <div
-              className="flex justify-between items-center mt-5 pt-4"
+              className={`flex ${showSkipConfirm ? 'justify-end' : 'justify-between'} items-center mt-5 pt-4`}
               style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
             >
-              <Button
-                variant="ghost"
-                onClick={handleSkipClick}
-                disabled={isBusy}
-                className="font-semibold text-[13px] hover:bg-transparent"
-                style={{ color: '#6B7F8B' }}
-              >
-                Skip this step
-              </Button>
+              {/* Skip trigger. Hidden once the "Are you sure?" confirm is open —
+                  otherwise users click this dead duplicate instead of the real
+                  "Yes, skip anyway" action inside the amber box and give up. */}
+              {!showSkipConfirm && (
+                <Button
+                  variant="ghost"
+                  onClick={handleSkipClick}
+                  disabled={isBusy}
+                  className="font-semibold text-[13px] hover:bg-transparent"
+                  style={{ color: '#6B7F8B' }}
+                >
+                  Skip this step
+                </Button>
+              )}
               <Button
                 onClick={handleContinue}
                 disabled={isContinueDisabled}
