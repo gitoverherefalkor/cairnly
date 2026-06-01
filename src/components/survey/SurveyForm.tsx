@@ -14,6 +14,7 @@ import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { useAssessmentSession } from '@/components/assessment/AssessmentSessionContext';
 import { useToast } from '@/hooks/use-toast';
 import { isQuestionAnswered } from './questionValidation';
+import { computeSurveyProgress } from '@/lib/surveyProgress';
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
   constructor(props: any) {
@@ -106,7 +107,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   const milestoneInitRef = useRef(false);
 
   // Engagement tracking for reminder emails
-  const { trackSurveyStart, trackSurveyProgress, trackSurveyComplete } = useEngagementTracking();
+  const { trackSurveyStart, trackSurveyProgress, trackSurveyQuestionProgress, trackSurveyComplete } =
+    useEngagementTracking();
 
   // Track survey start when first response appears
   const hasStartedRef = React.useRef(false);
@@ -125,6 +127,20 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
       trackSurveyProgress(currentSectionIndex, survey.sections?.length ?? 0);
     }
   }, [currentSectionIndex, survey, trackSurveyProgress]);
+
+  // Persist question-level progress (debounced) so the reminder email reads the
+  // SAME number the dashboard shows. Uses the shared validator-based helper, so
+  // there's exactly one definition of "answered" / "section complete".
+  useEffect(() => {
+    if (!survey || !isSessionLoaded || Object.keys(responses).length === 0) return;
+    const timeout = setTimeout(() => {
+      const progress = computeSurveyProgress(survey, responses);
+      if (progress) {
+        trackSurveyQuestionProgress(progress as unknown as Record<string, number>);
+      }
+    }, 1500);
+    return () => clearTimeout(timeout);
+  }, [responses, survey, isSessionLoaded, trackSurveyQuestionProgress]);
 
   // Milestone effect: fire encouragement messages at key completion thresholds
   useEffect(() => {

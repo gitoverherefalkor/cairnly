@@ -193,11 +193,28 @@ function surveyAbandonedEmail(
   lastSection: number | null,
   totalSections: number | null,
   lang: Lang,
+  progress?: { questionsAnswered?: number; totalQuestions?: number } | null,
 ): { subject: string; html: string } {
   const c = COPY[lang].surveyAbandoned;
   const section = lastSection ?? 0;
   const total = totalSections ?? 7;
-  const percentDone = Math.round(((section + 1) / total) * 100);
+
+  // Prefer the stored question-level progress (same source as the dashboard).
+  // Cap at 99% — a "continue where you left off" email must never claim 100%
+  // (if every question is answered, the user just needs to submit).
+  let percentDone: number;
+  if (
+    progress &&
+    typeof progress.questionsAnswered === "number" &&
+    typeof progress.totalQuestions === "number" &&
+    progress.totalQuestions > 0
+  ) {
+    percentDone = Math.min(99, Math.round((progress.questionsAnswered / progress.totalQuestions) * 100));
+  } else {
+    // Legacy fallback for drafts saved before question-level tracking shipped:
+    // a coarse section estimate, capped so it can't show a misleading 100%.
+    percentDone = Math.min(95, Math.round(((section + 1) / total) * 100));
+  }
 
   const bodyHtml =
     bodyRow(
@@ -374,6 +391,30 @@ serve(async (req) => {
       }
     }
 
+    // For survey reminders, pull the stored question-level progress so the
+    // email's % matches the dashboard instead of the coarse section counter.
+    const progressByUser = new Map<string, { questionsAnswered?: number; totalQuestions?: number }>();
+    if (type === "survey_abandoned") {
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        );
+        const { data: rows } = await supabase
+          .from("user_engagement_tracking")
+          .select("user_id, survey_progress")
+          .in("user_id", users.map((u) => u.user_id));
+        for (const r of rows ?? []) {
+          const p = (r as { survey_progress?: unknown }).survey_progress;
+          if (p && typeof p === "object") {
+            progressByUser.set((r as { user_id: string }).user_id, p as { questionsAnswered?: number; totalQuestions?: number });
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch survey_progress, falling back to section estimate:", e);
+      }
+    }
+
     const results = [];
 
     for (const user of users) {
@@ -390,6 +431,7 @@ serve(async (req) => {
             user.survey_last_section ?? null,
             user.survey_total_sections ?? null,
             lang,
+            progressByUser.get(user.user_id) ?? null,
           );
           break;
         case "chat_not_completed":

@@ -48,6 +48,22 @@ export function useEngagementTracking() {
     [upsert]
   );
 
+  /**
+   * Stores question-level survey progress so the reminder email can show the
+   * SAME number as the dashboard. `progress` is the SurveyProgress object from
+   * computeSurveyProgress (questionsAnswered / totalQuestions / sectionsComplete
+   * / totalSections). Fire-and-forget, debounced by the caller.
+   */
+  const trackSurveyQuestionProgress = useCallback(
+    (progress: Record<string, number>) => {
+      upsert({
+        survey_last_activity_at: new Date().toISOString(),
+        survey_progress: progress,
+      });
+    },
+    [upsert]
+  );
+
   /** Called when the survey is submitted */
   const trackSurveyComplete = useCallback(() => {
     upsert({
@@ -97,6 +113,7 @@ export function useEngagementTracking() {
   return {
     trackSurveyStart,
     trackSurveyProgress,
+    trackSurveyQuestionProgress,
     trackSurveyComplete,
     trackChatStart,
     trackChatActivity,

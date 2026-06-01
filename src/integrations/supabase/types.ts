@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      _backup_natasha_answer_e3811cc8: {
+        Row: {
+          access_code_id: string | null
+          id: string | null
+          payload: Json | null
+          status: string | null
+          submitted_at: string | null
+          survey_id: string | null
+        }
+        Insert: {
+          access_code_id?: string | null
+          id?: string | null
+          payload?: Json | null
+          status?: string | null
+          submitted_at?: string | null
+          survey_id?: string | null
+        }
+        Update: {
+          access_code_id?: string | null
+          id?: string | null
+          payload?: Json | null
+          status?: string | null
+          submitted_at?: string | null
+          survey_id?: string | null
+        }
+        Relationships: []
+      }
       aa_dead_letter_log: {
         Row: {
           created_at: string
@@ -678,6 +705,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          preferred_language: string
           privacy_consent_at: string | null
           pronouns: string | null
           referral_code: string | null
@@ -701,6 +729,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          preferred_language?: string
           privacy_consent_at?: string | null
           pronouns?: string | null
           referral_code?: string | null
@@ -724,6 +753,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          preferred_language?: string
           privacy_consent_at?: string | null
           pronouns?: string | null
           referral_code?: string | null
@@ -853,7 +883,7 @@ export type Database = {
           referral_id: string
           referral_sequence_number: number
           referrer_payment_intent_id: string
-          referrer_user_id: string
+          referrer_user_id: string | null
           status: string
           stripe_refund_id: string | null
         }
@@ -870,7 +900,7 @@ export type Database = {
           referral_id: string
           referral_sequence_number: number
           referrer_payment_intent_id: string
-          referrer_user_id: string
+          referrer_user_id?: string | null
           status?: string
           stripe_refund_id?: string | null
         }
@@ -887,7 +917,7 @@ export type Database = {
           referral_id?: string
           referral_sequence_number?: number
           referrer_payment_intent_id?: string
-          referrer_user_id?: string
+          referrer_user_id?: string | null
           status?: string
           stripe_refund_id?: string | null
         }
@@ -910,7 +940,7 @@ export type Database = {
           invitee_email: string | null
           invitee_user_id: string | null
           promotion_code_used: string | null
-          referrer_user_id: string
+          referrer_user_id: string | null
           stripe_session_id: string
         }
         Insert: {
@@ -921,7 +951,7 @@ export type Database = {
           invitee_email?: string | null
           invitee_user_id?: string | null
           promotion_code_used?: string | null
-          referrer_user_id: string
+          referrer_user_id?: string | null
           stripe_session_id: string
         }
         Update: {
@@ -932,7 +962,7 @@ export type Database = {
           invitee_email?: string | null
           invitee_user_id?: string | null
           promotion_code_used?: string | null
-          referrer_user_id?: string
+          referrer_user_id?: string | null
           stripe_session_id?: string
         }
         Relationships: []
@@ -1310,6 +1340,7 @@ export type Database = {
           survey_completed_at: string | null
           survey_last_activity_at: string | null
           survey_last_section: number | null
+          survey_progress: Json | null
           survey_reminder_sent_at: string | null
           survey_started_at: string | null
           survey_total_sections: number | null
@@ -1329,6 +1360,7 @@ export type Database = {
           survey_completed_at?: string | null
           survey_last_activity_at?: string | null
           survey_last_section?: number | null
+          survey_progress?: Json | null
           survey_reminder_sent_at?: string | null
           survey_started_at?: string | null
           survey_total_sections?: number | null
@@ -1348,6 +1380,7 @@ export type Database = {
           survey_completed_at?: string | null
           survey_last_activity_at?: string | null
           survey_last_section?: number | null
+          survey_progress?: Json | null
           survey_reminder_sent_at?: string | null
           survey_started_at?: string | null
           survey_total_sections?: number | null
@@ -1458,6 +1491,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      delete_user_personal_data: { Args: { p_user_id: string }; Returns: Json }
       dmetaphone: { Args: { "": string }; Returns: string }
       dmetaphone_alt: { Args: { "": string }; Returns: string }
       enriched_careers: {
@@ -1741,4 +1775,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
