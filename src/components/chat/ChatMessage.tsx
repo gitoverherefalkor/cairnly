@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { ChevronDown, MessageCircle, Pencil, RotateCw } from 'lucide-react';
+import { ChevronDown, MessageCircle, Pencil, RotateCw, Route } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
 import {
@@ -496,6 +496,15 @@ const markdownComponents = {
   ),
 };
 
+// Builds the question auto-sent by the "Can I get there from here?" pill.
+// Names the role inline so the agent has context without the [About <role>]
+// prefix (that prefix is only applied to free-text turns, not chip sends),
+// and explicitly asks for the transition/reskilling angle so the reply
+// covers feasibility of the jump, not just the role itself.
+export function buildFeasibilityQuestion(roleTitle: string): string {
+  return `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
+}
+
 // Renders a section-reveal message with sequential sub-section disclosure.
 // Initial render: preamble (h3 + intro) + first h2 sub-section + a chevron
 // that previews the NAME of the next sub-section. Click → next reveals,
@@ -532,11 +541,14 @@ const SequentialSubsections: React.FC<{
   // the preamble's ### heading so the chat container can scope the
   // next user message to that role.
   onAskAboutRole?: (roleTitle: string) => void;
+  // When set, render a sibling "Can I get there from here?" pill that
+  // auto-sends a transition/reskilling question for this role.
+  onAskFeasibility?: (roleTitle: string) => void;
   // Career-comparison card. Rendered alongside the "Ask about this role"
   // pill once every subsection (incl. "Alignment with your ambitions")
   // has been revealed.
   comparisonSlot?: React.ReactNode;
-}> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole, comparisonSlot }) => {
+}> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole, onAskFeasibility, comparisonSlot }) => {
   // revealedCount = number of sub-sections currently visible. Starts at 1
   // so the user sees the preamble + first h2 + first body on first render.
   const [revealedCount, setRevealedCount] = useState(1);
@@ -707,18 +719,30 @@ const SequentialSubsections: React.FC<{
         // strengths, etc.) have ### subsection headings that never will.
         if (!findSectionByTitle(sections, roleTitle)) return null;
         return (
-          <button
-            type="button"
-            onClick={() => onAskAboutRole(roleTitle)}
-            // .ask-pill in index.css keeps the pill pure white over the
-            // global .dark .bg-white !important override, and runs the
-            // teal-fill + white-text hover transition. Inline style was
-            // blocking the hover from kicking in.
-            className="ask-pill mt-6 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
-          >
-            <MessageCircle size={14} />
-            Ask about this role
-          </button>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onAskAboutRole(roleTitle)}
+              // .ask-pill in index.css keeps the pill pure white over the
+              // global .dark .bg-white !important override, and runs the
+              // teal-fill + white-text hover transition. Inline style was
+              // blocking the hover from kicking in.
+              className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+            >
+              <MessageCircle size={14} />
+              Ask about this role
+            </button>
+            {onAskFeasibility && (
+              <button
+                type="button"
+                onClick={() => onAskFeasibility(roleTitle)}
+                className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+              >
+                <Route size={14} />
+                Can I get there from here?
+              </button>
+            )}
+          </div>
         );
       })()}
       {/* Boilerplate outro panel — appears only after all subsections are
@@ -756,6 +780,9 @@ const CollapsibleCareerBlocks: React.FC<{
   // the role title so the chat container can scope the next user message
   // to that specific career.
   onAskAboutRole?: (roleTitle: string) => void;
+  // Click handler for the sibling "Can I get there from here?" button.
+  // Auto-sends a transition/reskilling question for that career.
+  onAskFeasibility?: (roleTitle: string) => void;
 }> = ({
   intro,
   blocks,
@@ -767,6 +794,7 @@ const CollapsibleCareerBlocks: React.FC<{
   deliveryIntro,
   deliveryOutro,
   onAskAboutRole,
+  onAskFeasibility,
 }) => {
   // All blocks are uniform collapsible cards, all closed by default. User
   // gets a clean scannable list of options (title + size + score + AI
@@ -894,17 +922,29 @@ const CollapsibleCareerBlocks: React.FC<{
                         with [About: <role>] so the agent has explicit
                         context. */}
                     {onAskAboutRole && (
-                      <button
-                        type="button"
-                        onClick={() => onAskAboutRole(block.title)}
-                        // See .ask-pill in index.css — handles both the
-                        // dark-mode bg-white override AND the hover
-                        // transition without inline style getting in the way.
-                        className="ask-pill mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
-                      >
-                        <MessageCircle size={14} />
-                        Ask about this role
-                      </button>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onAskAboutRole(block.title)}
+                          // See .ask-pill in index.css — handles both the
+                          // dark-mode bg-white override AND the hover
+                          // transition without inline style getting in the way.
+                          className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+                        >
+                          <MessageCircle size={14} />
+                          Ask about this role
+                        </button>
+                        {onAskFeasibility && (
+                          <button
+                            type="button"
+                            onClick={() => onAskFeasibility(block.title)}
+                            className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+                          >
+                            <Route size={14} />
+                            Can I get there from here?
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
@@ -1190,6 +1230,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             // including historical ones, since the user is clicking
             // NOW and the agent processes the new turn fresh.
             onAskAboutRole={onAskAboutRole}
+            onAskFeasibility={
+              onChipSend
+                ? (role) => onChipSend(buildFeasibilityQuestion(role))
+                : undefined
+            }
           />
         ) : useSequentialReveal ? (
           <SequentialSubsections
@@ -1206,6 +1251,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             // also get the per-card ask button so users can scope a
             // follow-up to that specific role.
             onAskAboutRole={onAskAboutRole}
+            onAskFeasibility={
+              onChipSend
+                ? (role) => onChipSend(buildFeasibilityQuestion(role))
+                : undefined
+            }
             comparisonSlot={comparisonCard}
           />
         ) : followUpOptions ? (
