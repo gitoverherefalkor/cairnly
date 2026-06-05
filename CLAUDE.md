@@ -119,15 +119,15 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
   2. You have presented a clear plan: which nodes change, what the change is, why it's needed, and what could break
   3. The user has confirmed the plan before you call the n8n API
 
-  Prefer frontend / edge function fixes when both are viable. When you do edit, always export the current state to `n8n_aa/` first so we can roll back.
+  Prefer frontend / edge function fixes when both are viable. When you do edit, always export the current state to `n8n_wfs_cairnly/` first so we can roll back.
 
   **Creating a new workflow from scratch:** Allowed without per-workflow approval *when the feature being built genuinely requires it* (i.e. there's frontend / edge function code in the same change that fires a webhook with no receiver yet). You may:
   - Call the n8n API to create the workflow with the nodes the feature needs
   - Leave the new workflow **inactive / not published** so the user reviews it in the n8n editor before turning it on
-  - Save a copy to `n8n_aa/` for version control
+  - Save a copy to `n8n_wfs_cairnly/` for version control
 
   Still required: present a brief plan (nodes + prompt + Supabase update shape) in chat before calling the API, so the user can spot anything obviously wrong before it lands. Do not activate the workflow yourself — that's a user action.
-- **Workflow exports**: JSON backups are in `n8n_aa/` folder
+- **Workflow exports**: JSON backups are in `n8n_wfs_cairnly/` folder
 
 ### Workflow IDs (current architecture)
 | Workflow | ID | Purpose |
@@ -145,7 +145,7 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 | WFX (Cover Letter) | M9w7xWeiPNmU7ZFb | Per-application cover letter generation ("WFX - Cover Letter") |
 | Error Handler | FbsruPbuZI2Fgtc8 | Global error logging + email alerts |
 
-> All 12 of the above are **active in production** and their current exports live in `n8n_aa/Current production wfs/` (one JSON per workflow, the source of truth for local reference). The IDs were verified against the live n8n API on 2026-06-05.
+> All 12 of the above are **active in production** and their current exports live in `n8n_wfs_cairnly/` (one JSON per workflow, the source of truth for local reference). The IDs were verified against the live n8n API on 2026-06-05.
 
 > ⚠️ **Edge secret `N8N_WEBHOOK_URL` must point to the LIVE WF1 webhook:**
 > `https://falkoratlas.app.n8n.cloud/webhook/28477bc7-d895-4b0e-bc45-a030312f6fcc`
