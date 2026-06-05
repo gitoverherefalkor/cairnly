@@ -140,3 +140,11 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 | Error Handler | FbsruPbuZI2Fgtc8 | Global error logging + email alerts |
 | Resume Extract | myWIhgaahAXD2ULz | PDF resume parsing |
 | WF_cover_letter | M9w7xWeiPNmU7ZFb | Per-application cover letter generation (currently inactive) |
+
+> ⚠️ **Edge secret `N8N_WEBHOOK_URL` must point to the LIVE WF1 webhook:**
+> `https://falkoratlas.app.n8n.cloud/webhook/28477bc7-d895-4b0e-bc45-a030312f6fcc`
+> (this is WF1 `0Z8WxV5tVFMJqIZt`, the active "Survey complete Webhook2" node).
+> On 2026-06-05 it was found still pointing at the **old inactive WF1.2** webhook
+> path `dfe2a07c-…` (workflow `nupGvBByAGh4A9tL`), a leftover from the WF1.2 → WF1
+> migration. That returned 404 on every real submission. If submissions start
+> failing with `forward-to-n8n` 502s and n8n shows no executions, check this secret first.
