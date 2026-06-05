@@ -132,7 +132,7 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 ### Workflow IDs (current architecture)
 | Workflow | ID | Purpose |
 |----------|-----|---------|
-| WF1 (Profile Insert) | nupGvBByAGh4A9tL | Survey → personality profile |
+| WF1 (Profile Insert) | 0Z8WxV5tVFMJqIZt | Survey → personality profile. **This is the live webhook receiver** for `forward-to-n8n` (workflow name "WF1 - Profile Insert EN/NL", active). The older `nupGvBByAGh4A9tL` / `WF1.2_Profile Insert` is inactive — don't use it. |
 | WF2 (Enrich 15) | vVv0tsnFlBnarMdq | Career research + AI impact |
 | WF3 (Scoring + OOB) | LJA5JPHvnqhA36Oh | Career scoring + outside-the-box |
 | WF4 (Content Gen) | pXlzC6vuG7TO28oQ | Top 3 + runner-up + dream job narratives |
