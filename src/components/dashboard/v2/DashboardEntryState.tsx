@@ -245,7 +245,9 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
+              // Responsive without media queries: 4-up on desktop, collapses to
+              // 2-up on mobile so the cards never overflow the viewport.
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: 16,
               opacity: 0.45,
               pointerEvents: 'none',
@@ -260,39 +262,55 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
 
           {!isChat && (
             <div
+              // Left-aligned on mobile (centering looks cramped there); centered
+              // and width-capped on desktop for the balanced 4 / 3 chip split.
+              className="items-start sm:items-center"
               style={{
                 marginTop: 40,
+                // Centered box, width tuned so exactly four sections fit the
+                // top row (they need ~832px), pushing "Work environment & team
+                // preferences" onto the bottom row for a balanced 4 / 3 split.
+                // A fifth chip would need ~1143px, so it always wraps here.
+                maxWidth: 920,
+                marginLeft: 'auto',
+                marginRight: 'auto',
                 background: 'rgba(18, 46, 59, 0.55)',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: 20,
-                padding: '20px 28px',
+                padding: '24px 28px',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 24,
-                flexWrap: 'wrap',
+                flexDirection: 'column',
+                gap: 18,
               }}
             >
               <div
+                className="text-left sm:text-center"
                 style={{
                   fontFamily: FONT_BODY,
                   fontWeight: 600,
-                  fontSize: 13,
+                  fontSize: 14,
                   color: 'rgba(255,255,255,0.72)',
                 }}
               >
                 The assessment covers, among other things:
               </div>
-              <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
+              <div
+                className="justify-start sm:justify-center"
+                style={{
+                  display: 'flex',
+                  gap: '14px 28px',
+                  flexWrap: 'wrap',
+                }}
+              >
                 {ASSESSMENT_SECTIONS.map((label, i) => {
                   const done = isResume && i < complete;
                   const current = isResume && i === complete;
                   return (
                     <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {done ? (
-                        <CheckCircle2 size={14} color={PALETTE.goldBright} />
+                        <CheckCircle2 size={15} color={PALETTE.goldBright} />
                       ) : (
                         <div
                           style={{
@@ -307,7 +325,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                       <span
                         style={{
                           fontFamily: FONT_BODY,
-                          fontSize: 12.5,
+                          fontSize: 14,
                           fontWeight: 600,
                           color: done ? 'rgba(255,255,255,0.85)' : current ? '#fff' : 'rgba(255,255,255,0.5)',
                         }}

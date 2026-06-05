@@ -27,10 +27,12 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
   backLabel = 'Back',
 }) => (
   <header
+    className="px-4 sm:px-8"
     style={{
       background: PALETTE.cream,
       borderBottom: `1px solid ${PALETTE.tan}`,
-      padding: '10px 32px',
+      paddingTop: 10,
+      paddingBottom: 10,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -39,16 +41,17 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
       zIndex: 50,
     }}
   >
-    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+    <div className="gap-3 sm:gap-5" style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
       {onBack && (
         <button
           type="button"
           onClick={onBack}
+          aria-label={backLabel}
           style={{
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
-            padding: '6px 10px 6px 0',
+            padding: '6px 4px 6px 0',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
@@ -56,14 +59,26 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
             fontWeight: 600,
             fontSize: 13,
             color: PALETTE.inkMuted,
+            flexShrink: 0,
           }}
         >
-          <ArrowLeft size={16} /> {backLabel}
+          <ArrowLeft size={16} />
+          {/* Label hidden on mobile to keep the nav on one line; arrow remains. */}
+          <span className="hidden sm:inline">{backLabel}</span>
         </button>
       )}
-      <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 44, width: 'auto' }} />
-      <span style={{ color: PALETTE.tan }}>|</span>
-      <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: PALETTE.inkMuted }}>
+      <img
+        src={LOGO_WORDMARK_URL}
+        alt="Cairnly"
+        className="h-9 sm:h-11"
+        style={{ width: 'auto', flexShrink: 0 }}
+      />
+      {/* Divider + page label collapse on mobile where horizontal room is tight. */}
+      <span className="hidden sm:inline" style={{ color: PALETTE.tan }}>|</span>
+      <span
+        className="hidden sm:inline"
+        style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: PALETTE.inkMuted }}
+      >
         {pageLabel}
       </span>
     </div>
