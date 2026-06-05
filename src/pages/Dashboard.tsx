@@ -101,7 +101,7 @@ const Dashboard = () => {
   // latestReport computed early so hooks can use it (hooks can't be conditional).
   const latestReport = !reports || reports.length === 0 ? null : reports[0];
 
-  const { sections: reportSections } = useReportSections(latestReport?.id);
+  const { sections: reportSections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
   const execSummarySection = reportSections.find(
     (s) => s.section_type === 'exec_summary' || s.section_type === 'executive_summary'
   );
@@ -271,12 +271,28 @@ const Dashboard = () => {
     return beyondFirstQuestion || hasResponses || hasVerified;
   };
 
+  // A report whose chat wrap-up was saved (a chat_highlights section exists) is
+  // effectively finished even if its status is still 'pending_review'. The
+  // wrap-up-save status flip is best-effort (non-fatal) and can fail, which
+  // would otherwise trap a finished user in the dashboard/chat redirect loop
+  // (see the stuck-report incident on 2026-06-05). Treat it as completed.
+  const wrapUpDone = (reportSections ?? []).some(
+    (s) => s.section_type === 'chat_highlights',
+  );
+  const reportReady =
+    latestReport?.status === 'completed' ||
+    (latestReport?.status === 'pending_review' && wrapUpDone);
+
   // Redirects must happen in useEffect, not during render.
   const needsAuthRedirect = !authLoading && !user;
   const needsProcessingRedirect =
     !authLoading && !reportsLoading && latestReport?.status === 'processing';
+  // Only send a pending_review user to chat once we know they have not already
+  // wrapped up. Gate on sections having loaded so we do not bounce a finished
+  // user to chat in the brief window before chat_highlights is fetched.
   const needsChatRedirect =
-    !authLoading && !reportsLoading && latestReport?.status === 'pending_review' && !cameFromChat;
+    !authLoading && !reportsLoading && !sectionsLoading &&
+    latestReport?.status === 'pending_review' && !cameFromChat && !wrapUpDone;
 
   useEffect(() => {
     if (needsAuthRedirect) {
@@ -396,7 +412,7 @@ const Dashboard = () => {
   const firstName = profile?.first_name || '';
 
   // ── Completed report → V4 dashboard ──────────────────────────
-  if (latestReport && latestReport.status === 'completed') {
+  if (latestReport && reportReady) {
     return (
       <>
         <DashboardV4
