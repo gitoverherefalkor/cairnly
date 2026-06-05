@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Volume2, Square, Settings2, Loader2, Bookmark, ThumbsUp } from 'lucide-react';
+import { Volume2, Square, Settings2, Loader2, Bookmark, BookmarkCheck, ThumbsUp } from 'lucide-react';
 import { useTTS, PLAYBACK_RATES } from '@/contexts/TTSContext';
 
 interface MessageVoiceButtonProps {
@@ -12,6 +12,11 @@ interface MessageVoiceButtonProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: () => void;
+  // True for report sections delivered straight from Supabase — they're
+  // already part of the report, so saving them is redundant. We show a
+  // disabled "In report" indicator with an explainer instead of the active
+  // Save button. The Save button stays active only for new AI chat responses.
+  alreadyInReport?: boolean;
   // Thumbs-up "I'm impressed" feedback, stored in the DB to learn from.
   // Optional so non-feedback contexts simply don't render it.
   liked?: boolean;
@@ -24,6 +29,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  alreadyInReport = false,
   liked = false,
   onLikeToggle,
 }) => {
@@ -174,25 +180,38 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           </button>
         )}
 
-        {bookmarkable && onBookmarkToggle && (
-          <button
-            type="button"
-            onClick={onBookmarkToggle}
-            title={
-              bookmarked
-                ? 'Saved to your report — click to unsave'
-                : 'Save this response to your report'
-            }
-            aria-pressed={bookmarked}
-            className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-              bookmarked
-                ? 'bg-atlas-teal/10 text-atlas-teal'
-                : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
-            }`}
+        {alreadyInReport ? (
+          // Report section straight from Supabase — already in the report, so
+          // saving is redundant. Disabled indicator + explainer on hover.
+          <span
+            title="Already in your report — along with any feedback you add this session"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-gray-400 cursor-default select-none"
           >
-            <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
-            <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
-          </button>
+            <BookmarkCheck size={13} />
+            <span className="font-medium">In report</span>
+          </span>
+        ) : (
+          bookmarkable &&
+          onBookmarkToggle && (
+            <button
+              type="button"
+              onClick={onBookmarkToggle}
+              title={
+                bookmarked
+                  ? 'Saved to your report — click to unsave'
+                  : 'Save this response to your report'
+              }
+              aria-pressed={bookmarked}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+                bookmarked
+                  ? 'bg-atlas-teal/10 text-atlas-teal'
+                  : 'text-gray-500 hover:text-atlas-teal hover:bg-atlas-teal/5'
+              }`}
+            >
+              <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
+              <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
+            </button>
+          )
         )}
       </div>
     </div>

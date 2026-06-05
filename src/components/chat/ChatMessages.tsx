@@ -277,6 +277,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   onRetry={onRetryMessage}
                   bookmarkable={msg.sender === 'bot' && !!onBookmarkToggle}
                   bookmarked={bookmarkedSet.has(msg.id)}
+                  alreadyInReport={isSectionReveal}
                   onBookmarkToggle={onBookmarkToggle}
                   liked={likedSet.has(msg.id)}
                   onLikeToggle={msg.sender === 'bot' ? onLikeToggle : undefined}
@@ -304,7 +305,14 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
               reportId={reportId}
               onCompleted={() => onWrapUpCompleted?.()}
               savedResponses={messages
-                .filter((m) => m.sender === 'bot' && bookmarkedSet.has(m.id))
+                .filter(
+                  (m) =>
+                    m.sender === 'bot' &&
+                    bookmarkedSet.has(m.id) &&
+                    // Exclude report sections (### heading) — they're already in
+                    // the report, so only genuinely-saved AI responses carry over.
+                    !/^### /m.test(m.content)
+                )
                 .map((m) => ({ content: m.content, saved_at: m.created_at }))}
             />
           )}

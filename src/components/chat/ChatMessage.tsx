@@ -57,6 +57,9 @@ interface ChatMessageProps {
   bookmarkable?: boolean;
   bookmarked?: boolean;
   onBookmarkToggle?: (messageId: string) => void;
+  // True for report sections delivered from Supabase (already in the report).
+  // Disables the Save button and shows an "In report" explainer instead.
+  alreadyInReport?: boolean;
   // Thumbs-up "I'm impressed" feedback, stored in content_feedback to learn
   // from. State lives in ChatContainer (loaded from + written to the DB).
   liked?: boolean;
@@ -943,6 +946,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   bookmarkable = false,
   bookmarked = false,
   onBookmarkToggle,
+  alreadyInReport = false,
   liked = false,
   onLikeToggle,
   onComparisonExplain,
@@ -1264,6 +1268,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             text={sanitized}
             bookmarkable={bookmarkable}
             bookmarked={bookmarked}
+            alreadyInReport={alreadyInReport}
             onBookmarkToggle={
               onBookmarkToggle ? () => onBookmarkToggle(messageId) : undefined
             }
