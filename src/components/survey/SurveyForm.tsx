@@ -493,7 +493,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                   <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                   <div className="flex-1">
                     <p className="text-green-800 font-medium text-sm sm:text-base">Assessment Submitted Successfully!</p>
-                    <p className="text-green-700 text-xs sm:text-sm">Your responses are saved and your report is being generated.</p>
+                    <p className="text-green-700 text-xs sm:text-sm">Your responses are saved. Taking you to the next step...</p>
                   </div>
                   <Button
                     onClick={handleClearSession}
