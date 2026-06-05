@@ -637,7 +637,12 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           // preserved in chat history).
           toast({
             title: 'Saved',
-            description: 'Your feedback will be reflected in your final report.',
+            // Refers to the section discussion (which IS summarised into the
+            // report), not the Cairnly product-feedback modal that can fire
+            // just before this on the values→career transition. The old
+            // generic "Your feedback…" wording made product feedback look
+            // like it went into the report, which it doesn't.
+            description: 'Your discussion of this section will be reflected in your final report.',
           });
           sendMessage(sessionId, message, {
             report_id: reportId,
