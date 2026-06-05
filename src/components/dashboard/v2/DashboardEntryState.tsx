@@ -2,9 +2,10 @@
 //  - 'empty'  → paid, assessment never started
 //  - 'resume' → assessment in progress
 //  - 'chat'   → coach conversation in progress (report not yet generated)
+//  - 'failed' → answers submitted but report generation failed; offer a retry
 
 import React from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, RefreshCw, Loader2 } from 'lucide-react';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -14,7 +15,7 @@ import {
 import { DashboardAppNav } from './DashboardAppNav';
 import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
-export type EntryMode = 'empty' | 'resume' | 'chat';
+export type EntryMode = 'empty' | 'resume' | 'chat' | 'failed';
 
 interface ResumeProgress {
   sectionsComplete: number;
@@ -32,6 +33,9 @@ interface DashboardEntryStateProps {
   onProfile: () => void;
   onSignOut: () => void;
   resumeProgress?: ResumeProgress;
+  // Only used in 'failed' mode: re-run report generation from saved answers.
+  onRetry?: () => void;
+  isRetrying?: boolean;
 }
 
 // Mirrors the survey_sections table in DB order. Update both together when
@@ -53,10 +57,13 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   onProfile,
   onSignOut,
   resumeProgress,
+  onRetry,
+  isRetrying = false,
 }) => {
   const name = firstName || 'there';
   const isResume = mode === 'resume';
   const isChat = mode === 'chat';
+  const isFailed = mode === 'failed';
 
   const complete = resumeProgress?.sectionsComplete ?? 0;
   const total = resumeProgress?.totalSections ?? ASSESSMENT_SECTIONS.length;
@@ -71,30 +78,36 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
         ? Math.round((complete / total) * 100)
         : 0;
 
-  const headline: React.ReactNode = isChat
-    ? `Your coach is ready, ${name}.`
-    : isResume
-      ? `Pick up where you left off, ${name}.`
-      : (
-          <>
-            Welcome, {name}.
-            <br />
-            Let's start.
-          </>
-        );
+  const headline: React.ReactNode = isFailed
+    ? `We hit a snag, ${name}.`
+    : isChat
+      ? `Your coach is ready, ${name}.`
+      : isResume
+        ? `Pick up where you left off, ${name}.`
+        : (
+            <>
+              Welcome, {name}.
+              <br />
+              Let's start.
+            </>
+          );
 
-  const sub = isChat
-    ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
-    : isResume
-      ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-      : "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.";
+  const sub = isFailed
+    ? 'Your answers are saved, so nothing is lost. We could not finish generating your report this time. You can start it again right now.'
+    : isChat
+      ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
+      : isResume
+        ? 'You are partway through. A few sections left, then your coach walks you through the report.'
+        : "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.";
 
   const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
-  const ctaEyebrow = isChat
-    ? 'NEXT STEP · YOUR COACH'
-    : isResume
-      ? `PROGRESS · ${pct}% COMPLETE`
-      : 'NEXT STEP · 25 MINUTES';
+  const ctaEyebrow = isFailed
+    ? 'REPORT · ACTION NEEDED'
+    : isChat
+      ? 'NEXT STEP · YOUR COACH'
+      : isResume
+        ? `PROGRESS · ${pct}% COMPLETE`
+        : 'NEXT STEP · 25 MINUTES';
 
   return (
     <LakeBackground intensity="heavy">
@@ -192,7 +205,8 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
-              onClick={onStart}
+              onClick={isFailed ? onRetry : onStart}
+              disabled={isFailed && isRetrying}
               style={{
                 background: PALETTE.gold,
                 color: PALETTE.canvasDeep,
@@ -205,11 +219,26 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 10,
-                cursor: 'pointer',
+                cursor: isFailed && isRetrying ? 'default' : 'pointer',
+                opacity: isFailed && isRetrying ? 0.75 : 1,
                 boxShadow: '0 16px 36px -10px rgba(212,160,36,0.55)',
               }}
             >
-              {ctaLabel} <ArrowRight size={18} />
+              {isFailed ? (
+                isRetrying ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" /> Trying again...
+                  </>
+                ) : (
+                  <>
+                    Try again <RefreshCw size={18} />
+                  </>
+                )
+              ) : (
+                <>
+                  {ctaLabel} <ArrowRight size={18} />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -260,7 +289,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             <GhostCard title="Dream-job reality check" sub="An honest feasibility check" />
           </div>
 
-          {!isChat && (
+          {!isChat && !isFailed && (
             <div
               // Left-aligned on mobile (centering looks cramped there); centered
               // and width-capped on desktop for the balanced 4 / 3 chip split.

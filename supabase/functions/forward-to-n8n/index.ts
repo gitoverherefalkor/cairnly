@@ -22,18 +22,81 @@ serve(async (req) => {
     // Get the request body
     const requestBody = await req.json();
 
-    // Extract the payload from the request body - preserve exact order
-    const surveyData = requestBody.payload || requestBody;
+    // Optional retry path: the dashboard can ask us to re-run generation for an
+    // existing report that previously failed, instead of submitting fresh answers.
+    const retryReportId =
+      typeof requestBody.retry_report_id === 'string' ? requestBody.retry_report_id : null;
 
-    if (!surveyData) {
-      return errorResponse('No survey data provided', 400, corsHeaders);
-    }
-
-    // Initialize Supabase client
+    // Initialize Supabase client (service role)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('NEW_N8N_SERVICE_ROLE_KEY')!
     );
+
+    // surveyData and reportData are resolved differently for a fresh submit vs a retry.
+    let surveyData: unknown;
+    let reportData: { id: string };
+
+    if (retryReportId) {
+      // Retry: reuse the caller's existing report row and its stored answers.
+      // Ownership check is mandatory — JWT auth alone only proves SOME user is
+      // logged in (see _shared/cors.ts). Never act on a report_id from the body
+      // without confirming it belongs to this user.
+      const { data: existing, error: fetchErr } = await supabase
+        .from('reports')
+        .select('id, user_id, payload')
+        .eq('id', retryReportId)
+        .maybeSingle();
+
+      if (fetchErr) {
+        console.error('Error loading report for retry:', fetchErr);
+        return errorResponse('Failed to load report', 500, corsHeaders);
+      }
+      if (!existing || existing.user_id !== userId) {
+        // Don't reveal whether the id exists — same response for missing/not-owned.
+        return errorResponse('Report not found', 404, corsHeaders);
+      }
+      if (!existing.payload) {
+        return errorResponse('No saved answers to retry', 400, corsHeaders);
+      }
+
+      surveyData = existing.payload;
+
+      // Flip the same row back to processing so the UI stops showing the failed
+      // state and starts polling again. No new row — avoids stale/duplicate reports.
+      const { data: updated, error: updateErr } = await supabase
+        .from('reports')
+        .update({ status: 'processing' })
+        .eq('id', retryReportId)
+        .select()
+        .single();
+
+      if (updateErr || !updated) {
+        console.error('Error resetting report for retry:', updateErr);
+        return errorResponse('Failed to restart report', 500, corsHeaders);
+      }
+      reportData = updated;
+    } else {
+      // Fresh submit: the payload comes from the request body.
+      surveyData = requestBody.payload || requestBody;
+
+      if (!surveyData) {
+        return errorResponse('No survey data provided', 400, corsHeaders);
+      }
+
+      const { data: created, error: reportError } = await supabase.from('reports').insert({
+        user_id: userId,
+        title: 'Career Assessment Report (N8N)',
+        status: 'processing',
+        payload: surveyData
+      }).select().single();
+
+      if (reportError || !created) {
+        console.error('Error creating report:', reportError);
+        return errorResponse('Failed to create report record', 500, corsHeaders);
+      }
+      reportData = created;
+    }
 
     // Look up the user's preferred language so n8n workflows can generate
     // language-aware report content. Defaults to 'en' if the column is null
@@ -44,19 +107,6 @@ serve(async (req) => {
       .eq('id', userId)
       .maybeSingle();
     const preferredLanguage = profileRow?.preferred_language || 'en';
-
-    // Step 1: Create a report record first
-    const { data: reportData, error: reportError } = await supabase.from('reports').insert({
-      user_id: userId,
-      title: 'Career Assessment Report (N8N)',
-      status: 'processing',
-      payload: surveyData
-    }).select().single();
-
-    if (reportError) {
-      console.error('Error creating report:', reportError);
-      return errorResponse('Failed to create report record', 500, corsHeaders);
-    }
 
     // Step 2: Build the N8N request body
     const n8nData = {

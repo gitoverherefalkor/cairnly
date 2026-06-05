@@ -86,6 +86,8 @@ const Dashboard = () => {
   // fresh-device case where there's no localStorage session to read.
   const [draftPayload, setDraftPayload] = useState<Record<string, any> | null>(null);
   const [draftSurveyId, setDraftSurveyId] = useState<string | null>(null);
+  // 'failed' dashboard state: re-running report generation from saved answers.
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -453,6 +455,8 @@ const Dashboard = () => {
   let mode: EntryMode = 'empty';
   if (latestReport?.status === 'pending_review' && cameFromChat) {
     mode = 'chat';
+  } else if (latestReport?.status === 'failed') {
+    mode = 'failed';
   } else if (!latestReport && hasMeaningfulProgress()) {
     mode = 'resume';
   }
@@ -485,6 +489,30 @@ const Dashboard = () => {
     }
   };
 
+  // 'failed' mode retry: ask forward-to-n8n to re-run generation on the SAME
+  // report row (it flips status back to 'processing'), then hand off to the
+  // processing screen. No survey re-do — the saved answers are reused server-side.
+  const handleRetryReport = async () => {
+    if (!latestReport || isRetrying) return;
+    setIsRetrying(true);
+    try {
+      const { error } = await supabase.functions.invoke('forward-to-n8n', {
+        body: { retry_report_id: latestReport.id },
+      });
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['reports', user?.id] });
+      navigate('/report-processing');
+    } catch (err) {
+      console.error('Error retrying report generation:', err);
+      setIsRetrying(false);
+      toast({
+        title: 'Still having trouble',
+        description: "We couldn't restart your report just now. Please try again in a moment.",
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <>
       <DashboardEntryState
@@ -494,6 +522,8 @@ const Dashboard = () => {
         onProfile={() => navigate('/profile')}
         onSignOut={handleSignOut}
         resumeProgress={resumeProgress}
+        onRetry={handleRetryReport}
+        isRetrying={isRetrying}
       />
 
       {showAccessCodeModal && userAccessCode && (
