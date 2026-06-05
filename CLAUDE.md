@@ -114,7 +114,7 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 - **Capabilities**: List/get/update workflows, check executions, activate/deactivate
 - **Modification policy**: n8n workflows and question mappings are critical production pipelines. The rules differ for editing existing workflows vs. drafting new ones:
 
-  **Editing an existing workflow (WF1–WF5, Error Handler, Resume Extract, or anything else already in production):** Never edit speculatively. You **may** modify when ALL of these are true:
+  **Editing an existing workflow (WF1–WF9, WFX, Error Handler, Resume Extract, or anything else already in production):** Never edit speculatively. You **may** modify when ALL of these are true:
   1. The user has given explicit approval for that specific workflow (a per-workflow yes, not a blanket one)
   2. You have presented a clear plan: which nodes change, what the change is, why it's needed, and what could break
   3. The user has confirmed the plan before you call the n8n API
@@ -132,14 +132,20 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 ### Workflow IDs (current architecture)
 | Workflow | ID | Purpose |
 |----------|-----|---------|
+| WF0.1 (Resume Extract) | myWIhgaahAXD2ULz | PDF resume parsing (n8n name "WF0 - Resume data extraction") |
 | WF1 (Profile Insert) | 0Z8WxV5tVFMJqIZt | Survey → personality profile. **This is the live webhook receiver** for `forward-to-n8n` (workflow name "WF1 - Profile Insert EN/NL", active). The older `nupGvBByAGh4A9tL` / `WF1.2_Profile Insert` is inactive — don't use it. |
-| WF2 (Enrich 15) | vVv0tsnFlBnarMdq | Career research + AI impact |
-| WF3 (Scoring + OOB) | LJA5JPHvnqhA36Oh | Career scoring + outside-the-box |
-| WF4 (Content Gen) | pXlzC6vuG7TO28oQ | Top 3 + runner-up + dream job narratives |
-| WF5 (Chat) | h7ie9zN080IM2g7N | Interactive career coach chat |
+| WF2 (Enrich 15) | vVv0tsnFlBnarMdq | Career research + AI impact ("WF2 - Source to Enrich 15") |
+| WF3 (Scoring + OOB) | zhgJuiDp60PS5ZKJ | Career scoring + outside-the-box ("WF3 - scoring careers NL/EN"). ⚠️ The old `LJA5JPHvnqhA36Oh` / `WF3.2_scoring_careers` is **inactive** — don't use it (it was the duplicate-and-replace source during the May 2026 NL localization). |
+| WF4 (Content Gen) | seWmQPFQqIe60TkU | Top 3 + runner-up + dream job narratives ("WF4 - Career selection NL/EN"). ⚠️ The old `pXlzC6vuG7TO28oQ` / `WF4 Career selection` is **inactive** — don't use it. |
+| WF5 (Chat) | h7ie9zN080IM2g7N | Interactive career coach chat (n8n name "WF5 - Cairnly Coach"). Old `XPhZc4Fyn2umaUyJ` / WF5.2 is inactive. |
+| WF6 (Feedback) | CyyjL7D51NbVZNtL | Incorporates chat feedback into the report ("WF6 - Feedback processing NL/EN"). Old `XuOb0iIv1Hwc2t62` is inactive. |
+| WF7 (Exec Summary) | ohNbCw7pVqvjCZHT | Executive summary generation ("WF7 - ExecSummary NL/EN"). Old `yg7naUkC6oqr2WpU` is inactive. |
+| WF8 (Finding Roles) | Bx0uNW4gnnXIGO8j | "Find Open Roles" job search ("WF8 - Finding selected roles") |
+| WF9 (Custom Resume) | IFhL4Lno0hyMJ1Jc | Tailored resume generation ("WF9 - Custom Resume") |
+| WFX (Cover Letter) | M9w7xWeiPNmU7ZFb | Per-application cover letter generation ("WFX - Cover Letter") |
 | Error Handler | FbsruPbuZI2Fgtc8 | Global error logging + email alerts |
-| Resume Extract | myWIhgaahAXD2ULz | PDF resume parsing |
-| WF_cover_letter | M9w7xWeiPNmU7ZFb | Per-application cover letter generation (currently inactive) |
+
+> All 12 of the above are **active in production** and their current exports live in `n8n_aa/Current production wfs/` (one JSON per workflow, the source of truth for local reference). The IDs were verified against the live n8n API on 2026-06-05.
 
 > ⚠️ **Edge secret `N8N_WEBHOOK_URL` must point to the LIVE WF1 webhook:**
 > `https://falkoratlas.app.n8n.cloud/webhook/28477bc7-d895-4b0e-bc45-a030312f6fcc`
