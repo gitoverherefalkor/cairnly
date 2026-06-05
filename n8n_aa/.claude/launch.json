@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/sjoerdgeurts/Documents/Code Projects/Atlas Assessments v1/atlas-career-chat"],
+      "port": 8080,
+      "autoPort": false
+    }
+  ]
+}

@@ -1,0 +1,787 @@
+{
+  "name": "WF1.2_Profile Insert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dfe2a07c-8b6c-4c42-a6bc-e9bb14381778",
+        "options": {
+          "allowedOrigins": "*",
+          "binaryPropertyName": "",
+          "ignoreBots": false,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        384,
+        624
+      ],
+      "id": "623d7484-df4c-4e1c-a5e2-54db577e6218",
+      "name": "Survey complete Webhook2",
+      "webhookId": "dfe2a07c-8b6c-4c42-a6bc-e9bb14381778"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Clean up initial summary for downstream use\n// This content feeds directly into prompt_perso_prof AND gets inserted to SB later\nconst summaryRaw = $('Initial_summary1').first().json.text || '';\nconst reportId = $('rep_id1').first().json.report_id;\n\n// Clean markdown formatting, convert to HTML (same logic as original)\nlet content = summaryRaw\n  .replace(/###\\s*\\*\\*([^*]+)\\*\\*/g, '<h5>$1</h5>')\n  .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>')\n  .replace(/\\*([^*]+)\\*/g, '$1')\n  .trim();\n\nreturn [{\n  json: {\n    report_id: reportId,\n    content: content\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        624
+      ],
+      "id": "5a6602a5-ff41-4377-b0ec-35094a5a9540",
+      "name": "Prep init_summary"
+    },
+    {
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        624
+      ],
+      "id": "fe60f02e-a317-4edf-a70a-be6ce5c70884",
+      "name": "SB insert all sections",
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Atlas"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2517078-26eb-406a-8d10-900e66880eb5",
+              "name": "=report_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3744,
+        624
+      ],
+      "id": "36284653-a48d-40c5-8295-5caeeb4df191",
+      "name": "pass report_id to WF2",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cc38f98a-c108-4b7a-a482-6bcfcfa80cd1",
+              "name": "=report_id",
+              "value": "={{ $json.report_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        416
+      ],
+      "id": "31c89279-7594-4987-bc3d-d678fdff0d65",
+      "name": "rep_id1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. MASTER SCHEMA - Maps ID to UUID and Full Question Data\n  const SURVEY_SCHEMA = {\n    // --- SECTION 1: Personal Background & Career Context ---\n    \"1a\": { uuid: \"11111111-1111-1111-1111-11111111111a\", question: \"Your name\", type: \"short_text\", options: [], description: \"First and Last name\" },\n    \"1b\": { uuid: \"11111111-1111-1111-1111-11111111111b\", question: \"Your pronoun\", type: \"multiple_choice\", options: [\"She / Her\", \"He / Him\", \"They / Them\", \"Not defined\"], description: \"\" },\n    \"1c\": { uuid: \"11111111-1111-1111-1111-111111111113\", question: \"Your age\", type: \"number\", options: [], description: \"\" },\n    \"1d\": { uuid: \"11111111-1111-1111-1111-111111111114\", question: \"What region are you based?\", type: \"dropdown\", options: [\"Northern and Western Europe\", \"Southern and Eastern Europe\", \"United Kingdom (London)\", \"United Kingdom (Other)\", \"United States (High-Cost Regions)\", \"United States (Average-Cost Regions)\", \"United States (Lower-Cost Regions)\", \"Canada\", \"Australia and New Zealand\", \"Switzerland\"], description: \"If you prepare to move somewhere else soon, then select that region.\" },\n    \"1e\": { uuid: \"11111111-1111-1111-1111-111111111115\", question: \"My primary goal(s) for completing this questionnaire and receiving a report\", type: \"multiple_choice\", options: [\"Looking for guidance on my **first job or career path**\", \"Finding a **new career path** that better suits my skills and interests\", \"Assessing my work preferences and values for a **better work-life balance**\", \"**Identifying strengths** and areas for improvement for professional growth\", \"Considering a career change due to **burnout or lack of fulfillment**\"], description: \"Select up to 2 options that best describe your main objectives or specify it at 'other'\" },\n    \"1f\": { uuid: \"11111111-1111-1111-1111-111111111116\", question: \"What is the highest level of education you have completed?\", type: \"multiple_choice\", options: [\"No formal education\", \"High school diploma or equivalent\", \"Associate's degree (e.g., technical college or vocational training)\", \"Bachelor's degree\", \"Master's degree\", \"Doctorate or professional degree (e.g., PhD, MD, JD)\"], description: \"\" },\n    \"1g\": { uuid: \"11111111-1111-1111-1111-111111111117\", question: \"What subject or specialization did you study?\", type: \"short_text\", options: [], description: \"(Optional: Fill this out if you want it considered for career suggestions)\" },\n    \"1h\": { uuid: \"11111111-1111-1111-1111-111111111118\", question: \"How many years of professional experience do you have?\", type: \"number\", options: [], description: \"Start counting from your first real job\" },\n    \"1i\": { uuid: \"11111111-1111-1111-1111-111111111119\", question: \"What best describes your current career situation?\", type: \"multiple_choice\", options: [\"**Non-leadership or individual contributor role** (no direct reports)\", \"**Managerial or leadership role** (Managing 1\\u20134 direct reports, focusing on team coordination and supervision)\", \"**Senior managerial role** (Managing 5 or more direct reports, involved in strategic decision-making and broader team oversight)\", \"**Executive function** (VP to C-suite roles or equivalent senior leadership positions with comprehensive organizational responsibilities)\", \"**Entrepreneur** seeking an employed role\", \"Currently on a **career break or transition**\", \"Looking to **re-enter the workforce**\"], description: \"\" },\n    \"1j\": { uuid: \"11111111-1111-1111-1111-111111111110\", question: \"What are your most recent professional roles?\", type: \"career_history\", options: [], description: \"\" },\n    \"1k\": { uuid: \"11111111-1111-1111-1111-11111111111d\", question: \"How happy were you in each of these roles?\", type: \"career_happiness\", options: [], description: \"Rate your happiness (1-10) and briefly explain what about the role's responsibilities and work itself affected your satisfaction - not the company culture, specific people, or circumstances.\" },\n    \"1l\": { uuid: \"11111111-1111-1111-1111-11111111111f\", question: \"Skills & Achievements\", type: \"skills_achievements\", options: [], description: \"Tell us about what you see as your main professional skills and notable achievements. This helps us understand your strengths and accomplishments.\" },\n    \"1m\": { uuid: \"11111111-1111-1111-1111-111111111120\", question: \"List any personal interests or hobbies important to you\", type: \"interests_hobbies\", options: [], description: \"Provide **up to 3** (e.g. DIY, Gardening, collecting ... , fashion, Lego, writing, etc.)\" },\n    \"1n\": { uuid: \"11111111-1111-1111-1111-111111111121\", question: \"Additional Context\", type: \"long_text\", options: [], description: \"Anything else we should know? (Optional - skip if nothing comes to mind)\" },\n\n    // --- SECTION 2: Personality & Work Style ---\n    \"2a\": { uuid: \"22222222-2222-2222-2222-222222222221\", question: \"How do social interactions affect your energy?\", type: \"multiple_choice\", options: [\"**Energized** (I thrive on interaction)\", \"**Somewhat Energized** (I enjoy it, but have a limit)\", \"**Somewhat Drained** (I can handle it, but prefer quiet)\", \"**Drained** (I need significant alone time to reset)\"], description: \"Think about meetings, team collaboration, client interactions, and networking.\" },\n    \"2b\": { uuid: \"22222222-2222-2222-2222-222222222222\", question: \"When making decisions, what do you naturally focus on first?\", type: \"multiple_choice\", options: [\"The immediate, practical details and data\", \"The long-term, big-picture ideas and impact\", \"My gut feeling and how it affects others emotionally\"], description: \"\" },\n    \"2c\": { uuid: \"22222222-2222-2222-2222-222222222223\", question: \"How do you typically approach making project decisions?\", type: \"multiple_choice\", options: [\"**Decisive** (Decide immediately to keep moving)\", \"**Leaning Deliberative** (Explore options, but can decide when needed)\", \"**Leaning Open** (Explore options, but can decide if forced)\", \"**Deliberative** (Gather data and keep options open as long as possible)\"], description: \"Project Decision Style\" },\n    \"2d\": { uuid: \"22222222-2222-2222-2222-222222222224\", question: \"How do you typically communicate complex ideas at work?\", type: \"multiple_choice\", options: [\"Direct and to the point - focus on key facts\", \"Use analogies and metaphors to explain concepts\", \"Provide detailed context and background first\", \"Adapt my style based on the audience\"], description: \"\" },\n    \"2e\": { uuid: \"22222222-2222-2222-2222-222222222225\", question: \"How do you respond to change and uncertainty at work?\", type: \"multiple_choice\", options: [\"**Strong Structure** (I prefer clear guidelines and predictability)\", \"**Leaning Structure** (I handle ambiguity well, but appreciate some structure)\", \"**Leaning Novelty** (I embrace the unknown, but like a safety net)\", \"**Embrace Novelty** (I thrive on the unknown and see it as opportunity)\"], description: \"Think about situations like role changes, new projects with unclear scope, or shifting priorities.\" },\n    \"2f\": { uuid: \"22222222-2222-2222-2222-222222222226\", question: \"How do you approach conflict or negotiation?\", type: \"multiple_choice\", options: [\"I address issues assertively and focus on finding a balanced solution\", \"I seek compromise to maintain harmony, even if I have to concede\", \"I prioritize securing the best outcome for myself or my team first\", \"I tend to defer or avoid direct conflict\"], description: \"\" },\n    \"2g\": { uuid: \"22222222-2222-2222-2222-222222222227\", question: \"What kind of work environment do you prefer?\", type: \"multiple_choice\", options: [\"**Highly Flexible** (Minimal structure and maximum autonomy)\", \"**Somewhat Structured** (I prefer a process but not rigid rules)\", \"**Somewhat Flexible** (I prefer fluidity but appreciate some process)\", \"**Highly Flexible** (I find structure stifling)\"], description: \"Work Style Preference\" },\n    \"2h\": { uuid: \"22222222-2222-2222-2222-222222222228\", question: \"How comfortable are you taking calculated risks in your work?\", type: \"multiple_choice\", options: [\"Very comfortable\", \"Comfortable\", \"Uncomfortable\", \"Very uncomfortable\"], description: \"Think about situations like proposing unconventional solutions, taking on stretch projects, or making decisions with incomplete information.\" },\n    \"2i\": { uuid: \"22222222-2222-2222-2222-222222222229\", question: \"When facing work pressure or tight deadlines, how do you typically respond?\", type: \"multiple_choice\", options: [\"**Action-First** (Push forward immediately and handle it)\", \"**Leaning Action** (Tend to act quickly, with a brief pause)\", \"**Leaning Analysis** (Tend to step back, but can act if urgent)\", \"**Analysis-First** (Instinct is to stop and analyze deeply)\"], description: \"Stress Response\" },\n    \"2j\": { uuid: \"22222222-2222-2222-2222-22222222222a\", question: \"Which of the following tendencies have you experienced that may sometimes hinder your effectiveness at work?\", type: \"multiple_choice\", options: [\"Perfectionism leading to delays\", \"Difficulty delegating tasks\", \"Taking on too much responsibility\", \"Being overly critical of self or others\", \"Avoiding confrontation\", \"Difficulty adapting to change\", \"Becoming easily stressed under pressure\", \"Struggling with time management\", \"Being indecisive\", \"Rushing through tasks\", \"Difficulty accepting feedback\", \"Procrastination\", \"Overanalyzing decisions\"], description: \"Select all that apply. Be honest - everyone has growth areas.\" },\n\n    // --- SECTION 3: Work Values & Preferences ---\n    \"3a\": { uuid: \"33333333-3333-3333-3333-333333333331\", question: \"Please rank the following career values in order of importance\", type: \"ranking\", options: [\"**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)\", \"**Autonomy** (e.g., having independence in work, making decisions)\", \"**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)\", \"**Creativity** (e.g., having the freedom to innovate, engaging in creative problem-solving)\", \"**Job Stability & Financial Security** (e.g., long-term stability, financial reliability)\", \"**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)\", \"**Accomplishment & Recognition** (e.g., reaching significant milestones, excelling in work, receiving awards)\", \"**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)\"], description: \"(Most important to you on top, least important on the bottom)\" },\n    \"3b\": { uuid: \"33333333-3333-3333-3333-333333333332\", question: \"How important is it that your employer's values align with yours?\", type: \"multiple_choice\", options: [\"Not\", \"Somewhat\", \"Very\", \"Essential\"], description: \"\" },\n    \"3c\": { uuid: \"33333333-3333-3333-3333-333333333333\", question: \"How important is work-life balance to you?\", type: \"multiple_choice\", options: [\"Not\", \"Somewhat\", \"Very\", \"Essential\"], description: \"\" },\n    \"3d\": { uuid: \"33333333-3333-3333-3333-333333333334\", question: \"What kind of schedule works best for you?\", type: \"multiple_choice\", options: [\"Standard 9-to-5 schedule\", \"Flexible hours\", \"Project-based deadlines\", \"Part-time work\"], description: \"\" },\n    \"3e\": { uuid: \"33333333-3333-3333-3333-333333333335\", question: \"How important is salary to you in relation to other job factors?\", type: \"multiple_choice\", options: [\"Very important: salary is a primary factor\", \"Moderately important: I value salary but also consider other factors\", \"Less important: I prioritize factors like job satisfaction and growth\"], description: \"\" },\n    \"3f\": { uuid: \"33333333-3333-3333-3333-333333333336\", question: \"What is your overall desired compensation range for a new position?\", type: \"multiple_choice\", options: [\"Under 50,000\", \"50,000\\u201375,000\", \"75,000\\u2013100,000\", \"100,000\\u2013150,000\", \"150,000\\u2013250,000\", \"250,000-500,000\", \"500,000-1,000,000\"], description: \"Gross base salary + bonus\\n\\u2022 For full time (1 FTE)\\n\\u2022 No equity grants\\n\\u2022 In your own currency\" },\n    \"3g\": { uuid: \"33333333-3333-3333-3333-333333333337\", question: \"What's most important to you in terms of compensation?\", type: \"multiple_choice\", options: [\"High salary\", \"Comprehensive benefits\", \"Performance-based rewards\", \"Equity or ownership opportunities\", \"Work-life balance perks\"], description: \"\" },\n    \"3h\": { uuid: \"33333333-3333-3333-3333-333333333338\", question: \"What aspects of a new career would you like to **avoid**?\", type: \"multiple_choice\", options: [\"**High-pressure or fast-paced environments** \\n\\n(e.g., strict deadlines, constant urgency, unpredictable workloads)\", \"**Frequent decision-making responsibilities** \\n(e.g., autonomy in critical decisions, strategic planning, high accountability)\", \"**Leadership or management duties** (e.g., overseeing teams, setting vision, managing direct reports)\", \"**Limited learning or growth opportunities** (e.g., repetitive tasks, no clear professional development path)\", \"**Frequent teamwork and collaboration** (e.g., working closely with others daily, team-based projects, group decision-making)\", \"**Solo or independent work** (e.g., minimal interaction with colleagues, self-directed projects, remote individual tasks)\", \"**Sales, negotiation, or client-facing roles** (e.g., pitching ideas, persuading clients, managing external relationships)\", \"**Data-heavy or analytical roles** (e.g., working extensively with spreadsheets, statistics, or research-heavy tasks)\", \"**Finance-related work** (e.g., financial analysis, accounting, budgeting, or investment-related roles)\"], description: \"(Select all that apply, this helps us exclude unsuitable roles from your recommendations.)\" },\n\n    // --- SECTION 4: Interests & Skills ---\n   \"4a\": { uuid: \"44444444-4444-4444-4444-444444444441\", question: \"Which of these areas interest you most?\", type: \"multiple_choice\", options: [\"Technology & Software\", \"AI, Data & Automation\", \"Business Strategy & Consulting\", \"Finance, Markets & Investment\", \"Marketing & Communications\", \"Human Resources & People Operations\", \"Product & Innovation\", \"Design & Creative\", \"Healthcare & Life Sciences\", \"Education & Learning\", \"Sustainability & Environment\", \"Law & Public Policy\", \"Engineering & Manufacturing\", \"Science & Research\", \"Social Impact & Nonprofit\", \"Entertainment & Sports\"], description: \"(Choose up to 3)\" },\n    \"4b\": { uuid: \"44444444-4444-4444-4444-444444444442\", question: \"Which 2 archetypes best define you?\", type: \"multiple_choice\", options: [\"**The Analyzer** (logical problem-solver, data-driven, thrives on digging into details)\", \"**The Visionary** (creative, thinks outside the box, envisions new possibilities)\", \"**The Leader** (motivates teams, sets direction, takes initiative)\", \"**The Adapter** (comfortable with change, flexible, quick to adjust)\", \"**The Communicator** (articulates ideas effectively, fosters understanding)\", \"**The Empath** (understands emotions, supports others, builds relationships)\", \"**The Organizer** (plans tasks, sets priorities, keeps structure)\", \"**The Implementer** (gets tasks done, focuses on execution and timely deliverables)\"], description: \"(Pick 2)\" },\n    \"4c\": { uuid: \"44444444-4444-4444-4444-444444444443\", question: \"What company culture resonates most with you?\", type: \"multiple_choice\", options: [\"Innovative and forward-thinking\", \"Traditional and established\", \"Collaborative and team-oriented\", \"Competitive and high-achieving\"], description: \"\" },\n    \"4d\": { uuid: \"44444444-4444-4444-4444-444444444444\", question: \"Do you possess specialised knowledge or skills in a particular field?\", type: \"short_text\", options: [], description: \"e.g. data science or legal expertise, fundraising, project management, microbiology, robotics, or (mid-level) Python programming etc.\\nMultiple entries allowed.\" },\n    \"4e\": { uuid: \"44444444-4444-4444-4444-444444444445\", question: \"How familiar are you with generative AI technologies (e.g. ChatGPT, CoPilot, AI workflows, etc)?\", type: \"multiple_choice\", options: [\"Not familiar at all\", \"Somewhat familiar. I have a basic understanding\", \"Moderately familiar. I have used AI tools occasionally\", \"Very familiar. I frequently use AI tools\", \"Extremely familiar. I work with AI technologies professionally\"], description: \"\" },\n    \"4f\": { uuid: \"44444444-4444-4444-4444-444444444446\", question: \"If you had the opportunity to lead a workshop or seminar within your company, which topic(s) would you choose that you are enthusiastic about and feel confident discussing?\", type: \"multiple_choice\", options: [\"**Data Analysis and Business Intelligence** (e.g., leveraging data for strategic decisions, advanced analytics)\", \"**Project Management and Leadership** (e.g., effective team leadership, managing large-scale projects)\", \"**Marketing Strategies and Brand Development** (e.g., digital marketing trends, building a strong brand presence)\", \"**Artificial Intelligence and Automation** (e.g., implementing AI solutions, the future of automation in business)\", \"**Sustainability and Corporate Social Responsibility** (e.g., sustainable business practices, CSR initiatives)\", \"**Innovation and Product Development** (e.g., fostering a culture of innovation, developing new products)\", \"**Financial Planning and Investment Strategies** (e.g., budgeting for growth, investment opportunities)\", \"**People Management and Recruitment** (e.g., employee engagement and happiness, talent acquisition strategies)\", \"**Technology Integration and IT Infrastructure** (e.g., upgrading IT systems, coding, integrating new technologies)\"], description: \"Select up to 2. Use other if your passionate topic is not listed\" },\n    \"4g\": { uuid: \"44444444-4444-4444-4444-444444444447\", question: \"Are there any industries you would prefer to avoid in your next career?\", type: \"multiple_choice\", options: [\"Industry doesn't matter to me, it about the job\", \"Finance and Banking\", \"Sales and Business Development\", \"Technology and IT\", \"Healthcare and Wellness\", \"Legal Professions\", \"Education and Training\", \"Manufacturing and Physical Labor\", \"Retail, Hospitality, and Customer Service\", \"Marketing, Media, and Creative Fields\", \"Government and Public Sector\", \"Nonprofits and Social Work\", \"Agriculture and Outdoor Work\", \"Law Enforcement and Defence\"], description: \"(Select all that apply. This helps us exclude entire sectors from your recommendations.)\" },\n    \"4h\": { uuid: \"44444444-4444-4444-4444-444444444448\", question: \"Name your dream job(s)! Regardless of any constraining factors.\", type: \"short_text\", options: [], description: \"Don't worry about personal situation, salary, skills or other practical things: What one or two jobs would you absolutely LOVE to do.\\n(e.g. Sports commentator, Actor, Own a business that sells ..., Sailing instructor, Gardener, Writer, etc.). Max 3.\" },\n\n    // --- SECTION 5: Team Dynamics & Leadership ---\n    \"5a\": { uuid: \"55555555-5555-5555-5555-555555555551\", question: \"In a team, you tend to:\", type: \"multiple_choice\", options: [\"Take charge and guide the direction of the group.\", \"Ensure execution by keeping tasks organized and on track.\", \"Offer ideas and actively engage in discussions.\", \"Step back to analyze before contributing.\", \"Work independently but provide support when needed.\"], description: \"\" },\n    \"5b\": { uuid: \"55555555-5555-5555-5555-555555555552\", question: \"What motivates you most in a team environment?\", type: \"multiple_choice\", options: [\"Achieving common goals\", \"Recognition of individual contributions\", \"Learning from others\", \"Building relationships\"], description: \"\" },\n    \"5c\": { uuid: \"55555555-5555-5555-5555-555555555553\", question: \"What is your preferred team size?\", type: \"multiple_choice\", options: [\"Small (2-5 people)\", \"Medium (6-10 people)\", \"Large (11+ people)\", \"No preference\"], description: \"\" },\n    \"5d\": { uuid: \"55555555-5555-5555-5555-555555555554\", question: \"When there are disagreements about work tasks within your team (of peers), you typically:\", type: \"multiple_choice\", options: [\"Address them directly to find a solution\", \"Seek a compromise to maintain harmony\", \"Defer to others to avoid conflict\"], description: \"\" },\n    \"5e\": { uuid: \"55555555-5555-5555-5555-555555555555\", question: \"What challenges have you faced when working in teams?\", type: \"multiple_choice\", options: [\"Difficulty communicating ideas\", \"Challenges with delegation\", \"Conflict resolution\", \"Trusting team members to complete tasks\", \"Feeling overshadowed by others\", \"Managing different work styles\", \"Lack of clear leadership\", \"Disagreements over team goals\", \"Balancing individual and team responsibilities\", \"Difficulty giving or receiving feedback\"], description: \"(Select all that apply)\" },\n    \"5f\": { uuid: \"55555555-5555-5555-5555-555555555556\", question: \"How do you approach deadlines and time management?\", type: \"multiple_choice\", options: [\"**Steady Planner** (I plan well ahead and work consistently to avoid last-minute pressure)\", \"**Deadline-Aware** (I start early but my pace picks up significantly as deadlines approach)\", \"**Pressure-Dependent** (I need the urgency of approaching deadlines to focus effectively)\", \"**Last-Minute Sprinter** (I do my best work in intense bursts right before deadlines)\"], description: \"Think about how you actually work, not how you wish you worked.\" },\n    \"5g\": { uuid: \"55555555-5555-5555-5555-555555555557\", question: \"Which leadership style do you most prefer working under?\", type: \"multiple_choice\", options: [\"Delegating autonomy and trusting me to figure things out\", \"Coaching style where I focuss on personal/professional growth\", \"Task-oriented style with clear targets and strict follow-up\"], description: \"(select up to 2)\" },\n    \"5h\": { uuid: \"55555555-5555-5555-5555-555555555558\", question: \"When you disagree with a manager or senior leader's direction, you typically:\", type: \"multiple_choice\", options: [\"Voice concerns openly and try to discuss the issue\", \"Approach them privately to share your point of view\", \"Let it slide unless it significantly impacts you or your team\"], description: \"\" },\n\n    // --- SECTION 6: Emotional Intelligence ---\n    \"6a\": { uuid: \"66666666-6666-6666-6666-666666666661\", question: \"How do you handle feedback or constructive criticism?\", type: \"multiple_choice\", options: [\"I actively seek it and use it to improve\", \"I find it challenging and may struggle to apply it\"], description: \"What applies to you most\" },\n    \"6b\": { uuid: \"66666666-6666-6666-6666-666666666662\", question: \"When providing constructive criticism to others, you usually:\", type: \"multiple_choice\", options: [\"Try to be encouraging but are careful not to offend.\", \"Are straightforward and focus on the facts.\", \"Struggle with giving feedback and often avoid it.\"], description: \"\" },\n    \"6c\": { uuid: \"66666666-6666-6666-6666-666666666663\", question: \"When a colleague is experiencing personal stress or emotional difficulties, you typically:\", type: \"multiple_choice\", options: [\"Offer support and listen empathetically\", \"Provide practical help or solutions\", \"Respect their privacy and give them space\", \"Defer them to someone who you think can assist better\"], description: \"\" },\n    \"6d\": { uuid: \"66666666-6666-6666-6666-666666666664\", question: \"When involved in a conflict at work, how do you manage your emotions?\", type: \"multiple_choice\", options: [\"Remain calm and control your emotions effectively\", \"Find it challenging to manage your emotions\", \"Express your emotions openly, regardless of the setting\"], description: \"\" },\n    \"6e\": { uuid: \"66666666-6666-6666-6666-666666666665\", question: \"What strategies do you use to manage your emotions under stress?\", type: \"multiple_choice\", options: [\"Practice mindfulness or stress-reduction techniques\", \"Talk to colleagues or friends for support\", \"Internalize stress without specific coping strategies\"], description: \"\" },\n    \"6f\": { uuid: \"66666666-6666-6666-6666-666666666666\", question: \"How do you prefer to interact with colleagues?\", type: \"multiple_choice\", options: [\"Actively engage in social interactions, both during and outside work.\", \"Keep it mostly work-focused but join social events occasionally.\", \"Stick to professional interactions and rarely join social gathering outside work hours.\"], description: \"\" },\n    \"6g\": { uuid: \"66666666-6666-6666-6666-666666666667\", question: \"Which aspects of emotional intelligence do you find most challenging?\", type: \"multiple_choice\", options: [\"Managing stress effectively\", \"Recognizing and controlling own emotions\", \"Empathizing with others\", \"Handling conflict constructively\", \"Adapting to change\", \"Building and maintaining relationships\", \"Providing constructive feedback\", \"Receiving criticism without defensiveness\", \"Remaining calm under pressure\", \"Motivating myself and others\"], description: \"(Select up to 3)\" },\n\n    // --- SECTION 7: Career Goals & Development ---\n    \"7a\": { uuid: \"77777777-7777-7777-7777-777777777771\", question: \"What are your short-term career goals (next 1-2 years)?\", type: \"multiple_choice\", options: [\"Develop new skills or certifications\", \"Gain experience in a different role or industry\", \"Expand my professional network\", \"Achieve a promotion or salary increase\", \"Improve work-life balance\", \"Explore entrepreneurial opportunities\"], description: \"(Choose up to 2 or choose 'other')\" },\n    \"7b\": { uuid: \"77777777-7777-7777-7777-777777777772\", question: \"What are your long-term career goals (next 5-10 years)?\", type: \"multiple_choice\", options: [\"Reach a senior leadership or executive position\", \"Establish expertise and recognition in my field\", \"Own or run a successful business\", \"Achieve financial independence\", \"Make a significant contribution to society or a cause\", \"Continuously learn and adapt to new challenges\", \"Achieve complete autonomy and freedom in my career\"], description: \"(Choose up to 2 or choose 'other')\" },\n    \"7c\": { uuid: \"77777777-7777-7777-7777-777777777773\", question: \"Which barriers do you face right now -or expect to face\\u2014 in achieving your career goals?\", type: \"multiple_choice\", options: [\"Limited growth opportunities in my current organization/field\", \"Work-life balance constraints or family commitments\", \"Burnout or lack of engagement\", \"Gaps in skills or professional development\", \"Misalignment with personal values or interests\", \"Uncertainty about my next career step\", \"Financial limitations or concerns\", \"External factors (e.g., economic conditions, industry changes)\", \"Personal doubts or lack of confidence\"], description: \"(Choose up to 2)\" },\n    \"7d\": { uuid: \"77777777-7777-7777-7777-777777777774\", question: \"Are you interested in acquiring new skills outside your current expertise?\", type: \"multiple_choice\", options: [\"Yes, always seeking new skills\", \"Prefer to focus on existing skills\", \"Yes, if relevant to my career\"], description: \"\" },\n    \"7e\": { uuid: \"77777777-7777-7777-7777-777777777775\", question: \"Lastly, which areas or competencies do you enjoy and would you like to develop (further) as part of a next/new job?\", type: \"multiple_choice\", options: [\"Leadership & Team Management\", \"People & Culture (HR)\", \"Communication & Public Speaking\", \"AI & Automation\", \"Technical & Digital Skills\", \"Data Analysis & Problem-Solving\", \"Creative Thinking & Innovation\", \"Project & Product Management\", \"Strategic Planning & Big-Picture Thinking\", \"Entrepreneurship / Intrapreneurship\", \"Sales, Relationship-Building & Networking\", \"Operations & Process Optimization\", \"Marketing & Brand Strategy\", \"Customer Experience & Service\", \"Financial & Business Acumen\", \"Change Management & Resilience\"], description: \"(Choose up to 3 areas you are **personally motivated** to develop, regardless of their current (perceived) proficiency level)\" }\n\n  };\n\n  // --- ROBUST DATA PROCESSING LOGIC ---\n  const inputItem = $input.first().json;\n  const rawResponses = inputItem.survey_responses?.responses || inputItem.body?.survey_responses?.responses || {};\n\n  const formattedQuestions = [];\n  let answeredCount = 0;\n\n  for (const [id, config] of Object.entries(SURVEY_SCHEMA)) {\n      let answer = rawResponses[config.uuid];\n\n      const result = {\n          questionId: id,\n          question: config.question,\n          type: config.type,\n          description: config.description || \"\",\n          chosen: [],\n          notChosen: [],\n          hasAnswer: false\n      };\n\n      if (answer !== undefined && answer !== \"\" && answer !== null) {\n          result.hasAnswer = true;\n          answeredCount++;\n\n          if (config.type === \"skills_achievements\") {\n              result.chosen = {\n                  topSkills: answer.topSkills || [],\n                  certifications: answer.certifications || [],\n                  achievements: answer.achievements || \"\"\n              };\n          } \n          else if ([\"career_history\", \"career_happiness\"].includes(config.type)) {\n              result.chosen = Array.isArray(answer) ? answer : [answer];\n          }\n          else {\n              let answerArray = Array.isArray(answer) ? answer : [answer];\n              const cleanAnswers = answerArray.map(a => {\n                  return typeof a === 'string' ? a.replace(/\\*\\*/g, '').trim() : a;\n              });\n\n              result.chosen = cleanAnswers;\n\n              if (config.options && config.options.length > 0) {\n                  result.notChosen = config.options.filter(opt => {\n                      const optClean = opt.replace(/\\*\\*/g, '').trim();\n                      return !cleanAnswers.some(userAns => String(userAns).includes(optClean));\n                  });\n              }\n          }\n      } else {\n          result.chosen = []; \n          result.notChosen = config.options || [];\n      }\n\n      formattedQuestions.push(result);\n  }\n\n  return [{\n      summary: {\n          totalQuestions: Object.keys(SURVEY_SCHEMA).length,\n          answeredQuestions: answeredCount\n      },\n      questions: formattedQuestions\n  }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        624
+      ],
+      "id": "09d32b41-cf53-4d7e-8c64-b09190fe75c8",
+      "name": "Process Survey Data1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7aa95d3a-1db7-4d83-a689-72a703d056a5",
+              "name": "initi summ prompt",
+              "value": "=# ROLE\nYou are a Lead Data Architect specializing in candidate profile normalization. Your goal is to transform structured JSON survey data into a high-fidelity, judgment-free \"Source of Truth\" Fact Sheet.\n\n# TASK\nExtract every specific detail from the input JSON. Preserve verbatim \"Other\" entries, specific role details, and personal comments. Do not interpret or coach; your job is to ensure the downstream Career Coach has 100% of the facts in a readable format.\n\n# OUTPUT FORMAT\n\n### **1. Core Identity & Current Status**\n- **Name:** [1a]\n- **Pronouns:** [1b]\n- **Age:** [1c]\n- **Region:** [1d]\n- **Primary Objectives/Goals:** [1e]\n- **Current Career Situation:** [1i]\n- **Total Years of Experience:** [1h]\n\n### **2. Professional History & Sentiment Log**\n- **Detailed Career History:** [Extract all roles from 1j. Include Title, Company, Size, Culture, Sector, and Dates]\n- **Sentiment Log:** [Extract Happiness scores and verbatim Reasons from 1k for each corresponding role]\n- **Skills & Technical Footprint:** \n  - **Top Skills:** [Extract from topSkills in 1l]\n  - **Certifications:** [Extract from certifications in 1l]\n  - **Notable Achievements:** [Extract verbatim from achievements in 1l]\n  - **Specialized Knowledge:** [4d]\n  - **AI Familiarity:** [4e]\n\n### **3. Education & Personal Context**\n- **Education Level:** [1f]\n- **Field of Study:** [1g]\n- **Personal Interests/Hobbies:** [1m]\n- **Additional Context/Constraints:** [1n - Include burnout notes, family commitments, etc.]\n- **Dream Jobs:** [4h]\n\n### **4. Values, Compensation & Work Preferences**\n- **Ranked Career Values (High to Low):** [3a]\n- **Cultural & WLB Preferences:** [Value Alignment (3b), WLB Importance (3c), Preferred Culture (4c)]\n- **Logistics & Pay:** [Schedule (3d), Salary Importance (3e), Bracket (3f), Pay Priority (3g)]\n\n### **5. Behavioral & Operational Profile**\n- **Energy & Social:** [Social energy (2a), Colleague interaction (6f)]\n- **Cognitive Style:** [Decision focus (2b), Decision speed (2c), Communication style (2d), Change response (2e)]\n- **Operational Style:** [Environment structure (2g), Risk tolerance (2h), Stress response (2i), Time management (5f)]\n- **Hindrances/Growth Areas:** [Self-identified barriers (2j)]\n\n### **6. Team Dynamics & Emotional Intelligence**\n- **Collaboration Style:** [Team role (5a), Motivator (5b), Preferred size (5c), Conflict style (5d & 2f)]\n- **Management Interaction:** [Preferred Leadership (5g), Response to Disagreement (5h)]\n- **EI & Feedback:** [Handling Feedback (6a), Providing Feedback (6b), Support style (6c), Emotional regulation (6d), Stress coping (6e), EI Challenges (6g)]\n\n### **7. Future Trajectory & Constraints**\n- **Goals:** [Short-term (7a), Long-term (7b)]\n- **Developmental Drive:** [Barriers (7c), Interest in new skills (7d), Areas to develop (7e), Workshop topics (4f)]\n- **Areas of Interest & Archetypes:** [Interests (4a), Archetypes (4b)]\n- **Avoidance List (Hard Constraints):** [Avoided work aspects (3h), Avoided industries (4g)]\n\n# CRITICAL INSTRUCTIONS\n- **Reference IDs:** Keep the Question ID (e.g., 1a, 7e) in brackets next to each fact\n- **Verbatim Content:** If a user wrote text, do not summarize it. Use the exact words\n- **Completeness:** If data exists for a field (like Achievements in 1l), extract it fully\n- **Judgment-Free:** Do not use words like \"appears to be\" or \"struggles with.\" Simply state: \"Candidate reports [X]\"\n\n\n# INPUT:\n\n{{ JSON.stringify($json.questions, null, 2) }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        624
+      ],
+      "id": "9a391795-d14e-4e22-ada4-d70f73ae8c02",
+      "name": "prompt_init_summary1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json[\"initi summ prompt\"] }}",
+        "batching": {}
+      },
+      "id": "17931e4c-24fa-4915-bace-970408b13a2d",
+      "name": "Initial_summary1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1424,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        816
+      ],
+      "id": "2a454263-2337-4ed0-b40c-4aa6403c757d",
+      "name": "3F",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "TJBoqA8SVIj4Ikeq",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "34c766ad-413a-463d-8f0b-50a646be4f67",
+              "name": "instructions_perso_profile",
+              "value": "=# Context\n\n# MANDATORY: SECOND PERSON VOICE\nThe input data below refers to the candidate in third person (\"the candidate\", \"he/his\").\nYou MUST write ALL output in second person: \"you\" and \"your\" throughout.\nUse their first name occasionally for warmth, but NEVER write about them in third person.\nThis applies to every sentence in every section. No exceptions.\n\nReview thoroughly:\n* the initial summary for candidate data: \n{{ $json.content }}\n\n# Role\n\nYou are a world-class career coach creating insightful personality analysis.\n\n# Prompt for Narrative Generation\n\nUsing the candidate's detailed summary of survey answers, generate a narrative report that follows the layout below. Write in clear, direct business casual language.\n\nYour narrative report must include the following four sections:\n\n# Required Sections:\n\n## Understanding Your Approach\n\n**Personality and Interaction Style**\n\nDiscuss how the candidate's personality traits and interaction style influence their work and team environments.\n\n**Impact in Different Environments**\n\nExplore how their personal attributes affect different work settings and contexts.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations the candidate might not see themselves. Focus on connections or patterns that explain why they experience what they do. Reveal non-obvious implications, don't restate what they told you.\n\n## Strengths and How to Grow Them\n\n**Identifying Your Core Strengths**\n\nAnalyze the candidate's core strengths as revealed in their summary.\n\n**Leveraging Strengths in Your Career**\n\nExplain how these strengths can be leveraged in their professional journey.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about what their strengths actually mean. Focus on the underlying capability or pattern that connects different examples. Reveal their competitive advantage or unique positioning.\n\n## Areas for Development\n\n**Understanding Potential Growth Areas**\n\nIdentify potential areas for improvement drawing on the summary.\n\n**Implications for Your Growth**\n\nDiscuss how these areas might impact their professional development, effectiveness, and potential.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about why these challenges exist or how they connect to each other. Focus on root causes or patterns rather than surface observations.\n\n[note on this section: when relevant for the user, highlight that while AI skills are crucial, employers in the age of AI increasingly value people management skills like empathy, critical thinking, adaptability, and communication, as these human-centric abilities are harder for AI to replicate and essential for guiding teams through rapid technological change, managing AI tools effectively, and fostering innovation. The demand isn't just for technical AI proficiency but for leaders and workers who can strategically integrate AI while enhancing human collaboration, purpose, and complex problem-solving.]\n\n## Aligning with Your Values\n\n**Identifying Your Core Values**\n\nHighlight the candidate's core values as evidenced by their survey answers.\n\n**Values in Career Decisions**\n\nExplain how these values should influence their career decisions and everyday work practices.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about what their values reveal. Focus on tensions between stated priorities, misalignments with current path, or non-obvious implications for their career direction.\n\n# Content Requirements:\n\n**Critical focus areas:**\n\n* PERSONALITY ONLY - Do not discuss career feasibility, specific job recommendations, or dreamjob analysis. Those come in later phases. Stick to personality traits, interaction patterns, and what can be derived from behavioral data.\n* Focus on interpretation and pattern recognition, not recitation of survey answers\n* Don't list accomplishments back to them - they know what they've done\n* Extract the underlying capability or pattern instead\n* Key insights reveal something non-obvious - what their data means, not what they said\n* Integrate the candidate's primary goal (1e) naturally where relevant.\n\n**Goal Interpretation Lens (Atlas serves change-seekers):**\nAtlas is built for candidates exploring change, clarity, or new direction, not advancement within an existing track. When integrating stated goals (1e, 7a, 7b), reinterpret advancement-flavored options as underlying needs:\n\n- 7a \"Achieve a promotion or salary increase\" → growth/recognition/financial need (not a path to confirm)\n- 7b \"Reach a senior leadership or executive position\" → desire for authority and impact (achievable through advisory, board, fractional, expert IC, or operational paths in new contexts)\n- 7b \"Establish expertise and recognition in my field\" → depth-seeking (read \"field\" loosely)\n- \"Other\" responses about advancement → treat as needs, not directions\n\nIf stated goals contradict happiness data, dream job themes, burnout indicators, or the candidate's stated purpose in 1e, surface this as a Key Insight in Aligning with Your Values. Do not take advancement-flavored goals at face value when other signals point to a need for change.\n\n\n**Writing style:**\n\n* Write in active voice with short, punchy sentences\n* Break content into smaller paragraphs (2-4 sentences max)\n* Use sub-sub-headers within narrative sections when helpful for clarity\n* Maintain business casual tone throughout\n* Do not use the em-dash in your narrative\n* Refer to the avoid words list at the bottom\n* Active voice, SECOND PERSON. Use 'you' and occasionally their name to adress them!\n\n* STAY BETWEEN 280 and 350 WORDS PER REPORT SECTION\n\n# Formatting Requirements:\n\nClearly separate each section with the section header exactly as written above (e.g., `Understanding Your Approach`).\n\nWithin each section, use plain paragraphs with **bolded sub-sub-headers** where helpful.\n\nFor Key Insight, write 1-2 concise paragraphs that reveal the bottom line - not numbered lists.\n\n---\n\n# Example Output Format:\n\n## Understanding Your Approach\n\n**Personality and Interaction Style**\n\nYou push forward when things get unclear. Cut through ambiguity. Move toward situations where the path isn't mapped yet. This works well as a founder building AI solutions for businesses.\n\nBut here's the pattern: when stress hits, you accelerate instead of stepping back. You speak directly. Address conflicts head-on. Get things moving fast.\n\nCombined with your difficulty trusting team members and tendency to take on too much responsibility, you become the bottleneck. The same traits that make you effective at navigating change work against the work-life balance you want if you don't build systems that let others share the load.\n\n**Impact in Different Environments**\n\nYou want small teams and part-time work. Yet you're energized by social interaction and actively engage in discussions. You struggle with trusting others to complete tasks and managing different work styles.\n\nYou need the energy of collaboration but find it hard to let go of control. That's exactly what's required to scale a business while working three to four days a week.\n\nYour preference for planning ahead and predictable schedules conflicts with entrepreneurship's reality. Unexpected demands constantly emerge. The part-time constraint means you need exceptional discipline about what you take on. Ruthless clarity about what you delegate or simply don't do.\n\nYour comfort with flexible, creative environments helps. But perfectionism and procrastination will undermine your ability to work fewer hours unless you address them directly.\n\n**Key Insight**\n\nYour trust issues and control tendencies aren't personality flaws - they're rational responses to working without systems. You can't delegate effectively because you haven't built the structure that makes delegation safe. The irony: achieving the autonomy you want requires building the infrastructure that lets you trust others, not becoming less dependent on them.\n\n---\n\n## Strengths and How to Grow Them\n\n**What you actually do well**\n\nYou think big-picture while staying comfortable with incomplete information. This works well in rapidly evolving spaces.\n\nWith 15 years spanning AI workflows, business transformation, and entrepreneurship, you've built technical knowledge plus business acumen. Most people have one or the other.\n\nYour Good Shepherd Entertainment track record shows you execute at scale. Raised and sold millions in a completely new business model. You're not just technically proficient with AI, you work with it professionally while understanding how to apply it to actual business problems.\n\n**Where this takes you**\n\nYour AI and automation expertise, combined with your interest in teaching, points beyond traditional consulting. You could create content, build educational programs, or develop productized services that use your knowledge without requiring your direct time for every client.\n\nYour dream of podcasting or presenting isn't disconnected from your current path. Your ability to make complex AI concepts accessible to business audiences translates well to media and content creation.\n\nThe landscaping business idea reflects your ability to see how technology transforms traditional industries. This pattern of spotting transformation opportunities is your real competitive advantage.\n\n**Key Insight**\n\nYour real strength isn't AI expertise or business acumen separately - it's translation. You make technical concepts accessible to business audiences and business problems solvable through technical means. Most people can do one or the other. This means you're not competing with AI consultants or business strategists. You're solving a different problem entirely, which changes what you should charge for and how you position yourself.\n\n---\n\n## Areas for Development\n\n**The gap between goals and patterns**\n\nYou want work-life balance and part-time hours. Yet you procrastinate, struggle with time management, take on too much responsibility, and let perfectionism delay completion.\n\nThese aren't minor efficiency issues. They're fundamental barriers to the life you're trying to build.\n\nYour tendency to internalize stress without coping strategies makes this worse. So does your difficulty receiving feedback that might help you see these patterns more clearly.\n\nYou're extremely comfortable taking risks but also deal with self-doubt. This suggests you push yourself hard without good mechanisms for knowing when you're overdoing it. Your strength as an adapter means you adjust to changing circumstances. But if you're constantly adapting to cover for poor planning or overcommitment, that flexibility becomes a problem rather than an asset.\n\n**What this means for building a business**\n\nYour challenges with empathy, providing constructive feedback, and receiving criticism create real limitations if you want to run a successful business. You can't scale a company if you struggle to trust team members, have difficulty understanding their perspectives, and find it hard to give or receive feedback effectively.\n\nYour preference for practical solutions rather than empathetic support when colleagues face difficulties might be efficient. But it can prevent the relationships that make people want to work with you long-term. This matters especially in small teams where interpersonal dynamics have outsized impact.\n\nYour work-focused approach to colleague relationships works fine on its own. But combined with trust issues and feedback challenges, it makes building the reliable team you need much harder.\n\n**Key Insight**\n\nYour perfectionism and procrastination aren't separate from your trust issues - they're the same problem. You delay because you can't accept \"good enough\" from yourself, which makes you unable to accept it from others. This creates a cycle: you don't delegate because standards won't be met, so you overwork, which reinforces that only you can do it right. The fix isn't better time management. It's accepting that perfect execution matters less than consistent progress, from yourself and others.\n\n---\n\n## Aligning with Your Values\n\n**What matters to you**\n\nYou've ranked autonomy, creativity, and work-life balance as your top priorities. Helping others and job stability sit at the bottom.\n\nThis makes sense given your entrepreneurial background and AI expertise. You can create your own opportunities, so security matters less than freedom.\n\nYour target of 75,000 to 100,000 for part-time work translates to a high hourly rate. This shows you value both strong compensation and controlled hours.\n\nThe tension here is real: you want work-life balance, but entrepreneurship (especially early-stage ventures) rarely delivers the predictable part-time schedule you're after. Building toward complete autonomy typically requires an intense period before you can step back.\n\n**What this means for decisions**\n\nYour goals around better work-life balance and finding the right career path suggest you're at a transition point. But here's what's less obvious: you might be looking for balance in the wrong place.\n\nGiven your need for autonomy and creativity, plus your dislike of high-pressure environments, traditional employment probably won't satisfy you even with better hours.\n\nThe path forward isn't finding a new career. It's restructuring how you approach your current work. Your AI expertise means you can build a practice that delivers client value without requiring your constant presence.\n\nThe real challenge isn't capability. It's discipline around scope, pricing, and boundaries. The uncertainty about AI's professional impact that you see as a barrier is actually your opportunity. You're already at the cutting edge, which means you can shape how it affects your work rather than being shaped by it.\n\n**Key Insight**\n\nYou've framed your problem as \"finding the right career path,\" but your values reveal something different. You don't need a new path - you need to restructure your current one. The work you're doing aligns with your values (autonomy, creativity). What doesn't align is how you're doing it: taking on too much, working too many hours, maintaining no boundaries. Your dissatisfaction isn't about what you do. It's about how much control you've surrendered over when and how you do it.\n\n---\n\n# Avoid Words list:\n\n## Adjectives and Modifiers to Avoid:\n- valuable\n- significant (when describing abilities/advantages)\n- interesting\n- natural/naturally (when describing talents)\n- impressive\n- exceptional\n- remarkable\n- extraordinary\n- outstanding\n- unique\n- rare\n- perfect/perfectly\n- ideal/ideally\n- admirable\n- clear/clearly (as emphasis)\n- obvious/obviously (as emphasis)\n\n## Flattery Phrases to Avoid:\n- \"you have a valuable ability to...\"\n- \"gives you a significant advantage\"\n- \"positions you perfectly for...\"\n- \"you possess...\"\n- \"natural talent for...\"\n- \"you bring a wealth of...\"\n- \"your impressive track record...\"\n- \"this is particularly valuable because...\"\n- \"what makes this especially powerful...\"\n\n## Corporate/Generic Business Speak to Avoid:\n- serves you well\n- positions you as\n- represents an opportunity\n- suggests an untapped opportunity\n- creates a significant advantage\n- gives you a real edge\n- particularly powerful\n- especially impactful\n- meaningful impact\n- drive results\n- move the needle\n- leverage (overuse)\n- synergy\n- dynamic\n- innovative (as adjective for person)\n- forward-thinking (for person)\n- cutting-edge (for person)\n\n## Unnecessary Qualifiers/Hedges to Avoid:\n- \"The fact that...\"\n- \"It's worth noting that...\"\n- \"What's interesting is...\"\n- \"The reality is that...\"\n- \"It's important to recognize...\"\n- \"One thing to consider...\"\n- \"What's particularly noteworthy...\"\n- \"An important aspect to highlight...\"\n\n## AI-Sounding Transition Phrases to Avoid:\n- \"Let's explore...\"\n- \"It's crucial to understand...\"\n- \"Building on this...\"\n- \"Taking this further...\"\n- \"Diving deeper...\"\n- \"This begs the question...\"\n- \"At the end of the day...\"\n- \"The bottom line is...\"\n\n## Words to Use Sparingly (Not Banned, But Watch Overuse):\n- visionary (use only if absolutely specific)\n- passionate\n- dedicated\n- driven (okay occasionally)\n- strategic (overused)\n- innovative (as descriptor)\n- transformative\n- impactful\n\n## Better Alternatives:\n\nInstead of \\u2192 Use:\n- \"serves you well\" \\u2192 \"works well\" / \"helps\" / \"fits\"\n- \"significant advantage\" \\u2192 \"advantage\" / \"edge\" / just state the benefit\n- \"positions you perfectly\" \\u2192 \"positions you well\" / \"fits well with\"\n- \"valuable ability\" \\u2192 just describe the ability\n- \"interesting pattern\" \\u2192 \"pattern\" / \"worth noting\"\n- \"particularly powerful\" \\u2192 \"especially useful\" / just state why it matters\n- \"represents an opportunity\" \\u2192 \"points to\" / \"suggests\"\n- \"leverage your strengths\" \\u2192 \"use your strengths\"\n\nThe Core Principle: \nIf you can remove the adjective/modifier and the sentence is still clear and meaningful, remove it. Let the specific observations carry the weight, not the evaluative language.\n\n- DO NOT go below 280 or over 400 words per section \n- remember the second person perspective. NOT \"Jake is a \" BUT \"Jake, you are a\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        624
+      ],
+      "id": "591adf4d-cb6f-4441-8f84-7d375a436313",
+      "name": "prompt_perso_prof1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.instructions_perso_profile }}",
+        "batching": {}
+      },
+      "id": "2f73274b-8b14-4c7a-a23f-f67dc9b65019",
+      "name": "generate_personality_narrative1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2432,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        816
+      ],
+      "id": "240e708a-6fda-4711-852b-3dec3384ceef",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ---------------- CONFIG ----------------\nconst SUBHEADER_PATTERNS = {\n  approach: [\n    \"Personality and Interaction Style\",\n    \"Impact in Different Environments\",\n    \"Key Insight\"\n  ],\n  strengths: [\n    \"Identifying Your Core Strengths\",\n    \"Leveraging Strengths in Your Career\",\n    \"Key Insight\"\n  ],\n  development: [\n    \"Understanding Potential Growth Areas\",\n    \"Implications for Your Growth\",\n    \"Key Insight\"\n  ],\n  values: [\n    \"Identifying Your Core Values\",\n    \"Values in Career Decisions\",\n    \"Key Insight\"\n  ]\n};\n\n// ---------------- HELPERS ----------------\nfunction cleanMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n    .replace(/__(.*?)__/g, '$1')\n    .replace(/\\*(.*?)\\*/g, '$1')\n    .trim();\n}\n\nfunction extractSections(content, sectionType) {\n  const patterns = SUBHEADER_PATTERNS[sectionType] || [];\n  if (patterns.length === 0) return [];\n  \n  const regex = new RegExp(`(${patterns.join('|')}):?`, 'gi');\n  const parts = content.split(regex).filter(Boolean);\n  const sections = [];\n  \n  for (let i = 0; i < parts.length; i++) {\n    const p = parts[i].trim();\n    if (patterns.some(ph => new RegExp(ph, 'i').test(p))) {\n      const subheader = p.replace(/:$/, '').trim();\n      const next = parts[i + 1] ? parts[i + 1].trim() : '';\n      sections.push({ subheader, content: next });\n      i++;\n    }\n  }\n  return sections;\n}\n\n// ---------------- SOURCE DATA ----------------\nconst narrativeData = $('generate_personality_narrative1').first().json;\nconst reportId = $('rep_id1').first().json.report_id;\n\n// Get the init_summary content from Prep node (already cleaned HTML)\nconst initSummaryContent = $('Prep init_summary').first().json.content;\n\n// ---------------- NARRATIVE EXTRACTION ----------------\nconst titleRegex = /#{1,3}\\s*([^\\n#]+)/g;\nconst titles = [];\nlet match;\nwhile ((match = titleRegex.exec(narrativeData.text)) !== null) {\n  titles.push(match[1].trim());\n}\n\nconst contents = narrativeData.text.split(/#{1,3}\\s*[^\\n#]+\\n*/g);\ncontents.shift();\n\nconst sectionTypes = ['approach', 'strengths', 'development', 'values'];\nconst parsedSections = [];\n\nfor (let i = 0; i < contents.length; i++) {\n  const sectionType = sectionTypes[i];\n  const raw = cleanMarkdown(contents[i]);\n  parsedSections.push(extractSections(raw, sectionType));\n}\n\n// ---------------- OUTPUT ALL 5 SECTIONS ----------------\n// init_summary + 4 narrative sections, all inserted to SB in one batch\nconst allSections = [\n  {\n    section_type: 'init_summary',\n    title: 'Initial Summary',\n    content: initSummaryContent,\n    isRawContent: true\n  },\n  { section_type: 'approach', title: titles[0] || null, content: parsedSections[0] || [] },\n  { section_type: 'strengths', title: titles[1] || null, content: parsedSections[1] || [] },\n  { section_type: 'development', title: titles[2] || null, content: parsedSections[2] || [] },\n  { section_type: 'values', title: titles[3] || null, content: parsedSections[3] || [] }\n];\n\nreturn allSections\n  .filter(s => s.content && (s.isRawContent || (Array.isArray(s.content) && s.content.length > 0)))\n  .map(s => {\n    let formatted;\n    \n    if (s.isRawContent) {\n      formatted = s.content;\n    } else {\n      formatted = s.content.map(block => {\n        const subheader = block.subheader && block.subheader.trim()\n          ? `<h5>${block.subheader}</h5>\\n\\n`\n          : '';\n        const text = block.content || '';\n        return `${subheader}${text}`;\n      }).join('\\n\\n');\n    }\n\n    return {\n      json: {\n        report_id: reportId,\n        section_type: s.section_type,\n        title: s.title,\n        content: formatted\n      }\n    };\n  });"
+      },
+      "id": "058a7da2-5c4a-4d0b-9369-4732dffb30da",
+      "name": "extract_report_sections_code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2784,
+        624
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "reports",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "=processing"
+            },
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.report_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "pending_review"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3424,
+        624
+      ],
+      "id": "8e1c7d0a-449b-4b71-a47c-f08306217494",
+      "name": "update status1",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Atlas"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "vVv0tsnFlBnarMdq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/vVv0tsnFlBnarMdq",
+          "cachedResultName": "Atlas Assessments — WF2.2_Source to Enrich 15"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4048,
+        624
+      ],
+      "id": "ec19d3fd-a543-4fe0-b0c1-176661bc8577",
+      "name": "Execute Suitable Jobs1"
+    }
+  ],
+  "pinData": {
+    "Survey complete Webhook2": [
+      {
+        "json": {
+          "user_id": "e49c7b1f-e04c-4308-a4e1-87fae721c0ed",
+          "report_id": "c725e198-2f10-49d6-9740-bcb79ec6bf4c",
+          "survey_responses": {
+            "responses": {
+              "11111111-1111-1111-1111-111111111110": [
+                {
+                  "title": "Independent Supervisory Board Member",
+                  "companyName": "Toggl",
+                  "companySize": "Medium (51-200)",
+                  "companyCulture": "Startup / Scale-up",
+                  "sector": "Productivity SaaS",
+                  "startMonth": "Mar",
+                  "startYear": "2025",
+                  "endMonth": "",
+                  "endYear": "",
+                  "isCurrent": true
+                },
+                {
+                  "title": "VP, Chief of Staff - Founder & CEO",
+                  "companyName": "Mews",
+                  "companySize": "Enterprise (1000-5000)",
+                  "companyCulture": "Startup / Scale-up",
+                  "sector": "Hospitality SaaS",
+                  "startMonth": "Feb",
+                  "startYear": "2023",
+                  "endMonth": "",
+                  "endYear": "",
+                  "isCurrent": false
+                },
+                {
+                  "title": "Head of Operations, Finance & People",
+                  "companyName": "Mavenoid",
+                  "companySize": "Medium (51-200)",
+                  "companyCulture": "Startup / Scale-up",
+                  "sector": "AI SaaS",
+                  "startMonth": "Aug",
+                  "startYear": "2020",
+                  "endMonth": "Sep",
+                  "endYear": "2022",
+                  "isCurrent": false
+                },
+                {
+                  "title": "Product Manager",
+                  "companyName": "TomTom",
+                  "companySize": "Enterprise (1000-5000)",
+                  "companyCulture": "Startup / Scale-up",
+                  "sector": "Navigation Software",
+                  "startMonth": "Aug",
+                  "startYear": "2018",
+                  "endMonth": "Aug",
+                  "endYear": "2020",
+                  "isCurrent": false
+                },
+                {
+                  "title": "VP People & Operations",
+                  "companyName": "Cogna",
+                  "companySize": "Medium (51-200)",
+                  "companyCulture": "Startup / Scale-up",
+                  "sector": "SaaS",
+                  "startMonth": "Dec",
+                  "startYear": "2025",
+                  "endMonth": "",
+                  "endYear": "",
+                  "isCurrent": true
+                }
+              ],
+              "11111111-1111-1111-1111-111111111113": 34,
+              "11111111-1111-1111-1111-111111111114": "Northern and Western Europe",
+              "11111111-1111-1111-1111-111111111115": [
+                "Finding a **new career path** that better suits my skills and interests"
+              ],
+              "11111111-1111-1111-1111-111111111116": "Bachelor's degree",
+              "11111111-1111-1111-1111-111111111117": "English Literature; Engineering Leadership",
+              "11111111-1111-1111-1111-111111111118": 12,
+              "11111111-1111-1111-1111-111111111119": "**Executive function** (VP to C-suite roles or equivalent senior leadership positions with comprehensive organizational responsibilities)",
+              "11111111-1111-1111-1111-11111111111a": "Natasha Osborne Geurts",
+              "11111111-1111-1111-1111-11111111111b": "She / Her",
+              "11111111-1111-1111-1111-11111111111d": [
+                {
+                  "title": "Independent Supervisory Board Member",
+                  "companyName": "Toggl",
+                  "happiness": 9,
+                  "reason": "Highly strategic work, limited commitment (one day per month), excellent pay"
+                },
+                {
+                  "title": "VP, Chief of Staff - Founder & CEO",
+                  "companyName": "Mews",
+                  "happiness": 7,
+                  "reason": "Powerful role, great access, smart people, too much focus on using organization and admin skills in the role, dreadful political culture, micromanagement from manager"
+                },
+                {
+                  "title": "Head of Operations, Finance & People",
+                  "companyName": "Mavenoid",
+                  "happiness": 8,
+                  "reason": "Powerful role, interesting problems, exciting trajectory, overbearing and relentlessly critical manager"
+                },
+                {
+                  "title": "Product Manager",
+                  "companyName": "TomTom",
+                  "happiness": 4,
+                  "reason": "Easy role, boring and too slow"
+                },
+                {
+                  "title": "VP People & Operations",
+                  "companyName": "Cogna",
+                  "happiness": 9,
+                  "reason": "Passionate about the subject matter (People), important and powerful role, great management relationship"
+                }
+              ],
+              "11111111-1111-1111-1111-11111111111f": {
+                "topSkills": [
+                  "Strategic Finance",
+                  "People Management",
+                  "Executive Coaching"
+                ],
+                "certifications": [
+                  "Product Management Certificate",
+                  "Leadership & Strategy Certification"
+                ],
+                "achievements": [
+                  {
+                    "company": "Mavenoid",
+                    "yearRange": "",
+                    "text": "Led successful Series B and B+ fundraising rounds totaling $30M"
+                  },
+                  {
+                    "company": "Mews",
+                    "yearRange": "",
+                    "text": "Drove company-wide strategic shift towards AI & automation through financial analysis"
+                  },
+                  {
+                    "company": "Uber",
+                    "yearRange": "",
+                    "text": "Product leader for Uber Airports, the business' most profitable vertical in 2017"
+                  },
+                  {
+                    "company": "Toggl",
+                    "yearRange": "2025–Present",
+                    "text": "Reorganization; Strategic product pivot"
+                  },
+                  {
+                    "company": "TomTom",
+                    "yearRange": "2018–2020",
+                    "text": "Determined the strategic direction for an app with 50,000 users"
+                  },
+                  {
+                    "company": "Cogna",
+                    "yearRange": "2025–Present",
+                    "text": "Drove company-wide up-skilling initiative; Introduced performance management system"
+                  }
+                ]
+              },
+              "11111111-1111-1111-1111-111111111120": {
+                "interests": [
+                  "Bouldering",
+                  "Writing",
+                  "Reading"
+                ]
+              },
+              "11111111-1111-1111-1111-111111111121": "I'm very interested in human behavior. That's what I like to read and write about. For example, I like to read books by Alain De Botton, Erin Meyer, Ian Lelsie and Yuval Noah Harari. I also have excellent business acumen, and am an expert in leading high performance teams in the specific field of software. My favorite business book is The Hard Thing about Hard Things.",
+              "22222222-2222-2222-2222-222222222221": "**Somewhat Energized** (I enjoy it, but have a limit)",
+              "22222222-2222-2222-2222-222222222222": "The long-term, big-picture ideas and impact",
+              "22222222-2222-2222-2222-222222222223": "**Decisive** (Decide immediately to keep moving)",
+              "22222222-2222-2222-2222-222222222224": "Use analogies and metaphors to explain concepts",
+              "22222222-2222-2222-2222-222222222225": "**Leaning Structure** (I handle ambiguity well, but appreciate some structure)",
+              "22222222-2222-2222-2222-222222222226": "I prioritize securing the best outcome for myself or my team first",
+              "22222222-2222-2222-2222-222222222227": "**Highly Flexible** (Minimal structure and maximum autonomy)",
+              "22222222-2222-2222-2222-222222222228": "Very comfortable",
+              "22222222-2222-2222-2222-222222222229": "**Leaning Action** (Tend to act quickly, with a brief pause)",
+              "22222222-2222-2222-2222-22222222222a": [
+                "Taking on too much responsibility",
+                "Being overly critical of self or others",
+                "Procrastination"
+              ],
+              "33333333-3333-3333-3333-333333333331": [
+                "**Autonomy** (e.g., having independence in work, making decisions)",
+                "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)",
+                "**Accomplishment & Recognition** (e.g., reaching significant milestones, excelling in work, receiving awards)",
+                "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)",
+                "**Job Stability & Financial Security** (e.g., long-term stability, financial reliability)",
+                "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)",
+                "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)",
+                "**Creativity** (e.g., having the freedom to innovate, engaging in creative problem-solving)"
+              ],
+              "33333333-3333-3333-3333-333333333332": "Very",
+              "33333333-3333-3333-3333-333333333333": "Very",
+              "33333333-3333-3333-3333-333333333334": "Standard 9-to-5 schedule",
+              "33333333-3333-3333-3333-333333333335": "Moderately important: I value salary but also consider other factors",
+              "33333333-3333-3333-3333-333333333336": "150,000–250,000",
+              "33333333-3333-3333-3333-333333333337": "High salary",
+              "33333333-3333-3333-3333-333333333338": [
+                "**Sales, negotiation, or client-facing roles** (e.g., pitching ideas, persuading clients, managing external relationships)",
+                "**Limited learning or growth opportunities** (e.g., repetitive tasks, no clear professional development path)"
+              ],
+              "44444444-4444-4444-4444-444444444441": [
+                "Business Strategy & Consulting",
+                "Human Resources & People Operations",
+                "Education & Learning"
+              ],
+              "44444444-4444-4444-4444-444444444442": [
+                "**The Communicator** (articulates ideas effectively, fosters understanding)",
+                "**The Leader** (motivates teams, sets direction, takes initiative)"
+              ],
+              "44444444-4444-4444-4444-444444444443": "Innovative and forward-thinking",
+              "44444444-4444-4444-4444-444444444444": "Strategic Finance, Operations Management, People Leadership, Fundraising, Product Strategy, Business, Literature",
+              "44444444-4444-4444-4444-444444444445": "Very familiar. I frequently use AI tools",
+              "44444444-4444-4444-4444-444444444446": [
+                "**People Management and Recruitment** (e.g., employee engagement and happiness, talent acquisition strategies)",
+                "**Project Management and Leadership** (e.g., effective team leadership, managing large-scale projects)"
+              ],
+              "44444444-4444-4444-4444-444444444447": [
+                "Manufacturing and Physical Labor",
+                "Retail, Hospitality, and Customer Service",
+                "Agriculture and Outdoor Work",
+                "Legal Professions"
+              ],
+              "44444444-4444-4444-4444-444444444448": "Non-Fiction Writer, own a small business focused on education, Chief People Officer",
+              "55555555-5555-5555-5555-555555555551": "Offer ideas and actively engage in discussions.",
+              "55555555-5555-5555-5555-555555555552": "Achieving common goals",
+              "55555555-5555-5555-5555-555555555553": "Medium (6-10 people)",
+              "55555555-5555-5555-5555-555555555554": "Address them directly to find a solution",
+              "55555555-5555-5555-5555-555555555555": [
+                "Trusting team members to complete tasks",
+                "Difficulty giving or receiving feedback"
+              ],
+              "55555555-5555-5555-5555-555555555556": "**Pressure-Dependent** (I need the urgency of approaching deadlines to focus effectively)",
+              "55555555-5555-5555-5555-555555555557": "Delegating autonomy and trusting me to figure things out",
+              "55555555-5555-5555-5555-555555555558": "Approach them privately to share your point of view",
+              "66666666-6666-6666-6666-666666666661": "I find it challenging and may struggle to apply it",
+              "66666666-6666-6666-6666-666666666662": "Try to be encouraging but are careful not to offend.",
+              "66666666-6666-6666-6666-666666666663": "Provide practical help or solutions",
+              "66666666-6666-6666-6666-666666666664": "Remain calm and control your emotions effectively",
+              "66666666-6666-6666-6666-666666666665": "Talk to colleagues or friends for support",
+              "66666666-6666-6666-6666-666666666666": "Keep it mostly work-focused but join social events occasionally.",
+              "66666666-6666-6666-6666-666666666667": [
+                "Providing constructive feedback",
+                "Managing stress effectively"
+              ],
+              "77777777-7777-7777-7777-777777777771": [
+                "Expand my professional network"
+              ],
+              "77777777-7777-7777-7777-777777777772": [
+                "Establish expertise and recognition in my field",
+                "Achieve financial independence"
+              ],
+              "77777777-7777-7777-7777-777777777773": [
+                "Uncertainty about my next career step",
+                "Personal doubts or lack of confidence"
+              ],
+              "77777777-7777-7777-7777-777777777774": "Yes, if relevant to my career",
+              "77777777-7777-7777-7777-777777777775": [
+                "Leadership & Team Management",
+                "People & Culture (HR)",
+                "Communication & Public Speaking"
+              ]
+            },
+            "accessCode": "TLVE-4UPE-WFR6-YCC3",
+            "completedAt": "2026-03-27T08:34:47.342Z",
+            "surveyType": "Office / Business Pro - 2025 v1 EN",
+            "access_code_id": "f754a7bb-c835-47b9-a90c-5e55ab36b5f2",
+            "survey_id": "00000000-0000-0000-0000-000000000001"
+          },
+          "created_at": "2026-03-27T08:34:47.342Z",
+          "processing_status": "started"
+        }
+      }
+    ],
+    "Initial_summary1": [
+      {
+        "json": {
+          "text": "### **1. Core Identity & Current Status**\n- **Name:** Natasha Osborne Geurts [1a]\n- **Pronouns:** She / Her [1b]\n- **Age:** 34 [1c]\n- **Region:** Northern and Western Europe [1d]\n- **Primary Objectives/Goals:** Finding a new career path that better suits my skills and interests [1e]\n- **Current Career Situation:** Executive function (VP to C-suite roles or equivalent senior leadership positions with comprehensive organizational responsibilities) [1i]\n- **Total Years of Experience:** 12 [1h]\n\n### **2. Professional History & Sentiment Log**\n- **Detailed Career History:** [1j]\n    - **VP People & Operations**, Cogna; Medium (51-200); Startup / Scale-up; Sector: SaaS; Dates: Dec 2025 – Present\n    - **Independent Supervisory Board Member**, Toggl; Medium (51-200); Startup / Scale-up; Sector: Productivity SaaS; Dates: Mar 2025 – Present\n    - **VP, Chief of Staff - Founder & CEO**, Mews; Enterprise (1000-5000); Startup / Scale-up; Sector: Hospitality SaaS; Dates: Feb 2023 – [End date not specified]\n    - **Head of Operations, Finance & People**, Mavenoid; Medium (51-200); Startup / Scale-up; Sector: AI SaaS; Dates: Aug 2020 – Sep 2022\n    - **Product Manager**, TomTom; Enterprise (1000-5000); Startup / Scale-up; Sector: Navigation Software; Dates: Aug 2018 – Aug 2020\n- **Sentiment Log:** [1k]\n    - **Cogna (VP People & Operations):** Happiness 9. Reason: \"Passionate about the subject matter (People), important and powerful role, great management relationship\"\n    - **Toggl (Independent Supervisory Board Member):** Happiness 9. Reason: \"Highly strategic work, limited commitment (one day per month), excellent pay\"\n    - **Mews (VP, Chief of Staff):** Happiness 7. Reason: \"Powerful role, great access, smart people, too much focus on using organization and admin skills in the role, dreadful political culture, micromanagement from manager\"\n    - **Mavenoid (Head of Operations, Finance & People):** Happiness 8. Reason: \"Powerful role, interesting problems, exciting trajectory, overbearing and relentlessly critical manager\"\n    - **TomTom (Product Manager):** Happiness 4. Reason: \"Easy role, boring and too slow\"\n- **Skills & Technical Footprint:** \n  - **Top Skills:** Strategic Finance, People Management, Executive Coaching [1l]\n  - **Certifications:** Product Management Certificate, Leadership & Strategy Certification [1l]\n  - **Notable Achievements:** [1l]\n    - **Mavenoid:** \"Led successful Series B and B+ fundraising rounds totaling $30M\"\n    - **Mews:** \"Drove company-wide strategic shift towards AI & automation through financial analysis\"\n    - **Uber:** \"Product leader for Uber Airports, the business' most profitable vertical in 2017\"\n    - **Toggl:** \"Reorganization; Strategic product pivot\"\n    - **TomTom:** \"Determined the strategic direction for an app with 50,000 users\"\n    - **Cogna:** \"Drove company-wide up-skilling initiative; Introduced performance management system\"\n  - **Specialized Knowledge:** Strategic Finance, Operations Management, People Leadership, Fundraising, Product Strategy, Business, Literature [4d]\n  - **AI Familiarity:** Very familiar. I frequently use AI tools [4e]\n\n### **3. Education & Personal Context**\n- **Education Level:** Bachelor's degree [1f]\n- **Field of Study:** English Literature; Engineering Leadership [1g]\n- **Personal Interests/Hobbies:** Bouldering, Writing, Reading [1m]\n- **Additional Context/Constraints:** Candidate reports: \"I'm very interested in human behavior. That's what I like to read and write about. For example, I like to read books by Alain De Botton, Erin Meyer, Ian Lelsie and Yuval Noah Harari. I also have excellent business acumen, and am an expert in leading high performance teams in the specific field of software. My favorite business book is The Hard Thing about Hard Things.\" [1n]\n- **Dream Jobs:** Non-Fiction Writer, own a small business focused on education, Chief People Officer [4h]\n\n### **4. Values, Compensation & Work Preferences**\n- **Ranked Career Values (High to Low):** [3a]\n    1. Autonomy (e.g., having independence in work, making decisions)\n    2. Helping Others & Making an Impact (e.g., contributing to a cause, supporting colleagues or clients)\n    3. Accomplishment & Recognition (e.g., reaching significant milestones, excelling in work, receiving awards)\n    4. Job Satisfaction (e.g., enjoying daily tasks, feeling engaged and motivated by work)\n    5. Job Stability & Financial Security (e.g., long-term stability, financial reliability)\n    6. Personal Growth & Challenge (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)\n    7. Work-Life Balance (e.g., balancing personal and professional life, flexible hours)\n    8. Creativity (e.g., having the freedom to innovate, engaging in creative problem-solving)\n- **Cultural & WLB Preferences:** \n    - **Value Alignment:** Very [3b]\n    - **WLB Importance:** Very [3c]\n    - **Preferred Culture:** Innovative and forward-thinking [4c]\n- **Logistics & Pay:** \n    - **Schedule:** Standard 9-to-5 schedule [3d]\n    - **Salary Importance:** Moderately important: I value salary but also consider other factors [3e]\n    - **Bracket:** 150,000–250,000 [3f]\n    - **Pay Priority:** High salary [3g]\n\n### **5. Behavioral & Operational Profile**\n- **Energy & Social:** \n    - **Social energy:** Somewhat Energized (I enjoy it, but have a limit) [2a]\n    - **Colleague interaction:** Keep it mostly work-focused but join social events occasionally. [6f]\n- **Cognitive Style:** \n    - **Decision focus:** The long-term, big-picture ideas and impact [2b]\n    - **Decision speed:** Decisive (Decide immediately to keep moving) [2c]\n    - **Communication style:** Use analogies and metaphors to explain concepts [2d]\n    - **Change response:** Leaning Structure (I handle ambiguity well, but appreciate some structure) [2e]\n- **Operational Style:** \n    - **Environment structure:** Highly Flexible (Minimal structure and maximum autonomy) [2g]\n    - **Risk tolerance:** Very comfortable [2h]\n    - **Stress response:** Leaning Action (Tend to act quickly, with a brief pause) [2i]\n    - **Time management:** Pressure-Dependent (I need the urgency of approaching deadlines to focus effectively) [5f]\n- **Hindrances/Growth Areas:** Candidate reports: Taking on too much responsibility, Being overly critical of self or others, Procrastination [2j]\n\n### **6. Team Dynamics & Emotional Intelligence**\n- **Collaboration Style:** \n    - **Team role:** Offer ideas and actively engage in discussions. [5a]\n    - **Motivator:** Achieving common goals [5b]\n    - **Preferred size:** Medium (6-10 people) [5c]\n    - **Conflict style:** Address them directly to find a solution [5d]; I prioritize securing the best outcome for myself or my team first [2f]\n- **Management Interaction:** \n    - **Preferred Leadership:** Delegating autonomy and trusting me to figure things out [5g]\n    - **Response to Disagreement:** Approach them privately to share your point of view [5h]\n- **EI & Feedback:** \n    - **Handling Feedback:** I find it challenging and may struggle to apply it [6a]\n    - **Providing Feedback:** Try to be encouraging but are careful not to offend. [6b]\n    - **Support style:** Provide practical help or solutions [6c]\n    - **Emotional regulation:** Remain calm and control your emotions effectively [6d]\n    - **Stress coping:** Talk to colleagues or friends for support [6e]\n    - **EI Challenges:** Providing constructive feedback, Managing stress effectively [6g]\n\n### **7. Future Trajectory & Constraints**\n- **Goals:** \n    - **Short-term:** Expand my professional network [7a]\n    - **Long-term:** Establish expertise and recognition in my field, Achieve financial independence [7b]\n- **Developmental Drive:** \n    - **Barriers:** Uncertainty about my next career step, Personal doubts or lack of confidence [7c]\n    - **Interest in new skills:** Yes, if relevant to my career [7d]\n    - **Areas to develop:** Leadership & Team Management, People & Culture (HR), Communication & Public Speaking [7e]\n    - **Workshop topics:** People Management and Recruitment (e.g., employee engagement and happiness, talent acquisition strategies), Project Management and Leadership (e.g., effective team leadership, managing large-scale projects) [4f]\n- **Areas of Interest & Archetypes:** \n    - **Interests:** Business Strategy & Consulting, Human Resources & People Operations, Education & Learning [4a]\n    - **Archetypes:** The Communicator (articulates ideas effectively, fosters understanding), The Leader (motivates teams, sets direction, takes initiative) [4b]\n- **Avoidance List (Hard Constraints):** \n    - **Avoided work aspects:** Sales, negotiation, or client-facing roles (e.g., pitching ideas, persuading clients, managing external relationships), Limited learning or growth opportunities (e.g., repetitive tasks, no clear professional development path) [3h]\n    - **Avoided industries:** Manufacturing and Physical Labor, Retail, Hospitality, and Customer Service, Agriculture and Outdoor Work, Legal Professions [4g]"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "generate_personality_narrative1": [
+      {
+        "json": {
+          "text": "## Understanding Your Approach\n\n**Personality and Interaction Style**\n\nYou read the room quickly and move fast. When a decision needs to be made, you make it. When a problem surfaces, you act. This decisiveness is not impulsiveness; you pause briefly, weigh the big picture, then commit. That combination of speed and strategic framing makes you effective in fast-moving environments where most people are still waiting for consensus.\n\nYou communicate through analogy and metaphor, which means you translate complexity into something people can actually grasp. In rooms full of technical or operational detail, that skill cuts through noise. You engage actively in discussions, offer ideas freely, and bring energy to team conversations. But you also have a ceiling on social input. You enjoy people, and you need a break from them.\n\n**Your Conflict Style**\n\nYou address conflict directly and prioritize outcomes for yourself and your team. That combination can look assertive in well-functioning cultures and abrasive in political ones. Your Mews experience illustrates this: a micromanaged, politically charged environment produced friction precisely because your style depends on trust, access, and autonomy. When those conditions disappear, your effectiveness takes a real hit.\n\n**Impact in Different Environments**\n\nYou do your best work when you are trusted to figure things out. Delegating autonomy is not just a preference for you, it is a structural requirement. Without it, you absorb too much, become the bottleneck, and start doing work that should belong to others. Your hindrances, taking on too much responsibility and being overly self-critical, are not random. They activate when the environment does not give you enough room.\n\nYou also need deadlines to focus. In highly autonomous roles, external pressure often disappears. That means you have to manufacture urgency yourself, which is harder than it sounds and something worth building deliberately.\n\n**Key Insight**\n\nYour happiness data shows a clear pattern: roles that gave you power and access scored well, regardless of workload. Roles with political friction or micromanagement scored poorly, regardless of the work itself. What this reveals is that your performance is environment-dependent in a specific way. You are not a \"push through anything\" operator. You need psychological safety and structural trust to function at your best. That is not a weakness, but it does mean that evaluating future roles on culture and management style matters more for you than almost anything else on a job description.\n\n---\n\n## Strengths and How to Grow Them\n\n**Identifying Your Core Strengths**\n\nYou hold together things that rarely coexist. Financial fluency, people leadership, operational execution, and product thinking are usually distributed across four different people. You carry them in one profile. That breadth is not accidental. It reflects a consistent pattern across your career: you move toward complexity, take on broad remit roles, and deliver across functions simultaneously.\n\nYour fundraising work, your AI-driven strategic pivots, your board-level involvement at Toggl while operating at VP level elsewhere, all of these point to someone who can zoom out to the strategic frame and zoom in to the execution detail without losing either perspective.\n\n**How You Think**\n\nYou are a big-picture thinker who is also comfortable with the granular. You use analogies to explain concepts, which means you have developed the ability to hold an abstract idea and a concrete example at the same time. That is actually how good strategic communication works. You are not just smart about ideas; you make ideas land for other people.\n\nYour interest in human behavior, reinforced by what you read and write about, adds another layer. You understand why people do what they do. That is a serious asset in people leadership, organizational design, and anything involving culture change.\n\n**Leveraging Strengths in Your Career**\n\nThe combination of financial acumen, people expertise, and behavioral intelligence makes you well-suited to roles that sit at the intersection of organizational health and business performance. Chief People Officers, executive advisors, and board members are not just HR experts or strategy consultants. They are people who can speak both languages fluently. You already do that.\n\nYour board role at Toggl is worth examining as a model. High autonomy, strategic scope, limited time commitment, excellent compensation, and a happiness score of nine. That configuration tells you something about where your strengths land most effectively.\n\n**Key Insight**\n\nYour real edge is translation, not expertise in any single domain. You convert financial data into people decisions, people dynamics into business outcomes, and complex organizational challenges into clear narratives others can act on. Most operators specialize. You synthesize. That puts you in a different category, not deeper in one lane, but spanning the gaps between lanes that most organizations struggle to bridge internally.\n\n---\n\n## Areas for Development\n\n**Understanding Potential Growth Areas**\n\nYou have three hindrances worth taking seriously: taking on too much responsibility, being overly self-critical, and procrastinating. These are not independent habits. They form a loop. You hold high standards, which makes delegation feel risky, which means you absorb more than you should, which creates overload, which triggers procrastination as a pressure-release valve. The deadline urgency you rely on for focus is partly a symptom of this cycle.\n\nYour feedback profile adds another dimension. You find it challenging to receive feedback and apply it. You are careful not to offend when giving it. This means feedback flows awkwardly in both directions, which has real consequences when you are leading teams or being led.\n\n**Implications for Your Growth**\n\nYou have flagged leadership and people management as areas you want to develop further. That is the right instinct, and the timing matters. As AI tools absorb more analytical and operational work, what organizations increasingly need from senior leaders is not processing power. They need people who can manage ambiguity in human systems: building trust across teams, coaching individuals through change, creating cultures where people do their best work.\n\nEmpathy, constructive feedback, and the ability to sit with someone's difficulty rather than immediately solving it are not soft extras. They are the core leadership competencies that AI cannot replicate. If you want to lead at the CPO level or shape organizational culture from the top, developing these specifically is not optional. It is the work.\n\n**Your Growth Edge**\n\nYou are emotionally regulated under pressure, which is a genuine asset. But staying calm is different from being emotionally available to others. Your default support mode is practical solutions. That works brilliantly for operational problems. It works less well when someone needs to feel heard before they can act. Stretching into that space, without abandoning your directness, is where your leadership range expands.\n\n**Key Insight**\n\nYour procrastination and your self-criticism are the same mechanism pointing in different directions. Self-criticism raises the bar so high that starting feels impossible, so you wait. Then the deadline forces the start, and you deliver. You have probably told yourself this is \"how you work.\" But it is also how you keep yourself in a low-grade state of pressure that eventually becomes unsustainable. The pattern that produces results in the short term is quietly accumulating cost over time.\n\n---\n\n## Aligning with Your Values\n\n**Identifying Your Core Values**\n\nAutonomy sits at the top of your values list, and your career history backs it up consistently. Your highest-scoring roles gave you real authority, broad scope, and room to make decisions. Your lowest-scoring role was slow, narrow, and controlled. You are not someone who tolerates constraints well when they feel arbitrary or limiting.\n\nHelping others and making an impact rank second, which aligns with your draw toward people-focused work, your interest in human behavior, and your dream of roles like Chief People Officer or owning an education-focused business. These are not disconnected. They reflect a coherent thread: you want to shape how people develop, perform, and experience their work.\n\n**Values in Career Decisions**\n\nAccomplishment and recognition rank third. That matters more than it might appear. You are not looking for quiet, behind-the-scenes work. You want your contributions seen and acknowledged. This should factor directly into how you evaluate roles. Positions with high visibility, strategic influence, and clear ownership of outcomes will suit you better than roles where your work gets absorbed into someone else's agenda.\n\nYour lower ranking for work-life balance is worth examining. You listed it seventh, but also stated it is \"very important\" to you. That tension shows up in your habits too: you take on too much, you have a 9-to-5 preference, but your career has likely demanded more. The gap between what you say you value and how you currently operate is worth closing deliberately.\n\n**Key Insight**\n\nYou have framed your current goal as finding a career path that better suits your skills and interests. But your values data and happiness scores suggest the issue is less about the type of work and more about the conditions surrounding it. Your highest-scoring roles were not defined by sector or job title. They were defined by autonomy, strong management relationships, and meaningful scope. Those conditions can exist in multiple contexts. The question worth sitting with is not \"what should I do next?\" but \"what conditions do I need, and how do I make them non-negotiable going forward?\""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Survey complete Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Process Survey Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep init_summary": {
+      "main": [
+        [
+          {
+            "node": "prompt_perso_prof1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SB insert all sections": {
+      "main": [
+        [
+          {
+            "node": "update status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pass report_id to WF2": {
+      "main": [
+        [
+          {
+            "node": "Execute Suitable Jobs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Survey Data1": {
+      "main": [
+        [
+          {
+            "node": "prompt_init_summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt_init_summary1": {
+      "main": [
+        [
+          {
+            "node": "Initial_summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initial_summary1": {
+      "main": [
+        [
+          {
+            "node": "Prep init_summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3F": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Initial_summary1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt_perso_prof1": {
+      "main": [
+        [
+          {
+            "node": "generate_personality_narrative1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_personality_narrative1": {
+      "main": [
+        [
+          {
+            "node": "extract_report_sections_code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "generate_personality_narrative1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_report_sections_code1": {
+      "main": [
+        [
+          {
+            "node": "SB insert all sections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update status1": {
+      "main": [
+        [
+          {
+            "node": "pass report_id to WF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rep_id1": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "FbsruPbuZI2Fgtc8",
+    "timeSavedMode": "fixed",
+    "availableInMCP": false
+  },
+  "versionId": "2acab8a3-cd39-47a2-b8d7-54679f3d8f9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2e7b430fdf0c0933b51e03975e465d1a7e5fdf56715539d5a6635a3c8f962dc4"
+  },
+  "id": "nupGvBByAGh4A9tL",
+  "tags": []
+}
