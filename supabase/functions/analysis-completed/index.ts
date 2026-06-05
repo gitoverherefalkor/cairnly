@@ -76,7 +76,6 @@ serve(async (req) => {
     const chatUrl = `https://cairnly.io/chat`;
 
     const firstName = profile.first_name || 'there';
-    const titleSuffix = updated.title ? ` "${updated.title}"` : '';
     const lang: 'en' | 'nl' =
       (profile as { preferred_language?: string }).preferred_language === 'nl' ? 'nl' : 'en';
 
@@ -84,22 +83,20 @@ serve(async (req) => {
     // no em-dashes, brand terms in English). See LOCALIZATION_PLAYBOOK.md.
     const COPY = {
       en: {
-        subject: 'Your Cairnly career report is ready',
+        subject: 'Your Cairnly analysis is ready',
         preheader: 'Your assessment has been analyzed and is ready to walk through.',
-        h1: `Your career analysis is ready, ${firstName}`,
-        p1: `Your assessment${titleSuffix} has been analyzed and your AI career coach is ready to walk you through the results.`,
-        p2: "The coaching chat is the core of the Cairnly experience. It covers your personality profile, strengths, career matches, and dream job analysis, section by section, with you in the driver's seat.",
+        h1: `Your personality & career analysis is ready, ${firstName}`,
+        p1: `We've analyzed your survey and mapped out your personality profile, natural strengths, best-fit careers, and dream job fit. Your AI career coach is ready to walk you through every section.`,
         calloutTitle: 'Typically takes 20-30 minutes',
         calloutBody: 'Your session is saved if you need to pause and come back.',
         cta: 'Start Your Coaching Session',
         fineprint: 'If you did not request this, you can ignore this email.',
       },
       nl: {
-        subject: 'Je Cairnly loopbaanrapport is klaar',
+        subject: 'Je Cairnly analyse is klaar',
         preheader: 'Je assessment is geanalyseerd en klaar om door te nemen.',
-        h1: `Je loopbaananalyse is klaar, ${firstName}`,
-        p1: `Je assessment${titleSuffix} is geanalyseerd en je AI-loopbaancoach staat klaar om je door de resultaten te loodsen.`,
-        p2: "De coaching chat is de kern van de Cairnly-ervaring. Hij behandelt je persoonlijkheidsprofiel, sterke punten, loopbaanmatches en droombaan-analyse, sectie voor sectie, met jou aan het stuur.",
+        h1: `Je persoonlijkheids- & loopbaananalyse is klaar, ${firstName}`,
+        p1: `We hebben je enquête geanalyseerd en een volledig beeld opgebouwd van je persoonlijkheid, sterke punten, passende carrières en droombaan. Je AI-loopbaancoach staat klaar om je er doorheen te leiden.`,
         calloutTitle: 'Duurt meestal 20-30 minuten',
         calloutBody: 'Je sessie wordt opgeslagen als je even wilt pauzeren en later verder wilt.',
         cta: 'Start je coachingsessie',
@@ -113,7 +110,6 @@ serve(async (req) => {
       bodyRow(
         h1(c.h1) +
         paragraph(c.p1) +
-        paragraph(c.p2) +
         callout(c.calloutTitle, `
           <p style="margin:0;color:#3D4A53;font-size:14.5px;line-height:1.65;font-family:'Inter',Arial,sans-serif;font-weight:500;">
             ${c.calloutBody}
