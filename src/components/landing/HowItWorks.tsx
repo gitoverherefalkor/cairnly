@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Briefcase } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
 import WorkflowDiagramSimple from './WorkflowDiagramSimple';
@@ -149,7 +149,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[0]?.screenshotMeta}
-                  src="/images/landing/step1-assessment.png"
+                  src="/images/landing/take_assessment_jun26.png"
                   alt={steps[0]?.screenshotAlt}
                 />
               }
@@ -185,7 +185,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[2]?.screenshotMeta}
-                  src="/images/landing/hero-ai-coach.png"
+                  src="/images/landing/chat_with_coach_jun26.png"
                   alt={steps[2]?.screenshotAlt}
                 />
               }
@@ -199,7 +199,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[3]?.screenshotMeta}
-                  src="/images/landing/step4-dashboard.png"
+                  src="/images/landing/get_report_jun26.png"
                   alt={steps[3]?.screenshotAlt}
                 />
               }
@@ -216,14 +216,12 @@ const HowItWorks: React.FC = () => {
                 </p>
               }
               visual={
-                <div className="lp-screenshot-slot lp-screenshot-slot--placeholder aspect-[4/3] w-full">
-                  <div className="lp-screenshot-slot__meta">{steps[4]?.screenshotMeta}</div>
-                  <div className="lp-screenshot-slot__inner">
-                    <Briefcase size={36} strokeWidth={1.5} />
-                    <div className="lp-screenshot-slot__label">{steps[4]?.screenshotLabel}</div>
-                    <div className="lp-screenshot-slot__desc">{steps[4]?.screenshotDesc}</div>
-                  </div>
-                </div>
+                <ScreenshotSlot
+                  aspect="aspect-[4/3]"
+                  meta={steps[4]?.screenshotMeta}
+                  src="/images/landing/land_the_job_jun26_v2.png"
+                  alt={steps[4]?.screenshotAlt || steps[4]?.screenshotLabel}
+                />
               }
             />
           </div>

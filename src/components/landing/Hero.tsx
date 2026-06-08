@@ -83,7 +83,7 @@ const Hero: React.FC = () => {
               onDark
               aspect="aspect-[5/4]"
               meta={t('hero.screenshotMeta')}
-              src="/images/landing/hero-ai-coach.png"
+              src="/images/landing/hero_image_jun26.png"
               alt={t('hero.screenshotAlt')}
             />
           </Reveal>
