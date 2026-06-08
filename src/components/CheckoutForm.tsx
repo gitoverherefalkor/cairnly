@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -30,27 +31,21 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Lock } from "lucide-react";
 
-const formSchema = z.object({
-  firstName: z.string().min(2, {
-    message: "First name must be at least 2 characters.",
-  }),
-  lastName: z.string().min(2, {
-    message: "Last name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  country: z.string().min(2, {
-    message: "Please select a country.",
-  }),
-  businessName: z.string().optional(),
-  vatNumber: z.string().optional(),
-  acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the Privacy Policy and Terms of Service." }),
-  }),
-});
+// Schema is built with the translation fn so validation messages are localized.
+const buildFormSchema = (t: (key: string) => string) =>
+  z.object({
+    firstName: z.string().min(2, { message: t('validation.firstName') }),
+    lastName: z.string().min(2, { message: t('validation.lastName') }),
+    email: z.string().email({ message: t('validation.email') }),
+    country: z.string().min(2, { message: t('validation.country') }),
+    businessName: z.string().optional(),
+    vatNumber: z.string().optional(),
+    acceptTerms: z.literal(true, {
+      errorMap: () => ({ message: t('validation.acceptTerms') }),
+    }),
+  });
 
-type CheckoutFormValues = z.infer<typeof formSchema>;
+type CheckoutFormValues = z.infer<ReturnType<typeof buildFormSchema>>;
 
 // Common countries list
 const countries = [
@@ -121,7 +116,9 @@ export function CheckoutForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  
+  const { t } = useTranslation('payment');
+  const formSchema = useMemo(() => buildFormSchema(t), [t]);
+
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -233,19 +230,19 @@ export function CheckoutForm() {
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-      
+      const errorMessage = error instanceof Error ? error.message : t('errors.generic');
+
       // Show a more detailed error for common issues
       if (errorMessage.includes("Invalid API Key")) {
-        setError("Payment system is not properly configured. Please try again later or contact support.");
+        setError(t('errors.notConfigured'));
       } else if (errorMessage.includes("account") && errorMessage.includes("active")) {
-        setError("Payment system is not activated yet. Please try again later.");
+        setError(t('errors.notActivated'));
       } else {
         setError(errorMessage);
       }
-      
+
       toast({
-        title: "Checkout Failed",
+        title: t('errors.title'),
         description: errorMessage,
         variant: "destructive",
       });
@@ -267,10 +264,10 @@ export function CheckoutForm() {
           className="font-heading uppercase text-[11px]"
           style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
         >
-          Your Information
+          {t('form.eyebrow')}
         </span>
         <p className="text-[13px] font-medium mt-2 leading-snug" style={{ color: '#4B6373' }}>
-          Please fill in your details below. Business customers can enter their company info for invoicing.
+          {t('form.intro')}
         </p>
       </div>
 
@@ -282,7 +279,7 @@ export function CheckoutForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={labelCls}>First Name</FormLabel>
+                  <FormLabel className={labelCls}>{t('form.firstName')}</FormLabel>
                   <FormControl>
                     <Input placeholder="Claire" className={inputCls} {...field} />
                   </FormControl>
@@ -295,7 +292,7 @@ export function CheckoutForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={labelCls}>Last Name</FormLabel>
+                  <FormLabel className={labelCls}>{t('form.lastName')}</FormLabel>
                   <FormControl>
                     <Input placeholder="Ritty" className={inputCls} {...field} />
                   </FormControl>
@@ -310,7 +307,7 @@ export function CheckoutForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelCls}>Email</FormLabel>
+                <FormLabel className={labelCls}>{t('form.email')}</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="claire.ritty@email.com" className={inputCls} {...field} />
                 </FormControl>
@@ -324,11 +321,11 @@ export function CheckoutForm() {
             name="country"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelCls}>Country</FormLabel>
+                <FormLabel className={labelCls}>{t('form.country')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger className={inputCls}>
-                      <SelectValue placeholder="Select a country" />
+                      <SelectValue placeholder={t('form.countryPlaceholder')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -351,7 +348,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className={labelCls}>
-                    Business Name <span className={optionalCls}>(optional)</span>
+                    {t('form.businessName')} <span className={optionalCls}>{t('form.optional')}</span>
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="Atlas Solutions BV" className={inputCls} {...field} />
@@ -366,7 +363,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className={labelCls}>
-                    VAT Number <span className={optionalCls}>(optional)</span>
+                    {t('form.vatNumber')} <span className={optionalCls}>{t('form.optional')}</span>
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="NL123456789B01" className={inputCls} {...field} />
@@ -394,23 +391,23 @@ export function CheckoutForm() {
                     className="text-[13px] font-medium leading-snug"
                     style={{ color: '#4B6373' }}
                   >
-                    I agree to the{' '}
+                    {t('form.agreePrefix')}{' '}
                     <a
                       href="/privacy-policy"
                       target="_blank"
                       className="underline hover:opacity-80"
                       style={{ color: '#1F8282' }}
                     >
-                      Privacy Policy
+                      {t('form.privacyPolicy')}
                     </a>{' '}
-                    and{' '}
+                    {t('form.and')}{' '}
                     <a
                       href="/terms-conditions"
                       target="_blank"
                       className="underline hover:opacity-80"
                       style={{ color: '#1F8282' }}
                     >
-                      Terms of Service
+                      {t('form.termsOfService')}
                     </a>
                   </FormLabel>
                   <FormMessage />
@@ -430,7 +427,7 @@ export function CheckoutForm() {
             disabled={isLoading}
             className="w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
           >
-            {isLoading ? 'Processing…' : 'Proceed to Checkout'}
+            {isLoading ? t('form.submitting') : t('form.submit')}
           </Button>
 
           {/* Footer microcopy */}
@@ -443,13 +440,13 @@ export function CheckoutForm() {
               style={{ color: '#6B7F8B' }}
             >
               <Lock className="h-3 w-3" />
-              Your payment is handled by Stripe. We never see or store your card details.
+              {t('form.secureNote')}
             </p>
             <p
               className="text-[11.5px] font-medium leading-snug"
               style={{ color: '#6B7F8B' }}
             >
-              Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time.
+              {t('form.dataNote')}
             </p>
           </div>
         </form>

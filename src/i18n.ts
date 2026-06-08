@@ -26,7 +26,7 @@ i18n
     // Dutch (nl) is live as of the Phase 1.5 launch (2026-05-28).
     // See LOCALIZATION_PLAN.md for the rollout history.
     supportedLngs: ['en', 'nl'],
-    ns: ['common', 'auth', 'landing', 'survey', 'chat', 'report', 'dashboard'],
+    ns: ['common', 'auth', 'landing', 'survey', 'chat', 'report', 'dashboard', 'payment', 'support'],
     defaultNS: 'common',
 
     detection: {

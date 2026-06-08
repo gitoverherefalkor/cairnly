@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckoutForm } from '../components/CheckoutForm';
 import { useSurvey } from '../hooks/useSurvey';
 import { getSurveyIdFromAccessCode, SURVEY_TYPE_MAPPING } from '../components/assessment/constants';
@@ -6,6 +7,7 @@ import AuthShell from '@/components/auth/AuthShell';
 import AuthNavigation from '@/components/auth/AuthNavigation';
 
 export default function Payment() {
+  const { t } = useTranslation('payment');
   // Try to get accessCodeData from assessment session
   const defaultSurveyId = SURVEY_TYPE_MAPPING['Office / Business Pro - 2025 v1 EN'];
   const [accessCodeData, setAccessCodeData] = useState<any>(null);
@@ -29,9 +31,9 @@ export default function Payment() {
 
   return (
     <AuthShell
-      eyebrow="Step 1 of 2 · Checkout"
-      title="You're making a smart move."
-      subtitle="A small investment of time and money for real clarity on where your career can go next."
+      eyebrow={t('shell.eyebrow')}
+      title={t('shell.title')}
+      subtitle={t('shell.subtitle')}
       width="xwide"
       footer={<AuthNavigation />}
     >

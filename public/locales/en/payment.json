@@ -1,0 +1,40 @@
+{
+  "shell": {
+    "eyebrow": "Step 1 of 2 · Checkout",
+    "title": "You're making a smart move.",
+    "subtitle": "A small investment of time and money for real clarity on where your career can go next."
+  },
+  "form": {
+    "eyebrow": "Your Information",
+    "intro": "Please fill in your details below. Business customers can enter their company info for invoicing.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "country": "Country",
+    "countryPlaceholder": "Select a country",
+    "businessName": "Business Name",
+    "vatNumber": "VAT Number",
+    "optional": "(optional)",
+    "agreePrefix": "I agree to the",
+    "privacyPolicy": "Privacy Policy",
+    "and": "and",
+    "termsOfService": "Terms of Service",
+    "submit": "Proceed to Checkout",
+    "submitting": "Processing…",
+    "secureNote": "Your payment is handled by Stripe. We never see or store your card details.",
+    "dataNote": "Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time."
+  },
+  "validation": {
+    "firstName": "First name must be at least 2 characters.",
+    "lastName": "Last name must be at least 2 characters.",
+    "email": "Please enter a valid email address.",
+    "country": "Please select a country.",
+    "acceptTerms": "You must accept the Privacy Policy and Terms of Service."
+  },
+  "errors": {
+    "title": "Checkout Failed",
+    "notConfigured": "Payment system is not properly configured. Please try again later or contact support.",
+    "notActivated": "Payment system is not activated yet. Please try again later.",
+    "generic": "An unexpected error occurred"
+  }
+}

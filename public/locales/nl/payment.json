@@ -1,0 +1,40 @@
+{
+  "shell": {
+    "eyebrow": "Stap 1 van 2 · Afrekenen",
+    "title": "Je maakt een slimme keuze.",
+    "subtitle": "Een kleine investering in tijd en geld voor echte duidelijkheid over waar je loopbaan heen kan."
+  },
+  "form": {
+    "eyebrow": "Jouw gegevens",
+    "intro": "Vul hieronder je gegevens in. Zakelijke klanten kunnen hun bedrijfsgegevens invullen voor de factuur.",
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "email": "E-mailadres",
+    "country": "Land",
+    "countryPlaceholder": "Selecteer een land",
+    "businessName": "Bedrijfsnaam",
+    "vatNumber": "Btw-nummer",
+    "optional": "(optioneel)",
+    "agreePrefix": "Ik ga akkoord met het",
+    "privacyPolicy": "Privacybeleid",
+    "and": "en de",
+    "termsOfService": "Algemene voorwaarden",
+    "submit": "Doorgaan naar afrekenen",
+    "submitting": "Bezig…",
+    "secureNote": "Je betaling wordt afgehandeld door Stripe. Wij zien of bewaren je kaartgegevens nooit.",
+    "dataNote": "Je assessmentgegevens blijven van jou. We verkopen ze niet, we delen ze niet, en je kunt op elk moment alles permanent verwijderen uit je account."
+  },
+  "validation": {
+    "firstName": "Voornaam moet minstens 2 tekens bevatten.",
+    "lastName": "Achternaam moet minstens 2 tekens bevatten.",
+    "email": "Vul een geldig e-mailadres in.",
+    "country": "Selecteer een land.",
+    "acceptTerms": "Je moet akkoord gaan met het Privacybeleid en de Algemene voorwaarden."
+  },
+  "errors": {
+    "title": "Afrekenen mislukt",
+    "notConfigured": "Het betaalsysteem is niet juist geconfigureerd. Probeer het later opnieuw of neem contact op met support.",
+    "notActivated": "Het betaalsysteem is nog niet geactiveerd. Probeer het later opnieuw.",
+    "generic": "Er is een onverwachte fout opgetreden"
+  }
+}

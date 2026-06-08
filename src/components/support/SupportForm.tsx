@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -77,6 +78,7 @@ interface SupportFormProps {
 const SupportForm = ({ onSuccess }: SupportFormProps) => {
   const { user } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation('support');
 
   const [category, setCategory] = useState(() =>
     defaultCategoryForPath(location.pathname),
@@ -94,15 +96,15 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
     setErrorMsg('');
 
     if (!category) {
-      setErrorMsg('Please pick what this is about.');
+      setErrorMsg(t('validation.category'));
       return;
     }
     if (message.trim().length === 0) {
-      setErrorMsg('Please enter a message.');
+      setErrorMsg(t('validation.message'));
       return;
     }
     if (!isLoggedIn && !EMAIL_RE.test(email.trim())) {
-      setErrorMsg('Please enter a valid email address.');
+      setErrorMsg(t('validation.email'));
       return;
     }
 
@@ -135,9 +137,7 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
       onSuccess?.();
     } catch {
       setStatus('error');
-      setErrorMsg(
-        'Something went wrong sending your message. Please try again, or email sjoerd@cairnly.io directly.',
-      );
+      setErrorMsg(t('validation.submitError'));
     }
   };
 
@@ -147,9 +147,9 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
         <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="h-7 w-7 text-green-600" />
         </div>
-        <h3 className="text-lg font-semibold mb-1">Thanks, message sent</h3>
+        <h3 className="text-lg font-semibold mb-1">{t('form.successTitle')}</h3>
         <p className="text-sm text-muted-foreground">
-          We'll get back to you by email soon.
+          {t('form.successBody')}
         </p>
       </div>
     );
@@ -158,15 +158,15 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="support-category">What's this about?</Label>
+        <Label htmlFor="support-category">{t('form.categoryLabel')}</Label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger id="support-category" className="mt-1.5">
-            <SelectValue placeholder="Pick a topic" />
+            <SelectValue placeholder={t('form.categoryPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
             {SUPPORT_CATEGORIES.map((c) => (
               <SelectItem key={c.value} value={c.value}>
-                {c.label}
+                {t(`categories.${c.value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -175,29 +175,25 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
 
       {!isLoggedIn && (
         <div>
-          <Label htmlFor="support-email">Your email</Label>
+          <Label htmlFor="support-email">{t('form.emailLabel')}</Label>
           <Input
             id="support-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t('form.emailPlaceholder')}
             className="mt-1.5"
           />
         </div>
       )}
 
       <div>
-        <Label htmlFor="support-message">Message</Label>
+        <Label htmlFor="support-message">{t('form.messageLabel')}</Label>
         <Textarea
           id="support-message"
           value={message}
           onChange={(e) => setMessage(e.target.value.slice(0, 5000))}
-          placeholder={
-            isBug
-              ? "Tell us what went wrong, and we'll match it up with our error logs."
-              : 'How can we help?'
-          }
+          placeholder={isBug ? t('form.messagePlaceholderBug') : t('form.messagePlaceholder')}
           rows={5}
           className="mt-1.5"
         />
@@ -206,7 +202,7 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
       {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
 
       <Button type="submit" className="w-full" disabled={status === 'submitting'}>
-        {status === 'submitting' ? 'Sending...' : 'Send message'}
+        {status === 'submitting' ? t('form.submitting') : t('form.submit')}
       </Button>
     </form>
   );

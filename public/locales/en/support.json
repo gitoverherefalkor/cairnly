@@ -1,0 +1,42 @@
+{
+  "page": {
+    "back": "Back to Home",
+    "title": "Support",
+    "intro": "Questions, problems, or ideas? Send us a message and we'll get back to you by email."
+  },
+  "dialog": {
+    "title": "Support & Feedback",
+    "description": "Questions, problems, or ideas? We read every message."
+  },
+  "button": "Feedback & Support",
+  "form": {
+    "categoryLabel": "What's this about?",
+    "categoryPlaceholder": "Pick a topic",
+    "emailLabel": "Your email",
+    "emailPlaceholder": "you@example.com",
+    "messageLabel": "Message",
+    "messagePlaceholderBug": "Tell us what went wrong, and we'll match it up with our error logs.",
+    "messagePlaceholder": "How can we help?",
+    "submit": "Send message",
+    "submitting": "Sending...",
+    "successTitle": "Thanks, message sent",
+    "successBody": "We'll get back to you by email soon."
+  },
+  "categories": {
+    "access_code_payment": "Access code / payment",
+    "assessment_survey": "Assessment / survey",
+    "ai_chat": "AI Chat",
+    "my_report": "My report",
+    "job_openings": "Job openings",
+    "account_login": "Account / login",
+    "feature_idea": "Feature idea",
+    "bug_report": "Bug report",
+    "something_else": "Something else"
+  },
+  "validation": {
+    "category": "Please pick what this is about.",
+    "message": "Please enter a message.",
+    "email": "Please enter a valid email address.",
+    "submitError": "Something went wrong sending your message. Please try again, or email sjoerd@cairnly.io directly."
+  }
+}

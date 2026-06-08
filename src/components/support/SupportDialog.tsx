@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -14,13 +15,14 @@ interface SupportDialogProps {
 }
 
 const SupportDialog = ({ open, onOpenChange }: SupportDialogProps) => {
+  const { t } = useTranslation('support');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Support &amp; Feedback</DialogTitle>
+          <DialogTitle>{t('dialog.title')}</DialogTitle>
           <DialogDescription>
-            Questions, problems, or ideas? We read every message.
+            {t('dialog.description')}
           </DialogDescription>
         </DialogHeader>
         <SupportForm />

@@ -1,0 +1,42 @@
+{
+  "page": {
+    "back": "Terug naar home",
+    "title": "Support",
+    "intro": "Vragen, problemen of ideeën? Stuur ons een bericht en we reageren via e-mail."
+  },
+  "dialog": {
+    "title": "Support & feedback",
+    "description": "Vragen, problemen of ideeën? We lezen elk bericht."
+  },
+  "button": "Feedback & support",
+  "form": {
+    "categoryLabel": "Waar gaat het over?",
+    "categoryPlaceholder": "Kies een onderwerp",
+    "emailLabel": "Je e-mailadres",
+    "emailPlaceholder": "jij@voorbeeld.nl",
+    "messageLabel": "Bericht",
+    "messagePlaceholderBug": "Vertel ons wat er misging, dan koppelen we het aan onze foutlogs.",
+    "messagePlaceholder": "Waarmee kunnen we je helpen?",
+    "submit": "Verstuur bericht",
+    "submitting": "Versturen...",
+    "successTitle": "Bedankt, bericht verstuurd",
+    "successBody": "We reageren snel via e-mail."
+  },
+  "categories": {
+    "access_code_payment": "Toegangscode / betaling",
+    "assessment_survey": "Assessment / vragenlijst",
+    "ai_chat": "AI-chat",
+    "my_report": "Mijn rapport",
+    "job_openings": "Vacatures",
+    "account_login": "Account / inloggen",
+    "feature_idea": "Idee voor een functie",
+    "bug_report": "Bug melden",
+    "something_else": "Iets anders"
+  },
+  "validation": {
+    "category": "Kies waar het over gaat.",
+    "message": "Vul een bericht in.",
+    "email": "Vul een geldig e-mailadres in.",
+    "submitError": "Er ging iets mis bij het versturen van je bericht. Probeer het opnieuw, of mail rechtstreeks naar sjoerd@cairnly.io."
+  }
+}
