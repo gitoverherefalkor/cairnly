@@ -18,7 +18,7 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { Bookmark, ChevronDown, X } from 'lucide-react';
 import { useSavedChatResponses } from '@/hooks/useSavedChatResponses';
-import { PALETTE, FONT_DISPLAY, FONT_BODY, Eyebrow } from './dashboardV2Shared';
+import { PALETTE, FONT_DISPLAY, FONT_BODY } from './dashboardV2Shared';
 
 // Friendly label for the section a response was saved from. Falls back to a
 // generic tag when the section is unknown (null/legacy rows).
@@ -59,11 +59,6 @@ function inChapter(sectionType: string | null, chapter: Chapter): boolean {
   const isCareer = sectionType ? CAREER_SECTION_TYPES.has(sectionType) : false;
   return chapter === 'career' ? isCareer : !isCareer;
 }
-
-const CHAPTER_EYEBROW: Record<Chapter, string> = {
-  'about-you': 'COACHING RESPONSES YOU SAVED · ABOUT YOU',
-  career: 'COACHING RESPONSES YOU SAVED · CAREERS',
-};
 
 // Minimal HTML → Markdown so saved content (which may contain the <h5>/<strong>
 // tags the agent sometimes emits) renders through one ReactMarkdown pipeline.
@@ -139,9 +134,6 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, ch
   return (
     <section style={{ marginTop: 16, marginBottom: 32 }}>
       <div style={{ marginBottom: 12 }}>
-        <Eyebrow>
-          {CHAPTER_EYEBROW[chapter]} · {items.length}
-        </Eyebrow>
         <h4
           style={{
             fontFamily: FONT_DISPLAY,
@@ -149,7 +141,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, ch
             fontSize: 19,
             letterSpacing: '-0.015em',
             color: '#fff',
-            margin: '8px 0 0 0',
+            margin: 0,
           }}
         >
           Coaching responses you saved
