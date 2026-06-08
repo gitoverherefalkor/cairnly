@@ -327,7 +327,13 @@
     "titleC": ".",
     "p1": "Ze zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
     "p2": "We hebben Cairnly gebouwd omdat de tools om die vraag op een goede manier te stellen simpelweg niet bestonden. Persoonlijkheidstesten geven je een label. Coaching duurt maanden en kost duizenden euro's. Gratis quizzen geven je waarvoor je betaalt. Daarom hebben we één enkel assessment gebouwd, transparant over de methodes, dat kijkt naar wie je nu écht bent en je specifieke rollen geeft waar je maandag al naar kunt gaan kijken. Geen abonnement, geen waslijst aan upsells. Eén duidelijk antwoord, en daarna gaan we weer uit de weg.",
-    "signature": "Het Cairnly team, Utrecht"
+    "signature": "Het Cairnly team, Utrecht",
+    "report": {
+      "eyebrow": "Het onderzoek",
+      "title": "Het Career Uncertainty Report",
+      "desc": "Waarom zoveel capabele mensen vastlopen in de verkeerde loopbaan, en de data achter wat we bouwden.",
+      "cta": "Lees het rapport"
+    }
   },
   "workflowSimple": {
     "resume": "CV",

@@ -327,7 +327,13 @@
     "titleC": ".",
     "p1": "They're inherited from a decision someone made at 16, before they knew themselves well enough to make it. A general direction shaped a major. A major shaped a first job. A first job shaped the next ten. By the time you look up, you might be a department manager when you'd have made a better entrepreneur, or a builder, or something you've never even considered.",
     "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No subscription, no roster of upsells. One clear answer, then we get out of your way.",
-    "signature": "The Cairnly team, Utrecht"
+    "signature": "The Cairnly team, Utrecht",
+    "report": {
+      "eyebrow": "The research",
+      "title": "The Career Uncertainty Report",
+      "desc": "Why so many capable people feel stuck in the wrong career, and the data behind what we built.",
+      "cta": "Read the report"
+    }
   },
   "workflowSimple": {
     "resume": "Résumé",
