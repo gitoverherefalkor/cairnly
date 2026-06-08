@@ -708,9 +708,6 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           onNavigate={onNavigate}
         />
 
-        {/* ─── Coaching responses you saved ─── */}
-        <V4SavedResponses reportId={reportId} />
-
         {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (
           <div style={{ marginBottom: 20 }}>
@@ -797,6 +794,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </section>
         )}
 
+        {/* Saved coaching responses from the "about you" chapter, tucked under
+            its report sections. Renders nothing if none saved. */}
+        <V4SavedResponses reportId={reportId} chapter="about-you" />
+
         {/* ─── Career suggestions — single container, accordion left, map right ─── */}
         {careerRows.length > 0 && (
           <section style={{ marginBottom: 16 }}>
@@ -864,6 +865,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             </div>
           </section>
         )}
+
+        {/* Saved coaching responses from the career chapter, under its
+            report sections. Renders nothing if none saved. */}
+        <V4SavedResponses reportId={reportId} chapter="career" />
       </div>
     </LakeBackground>
   );

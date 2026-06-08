@@ -3,6 +3,11 @@
 // from the dashboard. Reads from `saved_chat_responses` via
 // useSavedChatResponses; renders nothing when the user hasn't saved any.
 //
+// Rendered once per report chapter ('about-you' and 'career') and placed
+// directly under that chapter's report sections, so saved notes sit with the
+// content they relate to. Each instance filters to its own chapter and renders
+// nothing when that chapter has no saved responses.
+//
 // Self-contained on purpose: it owns its own light markdown rendering rather
 // than importing from DashboardV4 (which renders this component) to avoid a
 // circular import.
@@ -36,6 +41,29 @@ function sectionLabel(sectionType: string | null): string {
   if (!sectionType) return 'Coaching note';
   return SECTION_LABELS[sectionType] ?? 'Coaching note';
 }
+
+// Which report chapter a saved response belongs to. Career responses are the
+// career-suggestion section types; everything else (personality sections,
+// plus null/unknown as a catch-all) belongs to the "about you" chapter.
+type Chapter = 'about-you' | 'career';
+const CAREER_SECTION_TYPES = new Set([
+  'top_career_1',
+  'top_career_2',
+  'top_career_3',
+  'runner_ups',
+  'outside_box',
+  'dream_jobs',
+]);
+
+function inChapter(sectionType: string | null, chapter: Chapter): boolean {
+  const isCareer = sectionType ? CAREER_SECTION_TYPES.has(sectionType) : false;
+  return chapter === 'career' ? isCareer : !isCareer;
+}
+
+const CHAPTER_EYEBROW: Record<Chapter, string> = {
+  'about-you': 'COACHING RESPONSES YOU SAVED · ABOUT YOU',
+  career: 'COACHING RESPONSES YOU SAVED · CAREERS',
+};
 
 // Minimal HTML → Markdown so saved content (which may contain the <h5>/<strong>
 // tags the agent sometimes emits) renders through one ReactMarkdown pipeline.
@@ -96,45 +124,36 @@ const MD_COMPONENTS = {
 
 interface V4SavedResponsesProps {
   reportId: string;
+  chapter: Chapter;
 }
 
-export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId }) => {
+export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, chapter }) => {
   const { savedResponses, removeSavedResponse } = useSavedChatResponses(reportId);
   const [openId, setOpenId] = useState<string | null>(null);
 
-  // Nothing saved → render nothing (no empty placeholder on the dashboard).
-  if (savedResponses.length === 0) return null;
+  const items = savedResponses.filter((r) => inChapter(r.section_type, chapter));
+
+  // Nothing saved in this chapter → render nothing (no empty placeholder).
+  if (items.length === 0) return null;
 
   return (
-    <section style={{ marginBottom: 32 }}>
-      <div style={{ marginBottom: 16 }}>
+    <section style={{ marginTop: 16, marginBottom: 32 }}>
+      <div style={{ marginBottom: 12 }}>
         <Eyebrow>
-          COACHING RESPONSES · {savedResponses.length} SAVED
+          {CHAPTER_EYEBROW[chapter]} · {items.length}
         </Eyebrow>
-        <h3
+        <h4
           style={{
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
-            fontSize: 28,
-            letterSpacing: '-0.02em',
+            fontSize: 19,
+            letterSpacing: '-0.015em',
             color: '#fff',
-            margin: '8px 0 4px 0',
+            margin: '8px 0 0 0',
           }}
         >
           Coaching responses you saved
-        </h3>
-        <p
-          style={{
-            fontFamily: FONT_BODY,
-            fontSize: 14,
-            fontWeight: 500,
-            color: 'rgba(255,255,255,0.6)',
-            margin: 0,
-            maxWidth: 540,
-          }}
-        >
-          The answers you bookmarked while talking with your coach. Open one to read it in full.
-        </p>
+        </h4>
       </div>
 
       <div
@@ -148,9 +167,9 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId }) 
           boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
         }}
       >
-        {savedResponses.map((item, i) => {
+        {items.map((item, i) => {
           const isOpen = openId === item.id;
-          const isLast = i === savedResponses.length - 1;
+          const isLast = i === items.length - 1;
           return (
             <div
               key={item.id}
