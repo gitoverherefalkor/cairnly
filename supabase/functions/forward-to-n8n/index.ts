@@ -86,7 +86,7 @@ serve(async (req) => {
 
       const { data: created, error: reportError } = await supabase.from('reports').insert({
         user_id: userId,
-        title: 'Career Assessment Report (N8N)',
+        title: 'Cairnly Personality & Career Report',
         status: 'processing',
         payload: surveyData
       }).select().single();
