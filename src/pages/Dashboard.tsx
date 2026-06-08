@@ -402,6 +402,7 @@ const Dashboard = () => {
         <DashboardV4
           firstName={firstName}
           country={profile?.country ?? null}
+          reportId={latestReport.id}
           reportGeneratedAt={latestReport.updated_at ?? latestReport.created_at ?? null}
           sections={reportSections}
           referralCode={referralStatus.referralCode}

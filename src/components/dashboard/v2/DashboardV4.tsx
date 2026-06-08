@@ -21,6 +21,7 @@ import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerSco
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
+import { V4SavedResponses } from './V4SavedResponses';
 import { V4ChartBanner } from './V4ChartBanner';
 import { V4PersonalityRadarSVG, type RadarAxis } from './V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend, type CareerPoint } from './V4CareerMapSVG';
@@ -68,6 +69,7 @@ function htmlToMarkdown(text: string): string {
 interface DashboardV4Props {
   firstName: string;
   country: string | null;
+  reportId: string;
   reportGeneratedAt: string | null;
   sections: ReportSection[];
   referralCode: string | null;
@@ -176,6 +178,7 @@ const FALLBACK_TITLES: Record<string, string> = {
 export const DashboardV4: React.FC<DashboardV4Props> = ({
   firstName,
   country,
+  reportId,
   reportGeneratedAt,
   sections,
   referralCode,
@@ -704,6 +707,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
+
+        {/* ─── Coaching responses you saved ─── */}
+        <V4SavedResponses reportId={reportId} />
 
         {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (
