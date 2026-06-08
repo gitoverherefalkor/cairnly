@@ -59,7 +59,12 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
     }
     if (variant === 'home') {
       e.preventDefault();
-      document.querySelector(link.hash)?.scrollIntoView({ behavior: 'smooth' });
+      const target = document.querySelector(link.hash);
+      // The mobile drawer locks body scroll (overflow: hidden); scrolling in
+      // the same tick is a no-op. Release the lock and defer to the next frame
+      // so the smooth scroll actually runs after the drawer starts closing.
+      document.body.style.overflow = '';
+      requestAnimationFrame(() => target?.scrollIntoView({ behavior: 'smooth' }));
     }
     // variant 'page' lets the browser follow the /#hash link to the homepage.
   };
@@ -103,7 +108,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
         <div className="lp-container py-3 flex items-center justify-between">
           <a href="/" className="flex flex-col items-start">
             <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 md:h-16 w-auto -mb-2.5" />
-            <span className="text-[9px] md:text-[10px] tracking-[0.22em] text-[#D4A024] ml-8 md:ml-9">
+            <span className="text-[9px] md:text-[10px] tracking-[0.22em] text-[#D4A024]">
               {t('nav.tagAuth')}
             </span>
           </a>

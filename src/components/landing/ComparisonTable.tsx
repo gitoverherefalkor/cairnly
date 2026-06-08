@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
 
@@ -116,14 +117,26 @@ const ComparisonTable: React.FC = () => {
               ))}
             </ul>
           </div>
+          <div className="flex items-center gap-3 pt-4 pb-1">
+            <span className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#6B7F8B]">
+              {t('comparison.mobile.othersLabel')}
+            </span>
+            <span className="h-px flex-1" style={{ background: 'rgba(201,182,144,0.7)' }} />
+          </div>
           {others.map((card, ci) => (
             <details
               key={ci}
-              className="rounded-2xl p-6"
+              className="lp-compare-other rounded-2xl px-6 py-5"
               style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(201,182,144,0.7)' }}
             >
-              <summary className="font-heading font-bold text-[#122E3B] cursor-pointer">{card.title}</summary>
-              <ul className="mt-3 space-y-2 text-[14px] text-[#4B6373] font-medium">
+              <summary className="flex items-center justify-between gap-3 cursor-pointer list-none">
+                <span className="min-w-0 font-heading font-bold text-[#4B6373]">{card.title}</span>
+                <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-semibold text-[#6B7F8B]">
+                  <span className="hidden sm:inline whitespace-nowrap">{t('comparison.mobile.othersHint')}</span>
+                  <ChevronDown size={18} className="lp-compare-chev transition-transform" />
+                </span>
+              </summary>
+              <ul className="mt-4 space-y-2 text-[14px] text-[#4B6373] font-medium">
                 {card.items.map((it, ii) => <li key={ii}>{it}</li>)}
               </ul>
             </details>

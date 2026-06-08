@@ -217,6 +217,8 @@
         "**Tijd tot helderheid:** Eén sessie.",
         "**Kosten:** €39. Eenmalig. Voor altijd."
       ],
+      "othersLabel": "Hoe de alternatieven zich verhouden",
+      "othersHint": "Bekijk de vergelijking",
       "others": [
         {
           "title": "Persoonlijkheidstests (MBTI, 16Personalities)",

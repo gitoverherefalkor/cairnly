@@ -8,7 +8,7 @@ const ForkDivider: React.FC = () => {
   const { t } = useTranslation('landing');
 
   return (
-    <section className="bg-[#ECE4D2] relative overflow-hidden">
+    <section className="hidden md:block bg-[#ECE4D2] relative overflow-hidden">
       <div className="lp-fork-divider lp-container">
         <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>

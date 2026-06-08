@@ -197,6 +197,10 @@ button.lp-screenshot-slot {
 .lp-compare-cairnly-bottom { border-bottom: 1px solid #D4A024; }
 .lp-compare-table tbody .lp-compare-cairnly p { color: #122E3B; font-weight: 600; }
 
+/* Mobile "alternatives" comparison accordions */
+.lp-compare-other summary::-webkit-details-marker { display: none; }
+.lp-compare-other[open] .lp-compare-chev { transform: rotate(180deg); }
+
 /* Fork in the road */
 .lp-fork-divider { position: relative; padding: 80px 0; }
 .lp-fork-divider svg { display: block; margin: 0 auto; max-width: 720px; width: 100%; height: auto; }
