@@ -22,7 +22,7 @@ interface ChatMessagesProps {
   // 'delivery' = platform fast-path is loading a section (~200ms);
   // 'agent'    = WF5.3 LLM is composing a reply (3-30s).
   // Drives the typing indicator's copy. Defaults to 'agent' upstream.
-  loadingMode?: 'delivery' | 'agent';
+  loadingMode?: 'delivery' | 'agent' | 'preparing';
   currentSectionIndex: number;
   onSectionDetected: (index: number) => void;
   onQuickReply: (message: string, intent?: QuickReplyIntent) => void;

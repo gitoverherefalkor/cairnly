@@ -30,6 +30,54 @@ const SECTION_INDEX_TO_TYPE: Record<number, DeliverableSectionType | null> = {
   10: 'dream_jobs',
 };
 
+// The career-chapter section types. These are written by WF4 — the LAST step of
+// the n8n pipeline — whereas personality sections come from WF1. The chat
+// unlocks as soon as WF1 finishes, so a fast reader can reach the career
+// chapter (right after the Cairnly feedback modal) before WF4 has written
+// these rows. We gate delivery of these specifically.
+const CAREER_SECTION_TYPES = new Set<DeliverableSectionType>([
+  'top_career_1',
+  'top_career_2',
+  'top_career_3',
+  'runner_ups',
+  'outside_box',
+  'dream_jobs',
+]);
+
+// True if at least one report_sections row exists for this section type. Uses
+// a count-style select so multi-row sections (runner_ups, outside_box) don't
+// trip maybeSingle's "multiple rows" error.
+async function sectionRowExists(reportId: string, sectionType: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('report_sections')
+    .select('id')
+    .eq('report_id', reportId)
+    .eq('section_type', sectionType)
+    .limit(1);
+  if (error) {
+    console.error('[career-gate] existence check failed:', error);
+    return false;
+  }
+  return Array.isArray(data) && data.length > 0;
+}
+
+// Poll until the section row appears or we time out. Returns true once ready,
+// false if it never showed up within the window. Generous timeout: WF3+WF4
+// normally finish well within this, and the user's reading + feedback-modal
+// time overlaps with it.
+async function waitForSectionRow(
+  reportId: string,
+  sectionType: string,
+  { timeoutMs = 240_000, intervalMs = 4_000 }: { timeoutMs?: number; intervalMs?: number } = {},
+): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (await sectionRowExists(reportId, sectionType)) return true;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return sectionRowExists(reportId, sectionType);
+}
+
 /**
  * Feature flag for the platform-side fast-path delivery.
  *
@@ -100,7 +148,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // 'delivery' for fast-path section loads (just a Supabase SELECT + render,
     // ~200ms), 'agent' for LLM replies. Drives the typing indicator's copy
     // so it doesn't claim to be doing analysis when it's just rendering.
-    const [loadingMode, setLoadingMode] = useState<'delivery' | 'agent'>('agent');
+    const [loadingMode, setLoadingMode] = useState<'delivery' | 'agent' | 'preparing'>('agent');
     // Wrap-up flow state. When the user clicks "All done, wrap up session"
     // we intercept (don't route to the agent) and show the WrapUpCard
     // instead. While 'pending' we hide the regular QuickReplies; on
@@ -183,6 +231,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       message: string;
       intent: QuickReplyIntent;
     } | null>(null);
+    // Set once the chapter feedback modal is submitted this session. Guards the
+    // modal from re-opening on a retry (e.g. after a career-readiness timeout)
+    // before `sections` (react-query) has refreshed to include the new
+    // chapter_1_feedback row.
+    const chapterFeedbackDoneRef = useRef(false);
 
     const { messages, isLoading, addMessage, seedFromHistory, hasMessages } =
       useChatMessages({ sessionId, reportId, userId });
@@ -578,7 +631,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         intent === 'advance' &&
         currentSectionIndex === 4 && // values
         SECTION_INDEX_TO_TYPE[currentSectionIndex + 1] === 'top_career_1' &&
-        !chapterFeedbackAlreadySubmitted
+        !chapterFeedbackAlreadySubmitted &&
+        !chapterFeedbackDoneRef.current
       ) {
         setPendingAdvance({ message, intent });
         setChapterFeedbackOpen(true);
@@ -651,6 +705,34 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           }).catch((err) => {
             console.error('[advance] background agent failed:', err);
           });
+        }
+
+        // Career-chapter gate. The career sections come from WF4 (the last
+        // pipeline step), but the chat unlocks after WF1, so a fast reader can
+        // arrive here (just after the Cairnly feedback modal) before the rows
+        // exist. Rather than 404 → fall through to the agent (which won't
+        // deliver sections), show a "preparing" state and wait for WF4.
+        if (CAREER_SECTION_TYPES.has(nextType) && !(await sectionRowExists(reportId, nextType))) {
+          setLoadingMode('preparing');
+          const becameReady = await waitForSectionRow(reportId, nextType);
+          if (!becameReady) {
+            // Timed out waiting for WF4. Leave the user at the values section
+            // (we never advanced) with a friendly nudge to retry shortly. The
+            // user message was added with skipPersist and the deliver never
+            // ran, so nothing is persisted — a refresh cleanly returns them to
+            // the Continue button. Do NOT fall through to the agent.
+            addMessage(
+              'bot',
+              "Your career matches are taking a little longer to finalize. Hang tight — give it a moment and tap Continue again.",
+              { skipPersist: true },
+            );
+            setLoadingMode('agent');
+            setIsWaitingForResponse(false);
+            return;
+          }
+          // Ready now — restore the fast "loading section" copy for the actual
+          // deliver call below.
+          setLoadingMode('delivery');
         }
 
         try {
@@ -808,6 +890,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         });
         return; // keep the modal open so the user can retry
       }
+      // Remember it's done for this session so a retry (e.g. after a career
+      // readiness timeout) can't re-open the modal before `sections` refreshes.
+      chapterFeedbackDoneRef.current = true;
       setChapterFeedbackOpen(false);
       // Re-run the original advance with skipChapterFeedback=true so we
       // don't loop back into the modal.

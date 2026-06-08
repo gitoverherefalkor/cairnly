@@ -5,7 +5,10 @@ import React, { useState, useEffect, useRef } from 'react';
 //   so most users never see this. Single line, no rotation.
 // - 'agent':    LLM (WF5.3) is composing a reply. 3-30s. Rotate through generic
 //   honest lines, then escalate after 6s with a "still thinking" reassurance.
-type LoadingMode = 'delivery' | 'agent';
+// - 'preparing': the user reached the career chapter before WF4 finished
+//   writing the career sections. We poll the DB and show an honest "still
+//   putting them together" line until the content lands.
+type LoadingMode = 'delivery' | 'agent' | 'preparing';
 
 const AGENT_MESSAGES = [
   "I'm thinking",
@@ -66,9 +69,11 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   const text =
     mode === 'delivery'
       ? 'Loading your section'
-      : isLate
-        ? AGENT_LATE_MESSAGE
-        : AGENT_MESSAGES[messageIndex];
+      : mode === 'preparing'
+        ? 'Putting together your career matches — this can take a moment'
+        : isLate
+          ? AGENT_LATE_MESSAGE
+          : AGENT_MESSAGES[messageIndex];
 
   return (
     <div className="flex items-center gap-2.5 py-2 px-1 max-w-[320px]">
