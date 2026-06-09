@@ -393,19 +393,16 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     </div>
   ) : null;
 
-  // Subtle Cairnly brand mark, bottom-left. Mirrors the support button's
-  // bottom-6 anchor; the inner max-w-7xl container aligns the logo's left
-  // edge with the question card column.
-  const SurveyLogo = (
-    <div className="hidden sm:block fixed bottom-6 left-0 right-0 z-40 pointer-events-none">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6">
-        <img
-          src="/cairnly-logo-white.png"
-          alt="Cairnly"
-          className="w-[150px] h-auto opacity-70"
-        />
-      </div>
-    </div>
+  // Subtle Cairnly brand mark. Rendered in-flow under the "Your Progress"
+  // sidebar (see the sidebar column below) rather than as a fixed overlay —
+  // the old fixed bottom-left anchor overlapped the question card once a card
+  // grew tall enough to scroll behind it.
+  const SurveyLogoMark = (
+    <img
+      src="/cairnly-logo-white.png"
+      alt="Cairnly"
+      className="w-[150px] h-auto opacity-70 pl-1"
+    />
   );
 
   // Show section introduction for all sections (including first)
@@ -418,7 +415,6 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     return (
       <div className="min-h-screen pt-10 pb-6 sm:pt-20 sm:pb-12">
         {GlobalProgressBar}
-        {SurveyLogo}
         <MobileStepIndicator
           sections={survey.sections}
           currentSectionIndex={currentSectionIndex}
@@ -426,15 +422,18 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
           onSectionClick={handleSectionNavigation}
         />
         <div className="flex flex-row-reverse gap-6 max-w-7xl mx-auto px-3 sm:px-6">
-          <SurveyNavigation
-            sections={survey.sections}
-            currentSectionIndex={currentSectionIndex}
-            completedSections={completedSections}
-            onSectionClick={handleSectionNavigation}
-            currentQuestionInSection={currentQuestionInSection}
-            totalQuestionsInSection={totalQuestionsInSection}
-            activeMilestone={activeMilestone}
-          />
+          <div className="hidden md:flex flex-col gap-5 w-80 flex-shrink-0">
+            <SurveyNavigation
+              sections={survey.sections}
+              currentSectionIndex={currentSectionIndex}
+              completedSections={completedSections}
+              onSectionClick={handleSectionNavigation}
+              currentQuestionInSection={currentQuestionInSection}
+              totalQuestionsInSection={totalQuestionsInSection}
+              activeMilestone={activeMilestone}
+            />
+            {SurveyLogoMark}
+          </div>
           <div className="flex-1">
             <SectionIntroduction
               sectionNumber={currentSectionIndex + 1}
@@ -464,7 +463,6 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     <div className="min-h-screen pt-10 pb-6 sm:pt-20 sm:pb-12">
       {GlobalProgressBar}
       {MilestoneBanner}
-      {SurveyLogo}
 
       {/* Mobile step indicator */}
       <MobileStepIndicator
@@ -475,14 +473,17 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
       />
 
       <div className="flex flex-row-reverse gap-6 max-w-7xl mx-auto px-3 sm:px-6">
-        <SurveyNavigation
-          sections={survey.sections}
-          currentSectionIndex={currentSectionIndex}
-          completedSections={completedSections}
-          onSectionClick={handleSectionNavigation}
-          currentQuestionInSection={currentQuestionInSection}
-          totalQuestionsInSection={totalQuestionsInSection}
-        />
+        <div className="hidden md:flex flex-col gap-5 w-80 flex-shrink-0">
+          <SurveyNavigation
+            sections={survey.sections}
+            currentSectionIndex={currentSectionIndex}
+            completedSections={completedSections}
+            onSectionClick={handleSectionNavigation}
+            currentQuestionInSection={currentQuestionInSection}
+            totalQuestionsInSection={totalQuestionsInSection}
+          />
+          {SurveyLogoMark}
+        </div>
 
         <div className="flex-1 max-w-4xl">
           {/* Submission Status Banner */}
