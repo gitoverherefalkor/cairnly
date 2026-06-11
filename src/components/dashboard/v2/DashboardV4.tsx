@@ -194,6 +194,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   const { i18n } = useTranslation();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const accordionRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // Deep-link target for the Unlock Toolkit (invite hub). Locked-tool popups
+  // on the Jobs page link here via /dashboard?focus=toolkit.
+  const toolkitRef = useRef<HTMLDivElement | null>(null);
+
+  // Arriving with ?focus=toolkit (e.g. from a locked-tool popup) scrolls the
+  // invite toolkit into view once the dashboard has rendered.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('focus') !== 'toolkit') return;
+    const t = setTimeout(() => {
+      toolkitRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 250);
+    return () => clearTimeout(t);
+  }, []);
 
   // Open a specific accordion row from elsewhere on the dashboard (Hero,
   // secondary matches, More-paths tiles) and scroll it into view. The
@@ -701,13 +714,15 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             group below. */}
 
         {/* ─── Unlock toolkit ─── */}
-        <UnlockToolkit
-          referralCode={referralCode}
-          referralCount={referralCount}
-          ladder={ladder}
-          onInvite={onInvite}
-          onNavigate={onNavigate}
-        />
+        <div ref={toolkitRef} style={{ scrollMarginTop: 16 }}>
+          <UnlockToolkit
+            referralCode={referralCode}
+            referralCount={referralCount}
+            ladder={ladder}
+            onInvite={onInvite}
+            onNavigate={onNavigate}
+          />
+        </div>
 
         {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (

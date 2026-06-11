@@ -9,6 +9,7 @@ import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
 import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
 import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
 import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
@@ -489,15 +490,31 @@ const Jobs = () => {
 
   const handleInvite = async () => {
     const link = referralStatus.referralLink;
+    // Every locked-tool click routes here. Surface a clear "invite to unlock"
+    // popup with a link back to the dashboard toolkit (the invite hub), and
+    // copy the link as a convenience when it's ready.
+    const toolkitAction = (
+      <ToastAction altText="Open toolkit" onClick={() => navigate('/dashboard?focus=toolkit')}>
+        Open toolkit
+      </ToastAction>
+    );
     if (!link) {
-      toast({ title: 'One moment', description: 'Your invite link is still being prepared. Try again shortly.' });
+      toast({
+        title: 'Invite a friend to unlock',
+        description: 'Refer friends to unlock this tool. Open your toolkit to grab your invite link and track progress.',
+        action: toolkitAction,
+      });
       return;
     }
     try {
       await navigator.clipboard.writeText(link);
-      toast({ title: 'Invite link copied', description: 'Share it with a friend to unlock your next tool.' });
+      toast({
+        title: 'Invite a friend to unlock',
+        description: 'Invite link copied. Open your toolkit to track progress toward your next unlock.',
+        action: toolkitAction,
+      });
     } catch {
-      toast({ title: 'Your invite link', description: link });
+      toast({ title: 'Invite a friend to unlock', description: link, action: toolkitAction });
     }
   };
 
