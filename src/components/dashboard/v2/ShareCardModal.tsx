@@ -6,7 +6,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { Download, Loader2, X } from 'lucide-react';
+import { Download, Linkedin, Loader2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   PALETTE,
@@ -189,6 +189,23 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
     }
   };
 
+  // LinkedIn can't pre-attach an image to a post via a URL, so the share flow
+  // opens the LinkedIn composer (with a starter caption) AND saves the PNG, the
+  // user attaches the saved image. window.open runs synchronously inside the
+  // click gesture so it isn't blocked as a popup.
+  const handleShareLinkedIn = () => {
+    const caption =
+      cardType === 'role' && role?.title
+        ? `My top career match: ${role.title}. Mapping my next move with Cairnly.`
+        : 'Mapping my next career direction with Cairnly.';
+    window.open(
+      `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(caption)}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
+    void handleDownload();
+  };
+
   return (
     <div
       role="dialog"
@@ -234,8 +251,21 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               SHARE · LINKEDIN-READY
             </div>
             <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0' }}>
-              Your career card
+              Share your result on LinkedIn
             </h3>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: PALETTE.inkMuted,
+                margin: '6px 0 0 0',
+                maxWidth: 440,
+              }}
+            >
+              A post-ready snapshot of your result, sized for LinkedIn. Share it to show your
+              network the direction you're exploring and start the conversations that move careers.
+            </p>
           </div>
           <button
             type="button"
@@ -391,7 +421,20 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
           ) : null}
         </div>
 
-        <div style={{ display: 'flex', gap: 10, marginTop: 22, justifyContent: 'flex-end' }}>
+        {/* Helper: spell out the LinkedIn flow so the CTA isn't a mystery. */}
+        <div
+          style={{
+            marginTop: 22,
+            fontFamily: FONT_BODY,
+            fontSize: 12,
+            lineHeight: 1.5,
+            color: PALETTE.inkMuted,
+          }}
+        >
+          We'll open LinkedIn with a starter caption and save the image. Just attach the saved
+          image to your post.
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={onClose}
@@ -414,6 +457,29 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             onClick={handleDownload}
             disabled={exporting}
             style={{
+              background: 'transparent',
+              color: PALETTE.tealDeep,
+              border: `1px solid ${PALETTE.tan}`,
+              padding: '12px 18px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: exporting ? 'wait' : 'pointer',
+              opacity: exporting ? 0.7 : 1,
+            }}
+          >
+            {exporting ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+            {exporting ? 'Saving…' : 'Download image'}
+          </button>
+          <button
+            type="button"
+            onClick={handleShareLinkedIn}
+            disabled={exporting}
+            style={{
               background: PALETTE.teal,
               color: '#fff',
               border: 'none',
@@ -430,8 +496,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               boxShadow: '0 10px 22px -8px rgba(39,161,161,0.5)',
             }}
           >
-            {exporting ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
-            {exporting ? 'Exporting…' : 'Download PNG'}
+            <Linkedin size={15} /> Share on LinkedIn
           </button>
         </div>
       </div>
