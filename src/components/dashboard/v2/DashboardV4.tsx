@@ -644,6 +644,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                     match={m}
                     onOpen={() => handleOpenSection(`top-${m.rank}`)}
                     onFindRoles={handleFindRoles}
+                    jobsUnlocked={jobsUnlocked}
                   />
                 ))}
               </div>
@@ -1238,7 +1239,8 @@ const SecondaryMatch: React.FC<{
   match: CareerMatch;
   onOpen: () => void;
   onFindRoles: (careerTitle?: string) => void;
-}> = ({ match, onOpen, onFindRoles }) => (
+  jobsUnlocked: boolean;
+}> = ({ match, onOpen, onFindRoles, jobsUnlocked }) => (
   <article
     style={{
       background: 'rgba(18, 46, 59, 0.55)',
@@ -1336,7 +1338,8 @@ const SecondaryMatch: React.FC<{
           cursor: 'pointer',
         }}
       >
-        <Briefcase size={13} /> Find roles
+        {jobsUnlocked ? <Briefcase size={13} /> : <Lock size={13} />}
+        {jobsUnlocked ? 'Find roles' : 'Find roles · locked'}
       </button>
     </div>
   </article>
