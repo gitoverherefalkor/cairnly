@@ -310,9 +310,12 @@ const Dashboard = () => {
         const title = stripHtml(s.title || '') || fallbackTitle;
         const quotes = pickShareSentences(s.content || '', title, 4);
         if (quotes.length === 0) return null;
-        return { sectionType: s.section_type, title, quotes };
+        // First <h5> subsection header, shown under the section title on the card.
+        const subMatch = (s.content || '').match(/<h5[^>]*>([\s\S]*?)<\/h5>/i);
+        const subheader = subMatch ? stripHtml(subMatch[1]).trim() || null : null;
+        return { sectionType: s.section_type, title, subheader, quotes };
       })
-      .filter(Boolean) as { sectionType: string; title: string; quotes: string[] }[];
+      .filter(Boolean) as { sectionType: string; title: string; subheader: string | null; quotes: string[] }[];
   }, [reportSections]);
 
   // Role shares — Top 1/2/3 + every outside-the-box career. Quotes come from

@@ -25,6 +25,9 @@ const SCALE = PREVIEW_W / CARD_W;
 export interface PersonalityShare {
   sectionType: string;
   title: string;
+  // First subsection header (e.g. "Personality and Interaction Style"), shown
+  // under the section title on the card. Null when the section has none.
+  subheader: string | null;
   quotes: string[];
 }
 
@@ -684,9 +687,9 @@ const ShareCard: React.FC<{
           </div>
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 32 }}>
-        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 52, width: 'auto' }} crossOrigin="anonymous" />
-        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted, textAlign: 'right' }}>
+      <div style={{ marginTop: 32 }}>
+        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 48, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 10 }}>
           One-shot career clarity · <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
         </div>
       </div>
@@ -737,18 +740,10 @@ const ShareCard: React.FC<{
           padding: 56,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           color: '#fff',
         }}
       >
-        <div>
-          <img
-            src={CairnSymbolInvert}
-            alt=""
-            crossOrigin="anonymous"
-            style={{ height: 64, width: 'auto', opacity: 0.95 }}
-          />
-        </div>
         {cardType === 'role' && role ? (
           <div>
             <span
@@ -821,16 +816,18 @@ const ShareCard: React.FC<{
             >
               {personality?.title || 'My read on me'}
             </h2>
-            <div
-              style={{
-                fontFamily: FONT_BODY,
-                fontSize: 15,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.78)',
-              }}
-            >
-              {firstName ? `${firstName}'s profile` : 'My profile'}
-            </div>
+            {personality?.subheader && (
+              <div
+                style={{
+                  fontFamily: FONT_BODY,
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: PALETTE.goldBright,
+                }}
+              >
+                {personality.subheader}
+              </div>
+            )}
           </div>
         )}
       </div>
