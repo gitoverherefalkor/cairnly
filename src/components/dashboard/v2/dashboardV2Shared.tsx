@@ -409,7 +409,10 @@ export function pickShareSentences(
   sectionTitleToStrip: string | null = null,
   max = 4,
 ): string[] {
-  let text = stripHtml(body || '');
+  // Drop <h5> subheaders first — otherwise stripHtml flattens them into the
+  // following sentence (e.g. "Personality and Interaction Style You think…")
+  // and the subheader bleeds into the shareable quote.
+  let text = stripHtml((body || '').replace(/<h5[^>]*>[\s\S]*?<\/h5>/gi, ' '));
   if (!text) return [];
   if (sectionTitleToStrip) {
     const title = stripHtml(sectionTitleToStrip).trim();

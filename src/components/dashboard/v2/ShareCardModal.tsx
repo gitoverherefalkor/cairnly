@@ -161,6 +161,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   const quote = activeQuotes[quoteIdx] || activeQuotes[0] || '';
   const role = roleShares[roleIdx];
   const personality = personalityShares[personalityIdx];
+  // Only show the "Choose the line" picker when there's actually something to
+  // pick (or a loading/error state). Without this, a role with no quotes shows
+  // the label followed by nothing.
+  const showQuoteSection = generatingQuotes || !!generateError || activeQuotes.length > 0;
 
   if (!open) return null;
 
@@ -233,6 +237,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
           padding: 28,
           maxWidth: PREVIEW_W + 56,
           width: '100%',
+          // Cap to the viewport and scroll internally so tall content (card +
+          // pickers + lines + footer) is always reachable.
+          maxHeight: 'calc(100vh - 48px)',
+          overflowY: 'auto',
           boxShadow: '0 40px 80px -20px rgba(0,0,0,0.6)',
         }}
       >
@@ -346,7 +354,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
           />
         )}
 
-        {/* Quote picker */}
+        {/* Quote picker — hidden when there are no lines to choose. */}
+        {showQuoteSection && (
         <div style={{ marginTop: 20 }}>
           <div
             style={{
@@ -420,6 +429,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             </div>
           ) : null}
         </div>
+        )}
 
         {/* Helper: spell out the LinkedIn flow so the CTA isn't a mystery. */}
         <div
@@ -669,8 +679,8 @@ const ShareCard: React.FC<{
           </p>
           <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 18 }}>
             {cardType === 'role' && role
-              ? `Why ${role.title} fits ${firstName || 'me'}, per Cairnly.`
-              : `Cairnly, on what ${firstName || 'I'} bring${firstName ? 's' : ''}.`}
+              ? `Why ${role.title} fits ${firstName || 'me'}.`
+              : `What ${firstName || 'I'} bring${firstName ? 's' : ''} to the table.`}
           </div>
         </div>
       </div>
@@ -751,7 +761,7 @@ const ShareCard: React.FC<{
                 color: PALETTE.goldBright,
               }}
             >
-              {role.isOutsideBox ? 'OUTSIDE-THE-BOX · MY CAIRNLY MATCH' : 'BEST-FIT CAREER · MY CAIRNLY MATCH'}
+              {role.isOutsideBox ? 'OUTSIDE-THE-BOX' : 'BEST-FIT CAREER'}
             </span>
             <h2
               style={{
@@ -796,7 +806,7 @@ const ShareCard: React.FC<{
                 color: PALETTE.goldBright,
               }}
             >
-              MY PERSONALITY · CAIRNLY REPORT
+              MY PERSONALITY
             </span>
             <h2
               style={{
@@ -819,7 +829,7 @@ const ShareCard: React.FC<{
                 color: 'rgba(255,255,255,0.78)',
               }}
             >
-              {firstName ? `${firstName}'s Cairnly profile` : 'Cairnly profile'}
+              {firstName ? `${firstName}'s profile` : 'My profile'}
             </div>
           </div>
         )}
