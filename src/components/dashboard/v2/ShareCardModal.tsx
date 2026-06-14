@@ -705,9 +705,9 @@ const ShareCard: React.FC<{
           </div>
         </div>
       </div>
-      <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 14 }}>
-        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 40, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
-        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted }}>
+      <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 52, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
+        <div style={{ fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: PALETTE.inkMuted }}>
           One-shot career clarity · <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
         </div>
       </div>
@@ -789,13 +789,41 @@ const ShareCard: React.FC<{
             >
               {role.title}
             </h2>
-            {/* Stat block: AI-impact status chip above a labelled match meter. */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 2 }}>
+            {/* Match + AI-impact as two matching pills, side by side. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 4 }}>
+              {role.matchPct != null && (
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '7px 14px',
+                    borderRadius: 9999,
+                    background: 'rgba(255,255,255,0.10)',
+                    border: `1px solid ${PALETTE.goldBright}66`,
+                  }}
+                >
+                  <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PALETTE.goldBright }}>
+                    {role.matchPct}%
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    Match
+                  </span>
+                </div>
+              )}
               {role.aiImpact && (
                 <div
                   style={{
                     display: 'inline-flex',
-                    alignSelf: 'flex-start',
                     alignItems: 'center',
                     gap: 9,
                     padding: '7px 14px',
@@ -828,37 +856,6 @@ const ShareCard: React.FC<{
                   >
                     AI impact
                   </span>
-                </div>
-              )}
-              {role.matchPct != null && (
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-                    <span
-                      style={{
-                        fontFamily: FONT_DISPLAY,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: '0.20em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.5)',
-                      }}
-                    >
-                      Match
-                    </span>
-                    <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: PALETTE.goldBright }}>
-                      {role.matchPct}%
-                    </span>
-                  </div>
-                  <div style={{ height: 6, background: 'rgba(255,255,255,0.14)', borderRadius: 9999, overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        width: `${role.matchPct}%`,
-                        height: '100%',
-                        background: `linear-gradient(90deg, ${PALETTE.teal} 0%, ${PALETTE.goldBright} 100%)`,
-                        boxShadow: '0 0 14px rgba(212,160,36,0.45)',
-                      }}
-                    />
-                  </div>
                 </div>
               )}
             </div>
