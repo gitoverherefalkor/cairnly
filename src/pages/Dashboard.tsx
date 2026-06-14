@@ -21,6 +21,7 @@ import {
   pickShareSentences,
   stripHtml,
 } from '@/components/dashboard/v2/dashboardV2Shared';
+import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 
 // Helper to get assessment session from localStorage.
 // Live survey progress is written by useSurveyState/useSurveySession under
@@ -328,6 +329,7 @@ const Dashboard = () => {
       sectionType: string;
       title: string;
       matchPct: number | null;
+      aiImpact: AIImpactLevel | null;
       quotes: string[] | null;
       isOutsideBox: boolean;
     };
@@ -345,6 +347,7 @@ const Dashboard = () => {
         sectionType: type,
         title,
         matchPct,
+        aiImpact: extractAIImpact(s.content || ''),
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
         isOutsideBox: false,
       });
@@ -358,6 +361,7 @@ const Dashboard = () => {
         sectionType: 'outside_box',
         title,
         matchPct: null,
+        aiImpact: extractAIImpact(s.content || ''),
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
         isOutsideBox: true,
       });

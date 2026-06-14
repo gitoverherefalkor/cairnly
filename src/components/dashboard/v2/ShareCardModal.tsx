@@ -13,6 +13,8 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
   LOGO_WORDMARK_URL,
+  AI_IMPACT_COLOR,
+  type AIImpactLevel,
 } from './dashboardV2Shared';
 import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 import CairnImageHero from '@/logos/Cairn_image_hero.png';
@@ -36,6 +38,7 @@ export interface RoleShare {
   sectionType: string;
   title: string;
   matchPct: number | null;
+  aiImpact: AIImpactLevel | null;
   // Cached AI-summarized quotes from the report_sections.share_quotes column.
   // Null means the modal needs to call generate-share-quotes to populate them.
   quotes: string[] | null;
@@ -695,16 +698,16 @@ const ShareCard: React.FC<{
           >
             {quote || 'A clear, honest read on where you do your best work.'}
           </p>
-          <div style={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 18 }}>
+          <div style={{ fontFamily: FONT_BODY, fontSize: 19, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 18 }}>
             {cardType === 'role' && role
-              ? `Why ${role.title} fits ${firstName || 'me'}.`
+              ? `Why this role fits ${firstName || 'me'}.`
               : `What ${firstName || 'I'} bring${firstName ? 's' : ''} to the table.`}
           </div>
         </div>
       </div>
-      <div style={{ marginTop: 32 }}>
-        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 48, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
-        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 10 }}>
+      <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 14 }}>
+        <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 40, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: PALETTE.inkMuted }}>
           One-shot career clarity · <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
         </div>
       </div>
@@ -786,23 +789,79 @@ const ShareCard: React.FC<{
             >
               {role.title}
             </h2>
-            {role.matchPct != null && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.14)', borderRadius: 9999, overflow: 'hidden' }}>
-                  <div
+            {/* Stat block: AI-impact status chip above a labelled match meter. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 2 }}>
+              {role.aiImpact && (
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignSelf: 'flex-start',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '7px 14px',
+                    borderRadius: 9999,
+                    background: 'rgba(255,255,255,0.10)',
+                    border: `1px solid ${AI_IMPACT_COLOR[role.aiImpact]}66`,
+                  }}
+                >
+                  <span
                     style={{
-                      width: `${role.matchPct}%`,
-                      height: '100%',
-                      background: `linear-gradient(90deg, ${PALETTE.teal} 0%, ${PALETTE.goldBright} 100%)`,
-                      boxShadow: '0 0 14px rgba(212,160,36,0.45)',
+                      width: 9,
+                      height: 9,
+                      borderRadius: 9999,
+                      background: AI_IMPACT_COLOR[role.aiImpact],
+                      boxShadow: `0 0 10px ${AI_IMPACT_COLOR[role.aiImpact]}`,
                     }}
                   />
+                  <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff' }}>
+                    {role.aiImpact}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    AI impact
+                  </span>
                 </div>
-                <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PALETTE.goldBright }}>
-                  {role.matchPct}%
-                </span>
-              </div>
-            )}
+              )}
+              {role.matchPct != null && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
+                    <span
+                      style={{
+                        fontFamily: FONT_DISPLAY,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: '0.20em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.5)',
+                      }}
+                    >
+                      Match
+                    </span>
+                    <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: PALETTE.goldBright }}>
+                      {role.matchPct}%
+                    </span>
+                  </div>
+                  <div style={{ height: 6, background: 'rgba(255,255,255,0.14)', borderRadius: 9999, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        width: `${role.matchPct}%`,
+                        height: '100%',
+                        background: `linear-gradient(90deg, ${PALETTE.teal} 0%, ${PALETTE.goldBright} 100%)`,
+                        boxShadow: '0 0 14px rgba(212,160,36,0.45)',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div>
