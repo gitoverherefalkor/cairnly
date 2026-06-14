@@ -2107,7 +2107,17 @@ const SharePromoBlock: React.FC<{
       gridTemplateColumns: '1.1fr 1fr',
     }}
   >
-    <div style={{ padding: 32, display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center' }}>
+    <div
+      style={{
+        padding: 32,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        justifyContent: 'center',
+        // Match the "share to unlock" toolkit element's gold-opacity background.
+        background: 'linear-gradient(135deg, rgba(212,160,36,0.18) 0%, rgba(39,161,161,0.12) 100%)',
+      }}
+    >
       <span
         style={{
           fontFamily: FONT_DISPLAY,

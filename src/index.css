@@ -415,3 +415,14 @@
   background-position: center;
   background-attachment: fixed;
 }
+
+/* Scrollable container without a visible scrollbar (still scrolls via wheel /
+   trackpad / drag). Used by the share-card modal so the bar doesn't overlap
+   the rounded corners. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

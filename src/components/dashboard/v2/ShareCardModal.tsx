@@ -233,6 +233,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        className="no-scrollbar"
         style={{
           background: PALETTE.cream,
           borderRadius: 24,
@@ -261,8 +262,13 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             >
               SHARE · LINKEDIN-READY
             </div>
-            <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0' }}>
-              Share your result on LinkedIn
+            <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0', display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              Share your result on
+              <img
+                src="/images/LinkedIn_Logo.svg.png"
+                alt="LinkedIn"
+                style={{ height: 20, width: 'auto', position: 'relative', top: 1 }}
+              />
             </h3>
             <p
               style={{
@@ -278,31 +284,32 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               network the direction you're exploring and start the conversations that move careers.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              background: 'transparent',
-              border: `1px solid ${PALETTE.tan}`,
-              borderRadius: 9999,
-              padding: 8,
-              cursor: 'pointer',
-              color: PALETTE.inkMuted,
-              display: 'inline-flex',
-            }}
-          >
-            <X size={16} />
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              style={{
+                background: 'transparent',
+                border: `1px solid ${PALETTE.tan}`,
+                borderRadius: 9999,
+                padding: 8,
+                cursor: 'pointer',
+                color: PALETTE.inkMuted,
+                display: 'inline-flex',
+              }}
+            >
+              <X size={16} />
+            </button>
+            {/* Card-type toggle, pulled up beside the intro text. */}
+            <CardTypeToggle
+              value={cardType}
+              onChange={setCardType}
+              roleAvailable={roleShares.length > 0}
+              personalityAvailable={personalityShares.length > 0}
+            />
+          </div>
         </div>
-
-        {/* Card-type toggle */}
-        <CardTypeToggle
-          value={cardType}
-          onChange={setCardType}
-          roleAvailable={roleShares.length > 0}
-          personalityAvailable={personalityShares.length > 0}
-        />
 
         {/* Scaled preview viewport. The card itself renders at natural size; the
             viewport clips the CSS-scaled copy. cardRef targets the natural-size
