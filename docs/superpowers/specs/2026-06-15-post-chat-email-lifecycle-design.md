@@ -111,22 +111,33 @@ Extend the existing machinery — same pattern, same templates, same dedup appro
 
 ## Edge cases & safety
 
-- **WF7 never produces exec_summary** (failure): A0 would never fire. WF7 failures are
-  already caught by the Global Error Handler. Optional long-stop: also send A0 if chat
-  completed > 24h ago even without exec_summary, so the user is never silently dropped.
-  *(Decision needed — see Open questions.)*
+- **WF7 never produces exec_summary** (failure): A0 would never fire. **Decision: include
+  a 24h long-stop** — also send A0 if chat completed > 24h ago even without an
+  `exec_summary` section, so the user is never silently dropped. (WF7 failures are also
+  caught by the Global Error Handler, but the long-stop guarantees the email.)
 - **User converts a referral mid-Track-A:** the `count = 0` gate naturally halts A1/A2
   at the next hourly run.
 - **Re-takes / timestamp rewrites:** all new flags are independent of survey/chat
   re-submission, so a re-take cannot resurrect a sent email.
 - **`email_reminders_enabled = FALSE`:** respected on every block, as today.
 
-## Open questions
+## Timing (confirmed)
 
-1. A0 long-stop fallback if `exec_summary` never appears: include the 24h safety send,
-   or trust WF7 + error handler? (Leaning: include the 24h fallback.)
-2. Exact day offsets (2 / 6 / 3) are placeholders — confirm during plan if you want
-   different spacing.
+Offsets anchor to **different events**, so they are not one sequence:
+
+- **Track A** (measured from the dashboard-ready email): day 0 ready → **day 2** nudge #1
+  → **day 6** nudge #2.
+- **Track B** (measured from the user's last successful conversion): **3 days** after a
+  stall, nudge the next tier.
+
+A user is in exactly one track at a time (Track A requires 0 referrals; Track B requires
+≥1), so the cadences never overlap for the same person.
+
+## Resolved decisions
+
+1. A0 long-stop: **include the 24h fallback** (send dashboard-ready even if `exec_summary`
+   is absent once chat completed > 24h ago).
+2. Day offsets: **keep 2 / 6 (Track A) and 3 (Track B).**
 
 ## Rollout
 
