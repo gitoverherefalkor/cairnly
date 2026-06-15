@@ -15,6 +15,13 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const BASE_URL = "https://cairnly.io";
 
+// Report-section titles are stored as HTML (e.g. "<h3><strong>Serious Games
+// Product Designer</strong></h3>"). Strip tags + collapse whitespace for use in
+// email subjects/body. Falls back handled by the caller.
+function stripHtml(s: string | null | undefined): string {
+  return (s ?? "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+}
+
 type Lang = "en" | "nl";
 
 // All 11 chat sections in order (mirrors ReportSidebar.tsx). Section names are
@@ -98,6 +105,61 @@ const COPY = {
       cta: "View Your Report",
       footnote: "Your report is permanently saved in your dashboard, access it anytime.",
     },
+    dashboardReady: {
+      subject: (n: string) => `Your full Cairnly report is ready, ${n}`,
+      title: "Your full Cairnly report is ready",
+      preheader: "Your complete career report has finished generating.",
+      h1: "Your full report is ready",
+      greeting: (n: string) => `Hi ${n},`,
+      p1: "Your coaching session is done, and Cairnly has now finished building your complete report. This is where everything comes together: your personality profile, your strengths, and your detailed career matches with the coaching feedback woven in.",
+      calloutTitle: "Waiting for you on your dashboard",
+      items: [
+        ["Executive Summary", "your personality, strengths, and top matches at a glance"],
+        ["Your Career Matches", "three detailed paths, plus runner-ups and an outside-the-box option"],
+        ["Dream Job Analysis", "how your aspirations line up with your profile"],
+        ["Your Toolkit", "job search, resume tailoring, and cover letters you can unlock"],
+      ] as [string, string][],
+      p2: "Cairnly does not stop at the chat. Take a few minutes to explore the full report, it is saved permanently and yours to revisit anytime.",
+      cta: "Explore Your Report",
+      footnote: "Saved permanently in your dashboard, access it anytime.",
+    },
+    unlockNudge: {
+      subject: (role: string) => `Let Cairnly find open roles for ${role}`,
+      title: "Unlock your job search",
+      preheader: "Live openings matched to your top career, free.",
+      greeting: (n: string) => `Hi ${n},`,
+      h1a: (role: string) => `Open roles for ${role}, found for you`,
+      p1a: (role: string) => `Your report points to ${role} as a strong match. Cairnly can search live job openings matched to that and your other recommendations, so you are not scrolling job boards alone.`,
+      calloutTitleA: "How to unlock it",
+      bodyA: "Invite one friend with your code below. The moment they join, your job search unlocks, free.",
+      h1b: (role: string) => `Tailor your CV and cover letters for ${role}`,
+      p1b: (role: string) => `You have unlocked job search. Invite a couple more friends and Cairnly will also rewrite your CV and draft cover letters tailored to ${role} and the exact roles you apply for. Only Cairnly has the insight into you to make these land.`,
+      calloutTitleB: "Keep unlocking",
+      bodyB: "Two friends unlock CV tailoring. Three unlock cover letters. Share your code below.",
+      codeLabel: "YOUR REFERRAL CODE",
+      yourCode: "Your code:",
+      cta: "Share your code",
+      footnote: "Each friend who joins also moves you toward a full refund of what you paid.",
+    },
+    progression: {
+      subjectNext: (nextTool: string) => `One more friend unlocks ${nextTool}`,
+      titleNext: "You are one invite away",
+      preheaderNext: "Invite one more friend to unlock your next tool.",
+      greeting: (n: string) => `Hi ${n},`,
+      h1Next: (nextTool: string) => `Invite one more to unlock ${nextTool}`,
+      p1Next: (currentTool: string, nextTool: string, role: string) =>
+        `You have already unlocked ${currentTool}. Invite one more friend with your code and ${nextTool} opens up too, tailored to ${role} and the roles you actually want.`,
+      subjectRefund: "You unlocked every tool. Now earn your money back",
+      titleRefund: "Every tool unlocked",
+      preheaderRefund: "From here, friends who join earn you a refund.",
+      h1Refund: "You have unlocked all three tools",
+      p1Refund: "Job search, CV tailoring, and cover letters are all yours. From here, every friend who joins with your code earns you part of your purchase back, up to a full refund once six friends have joined.",
+      codeLabel: "YOUR REFERRAL CODE",
+      yourCode: "Your code:",
+      ctaNext: "Share your code",
+      ctaRefund: "Share your code",
+      footnote: "You are receiving this because you have a Cairnly account.",
+    },
   },
   nl: {
     signupNoStart: {
@@ -158,6 +220,61 @@ const COPY = {
       p2: "Je rapport wordt permanent bewaard en je kunt er altijd naar terugkeren. We blijven het platform verbeteren, dus kom regelmatig terug om er het meeste uit te halen.",
       cta: "Bekijk je rapport",
       footnote: "Je rapport staat permanent in je dashboard, altijd toegankelijk.",
+    },
+    dashboardReady: {
+      subject: (n: string) => `Je volledige Cairnly-rapport is klaar, ${n}`,
+      title: "Je volledige Cairnly-rapport is klaar",
+      preheader: "Je complete loopbaanrapport is klaar met genereren.",
+      h1: "Je volledige rapport is klaar",
+      greeting: (n: string) => `Hoi ${n},`,
+      p1: "Je coachingsessie is afgerond en Cairnly heeft nu je complete rapport opgebouwd. Hier komt alles samen: je persoonlijkheidsprofiel, je sterke punten en je gedetailleerde loopbaanmatches met de coaching-feedback erin verwerkt.",
+      calloutTitle: "Dit staat voor je klaar op je dashboard",
+      items: [
+        ["Samenvatting", "je persoonlijkheid, sterke punten en beste matches in één oogopslag"],
+        ["Je loopbaanmatches", "drie uitgewerkte paden, plus runner-ups en een outside-the-box optie"],
+        ["Droombaan-analyse", "hoe je ambities aansluiten bij je profiel"],
+        ["Je toolkit", "vacaturezoeker, cv op maat en motivatiebrieven die je kunt ontgrendelen"],
+      ] as [string, string][],
+      p2: "Cairnly stopt niet bij de chat. Neem een paar minuten om je volledige rapport te bekijken, het wordt permanent bewaard en je kunt er altijd naar terug.",
+      cta: "Bekijk je rapport",
+      footnote: "Permanent bewaard in je dashboard, altijd toegankelijk.",
+    },
+    unlockNudge: {
+      subject: (role: string) => `Laat Cairnly vacatures vinden voor ${role}`,
+      title: "Ontgrendel je vacaturezoeker",
+      preheader: "Live vacatures op maat van je beste match, gratis.",
+      greeting: (n: string) => `Hoi ${n},`,
+      h1a: (role: string) => `Vacatures voor ${role}, voor je gevonden`,
+      p1a: (role: string) => `Je rapport wijst ${role} aan als sterke match. Cairnly kan live vacatures zoeken die daarbij en bij je andere aanbevelingen passen, zodat je niet alleen door vacaturesites hoeft te scrollen.`,
+      calloutTitleA: "Zo ontgrendel je het",
+      bodyA: "Nodig één vriend uit met je code hieronder. Zodra diegene lid wordt, ontgrendel je je vacaturezoeker, gratis.",
+      h1b: (role: string) => `Maak je cv en motivatiebrieven op maat voor ${role}`,
+      p1b: (role: string) => `Je hebt de vacaturezoeker ontgrendeld. Nodig nog een paar vrienden uit en Cairnly herschrijft ook je cv en stelt motivatiebrieven op die zijn afgestemd op ${role} en de specifieke vacatures waarop je solliciteert. Alleen Cairnly kent jou goed genoeg om dit echt te laten werken.`,
+      calloutTitleB: "Blijf ontgrendelen",
+      bodyB: "Twee vrienden ontgrendelen cv op maat. Drie ontgrendelen motivatiebrieven. Deel je code hieronder.",
+      codeLabel: "JOUW REFERRALCODE",
+      yourCode: "Jouw code:",
+      cta: "Deel je code",
+      footnote: "Elke vriend die lid wordt brengt je ook dichter bij volledige terugbetaling van wat je betaalde.",
+    },
+    progression: {
+      subjectNext: (nextTool: string) => `Nog één vriend ontgrendelt ${nextTool}`,
+      titleNext: "Je bent één uitnodiging verwijderd",
+      preheaderNext: "Nodig nog één vriend uit om je volgende tool te ontgrendelen.",
+      greeting: (n: string) => `Hoi ${n},`,
+      h1Next: (nextTool: string) => `Nodig nog één vriend uit om ${nextTool} te ontgrendelen`,
+      p1Next: (currentTool: string, nextTool: string, role: string) =>
+        `Je hebt ${currentTool} al ontgrendeld. Nodig nog één vriend uit met je code en ook ${nextTool} komt beschikbaar, op maat van ${role} en de functies die je echt wilt.`,
+      subjectRefund: "Je hebt elke tool ontgrendeld. Verdien nu je geld terug",
+      titleRefund: "Elke tool ontgrendeld",
+      preheaderRefund: "Vanaf nu leveren vrienden die lid worden je geld terug op.",
+      h1Refund: "Je hebt alle drie de tools ontgrendeld",
+      p1Refund: "Vacaturezoeker, cv op maat en motivatiebrieven zijn allemaal van jou. Vanaf nu levert elke vriend die lid wordt met je code een deel van je aankoop terug, tot een volledige terugbetaling zodra zes vrienden lid zijn geworden.",
+      codeLabel: "JOUW REFERRALCODE",
+      yourCode: "Jouw code:",
+      ctaNext: "Deel je code",
+      ctaRefund: "Deel je code",
+      footnote: "Je ontvangt deze e-mail omdat je een Cairnly-account hebt.",
     },
   },
 } as const;
@@ -322,6 +439,115 @@ function reportNotViewedEmail(firstName: string, lang: Lang): { subject: string;
   };
 }
 
+function dashboardReadyEmail(firstName: string, lang: Lang): { subject: string; html: string } {
+  const c = COPY[lang].dashboardReady;
+  const itemsHtml = c.items
+    .map(([label, rest]) => `<tr><td style="padding:5px 0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;"><strong style="color:#122E3B;font-weight:700;">${label}</strong>: ${rest}</td></tr>`)
+    .join('');
+
+  const bodyHtml =
+    bodyRow(
+      h1(c.h1) +
+      paragraph(c.greeting(firstName)) +
+      paragraph(c.p1) +
+      callout(c.calloutTitle, `
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${itemsHtml}
+        </table>
+      `) +
+      paragraph(c.p2)
+    ) +
+    ctaRow(c.cta, `${BASE_URL}/dashboard`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph(c.footnote, { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+
+  return {
+    subject: c.subject(firstName),
+    html: renderEmail({ title: c.title, preheader: c.preheader, bodyHtml, footer: 'reminder' }),
+  };
+}
+
+function unlockNudgeEmail(
+  firstName: string,
+  nudge: number,
+  topRoleRaw: string | null,
+  referralCode: string | null,
+  lang: Lang,
+): { subject: string; html: string } {
+  const c = COPY[lang].unlockNudge;
+  const role = stripHtml(topRoleRaw) || (lang === "nl" ? "je beste loopbaanmatch" : "your top career match");
+
+  const isFirst = nudge === 1;
+  const h1Text = isFirst ? c.h1a(role) : c.h1b(role);
+  const p1Text = isFirst ? c.p1a(role) : c.p1b(role);
+  const calloutTitle = isFirst ? c.calloutTitleA : c.calloutTitleB;
+  const calloutBody = isFirst ? c.bodyA : c.bodyB;
+
+  const shareHref = `${BASE_URL}/dashboard?share=1`;
+  const codeLine = referralCode
+    ? `<p style="margin:8px 0 0 0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">${c.yourCode} <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${referralCode}</strong></p>`
+    : '';
+
+  const bodyHtml =
+    bodyRow(
+      h1(h1Text) +
+      paragraph(c.greeting(firstName)) +
+      paragraph(p1Text) +
+      callout(calloutTitle, `
+        <p style="margin:0;color:#3D4A53;font-size:14.5px;line-height:1.6;font-family:'Inter',Arial,sans-serif;font-weight:500;">${calloutBody}</p>
+        ${codeLine}
+      `)
+    ) +
+    ctaRow(c.cta, shareHref) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph(c.footnote, { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+
+  return {
+    subject: c.subject(role),
+    html: renderEmail({ title: c.title, preheader: c.preheader, bodyHtml, footer: 'reminder' }),
+  };
+}
+
+const PROGRESSION_TOOLS: Record<number, { current: string; next: string | null }> = {
+  1: { current: "Find Open Roles", next: "Tailor Your Resume" },
+  2: { current: "Tailor Your Resume", next: "Tailor Cover Letters" },
+};
+
+function progressionEmail(
+  firstName: string,
+  variant: "next_tool" | "refund",
+  currentCount: number,
+  topRoleRaw: string | null,
+  referralCode: string | null,
+  lang: Lang,
+): { subject: string; html: string } {
+  const c = COPY[lang].progression;
+  const role = stripHtml(topRoleRaw) || (lang === "nl" ? "je beste loopbaanmatch" : "your top career match");
+  const codeLine = referralCode
+    ? `<p style="margin:0;color:#122E3B;font-size:14.5px;line-height:1.55;font-family:'Inter','Segoe UI',Arial,sans-serif;font-weight:500;">${c.yourCode} <strong style="font-family:'Poppins','Inter',Arial,sans-serif;letter-spacing:1.5px;color:#1F8282;font-weight:700;">${referralCode}</strong></p>`
+    : `<p style="margin:0;"><a href="${BASE_URL}/dashboard?share=1" style="color:#1F8282;text-decoration:underline;font-weight:600;">${c.yourCode}</a></p>`;
+
+  if (variant === "refund") {
+    const bodyHtml =
+      bodyRow(h1(c.h1Refund) + paragraph(c.greeting(firstName)) + paragraph(c.p1Refund) + callout(c.codeLabel, codeLine)) +
+      ctaRow(c.ctaRefund, `${BASE_URL}/dashboard?share=1`) +
+      `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph(c.footnote, { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+    return {
+      subject: c.subjectRefund,
+      html: renderEmail({ title: c.titleRefund, preheader: c.preheaderRefund, bodyHtml, footer: 'reminder' }),
+    };
+  }
+
+  const tools = PROGRESSION_TOOLS[currentCount] ?? PROGRESSION_TOOLS[1];
+  const nextTool = tools.next ?? "Tailor Cover Letters";
+  const bodyHtml =
+    bodyRow(h1(c.h1Next(nextTool)) + paragraph(c.greeting(firstName)) + paragraph(c.p1Next(tools.current, nextTool, role)) + callout(c.codeLabel, codeLine)) +
+    ctaRow(c.ctaNext, `${BASE_URL}/dashboard?share=1`) +
+    `<tr><td style="padding:0 48px 28px;background-color:#ECE4D2;" class="px-mob">${paragraph(c.footnote, { size: 13, color: '#6B7480', align: 'center', mb: 0 })}</td></tr>`;
+  return {
+    subject: c.subjectNext(nextTool),
+    html: renderEmail({ title: c.titleNext, preheader: c.preheaderNext, bodyHtml, footer: 'reminder' }),
+  };
+}
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Edge Function handler
 // ──────────────────────────────────────────────────────────────────────────────
@@ -334,10 +560,15 @@ interface ReminderUser {
   survey_total_sections?: number | null;
   chat_last_section_index?: number | null;
   preferred_language?: string | null;
+  top_role?: string | null;
+  referral_code?: string | null;
+  nudge?: number | null;
+  variant?: "next_tool" | "refund" | null;
+  current_count?: number | null;
 }
 
 interface ReminderPayload {
-  type: "signup_no_start" | "survey_abandoned" | "chat_not_completed" | "report_not_viewed";
+  type: "signup_no_start" | "survey_abandoned" | "chat_not_completed" | "report_not_viewed" | "dashboard_ready" | "unlock_nudge" | "referral_progression";
   users: ReminderUser[];
 }
 
@@ -443,6 +674,28 @@ serve(async (req) => {
           break;
         case "report_not_viewed":
           emailContent = reportNotViewedEmail(user.first_name, lang);
+          break;
+        case "dashboard_ready":
+          emailContent = dashboardReadyEmail(user.first_name, lang);
+          break;
+        case "unlock_nudge":
+          emailContent = unlockNudgeEmail(
+            user.first_name,
+            user.nudge ?? 1,
+            user.top_role ?? null,
+            user.referral_code ?? null,
+            lang,
+          );
+          break;
+        case "referral_progression":
+          emailContent = progressionEmail(
+            user.first_name,
+            user.variant ?? "next_tool",
+            user.current_count ?? 1,
+            user.top_role ?? null,
+            user.referral_code ?? null,
+            lang,
+          );
           break;
         default:
           console.error(`Unknown reminder type: ${type}`);
