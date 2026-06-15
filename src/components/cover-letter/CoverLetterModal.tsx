@@ -301,7 +301,7 @@ const SetupView: React.FC<{
             padding: '10px 18px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: 13,
             textDecoration: 'none',
           }}
@@ -375,7 +375,7 @@ const SetupView: React.FC<{
           padding: '14px 24px',
           borderRadius: 9999,
           fontFamily: FONT_BODY,
-          fontWeight: 800,
+          fontWeight: 700,
           fontSize: 14,
           display: 'inline-flex',
           alignItems: 'center',
@@ -566,7 +566,7 @@ const CompletedView: React.FC<{
                   padding: '12px 22px',
                   borderRadius: 9999,
                   fontFamily: FONT_BODY,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 13,
                   textDecoration: 'none',
                   boxShadow: '0 14px 32px -10px rgba(212,160,36,0.55)',
@@ -586,7 +586,7 @@ const CompletedView: React.FC<{
                   padding: '12px 22px',
                   borderRadius: 9999,
                   fontFamily: FONT_BODY,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 13,
                 }}
               >

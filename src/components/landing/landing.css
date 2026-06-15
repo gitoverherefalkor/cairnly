@@ -80,7 +80,7 @@ button.lp-screenshot-slot {
   position: absolute; top: 14px; right: 14px;
   background: rgba(33, 63, 79, 0.85); color: #fff;
   padding: 5px 12px; border-radius: 9999px;
-  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
 }
 .lp-screenshot-slot__inner {
@@ -91,7 +91,7 @@ button.lp-screenshot-slot {
 .lp-on-dark.lp-screenshot-slot .lp-screenshot-slot__inner { color: rgba(255,255,255,0.72); }
 .lp-screenshot-slot__inner svg { opacity: 0.4; }
 .lp-screenshot-slot__label {
-  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 13px; letter-spacing: 0.04em;
 }
 .lp-screenshot-slot__desc {
@@ -151,7 +151,7 @@ button.lp-screenshot-slot {
   vertical-align: top;
 }
 .lp-compare-table thead th {
-  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
   color: #6B7F8B; padding-bottom: 14px;
   border-bottom: 2px solid rgba(201, 182, 144, 0.6);
@@ -182,7 +182,7 @@ button.lp-screenshot-slot {
 .lp-compare-table tbody td p {
   font-size: 14px; line-height: 1.5; color: #4B6373; font-weight: 500; margin: 0;
 }
-.lp-compare-table tbody td p strong { color: #122E3B; font-weight: 800; }
+.lp-compare-table tbody td p strong { color: #122E3B; font-weight: 700; }
 .lp-compare-cairnly {
   background: #FBF6E8;
   border-left: 1px solid #D4A024;
@@ -209,7 +209,7 @@ button.lp-screenshot-slot {
   letter-spacing: 0.22em; text-transform: uppercase; fill: #6B7F8B;
 }
 .lp-fork-label-new {
-  font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 11px;
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
   letter-spacing: 0.22em; text-transform: uppercase; fill: #D4A024;
 }
 
@@ -219,7 +219,7 @@ button.lp-screenshot-slot {
 .lp-faq summary {
   list-style: none; cursor: pointer; padding: 22px 0;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 24px; font-family: 'Poppins', sans-serif; font-weight: 800;
+  gap: 24px; font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 19px; color: #122E3B; letter-spacing: -0.01em;
 }
 .lp-faq summary::-webkit-details-marker { display: none; }
@@ -350,7 +350,7 @@ button.lp-screenshot-slot {
   border: 1px solid rgba(212, 160, 36, 0.25);
 }
 .lp-stat-inline__num {
-  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 38px; color: #C8891A; line-height: 1;
   letter-spacing: -0.02em; flex-shrink: 0;
 }
@@ -378,7 +378,7 @@ button.lp-screenshot-slot {
   min-height: 178px;
 }
 .lp-stat-cell__num {
-  font-family: 'Poppins', sans-serif; font-weight: 800;
+  font-family: 'Poppins', sans-serif; font-weight: 700;
   font-size: 42px; line-height: 1; color: #122E3B;
   letter-spacing: -0.025em;
 }

@@ -116,7 +116,7 @@ const TemplateTile: React.FC<{
     <div
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 800,
+        fontWeight: 700,
         fontSize: compact ? 13 : 14,
         color: '#fff',
         lineHeight: 1.2,

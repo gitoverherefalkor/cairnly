@@ -1644,7 +1644,7 @@ const UnlockToolkit: React.FC<{
                   style={{
                     fontFamily: FONT_BODY,
                     fontSize: 10.5,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     color: PALETTE.canvasDeep,
                     background: PALETTE.goldBright,
                     padding: '3px 9px',
@@ -1705,7 +1705,7 @@ const UnlockToolkit: React.FC<{
                   padding: '12px 22px',
                   borderRadius: 9999,
                   fontFamily: FONT_BODY,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 13.5,
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -1746,7 +1746,7 @@ const LadderRow: React.FC<{
       style={{
         fontFamily: FONT_BODY,
         fontSize: 10,
-        fontWeight: 800,
+        fontWeight: 700,
         letterSpacing: '0.16em',
         textTransform: 'uppercase',
         color: 'rgba(255,255,255,0.45)',
@@ -1897,7 +1897,7 @@ const StepCard: React.FC<{
             alignItems: 'center',
             justifyContent: 'center',
             fontFamily: FONT_DISPLAY,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: 12,
             // Tools: gold when unlocked, grey when locked. Refunds: always a
             // teal "money" tint when unlocked, soft gold-tint coin when locked.

@@ -35,7 +35,7 @@ const Methodology: React.FC = () => {
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
             <span
-              className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase mb-7"
+              className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase mb-7"
               style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.12em' }}
             >
               {t('methodology.oldCard.pill')}
@@ -62,7 +62,7 @@ const Methodology: React.FC = () => {
             }}
           >
             <span
-              className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase mb-7"
+              className="inline-block px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase mb-7"
               style={{ background: '#D4A024', color: '#1A1A1A', letterSpacing: '0.12em' }}
             >
               {t('methodology.newCard.pill')}

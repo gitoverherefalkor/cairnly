@@ -47,7 +47,7 @@ const Pillars: React.FC = () => {
                 <Icon size={32} strokeWidth={1.8} className="opacity-80" color="#27A1A1" />
               </div>
               <h3
-                className="font-heading font-extrabold text-2xl md:text-[24px] text-[#122E3B] mb-3"
+                className="font-heading font-bold text-2xl md:text-[24px] text-[#122E3B] mb-3"
                 style={{ letterSpacing: '-0.01em' }}
               >
                 {cards[i]?.title}

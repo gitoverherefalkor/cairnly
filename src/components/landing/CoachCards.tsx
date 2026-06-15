@@ -38,7 +38,7 @@ const CoachCards: React.FC = () => {
               <div className="text-[#6B7F8B] mb-5">
                 <FileText size={32} strokeWidth={1.6} />
               </div>
-              <h4 className="font-heading font-extrabold text-lg text-[#6B7F8B] mb-3">{t('chatRefine.staticPdf.title')}</h4>
+              <h4 className="font-heading font-bold text-lg text-[#6B7F8B] mb-3">{t('chatRefine.staticPdf.title')}</h4>
               <p className="text-[14px] text-[#6B7F8B] font-medium leading-relaxed">
                 {t('chatRefine.staticPdf.body')}
               </p>
@@ -56,7 +56,7 @@ const CoachCards: React.FC = () => {
               }}
             >
               <div
-                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.22em]"
+                className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.22em]"
                 style={{ background: '#D4A024', color: '#1A1A1A' }}
               >
                 {t('chatRefine.cairnly.label')}
@@ -84,7 +84,7 @@ const CoachCards: React.FC = () => {
               <div className="text-[#6B7F8B] mb-5">
                 <MessageSquare size={32} strokeWidth={1.6} />
               </div>
-              <h4 className="font-heading font-extrabold text-lg text-[#6B7F8B] mb-3">{t('chatRefine.subChat.title')}</h4>
+              <h4 className="font-heading font-bold text-lg text-[#6B7F8B] mb-3">{t('chatRefine.subChat.title')}</h4>
               <p className="text-[14px] text-[#6B7F8B] font-medium leading-relaxed">
                 {t('chatRefine.subChat.body')}
               </p>

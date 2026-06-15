@@ -144,7 +144,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             padding: '14px 22px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: 14,
             display: 'inline-flex',
             alignItems: 'center',

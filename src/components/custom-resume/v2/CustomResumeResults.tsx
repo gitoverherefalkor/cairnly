@@ -161,7 +161,7 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
                 <span
                   style={{
                     fontFamily: FONT_DISPLAY,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     fontSize: 13,
                     color: '#fff',
                     maxWidth: 220,
@@ -206,7 +206,7 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
       >
         <Loader2 size={22} className="animate-spin" color={PALETTE.tealBright} />
         <div>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 17, color: '#fff' }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 17, color: '#fff' }}>
             Tailoring your résumé for {row.career_title}…
           </div>
           <div
@@ -242,7 +242,7 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
       >
         <AlertCircle size={20} color="#fca5a5" style={{ flexShrink: 0, marginTop: 2 }} />
         <div>
-          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, color: '#fff' }}>
+          <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: '#fff' }}>
             We couldn't generate the résumé for {row.career_title}.
           </div>
           <div
@@ -374,7 +374,7 @@ const PanelHeader: React.FC<{
             <span
               style={{
                 fontFamily: FONT_DISPLAY,
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
@@ -774,7 +774,7 @@ const PdfFrame: React.FC<{
                   padding: '12px 20px',
                   borderRadius: 9999,
                   fontFamily: FONT_BODY,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 13.5,
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -805,7 +805,7 @@ const CoveragePanel: React.FC<{ coverage: KeywordCoverage }> = ({ coverage }) =>
     <div
       style={{
         fontFamily: FONT_DISPLAY,
-        fontWeight: 800,
+        fontWeight: 700,
         fontSize: 13,
         color: '#fff',
         marginBottom: 12,
@@ -841,7 +841,7 @@ const KeywordRow: React.FC<{
       style={{
         fontFamily: FONT_BODY,
         fontSize: 10.5,
-        fontWeight: 800,
+        fontWeight: 700,
         letterSpacing: '0.16em',
         textTransform: 'uppercase',
         color: 'rgba(255,255,255,0.55)',

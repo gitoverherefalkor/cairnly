@@ -214,7 +214,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                 padding: '18px 32px',
                 borderRadius: 9999,
                 fontFamily: FONT_BODY,
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: 16,
                 display: 'inline-flex',
                 alignItems: 'center',

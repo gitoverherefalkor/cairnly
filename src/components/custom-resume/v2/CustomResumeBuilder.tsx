@@ -211,7 +211,7 @@ export const CustomResumeBuilder: React.FC<CustomResumeBuilderProps> = ({
                   padding: '16px 28px',
                   borderRadius: 9999,
                   fontFamily: FONT_BODY,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 15,
                   display: 'inline-flex',
                   alignItems: 'center',

@@ -166,7 +166,7 @@ const CareerGroup: React.FC<{
         <h3
           style={{
             fontFamily: FONT_DISPLAY,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: 16,
             color: '#fff',
             margin: 0,
@@ -382,7 +382,7 @@ const DeleteConfirmModal: React.FC<{
             padding: '10px 18px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
-            fontWeight: 800,
+            fontWeight: 700,
             fontSize: 13,
             cursor: 'pointer',
           }}

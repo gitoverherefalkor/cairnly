@@ -386,7 +386,7 @@ const WorkflowDiagramV2: React.FC = () => (
         {PHASES.map((phase, pi) => (
           <div key={phase.name}>
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[#D4A024] font-heading font-extrabold text-[10px] tracking-[0.22em]">
+              <span className="text-[#D4A024] font-heading font-bold text-[10px] tracking-[0.22em]">
                 {`0${pi + 1} · ${phase.name}`}
               </span>
               <span className="text-white/40 text-[10px]">· {phase.desc}</span>

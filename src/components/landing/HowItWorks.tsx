@@ -210,7 +210,7 @@ const HowItWorks: React.FC = () => {
               imageLeft
               body={steps[4]?.body}
               extra={
-                <p className="mt-5 text-[13px] text-[#D4A024] font-extrabold flex items-center gap-2">
+                <p className="mt-5 text-[13px] text-[#D4A024] font-bold flex items-center gap-2">
                   <Sparkles size={14} strokeWidth={2} />
                   {steps[4]?.extra}
                 </p>

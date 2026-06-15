@@ -106,7 +106,7 @@ const ComparisonTable: React.FC = () => {
         <Reveal className="lg:hidden space-y-4">
           <div className="rounded-2xl p-6" style={{ background: '#FBF6E8', border: '1px solid #D4A024' }}>
             <div
-              className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-[0.22em] mb-3"
+              className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.22em] mb-3"
               style={{ background: '#D4A024', color: '#1A1A1A' }}
             >
               {t('comparison.mobile.cairnlyLabel')}
@@ -118,7 +118,7 @@ const ComparisonTable: React.FC = () => {
             </ul>
           </div>
           <div className="flex items-center gap-3 pt-4 pb-1">
-            <span className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#6B7F8B]">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#6B7F8B]">
               {t('comparison.mobile.othersLabel')}
             </span>
             <span className="h-px flex-1" style={{ background: 'rgba(201,182,144,0.7)' }} />

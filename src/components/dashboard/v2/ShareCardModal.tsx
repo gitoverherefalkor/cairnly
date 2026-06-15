@@ -689,7 +689,7 @@ const ShareCard: React.FC<{
             style={{
               fontFamily: FONT_DISPLAY,
               fontSize: 38,
-              fontWeight: 800,
+              fontWeight: 700,
               letterSpacing: '-0.025em',
               lineHeight: 1.15,
               color: PALETTE.canvasDeep,

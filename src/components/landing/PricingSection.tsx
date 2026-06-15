@@ -38,7 +38,7 @@ const PricingSection: React.FC = () => {
                   <span>{f}</span>
                 </li>
               ))}
-              <li className="flex items-start gap-4 text-[15px] font-extrabold pt-3" style={{ color: '#D4A024' }}>
+              <li className="flex items-start gap-4 text-[15px] font-bold pt-3" style={{ color: '#D4A024' }}>
                 <Sparkles size={20} strokeWidth={2.2} color="#D4A024" className="shrink-0 mt-0.5" />
                 <span>
                   {t('pricing.bonusA')}{' '}
@@ -54,7 +54,7 @@ const PricingSection: React.FC = () => {
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
             <div
-              className="px-5 py-2 rounded-full text-[11px] font-extrabold uppercase tracking-[0.22em] mb-8"
+              className="px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.22em] mb-8"
               style={{ background: '#D4A024', color: '#1A1A1A' }}
             >
               {t('pricing.betaPill')}

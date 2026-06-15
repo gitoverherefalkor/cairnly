@@ -171,7 +171,7 @@ const WorkflowDiagram: React.FC = () => (
     >
       <div className="flex items-center justify-between mb-5">
         <div
-          className="px-3 py-1 rounded-full text-[10px] font-heading font-extrabold uppercase tracking-[0.22em]"
+          className="px-3 py-1 rounded-full text-[10px] font-heading font-bold uppercase tracking-[0.22em]"
           style={{ background: '#D4A024', color: '#1A1A1A' }}
         >
           7 AI Workflows
@@ -181,7 +181,7 @@ const WorkflowDiagram: React.FC = () => (
       <ul className="space-y-3">
         {MOBILE_ROWS.map(([wf, label, tag]) => (
           <li key={wf} className="flex items-center gap-4">
-            <span className="text-[#D4A024] font-heading font-extrabold text-[11px] tracking-[0.22em] w-8 shrink-0">{wf}</span>
+            <span className="text-[#D4A024] font-heading font-bold text-[11px] tracking-[0.22em] w-8 shrink-0">{wf}</span>
             <span className="text-white font-medium text-[14px]">{label}</span>
             <span className="ml-auto text-[10px] text-white/40 uppercase tracking-wider">{tag}</span>
           </li>
