@@ -147,14 +147,22 @@ const ResponsiveRanking: React.FC<{
   
   const rankingChoices = question.config?.choices || [];
   
-  // Device detection
+  // Device detection — decides between the drag-and-drop UI (mouse/trackpad)
+  // and the dropdown UI. HTML5 drag does not work on touch-only devices, so
+  // those keep the dropdowns. But a touch-capable laptop still has a fine
+  // pointer (trackpad/mouse) and can drag, so it must NOT be forced onto the
+  // dropdowns just because it reports touch support — that was hiding the
+  // drag-and-drop from laptop users with touchscreens.
   useEffect(() => {
     const checkDevice = () => {
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const hasFinePointer = window.matchMedia?.('(any-pointer: fine)').matches ?? false;
       const isSmallScreen = window.innerWidth < 768;
-      
-      setIsMobile(isMobileDevice || isTouchDevice || isSmallScreen);
+
+      // Fall back to dropdowns only for phones, very narrow screens, or
+      // touch devices that have no fine pointer at all.
+      setIsMobile(isMobileDevice || isSmallScreen || (isTouchDevice && !hasFinePointer));
     };
     
     checkDevice();
@@ -258,7 +266,7 @@ const ResponsiveRanking: React.FC<{
           </span>
         ) : (
           <span>
-            <strong>Drag and drop</strong> to reorder items by importance (most important at top)
+            <strong>Drag and drop</strong> (or use the up/down arrows) to reorder items by importance, most important at top
           </span>
         )}
       </div>
@@ -301,7 +309,7 @@ const ResponsiveRanking: React.FC<{
                   </span>
                 </div>
                 
-                <div className="flex flex-col gap-1 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex flex-col gap-1 ml-3">
                   <button
                     type="button"
                     onClick={() => index > 0 && moveItem(index, index - 1)}
