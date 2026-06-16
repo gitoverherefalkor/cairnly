@@ -104,7 +104,9 @@ export function isQuestionAnswered(question: any, response: any): boolean {
     const activeEntries = response.slice(0, 5);
     for (const entry of activeEntries) {
       if (entry.title && entry.title.trim()) {
-        if (!entry.companySize || !entry.companyCulture || !entry.startYear) {
+        // Sector is required too — it shows a red border when empty, so it must
+        // also block the Continue button (otherwise the red field is misleading).
+        if (!entry.companySize || !entry.companyCulture || !entry.startYear || !entry.sector?.trim()) {
           return false;
         }
       }

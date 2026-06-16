@@ -4,7 +4,7 @@ import { SectionIntroduction } from './SectionIntroduction';
 import { SurveyNavigation, MobileStepIndicator } from './SurveyNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Send, Loader2, CheckCircle, RefreshCw, Mountain } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Send, Loader2, CheckCircle, RefreshCw, Mountain, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSurveyState } from './hooks/useSurveyState';
 import { useResumePreFill } from './hooks/useResumePreFill';
@@ -105,6 +105,19 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   const [activeMilestone, setActiveMilestone] = useState<string | null>(null);
   const firedMilestonesRef = useRef<Set<number>>(new Set());
   const milestoneInitRef = useRef(false);
+
+  // "You can't continue yet" hint — shown when the user clicks Continue while
+  // the current question still has missing required fields. We keep the button
+  // clickable (instead of silently disabled) so we can explain why and scroll
+  // them to the first red field.
+  const [showIncompleteHint, setShowIncompleteHint] = useState(false);
+  const questionCardRef = useRef<HTMLDivElement>(null);
+
+  // Clear the "can't continue yet" hint whenever we move to a different question,
+  // so it never carries over to a freshly shown (and possibly incomplete) one.
+  useEffect(() => {
+    setShowIncompleteHint(false);
+  }, [currentSectionIndex, currentQuestionIndex, showSectionIntro]);
 
   // Engagement tracking for reminder emails
   const { trackSurveyStart, trackSurveyProgress, trackSurveyQuestionProgress, trackSurveyComplete } =
@@ -372,6 +385,28 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     return currentSectionIndex === 0 && currentQuestionIndex === 0 && !showSectionIntro;
   };
 
+  // Continue/Submit click. If the question still has missing required fields,
+  // show an inline hint and scroll the user to the first red field instead of
+  // silently doing nothing (the old behaviour: a disabled button with no reason).
+  const handleAdvance = () => {
+    if (!isCurrentQuestionComplete()) {
+      setShowIncompleteHint(true);
+      // Wait a frame so the hint is in the DOM, then scroll to the first
+      // highlighted-in-red field within the question card.
+      requestAnimationFrame(() => {
+        const firstInvalid = questionCardRef.current?.querySelector('.border-red-300');
+        firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      return;
+    }
+    setShowIncompleteHint(false);
+    if (isLastQuestion()) {
+      handleSubmit();
+    } else {
+      handleNext();
+    }
+  };
+
   // Global progress bar — rendered in all active survey states
   const GlobalProgressBar = (
     <div className="fixed top-0 left-0 right-0 h-[3px] z-30 bg-gray-100">
@@ -580,7 +615,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                 >
                   Section {currentSectionIndex + 1} · Question {currentQuestionInSection} of {totalQuestionsInSection}
                 </div>
-                <div className="text-base sm:text-lg font-light text-gray-900">
+                <div ref={questionCardRef} className="text-base sm:text-lg font-light text-gray-900">
                   <QuestionRenderer
                     question={currentQuestion}
                     value={responses[currentQuestion.id]}
@@ -588,6 +623,17 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     allResponses={responses}
                   />
                 </div>
+
+                {/* "Can't continue yet" hint — only while the question is still incomplete */}
+                {showIncompleteHint && !isCurrentQuestionComplete() && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+                  >
+                    <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>Please complete all required fields before continuing. Any missing fields are outlined in red.</span>
+                  </div>
+                )}
 
                 {/* Navigation — bottom of the question card */}
                 <div
@@ -604,10 +650,9 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     Back
                   </Button>
                   <Button
-                    onClick={isLastQuestion() ? handleSubmit : handleNext}
+                    onClick={handleAdvance}
                     disabled={
                       submissionStatus === 'submitted' ||
-                      !isCurrentQuestionComplete() ||
                       isLoading ||
                       isSubmitting
                     }
