@@ -37,6 +37,42 @@ interface SupportPayload {
   page?: string;
   access_code?: string;
   user_agent?: string;
+  // Optional screenshot, sent as a data URL (e.g. "data:image/png;base64,..").
+  screenshot?: string;
+  screenshot_name?: string;
+}
+
+// Max decoded screenshot size accepted server-side (5 MB). The frontend caps
+// uploads too, but we re-check here since the function is publicly callable.
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+
+// Parse a "data:<mime>;base64,<data>" URL into its mime type and raw bytes.
+// Returns null when the string isn't a well-formed base64 image data URL.
+function parseImageDataUrl(
+  dataUrl: string,
+): { mime: string; bytes: Uint8Array; base64: string } | null {
+  const match = /^data:([^;,]+);base64,(.+)$/s.exec(dataUrl);
+  if (!match) return null;
+  const mime = match[1].toLowerCase();
+  if (!ALLOWED_IMAGE_TYPES.includes(mime)) return null;
+  const base64 = match[2];
+  try {
+    const binary = atob(base64);
+    if (binary.length > MAX_SCREENSHOT_BYTES) return null;
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return { mime, bytes, base64 };
+  } catch {
+    return null;
+  }
+}
+
+function extForMime(mime: string): string {
+  if (mime === 'image/jpeg') return 'jpg';
+  if (mime === 'image/webp') return 'webp';
+  if (mime === 'image/gif') return 'gif';
+  return 'png';
 }
 
 // Resolve the user from the request's auth token, if any. Returns null for
@@ -77,6 +113,7 @@ function buildSupportEmailHtml(args: {
   submittedAt: string;
   userAgent: string;
   message: string;
+  hasScreenshot: boolean;
 }): string {
   const safe = {
     categoryLabel: escapeHtml(args.categoryLabel),
@@ -121,6 +158,7 @@ function buildSupportEmailHtml(args: {
     ${row('Access code', safe.accessCode, true)}
     ${row('Submitted', safe.submittedAt)}
     ${row('Browser', `<span style="font-size:12px;line-height:1.5;">${safe.userAgent}</span>`)}
+    ${args.hasScreenshot ? row('Screenshot', '<span style="color:#1F8282;font-weight:600;font-size:14px;">📎 Attached to this email</span>') : ''}
   </table>
 </td></tr>
 
@@ -149,6 +187,7 @@ function buildSupportEmailText(args: {
   submittedAt: string;
   userAgent: string;
   message: string;
+  hasScreenshot: boolean;
 }): string {
   return [
     `Category: ${args.categoryLabel}`,
@@ -158,6 +197,7 @@ function buildSupportEmailText(args: {
     `Access code: ${args.accessCode}`,
     `Submitted: ${args.submittedAt}`,
     `Browser: ${args.userAgent}`,
+    `Screenshot: ${args.hasScreenshot ? 'Attached to this email' : 'none'}`,
     '',
     '--- Message ---',
     args.message,
@@ -217,6 +257,31 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
 
+  // Optional screenshot: validate, upload to the private support-attachments
+  // bucket, and keep the object path on the row. A malformed/oversized image is
+  // ignored rather than failing the whole request — the message still matters.
+  let screenshotPath: string | null = null;
+  let screenshotAttachment: { filename: string; content: string } | null = null;
+  if (typeof body.screenshot === 'string' && body.screenshot.length > 0) {
+    const parsed = parseImageDataUrl(body.screenshot);
+    if (parsed) {
+      const ext = extForMime(parsed.mime);
+      const filename = `screenshot.${ext}`;
+      const path = `${authedUser?.id ?? 'anon'}/${Date.now()}_${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('support-attachments')
+        .upload(path, parsed.bytes, { contentType: parsed.mime, upsert: false });
+      if (upErr) {
+        console.error('[submit-support-request] screenshot upload failed:', upErr);
+      } else {
+        screenshotPath = path;
+        screenshotAttachment = { filename, content: parsed.base64 };
+      }
+    } else {
+      console.warn('[submit-support-request] screenshot rejected (bad type/size)');
+    }
+  }
+
   // Log first — if the email send fails afterward, the request is still saved.
   const { error: insErr } = await supabase.from('support_requests').insert({
     category,
@@ -226,6 +291,7 @@ serve(async (req) => {
     page,
     access_code: accessCode,
     user_agent: userAgent,
+    screenshot_path: screenshotPath,
   });
 
   if (insErr) {
@@ -247,6 +313,7 @@ serve(async (req) => {
     submittedAt,
     userAgent: userAgent ?? 'unknown',
     message,
+    hasScreenshot: !!screenshotAttachment,
   };
 
   try {
@@ -258,6 +325,7 @@ serve(async (req) => {
       subject: `[Support: ${categoryLabel}] from ${email}`,
       html: buildSupportEmailHtml(emailArgs),
       text: buildSupportEmailText(emailArgs),
+      attachments: screenshotAttachment ? [screenshotAttachment] : undefined,
     });
   } catch (e) {
     console.error('[submit-support-request] email send failed:', e);

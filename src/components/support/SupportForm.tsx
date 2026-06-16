@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,13 +14,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ImagePlus, X } from 'lucide-react';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 const ENDPOINT = `${SUPABASE_URL}/functions/v1/submit-support-request`;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Screenshot upload constraints — kept in sync with the edge function's checks.
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+
+// Read a File into a base64 data URL ("data:image/png;base64,...").
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 export const SUPPORT_CATEGORIES: { value: string; label: string }[] = [
   { value: 'access_code_payment', label: 'Access code / payment' },
@@ -87,9 +101,34 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [screenshot, setScreenshot] = useState<{ dataUrl: string; name: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isLoggedIn = !!user;
   const isBug = category === 'bug_report';
+
+  const handleScreenshotChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrorMsg('');
+    const file = e.target.files?.[0];
+    // Reset the input so picking the same file again still fires onChange.
+    e.target.value = '';
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setErrorMsg(t('validation.screenshotType'));
+      return;
+    }
+    if (file.size > MAX_SCREENSHOT_BYTES) {
+      setErrorMsg(t('validation.screenshotSize'));
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setScreenshot({ dataUrl, name: file.name });
+    } catch {
+      setErrorMsg(t('validation.screenshotType'));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +166,8 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
           page: location.pathname,
           access_code: readAccessCode(),
           user_agent: navigator.userAgent,
+          screenshot: screenshot?.dataUrl,
+          screenshot_name: screenshot?.name,
         }),
       });
 
@@ -197,6 +238,45 @@ const SupportForm = ({ onSuccess }: SupportFormProps) => {
           rows={5}
           className="mt-1.5"
         />
+      </div>
+
+      <div>
+        <Label>{t('form.screenshotLabel')}</Label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          onChange={handleScreenshotChange}
+          className="hidden"
+        />
+        {screenshot ? (
+          <div className="mt-1.5 flex items-center gap-3 rounded-md border border-input bg-muted/40 p-2">
+            <img
+              src={screenshot.dataUrl}
+              alt={screenshot.name}
+              className="h-12 w-12 rounded object-cover border border-input"
+            />
+            <span className="flex-1 truncate text-sm text-muted-foreground">{screenshot.name}</span>
+            <button
+              type="button"
+              onClick={() => setScreenshot(null)}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={t('form.screenshotRemove')}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-1.5 flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-input bg-muted/20 px-3 py-3 text-sm text-muted-foreground transition-colors hover:border-atlas-teal hover:text-atlas-teal"
+          >
+            <ImagePlus className="h-4 w-4" />
+            {t('form.screenshotAdd')}
+          </button>
+        )}
+        <p className="mt-1 text-xs text-muted-foreground">{t('form.screenshotHint')}</p>
       </div>
 
       {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}

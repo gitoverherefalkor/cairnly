@@ -17,6 +17,10 @@
     "messageLabel": "Message",
     "messagePlaceholderBug": "Tell us what went wrong, and we'll match it up with our error logs.",
     "messagePlaceholder": "How can we help?",
+    "screenshotLabel": "Screenshot (optional)",
+    "screenshotAdd": "Add a screenshot",
+    "screenshotHint": "PNG, JPG, WebP or GIF, up to 5 MB.",
+    "screenshotRemove": "Remove screenshot",
     "submit": "Send message",
     "submitting": "Sending...",
     "successTitle": "Thanks, message sent",
@@ -37,6 +41,8 @@
     "category": "Please pick what this is about.",
     "message": "Please enter a message.",
     "email": "Please enter a valid email address.",
+    "screenshotType": "That file type isn't supported. Please upload a PNG, JPG, WebP or GIF image.",
+    "screenshotSize": "That image is too large. Please keep it under 5 MB.",
     "submitError": "Something went wrong sending your message. Please try again, or email sjoerd@cairnly.io directly."
   }
 }

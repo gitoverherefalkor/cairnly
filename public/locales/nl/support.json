@@ -17,6 +17,10 @@
     "messageLabel": "Bericht",
     "messagePlaceholderBug": "Vertel ons wat er misging, dan koppelen we het aan onze foutlogs.",
     "messagePlaceholder": "Waarmee kunnen we je helpen?",
+    "screenshotLabel": "Screenshot (optioneel)",
+    "screenshotAdd": "Screenshot toevoegen",
+    "screenshotHint": "PNG, JPG, WebP of GIF, tot 5 MB.",
+    "screenshotRemove": "Screenshot verwijderen",
     "submit": "Verstuur bericht",
     "submitting": "Versturen...",
     "successTitle": "Bedankt, bericht verstuurd",
@@ -37,6 +41,8 @@
     "category": "Kies waar het over gaat.",
     "message": "Vul een bericht in.",
     "email": "Vul een geldig e-mailadres in.",
+    "screenshotType": "Dit bestandstype wordt niet ondersteund. Upload een PNG, JPG, WebP of GIF.",
+    "screenshotSize": "Deze afbeelding is te groot. Houd het onder 5 MB.",
     "submitError": "Er ging iets mis bij het versturen van je bericht. Probeer het opnieuw, of mail rechtstreeks naar sjoerd@cairnly.io."
   }
 }
