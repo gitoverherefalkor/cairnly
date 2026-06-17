@@ -355,12 +355,20 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   const handleMultipleChoiceChange = (optionValue: string, checked: boolean) => {
     const currentValues = Array.isArray(value) ? value : [];
     const maxSelections = question.max_selections;
+    // Some questions have a mutually-exclusive opt-out (e.g. "None of these"):
+    // picking it clears everything else, and picking anything else clears it.
+    const exclusiveChoices: string[] = (question.config as any)?.exclusive_choices || [];
 
     if (checked) {
-      if (maxSelections && currentValues.length >= maxSelections) {
+      if (exclusiveChoices.includes(optionValue)) {
+        onChange([optionValue]);
         return;
       }
-      onChange([...currentValues, optionValue]);
+      const base = currentValues.filter((v: string) => !exclusiveChoices.includes(v));
+      if (maxSelections && base.length >= maxSelections) {
+        return;
+      }
+      onChange([...base, optionValue]);
     } else {
       onChange(currentValues.filter((v: string) => v !== optionValue));
     }
@@ -750,9 +758,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         // Block opening Other if selection limit is already reached
                         if (isSelectionLimitReached()) return;
                         setShowOther(true);
-                        // Push sentinel immediately so Continue is blocked
-                        // until the user types something.
-                        onChange([...currentValues, 'other']);
+                        // Push sentinel immediately so Continue is blocked until
+                        // the user types something. Opening Other also clears any
+                        // mutually-exclusive opt-out (e.g. "None of these").
+                        const exclusiveChoices: string[] = (question.config as any)?.exclusive_choices || [];
+                        onChange([...currentValues.filter((v: string) => !exclusiveChoices.includes(v)), 'other']);
                       } else {
                         // Remove the "Other" response (sentinel or filled)
                         setOtherValue('');
