@@ -440,25 +440,36 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   };
 
   const getSelectionLimitText = () => {
-    const minSelections = question.min_selections;
     const maxSelections = question.max_selections;
+    // A required multi-select needs at least one choice even when min_selections
+    // isn't set in the database. Default the minimum to 1 so users are told the
+    // question is mandatory, instead of the Continue button silently staying off.
+    const minSelections = question.min_selections ?? (question.required ? 1 : 0);
     const currentSelections = Array.isArray(value) ? value.length : 0;
-    
+
     if (!minSelections && !maxSelections) return null;
-    
-    let text = `Selected: ${currentSelections}`;
-    
+
+    let requirement: string;
     if (minSelections && maxSelections) {
-      text += ` (${minSelections}-${maxSelections} required)`;
+      requirement = minSelections === maxSelections
+        ? `Select ${minSelections}`
+        : `Select between ${minSelections} and ${maxSelections}`;
     } else if (minSelections) {
-      text += ` (minimum ${minSelections})`;
-    } else if (maxSelections) {
-      text += ` (up to ${maxSelections})`;
+      requirement = minSelections === 1 ? 'Select at least one' : `Select at least ${minSelections}`;
+    } else {
+      requirement = `Select up to ${maxSelections}`;
     }
-    
+
+    const met =
+      currentSelections >= minSelections &&
+      (!maxSelections || currentSelections <= maxSelections);
+
     return (
-      <p className="text-sm text-gray-500 mt-2">
-        {text}
+      <p className="text-sm text-gray-600 mb-4">
+        {requirement}
+        {currentSelections > 0 && (
+          <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+        )}
       </p>
     );
   };
@@ -673,6 +684,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
             />
             {renderDescription()}
+            {getSelectionLimitText()}
             <div className={mcListClass}>
               {question.config?.choices?.map((choice) => {
                 const isChecked = currentValues.includes(choice);
@@ -830,7 +842,6 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 </div>
               )}
             </div>
-            {getSelectionLimitText()}
           </div>
         );
       }
