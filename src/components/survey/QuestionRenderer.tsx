@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { GripVertical, Mic, Loader2 } from 'lucide-react';
+import { GripVertical, Mic, Loader2, X, Plus } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -149,19 +149,19 @@ const AutoResizeTextarea: React.FC<
   );
 };
 
-// Responsive Ranking Component — drag-to-reorder that works on mouse, trackpad
-// AND touch (phones/tablets) via @dnd-kit. The number badge shows each item's
-// live rank, and the up/down arrows are a tap-friendly alternative to dragging.
+// Ranking Component — tap to build a ranking. Items start unranked under
+// "Tap to add"; tapping one moves it into "Your ranking" with the next number.
+// Ranked items can be reordered by dragging the grip (@dnd-kit, works on mouse,
+// trackpad and touch) and removed with the × button. The question only counts
+// as answered once every item is ranked, so it can't be skipped.
 
-// One draggable row in the ranking list.
+// One ranked (draggable) row.
 const SortableRankItem: React.FC<{
   id: string;
   index: number;
-  total: number;
   label: React.ReactNode;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-}> = ({ id, index, total, label, onMoveUp, onMoveDown }) => {
+  onRemove: () => void;
+}> = ({ id, index, label, onRemove }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style: React.CSSProperties = {
@@ -184,9 +184,8 @@ const SortableRankItem: React.FC<{
         {index + 1}
       </div>
 
-      {/* Drag handle — the only draggable area, so a touch anywhere else on the
-          card still scrolls the page. touch-none lets a finger drag the handle
-          itself instead of scrolling. */}
+      {/* Drag handle — touch-none lets a finger drag the handle to reorder
+          instead of scrolling the page. */}
       <button
         type="button"
         aria-label="Drag to reorder"
@@ -201,26 +200,15 @@ const SortableRankItem: React.FC<{
         <span className="text-base font-light leading-relaxed">{label}</span>
       </div>
 
-      <div className="flex flex-col gap-1 ml-3">
-        <button
-          type="button"
-          onClick={onMoveUp}
-          disabled={index === 0}
-          className="w-6 h-6 flex items-center justify-center text-xs bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Move up"
-        >
-          ↑
-        </button>
-        <button
-          type="button"
-          onClick={onMoveDown}
-          disabled={index === total - 1}
-          className="w-6 h-6 flex items-center justify-center text-xs bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Move down"
-        >
-          ↓
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label="Remove from ranking"
+        title="Remove"
+        className="ml-3 flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors"
+      >
+        <X className="h-5 w-5" />
+      </button>
     </div>
   );
 };
@@ -232,63 +220,93 @@ const ResponsiveRanking: React.FC<{
   formatTextWithEmphasis: (text: string) => { __html: string };
   renderChoiceLabel: (choice: string) => React.ReactNode;
 }> = ({ question, value, onChange, renderChoiceLabel }) => {
-  const rankingChoices: string[] = question.config?.choices || [];
+  const choices: string[] = question.config?.choices || [];
 
-  // Current order: the saved value if it still covers every choice, otherwise
-  // the default order. We only persist a new order on an actual user action.
-  const currentOrder: string[] =
-    value && Array.isArray(value) && value.length === rankingChoices.length
-      ? value
-      : [...rankingChoices];
+  // The value is the ordered list of ranked items (grows as the user taps).
+  // Unranked items are the remaining choices, shown in their original order.
+  const ranked: string[] = Array.isArray(value) ? value.filter((v) => choices.includes(v)) : [];
+  const unranked: string[] = choices.filter((c) => !ranked.includes(c));
 
   // Mouse, trackpad and touch all work via PointerSensor; the distance
-  // constraint means a tap/click is never mistaken for a drag. KeyboardSensor
-  // adds keyboard reordering for accessibility.
+  // constraint means a tap is never mistaken for a drag. KeyboardSensor adds
+  // keyboard reordering for accessibility.
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  const addToRanking = (item: string) => onChange([...ranked, item]);
+  const removeFromRanking = (item: string) => onChange(ranked.filter((x) => x !== item));
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = currentOrder.indexOf(active.id as string);
-    const newIndex = currentOrder.indexOf(over.id as string);
+    const oldIndex = ranked.indexOf(active.id as string);
+    const newIndex = ranked.indexOf(over.id as string);
     if (oldIndex === -1 || newIndex === -1) return;
-    onChange(arrayMove(currentOrder, oldIndex, newIndex));
-  };
-
-  const moveItem = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= currentOrder.length) return;
-    onChange(arrayMove(currentOrder, fromIndex, toIndex));
+    onChange(arrayMove(ranked, oldIndex, newIndex));
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Instructions */}
       <div className="flex items-center gap-2 text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">
         <span>
-          <strong>Drag the grip handle</strong> (or use the up/down arrows) to reorder by importance, most important at top
+          <strong>Tap items in your order of importance.</strong> Drag the grip handle to reorder, tap the × to remove.
         </span>
       </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={currentOrder} strategy={verticalListSortingStrategy}>
+      {/* Your ranking */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-700">Your ranking</span>
+          <span className="text-xs text-gray-500">{ranked.length} of {choices.length} ranked</span>
+        </div>
+
+        {ranked.length === 0 ? (
+          <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 text-sm text-gray-400 text-center">
+            Tap an item below to add it as #1
+          </div>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={ranked} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {ranked.map((item, index) => (
+                  <SortableRankItem
+                    key={item}
+                    id={item}
+                    index={index}
+                    label={renderChoiceLabel(item)}
+                    onRemove={() => removeFromRanking(item)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+
+      {/* Tap to add */}
+      {unranked.length > 0 && (
+        <div>
+          <div className="text-sm font-medium text-gray-700 mb-2">Tap to add</div>
           <div className="space-y-2">
-            {currentOrder.map((item, index) => (
-              <SortableRankItem
+            {unranked.map((item) => (
+              <button
                 key={item}
-                id={item}
-                index={index}
-                total={currentOrder.length}
-                label={renderChoiceLabel(item)}
-                onMoveUp={() => moveItem(index, index - 1)}
-                onMoveDown={() => moveItem(index, index + 1)}
-              />
+                type="button"
+                onClick={() => addToRanking(item)}
+                className="w-full flex items-center gap-3 p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-atlas-teal hover:bg-atlas-teal/5 text-left transition-colors"
+              >
+                <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-dashed border-gray-300 text-gray-400 flex-shrink-0">
+                  <Plus className="h-4 w-4" />
+                </span>
+                <span className="flex-1 text-base font-light leading-relaxed">{renderChoiceLabel(item)}</span>
+              </button>
             ))}
           </div>
-        </SortableContext>
-      </DndContext>
+        </div>
+      )}
     </div>
   );
 };

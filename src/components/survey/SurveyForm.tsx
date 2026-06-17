@@ -631,7 +631,11 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
                   >
                     <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>Please complete all required fields before continuing. Any missing fields are outlined in red.</span>
+                    <span>
+                      {currentQuestion?.type === 'ranking'
+                        ? 'Please rank all the items to continue.'
+                        : 'Please complete all required fields before continuing. Any missing fields are outlined in red.'}
+                    </span>
                   </div>
                 )}
 
