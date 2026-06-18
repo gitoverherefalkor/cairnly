@@ -301,10 +301,18 @@
   opacity: 0.72 !important;
 }
 
-/* Preserve the "required field empty" red border on cream — the generic
-   !important tan border above would otherwise kill the validation state */
-.dark .bg-card .border-red-300 { border-color: #D97B7B !important; }
-.dark .bg-card .border-red-400 { border-color: #CC5C5C !important; }
+/* Preserve the "required field empty" red border on cream surfaces. The generic
+   !important tan border on form controls (above) would otherwise kill the
+   validation state. The old .bg-card-only override missed selects
+   (button[role="combobox"], where the tan rule out-specified it) and inputs on
+   .bg-white / .bg-popover surfaces, so empty required dropdowns never went red.
+   :is() keeps the specificity above the tan rule for every control type/surface. */
+.dark :is(.bg-card, .bg-popover, .bg-white) :is(input, textarea, select, button[role="combobox"], .bg-background).border-red-300 {
+  border-color: #D97B7B !important;
+}
+.dark :is(.bg-card, .bg-popover, .bg-white) :is(input, textarea, select, button[role="combobox"], .bg-background).border-red-400 {
+  border-color: #CC5C5C !important;
+}
 
 /* Focus rings on cream: flip the ring-offset to cream so only the teal
    ring shows, not a dark outline between input and ring */
