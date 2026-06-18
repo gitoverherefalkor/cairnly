@@ -40,15 +40,26 @@ export const LOGO_INVERTED_URL = '/dashboard/cairnly_logo_wordmark_inverted.png'
 export const LOGO_WORDMARK_URL = '/dashboard/cairnly_logo_wordmark.png';
 
 // ---------- AI impact ----------
-// extractAIImpact (src/components/chat/CareerScoreCard.tsx) returns these four
-// labels. Colors match the IMPACT_COLOR map used across the chat cards.
-export type AIImpactLevel = 'Safe' | 'Augmented' | 'Transforming' | 'At Risk';
+// extractAIImpact (src/components/chat/CareerScoreCard.tsx) returns these five
+// clinical labels. Colors match the IMPACT_COLOR map used across the chat cards.
+export type AIImpactLevel = 'Minimal' | 'Moderate' | 'High' | 'Severe' | 'Critical';
 
 export const AI_IMPACT_COLOR: Record<AIImpactLevel, string> = {
-  Safe: '#10b981',
-  Augmented: '#3989AF',
-  Transforming: '#f59e0b',
-  'At Risk': '#ef4444',
+  Minimal: '#10b981',  // emerald
+  Moderate: '#0ea5e9', // sky
+  High: '#f59e0b',     // amber
+  Severe: '#f97316',   // orange
+  Critical: '#ef4444', // red
+};
+
+// Plain-English meaning of each clinical level — shown as a hover tooltip
+// on the pill so the user understands what the label implies for their role.
+export const AI_IMPACT_MEANING: Record<AIImpactLevel, string> = {
+  Minimal: "The rare exception. Hands-on or human-presence work AI can't take over.",
+  Moderate: 'Healthy augmentation. AI handles routine work; your judgment stays essential.',
+  High: 'The role reshapes. Much of the day-to-day shifts to directing and checking AI.',
+  Severe: 'Teams shrink. Most of the role automates into fewer, AI-leveraged people.',
+  Critical: 'Pivot needed. Core deliverables are largely automatable today.',
 };
 
 // ---------- Career match shape (no salary — omitted per product decision) ----------
@@ -143,6 +154,7 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
   const color = AI_IMPACT_COLOR[label];
   return (
     <span
+      title={AI_IMPACT_MEANING[label]}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

@@ -9,14 +9,15 @@ import { extractAIImpact } from './CareerScoreCard';
 // and shareable on LinkedIn, so the layout favors a bold headline career,
 // supporting top 2 + top 3, and visible Atlas branding.
 
-const AI_IMPACT_LEVELS = ['Safe', 'Augmented', 'Transforming', 'At Risk'] as const;
+const AI_IMPACT_LEVELS = ['Minimal', 'Moderate', 'High', 'Severe', 'Critical'] as const;
 type AIImpactLevel = typeof AI_IMPACT_LEVELS[number];
 
 const IMPACT_COLOR: Record<AIImpactLevel, { hex: string; bg: string; text: string }> = {
-  Safe:         { hex: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  Augmented:    { hex: '#0ea5e9', bg: 'bg-sky-50',     text: 'text-sky-700' },
-  Transforming: { hex: '#f59e0b', bg: 'bg-amber-50',   text: 'text-amber-700' },
-  'At Risk':    { hex: '#ef4444', bg: 'bg-red-50',     text: 'text-red-700' },
+  Minimal:  { hex: '#10b981', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  Moderate: { hex: '#0ea5e9', bg: 'bg-sky-50',     text: 'text-sky-700' },
+  High:     { hex: '#f59e0b', bg: 'bg-amber-50',   text: 'text-amber-700' },
+  Severe:   { hex: '#f97316', bg: 'bg-orange-50',  text: 'text-orange-700' },
+  Critical: { hex: '#ef4444', bg: 'bg-red-50',     text: 'text-red-700' },
 };
 
 interface SignatureCareer {

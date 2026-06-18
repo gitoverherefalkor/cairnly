@@ -389,19 +389,22 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   }, [sections]);
 
   // Career map points — top 3 colored bubbles + runner-ups as secondaries.
-  // x = AI exposure (Safe 0.15 / Augmented 0.45 / Transforming 0.7 / At Risk 0.9).
+  // x = AI exposure on the clinical 5-level scale, spread across 0..1
+  //   (Minimal 0.12 / Moderate 0.35 / High 0.58 / Severe 0.78 / Critical 0.92).
   // y = 1 - match%/100  (top of chart = strongest).
   const careerMapPoints = useMemo<CareerPoint[]>(() => {
     const xFor = (impact: AIImpactLevel | null): number => {
       switch (impact) {
-        case 'Safe':
-          return 0.18;
-        case 'Augmented':
-          return 0.45;
-        case 'Transforming':
-          return 0.7;
-        case 'At Risk':
-          return 0.88;
+        case 'Minimal':
+          return 0.12;
+        case 'Moderate':
+          return 0.35;
+        case 'High':
+          return 0.58;
+        case 'Severe':
+          return 0.78;
+        case 'Critical':
+          return 0.92;
         default:
           return 0.5;
       }

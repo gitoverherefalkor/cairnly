@@ -14,17 +14,18 @@ import {
 import type { ReportSection } from '@/hooks/useReportSections';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 
-// AI Impact axis: discrete 4-tier scale matching CareerScoreCard.
-// X position = tier index (0..3). Recharts ScatterChart requires numeric x,
+// AI Impact axis: discrete 5-tier clinical scale matching CareerScoreCard.
+// X position = tier index (0..4). Recharts ScatterChart requires numeric x,
 // so we use a category-style numeric axis with a custom tick formatter.
-const AI_IMPACT_LEVELS = ['Safe', 'Augmented', 'Transforming', 'At Risk'] as const;
+const AI_IMPACT_LEVELS = ['Minimal', 'Moderate', 'High', 'Severe', 'Critical'] as const;
 type AIImpactLevel = typeof AI_IMPACT_LEVELS[number];
 
 const IMPACT_COLOR: Record<AIImpactLevel, string> = {
-  Safe: '#10b981',         // emerald-500
-  Augmented: '#0ea5e9',    // sky-500
-  Transforming: '#f59e0b', // amber-500
-  'At Risk': '#ef4444',    // red-500
+  Minimal: '#10b981',  // emerald-500
+  Moderate: '#0ea5e9', // sky-500
+  High: '#f59e0b',     // amber-500
+  Severe: '#f97316',   // orange-500
+  Critical: '#ef4444', // red-500
 };
 
 // Section types that have a meaningful match score.
@@ -239,8 +240,8 @@ export const CareerQuadrant: React.FC<CareerQuadrantProps> = ({ sections, classN
               <XAxis
                 type="number"
                 dataKey="aiImpactX"
-                domain={[-0.5, 3.5]}
-                ticks={[0, 1, 2, 3]}
+                domain={[-0.5, 4.5]}
+                ticks={[0, 1, 2, 3, 4]}
                 tickFormatter={(v: number) => AI_IMPACT_LEVELS[v] ?? ''}
                 tick={{ fontSize: 11, fill: '#6B7280' }}
                 stroke="#E5E7EB"
