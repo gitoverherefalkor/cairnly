@@ -45,6 +45,8 @@ export interface ReportSection {
     personality_scores?: Record<string, number>;
     fit_scores?: FitScores;
     comparison?: CareerComparison;
+    // Reskilling-effort level for the Move pill (WF4 top-3 JSON block).
+    move?: string;
   } | null;
   // AI-summarized shareable quotes for the share-card modal. Generated
   // on-demand by the generate-share-quotes edge function and persisted

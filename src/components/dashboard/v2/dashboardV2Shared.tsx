@@ -3,7 +3,7 @@
 // React components wired to the production asset paths under /public/dashboard.
 
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, Route } from 'lucide-react';
 
 // ---------- Brand palette ----------
 // Mirrors the --cairnly-* tokens in src/index.css. Kept as a local constant
@@ -62,6 +62,24 @@ export const AI_IMPACT_MEANING: Record<AIImpactLevel, string> = {
   Critical: 'Pivot needed. Core deliverables are largely automatable today.',
 };
 
+// ---------- Move (reskilling effort to enter the role) ----------
+// Set by WF4 per top-3 career and read from metadata.move. Shown as a pill
+// next to the AI impact pill. AI-adjusted: judged after accounting for AI
+// compressing reskilling and some gaps mattering less as roles get augmented.
+export type MoveLevel = 'Ready now' | 'Upskill' | 'Retrain';
+
+export const MOVE_COLOR: Record<MoveLevel, string> = {
+  'Ready now': '#14b8a6', // teal
+  Upskill: '#f59e0b',     // amber
+  Retrain: '#f97316',     // orange
+};
+
+export const MOVE_MEANING: Record<MoveLevel, string> = {
+  'Ready now': 'Your current skills and experience largely fit, little or no new learning needed.',
+  Upskill: 'A real but bridgeable gap, focused learning over months (course, certification, portfolio, on-the-job).',
+  Retrain: 'A large skill or credential gap, or a new field, substantial reskilling.',
+};
+
 // ---------- Career match shape (no salary — omitted per product decision) ----------
 export interface CareerMatch {
   rank: number;
@@ -69,6 +87,7 @@ export interface CareerMatch {
   shape: string | null;
   matchPct: number;
   aiImpact: AIImpactLevel | null;
+  move?: MoveLevel | null;
   teaser?: string;
   alignment?: string;
 }
@@ -173,6 +192,35 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
       }}
     >
       <Shield size={11} color={color} /> AI · {label}
+    </span>
+  );
+};
+
+// ---------- MovePill ----------
+// Reskilling-effort pill shown beside the AI impact pill on top-3 career cards.
+export const MovePill: React.FC<{ level: MoveLevel }> = ({ level }) => {
+  const color = MOVE_COLOR[level];
+  return (
+    <span
+      title={MOVE_MEANING[level]}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 10px',
+        borderRadius: 9999,
+        background: `${color}1a`,
+        color,
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        border: `1px solid ${color}33`,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <Route size={11} color={color} /> {level}
     </span>
   );
 };

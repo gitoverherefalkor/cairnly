@@ -33,6 +33,8 @@ import {
   LakeBackground,
   Eyebrow,
   AIImpactPill,
+  MovePill,
+  type MoveLevel,
   SectionPhoto,
   SECTION_VISUALS,
   stripHtml,
@@ -114,6 +116,7 @@ function getMatch(
     shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
     matchPct: Math.round(score),
     aiImpact: extractAIImpact(s.content || ''),
+    move: (s.metadata?.move as MoveLevel | undefined) ?? null,
     // Teaser shows on all three career cards. Alignment prose only on the Hero.
     teaser,
     alignment,
@@ -980,6 +983,7 @@ const HeroMatch: React.FC<{
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
             <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
             {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+            {match.move && <MovePill level={match.move} />}
           </div>
 
           {/* Title + shape */}
@@ -1277,6 +1281,7 @@ const SecondaryMatch: React.FC<{
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
       <Eyebrow>CAREER #{match.rank}</Eyebrow>
       {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+            {match.move && <MovePill level={match.move} />}
     </div>
     <h3
       style={{
