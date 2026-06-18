@@ -266,9 +266,12 @@ const Jobs = () => {
   // Cherry-pick the survey's "avoid" answers straight from the report payload
   // (deterministic — no LLM parsing of the prose summary). These feed the n8n
   // scorer as a penalty signal so jobs the user told us to avoid rank lower.
-  //   44…447 = industries to avoid, 33…338 = career aspects to avoid.
+  //
+  // The "industries to avoid" question (44…447, Q4.7) is being repurposed in
+  // the survey — that filter belongs at search time, not on the assessment,
+  // so the user expresses it in the /jobs avoid UI instead. Only the career-
+  // aspects question (33…338) still feeds in here.
   const avoidPreferences = useMemo<string[]>(() => {
-    const AVOID_INDUSTRIES_QID = '44444444-4444-4444-4444-444444444447';
     const AVOID_ASPECTS_QID = '33333333-3333-3333-3333-333333333338';
     const resp = (latestReport as any)?.payload?.responses;
     if (!resp) return [];
@@ -279,16 +282,13 @@ const Jobs = () => {
         .split(/\n|\(e\.g/i)[0]
         .replace(/\s+/g, ' ')
         .trim();
-    // "Industry doesn't matter to me…" is a no-preference sentinel, not an avoid.
     const isNoPref = (s: string) => /doesn'?t matter|no preference|not applicable/i.test(s);
     const out: string[] = [];
-    for (const qid of [AVOID_INDUSTRIES_QID, AVOID_ASPECTS_QID]) {
-      const v = resp[qid];
-      if (Array.isArray(v)) {
-        for (const item of v) {
-          const c = clean(item);
-          if (c && !isNoPref(c)) out.push(c);
-        }
+    const v = resp[AVOID_ASPECTS_QID];
+    if (Array.isArray(v)) {
+      for (const item of v) {
+        const c = clean(item);
+        if (c && !isNoPref(c)) out.push(c);
       }
     }
     return [...new Set(out)];
