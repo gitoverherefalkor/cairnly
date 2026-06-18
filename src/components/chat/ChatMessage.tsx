@@ -625,6 +625,7 @@ const SequentialSubsections: React.FC<{
               score={Number.isFinite(score) ? score : null}
               aiImpact={section ? aiImpact : null}
               feasibility={section ? feasibility : null}
+              move={section ? (section.metadata?.move ?? null) : null}
             />
           </>
         );
@@ -898,6 +899,7 @@ const CollapsibleCareerBlocks: React.FC<{
                         score={Number.isFinite(score) ? score : null}
                         aiImpact={aiImpact}
                         feasibility={feasibility}
+                        move={section?.metadata?.move ?? null}
                       />
                     )}
                   </div>
@@ -1185,6 +1187,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               score={Number.isFinite(score) ? score : null}
               aiImpact={section ? aiImpact : null}
               feasibility={section ? feasibility : null}
+              move={section ? (section.metadata?.move ?? null) : null}
             />
           </>
         );
