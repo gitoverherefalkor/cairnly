@@ -395,6 +395,29 @@ function childrenToText(children: React.ReactNode): string {
     .join('');
 }
 
+// Bold a short leading "Label:" at the very start of a paragraph, e.g.
+// "Money: €65k–90k…", "Schedule: …", "AI Impact Rating: High". The agent
+// sometimes emits these labels as plain text instead of markdown **bold**,
+// so we promote them here for consistent emphasis. We only bold when the
+// label is short (≤4 words, ≤30 chars) and the paragraph doesn't already
+// start with formatting — this avoids bolding ordinary sentences that just
+// happen to contain a colon ("AI is already reshaping UX work: …").
+function boldLeadingLabel(children: React.ReactNode): React.ReactNode {
+  const arr = React.Children.toArray(children);
+  const first = arr[0];
+  if (typeof first !== 'string') return children; // already starts with <strong> etc.
+  const match = first.match(/^([^:\n]{1,30}):(\s|$)/);
+  if (!match) return children;
+  const label = match[1].trim();
+  if (label.split(/\s+/).length > 4) return children; // looks like a sentence, leave it
+  const after = first.slice(match[1].length + 1); // everything after the colon (keeps spacing)
+  return [
+    <strong key="lead-label" className="font-semibold">{`${label}:`}</strong>,
+    after,
+    ...arr.slice(1),
+  ];
+}
+
 // Custom components for react-markdown to style headings with atlas colors.
 // The agent emits a mix of heading levels (## for sub-sections like
 // "Personality and Interaction Style", ### for main section titles, etc.),
@@ -475,7 +498,7 @@ const markdownComponents = {
           </div>
         )}
         <p className="mb-2 last:mb-0" {...props}>
-          {children}
+          {boldLeadingLabel(children)}
         </p>
       </>
     );
