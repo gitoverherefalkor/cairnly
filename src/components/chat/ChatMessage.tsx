@@ -501,8 +501,13 @@ const markdownComponents = {
 // prefix (that prefix is only applied to free-text turns, not chip sends),
 // and explicitly asks for the transition/reskilling angle so the reply
 // covers feasibility of the jump, not just the role itself.
-export function buildFeasibilityQuestion(roleTitle: string): string {
-  return `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
+export function buildFeasibilityQuestion(roleTitle: string, moveLevel?: string | null): string {
+  const base = `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
+  // When the report has a Move rating for this role, name it so the agent ties
+  // its answer to the pill and justifies the label (rather than answering blind).
+  return moveLevel
+    ? `${base} My report rates the reskilling effort for this move as "${moveLevel}". Explain why it is rated that, and whether it holds up.`
+    : base;
 }
 
 // Renders a section-reveal message with sequential sub-section disclosure.
@@ -543,7 +548,7 @@ const SequentialSubsections: React.FC<{
   onAskAboutRole?: (roleTitle: string) => void;
   // When set, render a sibling "Can I get there from here?" pill that
   // auto-sends a transition/reskilling question for this role.
-  onAskFeasibility?: (roleTitle: string) => void;
+  onAskFeasibility?: (roleTitle: string, moveLevel?: string | null) => void;
   // Career-comparison card. Rendered alongside the "Ask about this role"
   // pill once every subsection (incl. "Alignment with your ambitions")
   // has been revealed.
@@ -718,7 +723,9 @@ const SequentialSubsections: React.FC<{
         // Only real career sections get the pill. The heading must match a
         // scored career row in the report; personality sections (approach,
         // strengths, etc.) have ### subsection headings that never will.
-        if (!findSectionByTitle(sections, roleTitle)) return null;
+        const careerSection = findSectionByTitle(sections, roleTitle);
+        if (!careerSection) return null;
+        const moveLevel = careerSection.metadata?.move ?? null;
         return (
           <div className="mt-6 flex flex-wrap gap-2">
             <button
@@ -736,11 +743,11 @@ const SequentialSubsections: React.FC<{
             {onAskFeasibility && (
               <button
                 type="button"
-                onClick={() => onAskFeasibility(roleTitle)}
+                onClick={() => onAskFeasibility(roleTitle, moveLevel)}
                 className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
               >
                 <Route size={14} />
-                Can I get there from here?
+                {moveLevel ? `Move: ${moveLevel} · explore why` : 'Can I get there from here?'}
               </button>
             )}
           </div>
@@ -783,7 +790,7 @@ const CollapsibleCareerBlocks: React.FC<{
   onAskAboutRole?: (roleTitle: string) => void;
   // Click handler for the sibling "Can I get there from here?" button.
   // Auto-sends a transition/reskilling question for that career.
-  onAskFeasibility?: (roleTitle: string) => void;
+  onAskFeasibility?: (roleTitle: string, moveLevel?: string | null) => void;
 }> = ({
   intro,
   blocks,
@@ -939,11 +946,11 @@ const CollapsibleCareerBlocks: React.FC<{
                         {onAskFeasibility && (
                           <button
                             type="button"
-                            onClick={() => onAskFeasibility(block.title)}
+                            onClick={() => onAskFeasibility(block.title, section?.metadata?.move ?? null)}
                             className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
                           >
                             <Route size={14} />
-                            Can I get there from here?
+                            {section?.metadata?.move ? `Move: ${section.metadata.move} · explore why` : 'Can I get there from here?'}
                           </button>
                         )}
                       </div>
@@ -1235,7 +1242,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             onAskAboutRole={onAskAboutRole}
             onAskFeasibility={
               onChipSend
-                ? (role) => onChipSend(buildFeasibilityQuestion(role))
+                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel))
                 : undefined
             }
           />
@@ -1256,7 +1263,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             onAskAboutRole={onAskAboutRole}
             onAskFeasibility={
               onChipSend
-                ? (role) => onChipSend(buildFeasibilityQuestion(role))
+                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel))
                 : undefined
             }
             comparisonSlot={comparisonCard}
