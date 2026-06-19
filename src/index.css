@@ -171,6 +171,13 @@
 .ask-pill:hover { background-color: #27A1A1 !important; color: #ffffff !important; }
 .dark .ask-pill { background-color: #ffffff !important; }
 .dark .ask-pill:hover { background-color: #27A1A1 !important; color: #ffffff !important; }
+/* "Move: … explore why" pill — outline + text in the move color (passed from
+   React via the --move-c CSS variable), filling with that color on hover.
+   Mirrors .ask-pill's white-bg + dark-mode handling. */
+.move-pill { background-color: #ffffff !important; border-color: var(--move-c) !important; color: var(--move-c) !important; }
+.move-pill:hover { background-color: var(--move-c) !important; color: #ffffff !important; }
+.dark .move-pill { background-color: #ffffff !important; }
+.dark .move-pill:hover { background-color: var(--move-c) !important; color: #ffffff !important; }
 .dark .bg-gray-50 { background-color: hsl(var(--background)) !important; }
 .dark .bg-gray-100 { background-color: hsl(var(--background)) !important; }
 .dark .bg-gray-200 { background-color: hsl(var(--muted)) !important; }

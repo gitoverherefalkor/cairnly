@@ -12,6 +12,7 @@ import {
   AIImpactBadge,
   leadingAIImpactLevel,
 } from './CareerScoreCard';
+import { MOVE_COLOR, normalizeMove } from '@/lib/moveScale';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
 import { CareerComparisonCard } from './CareerComparisonCard';
@@ -725,7 +726,8 @@ const SequentialSubsections: React.FC<{
         // strengths, etc.) have ### subsection headings that never will.
         const careerSection = findSectionByTitle(sections, roleTitle);
         if (!careerSection) return null;
-        const moveLevel = careerSection.metadata?.move ?? null;
+        const mc = normalizeMove(careerSection.metadata?.move ?? null);
+        const moveColor = mc ? MOVE_COLOR[mc] : null;
         return (
           <div className="mt-6 flex flex-wrap gap-2">
             <button
@@ -743,11 +745,12 @@ const SequentialSubsections: React.FC<{
             {onAskFeasibility && (
               <button
                 type="button"
-                onClick={() => onAskFeasibility(roleTitle, moveLevel)}
-                className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+                onClick={() => onAskFeasibility(roleTitle, mc)}
+                className={`${mc ? 'move-pill' : 'ask-pill border-atlas-teal text-atlas-teal'} inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-medium shadow-md transition-colors`}
+                style={mc ? ({ ['--move-c']: moveColor } as React.CSSProperties) : undefined}
               >
                 <Route size={14} />
-                {moveLevel ? `Move: ${moveLevel} · explore why` : 'Can I get there from here?'}
+                {mc ? `Move: ${mc} · explore why` : 'Can I get there from here?'}
               </button>
             )}
           </div>
@@ -874,6 +877,8 @@ const CollapsibleCareerBlocks: React.FC<{
             const score = section?.score != null ? Number(section.score) : null;
             const aiImpact = extractAIImpact(block.body || '');
             const feasibility = extractFeasibility(block.body || '');
+            const mvc = normalizeMove(section?.metadata?.move ?? null);
+            const mvColor = mvc ? MOVE_COLOR[mvc] : null;
             const hasCard =
               (Number.isFinite(score) && score != null) || !!aiImpact || !!feasibility;
             const { size, rest } = splitSizeFromBody(block.body || '');
@@ -946,11 +951,12 @@ const CollapsibleCareerBlocks: React.FC<{
                         {onAskFeasibility && (
                           <button
                             type="button"
-                            onClick={() => onAskFeasibility(block.title, section?.metadata?.move ?? null)}
-                            className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
+                            onClick={() => onAskFeasibility(block.title, mvc)}
+                            className={`${mvc ? 'move-pill' : 'ask-pill border-atlas-teal text-atlas-teal'} inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-sm font-medium shadow-md transition-colors`}
+                            style={mvc ? ({ ['--move-c']: mvColor } as React.CSSProperties) : undefined}
                           >
                             <Route size={14} />
-                            {section?.metadata?.move ? `Move: ${section.metadata.move} · explore why` : 'Can I get there from here?'}
+                            {mvc ? `Move: ${mvc} · explore why` : 'Can I get there from here?'}
                           </button>
                         )}
                       </div>
