@@ -450,8 +450,11 @@ const markdownComponents = {
     </h3>
   ),
   h4: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    // The agent uses #### only for the company type/size line under a career
+    // title. Render it as the same small teal subhead the collapsed runner-up
+    // / outside-box cards use (splitSizeFromBody) so both layouts match.
     <h4
-      className="text-lg font-semibold text-atlas-blue mt-6 mb-2 first:mt-0"
+      className="text-xs text-atlas-teal font-medium leading-tight mt-1 mb-4 first:mt-0"
       {...props}
     >
       {children}
