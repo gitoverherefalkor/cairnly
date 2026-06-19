@@ -8,16 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, Mail, AlertCircle, ArrowRight } from 'lucide-react';
 import CairnProgress from '@/components/survey/CairnProgress';
 
-// Stepper stages — timed to feel like real progress
+// Stepper stages — timed to feel like real progress through the n8n pipeline
+// (WF1 personality → WF2 research → WF3 scoring → WF4 career narratives).
 const STEPS = [
   { label: 'Reading your responses', delay: 0 },
-  { label: 'Building your personality profile', delay: 5 },
-  { label: 'Preparing your AI career coach', delay: 60 },
+  { label: 'Building your personality profile', delay: 10 },
+  { label: 'Researching career paths', delay: 60 },
+  { label: 'Scoring your career matches', delay: 150 },
+  { label: 'Preparing your AI career coach', delay: 240 },
 ];
 
 // Timeout thresholds (seconds)
-const SOFT_WARNING_AT = 3 * 60;   // 3 minutes
-const END_STATE_AT = 5 * 60;      // 5 minutes
+const SOFT_WARNING_AT = 5 * 60;   // 5 minutes — the normal pipeline finishes around here
+const END_STATE_AT = 8 * 60;      // 8 minutes — genuine "something's wrong" threshold
 const POLL_INTERVAL = 15_000;     // 15 seconds
 
 type Phase = 'normal' | 'soft-warning' | 'end-state' | 'redirecting' | 'failed';
@@ -30,6 +33,18 @@ const ReportProcessing = () => {
   const { toast } = useToast();
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const redirectedRef = useRef(false);
+
+  const redirectToChat = useCallback(() => {
+    if (redirectedRef.current) return; // guard against the poll firing again mid-redirect
+    redirectedRef.current = true;
+    setPhase('redirecting');
+    toast({
+      title: "Your coach is ready!",
+      description: "Connecting you now...",
+    });
+    setTimeout(() => navigate('/chat'), 1500);
+  }, [navigate, toast]);
 
   const checkReportStatus = useCallback(async () => {
     if (!user) return;
@@ -39,29 +54,51 @@ const ReportProcessing = () => {
         .from('reports')
         .select('id, status')
         .eq('user_id', user.id)
-        .in('status', ['completed', 'pending_review', 'failed'])
+        .in('status', ['processing', 'completed', 'pending_review', 'failed'])
         .order('created_at', { ascending: false })
         .limit(1);
 
       if (error) throw error;
 
-      if (reports && reports.length > 0) {
-        const report = reports[0];
-        if (report.status === 'failed') {
-          setPhase('failed');
-          return;
-        }
-        setPhase('redirecting');
-        toast({
-          title: "Your coach is ready!",
-          description: "Connecting you now...",
-        });
-        setTimeout(() => navigate('/chat'), 1500);
+      if (!reports || reports.length === 0) return; // report row not created yet — keep waiting
+
+      const report = reports[0];
+
+      if (report.status === 'failed') {
+        setPhase('failed');
+        return;
+      }
+
+      // A completed report means the user already finished a session — send them
+      // straight back in, no need to make them wait.
+      if (report.status === 'completed') {
+        redirectToChat();
+        return;
+      }
+
+      // status === 'pending_review' means WF1 finished (personality sections written),
+      // but WF2 → WF3 → WF4 are still running. We hold the user here until WF3 is done
+      // so the career chapter is ready by the time they reach it. WF3's last DB write is
+      // the 'outside_box' section row, so its existence is our "WF3 done" signal — WF4
+      // then finishes in the background while the user reads the personality chapter.
+      if (report.status === 'pending_review') {
+        const { data: oobRows, error: oobError } = await supabase
+          .from('report_sections')
+          .select('id')
+          .eq('report_id', report.id)
+          .eq('section_type', 'outside_box')
+          .limit(1);
+
+        if (oobError) throw oobError;
+
+        const wf3Done = Array.isArray(oobRows) && oobRows.length > 0;
+        if (wf3Done) redirectToChat();
+        // else: WF3 not done yet — the next poll will check again
       }
     } catch (error) {
       console.error('Error checking report status:', error);
     }
-  }, [user, navigate, toast]);
+  }, [user, redirectToChat]);
 
   // Polling + timer
   useEffect(() => {
@@ -146,7 +183,7 @@ function NormalState({
         <p className="text-sm text-gray-500">
           {phase === 'soft-warning'
             ? 'Almost there, just finishing up.'
-            : 'This usually takes 2-3 minutes.'}
+            : 'This usually takes about 5 minutes.'}
         </p>
       </div>
 
