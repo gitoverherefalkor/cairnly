@@ -468,17 +468,14 @@ const markdownComponents = {
       .trim();
     const Icon = iconForSubsection(text);
     return (
+      // Match the top-career sub-header styling (SequentialSubsections) so
+      // collapsed runner-up / outside-box cards read identically: Title Case,
+      // teal, larger icon — not the old uppercase letter-spaced treatment.
       <h5
-        className="font-heading uppercase mt-7 mb-3 first:mt-0 flex items-center gap-2"
-        style={{
-          color: '#1F8282',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.24em',
-        }}
+        className="text-lg font-semibold text-atlas-teal mt-7 mb-3 first:mt-0 flex items-center gap-2.5"
         {...props}
       >
-        {Icon && <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />}
+        {Icon && <Icon className="w-5 h-5 shrink-0" strokeWidth={2.25} />}
         <span>{children}</span>
       </h5>
     );
