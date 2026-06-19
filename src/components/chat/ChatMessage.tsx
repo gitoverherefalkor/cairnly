@@ -504,11 +504,16 @@ const markdownComponents = {
 // covers feasibility of the jump, not just the role itself.
 export function buildFeasibilityQuestion(roleTitle: string, moveLevel?: string | null): string {
   const base = `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
+  // Formatting nudge appended to every feasibility turn. WF5 otherwise returns
+  // one dense block of prose; asking for short paragraphs makes the reply
+  // legible in the chat bubble. This is the frontend lever — the answer's shape
+  // isn't set anywhere in the WF5 prompt, it's steered by the question we send.
+  const formatHint = ' Please break your answer into a few short paragraphs so it is easy to read.';
   // When the report has a Move rating for this role, name it so the agent ties
   // its answer to the pill and justifies the label (rather than answering blind).
   return moveLevel
-    ? `${base} My report rates the reskilling effort for this move as "${moveLevel}". Explain why it is rated that, and whether it holds up.`
-    : base;
+    ? `${base} My report rates the reskilling effort for this move as "${moveLevel}". Explain why it is rated that, and whether it holds up.${formatHint}`
+    : `${base}${formatHint}`;
 }
 
 // Renders a section-reveal message with sequential sub-section disclosure.
