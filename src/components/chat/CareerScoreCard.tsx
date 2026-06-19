@@ -177,7 +177,7 @@ const ScoreGauge: React.FC<{ score: number }> = ({ score }) => {
         <span className="text-base font-bold text-atlas-teal leading-none">{safe}</span>
         <span className="text-[10px] text-gray-400 leading-none">/100</span>
       </div>
-      <div className="h-1.5 w-14 bg-emerald-50 rounded-full overflow-hidden">
+      <div className="h-1.5 w-12 bg-emerald-50 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-atlas-teal to-emerald-500 rounded-full transition-all duration-500"
           style={{ width: `${safe}%` }}
@@ -355,7 +355,7 @@ export const CareerScoreCard: React.FC<CareerScoreCardProps> = ({
   // Pills flow in a wrapping row (Match · AI · Move, or Match · Feasibility ·
   // AI for dream jobs) so the trio sits together and wraps cleanly on mobile.
   return (
-    <div className="flex flex-wrap gap-2 items-start mb-2 mt-1">
+    <div className="flex flex-wrap gap-1.5 items-start mb-2 mt-1">
       {score != null && <ScoreGauge score={score} />}
       {feasibility && <FeasibilityBadge level={feasibility} />}
       {aiImpact && <AIImpactBadge level={aiImpact} />}

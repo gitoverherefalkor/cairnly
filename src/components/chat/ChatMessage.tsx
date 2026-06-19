@@ -915,35 +915,40 @@ const CollapsibleCareerBlocks: React.FC<{
                 {/* Clickable header — always visible */}
                 <button
                   onClick={() => toggle(idx)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left bg-white hover:bg-gray-50 transition-colors"
+                  className="w-full flex flex-col gap-1.5 px-4 py-3 text-left bg-white hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex flex-col gap-1.5 min-w-0">
-                    {/* h3 so DOM section-detection still works */}
-                    <h3 className="text-base font-bold text-atlas-navy font-heading m-0 leading-snug">
-                      {block.title}
-                    </h3>
-                    {/* Company size — small subhead under the title */}
-                    {size && (
-                      <div className="text-xs text-atlas-teal font-medium leading-tight">
-                        {size}
-                      </div>
-                    )}
-                    {/* Match score + AI impact pills in the collapsed header
-                        so users can scan all options without expanding each. */}
-                    {hasCard && (
-                      <CareerScoreCard
-                        score={Number.isFinite(score) ? score : null}
-                        aiImpact={aiImpact}
-                        feasibility={feasibility}
-                        move={section?.metadata?.move ?? null}
-                      />
-                    )}
+                  {/* Title row — chevron sits up here next to the title so the
+                      pills row below gets the full card width and the trio
+                      (Match · AI · Move) stays on one line. */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1.5 min-w-0">
+                      {/* h3 so DOM section-detection still works */}
+                      <h3 className="text-base font-bold text-atlas-navy font-heading m-0 leading-snug">
+                        {block.title}
+                      </h3>
+                      {/* Company size — small subhead under the title */}
+                      {size && (
+                        <div className="text-xs text-atlas-teal font-medium leading-tight">
+                          {size}
+                        </div>
+                      )}
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 shrink-0 mt-1 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180' : ''
+                      }`}
+                    />
                   </div>
-                  <ChevronDown
-                    className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180' : ''
-                    }`}
-                  />
+                  {/* Match score + AI impact pills in the collapsed header
+                      so users can scan all options without expanding each. */}
+                  {hasCard && (
+                    <CareerScoreCard
+                      score={Number.isFinite(score) ? score : null}
+                      aiImpact={aiImpact}
+                      feasibility={feasibility}
+                      move={section?.metadata?.move ?? null}
+                    />
+                  )}
                 </button>
 
                 {/* Collapsible body — size already shown in header,
