@@ -16,6 +16,7 @@ import {
   AI_IMPACT_COLOR,
   type AIImpactLevel,
 } from './dashboardV2Shared';
+import { MOVE_COLOR, moveLegend, type MoveLevel } from '@/lib/moveScale';
 import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 import CairnImageHero from '@/logos/Cairn_image_hero.png';
 
@@ -39,6 +40,7 @@ export interface RoleShare {
   title: string;
   matchPct: number | null;
   aiImpact: AIImpactLevel | null;
+  move: MoveLevel | null;
   // Cached AI-summarized quotes from the report_sections.share_quotes column.
   // Null means the modal needs to call generate-share-quotes to populate them.
   quotes: string[] | null;
@@ -855,6 +857,45 @@ const ShareCard: React.FC<{
                     }}
                   >
                     AI impact
+                  </span>
+                </div>
+              )}
+              {role.move && (
+                <div
+                  title={moveLegend(role.move)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 9,
+                    padding: '7px 14px',
+                    borderRadius: 9999,
+                    background: 'rgba(255,255,255,0.10)',
+                    border: `1px solid ${MOVE_COLOR[role.move]}66`,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 9,
+                      height: 9,
+                      borderRadius: 9999,
+                      background: MOVE_COLOR[role.move],
+                      boxShadow: `0 0 10px ${MOVE_COLOR[role.move]}`,
+                    }}
+                  />
+                  <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff' }}>
+                    {role.move}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    Move
                   </span>
                 </div>
               )}

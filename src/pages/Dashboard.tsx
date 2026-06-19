@@ -22,6 +22,7 @@ import {
   stripHtml,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
+import { type MoveLevel } from '@/lib/moveScale';
 
 // Helper to get assessment session from localStorage.
 // Live survey progress is written by useSurveyState/useSurveySession under
@@ -330,6 +331,7 @@ const Dashboard = () => {
       title: string;
       matchPct: number | null;
       aiImpact: AIImpactLevel | null;
+      move: MoveLevel | null;
       quotes: string[] | null;
       isOutsideBox: boolean;
     };
@@ -348,6 +350,7 @@ const Dashboard = () => {
         title,
         matchPct,
         aiImpact: extractAIImpact(s.content || ''),
+        move: (s.metadata?.move as MoveLevel | undefined) ?? null,
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
         isOutsideBox: false,
       });
@@ -362,6 +365,7 @@ const Dashboard = () => {
         title,
         matchPct: null,
         aiImpact: extractAIImpact(s.content || ''),
+        move: (s.metadata?.move as MoveLevel | undefined) ?? null,
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
         isOutsideBox: true,
       });

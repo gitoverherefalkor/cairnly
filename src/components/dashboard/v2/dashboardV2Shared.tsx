@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Shield, Route } from 'lucide-react';
+import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
 
 // ---------- Brand palette ----------
 // Mirrors the --cairnly-* tokens in src/index.css. Kept as a local constant
@@ -63,22 +64,10 @@ export const AI_IMPACT_MEANING: Record<AIImpactLevel, string> = {
 };
 
 // ---------- Move (reskilling effort to enter the role) ----------
-// Set by WF4 per top-3 career and read from metadata.move. Shown as a pill
-// next to the AI impact pill. AI-adjusted: judged after accounting for AI
-// compressing reskilling and some gaps mattering less as roles get augmented.
-export type MoveLevel = 'Ready now' | 'Upskill' | 'Retrain';
-
-export const MOVE_COLOR: Record<MoveLevel, string> = {
-  'Ready now': '#14b8a6', // teal
-  Upskill: '#f59e0b',     // amber
-  Retrain: '#f97316',     // orange
-};
-
-export const MOVE_MEANING: Record<MoveLevel, string> = {
-  'Ready now': 'Your current skills and experience largely fit, little or no new learning needed.',
-  Upskill: 'A real but bridgeable gap, focused learning over months (course, certification, portfolio, on-the-job).',
-  Retrain: 'A large skill or credential gap, or a new field, substantial reskilling.',
-};
+// 4-level scale, colors, and legend live in @/lib/moveScale (shared with the
+// chat badge + share card). Set by WF4 per career (metadata.move). MoveLevel is
+// re-exported so existing importers of this module keep working.
+export type { MoveLevel } from '@/lib/moveScale';
 
 // ---------- Career match shape (no salary — omitted per product decision) ----------
 export interface CareerMatch {
@@ -202,7 +191,7 @@ export const MovePill: React.FC<{ level: MoveLevel }> = ({ level }) => {
   const color = MOVE_COLOR[level];
   return (
     <span
-      title={MOVE_MEANING[level]}
+      title={moveLegend(level)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

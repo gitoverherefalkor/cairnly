@@ -1,4 +1,5 @@
 import React from 'react';
+import { MOVE_LEVELS, type MoveLevel, normalizeMove, moveLegend } from '@/lib/moveScale';
 
 // AI Impact rating scale, ordered low → high (impact / disruption).
 // Current prompt produces a clinical 5-level scale, SHOWN to the user:
@@ -216,23 +217,17 @@ export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => 
 };
 
 // ── Move (reskilling effort to enter the role) ───────────────────────
-// Set by WF4 per top-3 career (metadata.move). 3-level reskilling scale,
-// AI-adjusted. Teal → amber → orange (low effort → high effort).
-const MOVE_LEVELS = ['Ready now', 'Upskill', 'Retrain'] as const;
-type MoveLevel = (typeof MOVE_LEVELS)[number];
-
+// 4-level scale + colors + legend live in @/lib/moveScale (shared with the
+// dashboard pill + share card). The Tailwind class styles stay local here.
 const MOVE_STYLES: Record<MoveLevel, { dot: string; text: string; ring: string; tint: string }> = {
   'Ready now': { dot: 'bg-teal-500',   text: 'text-teal-700',   ring: 'border-teal-500/30',   tint: 'bg-teal-50' },
+  Reframe:     { dot: 'bg-green-600',  text: 'text-green-700',  ring: 'border-green-600/30',  tint: 'bg-green-50' },
   Upskill:     { dot: 'bg-amber-500',  text: 'text-amber-700',  ring: 'border-amber-500/30',  tint: 'bg-amber-50' },
   Retrain:     { dot: 'bg-orange-500', text: 'text-orange-700', ring: 'border-orange-500/30', tint: 'bg-orange-50' },
 };
 
-function normalizeMove(raw: string | null | undefined): MoveLevel | null {
-  if (!raw) return null;
-  return MOVE_LEVELS.find((l) => l.toLowerCase() === raw.toLowerCase().trim()) ?? null;
-}
-
-// Reskilling-effort badge — mirrors AIImpactBadge: label + level + 3-dot scale.
+// Reskilling-effort badge — mirrors AIImpactBadge: label + level + dot scale.
+// Hover shows the full legend with this role's level marked.
 export const MoveBadge: React.FC<{ level: string }> = ({ level }) => {
   const lvl = normalizeMove(level);
   if (!lvl) return null;
@@ -240,6 +235,7 @@ export const MoveBadge: React.FC<{ level: string }> = ({ level }) => {
   const style = MOVE_STYLES[lvl];
   return (
     <div
+      title={moveLegend(lvl)}
       className={`inline-flex items-center gap-2.5 rounded-full border ${style.ring} ${style.tint} px-3 py-1.5 shadow-sm`}
     >
       <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
