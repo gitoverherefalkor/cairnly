@@ -1,8 +1,8 @@
 import React from 'react';
 
 // A cairn that builds one stone per completed survey section. Gold stones to
-// match the section-complete checkmarks; a small hexagon crown appears once
-// all seven are placed. The newest stone drops in to mark the moment.
+// match the section-complete checkmarks. The newest stone drops in to mark the
+// moment.
 
 // Two angular, faceted rock shapes — rugged straight-edged slabs, centred at
 // the origin (~150 wide x 38 tall). Alternating them keeps the stack natural.
@@ -61,17 +61,6 @@ const CairnProgress = ({ stones, animateNewest = true, className }: CairnProgres
           </g>
         );
       })}
-
-      {count >= STONES.length && (
-        <path
-          className={animateNewest ? 'cairn-crown-pop' : undefined}
-          d="M120,84 l16,9 v18 l-16,9 l-16,-9 v-18 Z"
-          fill="none"
-          stroke={GOLD}
-          strokeWidth={4}
-          strokeLinejoin="round"
-        />
-      )}
     </svg>
   );
 };
