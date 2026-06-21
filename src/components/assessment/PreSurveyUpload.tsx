@@ -120,6 +120,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
     isProcessing: aiProcessing,
     hasProcessed,
     processingResult,
+    error,
     uploadAndProcess,
     resetState,
   } = useAIResumeUpload({
@@ -156,16 +157,15 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   });
 
   const validateAndSetFile = (file: File): boolean => {
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
+    // PDF only — the n8n resume parser (WF0.1) can't read Word/text files and
+    // fails downstream if anything else gets through.
+    const isPdf =
+      file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 
-    if (!allowedTypes.includes(file.type)) {
+    if (!isPdf) {
       toast({
-        title: 'File type not supported',
-        description: 'Please upload a PDF or Word document (.pdf, .doc, .docx).',
+        title: 'PDF files only',
+        description: 'Please upload your resume as a PDF. Tip: in Word, use "Save As" and choose PDF.',
         variant: 'destructive',
       });
       return false;
@@ -188,7 +188,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    validateAndSetFile(file);
+    if (!validateAndSetFile(file)) return;
     resetState();
     setIsProcessing(true);
     uploadAndProcess(file);
@@ -372,14 +372,21 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                               background: 'rgba(34, 197, 94, 0.14)',
                               border: '1px solid rgba(34, 197, 94, 0.32)',
                             }
-                          : {
-                              background: 'rgba(212, 160, 36, 0.18)',
-                              border: '1px solid rgba(212, 160, 36, 0.32)',
-                            }
+                          : error && !isProcessing
+                            ? {
+                                background: 'rgba(220, 38, 38, 0.12)',
+                                border: '1px solid rgba(220, 38, 38, 0.32)',
+                              }
+                            : {
+                                background: 'rgba(212, 160, 36, 0.18)',
+                                border: '1px solid rgba(212, 160, 36, 0.32)',
+                              }
                       }
                     >
                       {hasProcessed ? (
                         <CheckCircle className="h-5 w-5" style={{ color: '#16A34A' }} />
+                      ) : error && !isProcessing ? (
+                        <AlertTriangle className="h-5 w-5" style={{ color: '#DC2626' }} />
                       ) : (
                         <FileText className="h-5 w-5" style={{ color: '#C8891A' }} />
                       )}
@@ -412,26 +419,52 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   </div>
 
                   <div
-                    className="mt-3 pt-3 text-[13px] font-semibold flex items-center gap-2"
+                    className="mt-3 pt-3 text-[13px] font-semibold"
                     style={{
                       borderTop: hasProcessed
                         ? '1px solid rgba(34, 197, 94, 0.24)'
-                        : '1px solid rgba(201,182,144,0.5)',
-                      color: hasProcessed ? '#15803D' : '#C8891A',
+                        : error && !isProcessing
+                          ? '1px solid rgba(220, 38, 38, 0.24)'
+                          : '1px solid rgba(201,182,144,0.5)',
+                      color: hasProcessed
+                        ? '#15803D'
+                        : error && !isProcessing
+                          ? '#B91C1C'
+                          : '#C8891A',
                     }}
                   >
                     {hasProcessed ? (
-                      <>
+                      <span className="flex items-center gap-2">
                         <CheckCircle className="h-3.5 w-3.5" style={{ color: '#16A34A' }} />
                         {processingResult?.fieldsExtracted
                           ? `Extracted ${processingResult.fieldsExtracted} fields from your resume`
                           : 'Resume processed successfully'}
-                      </>
+                      </span>
+                    ) : error && !isProcessing ? (
+                      <div className="flex flex-col gap-2.5">
+                        <span className="flex items-start gap-2 leading-snug">
+                          <AlertTriangle
+                            className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
+                            style={{ color: '#DC2626' }}
+                          />
+                          We couldn't read that file. Please make sure it's a PDF and try again.
+                        </span>
+                        <div>
+                          <Button
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
+                          >
+                            <Upload className="h-3.5 w-3.5 mr-1.5" />
+                            Try a different file
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
-                      <>
+                      <span className="flex items-center gap-2">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Extracting information from your resume…
-                      </>
+                      </span>
                     )}
                   </div>
                 </>
@@ -461,13 +494,13 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   >
                     {isDragOver
                       ? ''
-                      : 'or click to browse · PDF or Word documents up to 10MB'}
+                      : 'or click to browse · PDF only, up to 10MB'}
                   </p>
                   <input
                     ref={fileInputRef}
                     type="file"
                     className="hidden"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf,application/pdf"
                     onChange={handleFileSelect}
                   />
                 </div>

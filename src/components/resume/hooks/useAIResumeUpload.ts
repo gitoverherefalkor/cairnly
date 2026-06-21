@@ -24,6 +24,9 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasProcessed, setHasProcessed] = useState(false);
   const [processingResult, setProcessingResult] = useState<any>(null);
+  // Holds a user-facing message when processing fails, so the UI can render an
+  // explicit "try again" state instead of a spinner that never resolves.
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
   const uploadAndProcess = async (file: File) => {
@@ -32,6 +35,7 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
       return;
     }
 
+    setError(null);
     setIsUploading(true);
     setIsProcessing(true);
 
@@ -56,18 +60,11 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
 
       console.log('[ResumeUpload] File uploaded:', uploadData.path);
 
-      // Mark the resume as uploaded on the user's profile. This is the durable
-      // signal — localStorage flags are lost on a fresh browser / new device,
-      // so the dashboard and the pre-survey upload gate rely on this column.
-      supabase
-        .from('profiles')
-        .update({ resume_uploaded_at: new Date().toISOString() })
-        .eq('id', user.id)
-        .then(({ error: stampError }) => {
-          if (stampError) {
-            console.warn('[ResumeUpload] Could not stamp profile resume_uploaded_at:', stampError);
-          }
-        });
+      // NOTE: resume_uploaded_at is intentionally NOT stamped here. It used to be
+      // set right after the file landed in storage — but that meant a failed parse
+      // (e.g. a .docx the n8n parser can't read) still flipped the durable "resume
+      // done" flag, skipping the user past the upload step with zero pre-fill data.
+      // We now stamp it only after parsing actually succeeds (see below).
 
       // Step 2: Get a signed URL (expires in 5 minutes — enough for n8n to download)
       const { data: urlData, error: signError } = await supabase.storage
@@ -147,20 +144,29 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
         rawData: payload?.parsed_raw || payload
       };
 
-      // Data minimisation: clear raw resume text now that parsing is complete.
-      // The structured resume_parsed_data is kept for survey pre-fill.
+      // Parsing succeeded — NOW stamp the durable "resume done" signal that the
+      // dashboard and pre-survey upload gate read. Stamping here (not on file
+      // upload) means a failed parse leaves the user on the upload step so they
+      // can retry, instead of being skipped past it with no pre-fill data.
+      // Also clear the raw resume text (data minimisation); the structured
+      // resume_parsed_data is kept for survey pre-fill.
       await supabase
         .from('profiles')
-        .update({ resume_data: null } as any)
+        .update({
+          resume_uploaded_at: new Date().toISOString(),
+          resume_data: null,
+        } as any)
         .eq('id', user.id);
 
       setProcessingResult(result);
       setHasProcessed(true);
       onSuccess?.(result);
 
-    } catch (error: any) {
-      console.error('[ResumeUpload] Error processing resume:', error);
-      onError?.(error.message || 'Failed to process resume');
+    } catch (err: any) {
+      console.error('[ResumeUpload] Error processing resume:', err);
+      const message = err?.message || 'Failed to process resume';
+      setError(message);
+      onError?.(message);
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
@@ -170,6 +176,7 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
   const resetState = () => {
     setHasProcessed(false);
     setProcessingResult(null);
+    setError(null);
   };
 
   return {
@@ -178,6 +185,7 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
     hasProcessed,
     setHasProcessed,
     processingResult,
+    error,
     uploadAndProcess,
     resetState
   };

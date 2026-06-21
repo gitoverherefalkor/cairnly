@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, FileText, CheckCircle, Loader2, X } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Loader2, X, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAIResumeUpload } from './hooks/useAIResumeUpload';
 
@@ -16,7 +16,7 @@ interface ResumeUploadCardProps {
 export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
   onProcessingComplete,
   title = "Resume Upload",
-  description = "Upload your PDF, Word document (.doc, .docx) or plain text resume.",
+  description = "Upload your resume as a PDF.",
   showSuccessMessage = true
 }) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -29,6 +29,7 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
     hasProcessed,
     setHasProcessed,
     processingResult,
+    error,
     uploadAndProcess,
     resetState
   } = useAIResumeUpload({
@@ -54,18 +55,15 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    const allowedTypes = [
-      'application/pdf', 
-      'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
-      'text/plain'
-    ];
-    
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file type — PDF only. The n8n resume parser (WF0.1) can't read
+    // Word/text files and fails downstream if anything else gets through.
+    const isPdf =
+      file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+    if (!isPdf) {
       toast({
-        title: "File type not supported",
-        description: "Please upload a PDF, Word document (.doc, .docx) or plain text file.",
+        title: "PDF files only",
+        description: 'Please upload your resume as a PDF. Tip: in Word, use "Save As" and choose PDF.',
         variant: "destructive",
       });
       return;
@@ -137,6 +135,22 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                   </div>
                 )}
 
+                {error && !isProcessing && !hasProcessed && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
+                    <div className="flex items-center space-x-2 text-red-800 mb-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span className="font-medium">We couldn't read that file</span>
+                    </div>
+                    <p className="text-red-700 mb-3">
+                      Please make sure it's a PDF and try again.
+                    </p>
+                    <Button size="sm" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Try a different file
+                    </Button>
+                  </div>
+                )}
+
                 {hasProcessed && processingResult && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
                     <div className="flex items-center space-x-2 text-green-800 mb-2">
@@ -155,7 +169,7 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                 <Upload className="h-12 w-12 text-gray-400 mx-auto" />
                 <div>
                   <p className="text-lg font-medium">Upload your document</p>
-                  <p className="text-sm text-gray-500">PDF, Word (.doc, .docx) or plain text files, up to 10MB</p>
+                  <p className="text-sm text-gray-500">PDF files only, up to 10MB</p>
                   <p className="text-xs text-gray-400 mt-1">Processing will start automatically after upload</p>
                 </div>
                 <Button onClick={() => fileInputRef.current?.click()}>
@@ -165,7 +179,7 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                   ref={fileInputRef}
                   type="file"
                   className="hidden"
-                  accept=".pdf,.doc,.docx,.txt"
+                  accept=".pdf,application/pdf"
                   onChange={handleFileSelect}
                 />
               </div>
