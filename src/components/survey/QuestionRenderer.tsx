@@ -27,13 +27,17 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { CAREER_HAPPINESS_MIN_REASON_CHARS } from './questionValidation';
+import { CAREER_HAPPINESS_MIN_REASON_CHARS, isQuestionAnswered } from './questionValidation';
 
 interface QuestionRendererProps {
   question: Question;
   value: any;
   onChange: (value: any) => void;
   allResponses?: Record<string, any>; // For cross-question access (e.g., career_happiness needs career_history)
+  // True once the user has tried to advance with this question still incomplete.
+  // Drives the red outline on the offending input so the "why you're blocked"
+  // hint has something to point at. Off by default → no red on a pristine question.
+  showValidation?: boolean;
 }
 
 // Career history entry type - comprehensive (satisfaction is separate question)
@@ -316,6 +320,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   value,
   onChange,
   allResponses,
+  showValidation,
 }) => {
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
@@ -488,6 +493,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     return maxSelections && currentSelections >= maxSelections;
   };
 
+  // A required question the user just tried to skip past. Used to outline the
+  // answer area in red so it matches the blocked-Continue hint. The red class
+  // (`border-red-300`) is also what SurveyForm scrolls to. career_history is
+  // excluded here — it already draws its own per-field red inline.
+  const showInvalid = !!showValidation && !isQuestionAnswered(question, value);
+  const invalidOutline = showInvalid ? 'rounded-lg border border-red-300 p-3' : '';
+
   switch (question.type) {
     case 'short_text':
       return (
@@ -579,7 +591,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
             />
             {renderDescription()}
-            <RadioGroup value={isOtherActive ? 'other' : (value || '')} onValueChange={onChange} className={mcListClass}>
+            <RadioGroup value={isOtherActive ? 'other' : (value || '')} onValueChange={onChange} className={`${mcListClass} ${invalidOutline}`}>
               {question.config?.choices?.map((choice) => {
                 const isSelected = value === choice;
                 return (
@@ -693,7 +705,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             />
             {renderDescription()}
             {getSelectionLimitText()}
-            <div className={mcListClass}>
+            <div className={`${mcListClass} ${invalidOutline}`}>
               {question.config?.choices?.map((choice) => {
                 const isChecked = currentValues.includes(choice);
                 
@@ -900,13 +912,15 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           />
           {renderDescription()}
           
-          <ResponsiveRanking
-            question={question}
-            value={value}
-            onChange={onChange}
-            formatTextWithEmphasis={formatTextWithEmphasis}
-            renderChoiceLabel={renderChoiceLabel}
-          />
+          <div className={invalidOutline}>
+            <ResponsiveRanking
+              question={question}
+              value={value}
+              onChange={onChange}
+              formatTextWithEmphasis={formatTextWithEmphasis}
+              renderChoiceLabel={renderChoiceLabel}
+            />
+          </div>
         </div>
       );
 
@@ -1484,7 +1498,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       value={entry.reason}
                       onChange={(e) => updateHappiness(index, 'reason', e.target.value)}
                       placeholder="e.g., Great autonomy, too many direct reports, unclear expectations..."
-                      className="w-full text-sm bg-white placeholder:text-gray-300"
+                      className={`w-full text-sm bg-white placeholder:text-gray-300 ${
+                        showValidation && (entry.reason || '').trim().length < CAREER_HAPPINESS_MIN_REASON_CHARS
+                          ? 'border-red-300 focus:border-red-400'
+                          : ''
+                      }`}
                     />
                   </div>
                 </div>
@@ -1890,7 +1908,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             </div>
 
             {/* Languages Section — required, at least one language with proficiency */}
-            <div className="p-5 border-2 rounded-xl bg-white shadow-sm">
+            <div className={`p-5 border-2 rounded-xl bg-white shadow-sm ${showInvalid ? 'border-red-300' : ''}`}>
               <h3 className="text-base font-semibold text-atlas-navy mb-1">
                 Languages <span className="text-red-500">*</span>
               </h3>
