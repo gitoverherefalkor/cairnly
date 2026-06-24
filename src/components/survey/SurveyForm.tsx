@@ -621,6 +621,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     value={responses[currentQuestion.id]}
                     onChange={(value) => handleResponseChange(currentQuestion.id, value)}
                     allResponses={responses}
+                    showValidation={showIncompleteHint}
                   />
                 </div>
 
