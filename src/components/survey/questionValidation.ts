@@ -118,3 +118,70 @@ export function isQuestionAnswered(question: any, response: any): boolean {
   if (!isOtherValueComplete(response)) return false;
   return response !== undefined && response !== null && response !== '';
 }
+
+/**
+ * A specific, human-readable reason a required question isn't satisfied — or
+ * null when it's complete.
+ *
+ * The survey's blocked-Continue hint used to say "missing fields are outlined
+ * in red" for every question type, but a red border is only ever drawn on
+ * career-history fields. On every other type (career-happiness reason,
+ * multi-select minimums, an unfinished "Other", an empty ranking, etc.) the
+ * user saw "look for the red field" with nothing red on screen. This returns a
+ * message that names the actual problem so the hint never points at a red field
+ * that isn't there. The branches mirror isQuestionAnswered exactly.
+ */
+export function getIncompleteReason(question: any, response: any): string | null {
+  if (isQuestionAnswered(question, response)) return null;
+
+  if (question.type === 'multiple_choice' && question.allow_multiple) {
+    const min = question.min_selections;
+    const max = question.max_selections;
+    const count = Array.isArray(response) ? response.length : response ? 1 : 0;
+
+    if (Array.isArray(response) && response.some((v) => !isOtherValueComplete(v))) {
+      return 'Finish typing your "Other" answer, or remove it.';
+    }
+    if (min && count < min) {
+      return `Pick at least ${min} option${min === 1 ? '' : 's'} to continue.`;
+    }
+    if (max && count > max) {
+      return `Pick at most ${max} option${max === 1 ? '' : 's'} to continue.`;
+    }
+    return 'Select at least one option to continue.';
+  }
+
+  if (question.type === 'ranking') {
+    return 'Please rank all the items to continue.';
+  }
+
+  if (question.type === 'skills_achievements') {
+    return 'Add at least one language with a proficiency level to continue.';
+  }
+
+  if (question.type === 'career_happiness') {
+    if (!Array.isArray(response) || response.length === 0) {
+      return 'Give each role a happiness rating and a short reason to continue.';
+    }
+    for (const entry of response) {
+      if (typeof entry?.happiness !== 'number' || entry.happiness < 1) {
+        return 'Give every role a happiness rating to continue.';
+      }
+    }
+    return `Add a bit more detail to each "Why this score?" — at least ${CAREER_HAPPINESS_MIN_REASON_CHARS} characters.`;
+  }
+
+  if (question.type === 'career_history') {
+    if (!Array.isArray(response) || !response.slice(0, 5).some((e: any) => e?.title && e.title.trim())) {
+      return 'Add at least one role (a job title) to continue.';
+    }
+    return 'Complete the fields outlined in red on your roles to continue.';
+  }
+
+  // Single-select "Other" that hasn't been typed out.
+  if (!isOtherValueComplete(response)) {
+    return 'Finish typing your "Other" answer to continue.';
+  }
+
+  return 'Please answer this question to continue.';
+}

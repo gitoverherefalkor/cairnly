@@ -13,7 +13,7 @@ import { useSurveySubmission } from './hooks/useSurveySubmission';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { useAssessmentSession } from '@/components/assessment/AssessmentSessionContext';
 import { useToast } from '@/hooks/use-toast';
-import { isQuestionAnswered } from './questionValidation';
+import { isQuestionAnswered, getIncompleteReason } from './questionValidation';
 import { computeSurveyProgress } from '@/lib/surveyProgress';
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
@@ -632,9 +632,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                   >
                     <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                     <span>
-                      {currentQuestion?.type === 'ranking'
-                        ? 'Please rank all the items to continue.'
-                        : 'Please complete all required fields before continuing. Any missing fields are outlined in red.'}
+                      {getIncompleteReason(currentQuestion, responses[currentQuestion?.id]) ??
+                        'Please complete all required fields before continuing.'}
                     </span>
                   </div>
                 )}
