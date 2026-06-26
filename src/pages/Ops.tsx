@@ -50,10 +50,19 @@ interface Person {
   has_resume: boolean;
 }
 
+interface DeployInfo {
+  state: string;
+  commit_message: string | null;
+  branch: string | null;
+  created_at: string | null;
+  url: string;
+}
+
 interface OpsFeedResponse {
   provider_status: { claude: ProviderStatus | null; openai: ProviderStatus | null };
   items: OpsItem[];
   people: Person[];
+  deploy: DeployInfo | null;
   fetched_at: string;
   new_analyzed: number;
 }
@@ -294,6 +303,40 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
           ))}
       </CardContent>
     </Card>
+  );
+}
+
+// ─── Deploy strip ─────────────────────────────────────────────────────────────
+
+function deployVisual(state: string): { dot: string; color: string; label: string } {
+  const s = state.toUpperCase();
+  if (s === 'READY') return { dot: '🟢', color: 'text-emerald-400', label: 'Ready' };
+  if (s === 'ERROR' || s === 'CANCELED') return { dot: '🔴', color: 'text-red-400', label: s === 'ERROR' ? 'Failed' : 'Canceled' };
+  if (s === 'BUILDING' || s === 'QUEUED' || s === 'INITIALIZING')
+    return { dot: '🟡', color: 'text-amber-400', label: s.charAt(0) + s.slice(1).toLowerCase() };
+  return { dot: '⚫', color: 'text-gray-500', label: state };
+}
+
+function DeployStrip({ deploy }: { deploy: DeployInfo | null }) {
+  if (!deploy) return null;
+  const v = deployVisual(deploy.state);
+  return (
+    <a
+      href={deploy.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-4 py-2 text-xs hover:border-white/30 transition-colors"
+    >
+      <span className="font-semibold uppercase tracking-widest text-gray-500">Deploy</span>
+      <span>{v.dot}</span>
+      <span className={v.color}>{v.label}</span>
+      {deploy.commit_message && (
+        <span className="text-gray-400 truncate max-w-[280px]">· {deploy.commit_message.split('\n')[0]}</span>
+      )}
+      {deploy.branch && <span className="text-gray-600 font-mono hidden sm:inline">· {deploy.branch}</span>}
+      {deploy.created_at && <span className="text-gray-600 ml-auto shrink-0">{timeAgo(deploy.created_at)}</span>}
+      <ExternalLink size={11} className="text-gray-600 shrink-0" />
+    </a>
   );
 }
 
@@ -829,6 +872,9 @@ export default function Ops() {
         <div className="space-y-5">
           {/* Provider status */}
           <ProviderBanner status={feed.provider_status} />
+
+          {/* Latest Vercel production deploy */}
+          <DeployStrip deploy={feed.deploy} />
 
           {/* Stats — clickable, jump to the matching tab */}
           <StatsRow items={items} onSelect={setActiveTab} />
