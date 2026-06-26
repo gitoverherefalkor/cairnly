@@ -568,6 +568,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       // We treat exact/substring matches as the equivalent button click.
       if (!intent) {
         const lower = message.trim().toLowerCase().replace(/[!.,?]+$/, '');
+        // Comma-insensitive form so "yes, let's go" matches "yes let's go".
+        const normalized = lower.replace(/,/g, '');
         const looksLikeAdvance =
           lower.includes('continue to the next section') ||
           lower.includes('continue to next section') ||
@@ -576,6 +578,22 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           lower === 'next' ||
           lower === "let's continue" ||
           lower === 'lets continue' ||
+          // Typed post-discussion confirmations. Sessions showed users type
+          // these instead of clicking the Continue pill; without matching them
+          // the advance routes as free text and the background WF6 (fb_unified)
+          // capture never fires, so the section discussion is lost. Limited to
+          // unambiguous "move on" phrasings — bare "yes"/"ok" stay with the
+          // agent, which has the conversation context to judge them.
+          normalized === "let's move on" ||
+          normalized === 'lets move on' ||
+          normalized === "yes let's move on" ||
+          normalized === 'yes lets move on' ||
+          normalized === "yes let's go" ||
+          normalized === 'yes lets go' ||
+          normalized === "yes let's continue" ||
+          normalized === 'yes lets continue' ||
+          normalized === 'ready for the next' ||
+          normalized === 'ready for the next one' ||
           // Kickoff: clicking "I'm Ready!" auto-sends this exact phrase.
           // Treating it as an advance makes the platform deliver the first
           // section (approach) straight away instead of routing to the agent.
