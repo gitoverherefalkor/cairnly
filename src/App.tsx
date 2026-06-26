@@ -41,6 +41,7 @@ const Security = lazy(() => import("./pages/Security"));
 const ColorTest = lazy(() => import("./pages/ColorTest"));
 const Jobs = lazy(() => import("./pages/Jobs"));
 const CustomResume = lazy(() => import("./pages/CustomResume"));
+const Ops = lazy(() => import("./pages/Ops"));
 const Journal = lazy(() => import("./pages/Journal"));
 const JournalArticle = lazy(() => import("./pages/JournalArticle"));
 const NewsletterConfirm = lazy(() => import("./pages/NewsletterConfirm"));
@@ -108,6 +109,7 @@ const App = () => {
               <Route path="/color-test" element={<ColorTest />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/custom-resume" element={<CustomResume />} />
+              <Route path="/ops" element={<Ops />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/journal/:slug" element={<JournalArticle />} />
               <Route path="/newsletter/confirm" element={<NewsletterConfirm />} />
