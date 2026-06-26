@@ -108,6 +108,119 @@ async function fetchN8nErrors(): Promise<any[]> {
   }
 }
 
+// ─── People funnel ────────────────────────────────────────────────────────────
+// Derives each recent signup's current stage from profiles +
+// user_engagement_tracking + reports. Privacy-light: first name + country only.
+
+type Stage =
+  | 'signed_up'
+  | 'survey'
+  | 'processing'
+  | 'report_ready'
+  | 'in_chat'
+  | 'done';
+
+interface Person {
+  user_id: string;
+  first_name: string;
+  country: string | null;
+  stage: Stage;
+  detail: string;
+  signed_up_at: string;
+  last_activity_at: string;
+  has_resume: boolean;
+}
+
+function maxTs(...ts: Array<string | null | undefined>): string {
+  return ts.filter(Boolean).sort().reverse()[0] ?? '';
+}
+
+function derivePerson(profile: any, eng: any, report: any): Person {
+  let stage: Stage = 'signed_up';
+  let detail = 'Signed up, not started';
+
+  if (eng?.survey_started_at) {
+    stage = 'survey';
+    const sec = eng.survey_last_section;
+    const total = eng.survey_total_sections;
+    detail = sec && total ? `Survey — section ${sec} of ${total}` : 'Survey in progress';
+  }
+  if (eng?.survey_completed_at) {
+    stage = 'processing';
+    detail = 'Survey done — report generating';
+  }
+  if (report && (report.status === 'pending_review' || report.status === 'completed')) {
+    stage = 'report_ready';
+    detail = 'Report ready';
+  }
+  if (eng?.chat_started_at) {
+    stage = 'in_chat';
+    const idx = eng.chat_last_section_index;
+    detail = idx != null ? `In chat — section ${idx}` : 'In chat';
+  }
+  if (eng?.chat_completed_at || eng?.dashboard_visited_after_chat_at) {
+    stage = 'done';
+    detail = 'Finished — chat wrapped up';
+  }
+
+  return {
+    user_id: profile.id,
+    first_name: profile.first_name ?? '(no name)',
+    country: profile.country ?? null,
+    stage,
+    detail,
+    signed_up_at: profile.created_at,
+    last_activity_at: maxTs(
+      profile.created_at,
+      eng?.survey_last_activity_at,
+      eng?.chat_last_activity_at,
+      eng?.updated_at,
+      report?.updated_at,
+    ),
+    has_resume: !!profile.resume_uploaded_at,
+  };
+}
+
+async function fetchPeople(
+  supabase: ReturnType<typeof createClient>,
+  sinceDays: number,
+): Promise<Person[]> {
+  const since = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('id, first_name, country, created_at, resume_uploaded_at')
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error || !profiles || profiles.length === 0) return [];
+
+  const ids = profiles.map((p) => p.id);
+
+  const [engResult, reportResult] = await Promise.all([
+    supabase.from('user_engagement_tracking').select('*').in('user_id', ids),
+    supabase
+      .from('reports')
+      .select('user_id, status, updated_at, created_at')
+      .in('user_id', ids)
+      .order('created_at', { ascending: false }),
+  ]);
+
+  const engMap = new Map<string, any>();
+  for (const e of engResult.data ?? []) engMap.set(e.user_id, e);
+
+  // Keep the most recent report per user (rows already sorted desc by created_at)
+  const reportMap = new Map<string, any>();
+  for (const r of reportResult.data ?? []) {
+    if (!reportMap.has(r.user_id)) reportMap.set(r.user_id, r);
+  }
+
+  return profiles.map((p) =>
+    derivePerson(p, engMap.get(p.id), reportMap.get(p.id)),
+  );
+}
+
 // ─── AI analysis ─────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `You are triaging operational signals for Cairnly, a B2C/B2B career-guidance SaaS.
@@ -317,6 +430,7 @@ serve(async (req) => {
     claudeStatus,
     openaiStatus,
     n8nErrors,
+    people,
     supportResult,
     missesResult,
     chapterFeedbackResult,
@@ -324,6 +438,7 @@ serve(async (req) => {
     fetchProviderStatus('https://status.anthropic.com', 'https://status.anthropic.com'),
     fetchProviderStatus('https://status.openai.com', 'https://status.openai.com'),
     fetchN8nErrors(),
+    fetchPeople(supabase, 30),
     supabase
       .from('support_requests')
       .select('*')
@@ -390,6 +505,7 @@ serve(async (req) => {
       JSON.stringify({
         provider_status: { claude: claudeStatus, openai: openaiStatus },
         items: [],
+        people,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -528,6 +644,7 @@ serve(async (req) => {
     JSON.stringify({
       provider_status: { claude: claudeStatus, openai: openaiStatus },
       items,
+      people,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),
