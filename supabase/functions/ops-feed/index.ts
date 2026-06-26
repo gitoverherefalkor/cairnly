@@ -425,6 +425,32 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
 
+  // Parse the body once; an { action: 'dismiss', item_key } request resolves an
+  // item instead of returning the feed.
+  let body: any = {};
+  try {
+    body = await req.json();
+  } catch {
+    body = {};
+  }
+
+  if (body?.action === 'dismiss' && typeof body.item_key === 'string') {
+    const itemKey: string = body.item_key;
+    // Flag it in the analysis cache so non-support items stay hidden.
+    await supabase
+      .from('ops_analysis')
+      .update({ dismissed_at: new Date().toISOString() })
+      .eq('item_key', itemKey);
+    // Support tickets carry a real status — resolve at the source too.
+    if (itemKey.startsWith('support:')) {
+      const id = itemKey.slice('support:'.length);
+      await supabase.from('support_requests').update({ status: 'resolved' }).eq('id', id);
+    }
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   // Fetch all data sources in parallel (fire and forget individual failures)
   const [
     claudeStatus,
@@ -525,8 +551,12 @@ serve(async (req) => {
     cacheMap.set(row.item_key, row);
   }
 
+  // Drop items an admin has dismissed (support tickets are already excluded at
+  // the source via status='resolved'; this covers n8n errors / misses / feedback).
+  const visibleItems = dedupedItems.filter((item) => !cacheMap.get(item.key)?.dismissed_at);
+
   const now = Date.now();
-  const needsAnalysis = dedupedItems.filter((item) => {
+  const needsAnalysis = visibleItems.filter((item) => {
     const cached = cacheMap.get(item.key);
     if (!cached) return true;
     const age = now - new Date(cached.analyzed_at).getTime();
@@ -589,7 +619,7 @@ serve(async (req) => {
   );
 
   // Build final items list
-  const items = dedupedItems.map((item) => {
+  const items = visibleItems.map((item) => {
     const cached = cacheMap.get(item.key);
     const analysis = cached
       ? {
