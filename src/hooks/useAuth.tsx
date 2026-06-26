@@ -111,6 +111,14 @@ async function ensureProfile(user: User) {
 // Consume the new-user flag (read once, then clear).
 // Returns '/payment' for new users, '/dashboard' for returning users.
 export function getPostAuthRedirect(): string {
+  // An explicit destination (e.g. set by /ops before sending the user to log
+  // in) takes priority so they land back where they started.
+  const explicit = localStorage.getItem('post_auth_redirect');
+  if (explicit) {
+    localStorage.removeItem('post_auth_redirect');
+    return explicit;
+  }
+
   const isNew = localStorage.getItem('atlas_is_new_user');
   if (isNew) {
     localStorage.removeItem('atlas_is_new_user');
