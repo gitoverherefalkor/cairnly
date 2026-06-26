@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings } from 'lucide-react';
+import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -329,7 +329,7 @@ function StatsRow({ items, onSelect }: { items: OpsItem[]; onSelect: (tab: strin
 
 // ─── Item card ────────────────────────────────────────────────────────────────
 
-function ItemCard({ item }: { item: OpsItem }) {
+function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [showScreenshot, setShowScreenshot] = useState(false);
 
@@ -497,6 +497,13 @@ function ItemCard({ item }: { item: OpsItem }) {
           <ActionButton onClick={() => copyForClaude(item)} icon={<Copy size={12} />}>
             Copy for Claude
           </ActionButton>
+          <button
+            onClick={() => onDismiss(item.key)}
+            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-colors ml-auto"
+          >
+            {item.source === 'support' ? <Check size={12} /> : <X size={12} />}
+            {item.source === 'support' ? 'Mark resolved' : 'Dismiss'}
+          </button>
         </div>
       </CardContent>
     </Card>
@@ -505,7 +512,7 @@ function ItemCard({ item }: { item: OpsItem }) {
 
 // ─── Feed list ────────────────────────────────────────────────────────────────
 
-function Feed({ items }: { items: OpsItem[] }) {
+function Feed({ items, onDismiss }: { items: OpsItem[]; onDismiss: (key: string) => void }) {
   if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-600">
@@ -517,7 +524,7 @@ function Feed({ items }: { items: OpsItem[] }) {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <ItemCard key={item.key} item={item} />
+        <ItemCard key={item.key} item={item} onDismiss={onDismiss} />
       ))}
     </div>
   );
@@ -659,6 +666,46 @@ export default function Ops() {
     if (isAdmin) fetchFeed();
   }, [isAdmin, fetchFeed]);
 
+  // Auto-refresh every 5 minutes, but skip while the tab is hidden so we don't
+  // poll in the background. The pull is light (cached AI + small queries).
+  useEffect(() => {
+    if (!isAdmin) return;
+    const id = setInterval(() => {
+      if (!document.hidden) fetchFeed();
+    }, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [isAdmin, fetchFeed]);
+
+  // Resolve a support ticket / dismiss any other item. Optimistically removes
+  // it from the feed, then tells the edge function to persist it.
+  const dismissItem = useCallback(
+    async (key: string) => {
+      setFeed((prev) =>
+        prev ? { ...prev, items: prev.items.filter((i) => i.key !== key) } : prev,
+      );
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Not authenticated');
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+        const r = await fetch(`${supabaseUrl}/functions/v1/ops-feed`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+          },
+          body: JSON.stringify({ action: 'dismiss', item_key: key }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        toast.success(key.startsWith('support:') ? 'Marked resolved' : 'Dismissed');
+      } catch {
+        toast.error('Could not save — refreshing');
+        fetchFeed();
+      }
+    },
+    [fetchFeed],
+  );
+
   // After login, Supabase routes new/returning users elsewhere, so stash the
   // intended destination and send them straight back to /ops afterwards.
   const goToLogin = () => {
@@ -742,6 +789,7 @@ export default function Ops() {
           <div className="text-xs text-gray-600 mt-0.5">
             {lastFetched ? `Last refreshed ${lastFetched}` : 'Loading…'}
             {feed?.new_analyzed ? ` · ${feed.new_analyzed} newly analyzed` : ''}
+            {' · auto every 5 min'}
           </div>
         </div>
         <Button
@@ -809,7 +857,7 @@ export default function Ops() {
             </TabsList>
 
             <TabsContent value="blockers" className="mt-4">
-              <Feed items={blockers} />
+              <Feed items={blockers} onDismiss={dismissItem} />
             </TabsContent>
             <TabsContent value="people" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
@@ -818,22 +866,33 @@ export default function Ops() {
               <PeoplePanel people={people} />
             </TabsContent>
             <TabsContent value="support" className="mt-4">
-              <Feed items={support} />
+              <Feed items={support} onDismiss={dismissItem} />
             </TabsContent>
             <TabsContent value="n8n" className="mt-4">
-              <Feed items={n8nErrors} />
+              <div className="mb-3 flex items-center justify-between gap-2 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
+                <span>Live failed executions from n8n. Each card deep-links to its run.</span>
+                <a
+                  href={`${N8N_BASE}/home/executions`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-atlas-teal hover:underline shrink-0"
+                >
+                  All executions <ExternalLink size={11} />
+                </a>
+              </div>
+              <Feed items={n8nErrors} onDismiss={dismissItem} />
             </TabsContent>
             <TabsContent value="misses" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
               </div>
-              <Feed items={misses} />
+              <Feed items={misses} onDismiss={dismissItem} />
             </TabsContent>
             <TabsContent value="feedback" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Mid-chat quality ratings submitted by users after each report chapter. Useful for spotting which sections consistently get poor marks.
               </div>
-              <Feed items={feedback} />
+              <Feed items={feedback} onDismiss={dismissItem} />
             </TabsContent>
           </Tabs>
         </div>
