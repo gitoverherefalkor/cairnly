@@ -32,9 +32,23 @@ interface OpsItem {
   screenshot_url?: string;
 }
 
+type Stage = 'signed_up' | 'survey' | 'processing' | 'report_ready' | 'in_chat' | 'done';
+
+interface Person {
+  user_id: string;
+  first_name: string;
+  country: string | null;
+  stage: Stage;
+  detail: string;
+  signed_up_at: string;
+  last_activity_at: string;
+  has_resume: boolean;
+}
+
 interface OpsFeedResponse {
   provider_status: { claude: ProviderStatus | null; openai: ProviderStatus | null };
   items: OpsItem[];
+  people: Person[];
   fetched_at: string;
   new_analyzed: number;
 }
@@ -96,6 +110,39 @@ function fmtDate(ts: string) {
 
 function getItemTs(item: OpsItem): string {
   return item.raw.created_at ?? item.raw.startedAt ?? item.raw.timestamp ?? '';
+}
+
+function timeAgo(ts: string): string {
+  if (!ts) return '—';
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+const STAGE_META: Record<Stage, { label: string; color: string; order: number }> = {
+  signed_up: { label: '①  Signed up', color: 'bg-gray-500/15 text-gray-300 border-gray-500/30', order: 0 },
+  survey: { label: '②  Survey', color: 'bg-blue-500/15 text-blue-300 border-blue-500/30', order: 1 },
+  processing: { label: '③  Processing', color: 'bg-purple-500/15 text-purple-300 border-purple-500/30', order: 2 },
+  report_ready: { label: '④  Report ready', color: 'bg-teal-500/15 text-teal-300 border-teal-500/30', order: 3 },
+  in_chat: { label: '⑤  In chat', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30', order: 4 },
+  done: { label: '⑥  Done', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30', order: 5 },
+};
+
+// Rough country → flag emoji. Falls back to a globe when unknown.
+function countryFlag(country: string | null): string {
+  if (!country) return '🌐';
+  const map: Record<string, string> = {
+    'United States': '🇺🇸', 'United Kingdom': '🇬🇧', Netherlands: '🇳🇱',
+    Belgium: '🇧🇪', Germany: '🇩🇪', France: '🇫🇷', Spain: '🇪🇸',
+    Italy: '🇮🇹', China: '🇨🇳', Estonia: '🇪🇪', Ireland: '🇮🇪',
+    Canada: '🇨🇦', Australia: '🇦🇺', India: '🇮🇳', Portugal: '🇵🇹',
+  };
+  return map[country] ?? '🌐';
 }
 
 // ─── Provider status banner ───────────────────────────────────────────────────
@@ -340,6 +387,93 @@ function Feed({ items }: { items: OpsItem[] }) {
   );
 }
 
+// ─── People funnel ────────────────────────────────────────────────────────────
+
+function PeoplePanel({ people }: { people: Person[] }) {
+  if (people.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+        <div className="text-sm">No signups in the last 30 days</div>
+      </div>
+    );
+  }
+
+  // Funnel counts per stage
+  const counts = people.reduce<Record<string, number>>((acc, p) => {
+    acc[p.stage] = (acc[p.stage] ?? 0) + 1;
+    return acc;
+  }, {});
+  const stuck = people.filter(
+    (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
+  ).length;
+
+  return (
+    <div className="space-y-4">
+      {/* Funnel summary */}
+      <div className="flex flex-wrap gap-2">
+        {(Object.keys(STAGE_META) as Stage[]).map((stage) => (
+          <div
+            key={stage}
+            className={`rounded-lg border px-3 py-2 text-xs ${STAGE_META[stage].color}`}
+          >
+            <span className="font-bold text-base mr-1.5">{counts[stage] ?? 0}</span>
+            {STAGE_META[stage].label.replace(/^[①②③④⑤⑥]\s+/, '')}
+          </div>
+        ))}
+      </div>
+
+      {stuck > 0 && (
+        <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+          <AlertTriangle size={13} />
+          {stuck} {stuck === 1 ? 'person has' : 'people have'} been inactive 3+ days mid-journey — possible drop-off.
+        </div>
+      )}
+
+      {/* People list */}
+      <div className="space-y-2">
+        {people.map((p) => {
+          const isStuck =
+            p.stage !== 'done' &&
+            Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000;
+          return (
+            <div
+              key={p.user_id}
+              className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+            >
+              <span className="text-xl shrink-0" title={p.country ?? 'Unknown country'}>
+                {countryFlag(p.country)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-gray-200 text-sm">{p.first_name}</span>
+                  {p.country && <span className="text-xs text-gray-500">{p.country}</span>}
+                  {p.has_resume && (
+                    <span className="text-[10px] text-gray-500 border border-white/10 rounded px-1.5 py-0.5">
+                      📄 resume
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">{p.detail}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <Badge
+                  variant="outline"
+                  className={`text-xs px-2 py-0.5 ${STAGE_META[p.stage].color}`}
+                >
+                  {STAGE_META[p.stage].label}
+                </Badge>
+                <div className={`text-[11px] mt-1 ${isStuck ? 'text-amber-400' : 'text-gray-600'}`}>
+                  joined {timeAgo(p.signed_up_at)} · active {timeAgo(p.last_activity_at)}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function Ops() {
@@ -388,6 +522,22 @@ export default function Ops() {
     if (isAdmin) fetchFeed();
   }, [isAdmin, fetchFeed]);
 
+  // After login, Supabase routes new/returning users elsewhere, so stash the
+  // intended destination and send them straight back to /ops afterwards.
+  const goToLogin = () => {
+    try {
+      localStorage.setItem('post_auth_redirect', '/ops');
+    } catch {
+      /* ignore */
+    }
+    window.location.href = '/auth';
+  };
+
+  const switchAccount = async () => {
+    await supabase.auth.signOut();
+    goToLogin();
+  };
+
   // Loading auth
   if (authLoading) {
     return (
@@ -401,34 +551,47 @@ export default function Ops() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div>
+        <div className="max-w-sm">
           <div className="text-lg font-semibold text-gray-200 mb-2">Sign in required</div>
-          <div className="text-sm text-gray-500">
-            This page is restricted. <a href="/auth" className="text-atlas-teal underline">Sign in</a>
+          <div className="text-sm text-gray-500 mb-5">
+            The ops dashboard is for Cairnly admins. Sign in to continue.
           </div>
+          <Button onClick={goToLogin} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
+            Sign in
+          </Button>
         </div>
       </div>
     );
   }
 
-  // Not admin
+  // Logged in, but not on an allowlisted admin account
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div>
+        <div className="max-w-sm">
           <div className="text-lg font-semibold text-gray-200 mb-2">Access restricted</div>
-          <div className="text-sm text-gray-500">This page is for Cairnly admins only.</div>
+          <div className="text-sm text-gray-500 mb-1">This page is for Cairnly admins only.</div>
+          <div className="text-xs text-gray-600 mb-5">
+            You're signed in as <span className="text-gray-400">{user.email}</span> — that account isn't on the admin list.
+          </div>
+          <Button onClick={switchAccount} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
+            Sign in with a different account
+          </Button>
         </div>
       </div>
     );
   }
 
   const items = feed?.items ?? [];
+  const people = feed?.people ?? [];
   const blockers = items.filter((i) => i.severity === 'blocker');
   const support = items.filter((i) => i.source === 'support');
   const n8nErrors = items.filter((i) => i.source === 'n8n_error');
   const misses = items.filter((i) => i.source === 'assessment_miss');
   const feedback = items.filter((i) => i.source === 'chapter_feedback');
+  const newThisWeek = people.filter(
+    (p) => Date.now() - new Date(p.signed_up_at).getTime() < 7 * 24 * 60 * 60 * 1000,
+  ).length;
 
   const tabLabel = (label: string, count: number) =>
     count > 0 ? `${label} (${count})` : label;
@@ -491,6 +654,9 @@ export default function Ops() {
               <TabsTrigger value="blockers" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-xs">
                 {tabLabel('🔴 Blockers', blockers.length)}
               </TabsTrigger>
+              <TabsTrigger value="people" className="data-[state=active]:bg-white/10 text-xs">
+                {tabLabel('👥 People', newThisWeek)}
+              </TabsTrigger>
               <TabsTrigger value="support" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('🎫 Support', support.length)}
               </TabsTrigger>
@@ -507,6 +673,12 @@ export default function Ops() {
 
             <TabsContent value="blockers" className="mt-4">
               <Feed items={blockers} />
+            </TabsContent>
+            <TabsContent value="people" className="mt-4">
+              <div className="mb-3 text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+                Everyone who signed up in the last 30 days and where they are in the journey. <strong className="text-gray-400">{newThisWeek}</strong> joined this week. Identified by first name + country only.
+              </div>
+              <PeoplePanel people={people} />
             </TabsContent>
             <TabsContent value="support" className="mt-4">
               <Feed items={support} />
