@@ -5,7 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Minus, Image } from 'lucide-react';
+import { toast } from 'sonner';
+import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings } from 'lucide-react';
+
+// Project ref for Supabase deep-links from the dashboard.
+const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
+const N8N_BASE = 'https://falkoratlas.app.n8n.cloud';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -145,6 +150,101 @@ function countryFlag(country: string | null): string {
   return map[country] ?? '🌐';
 }
 
+// ─── Actions ──────────────────────────────────────────────────────────────────
+
+// Builds a ready-to-paste investigation prompt for Claude Code / Cowork so the
+// dashboard doubles as a command center: see an issue → copy → paste → act.
+function buildClaudePrompt(item: OpsItem): string {
+  const r = item.raw;
+  const triage = `AI triage: ${item.summary}${item.recommended_action ? ` — ${item.recommended_action}` : ''}`;
+
+  if (item.source === 'support') {
+    return [
+      'Investigate this Cairnly support ticket. Diagnose the cause and, if it points at our code/config, propose (and implement) a fix.',
+      '',
+      `Category: ${SUPPORT_CATEGORIES[r.category] ?? r.category}`,
+      `From: ${r.email}`,
+      `Page: ${r.page ?? 'unknown'}`,
+      `Access code: ${r.access_code ?? 'none'}`,
+      `Account ID: ${r.user_id ?? 'not logged in'}`,
+      '',
+      'Message:',
+      '"""',
+      r.message ?? '',
+      '"""',
+      '',
+      triage,
+    ].join('\n');
+  }
+
+  if (item.source === 'n8n_error') {
+    return [
+      'A Cairnly n8n workflow execution failed. Diagnose the root cause and propose a fix (frontend, edge function, or n8n node).',
+      '',
+      `Workflow: ${r.workflow_name}`,
+      `Failed node: ${r.failed_node ?? 'unknown'}`,
+      `Execution ID: ${r.id}`,
+      `Error: ${r.error_message ?? 'unknown'}`,
+      '',
+      triage,
+    ].join('\n');
+  }
+
+  // assessment_miss / chapter_feedback
+  return [
+    `Review this Cairnly ${item.source === 'assessment_miss' ? 'assessment correction (WF6 reworked the AI output)' : 'user chapter feedback'} and assess whether the assessment prompts/logic need adjusting to prevent it recurring.`,
+    '',
+    `Section: ${r.section_type ?? 'unknown'}`,
+    `Feedback category: ${r.feedback_category ?? 'n/a'}`,
+    '',
+    'Detail:',
+    '"""',
+    r.feedback ?? '',
+    '"""',
+    '',
+    triage,
+  ].join('\n');
+}
+
+async function copyForClaude(item: OpsItem) {
+  try {
+    await navigator.clipboard.writeText(buildClaudePrompt(item));
+    toast.success('Copied — paste into Claude Code or Cowork to act on it');
+  } catch {
+    toast.error('Copy failed — your browser blocked clipboard access');
+  }
+}
+
+// A small pill-style action button used in the card footer.
+function ActionButton({
+  onClick,
+  href,
+  icon,
+  children,
+}: {
+  onClick?: () => void;
+  href?: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const cls =
+    'inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-white/15 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/5 transition-colors';
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+        {icon}
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button onClick={onClick} className={cls}>
+      {icon}
+      {children}
+    </button>
+  );
+}
+
 // ─── Provider status banner ───────────────────────────────────────────────────
 
 function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status'] }) {
@@ -154,7 +254,7 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
   ];
 
   return (
-    <Card className="border border-white/10 bg-white/5">
+    <Card className="border border-white/10 bg-black/25">
       <CardContent className="py-3 px-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">
@@ -199,27 +299,30 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
 
 // ─── Stats row ────────────────────────────────────────────────────────────────
 
-function StatsRow({ items }: { items: OpsItem[] }) {
+function StatsRow({ items, onSelect }: { items: OpsItem[]; onSelect: (tab: string) => void }) {
   const blockers = items.filter((i) => i.severity === 'blocker').length;
   const support = items.filter((i) => i.source === 'support').length;
   const n8n = items.filter((i) => i.source === 'n8n_error').length;
   const misses = items.filter((i) => i.source === 'assessment_miss').length;
   const feedback = items.filter((i) => i.source === 'chapter_feedback').length;
 
-  const stat = (label: string, count: number, color: string) => (
-    <div className={`rounded-lg border px-4 py-3 ${color}`}>
+  const stat = (label: string, count: number, color: string, tab: string) => (
+    <button
+      onClick={() => onSelect(tab)}
+      className={`text-left rounded-lg border px-4 py-3 transition-all hover:brightness-125 hover:border-white/30 ${color}`}
+    >
       <div className="text-2xl font-bold">{count}</div>
       <div className="text-xs text-gray-400 mt-0.5">{label}</div>
-    </div>
+    </button>
   );
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      {stat('Blockers', blockers, blockers > 0 ? 'border-red-500/30 bg-red-500/10' : 'border-white/10 bg-white/5')}
-      {stat('Support open', support, 'border-white/10 bg-white/5')}
-      {stat('n8n errors', n8n, n8n > 0 ? 'border-amber-500/30 bg-amber-500/10' : 'border-white/10 bg-white/5')}
-      {stat('Assessment misses', misses, 'border-white/10 bg-white/5')}
-      {stat('Chat feedback', feedback, 'border-white/10 bg-white/5')}
+      {stat('Blockers', blockers, blockers > 0 ? 'border-red-500/30 bg-red-500/10' : 'border-white/10 bg-black/25', 'blockers')}
+      {stat('Support open', support, 'border-white/10 bg-black/25', 'support')}
+      {stat('n8n errors', n8n, n8n > 0 ? 'border-amber-500/30 bg-amber-500/10' : 'border-white/10 bg-black/25', 'n8n')}
+      {stat('Assessment misses', misses, 'border-white/10 bg-black/25', 'misses')}
+      {stat('Chat feedback', feedback, 'border-white/10 bg-black/25', 'feedback')}
     </div>
   );
 }
@@ -282,7 +385,7 @@ function ItemCard({ item }: { item: OpsItem }) {
         : raw.feedback;
 
   return (
-    <Card className={`border transition-all ${item.severity === 'blocker' ? 'border-red-500/40 bg-red-500/5' : item.severity === 'needs-action' ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10 bg-white/5'}`}>
+    <Card className={`border transition-all ${item.severity === 'blocker' ? 'border-red-500/40 bg-red-500/5' : item.severity === 'needs-action' ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10 bg-black/25'}`}>
       <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -316,7 +419,7 @@ function ItemCard({ item }: { item: OpsItem }) {
 
       <CardContent className="px-4 pb-4 space-y-3">
         {/* AI summary */}
-        <div className="bg-white/5 rounded-lg px-3 py-2.5">
+        <div className="bg-black/25 rounded-lg px-3 py-2.5">
           <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-1">AI read</div>
           <div className="text-sm text-gray-200">{item.summary}</div>
           {item.recommended_action && (
@@ -362,6 +465,39 @@ function ItemCard({ item }: { item: OpsItem }) {
             )}
           </div>
         )}
+
+        {/* Actions — the command-center row */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {item.source === 'support' && raw.email && (
+            <ActionButton
+              href={`mailto:${raw.email}?subject=${encodeURIComponent(
+                `Re: your Cairnly support request${raw.category ? ` (${SUPPORT_CATEGORIES[raw.category] ?? raw.category})` : ''}`,
+              )}`}
+              icon={<Mail size={12} />}
+            >
+              Reply
+            </ActionButton>
+          )}
+          {item.source === 'support' && (
+            <ActionButton
+              href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/editor`}
+              icon={<Settings size={12} />}
+            >
+              Supabase
+            </ActionButton>
+          )}
+          {item.source === 'n8n_error' && raw.workflowId && (
+            <ActionButton
+              href={`${N8N_BASE}/workflow/${raw.workflowId}/executions/${raw.id}`}
+              icon={<Settings size={12} />}
+            >
+              Open in n8n
+            </ActionButton>
+          )}
+          <ActionButton onClick={() => copyForClaude(item)} icon={<Copy size={12} />}>
+            Copy for Claude
+          </ActionButton>
+        </div>
       </CardContent>
     </Card>
   );
@@ -438,7 +574,7 @@ function PeoplePanel({ people }: { people: Person[] }) {
           return (
             <div
               key={p.user_id}
-              className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-4 py-3"
             >
               <span className="text-xl shrink-0" title={p.country ?? 'Unknown country'}>
                 {countryFlag(p.country)}
@@ -482,6 +618,7 @@ export default function Ops() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('blockers');
 
   const isAdmin = !authLoading && !!user && ADMIN_EMAILS.has(user.email ?? '');
 
@@ -597,7 +734,7 @@ export default function Ops() {
     count > 0 ? `${label} (${count})` : label;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 px-4 py-8 max-w-4xl mx-auto">
+    <div className="min-h-screen text-gray-100 px-4 py-8 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -635,7 +772,7 @@ export default function Ops() {
       {loading && !feed && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-xl border border-white/10 bg-white/5 animate-pulse" />
+            <div key={i} className="h-28 rounded-xl border border-white/10 bg-black/25 animate-pulse" />
           ))}
         </div>
       )}
@@ -645,12 +782,12 @@ export default function Ops() {
           {/* Provider status */}
           <ProviderBanner status={feed.provider_status} />
 
-          {/* Stats */}
-          <StatsRow items={items} />
+          {/* Stats — clickable, jump to the matching tab */}
+          <StatsRow items={items} onSelect={setActiveTab} />
 
           {/* Tabs */}
-          <Tabs defaultValue="blockers">
-            <TabsList className="bg-white/5 border border-white/10 w-full flex flex-wrap h-auto gap-1 p-1">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-black/25 border border-white/10 w-full flex flex-wrap h-auto gap-1 p-1">
               <TabsTrigger value="blockers" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-xs">
                 {tabLabel('🔴 Blockers', blockers.length)}
               </TabsTrigger>
@@ -675,7 +812,7 @@ export default function Ops() {
               <Feed items={blockers} />
             </TabsContent>
             <TabsContent value="people" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Everyone who signed up in the last 30 days and where they are in the journey. <strong className="text-gray-400">{newThisWeek}</strong> joined this week. Identified by first name + country only.
               </div>
               <PeoplePanel people={people} />
@@ -687,13 +824,13 @@ export default function Ops() {
               <Feed items={n8nErrors} />
             </TabsContent>
             <TabsContent value="misses" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
               </div>
               <Feed items={misses} />
             </TabsContent>
             <TabsContent value="feedback" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-white/5 rounded-lg px-3 py-2">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Mid-chat quality ratings submitted by users after each report chapter. Useful for spotting which sections consistently get poor marks.
               </div>
               <Feed items={feedback} />
