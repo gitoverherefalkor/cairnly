@@ -522,6 +522,22 @@ export default function Ops() {
     if (isAdmin) fetchFeed();
   }, [isAdmin, fetchFeed]);
 
+  // After login, Supabase routes new/returning users elsewhere, so stash the
+  // intended destination and send them straight back to /ops afterwards.
+  const goToLogin = () => {
+    try {
+      localStorage.setItem('post_auth_redirect', '/ops');
+    } catch {
+      /* ignore */
+    }
+    window.location.href = '/auth';
+  };
+
+  const switchAccount = async () => {
+    await supabase.auth.signOut();
+    goToLogin();
+  };
+
   // Loading auth
   if (authLoading) {
     return (
@@ -535,23 +551,32 @@ export default function Ops() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div>
+        <div className="max-w-sm">
           <div className="text-lg font-semibold text-gray-200 mb-2">Sign in required</div>
-          <div className="text-sm text-gray-500">
-            This page is restricted. <a href="/auth" className="text-atlas-teal underline">Sign in</a>
+          <div className="text-sm text-gray-500 mb-5">
+            The ops dashboard is for Cairnly admins. Sign in to continue.
           </div>
+          <Button onClick={goToLogin} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
+            Sign in
+          </Button>
         </div>
       </div>
     );
   }
 
-  // Not admin
+  // Logged in, but not on an allowlisted admin account
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
-        <div>
+        <div className="max-w-sm">
           <div className="text-lg font-semibold text-gray-200 mb-2">Access restricted</div>
-          <div className="text-sm text-gray-500">This page is for Cairnly admins only.</div>
+          <div className="text-sm text-gray-500 mb-1">This page is for Cairnly admins only.</div>
+          <div className="text-xs text-gray-600 mb-5">
+            You're signed in as <span className="text-gray-400">{user.email}</span> — that account isn't on the admin list.
+          </div>
+          <Button onClick={switchAccount} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
+            Sign in with a different account
+          </Button>
         </div>
       </div>
     );
