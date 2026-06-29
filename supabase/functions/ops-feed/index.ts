@@ -108,6 +108,41 @@ async function fetchN8nErrors(): Promise<any[]> {
   }
 }
 
+// ─── Vercel deploy status ─────────────────────────────────────────────────────
+
+interface DeployInfo {
+  state: string;
+  commit_message: string | null;
+  branch: string | null;
+  created_at: string | null;
+  url: string;
+}
+
+async function fetchVercelDeploy(): Promise<DeployInfo | null> {
+  const token = Deno.env.get('VERCEL_API_TOKEN');
+  if (!token) return null;
+  try {
+    const r = await fetch(
+      'https://api.vercel.com/v6/deployments?app=cairnly&target=production&limit=1',
+      { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000) },
+    );
+    if (!r.ok) return null;
+    const data = await r.json();
+    const d = data.deployments?.[0];
+    if (!d) return null;
+    return {
+      state: d.state ?? d.readyState ?? 'UNKNOWN',
+      commit_message: d.meta?.githubCommitMessage ?? null,
+      branch: d.meta?.githubCommitRef ?? null,
+      created_at: d.created ? new Date(d.created).toISOString() : null,
+      url: d.url ? `https://${d.url}` : 'https://vercel.com',
+    };
+  } catch (e) {
+    console.error('[ops-feed] Vercel deploy fetch failed:', e);
+    return null;
+  }
+}
+
 // ─── People funnel ────────────────────────────────────────────────────────────
 // Derives each recent signup's current stage from profiles +
 // user_engagement_tracking + reports. Privacy-light: first name + country only.
@@ -457,6 +492,7 @@ serve(async (req) => {
     openaiStatus,
     n8nErrors,
     people,
+    deploy,
     supportResult,
     missesResult,
     chapterFeedbackResult,
@@ -465,6 +501,7 @@ serve(async (req) => {
     fetchProviderStatus('https://status.openai.com', 'https://status.openai.com'),
     fetchN8nErrors(),
     fetchPeople(supabase, 30),
+    fetchVercelDeploy(),
     supabase
       .from('support_requests')
       .select('*')
@@ -532,6 +569,7 @@ serve(async (req) => {
         provider_status: { claude: claudeStatus, openai: openaiStatus },
         items: [],
         people,
+        deploy,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -675,6 +713,7 @@ serve(async (req) => {
       provider_status: { claude: claudeStatus, openai: openaiStatus },
       items,
       people,
+      deploy,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),
