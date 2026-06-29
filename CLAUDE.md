@@ -118,7 +118,8 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
   **Editing an existing workflow (WF1–WF9, WFX, Error Handler, Resume Extract, or anything else already in production):** Never edit speculatively. You **may** modify when ALL of these are true:
   1. The user has given explicit approval for that specific workflow (a per-workflow yes, not a blanket one)
   2. You have presented a clear plan: which nodes change, what the change is, why it's needed, and what could break
-  3. The user has confirmed the plan before you call the n8n API
+  3. For any prompt-text change, you have shown the **actual edited prompt text in the chat** (the literal before/after, or the new block), not just a summary of intent, so the user can read exactly what will change
+  4. The user has given an explicit "ok" to that shown text before you call the n8n API
 
   Prefer frontend / edge function fixes when both are viable. When you do edit, always export the current state to `n8n_wfs_cairnly/` first so we can roll back.
 
