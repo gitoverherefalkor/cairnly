@@ -29,7 +29,7 @@ export interface StatGridEntry {
 }
 
 export const statGrid: StatGridEntry[] = [
-  { number: '1 in 5', description: 'Dutch workers report burn-outklachten. 1 in 4 among 25–34-year-olds.', source: 'NEA / CBS-TNO 2024' },
+  { number: '1 in 5', description: 'Dutch workers report burn-out complaints. 1 in 4 among 25 to 34 year-olds.', source: 'NEA / CBS-TNO 2024' },
   { number: '20%', description: 'Of employees worldwide are engaged at work. Just 13% in Europe.', source: 'Gallup, State of the Global Workplace 2026' },
   { number: '34%', description: 'Are thriving in life. 40% felt a lot of stress yesterday.', source: 'Gallup 2026' },
   { number: '66%', description: 'Of workers have career regrets. Half regret the career they chose.', source: 'Resume Now, International Career Regrets 2024' },
