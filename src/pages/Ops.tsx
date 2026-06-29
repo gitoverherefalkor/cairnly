@@ -662,6 +662,96 @@ function PeoplePanel({ people }: { people: Person[] }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+// Admin tool: re-fire the n8n WF1→WF4 pipeline for a report by ID. Calls the
+// `rerun_report` SQL function (admin-gated, clears old sections first so the
+// pipeline can't append duplicates). Replaces the manual "assemble the WF1 JSON
+// and paste it into the webhook" dance.
+function RerunReportCard() {
+  const [reportId, setReportId] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  const run = async (dryRun: boolean) => {
+    const id = reportId.trim();
+    if (!UUID_RE.test(id)) {
+      toast.error('Enter a valid report ID (UUID).');
+      return;
+    }
+    setBusy(true);
+    setResult(null);
+    try {
+      // rerun_report isn't in the generated Supabase types yet; cast to call it.
+      const { data, error } = await (supabase as unknown as {
+        rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
+      }).rpc('rerun_report', { p_report_id: id, p_dry_run: dryRun });
+      if (error) throw error;
+      const r = data as Record<string, unknown>;
+      if (!r?.ok) {
+        toast.error(`Re-run blocked: ${(r?.error as string) ?? 'unknown error'}`);
+      } else if (dryRun) {
+        toast.success(`Dry run OK — ${r.survey_responses_keys} answers, lang ${r.preferred_language}`);
+      } else {
+        toast.success(`Re-run fired (HTTP ${r.http_status}). Report regenerating…`);
+      }
+      setResult(JSON.stringify(r, null, 2));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(msg);
+      setResult(msg);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-4">
+      <div className="flex items-center gap-2 mb-1">
+        <RefreshCw size={15} className="text-emerald-400" />
+        <h2 className="text-sm font-semibold text-gray-100">Re-run a report</h2>
+      </div>
+      <p className="text-xs text-gray-500 mb-3">
+        Re-fires the WF1 → WF4 pipeline using the report's saved answers. Clears the old sections
+        first so nothing duplicates. This regenerates the report and may email the user.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input
+          value={reportId}
+          onChange={(e) => setReportId(e.target.value)}
+          placeholder="report ID (UUID)"
+          spellCheck={false}
+          disabled={busy}
+          className="flex-1 bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={busy}
+          onClick={() => run(true)}
+          className="border-white/20 text-gray-400 hover:text-gray-100"
+        >
+          Dry run
+        </Button>
+        <Button
+          size="sm"
+          disabled={busy}
+          onClick={() => run(false)}
+          className="bg-emerald-600 hover:bg-emerald-500 text-white gap-1.5"
+        >
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+          Re-run
+        </Button>
+      </div>
+      {result && (
+        <pre className="mt-3 text-[11px] text-gray-400 bg-black/30 rounded-lg px-3 py-2 overflow-x-auto whitespace-pre-wrap">
+          {result}
+        </pre>
+      )}
+    </div>
+  );
+}
+
 export default function Ops() {
   const { user, isLoading: authLoading } = useAuth();
   const [feed, setFeed] = useState<OpsFeedResponse | null>(null);
@@ -858,6 +948,11 @@ export default function Ops() {
           {error}
         </div>
       )}
+
+      {/* Admin tool: re-run a report's pipeline by ID */}
+      <div className="mb-5">
+        <RerunReportCard />
+      </div>
 
       {/* Loading skeleton */}
       {loading && !feed && (
