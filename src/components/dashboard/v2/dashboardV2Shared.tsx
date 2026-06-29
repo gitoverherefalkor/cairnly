@@ -79,6 +79,9 @@ export interface CareerMatch {
   move?: MoveLevel | null;
   teaser?: string;
   alignment?: string;
+  // The 2 "Future-proof skills" bullets, plain text. Empty/undefined for
+  // legacy reports without the subsection, so the card block won't render.
+  futureSkills?: string[];
 }
 
 // ---------- SECTION_VISUALS ----------
@@ -446,6 +449,22 @@ export function extractSubsectionContent(
   const next = matches.slice(hitIdx + 1).find((h) => h.level <= hit.level);
   const end = next ? next.index : body.length;
   return body.slice(start, end);
+}
+
+// Pull the "Future-proof skills" bullets out of a career body as plain
+// strings (markdown bold + any HTML stripped), capped at 2. Returns an empty
+// array for legacy reports that have no such subsection, so callers can simply
+// skip rendering when it's empty.
+export function extractFutureSkills(body: string): string[] {
+  const section = extractSubsectionContent(body, ['Future-proof skills']);
+  if (!section) return [];
+  return section
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => /^[-*]\s+/.test(l))
+    .map((l) => stripHtml(l.replace(/^[-*]\s+/, '')).replace(/\*\*/g, '').trim())
+    .filter(Boolean)
+    .slice(0, 2);
 }
 
 // Pick sentences usable as shareable quotes from a section body. Strips a
