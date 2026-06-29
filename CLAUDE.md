@@ -20,6 +20,7 @@ Current development focus: building out the platform features and establishing n
 - For small changes: just do it and push so changes can be tested visually
 - No need for disclaimers or "I'm just an AI" statements
 - Be honest when you don't know something
+- When walking the user through a manual, repeatable process (setting up an API key, configuring a tool, a multi-step terminal workflow, etc.), proactively offer to capture it as a step-by-step Notion tutorial they can reference later. Create it as a standalone top-level Notion page (not nested under an unrelated page) unless they say where to put it.
 
 ## Development commands
 - `npm run dev`: Start development server
