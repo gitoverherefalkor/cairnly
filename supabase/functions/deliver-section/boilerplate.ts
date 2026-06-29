@@ -73,7 +73,7 @@ const EN: Record<SectionType, Boilerplate> = {
   },
   runner_ups: {
     intro:
-      "Let's take a look at your **runner-up career matches**. These roles are also well-suited to your strengths, values, and skills, but may differ in focus, work environment, or career trajectory compared to your top matches. Here are strong alternatives worth considering:",
+      "Let's take a look at your **runner-up career matches**. These are close alternatives to your top three: also strong fits for your strengths and values, but differing in focus, work environment, or trajectory. Think of them as a quick comparison set, not the creative picks. After this, we'll get to the genuinely unexpected directions: your **outside-the-box** options and your **dream jobs**. Here are the alternatives worth considering:",
     outro:
       'That wraps up your runner-up career matches! **Do you have any questions about any of these roles**, or anything else you\'d like to explore further?',
   },
@@ -135,7 +135,7 @@ const NL: Record<SectionType, Boilerplate> = {
   },
   runner_ups: {
     intro:
-      "Laten we kijken naar je **runner-up matches**. Deze rollen passen ook goed bij je sterke punten, waarden en vaardigheden, maar verschillen mogelijk in focus, werkomgeving of loopbaantraject ten opzichte van je topmatches. Hier zijn sterke alternatieven om te overwegen:",
+      "Laten we kijken naar je **runner-up matches**. Dit zijn alternatieven die dicht bij je top drie liggen: ook sterke matches met je sterke punten en waarden, maar met een andere focus, werkomgeving of loopbaantraject. Zie ze als een snelle vergelijking, niet de creatieve keuzes. Daarna komt het echt onverwachte deel: je **outside-the-box** opties en je **droombanen**. Hier zijn de alternatieven om te overwegen:",
     outro:
       "Daarmee zijn we klaar met je runner-up matches! **Heb je vragen over een van deze rollen**, of is er iets anders dat je verder wilt verkennen?",
   },
