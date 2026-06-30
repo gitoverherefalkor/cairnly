@@ -399,14 +399,16 @@ function childrenToText(children: React.ReactNode): string {
 // "Money: €65k–90k…", "Schedule: …", "AI Impact Rating: High". The agent
 // sometimes emits these labels as plain text instead of markdown **bold**,
 // so we promote them here for consistent emphasis. We only bold when the
-// label is short (≤4 words, ≤30 chars) and the paragraph doesn't already
+// label is short (≤4 words, ≤44 chars) and the paragraph doesn't already
 // start with formatting — this avoids bolding ordinary sentences that just
-// happen to contain a colon ("AI is already reshaping UX work: …").
+// happen to contain a colon ("AI is already reshaping UX work: …"). The
+// ≤4-word guard is the real sentence filter; the char cap just allows for
+// longer 4-word labels like "Productize your audit framework:" (31 chars).
 function boldLeadingLabel(children: React.ReactNode): React.ReactNode {
   const arr = React.Children.toArray(children);
   const first = arr[0];
   if (typeof first !== 'string') return children; // already starts with <strong> etc.
-  const match = first.match(/^([^:\n]{1,30}):(\s|$)/);
+  const match = first.match(/^([^:\n]{1,44}):(\s|$)/);
   if (!match) return children;
   const label = match[1].trim();
   if (label.split(/\s+/).length > 4) return children; // looks like a sentence, leave it
