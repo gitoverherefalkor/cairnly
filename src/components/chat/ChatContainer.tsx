@@ -1022,16 +1022,16 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             scoped to that role. Dismiss with ✕ to clear the scoping. */}
         {askAboutRole && !isSessionCompleted && (
           <div className="px-4 pt-3 -mb-1">
-            <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/30 bg-atlas-teal/5 pl-3 pr-2 py-1.5 text-sm">
+            <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/40 bg-white shadow-md pl-3 pr-2 py-1.5 text-sm">
               <MessageCircle size={14} className="shrink-0 text-atlas-teal" />
               <span className="text-atlas-navy min-w-0 truncate">
-                Asking about: <span className="font-semibold">{askAboutRole}</span>
+                Asking about: <span className="font-semibold text-atlas-teal">{askAboutRole}</span>
               </span>
               <button
                 type="button"
                 onClick={cancelAskAboutRole}
                 aria-label="Cancel asking about this role"
-                className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-atlas-teal/10 transition-colors"
+                className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-gray-100 transition-colors"
               >
                 <X size={14} />
               </button>
