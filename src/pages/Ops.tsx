@@ -66,12 +66,19 @@ interface TrafficStats {
   top_pages: Array<{ path: string; views: number }>;
 }
 
+interface N8nUsage {
+  executions_this_month: number;
+  limit: number;
+  capped: boolean;
+}
+
 interface OpsFeedResponse {
   provider_status: { claude: ProviderStatus | null; openai: ProviderStatus | null };
   items: OpsItem[];
   people: Person[];
   deploy: DeployInfo | null;
   traffic: TrafficStats | null;
+  n8n_usage: N8nUsage | null;
   fetched_at: string;
   new_analyzed: number;
 }
@@ -582,6 +589,64 @@ function Feed({ items, onDismiss }: { items: OpsItem[]; onDismiss: (key: string)
   );
 }
 
+// ─── Usage & spend ────────────────────────────────────────────────────────────
+
+function UsagePanel({ usage }: { usage: N8nUsage | null }) {
+  const month = new Date().toLocaleDateString('en-GB', { month: 'long' });
+
+  let bar = 'bg-emerald-500';
+  let pct = 0;
+  if (usage && usage.limit > 0) {
+    pct = Math.min(100, Math.round((usage.executions_this_month / usage.limit) * 100));
+    bar = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-500' : 'bg-emerald-500';
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* n8n executions */}
+      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-gray-200">⚙️ n8n executions — {month}</span>
+          <a
+            href="https://app.n8n.cloud/dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-atlas-teal hover:underline"
+          >
+            n8n usage <ExternalLink size={11} />
+          </a>
+        </div>
+        {usage ? (
+          <>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-gray-100">
+                {usage.capped ? '5,000+' : usage.executions_this_month.toLocaleString()}
+              </span>
+              <span className="text-sm text-gray-500">/ {usage.limit.toLocaleString()} ({pct}%)</span>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-white/5 overflow-hidden">
+              <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+            </div>
+            <div className="text-[11px] text-gray-600 mt-1.5">
+              Approx from the n8n API (includes Outside Input — same instance). Exact figure on the n8n dashboard.
+            </div>
+          </>
+        ) : (
+          <div className="text-sm text-gray-600">n8n usage unavailable.</div>
+        )}
+      </div>
+
+      {/* AI spend placeholder */}
+      <div className="rounded-lg border border-dashed border-white/15 bg-black/15 px-4 py-4">
+        <div className="text-sm font-medium text-gray-300 mb-1">💰 AI spend</div>
+        <div className="text-xs text-gray-500">
+          Add provider keys as Supabase secrets to light these up: <span className="font-mono text-gray-400">OPENROUTER_API_KEY</span>, <span className="font-mono text-gray-400">OPENAI_ADMIN_KEY</span>, <span className="font-mono text-gray-400">ANTHROPIC_ADMIN_KEY</span>. Google spend → routed via OpenRouter or a GCP Billing link.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Traffic ──────────────────────────────────────────────────────────────────
 
 function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
@@ -1063,6 +1128,9 @@ export default function Ops() {
               <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
                 📈 Traffic
               </TabsTrigger>
+              <TabsTrigger value="usage" className="data-[state=active]:bg-white/10 text-xs">
+                💰 Usage
+              </TabsTrigger>
               <TabsTrigger value="support" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('🎫 Support', support.length)}
               </TabsTrigger>
@@ -1088,6 +1156,9 @@ export default function Ops() {
             </TabsContent>
             <TabsContent value="traffic" className="mt-4">
               <TrafficPanel traffic={feed.traffic} />
+            </TabsContent>
+            <TabsContent value="usage" className="mt-4">
+              <UsagePanel usage={feed.n8n_usage} />
             </TabsContent>
             <TabsContent value="support" className="mt-4">
               <Feed items={support} onDismiss={dismissItem} />
