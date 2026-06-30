@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
-import ScreenshotSlot from './ScreenshotSlot';
+import HeroCarousel from './HeroCarousel';
 import { useGetStarted } from './useGetStarted';
 import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
@@ -77,15 +77,9 @@ const Hero: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Product preview */}
+          {/* Product preview — rotating browser carousel */}
           <Reveal className="lg:col-span-5">
-            <ScreenshotSlot
-              onDark
-              aspect="aspect-[5/4]"
-              meta={t('hero.screenshotMeta')}
-              src="/images/landing/hero_image_jun26.png"
-              alt={t('hero.screenshotAlt')}
-            />
+            <HeroCarousel />
           </Reveal>
         </div>
       </div>
