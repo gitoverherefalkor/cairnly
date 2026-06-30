@@ -44,6 +44,28 @@ const CAREER_SECTION_TYPES = new Set<DeliverableSectionType>([
   'dream_jobs',
 ]);
 
+// Smallest index whose section is a career section. Derived from the maps above
+// so it stays correct if the ordering ever changes.
+const FIRST_CAREER_INDEX = Math.min(
+  ...Object.entries(SECTION_INDEX_TO_TYPE)
+    .filter(([, type]) => type !== null && CAREER_SECTION_TYPES.has(type))
+    .map(([index]) => Number(index)),
+);
+
+// Section context the chat sends to WF5 (the coach) in metadata so it knows
+// where the user is and whether any career has been revealed yet. Without this
+// WF5 can't honor its "don't suggest careers from upcoming sections" rule — it
+// has no way to know careers are still locked. Consumed in WF5's SESSION DATA.
+function sectionMetadata(currentSectionIndex: number): {
+  current_section: DeliverableSectionType | null;
+  careers_revealed: boolean;
+} {
+  return {
+    current_section: SECTION_INDEX_TO_TYPE[currentSectionIndex] ?? null,
+    careers_revealed: currentSectionIndex >= FIRST_CAREER_INDEX,
+  };
+}
+
 // True if at least one report_sections row exists for this section type. Uses
 // a count-style select so multi-row sections (runner_ups, outside_box) don't
 // trip maybeSingle's "multiple rows" error.
@@ -720,6 +742,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             report_id: reportId,
             first_name: firstName,
             country,
+            ...sectionMetadata(currentSectionIndex),
           }).catch((err) => {
             console.error('[advance] background agent failed:', err);
           });
@@ -813,6 +836,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           report_id: reportId,
           first_name: firstName,
           country,
+          ...sectionMetadata(currentSectionIndex),
         });
 
         if (response) {
@@ -874,6 +898,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           report_id: reportId,
           first_name: firstName,
           country,
+          ...sectionMetadata(currentSectionIndex),
         });
         if (response) {
           addMessage('bot', response);

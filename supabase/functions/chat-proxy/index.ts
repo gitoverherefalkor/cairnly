@@ -38,6 +38,11 @@ interface ChatRequestBody {
     // Injected by useN8nWebhook so n8n WF5 can respond in the user's language.
     // See LOCALIZATION_PLAN.md Phase 2.
     preferred_language?: string;
+    // Section context (set by ChatContainer.sectionMetadata) so WF5 knows which
+    // section the user is on and whether any career has been revealed yet —
+    // gates career-related follow-up suggestions on personality sections.
+    current_section?: string | null;
+    careers_revealed?: boolean;
   };
 }
 
