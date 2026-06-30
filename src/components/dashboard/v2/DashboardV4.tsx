@@ -39,6 +39,7 @@ import {
   SECTION_VISUALS,
   stripHtml,
   firstSentences,
+  extractFutureSkills,
   extractSubsectionContent,
   type CareerMatch,
 } from './dashboardV2Shared';
@@ -110,6 +111,9 @@ function getMatch(
     ? extractSubsectionContent(s.content || '', ['Alignment with your ambitions'])
     : null;
   const alignment = alignmentHtml ? firstSentences(alignmentHtml, 2) : undefined;
+  // Hero-only: the two "Future-proof skills" tips, surfaced as bullets on the
+  // card. Secondary cards stay compact; the full list shows in the accordion.
+  const futureSkills = withDetail ? extractFutureSkills(s.content || '') : [];
   return {
     rank,
     title: stripHtml(s.title || 'Career match'),
@@ -120,6 +124,7 @@ function getMatch(
     // Teaser shows on all three career cards. Alignment prose only on the Hero.
     teaser,
     alignment,
+    futureSkills,
   };
 }
 
@@ -1060,6 +1065,40 @@ const HeroMatch: React.FC<{
                     >
                       {match.alignment}
                     </p>
+                  </div>
+                )}
+
+                {match.futureSkills && match.futureSkills.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <Eyebrow>FUTURE-PROOF SKILLS</Eyebrow>
+                    <ul
+                      style={{
+                        margin: '4px 0 0 0',
+                        padding: 0,
+                        listStyle: 'none',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 6,
+                      }}
+                    >
+                      {match.futureSkills.map((skill, i) => (
+                        <li
+                          key={i}
+                          style={{
+                            display: 'flex',
+                            gap: 8,
+                            fontFamily: FONT_BODY,
+                            fontWeight: 500,
+                            fontSize: 14,
+                            lineHeight: 1.5,
+                            color: 'rgba(255,255,255,0.88)',
+                          }}
+                        >
+                          <span style={{ color: PALETTE.teal, flexShrink: 0 }} aria-hidden="true">✦</span>
+                          <span>{skill}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
 
