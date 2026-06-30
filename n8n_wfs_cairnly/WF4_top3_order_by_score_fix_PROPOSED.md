@@ -1,21 +1,21 @@
-# WF4 — sort the top-3 by score so rank tracks the score (PROPOSED)
+# WF4 fixes (PROPOSED) — (1) sort top-3 by score, (2) split "Alignment with your ambitions"
 
-**Status:** proposed, NOT applied. Apply in the n8n editor.
-⚠️ Verify the live `Split Top3` node matches this before editing — the other session
-has been changing WF3/WF4, so the live node may differ from the repo export.
+**Status:** proposed, NOT applied. Apply both in the n8n editor in one WF4 pass.
+⚠️ Verify the live `Split Top3` / `T3 Careers Prompt` nodes match these before editing —
+the other session has been changing WF3/WF4, so the live nodes may differ from the export.
 
-## Why
-In WF4 the top-3 slots are assigned **by position**, not by score, and the score is
-**LLM-generated** (`Split Top3` parses `"Compatibility score: N/100"` out of each
-career's narrative). So career #3 in the model's output is always stamped
-`top_career_3` even if the model gave it a higher score than #2. Real example
-(sjn.geurts@gmail.com, today's re-run): top_career_1=93, top_career_2=87,
-**top_career_3=91** — #3 outscores #2. Users read rank as "best match first", so this
-looks broken.
+---
 
-## Fix — WF4 node `Split Top3`
-At the very end of the node, replace the hard-coded 3-element return array with a
-score-sorted version. Find this (the parse + return):
+## Change 1 — sort the top-3 by score (node `Split Top3`)
+
+### Why
+The top-3 slots are assigned **by position**, not by score, and the score is
+**LLM-generated** (`Split Top3` parses `"Compatibility score: N/100"` out of each career's
+narrative). So career #3 in the model's output is stamped `top_career_3` even if its score
+is higher than #2. Real example (sjn.geurts, re-run): 93 / 87 / 91 — #3 outscored #2.
+
+### Fix
+At the end of `Split Top3`, replace the hard-coded 3-element return array:
 
 ```js
 const career1 = parseCareer(meta1.cleanedText);
@@ -29,17 +29,16 @@ return [
 ];
 ```
 
-Replace with:
+with:
 
 ```js
 const career1 = parseCareer(meta1.cleanedText);
 const career2 = parseCareer(meta2.cleanedText);
 const career3 = parseCareer(meta3.cleanedText);
 
-// Sort the three by compatibility score DESCENDING so the slot number always tracks
-// the displayed score. The score is written by the LLM per career and is not
-// guaranteed to descend with output order, so without this top_career_3 can outscore
-// top_career_2. Null/unparsed scores sort last. Ties keep model order (stable sort).
+// Sort by compatibility score DESCENDING so the slot number always tracks the displayed
+// score. The score is written by the LLM per career and isn't guaranteed to descend with
+// output order. Null/unparsed scores sort last; ties keep model order (stable sort).
 const ranked = [
   { c: career1, metadata: meta1.metadata },
   { c: career2, metadata: meta2.metadata },
@@ -62,17 +61,52 @@ return ranked.map((entry, i) => ({
 }));
 ```
 
-Safe because the slot label the user sees ("your second top career match") is added at
-delivery time from `section_type`, not baked into the narrative — so promoting a career
-from slot 3 to slot 2 just relabels it; the text travels with it.
+Safe: the "second/third match" label is added at delivery time from `section_type`, not
+baked into the narrative.
 
-## Note (deeper, optional)
-The displayed score is the **LLM's** number, not WF3's compatibility score that drove
-selection. This fix makes the *display* self-consistent (slot matches the shown score).
-If you'd rather rank strictly by WF3's real compatibility score, that's a separate
-change (thread WF3's score through instead of parsing the LLM's). For now, sorting by
-the shown score removes the visible inversion.
+> Deeper option (optional): the displayed score is the LLM's number, not WF3's
+> compatibility score that drove selection. This sorts by the shown score so the display
+> is self-consistent. Ranking strictly by WF3's score is a separate, bigger change.
 
-## Test
-Re-run an affected report via the Ops "Re-run a report" button (e.g.
-sjn.geurts@gmail.com) and confirm top_career_1 ≥ top_career_2 ≥ top_career_3 by score.
+---
+
+## Change 2 — split "Alignment with your ambitions" into two paragraphs (node `T3 Careers Prompt`)
+
+### Why
+The subsection renders as one dense blob mixing short- and long-term. Split it into two
+short paragraphs (short-term, then long-term) so it's scannable.
+
+### Fix
+In `T3 Careers Prompt`, find the `## Alignment with your ambitions` block and replace it
+with:
+
+```
+## Alignment with your ambitions
+[Write TWO short paragraphs separated by a blank line. NEVER merge them into one block.
+
+Paragraph 1 (SHORT-TERM, 25-40 words): name their stated short-term goal and judge honestly how well this role serves it now.
+
+Paragraph 2 (LONG-TERM, 25-40 words): name their stated long-term ambition, judge whether this role is a stepping-stone toward it, the destination itself, or a detour, and ALWAYS name the honest catch relative to that long-term ambition (finish line, or a bridge to it?).
+
+Connect to their STATED goals, not their happiness pattern. Use the trajectory_fit reasoning from the enriched data if present.
+
+Hard rules:
+- Anchor on their stated short-term and long-term ambitions — NOT the sentiment/happiness scores.
+- Do NOT reuse the "extends your X/10 [role]" pattern phrasing here. That belongs ONLY in "Why this role fits you."
+- Factor their age and career stage [1c] into the honest read: a multi-year reskill or from-scratch pivot changes the calculus at an established stage (time, opportunity cost). Realistic and respectful — trade-offs and timing, not capability.
+- Keep the two paragraphs separated by a blank line so they render as two paragraphs, never one block.]
+
+Example:
+"This serves your short-term goal of part-time income while you build your own business: the role gives you flexible income now.
+
+Your long-term ambition is a business running on its own with you focused on strategy. Board work builds the network and deal-flow that make that real, so treat it as a 2-3 year platform, not the finish line."
+```
+
+---
+
+## Test (after applying both)
+Re-run an affected report via the Ops "Re-run a report" button (e.g. sjn.geurts@gmail.com)
+and confirm:
+1. top_career_1 ≥ top_career_2 ≥ top_career_3 by score, and
+2. the "Alignment with your ambitions" subsection renders as two paragraphs (short-term,
+   then long-term), not one block.
