@@ -58,11 +58,20 @@ interface DeployInfo {
   url: string;
 }
 
+interface TrafficStats {
+  visits_7d: number;
+  visits_today: number;
+  pageviews_7d: number;
+  bounce_rate_7d: number;
+  top_pages: Array<{ path: string; views: number }>;
+}
+
 interface OpsFeedResponse {
   provider_status: { claude: ProviderStatus | null; openai: ProviderStatus | null };
   items: OpsItem[];
   people: Person[];
   deploy: DeployInfo | null;
+  traffic: TrafficStats | null;
   fetched_at: string;
   new_analyzed: number;
 }
@@ -573,6 +582,63 @@ function Feed({ items, onDismiss }: { items: OpsItem[]; onDismiss: (key: string)
   );
 }
 
+// ─── Traffic ──────────────────────────────────────────────────────────────────
+
+function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
+  if (!traffic) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+        <div className="text-sm">No traffic data yet</div>
+        <div className="text-xs text-gray-700 mt-1">Collection starts once this is deployed — check back in a bit.</div>
+      </div>
+    );
+  }
+
+  const stat = (label: string, value: string, sub?: string) => (
+    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
+      <div className="text-2xl font-bold text-gray-100">{value}</div>
+      <div className="text-xs text-gray-400 mt-0.5">{label}</div>
+      {sub && <div className="text-[11px] text-gray-600 mt-0.5">{sub}</div>}
+    </div>
+  );
+
+  const maxViews = Math.max(1, ...(traffic.top_pages ?? []).map((p) => p.views));
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {stat('Visitors (7d)', String(traffic.visits_7d), `${traffic.pageviews_7d} pageviews`)}
+        {stat('Visitors today', String(traffic.visits_today))}
+        {stat('Bounce rate (7d)', `${traffic.bounce_rate_7d}%`, 'single-page visits')}
+        {stat('Pages / visit', traffic.visits_7d > 0 ? (traffic.pageviews_7d / traffic.visits_7d).toFixed(1) : '—')}
+      </div>
+
+      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
+        <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Top pages (7d)</div>
+        {(traffic.top_pages ?? []).length === 0 ? (
+          <div className="text-sm text-gray-600">No pages yet</div>
+        ) : (
+          <div className="space-y-1.5">
+            {traffic.top_pages.map((p) => (
+              <div key={p.path} className="flex items-center gap-3">
+                <span className="font-mono text-xs text-gray-300 w-40 truncate shrink-0">{p.path}</span>
+                <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div className="h-full bg-atlas-teal/60 rounded-full" style={{ width: `${(p.views / maxViews) * 100}%` }} />
+                </div>
+                <span className="text-xs text-gray-500 w-10 text-right shrink-0">{p.views}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="text-xs text-gray-600">
+        First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that viewed only one page.
+      </div>
+    </div>
+  );
+}
+
 // ─── People funnel ────────────────────────────────────────────────────────────
 
 function PeoplePanel({ people }: { people: Person[] }) {
@@ -888,6 +954,9 @@ export default function Ops() {
               <TabsTrigger value="people" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('👥 People', newThisWeek)}
               </TabsTrigger>
+              <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
+                📈 Traffic
+              </TabsTrigger>
               <TabsTrigger value="support" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('🎫 Support', support.length)}
               </TabsTrigger>
@@ -910,6 +979,9 @@ export default function Ops() {
                 Everyone who signed up in the last 30 days and where they are in the journey. <strong className="text-gray-400">{newThisWeek}</strong> joined this week. Identified by first name + country only.
               </div>
               <PeoplePanel people={people} />
+            </TabsContent>
+            <TabsContent value="traffic" className="mt-4">
+              <TrafficPanel traffic={feed.traffic} />
             </TabsContent>
             <TabsContent value="support" className="mt-4">
               <Feed items={support} onDismiss={dismissItem} />

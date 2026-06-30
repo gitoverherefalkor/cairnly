@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
+import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { captureReferralFromUrl } from "@/lib/referral";
 import { Loader2 } from "lucide-react";
 
@@ -75,6 +76,13 @@ const ThemeScopeGuard = () => {
   return null;
 };
 
+// Fires a first-party page-view beacon on every route change. Rendered inside
+// the Router so it has access to useLocation.
+const PageViewTracker = () => {
+  usePageViewTracking();
+  return null;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -85,6 +93,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <ThemeScopeGuard />
+          <PageViewTracker />
           <ChunkLoadErrorBoundary>
             <Suspense fallback={<PageLoader />}>
             <Routes>
