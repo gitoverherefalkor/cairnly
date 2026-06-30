@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from 'react';
-import { MessageCircle, X } from 'lucide-react';
 import { ChatMessages, ChatMessagesHandle } from './ChatMessages';
 import { ChatInput, ChatInputHandle } from './ChatInput';
 import { ALL_SECTIONS } from './ReportSidebar';
@@ -1017,31 +1016,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           </div>
         )}
 
-        {/* "Asking about: <role>" context chip — the visible confirmation that
-            the "Ask about this role" button worked and that the next message is
-            scoped to that role. Dismiss with ✕ to clear the scoping. */}
-        {askAboutRole && !isSessionCompleted && (
-          <div className="px-4 pt-3 -mb-1">
-            <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/40 bg-white shadow-md pl-3 pr-2 py-1.5 text-sm">
-              <MessageCircle size={14} className="shrink-0 text-atlas-teal" />
-              <span className="text-atlas-navy min-w-0 truncate">
-                Asking about: <span className="font-semibold text-atlas-teal">{askAboutRole}</span>
-              </span>
-              <button
-                type="button"
-                onClick={cancelAskAboutRole}
-                aria-label="Cancel asking about this role"
-                className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-gray-100 transition-colors"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          </div>
-        )}
-
         <ChatInput
           ref={inputRef}
           onSend={handleSend}
+          askAboutRole={isSessionCompleted ? null : askAboutRole}
+          onCancelAskAboutRole={cancelAskAboutRole}
           onTypingChange={setIsUserTyping}
           // Disable typing on the welcome screen so users can't accidentally
           // start with an off-script message that confuses the bot. They
