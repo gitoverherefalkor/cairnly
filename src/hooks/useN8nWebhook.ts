@@ -16,6 +16,13 @@ interface WebhookMetadata {
    * See LOCALIZATION_PLAN.md Phase 2.
    */
   preferred_language?: string;
+  /**
+   * Section context so WF5 (the coach) knows where the user is and whether any
+   * career section has been revealed yet. Gates career-related follow-up
+   * suggestions on personality sections. Set by ChatContainer.sectionMetadata().
+   */
+  current_section?: string | null;
+  careers_revealed?: boolean;
 }
 
 interface PreviousMessage {
