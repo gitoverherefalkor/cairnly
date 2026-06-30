@@ -672,28 +672,38 @@ function RerunReportCard() {
   const [result, setResult] = useState<string | null>(null);
 
   const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const run = async (dryRun: boolean) => {
-    const id = reportId.trim();
-    if (!UUID_RE.test(id)) {
-      toast.error('Enter a valid report ID (UUID).');
+    const q = reportId.trim();
+    let fn: string;
+    let args: Record<string, unknown>;
+    if (UUID_RE.test(q)) {
+      fn = 'rerun_report';
+      args = { p_report_id: q, p_dry_run: dryRun };
+    } else if (EMAIL_RE.test(q)) {
+      fn = 'rerun_report_by_email';
+      args = { p_email: q, p_dry_run: dryRun };
+    } else {
+      toast.error('Enter an email or a report ID (UUID).');
       return;
     }
     setBusy(true);
     setResult(null);
     try {
-      // rerun_report isn't in the generated Supabase types yet; cast to call it.
+      // These functions aren't in the generated Supabase types yet; cast to call them.
       const { data, error } = await (supabase as unknown as {
         rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
-      }).rpc('rerun_report', { p_report_id: id, p_dry_run: dryRun });
+      }).rpc(fn, args);
       if (error) throw error;
       const r = data as Record<string, unknown>;
+      const who = r?.matched_name ? `${r.matched_name as string} — ` : '';
       if (!r?.ok) {
         toast.error(`Re-run blocked: ${(r?.error as string) ?? 'unknown error'}`);
       } else if (dryRun) {
-        toast.success(`Dry run OK — ${r.survey_responses_keys} answers, lang ${r.preferred_language}`);
+        toast.success(`Dry run OK — ${who}report ${String(r.report_id).slice(0, 8)}…, ${r.survey_responses_keys} answers`);
       } else {
-        toast.success(`Re-run fired (HTTP ${r.http_status}). Report regenerating…`);
+        toast.success(`Re-run fired — ${who}HTTP ${r.http_status}. Report regenerating…`);
       }
       setResult(JSON.stringify(r, null, 2));
     } catch (e) {
@@ -712,14 +722,15 @@ function RerunReportCard() {
         <h2 className="text-sm font-semibold text-gray-100">Re-run a report</h2>
       </div>
       <p className="text-xs text-gray-500 mb-3">
-        Re-fires the WF1 → WF4 pipeline using the report's saved answers. Clears the old sections
-        first so nothing duplicates. This regenerates the report and may email the user.
+        Enter a user's email (uses their latest report) or a report ID. Re-fires the WF1 → WF4
+        pipeline from the saved answers, clearing old sections first so nothing duplicates.
+        This regenerates the report and may email the user.
       </p>
       <div className="flex flex-col sm:flex-row gap-2">
         <input
           value={reportId}
           onChange={(e) => setReportId(e.target.value)}
-          placeholder="report ID (UUID)"
+          placeholder="email or report ID"
           spellCheck={false}
           disabled={busy}
           className="flex-1 bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono"
