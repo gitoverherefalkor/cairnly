@@ -513,6 +513,13 @@ const markdownComponents = {
       {children}
     </ol>
   ),
+  li: ({ children, ...props }: React.LiHTMLAttributes<HTMLLIElement>) => (
+    // Mirror the <p> renderer: promote a short leading "Label:" to bold so
+    // bulleted "Label: description" items (e.g. the Future-proof skills tips)
+    // get the same emphasis as the paragraph-style "Money:/Schedule:" labels.
+    // Items that already start with **bold** are left untouched by the helper.
+    <li {...props}>{boldLeadingLabel(children)}</li>
+  ),
   strong: ({ children, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <strong className="font-semibold" {...props}>
       {children}
