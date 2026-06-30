@@ -72,12 +72,28 @@ const HeroCarousel: React.FC = () => {
 
   return (
     <div
-      className="select-none"
+      className="select-none lg:[perspective:2200px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* 3D stage. The window is tilted on the Y axis (with a touch of X) so it
+          reads with depth like the marketing mockup. On hover it eases toward
+          flat so the screenshot is easy to read. Flat on < lg (stacked layout). */}
+      <div
+        className="relative transition-transform duration-500 ease-out lg:[transform-style:preserve-3d] lg:[transform:rotateY(-22deg)_rotateX(5deg)] lg:hover:[transform:rotateY(-9deg)_rotateX(2deg)]"
+      >
+        {/* Ghost panels stacked behind for layered depth (lg only) */}
+        <div
+          aria-hidden="true"
+          className="hidden lg:block absolute inset-0 rounded-xl bg-white/[0.03] ring-1 ring-white/10 [transform:translateZ(-90px)_translate(46px,40px)]"
+        />
+        <div
+          aria-hidden="true"
+          className="hidden lg:block absolute inset-0 rounded-xl bg-white/[0.04] ring-1 ring-white/10 [transform:translateZ(-45px)_translate(23px,20px)]"
+        />
+
       {/* Faux browser window */}
-      <div className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#15262F]">
+      <div className="relative rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#15262F]">
         {/* Chrome bar: traffic lights + URL */}
         <div className="flex items-center gap-3 px-3.5 h-9 bg-[#1B2E38] border-b border-black/30">
           <div className="flex items-center gap-1.5 shrink-0">
@@ -108,6 +124,7 @@ const HeroCarousel: React.FC = () => {
             />
           ))}
         </div>
+      </div>
       </div>
 
       {/* Progress indicators */}
