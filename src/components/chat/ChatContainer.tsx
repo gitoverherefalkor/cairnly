@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from 'react';
+import { MessageCircle, X } from 'lucide-react';
 import { ChatMessages, ChatMessagesHandle } from './ChatMessages';
 import { ChatInput, ChatInputHandle } from './ChatInput';
 import { ALL_SECTIONS } from './ReportSidebar';
@@ -218,6 +219,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // like 'Tell me how you see it…'. Cleared the moment the user actually
     // sends a message so it doesn't linger across turns.
     const [inputPlaceholderOverride, setInputPlaceholderOverride] = useState<string | null>(null);
+    // Visible "Asking about: <role>" context chip shown above the input after
+    // the user clicks "Ask about this role". Mirrors pendingAskRoleRef (which
+    // drives the [About <role>] prefix); this state just renders the cue so
+    // the action doesn't feel like it did nothing. Cleared on send or cancel.
+    const [askAboutRole, setAskAboutRole] = useState<string | null>(null);
     // Track how many sub-sections of the LATEST bot message are still hidden
     // behind a chevron. -1 = not yet reported (treat as locked); 0 = fully
     // revealed (unlocked); >0 = locked until reveals happen. New bot messages
@@ -567,8 +573,16 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
 
     const handleAskAboutRole = (roleTitle: string) => {
       pendingAskRoleRef.current = roleTitle;
+      setAskAboutRole(roleTitle);
       setInputPlaceholderOverride(`Ask about ${roleTitle}…`);
       inputRef.current?.focus();
+    };
+
+    // Cancel the pending "Ask about this role" scoping (the chip's ✕).
+    const cancelAskAboutRole = () => {
+      pendingAskRoleRef.current = null;
+      setAskAboutRole(null);
+      setInputPlaceholderOverride(null);
     };
 
     const handleSend = async (
@@ -648,6 +662,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       onUserSentMessage?.();
       // Clear any custom placeholder set by a previous quick reply.
       setInputPlaceholderOverride(null);
+      // Clear the "Asking about: <role>" chip — the role has now been consumed
+      // (free text) or the user is moving on (intent), so the cue is stale.
+      setAskAboutRole(null);
 
       // Wrap-up intercept: don't route the click to the agent. Persist the
       // user message (so they see their click registered in the chat),
@@ -997,6 +1014,28 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             >
               View Your Report →
             </button>
+          </div>
+        )}
+
+        {/* "Asking about: <role>" context chip — the visible confirmation that
+            the "Ask about this role" button worked and that the next message is
+            scoped to that role. Dismiss with ✕ to clear the scoping. */}
+        {askAboutRole && !isSessionCompleted && (
+          <div className="px-4 pt-3 -mb-1">
+            <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/30 bg-atlas-teal/5 pl-3 pr-2 py-1.5 text-sm">
+              <MessageCircle size={14} className="shrink-0 text-atlas-teal" />
+              <span className="text-atlas-navy min-w-0 truncate">
+                Asking about: <span className="font-semibold">{askAboutRole}</span>
+              </span>
+              <button
+                type="button"
+                onClick={cancelAskAboutRole}
+                aria-label="Cancel asking about this role"
+                className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-atlas-teal/10 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         )}
 
