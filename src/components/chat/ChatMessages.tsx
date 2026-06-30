@@ -33,6 +33,10 @@ interface ChatMessagesProps {
   // Forwarded from the latest bot message's SequentialSubsections so the
   // parent (ChatContainer) can lock the input until everything's read.
   onSequentialRevealStateChange?: (revealed: number, total: number) => void;
+  // True while the latest bot message is a multi-card section (runner_ups /
+  // outside_box / dream_jobs) whose cards aren't all expanded yet — lets the
+  // parent lock the chat input until the user has opened every card.
+  onMultiCardLockChange?: (locked: boolean) => void;
   // True when the latest section reveal still has hidden sub-sections.
   // We use this to suppress quick replies until the user has clicked
   // through every chevron — otherwise they'd react to half a section.
@@ -75,7 +79,7 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
@@ -86,6 +90,20 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
     // hasn't been fully read. CollapsibleCareerBlocks fires the parent's
     // onAllBlocksOpened callback once everOpened reaches blocks.length.
     const [openedByMessageId, setOpenedByMessageId] = useState<Record<string, boolean>>({});
+
+    // Lock the chat input while the latest bot message is a multi-card section
+    // whose cards aren't all expanded yet — the same gate the Continue button
+    // uses (see `allCardsOpened` below), so the user can't type past collapsed
+    // cards. Mirrors the `### >= 2` multi-card detection in the render.
+    const lastMsg = messages[messages.length - 1];
+    const multiCardLocked =
+      !!lastMsg &&
+      lastMsg.sender === 'bot' &&
+      (lastMsg.content.match(/^### /gm) || []).length >= 2 &&
+      openedByMessageId[lastMsg.id] !== true;
+    useEffect(() => {
+      onMultiCardLockChange?.(multiCardLocked);
+    }, [multiCardLocked, onMultiCardLockChange]);
 
     // Detect if the user has already sent a wrap-up message
     const hasWrappedUp = messages.some(

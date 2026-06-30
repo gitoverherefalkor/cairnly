@@ -225,6 +225,10 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // back, preventing a flash of QuickReplies before the sub-section
     // structure is registered.
     const [latestUnrevealedCount, setLatestUnrevealedCount] = useState(-1);
+    // True while the latest multi-card section (runner_ups / outside_box /
+    // dream_jobs) still has collapsed cards. Locks the input so the user has to
+    // open every card before reacting — same gate the Continue button uses.
+    const [multiCardLocked, setMultiCardLocked] = useState(false);
     const lastBotMessageIdRef = useRef<string | null>(null);
     // Set every time we add a user message via handleSend. Used as the
     // anchor for the failed-send retry icon when the agent call throws.
@@ -968,6 +972,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onFocusInput={handleFocusInput}
           onDreamJobsRead={onDreamJobsRead}
           onSequentialRevealStateChange={handleRevealStateChange}
+          onMultiCardLockChange={setMultiCardLocked}
           hasUnrevealedSubsections={latestUnrevealedCount !== 0}
           onAskAboutRole={handleAskAboutRole}
           onComparisonExplain={(content) => addMessage('bot', content)}
@@ -1020,6 +1025,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             isWaitingForResponse ||
             (messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) ||
             latestUnrevealedCount !== 0 ||
+            multiCardLocked ||
             wrapUpState !== 'idle'
           }
           placeholder={
@@ -1033,7 +1039,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
                     ? "Click 'I'm Ready!' above to begin"
                     : latestUnrevealedCount > 0
                       ? `Click to reveal the next ${latestUnrevealedCount} section${latestUnrevealedCount === 1 ? '' : 's'}…`
-                      : (inputPlaceholderOverride ?? 'Type here')
+                      : multiCardLocked
+                        ? 'Open each card above to continue…'
+                        : (inputPlaceholderOverride ?? 'Type here')
           }
           isSidebarCollapsed={isSidebarCollapsed}
         />
