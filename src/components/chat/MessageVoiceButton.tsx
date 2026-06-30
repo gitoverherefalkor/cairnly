@@ -113,7 +113,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
         </button>
 
         {menuOpen && (
-          <div className="absolute right-0 bottom-full mb-2 w-60 bg-white border border-gray-200 rounded-xl shadow-lg p-1 z-20">
+          <div className="absolute left-0 bottom-full mb-2 w-60 max-w-[calc(100vw-3rem)] bg-white border border-gray-200 rounded-xl shadow-lg p-1 z-20">
             <button
               type="button"
               onClick={() => setReadAll(!readAll)}
