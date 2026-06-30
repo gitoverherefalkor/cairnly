@@ -25,6 +25,7 @@ import {
   Crown,
   Telescope,
   Footprints,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -68,6 +69,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   'the reality check': AlertTriangle,
   'the practical stuff': Briefcase,
   'how ai will impact this role': Bot,
+  'future-proof skills': ShieldCheck,
   'alignment with your ambitions': Target,
 
   // outside-the-box careers
