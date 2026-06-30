@@ -108,6 +108,60 @@ async function fetchN8nErrors(): Promise<any[]> {
   }
 }
 
+// Monthly execution limit for the n8n Cloud plan (the "X / 2,500" on the
+// app.n8n.cloud dashboard). The instance API has no usage endpoint, so we
+// approximate by counting executions since the 1st of the month — newest
+// first, stopping once we cross the month boundary. Covers every workflow on
+// the instance (Outside Input included), matching the billed pool.
+const N8N_MONTHLY_LIMIT = 2500;
+
+interface N8nUsage {
+  executions_this_month: number;
+  limit: number;
+  capped: boolean;
+}
+
+async function fetchN8nUsage(): Promise<N8nUsage | null> {
+  const apiKey = Deno.env.get('N8N_API_KEY');
+  if (!apiKey) return null;
+  const d = new Date();
+  const monthStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1);
+  let count = 0;
+  let cursor = '';
+  let pages = 0;
+  let capped = false;
+  try {
+    while (pages < 40) {
+      const u = new URL('https://falkoratlas.app.n8n.cloud/api/v1/executions');
+      u.searchParams.set('limit', '250');
+      if (cursor) u.searchParams.set('cursor', cursor);
+      const r = await fetch(u.toString(), {
+        headers: { 'X-N8N-API-KEY': apiKey },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!r.ok) break;
+      const data = await r.json();
+      const rows = (data.data ?? []) as any[];
+      if (rows.length === 0) break;
+      let reachedOld = false;
+      for (const ex of rows) {
+        const t = new Date(ex.startedAt ?? ex.createdAt ?? ex.stoppedAt ?? 0).getTime();
+        if (t >= monthStart) count++;
+        else reachedOld = true;
+      }
+      if (reachedOld) break; // rows are newest-first — once we hit last month, stop
+      cursor = data.nextCursor ?? '';
+      pages++;
+      if (!cursor) break;
+    }
+    if (pages >= 40) capped = true;
+  } catch (e) {
+    console.error('[ops-feed] n8n usage fetch failed:', e);
+    return null;
+  }
+  return { executions_this_month: count, limit: N8N_MONTHLY_LIMIT, capped };
+}
+
 // ─── Vercel deploy status ─────────────────────────────────────────────────────
 
 interface DeployInfo {
@@ -491,6 +545,7 @@ serve(async (req) => {
     claudeStatus,
     openaiStatus,
     n8nErrors,
+    n8nUsage,
     people,
     deploy,
     trafficResult,
@@ -501,6 +556,7 @@ serve(async (req) => {
     fetchProviderStatus('https://status.anthropic.com', 'https://status.anthropic.com'),
     fetchProviderStatus('https://status.openai.com', 'https://status.openai.com'),
     fetchN8nErrors(),
+    fetchN8nUsage(),
     fetchPeople(supabase, 30),
     fetchVercelDeploy(),
     supabase.rpc('ops_traffic_stats'),
@@ -574,6 +630,7 @@ serve(async (req) => {
         people,
         deploy,
         traffic,
+        n8n_usage: n8nUsage,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -719,6 +776,7 @@ serve(async (req) => {
       people,
       deploy,
       traffic,
+      n8n_usage: n8nUsage,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),
