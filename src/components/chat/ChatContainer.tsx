@@ -218,6 +218,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // like 'Tell me how you see it…'. Cleared the moment the user actually
     // sends a message so it doesn't linger across turns.
     const [inputPlaceholderOverride, setInputPlaceholderOverride] = useState<string | null>(null);
+    // Visible "Asking about: <role>" context chip shown above the input after
+    // the user clicks "Ask about this role". Mirrors pendingAskRoleRef (which
+    // drives the [About <role>] prefix); this state just renders the cue so
+    // the action doesn't feel like it did nothing. Cleared on send or cancel.
+    const [askAboutRole, setAskAboutRole] = useState<string | null>(null);
     // Track how many sub-sections of the LATEST bot message are still hidden
     // behind a chevron. -1 = not yet reported (treat as locked); 0 = fully
     // revealed (unlocked); >0 = locked until reveals happen. New bot messages
@@ -571,8 +576,16 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
 
     const handleAskAboutRole = (roleTitle: string) => {
       pendingAskRoleRef.current = roleTitle;
+      setAskAboutRole(roleTitle);
       setInputPlaceholderOverride(`Ask about ${roleTitle}…`);
       inputRef.current?.focus();
+    };
+
+    // Cancel the pending "Ask about this role" scoping (the chip's ✕).
+    const cancelAskAboutRole = () => {
+      pendingAskRoleRef.current = null;
+      setAskAboutRole(null);
+      setInputPlaceholderOverride(null);
     };
 
     const handleSend = async (
@@ -652,6 +665,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       onUserSentMessage?.();
       // Clear any custom placeholder set by a previous quick reply.
       setInputPlaceholderOverride(null);
+      // Clear the "Asking about: <role>" chip — the role has now been consumed
+      // (free text) or the user is moving on (intent), so the cue is stale.
+      setAskAboutRole(null);
 
       // Wrap-up intercept: don't route the click to the agent. Persist the
       // user message (so they see their click registered in the chat),
@@ -1008,6 +1024,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         <ChatInput
           ref={inputRef}
           onSend={handleSend}
+          askAboutRole={isSessionCompleted ? null : askAboutRole}
+          onCancelAskAboutRole={cancelAskAboutRole}
           onTypingChange={setIsUserTyping}
           // Disable typing on the welcome screen so users can't accidentally
           // start with an off-script message that confuses the bot. They

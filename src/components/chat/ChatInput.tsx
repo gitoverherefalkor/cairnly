@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
-import { Send, Mic } from 'lucide-react';
+import { Send, Mic, MessageCircle, X } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 export interface ChatInputHandle {
@@ -12,6 +12,10 @@ interface ChatInputProps {
   disabled?: boolean;
   placeholder?: string;
   isSidebarCollapsed?: boolean;
+  /** When set, shows an "Asking about: <role>" context chip above the input. */
+  askAboutRole?: string | null;
+  /** Clears the pending ask-about-role scoping (chip's ✕). */
+  onCancelAskAboutRole?: () => void;
 }
 
 const MIN_HEIGHT = 56;
@@ -23,6 +27,8 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
   disabled = false,
   placeholder = 'Type here',
   isSidebarCollapsed = false,
+  askAboutRole = null,
+  onCancelAskAboutRole,
 }, ref) => {
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -95,7 +101,28 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
       `}</style>
       <div className="chat-input-root fixed bottom-0 z-30">
         <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
-          <div className="max-w-[800px] mx-auto relative">
+          <div className="max-w-[800px] mx-auto">
+            {/* "Asking about: <role>" context chip — pinned with the input so it
+                stays centered and sidebar-offset, sitting just above the box. */}
+            {askAboutRole && (
+              <div className="mb-2">
+                <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/40 bg-white shadow-md pl-3 pr-2 py-1.5 text-sm">
+                  <MessageCircle size={14} className="shrink-0 text-atlas-teal" />
+                  <span className="text-atlas-navy min-w-0 truncate">
+                    Asking about: <span className="font-semibold text-atlas-teal">{askAboutRole}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={onCancelAskAboutRole}
+                    aria-label="Cancel asking about this role"
+                    className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-gray-100 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+          <div className="relative">
             <textarea
               ref={textareaRef}
               value={text}
@@ -142,6 +169,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                 <Send size={18} className="hidden sm:block" />
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>
