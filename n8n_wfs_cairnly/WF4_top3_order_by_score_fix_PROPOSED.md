@@ -1,8 +1,9 @@
-# WF4 fixes (PROPOSED) — (1) sort top-3 by score, (2) split "Alignment with your ambitions"
+# WF4 fixes (PROPOSED) — (1) sort top-3 by score, (2) split "Alignment", (3) runner-up distinction note
 
-**Status:** proposed, NOT applied. Apply both in the n8n editor in one WF4 pass.
-⚠️ Verify the live `Split Top3` / `T3 Careers Prompt` nodes match these before editing —
-the other session has been changing WF3/WF4, so the live nodes may differ from the export.
+**Status:** proposed, NOT applied. Apply all three in the n8n editor in one WF4 pass.
+⚠️ Verify the live `Split Top3` / `T3 Careers Prompt` / `Set Runner Up Prompt` nodes match
+these before editing — the other session has been changing WF3/WF4, so the live nodes may
+differ from the export.
 
 ---
 
@@ -64,10 +65,6 @@ return ranked.map((entry, i) => ({
 Safe: the "second/third match" label is added at delivery time from `section_type`, not
 baked into the narrative.
 
-> Deeper option (optional): the displayed score is the LLM's number, not WF3's
-> compatibility score that drove selection. This sorts by the shown score so the display
-> is self-consistent. Ranking strictly by WF3's score is a separate, bigger change.
-
 ---
 
 ## Change 2 — split "Alignment with your ambitions" into two paragraphs (node `T3 Careers Prompt`)
@@ -104,9 +101,35 @@ Your long-term ambition is a business running on its own with you focused on str
 
 ---
 
-## Test (after applying both)
+## Change 3 — runner-up: name the distinction when it resembles a Top 3 role (node `Set Runner Up Prompt`)
+
+### Why
+Runner-ups are designed to sit adjacent to the top 3, so one can look like a near-duplicate
+on the surface (e.g. runner-up "Part-Time AI Transformation Lead" next to top-1 "Fractional
+AI Transformation Advisor"). That's fine, but the user shouldn't read it as the same role —
+have the model name the key real distinction when there is one. Goes in "Why this role fits
+you", NOT the Overview (the Overview must stay a pure role description per its own rule). The
+prompt already receives `allCareers` (incl. the top 3), so it can compare.
+
+### Fix
+In `Set Runner Up Prompt`, in the `## Why this role fits you` block, bump the cap to 60-90
+words and add a third (conditional) bullet:
+
+```
+## Why this role fits you
+
+[60-90 words MAX, 1-2 short paragraphs. Assume the reader now knows what the role is from the Overview — do not re-describe the job here.]
+- What's appealing about this role and why it suits their profile
+- Why it's not Top 3 (be specific about the gap)
+- IF this role looks, on the surface, a lot like one of their Top 3 matches (similar title, function, or domain — compare against the careers in allCareers), add ONE short clause naming the key REAL distinction so it doesn't read as a duplicate: e.g. employment model (at a company vs your own venture), role type or seniority (Lead vs Advisor, operator vs strategist), company size, or scope. Only when you can name a concrete difference from the data at hand; if the distinction would be vague or invented, skip it.
+```
+
+---
+
+## Test (after applying all three)
 Re-run an affected report via the Ops "Re-run a report" button (e.g. sjn.geurts@gmail.com)
 and confirm:
-1. top_career_1 ≥ top_career_2 ≥ top_career_3 by score, and
-2. the "Alignment with your ambitions" subsection renders as two paragraphs (short-term,
-   then long-term), not one block.
+1. top_career_1 ≥ top_career_2 ≥ top_career_3 by score,
+2. "Alignment with your ambitions" renders as two paragraphs (short-term, then long-term),
+3. where a runner-up resembles a top-3 role, "Why this role fits you" names the key
+   distinction (and stays silent when there's no concrete one).
