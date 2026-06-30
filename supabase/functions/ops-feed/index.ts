@@ -493,6 +493,7 @@ serve(async (req) => {
     n8nErrors,
     people,
     deploy,
+    trafficResult,
     supportResult,
     missesResult,
     chapterFeedbackResult,
@@ -502,6 +503,7 @@ serve(async (req) => {
     fetchN8nErrors(),
     fetchPeople(supabase, 30),
     fetchVercelDeploy(),
+    supabase.rpc('ops_traffic_stats'),
     supabase
       .from('support_requests')
       .select('*')
@@ -530,6 +532,7 @@ serve(async (req) => {
   const supportRows = supportResult.data ?? [];
   const missRows = missesResult.data ?? [];
   const chapterRows = chapterFeedbackResult.data ?? [];
+  const traffic = trafficResult.data ?? null;
 
   // Build raw items from each source
   const rawItems: Array<{ key: string; source: string; raw: Record<string, unknown> }> = [
@@ -570,6 +573,7 @@ serve(async (req) => {
         items: [],
         people,
         deploy,
+        traffic,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -714,6 +718,7 @@ serve(async (req) => {
       items,
       people,
       deploy,
+      traffic,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),
