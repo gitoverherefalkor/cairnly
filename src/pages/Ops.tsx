@@ -72,6 +72,13 @@ interface N8nUsage {
   capped: boolean;
 }
 
+interface ProviderSpend {
+  provider: string;
+  amount: number | null;
+  currency: string;
+  error: string | null;
+}
+
 interface OpsFeedResponse {
   provider_status: { claude: ProviderStatus | null; openai: ProviderStatus | null };
   items: OpsItem[];
@@ -79,6 +86,7 @@ interface OpsFeedResponse {
   deploy: DeployInfo | null;
   traffic: TrafficStats | null;
   n8n_usage: N8nUsage | null;
+  ai_spend: ProviderSpend[];
   fetched_at: string;
   new_analyzed: number;
 }
@@ -591,8 +599,14 @@ function Feed({ items, onDismiss }: { items: OpsItem[]; onDismiss: (key: string)
 
 // ─── Usage & spend ────────────────────────────────────────────────────────────
 
-function UsagePanel({ usage }: { usage: N8nUsage | null }) {
+function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderSpend[] }) {
   const month = new Date().toLocaleDateString('en-GB', { month: 'long' });
+
+  const fmtMoney = (p: ProviderSpend) => {
+    if (p.error) return '—';
+    if (p.amount == null) return '—';
+    return `$${p.amount.toFixed(2)}`;
+  };
 
   let bar = 'bg-emerald-500';
   let pct = 0;
@@ -636,12 +650,35 @@ function UsagePanel({ usage }: { usage: N8nUsage | null }) {
         )}
       </div>
 
-      {/* AI spend placeholder */}
-      <div className="rounded-lg border border-dashed border-white/15 bg-black/15 px-4 py-4">
-        <div className="text-sm font-medium text-gray-300 mb-1">💰 AI spend</div>
-        <div className="text-xs text-gray-500">
-          Add provider keys as Supabase secrets to light these up: <span className="font-mono text-gray-400">OPENROUTER_API_KEY</span>, <span className="font-mono text-gray-400">OPENAI_ADMIN_KEY</span>, <span className="font-mono text-gray-400">ANTHROPIC_ADMIN_KEY</span>. Google spend → routed via OpenRouter or a GCP Billing link.
+      {/* AI spend */}
+      <div>
+        <div className="text-sm font-medium text-gray-300 mb-2">💰 AI spend — {month} (month to date)</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {spend.map((p) => (
+            <div key={p.provider} className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
+              <div className="text-2xl font-bold text-gray-100">{fmtMoney(p)}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{p.provider}</div>
+              {p.error && <div className="text-[11px] text-amber-500 mt-0.5">{p.error}</div>}
+            </div>
+          ))}
+          {/* Google — no spend API; link to GCP billing */}
+          <a
+            href="https://console.cloud.google.com/billing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 hover:border-white/30 transition-colors flex flex-col justify-center"
+          >
+            <div className="text-sm font-medium text-gray-300 flex items-center gap-1">
+              Google <ExternalLink size={11} className="text-gray-600" />
+            </div>
+            <div className="text-[11px] text-gray-500 mt-0.5">View in GCP Billing</div>
+          </a>
         </div>
+        {spend.length === 0 && (
+          <div className="text-xs text-gray-600 mt-2">
+            No provider keys set. Add <span className="font-mono text-gray-400">OPENAI_ADMIN_KEY</span> / <span className="font-mono text-gray-400">ANTHROPIC_ADMIN_KEY</span> as Supabase secrets to enable spend cards.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1158,7 +1195,7 @@ export default function Ops() {
               <TrafficPanel traffic={feed.traffic} />
             </TabsContent>
             <TabsContent value="usage" className="mt-4">
-              <UsagePanel usage={feed.n8n_usage} />
+              <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
             </TabsContent>
             <TabsContent value="support" className="mt-4">
               <Feed items={support} onDismiss={dismissItem} />

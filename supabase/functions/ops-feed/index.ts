@@ -201,6 +201,77 @@ async function fetchVercelDeploy(): Promise<DeployInfo | null> {
 // Derives each recent signup's current stage from profiles +
 // user_engagement_tracking + reports. Privacy-light: first name + country only.
 
+// ─── AI spend (month-to-date) ─────────────────────────────────────────────────
+// Uses the providers' Admin/Cost APIs. Each provider is optional — a card only
+// appears if its admin key secret is set.
+
+interface ProviderSpend {
+  provider: string;
+  amount: number | null;
+  currency: string;
+  error: string | null;
+}
+
+function monthStartMs(): number {
+  const d = new Date();
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1);
+}
+
+async function fetchOpenAISpend(): Promise<ProviderSpend | null> {
+  const key = Deno.env.get('OPENAI_ADMIN_KEY');
+  if (!key) return null;
+  try {
+    const u = new URL('https://api.openai.com/v1/organization/costs');
+    u.searchParams.set('start_time', String(Math.floor(monthStartMs() / 1000)));
+    u.searchParams.set('limit', '31');
+    const r = await fetch(u.toString(), {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!r.ok) {
+      console.error('[ops-feed] OpenAI cost API:', r.status, await r.text().catch(() => ''));
+      return { provider: 'OpenAI', amount: null, currency: 'USD', error: `HTTP ${r.status}` };
+    }
+    const data = await r.json();
+    let total = 0;
+    for (const bucket of data.data ?? []) {
+      for (const res of bucket.results ?? []) total += res.amount?.value ?? 0;
+    }
+    return { provider: 'OpenAI', amount: total, currency: 'USD', error: null };
+  } catch (e) {
+    console.error('[ops-feed] OpenAI cost fetch failed:', e);
+    return { provider: 'OpenAI', amount: null, currency: 'USD', error: 'unreachable' };
+  }
+}
+
+async function fetchAnthropicSpend(): Promise<ProviderSpend | null> {
+  const key = Deno.env.get('ANTHROPIC_ADMIN_KEY');
+  if (!key) return null;
+  try {
+    const u = new URL('https://api.anthropic.com/v1/organizations/cost_report');
+    u.searchParams.set('starting_at', new Date(monthStartMs()).toISOString());
+    u.searchParams.set('bucket_width', '1d');
+    u.searchParams.set('limit', '31');
+    const r = await fetch(u.toString(), {
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!r.ok) {
+      console.error('[ops-feed] Anthropic cost API:', r.status, await r.text().catch(() => ''));
+      return { provider: 'Anthropic', amount: null, currency: 'USD', error: `HTTP ${r.status}` };
+    }
+    const data = await r.json();
+    let total = 0;
+    for (const bucket of data.data ?? []) {
+      for (const res of bucket.results ?? []) total += parseFloat(res.amount ?? '0') || 0;
+    }
+    return { provider: 'Anthropic', amount: total, currency: 'USD', error: null };
+  } catch (e) {
+    console.error('[ops-feed] Anthropic cost fetch failed:', e);
+    return { provider: 'Anthropic', amount: null, currency: 'USD', error: 'unreachable' };
+  }
+}
+
 type Stage =
   | 'signed_up'
   | 'survey'
@@ -548,6 +619,8 @@ serve(async (req) => {
     n8nUsage,
     people,
     deploy,
+    openaiSpend,
+    anthropicSpend,
     trafficResult,
     supportResult,
     missesResult,
@@ -559,6 +632,8 @@ serve(async (req) => {
     fetchN8nUsage(),
     fetchPeople(supabase, 30),
     fetchVercelDeploy(),
+    fetchOpenAISpend(),
+    fetchAnthropicSpend(),
     supabase.rpc('ops_traffic_stats'),
     supabase
       .from('support_requests')
@@ -589,6 +664,7 @@ serve(async (req) => {
   const missRows = missesResult.data ?? [];
   const chapterRows = chapterFeedbackResult.data ?? [];
   const traffic = trafficResult.data ?? null;
+  const aiSpend = [openaiSpend, anthropicSpend].filter(Boolean);
 
   // Build raw items from each source
   const rawItems: Array<{ key: string; source: string; raw: Record<string, unknown> }> = [
@@ -631,6 +707,7 @@ serve(async (req) => {
         deploy,
         traffic,
         n8n_usage: n8nUsage,
+        ai_spend: aiSpend,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -777,6 +854,7 @@ serve(async (req) => {
       deploy,
       traffic,
       n8n_usage: n8nUsage,
+      ai_spend: aiSpend,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),
