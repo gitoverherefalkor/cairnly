@@ -1,7 +1,7 @@
 # Résumé Strengthen — coaching layer for tailored résumés
 
 **Date:** 2026-07-01
-**Status:** Design — awaiting review
+**Status:** Design — reviewed 2026-07-01, ready for planning
 **Author:** Sjoerd + Claude
 
 ## Problem
@@ -53,6 +53,9 @@ Add an opt-in **coaching layer** (capability A) on top of the existing tailored-
   the coaching layer only. The surgical-patch mechanism built here is the natural foundation
   for B later.
 - **Cover-letter strengthening.** WFX is untouched.
+- **Full résumé rewrite / restructure engine.** When a résumé scores very low we nudge the user
+  toward regenerating with more detail (copy only, pointing at the existing WF9 flow); a dedicated
+  "rewrite the whole thing" mode is deferred past V1.
 - **Full résumé regeneration changes.** WF9 is not modified. The coaching layer sits beside it.
 - **New résumé templates or PDF/Word rendering changes.** Rendering already reads from
   `resume_json`; we only change the JSON's contents.
@@ -159,16 +162,21 @@ Each issue carries an `impact` weight (1–10) assigned by the analysis. The met
 - Resolving an issue adds its `impact` back → the meter rises **exactly** and instantly.
 
 This makes the "dashed remaining potential" on the meter precise, and means applying a batch
-never needs a re-score LLM call. (The existing keyword-focused `ats_score` from WF9 stays as-is;
-whether we later merge the two into one headline number is an open question below.)
+never needs a re-score LLM call. Score and `score_potential` are computed from the **surfaced**
+issue set (the top 5–7, see cap below), so resolving every surfaced issue reaches `score_potential`
+— the meter is always fully reachable rather than gated by hidden issues. The existing
+keyword-focused `ats_score` from WF9 stays separate; the two numbers sit side by side, each with a
+hover tooltip naming what it measures (ATS = keyword/parsing fit; strength = recruiter clarity).
 
 ### 3. Edge function — `resume-strengthen`
 
 One new function, two actions (auth + ownership checks like `generate-custom-resume`):
 
-- **`action: "analyze"`** — fired by the frontend when a résumé reaches `completed` (via the
-  existing Realtime subscription) or when the user opens Strengthen and none exists yet. Fires
-  the WF10 webhook (`mode: analyze`) and returns immediately. Result lands via Realtime.
+- **`action: "analyze"`** — fired by the frontend when a **tailored** résumé reaches `completed`
+  (via the existing Realtime subscription) or when the user opens Strengthen and none exists yet.
+  This runs on the WF9 output shown on the results screen — **never** on the raw CV uploaded before
+  the survey (that path, WF0 → `profiles.resume_full_data`, is untouched). Fires the WF10 webhook
+  (`mode: analyze`) and returns immediately. Result lands via Realtime.
 - **`action: "apply"`** — fired on "Apply my changes & refresh résumé." Payload = the list of
   accepted issues with their `user_input`. Fires WF10 (`mode: apply`).
 
@@ -181,7 +189,9 @@ exported to `n8n_wfs_cairnly/`, with the node/prompt plan presented in chat befo
   pattern), `preferred_language`. One LLM call (Claude Sonnet 5, structured output) that scores
   the résumé against the four-flag rubric and returns the ranked `issues[]` (with `impact`,
   `card_type`, `target`, and pre-drafted `suggested_text` / `question` + `example` +
-  `preview_template`). Caps at the top 5. Writes `strength_review` (`status: ready`) to the row.
+  `preview_template`). Surfaces the top **5** issues by impact — raised to **7** when the résumé is
+  judged weak (low baseline / many high-impact flags), since a weak résumé needs more help. Writes
+  `strength_review` (`status: ready`) to the row.
   **Hard rules:** never invent facts; `one_tap` only when the rewrite is derivable from existing
   text; anything needing an unknown fact must be `needs_input`.
 - **`mode: apply`** — inputs: `resume_json` + accepted issues with `user_input`. Then:
@@ -219,15 +229,18 @@ wasn't an accepted fix, and never add facts beyond the user's `user_input`.
 - **Multiple résumés** — `strength_review` is per `custom_resumes` row, so each tailored résumé
   has its own independent review and score.
 
-## Decisions to confirm on review
+## Decisions (resolved on review, 2026-07-01)
 
-1. **Two scores or one?** Keep the existing keyword `ats_score` separate from the new clarity
-   **strength** score (clear but two numbers), or merge into one headline later? MVP: keep separate.
-2. **When analysis fires** — auto on completion (instant banner, spends tokens even for users who
-   never strengthen) vs. lazily on first Strengthen open (cheaper, brief "finding wins…" state).
-   MVP recommendation: **auto on completion**, cheap single call; make it a config flag so we can
-   flip to lazy if cost warrants.
-3. **Top-N cap** — 5 issues per review. Adjustable.
+1. **Two scores, kept separate.** The keyword `ats_score` and the new **strength** score sit side
+   by side, each with a **hover tooltip** explaining what it measures. No merge for now.
+2. **Analysis fires on tailored-résumé completion** — after WF9 finishes and the résumé is on the
+   results screen, entered via the Strengthen CTA. **Not** on the initial CV upload before the
+   survey. Auto-runs on completion (behind a config flag) so the banner is instant.
+3. **Adaptive cap.** Top **5** issues normally; **7** when the résumé scores low (very weak résumés
+   get more help). Very low scores also show a gentle "this needs more than quick wins — add detail
+   and regenerate" nudge pointing at the existing WF9 flow. A full rewrite *engine* is out of scope
+   for V1 (see Non-goals). The strength score is computed from the surfaced set so the meter is
+   always fully reachable.
 
 ## Rough implementation slices (for the plan)
 
