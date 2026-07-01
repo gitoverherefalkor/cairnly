@@ -913,7 +913,7 @@ const CollapsibleCareerBlocks: React.FC<{
             const mvc = normalizeMove(section?.metadata?.move ?? null);
             const mvColor = mvc ? MOVE_COLOR[mvc] : null;
             const hasCard =
-              (Number.isFinite(score) && score != null) || !!aiImpact || !!feasibility;
+              (Number.isFinite(score) && score != null) || !!aiImpact || !!feasibility || !!mvc;
             const { size, rest } = splitSizeFromBody(block.body || '');
 
             return (

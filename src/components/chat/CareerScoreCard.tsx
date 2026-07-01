@@ -94,10 +94,11 @@ export function extractAIImpact(body: string): AIImpactLevel | null {
 
   // First pass: high-precision patterns that nail a specific phrasing.
   const patterns: RegExp[] = [
-    // NEW format: heading "How AI will impact this role" followed by a bare
+    // NEW format: heading "How AI will impact this role" (top-3 / runner-ups)
+    // OR "AI Impact on this role" (outside-the-box) followed by a bare
     // (optionally bold) clinical label on the next line. Highest precision —
     // checked first so the bare-label era resolves before the old patterns.
-    new RegExp('how ai will impact[^\\n]*\\n+\\s*\\*{0,2}' + LABEL_GROUP + '\\*{0,2}', 'i'),
+    new RegExp('(?:how ai will impact|ai impact on)[^\\n]*\\n+\\s*\\*{0,2}' + LABEL_GROUP + '\\*{0,2}', 'i'),
     // OLD format: friendly/clinical label with a parenthetical "(X Impact)".
     new RegExp(`\\*{0,2}${LABEL_GROUP}\\*{0,2}\\s*\\((?:minimal|low|moderate|high|severe|critical)\\s*impact\\)`, 'i'),
     new RegExp(`(?:rating)\\s*[:\\-]\\s*${LABEL_GROUP}`, 'i'),
