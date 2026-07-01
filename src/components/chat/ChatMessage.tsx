@@ -9,8 +9,6 @@ import {
   CareerScoreCard,
   extractAIImpact,
   extractFeasibility,
-  AIImpactBadge,
-  leadingAIImpactLevel,
 } from './CareerScoreCard';
 import { MOVE_COLOR, normalizeMove } from '@/lib/moveScale';
 import { iconForSubsection } from './subsectionIcons';
@@ -380,21 +378,6 @@ function findSectionIndex(headingText: string): number {
   });
 }
 
-// Flatten react-markdown children (strings + nested elements like <strong>)
-// down to plain text — used to inspect a paragraph's leading content.
-function childrenToText(children: React.ReactNode): string {
-  return React.Children.toArray(children)
-    .map((c) => {
-      if (typeof c === 'string') return c;
-      if (typeof c === 'number') return String(c);
-      if (React.isValidElement(c)) {
-        return childrenToText((c.props as { children?: React.ReactNode }).children);
-      }
-      return '';
-    })
-    .join('');
-}
-
 // Bold a short leading "Label:" at the very start of a paragraph, e.g.
 // "Money: €65k–90k…", "Schedule: …", "AI Impact Rating: High". The agent
 // sometimes emits these labels as plain text instead of markdown **bold**,
@@ -486,23 +469,18 @@ const markdownComponents = {
     );
   },
   p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => {
-    // The "How AI will impact this role" body leads with the rating, e.g.
-    // "Transforming (High Impact): ...". Surface it as a colour-coded
-    // severity badge so the impact still lands once the header pill has
-    // scrolled out of view. (Feasibility lives in the header CareerScoreCard,
-    // not here — it sits high enough in the section to not need re-surfacing.)
-    const aiLevel = leadingAIImpactLevel(childrenToText(children));
+    // We deliberately do NOT surface an inline AI-impact badge here anymore.
+    // The header CareerScoreCard already carries the AI Impact pill for every
+    // card (top-3, runner-up, and outside-the-box alike). The old inline badge
+    // only fired when a body paragraph LED with a bare rating — which happened
+    // for the OOB format ("Moderate: …") but not the top-3/runner-up format
+    // ("AI Impact Rating: High"), so identical sections rendered inconsistently
+    // (a pill on OOB, none on the others). Dropping it leaves the header pill as
+    // the single source of truth and keeps every card's AI-impact display in sync.
     return (
-      <>
-        {aiLevel && (
-          <div className="mb-2">
-            <AIImpactBadge level={aiLevel} />
-          </div>
-        )}
-        <p className="mb-2 last:mb-0" {...props}>
-          {boldLeadingLabel(children)}
-        </p>
-      </>
+      <p className="mb-2 last:mb-0" {...props}>
+        {boldLeadingLabel(children)}
+      </p>
     );
   },
   ul: ({ children, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
