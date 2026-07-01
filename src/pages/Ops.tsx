@@ -313,9 +313,11 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
             </a>
           ))}
         </div>
-        {/* Show active incidents if any */}
+        {/* Only surface incidents during a real outage (major/critical) — a
+            model deprecation / suspension notice isn't urgent and shouldn't shout. */}
         {[status.claude, status.openai]
-          .flatMap((s) => s?.incidents ?? [])
+          .filter((s) => s && (s.indicator === 'major' || s.indicator === 'critical'))
+          .flatMap((s) => s!.incidents)
           .map((inc, i) => (
             <div key={i} className="mt-2 flex items-start gap-2 text-xs text-amber-400">
               <AlertTriangle size={12} className="mt-0.5 shrink-0" />
@@ -937,7 +939,7 @@ export default function Ops() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('blockers');
+  const [activeTab, setActiveTab] = useState('traffic');
 
   const isAdmin = !authLoading && !!user && ADMIN_EMAILS.has(user.email ?? '');
 
@@ -1092,8 +1094,31 @@ export default function Ops() {
   const tabLabel = (label: string, count: number) =>
     count > 0 ? `${label} (${count})` : label;
 
+  const traffic = feed?.traffic ?? null;
+  const stuckCount = people.filter(
+    (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
+  ).length;
+
+  const heroTone: Record<string, string> = {
+    red: 'border-red-500/30 bg-red-500/10',
+    amber: 'border-amber-500/30 bg-amber-500/10',
+    teal: 'border-atlas-teal/30 bg-atlas-teal/10',
+    blue: 'border-blue-500/30 bg-blue-500/10',
+    neutral: 'border-white/10 bg-black/25',
+  };
+  const hero = (label: string, big: string, sub: string, tab: string, tone: string) => (
+    <button
+      onClick={() => setActiveTab(tab)}
+      className={`text-left rounded-xl border px-4 py-4 transition-all hover:brightness-125 hover:border-white/30 ${heroTone[tone]}`}
+    >
+      <div className="text-xs text-gray-400">{label}</div>
+      <div className="text-3xl font-bold text-gray-100 mt-1">{big}</div>
+      <div className="text-xs text-gray-500 mt-0.5">{sub}</div>
+    </button>
+  );
+
   return (
-    <div className="min-h-screen text-gray-100 px-4 py-8 max-w-4xl mx-auto">
+    <div className="min-h-screen text-gray-100 px-4 py-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -1128,11 +1153,6 @@ export default function Ops() {
         </div>
       )}
 
-      {/* Admin tool: re-run a report's pipeline by ID */}
-      <div className="mb-5">
-        <RerunReportCard />
-      </div>
-
       {/* Loading skeleton */}
       {loading && !feed && (
         <div className="space-y-3">
@@ -1144,61 +1164,54 @@ export default function Ops() {
 
       {feed && (
         <div className="space-y-5">
-          {/* Provider status */}
-          <ProviderBanner status={feed.provider_status} />
+          {/* At-a-glance — the metrics that matter most, always visible */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {hero('📈 Traffic', traffic ? traffic.visits_7d.toLocaleString() : '—', traffic ? `visitors · ${traffic.bounce_rate_7d}% bounce (7d)` : 'no data yet', 'traffic', 'teal')}
+            {hero('⚙️ Errors', String(n8nErrors.length), `${blockers.length} blocker${blockers.length === 1 ? '' : 's'}`, 'n8n', n8nErrors.length > 0 ? 'red' : 'neutral')}
+            {hero('👥 New signups', String(newThisWeek), 'this week', 'people', 'blue')}
+            {hero('📉 Drop-offs', String(stuckCount), 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
+          </div>
 
-          {/* Latest Vercel production deploy */}
-          <DeployStrip deploy={feed.deploy} />
-
-          {/* Stats — clickable, jump to the matching tab */}
+          {/* Action queues — clickable, jump to the matching tab */}
           <StatsRow items={items} onSelect={setActiveTab} />
 
-          {/* Tabs */}
+          {/* Detail tabs — ordered by how often they're needed */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-black/25 border border-white/10 w-full flex flex-wrap h-auto gap-1 p-1">
-              <TabsTrigger value="blockers" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-xs">
-                {tabLabel('🔴 Blockers', blockers.length)}
+              <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
+                📈 Traffic
               </TabsTrigger>
               <TabsTrigger value="people" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('👥 People', newThisWeek)}
               </TabsTrigger>
-              <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
-                📈 Traffic
+              <TabsTrigger value="n8n" className="data-[state=active]:bg-white/10 text-xs">
+                {tabLabel('⚙️ n8n Errors', n8nErrors.length)}
               </TabsTrigger>
-              <TabsTrigger value="usage" className="data-[state=active]:bg-white/10 text-xs">
-                💰 Usage
+              <TabsTrigger value="blockers" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-xs">
+                {tabLabel('🔴 Blockers', blockers.length)}
               </TabsTrigger>
               <TabsTrigger value="support" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('🎫 Support', support.length)}
               </TabsTrigger>
-              <TabsTrigger value="n8n" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('⚙️ n8n Errors', n8nErrors.length)}
-              </TabsTrigger>
-              <TabsTrigger value="misses" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('🎯 Assessment Misses', misses.length)}
+              <TabsTrigger value="usage" className="data-[state=active]:bg-white/10 text-xs">
+                💰 Usage
               </TabsTrigger>
               <TabsTrigger value="feedback" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('💬 Feedback', feedback.length)}
               </TabsTrigger>
+              <TabsTrigger value="misses" className="data-[state=active]:bg-white/10 text-xs">
+                {tabLabel('🎯 Assessment Misses', misses.length)}
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="blockers" className="mt-4">
-              <Feed items={blockers} onDismiss={dismissItem} />
+            <TabsContent value="traffic" className="mt-4">
+              <TrafficPanel traffic={feed.traffic} />
             </TabsContent>
             <TabsContent value="people" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Everyone who signed up in the last 30 days and where they are in the journey. <strong className="text-gray-400">{newThisWeek}</strong> joined this week. Identified by first name + country only.
               </div>
               <PeoplePanel people={people} />
-            </TabsContent>
-            <TabsContent value="traffic" className="mt-4">
-              <TrafficPanel traffic={feed.traffic} />
-            </TabsContent>
-            <TabsContent value="usage" className="mt-4">
-              <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
-            </TabsContent>
-            <TabsContent value="support" className="mt-4">
-              <Feed items={support} onDismiss={dismissItem} />
             </TabsContent>
             <TabsContent value="n8n" className="mt-4">
               <div className="mb-3 flex items-center justify-between gap-2 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
@@ -1214,11 +1227,14 @@ export default function Ops() {
               </div>
               <Feed items={n8nErrors} onDismiss={dismissItem} />
             </TabsContent>
-            <TabsContent value="misses" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
-              </div>
-              <Feed items={misses} onDismiss={dismissItem} />
+            <TabsContent value="blockers" className="mt-4">
+              <Feed items={blockers} onDismiss={dismissItem} />
+            </TabsContent>
+            <TabsContent value="support" className="mt-4">
+              <Feed items={support} onDismiss={dismissItem} />
+            </TabsContent>
+            <TabsContent value="usage" className="mt-4">
+              <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
             </TabsContent>
             <TabsContent value="feedback" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
@@ -1226,7 +1242,27 @@ export default function Ops() {
               </div>
               <Feed items={feedback} onDismiss={dismissItem} />
             </TabsContent>
+            <TabsContent value="misses" className="mt-4">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
+                <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
+              </div>
+              <Feed items={misses} onDismiss={dismissItem} />
+            </TabsContent>
           </Tabs>
+
+          {/* System strip — low urgency, kept out of the way at the bottom */}
+          <div className="pt-3 mt-2 border-t border-white/10 space-y-3">
+            <DeployStrip deploy={feed.deploy} />
+            <ProviderBanner status={feed.provider_status} />
+            <details className="group">
+              <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-400 select-none">
+                🛠 Admin tools (re-run a report)
+              </summary>
+              <div className="mt-3">
+                <RerunReportCard />
+              </div>
+            </details>
+          </div>
         </div>
       )}
     </div>
