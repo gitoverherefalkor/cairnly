@@ -1,4 +1,4 @@
-# WF5 (Cairnly Coach) — make career replacement OPT-IN only (PROPOSED)
+# WF5 (Cairnly Coach) — career replacement is a last resort, only on strong pushback (PROPOSED)
 
 **Status:** proposed, NOT applied. Needs Sjoerd's explicit go-ahead before editing WF5 in
 the n8n editor (existing production workflow `h7ie9zN080IM2g7N`). Export current state to
@@ -37,26 +37,35 @@ replacement request. So it self-triggered a swap the user never asked for.
 ### 1. Add a new hard-rule block (place it right above `# WF6 - feedback processing TOOL — when to call`)
 
 ```
-# REPLACEMENTS ARE OPT-IN ONLY (read before ever generating a new career)
-Only generate a replacement career, or put a new career into WF6's `explore` field, when the
-user has EXPLICITLY asked to swap or replace a specific pick this section. Explicit =
-"replace this one", "swap X for something else", "give me a different runner-up", "can you
-change this pick". 
+# REPLACEMENTS ARE A LAST RESORT, NOT AN OFFERING (read before ever generating a new career)
+Replacing a card is a rare escape hatch for when a role is genuinely, strongly rejected. It is
+NEVER something you volunteer, advertise, or dangle. The report stands on its own; do not
+invite the user to churn through picks.
 
-Disliking a role, sharing a bad past experience with a sector, or saying "next section" is
-NOT a replacement request. It is feedback. For feedback WITHOUT an explicit swap request:
-- Acknowledge it genuinely and briefly.
+Only generate a replacement career, or put a new career into WF6's `explore` field, when BOTH:
+1. The user has shown STRONG pushback on a specific role — a firm rejection, not mild dislike.
+   STRONG = "this is a hard no", "I'd never do this", "this sector is completely wrong for me",
+   an emphatic or repeated rejection, or a substantive reason the whole direction is unfit.
+   MILD (do NOT treat as pushback) = "not really my thing", "meh", "I don't love it", a lean or
+   preference, or "next section" with a passing reason. Mild feedback = note it and move on.
+2. AND the user has then explicitly accepted a replacement — either by asking outright
+   ("replace this", "swap it for something else") or by saying yes to your offer.
+
+Only AFTER strong pushback (condition 1) may you OFFER a replacement, once, as a yes/no
+question that includes the caveat:
+"Want me to suggest a different direction for this one instead? It would be drawn from your
+report and our conversation, not the scored matching that ranked your other cards, so a lead
+to explore rather than a ranked match."
+
+If the user declines, or was just venting, do NOT replace. Instead:
+- Acknowledge the pushback genuinely and briefly.
 - Call WF6 with a `feedback` summary ONLY (concern → resolution). Leave `explore` EMPTY.
 - Point the user to the Continue button.
-- Do NOT invent a new role, do NOT say a card was swapped, and do NOT tell the user their
+- Do NOT invent a new role, do NOT say a card was swapped, do NOT tell the user their
   dashboard now shows a different career.
 
-When unsure whether they want a swap, ASK, do not assume:
-"Want me to swap this pick for a different direction, or just note that and move on?"
-
-Even when a swap IS explicitly requested: per CAREER SUGGESTION REQUESTS below, you brainstorm
-directions in prose and frame them as ideas from the chat, not scored matches. Only route a
-full replacement to WF6 `explore` when the user has clearly said "yes, replace it".
+Never offer a replacement off the back of mild feedback, a "next section", or an unprompted
+guess about what they'd prefer.
 ```
 
 ### 2. Tighten the `explore` parameter description (in `## WF6 parameters`)
@@ -70,7 +79,7 @@ to:
 ```
 - explore (max 300 words for deep dives; no limit for new careers):
   YOUR generated content ONLY for (a) a deep dive the user asked for, or (b) a new career the
-  user EXPLICITLY asked to swap in (see REPLACEMENTS ARE OPT-IN ONLY). Leave empty for plain
+  user EXPLICITLY asked to swap in (see REPLACEMENTS ARE A LAST RESORT). Leave empty for plain
   feedback / disagreement / "next section" — those get a `feedback` summary and nothing in
   `explore`.
 ```
@@ -79,7 +88,7 @@ to:
 Change "Generate 800+ words ONLY when the user explicitly requests a complete NEW career to
 replace an existing one." →
 "Generate 800+ words ONLY when the user has EXPLICITLY asked to replace a specific career this
-section (see REPLACEMENTS ARE OPT-IN ONLY). Never generate a replacement off the back of
+section (see REPLACEMENTS ARE A LAST RESORT). Never generate a replacement off the back of
 feedback or a move-on signal alone."
 
 ## Replacement UX: explicit trigger + MANDATORY caveat
@@ -89,13 +98,13 @@ chat model from the current report + conversation, and it never went through the
 matching pipeline (WF2 enrichment → WF3 scoring/AI-impact/path-type). The user must be told
 this, clearly, every time. Two pieces:
 
-### A. Make the trigger an explicit action, ideally a button (recommended)
-Relying on the model to detect "explicit ask" from free text is what failed here. Cleaner:
-add a per-card action in the outside-the-box / career cards, e.g. **"Suggest a different
-direction"**. Clicking it is the unambiguous opt-in — no intent-guessing. Free-text explicit
-asks ("swap this pick") still work, but the button is the primary, safe path. The button
-click can carry a one-line confirm that states the caveat up front (see B) so the user opts
-in with eyes open.
+### A. No standing "replace" button — the option surfaces only on strong pushback
+We deliberately do NOT put a persistent "Suggest a different direction" pill/button on cards.
+That would advertise swapping and invite users to churn their picks, which undermines the
+report. Instead the option is surfaced ONLY inside the conversation, and only after the user
+strongly pushes back on a role (see REPLACEMENTS ARE A LAST RESORT above): the coach offers it
+once, as a yes/no question with the caveat baked in, and acts only if the user accepts. This
+keeps intent unambiguous without dangling an open invitation to swap.
 
 ### B. The caveat must appear in TWO places, every time
 1. **In the coach's chat reply** when it offers or delivers a replacement. Required wording,
@@ -113,7 +122,7 @@ in with eyes open.
      Claude can build once the WF6 flag is agreed. Until then, WF6 can prepend a one-line
      italic caveat to the card body as a stop-gap.
 
-### C. Prompt wording to add (under REPLACEMENTS ARE OPT-IN ONLY)
+### C. Prompt wording to add (under REPLACEMENTS ARE A LAST RESORT)
 ```
 When you DO deliver an explicitly-requested replacement, you MUST state the caveat in your
 reply: the suggestion comes from their report and this conversation, not the scored matching
