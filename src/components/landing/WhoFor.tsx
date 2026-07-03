@@ -3,10 +3,25 @@ import { useTranslation } from 'react-i18next';
 import { Check, XCircle } from 'lucide-react';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
+import { useIntent, type IntentKey } from '@/contexts/IntentContext';
+
+/** Which rightItems bullet moves to the front per intent (index in the default order). */
+const FIRST_ITEM: Partial<Record<IntentKey, number>> = {
+  'good-at-it': 0,
+  'ai-worried': 2,
+  'life-changed': 2,
+  'understand-myself': 3,
+};
 
 const WhoFor: React.FC = () => {
   const { t } = useTranslation('landing');
-  const rightItems = tArray<string>(t, 'whoFor.rightItems');
+  const { intent } = useIntent();
+  const defaultItems = tArray<string>(t, 'whoFor.rightItems');
+  const firstIdx = FIRST_ITEM[intent];
+  const rightItems =
+    firstIdx !== undefined && defaultItems.length > firstIdx
+      ? [defaultItems[firstIdx], ...defaultItems.filter((_, i) => i !== firstIdx)]
+      : defaultItems;
   const notItems = tArray<string>(t, 'whoFor.notItems');
 
   return (

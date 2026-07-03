@@ -16,12 +16,14 @@ import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
 import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
+import { IntentProvider } from '@/contexts/IntentContext';
 
 /**
  * Cairnly homepage (v2) — an editorial, cairn-as-way-marker landing page.
  * Assembled from self-contained sections under src/components/landing/.
  */
 const Index: React.FC = () => (
+  <IntentProvider>
   <div
     className="min-h-screen font-sans overflow-x-clip"
     style={{ background: '#F4ECDA', color: '#122E3B' }}
@@ -45,6 +47,7 @@ const Index: React.FC = () => (
     </main>
     <LandingFooter />
   </div>
+  </IntentProvider>
 );
 
 export default Index;

@@ -41,6 +41,69 @@ export type Database = {
         }
         Relationships: []
       }
+      _backup_prins_bf86828c_20260629: {
+        Row: {
+          alternate_titles: string | null
+          company_size_type: string | null
+          content: string | null
+          created_at: string | null
+          explore: string | null
+          fb_status: boolean | null
+          feedback: string | null
+          feedback_category: number | null
+          id: string | null
+          language: string | null
+          metadata: Json | null
+          order_number: number | null
+          report_id: string | null
+          score: number | null
+          section_type: string | null
+          share_quotes: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          alternate_titles?: string | null
+          company_size_type?: string | null
+          content?: string | null
+          created_at?: string | null
+          explore?: string | null
+          fb_status?: boolean | null
+          feedback?: string | null
+          feedback_category?: number | null
+          id?: string | null
+          language?: string | null
+          metadata?: Json | null
+          order_number?: number | null
+          report_id?: string | null
+          score?: number | null
+          section_type?: string | null
+          share_quotes?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          alternate_titles?: string | null
+          company_size_type?: string | null
+          content?: string | null
+          created_at?: string | null
+          explore?: string | null
+          fb_status?: boolean | null
+          feedback?: string | null
+          feedback_category?: number | null
+          id?: string | null
+          language?: string | null
+          metadata?: Json | null
+          order_number?: number | null
+          report_id?: string | null
+          score?: number | null
+          section_type?: string | null
+          share_quotes?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       aa_dead_letter_log: {
         Row: {
           created_at: string
@@ -598,6 +661,36 @@ export type Database = {
         }
         Relationships: []
       }
+      intent_picks: {
+        Row: {
+          created_at: string
+          free_text: string | null
+          id: string
+          intent_key: string
+          locale: string
+          source: string
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          free_text?: string | null
+          id?: string
+          intent_key: string
+          locale: string
+          source?: string
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          free_text?: string | null
+          id?: string
+          intent_key?: string
+          locale?: string
+          source?: string
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       job_search_cache: {
         Row: {
           api_source: string
@@ -691,6 +784,75 @@ export type Database = {
           status?: string
           unsubscribe_token?: string
           unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
+      ops_analysis: {
+        Row: {
+          analyzed_at: string
+          created_at: string
+          dismissed_at: string | null
+          id: string
+          item_key: string
+          raw_data: Json
+          recommended_action: string | null
+          severity: string
+          source: string
+          stage: string | null
+          summary: string
+        }
+        Insert: {
+          analyzed_at?: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          item_key: string
+          raw_data?: Json
+          recommended_action?: string | null
+          severity: string
+          source: string
+          stage?: string | null
+          summary: string
+        }
+        Update: {
+          analyzed_at?: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          item_key?: string
+          raw_data?: Json
+          recommended_action?: string | null
+          severity?: string
+          source?: string
+          stage?: string | null
+          summary?: string
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          created_at: string
+          engaged: boolean
+          id: string
+          path: string
+          referrer: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          engaged?: boolean
+          id?: string
+          path: string
+          referrer?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          engaged?: boolean
+          id?: string
+          path?: string
+          referrer?: string | null
+          session_id?: string
         }
         Relationships: []
       }
@@ -1240,6 +1402,7 @@ export type Database = {
           id: string
           message: string
           page: string | null
+          screenshot_path: string | null
           status: string
           user_agent: string | null
           user_id: string | null
@@ -1252,6 +1415,7 @@ export type Database = {
           id?: string
           message: string
           page?: string | null
+          screenshot_path?: string | null
           status?: string
           user_agent?: string | null
           user_id?: string | null
@@ -1264,6 +1428,7 @@ export type Database = {
           id?: string
           message?: string
           page?: string | null
+          screenshot_path?: string | null
           status?: string
           user_agent?: string | null
           user_id?: string | null
@@ -1639,10 +1804,25 @@ export type Database = {
           similarity: number
         }[]
       }
+      ops_traffic_stats: { Args: never; Returns: Json }
+      rerun_report: {
+        Args: {
+          p_clear?: boolean
+          p_dry_run?: boolean
+          p_report_id: string
+          p_reset_chat?: boolean
+        }
+        Returns: Json
+      }
+      rerun_report_by_email: {
+        Args: { p_clear?: boolean; p_dry_run?: boolean; p_email: string }
+        Returns: Json
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       soundex: { Args: { "": string }; Returns: string }
       text_soundex: { Args: { "": string }; Returns: string }
+      user_owns_access_code: { Args: { p_code_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

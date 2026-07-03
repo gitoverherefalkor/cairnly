@@ -2,12 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileText, ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
+import { useIntentCopy } from './useIntentCopy';
 import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
 const REPORT_URL = 'https://www.cairnly.io/journal/career-uncertainty-report';
 
 const WhyWeBuiltThis: React.FC = () => {
   const { t } = useTranslation('landing');
+  const { vt, intent } = useIntentCopy();
 
   return (
     <section
@@ -30,7 +32,8 @@ const WhyWeBuiltThis: React.FC = () => {
               {t('whyBuilt.titleB')} <span className="lp-text-gold-grad">{t('whyBuilt.titleHighlight')}</span>{t('whyBuilt.titleC')}
             </h2>
             <div className="mt-10 space-y-6 text-lg text-white/75 font-medium leading-relaxed">
-              <p>{t('whyBuilt.p1')}</p>
+              {/* p1 flexes with the visitor's intent; p2 is universal */}
+              <p key={intent} className="lp-intent-fade">{vt('whyBuilt.p1')}</p>
               <p>{t('whyBuilt.p2')}</p>
             </div>
             <div className="mt-12 flex items-center gap-3 text-white/40">

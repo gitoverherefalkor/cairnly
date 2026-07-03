@@ -6,7 +6,7 @@
     "titleB": "picked the next twenty years for you.",
     "body": "You chose a general direction, business, engineering, healthcare, and it quietly chose your major, your first job, and every one after. Cairnly is one assessment to ask the question that 16-year-old never could:",
     "bodyEmphasis": "with the life you've lived since, what would you actually pick now?",
-    "ctaPrimary": "Get Started — €39",
+    "ctaPrimary": "Get Started",
     "ctaSecondary": "See how it works",
     "reassurance": "Done in one sitting. No subscription. No account left dangling.",
     "screenshotMeta": "5 : 4 · AI coach session",
@@ -396,5 +396,75 @@
     "body": "If you used a different email or Google account at checkout, please sign in with that one instead. Otherwise, get your assessment below.",
     "ctaBuy": "Buy access",
     "dismissLabel": "Dismiss"
+  },
+  "intentChips": {
+    "prompt": "What brings you here?",
+    "labels": {
+      "default": "I chose my path at 16",
+      "goodAtIt": "Good at my job, not sure it's me",
+      "aiWorried": "Worried about AI and my role",
+      "lifeChanged": "Life changed, work didn't",
+      "understandMyself": "Understanding myself and what I want"
+    },
+    "other": {
+      "label": "Something else…",
+      "placeholder": "Tell us in a few words what brings you here",
+      "submit": "Send",
+      "thanks": "Thanks, that genuinely helps us make Cairnly better."
+    }
+  },
+  "variants": {
+    "goodAtIt": {
+      "hero": {
+        "titleA": "Being",
+        "titleHighlight": "good at it",
+        "titleB": "was never the same as it being you.",
+        "body": "Competent and quietly unsure is not a contradiction, it's more common than you think. Cairnly is one assessment that looks at who you've become, not the role you grew into, and asks:",
+        "bodyEmphasis": "if you could choose again, knowing what you know now, would you choose this?",
+        "ctaPrimary": "Ask the real question"
+      },
+      "whyBuilt": {
+        "p1": "Some careers are grown into rather than chosen. You were good at something, so you got more of it. More responsibility, more of the same kind of work, a title that fits your skills but maybe not the person behind them. Competence is a quiet current: by the time you look up, you're the person everyone relies on, for work you're no longer sure you'd pick. That question deserves better than a gut feeling."
+      }
+    },
+    "aiWorried": {
+      "hero": {
+        "titleA": "Half the takes on AI and your job are",
+        "titleHighlight": "panic.",
+        "titleB": "The other half are denial.",
+        "body": "You don't need another opinion piece, you need a straight answer about your situation. Cairnly scores every career it suggests on how AI is set to reshape it, so the real question becomes:",
+        "bodyEmphasis": "which direction still has room for you in ten years, and do you actually want it?",
+        "ctaPrimary": "See where your role is heading"
+      },
+      "whyBuilt": {
+        "p1": "They're built on assumptions that stopped being safe. You picked a field, got good at it, and planned on it carrying you for decades. Then the ground started moving. Some roles will grow, some will shrink, most will change shape, and the honest answer for yours is buried under equal parts hype and doom. Sorting that out deserves better than a headline."
+      }
+    },
+    "lifeChanged": {
+      "hero": {
+        "titleA": "What you",
+        "titleHighlight": "need",
+        "titleB": "from work changed. The job never got the memo.",
+        "body": "Kids, burnout, a move, a loss, a restart: the ground shifts and the old fit stops fitting. Cairnly is one assessment that takes where you actually are now, not where you were at 25, and asks:",
+        "bodyEmphasis": "what would work look like if it fit the life you have today?",
+        "ctaPrimary": "Find what fits now"
+      },
+      "whyBuilt": {
+        "p1": "They're chosen once and then assumed to keep fitting forever. But lives don't hold still. Kids arrive, health interrupts, priorities shift, and what a job needs to give you at 40 is rarely what you asked of it at 25. Most people carry a career shaped around a life they no longer live, and the tools to re-ask the question honestly were never built for them."
+      }
+    },
+    "understandMyself": {
+      "hero": {
+        "titleA": "You can't pick the right direction until you",
+        "titleHighlight": "know",
+        "titleB": "who's choosing.",
+        "body": "Cairnly starts with a serious assessment of who you've become: your strengths, your history, what actually drives you. The career answers are built on that foundation, which is why the first question isn't about jobs at all:",
+        "bodyEmphasis": "who are you now, and what do you actually want from the next chapter?",
+        "ctaPrimary": "Start with you"
+      },
+      "whyBuilt": {
+        "p1": "They're chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
+      }
+    }
   }
 }
