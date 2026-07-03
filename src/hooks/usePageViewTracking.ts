@@ -50,5 +50,18 @@ export function usePageViewTracking() {
       .catch(() => {
         /* analytics must never surface an error to the visitor */
       });
+
+    // Engaged-session signal: if the visitor is still on this page after 10s,
+    // mark the session engaged so it no longer counts as a bounce. The cleanup
+    // clears the timer on navigation/unmount, so a quick exit stays a bounce.
+    const engageTimer = setTimeout(() => {
+      supabase.functions
+        .invoke('track-view', { body: { session_id: sessionId, engaged: true } })
+        .catch(() => {
+          /* ignore */
+        });
+    }, 10_000);
+
+    return () => clearTimeout(engageTimer);
   }, [location.pathname]);
 }

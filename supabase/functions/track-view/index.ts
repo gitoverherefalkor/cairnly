@@ -26,27 +26,44 @@ serve(async (req) => {
   const limited = checkRateLimit(req, 60, corsHeaders);
   if (limited) return limited;
 
-  let body: { path?: string; session_id?: string; referrer?: string };
+  let body: { path?: string; session_id?: string; referrer?: string; engaged?: boolean };
   try {
     body = await req.json();
   } catch {
     return errorResponse('Invalid JSON body', 400, corsHeaders);
   }
 
-  const path = typeof body.path === 'string' ? body.path.slice(0, 300) : '';
   const sessionId = typeof body.session_id === 'string' ? body.session_id.slice(0, 100) : '';
-  let referrer = typeof body.referrer === 'string' ? body.referrer.slice(0, 300) : null;
-  // Drop same-site referrers — only external sources are interesting.
-  if (referrer && /(^https?:\/\/)?(www\.)?cairnly\.io/i.test(referrer)) referrer = null;
-
-  if (!path || !sessionId) {
-    return errorResponse('path and session_id required', 400, corsHeaders);
+  if (!sessionId) {
+    return errorResponse('session_id required', 400, corsHeaders);
   }
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+
+  // Engage ping — fired ~10s into a page view. Marks the session as engaged so
+  // it no longer counts as a bounce.
+  if (body.engaged === true) {
+    const { error } = await supabase
+      .from('page_views')
+      .update({ engaged: true })
+      .eq('session_id', sessionId);
+    if (error) console.error('[track-view] engage update error:', error);
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const path = typeof body.path === 'string' ? body.path.slice(0, 300) : '';
+  let referrer = typeof body.referrer === 'string' ? body.referrer.slice(0, 300) : null;
+  // Drop same-site referrers — only external sources are interesting.
+  if (referrer && /(^https?:\/\/)?(www\.)?cairnly\.io/i.test(referrer)) referrer = null;
+
+  if (!path) {
+    return errorResponse('path required', 400, corsHeaders);
+  }
 
   const { error } = await supabase
     .from('page_views')
