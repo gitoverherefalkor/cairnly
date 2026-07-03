@@ -3,7 +3,7 @@
 // React components wired to the production asset paths under /public/dashboard.
 
 import React from 'react';
-import { Shield, Route } from 'lucide-react';
+import { Shield, Route, Gauge } from 'lucide-react';
 import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
 
 // ---------- Brand palette ----------
@@ -181,6 +181,36 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
       }}
     >
       <Shield size={11} color={color} /> AI · {label}
+    </span>
+  );
+};
+
+// ---------- MatchPill ----------
+// Match score as a pill, styled to sit in the same row as the AI + Move pills.
+// Gold treatment so the match % still leads the trio (it's the primary metric).
+export const MatchPill: React.FC<{ pct: number }> = ({ pct }) => {
+  const color = '#EFBE48'; // PALETTE.goldBright
+  return (
+    <span
+      title={`${pct}% fit against your profile`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 10px',
+        borderRadius: 9999,
+        background: `${color}1a`,
+        color,
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        border: `1px solid ${color}33`,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <Gauge size={11} color={color} /> Match · {pct}%
     </span>
   );
 };

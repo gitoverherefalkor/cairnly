@@ -34,6 +34,7 @@ import {
   Eyebrow,
   AIImpactPill,
   MovePill,
+  MatchPill,
   type MoveLevel,
   SectionPhoto,
   SECTION_VISUALS,
@@ -979,12 +980,8 @@ const HeroMatch: React.FC<{
             }}
           />
 
-          {/* Header row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-            <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
-            {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
-            {match.move && <MovePill level={match.move} />}
-          </div>
+          {/* Eyebrow */}
+          <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
 
           {/* Title + shape */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1008,7 +1005,12 @@ const HeroMatch: React.FC<{
             )}
           </div>
 
-          <MatchMeter pct={match.matchPct} large />
+          {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+            <MatchPill pct={match.matchPct} />
+            {match.move && <MovePill level={match.move} />}
+            {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+          </div>
 
           {match.teaser && (
             <p
