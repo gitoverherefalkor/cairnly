@@ -82,6 +82,46 @@ replace an existing one." →
 section (see REPLACEMENTS ARE OPT-IN ONLY). Never generate a replacement off the back of
 feedback or a move-on signal alone."
 
+## Replacement UX: explicit trigger + MANDATORY caveat
+
+A replacement career is fundamentally different from the other cards: it is written by the
+chat model from the current report + conversation, and it never went through the scored
+matching pipeline (WF2 enrichment → WF3 scoring/AI-impact/path-type). The user must be told
+this, clearly, every time. Two pieces:
+
+### A. Make the trigger an explicit action, ideally a button (recommended)
+Relying on the model to detect "explicit ask" from free text is what failed here. Cleaner:
+add a per-card action in the outside-the-box / career cards, e.g. **"Suggest a different
+direction"**. Clicking it is the unambiguous opt-in — no intent-guessing. Free-text explicit
+asks ("swap this pick") still work, but the button is the primary, safe path. The button
+click can carry a one-line confirm that states the caveat up front (see B) so the user opts
+in with eyes open.
+
+### B. The caveat must appear in TWO places, every time
+1. **In the coach's chat reply** when it offers or delivers a replacement. Required wording,
+   in substance:
+   > "Heads-up: this suggestion is generated from your report and our conversation, not the
+   > scored matching that produced your other cards. Treat it as a strong lead to explore,
+   > not a ranked match."
+2. **On the card itself, permanently** (so it survives after the chat scrolls away and shows
+   on the dashboard). Best done as a small badge, not just body text that can be missed:
+   - WF6 sets a metadata flag on the replacement card, e.g. `metadata.origin =
+     "chat_replacement"` (and leaves `score` null, which these already are).
+   - The frontend renders a compact caveat pill on any card with that flag, e.g.
+     **"Chat-generated · not scored"** with the fuller sentence on hover/expand.
+   - This is a small, self-contained frontend change (CareerScoreCard / card header) that
+     Claude can build once the WF6 flag is agreed. Until then, WF6 can prepend a one-line
+     italic caveat to the card body as a stop-gap.
+
+### C. Prompt wording to add (under REPLACEMENTS ARE OPT-IN ONLY)
+```
+When you DO deliver an explicitly-requested replacement, you MUST state the caveat in your
+reply: the suggestion comes from their report and this conversation, not the scored matching
+pipeline that produced their other cards, so it is a lead to explore, not a ranked match.
+Never present a replacement as if it were a scored match. Pass metadata.origin =
+"chat_replacement" through to WF6 so the card is labelled as chat-generated on the dashboard.
+```
+
 ## Secondary finding for WF6 (note, not part of this WF5 change)
 When WF6 *does* apply an approved replacement, it rewrote `content` but not the `title`
 column, leaving a title/body mismatch. If we keep the replacement feature, WF6 should update
