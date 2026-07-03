@@ -27,7 +27,7 @@ jobs:
 
       - name: Set up Supabase CLI
         if: env.SUPABASE_ACCESS_TOKEN != ''
-        uses: supabase/setup-cli@v3
+        uses: supabase/setup-cli@v2
         with:
           version: latest
 
