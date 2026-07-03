@@ -108,9 +108,19 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 
 ## n8n API access
 - **Instance**: https://falkoratlas.app.n8n.cloud
-- **API Key**: stored in `.env` as `N8N_API_KEY`
+- **API Key**: available as the `N8N_API_KEY` environment variable. ⚠️ In the remote/web
+  Claude Code sessions it is injected as a **process env var** (`echo $N8N_API_KEY` / `printenv
+  N8N_API_KEY` → ~267 chars), NOT written into the `.env` file. Do NOT conclude the key is
+  missing just because `grep N8N_API_KEY .env` finds nothing — check the environment
+  (`printenv N8N_API_KEY`) first. Locally it may live in `.env` instead.
 - **Auth header**: `X-N8N-API-KEY`
-- **Usage**: `curl -s -H "X-N8N-API-KEY: $(grep N8N_API_KEY .env | cut -d'"' -f2)" https://falkoratlas.app.n8n.cloud/api/v1/workflows`
+- **Usage**: `curl -s -H "X-N8N-API-KEY: $N8N_API_KEY" https://falkoratlas.app.n8n.cloud/api/v1/workflows`
+- ⚠️ **Reachability from remote/web sessions**: the egress proxy in the web/remote sessions
+  currently **blocks** `falkoratlas.app.n8n.cloud` (gateway answers `403` to CONNECT), so a
+  direct `curl`/API call cannot leave the container even with a valid key. The documented
+  workaround is the Supabase Postgres `http`/`pg_net` extension via `execute_sql` (reaches n8n
+  from Supabase's servers). Editing a full workflow that way is possible but heavy/risky;
+  prefer applying prompt edits in the n8n editor when a human is available.
 - **Capabilities**: List/get/update workflows, check executions, activate/deactivate
 - **Modification policy**: n8n workflows and question mappings are critical production pipelines. The rules differ for editing existing workflows vs. drafting new ones:
 
