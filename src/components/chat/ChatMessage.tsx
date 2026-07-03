@@ -887,7 +887,11 @@ const CollapsibleCareerBlocks: React.FC<{
             const isOpen = openIndices.has(idx);
             const section = findSectionByTitle(sections, block.title);
             const score = section?.score != null ? Number(section.score) : null;
-            const aiImpact = extractAIImpact(block.body || '');
+            // Dream-job cards are assessed on Feasibility (the "reality check"),
+            // not AI impact — WF4 only emits an AI-impact line incidentally, so
+            // suppress the AI pill here to keep those cards uniform.
+            const aiImpact =
+              section?.section_type === 'dream_jobs' ? null : extractAIImpact(block.body || '');
             const feasibility = extractFeasibility(block.body || '');
             const mvc = normalizeMove(section?.metadata?.move ?? null);
             const mvColor = mvc ? MOVE_COLOR[mvc] : null;
@@ -1196,8 +1200,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           .trim();
         const section = findSectionByTitle(sections, headingText);
         const score = section?.score != null ? Number(section.score) : null;
-        // Look for an AI Impact rating anywhere in the message body.
-        const aiImpact = extractAIImpact(sanitized);
+        // Look for an AI Impact rating anywhere in the message body — except on
+        // dream-job cards, which are Feasibility-only (see multi-card path).
+        const aiImpact =
+          section?.section_type === 'dream_jobs' ? null : extractAIImpact(sanitized);
         const feasibility = extractFeasibility(sanitized);
         return (
           <>
