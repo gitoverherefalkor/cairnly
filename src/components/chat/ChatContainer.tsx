@@ -823,6 +823,13 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           // the row to chat_messages server-side, so persistence is atomic
           // with the API response. Refresh-mid-flight is now safe.
           addMessage('bot', response, { skipPersist: true });
+          // Advance the sidebar directly from the section we just delivered.
+          // The fast path KNOWS which section it requested, so we don't rely on
+          // scanForSections reverse-engineering it from the prose — that matches
+          // English boilerplate phrases only and silently fails on localized
+          // (e.g. Dutch) reports, leaving progress stuck a section behind.
+          // scanForSections still runs as a backup for the agent path.
+          onSectionDetected(isWelcomeAdvance ? 1 : currentSectionIndex + 1);
           scanForSections(response);
           lastTurnWasAdvanceRef.current = true;
           setIsWaitingForResponse(false);
