@@ -65,7 +65,12 @@ const Hero: React.FC = () => {
           <Reveal className="lg:col-span-5">
             <HeroCarousel />
 
-            <div className="mt-8 flex flex-col items-center gap-5">
+            {/* lg:translate-y-8 drops the CTA block so its top lines up with
+                the intent chips in the left column. A transform (not margin) is
+                used on purpose: the grid is items-center, so a margin would be
+                half-absorbed by re-centering — a transform moves it predictably
+                without disturbing the chips. */}
+            <div className="mt-8 lg:translate-y-8 flex flex-col items-center gap-5">
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <button onClick={getStarted} className="lp-btn-primary">
                   <span key={intent} className="lp-intent-fade">{vt('hero.ctaPrimary')}</span>
