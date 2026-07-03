@@ -643,6 +643,7 @@ const SequentialSubsections: React.FC<{
               aiImpact={section ? aiImpact : null}
               feasibility={section ? feasibility : null}
               move={section ? (section.metadata?.move ?? null) : null}
+              chatGenerated={section?.metadata?.origin === 'chat_replacement'}
             />
           </>
         );
@@ -928,12 +929,13 @@ const CollapsibleCareerBlocks: React.FC<{
                   </div>
                   {/* Match score + AI impact pills in the collapsed header
                       so users can scan all options without expanding each. */}
-                  {hasCard && (
+                  {(hasCard || section?.metadata?.origin === 'chat_replacement') && (
                     <CareerScoreCard
                       score={Number.isFinite(score) ? score : null}
                       aiImpact={aiImpact}
                       feasibility={feasibility}
                       move={section?.metadata?.move ?? null}
+                      chatGenerated={section?.metadata?.origin === 'chat_replacement'}
                     />
                   )}
                 </button>
@@ -1217,6 +1219,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
               aiImpact={section ? aiImpact : null}
               feasibility={section ? feasibility : null}
               move={section ? (section.metadata?.move ?? null) : null}
+              chatGenerated={section?.metadata?.origin === 'chat_replacement'}
             />
           </>
         );
