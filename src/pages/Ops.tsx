@@ -759,9 +759,16 @@ function PeoplePanel({ people }: { people: Person[] }) {
     acc[p.stage] = (acc[p.stage] ?? 0) + 1;
     return acc;
   }, {});
-  const stuck = people.filter(
+  const stalled = people.filter(
     (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
-  ).length;
+  );
+  const stuck = stalled.length;
+  const stalledByStage = stalled.reduce<Record<string, number>>((acc, p) => {
+    acc[p.stage] = (acc[p.stage] ?? 0) + 1;
+    return acc;
+  }, {});
+  const stalledStages = (Object.keys(STAGE_META) as Stage[]).filter((s) => stalledByStage[s]);
+  const maxStalled = Math.max(1, ...Object.values(stalledByStage));
 
   return (
     <div className="space-y-4">
@@ -779,9 +786,27 @@ function PeoplePanel({ people }: { people: Person[] }) {
       </div>
 
       {stuck > 0 && (
-        <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
-          <AlertTriangle size={13} />
-          {stuck} {stuck === 1 ? 'person has' : 'people have'} been inactive 3+ days mid-journey — possible drop-off.
+        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+          <div className="flex items-center gap-2 text-xs text-amber-400 mb-2.5">
+            <AlertTriangle size={13} />
+            {stuck} {stuck === 1 ? 'person has' : 'people have'} stalled 3+ days mid-journey — here's where they're getting stuck:
+          </div>
+          <div className="space-y-1.5">
+            {stalledStages.map((s) => (
+              <div key={s} className="flex items-center gap-3">
+                <span className="text-xs text-gray-300 w-32 truncate shrink-0">
+                  {STAGE_META[s].label.replace(/^[①②③④⑤⑥]\s+/, '')}
+                </span>
+                <div className="flex-1 h-2 rounded-full bg-black/30 overflow-hidden">
+                  <div
+                    className="h-full bg-amber-500/70 rounded-full"
+                    style={{ width: `${(stalledByStage[s] / maxStalled) * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-400 w-8 text-right shrink-0">{stalledByStage[s]}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -1095,9 +1120,18 @@ export default function Ops() {
     count > 0 ? `${label} (${count})` : label;
 
   const traffic = feed?.traffic ?? null;
-  const stuckCount = people.filter(
+  const stalled = people.filter(
     (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
-  ).length;
+  );
+  const stuckCount = stalled.length;
+  const stalledByStage = stalled.reduce<Record<string, number>>((acc, p) => {
+    acc[p.stage] = (acc[p.stage] ?? 0) + 1;
+    return acc;
+  }, {});
+  const leakiestEntry = Object.entries(stalledByStage).sort((a, b) => b[1] - a[1])[0];
+  const leakiestLabel = leakiestEntry
+    ? STAGE_META[leakiestEntry[0] as Stage].label.replace(/^[①②③④⑤⑥]\s+/, '')
+    : null;
 
   const heroTone: Record<string, string> = {
     red: 'border-red-500/30 bg-red-500/10',
@@ -1169,7 +1203,7 @@ export default function Ops() {
             {hero('📈 Traffic', traffic ? traffic.visits_7d.toLocaleString() : '—', traffic ? `visitors · ${traffic.bounce_rate_7d}% bounce (7d)` : 'no data yet', 'traffic', 'teal')}
             {hero('⚙️ Errors', String(n8nErrors.length), `${blockers.length} blocker${blockers.length === 1 ? '' : 's'}`, 'n8n', n8nErrors.length > 0 ? 'red' : 'neutral')}
             {hero('👥 New signups', String(newThisWeek), 'this week', 'people', 'blue')}
-            {hero('📉 Drop-offs', String(stuckCount), 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
+            {hero('📉 Drop-offs', String(stuckCount), leakiestLabel ? `mostly at ${leakiestLabel}` : 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
           </div>
 
           {/* Action queues — clickable, jump to the matching tab */}
