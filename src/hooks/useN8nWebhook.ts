@@ -23,6 +23,16 @@ interface WebhookMetadata {
    */
   current_section?: string | null;
   careers_revealed?: boolean;
+  /**
+   * Survey-sourced context for the coach's SESSION DATA header. Both come from
+   * the report's survey responses (extracted in Chat.tsx):
+   * - assessment_purpose: why the user took the assessment (Q "primary goal(s)
+   *   for completing this questionnaire").
+   * - goal_alignment: their raw short- and long-term career goals, so WF5 can
+   *   reason about goal fit. (Previously always [undefined] — never wired.)
+   */
+  assessment_purpose?: string;
+  goal_alignment?: string;
 }
 
 interface PreviousMessage {

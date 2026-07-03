@@ -47,6 +47,10 @@ export interface ReportSection {
     comparison?: CareerComparison;
     // Reskilling-effort level for the Move pill (WF4 top-3 JSON block).
     move?: string;
+    // Provenance flag. "chat_replacement" marks a career the coach generated
+    // on request (WF6), which never went through the WF2→WF3 scoring pipeline.
+    // The frontend surfaces a "not scored" caveat pill for these cards.
+    origin?: string;
   } | null;
   // AI-summarized shareable quotes for the share-card modal. Generated
   // on-demand by the generate-share-quotes edge function and persisted

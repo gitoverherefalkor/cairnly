@@ -1,4 +1,5 @@
 import React from 'react';
+import { MessageCircle } from 'lucide-react';
 import { MOVE_LEVELS, type MoveLevel, normalizeMove, moveLegend } from '@/lib/moveScale';
 
 // AI Impact rating scale, ordered low → high (impact / disruption).
@@ -334,11 +335,33 @@ export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level 
   );
 };
 
+// ── Provenance caveat (chat-generated replacement) ───────────────────
+// A replacement career the coach generated on request is NOT a scored match
+// from the WF2→WF3 pipeline — it's drawn from the report + conversation. When
+// WF6 flags such a card (metadata.origin = "chat_replacement"), we surface a
+// compact caveat pill so the dashboard never passes it off as a ranked match.
+// The full caveat sits in the title (hover) so the pill stays small.
+export const CHAT_REPLACEMENT_CAVEAT =
+  'This suggestion was generated from your report and our conversation, not the scored matching that ranked your other cards. Treat it as a lead to explore, not a ranked match.';
+
+export const ChatGeneratedBadge: React.FC = () => (
+  <div
+    title={CHAT_REPLACEMENT_CAVEAT}
+    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-3 py-1.5 shadow-sm"
+  >
+    <MessageCircle className="h-3 w-3 text-slate-500 shrink-0" aria-hidden="true" />
+    <span className="text-[11px] font-semibold text-slate-600">Chat-generated · not scored</span>
+  </div>
+);
+
 interface CareerScoreCardProps {
   score?: number | null;
   aiImpact?: AIImpactLevel | null;
   feasibility?: FeasibilityLevel | null;
   move?: string | null;
+  // True when this card is a coach-generated replacement (WF6 sets
+  // metadata.origin = "chat_replacement"). Adds a "not scored" caveat pill.
+  chatGenerated?: boolean;
 }
 
 // Renders score + AI impact + feasibility in a single row above a career
@@ -349,18 +372,21 @@ export const CareerScoreCard: React.FC<CareerScoreCardProps> = ({
   aiImpact,
   feasibility,
   move,
+  chatGenerated,
 }) => {
   const moveLevel = normalizeMove(move);
-  if (score == null && !aiImpact && !feasibility && !moveLevel) return null;
+  if (score == null && !aiImpact && !feasibility && !moveLevel && !chatGenerated) return null;
 
   // Pills flow in a wrapping row (Match · AI · Move, or Match · Feasibility ·
   // AI for dream jobs) so the trio sits together and wraps cleanly on mobile.
+  // The chat-generated caveat trails the data pills as a provenance note.
   return (
     <div className="flex flex-wrap gap-1.5 items-start mb-2 mt-1">
       {score != null && <ScoreGauge score={score} />}
       {feasibility && <FeasibilityBadge level={feasibility} />}
       {aiImpact && <AIImpactBadge level={aiImpact} />}
       {moveLevel && <MoveBadge level={moveLevel} />}
+      {chatGenerated && <ChatGeneratedBadge />}
     </div>
   );
 };
