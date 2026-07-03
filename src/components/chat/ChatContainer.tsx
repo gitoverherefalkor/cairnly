@@ -125,6 +125,10 @@ interface ChatContainerProps {
   sessionId: string;
   firstName: string;
   country: string;
+  // Survey-sourced context forwarded to the coach (WF5) SESSION DATA header.
+  // Extracted from the report's survey responses in Chat.tsx.
+  assessmentPurpose?: string;
+  goalAlignment?: string;
   currentSectionIndex: number;
   onSectionDetected: (index: number) => void;
   onSessionComplete: () => void;
@@ -150,6 +154,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       sessionId,
       firstName,
       country,
+      assessmentPurpose,
+      goalAlignment,
       currentSectionIndex,
       onSectionDetected,
       onSessionComplete,
@@ -762,6 +768,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             report_id: reportId,
             first_name: firstName,
             country,
+            assessment_purpose: assessmentPurpose,
+            goal_alignment: goalAlignment,
             ...sectionMetadata(currentSectionIndex),
           }).catch((err) => {
             console.error('[advance] background agent failed:', err);
@@ -856,6 +864,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           report_id: reportId,
           first_name: firstName,
           country,
+          assessment_purpose: assessmentPurpose,
+          goal_alignment: goalAlignment,
           ...sectionMetadata(currentSectionIndex),
         });
 
@@ -918,6 +928,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           report_id: reportId,
           first_name: firstName,
           country,
+          assessment_purpose: assessmentPurpose,
+          goal_alignment: goalAlignment,
           ...sectionMetadata(currentSectionIndex),
         });
         if (response) {

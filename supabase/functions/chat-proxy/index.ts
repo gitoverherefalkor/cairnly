@@ -43,6 +43,11 @@ interface ChatRequestBody {
     // gates career-related follow-up suggestions on personality sections.
     current_section?: string | null;
     careers_revealed?: boolean;
+    // Survey-sourced coach context (set by ChatContainer from the report's
+    // survey responses). We forward the whole body verbatim, so these pass
+    // straight through to WF5 without any change here — listed for clarity.
+    assessment_purpose?: string;
+    goal_alignment?: string;
   };
 }
 

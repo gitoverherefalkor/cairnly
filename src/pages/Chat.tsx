@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,6 +46,29 @@ const Chat = () => {
   // Career section data — used by the sidebar to surface the actual
   // career title + company size for the current top-career section.
   const { sections: reportSections } = useReportSections(reportData?.id);
+
+  // Survey-sourced context for the coach's SESSION DATA header. These live on
+  // the report payload (survey responses keyed by fixed question ids) and were
+  // never wired into the chat metadata before, so assessment_purpose /
+  // goal_alignment always resolved to [undefined] in WF5. We now extract and
+  // forward them: purpose = why they took the assessment; goal_alignment = the
+  // raw short- and long-term career goals for the coach to reason about.
+  const { assessmentPurpose, goalAlignment } = useMemo(() => {
+    const responses = ((reportData?.payload as any)?.responses ?? {}) as Record<string, unknown>;
+    const flatten = (v: unknown): string =>
+      Array.isArray(v) ? v.filter(Boolean).map(String).join('; ')
+      : typeof v === 'string' ? v : '';
+    // Fixed (seeded) survey question ids: primary goal for the assessment,
+    // and the short- / long-term career goal questions.
+    const purpose = flatten(responses['11111111-1111-1111-1111-111111111115']);
+    const shortGoals = flatten(responses['77777777-7777-7777-7777-777777777771']);
+    const longGoals = flatten(responses['77777777-7777-7777-7777-777777777772']);
+    const goals = [
+      shortGoals && `Short-term: ${shortGoals}`,
+      longGoals && `Long-term: ${longGoals}`,
+    ].filter(Boolean).join(' | ');
+    return { assessmentPurpose: purpose, goalAlignment: goals };
+  }, [reportData]);
   // Welcome card defaults to visible for everyone. An effect below flips it
   // off once we confirm the user has actually engaged with the chat for this
   // report (per `chat_engaged_${reportId}` flag set in handleWelcomeStart) or
@@ -529,6 +552,8 @@ const Chat = () => {
                 sessionId={sessionId}
                 firstName={profile?.first_name || ''}
                 country={profile?.country || ''}
+                assessmentPurpose={assessmentPurpose}
+                goalAlignment={goalAlignment}
                 currentSectionIndex={currentSectionIndex}
                 onSectionDetected={handleSectionDetected}
                 onSessionComplete={() => setShowClosing(true)}
