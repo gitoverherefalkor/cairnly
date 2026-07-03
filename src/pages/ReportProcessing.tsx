@@ -169,8 +169,9 @@ function NormalState({
 }) {
   return (
     <div className="space-y-6">
-      {/* Completed cairn — the payoff for finishing all seven sections */}
-      <CairnProgress stones={7} className="mx-auto h-40 w-auto" />
+      {/* Completed cairn — the payoff for finishing all seven sections. Full
+          stack + gold capstone; the crown pops as the profile builds. */}
+      <CairnProgress filled={5} crowned animate="crown" width={150} className="mx-auto" />
 
       {/* Header */}
       <div className="text-center space-y-1.5">

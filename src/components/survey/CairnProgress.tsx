@@ -1,68 +1,98 @@
 import React from 'react';
 
-// A cairn that builds one stone per completed survey section. Gold stones to
-// match the section-complete checkmarks. The newest stone drops in to mark the
-// moment.
+/**
+ * CairnProgress
+ * Survey-progress cairn that stacks the *actual* Cairnly logo stones one at a
+ * time. Each layer PNG is a single real stone sliced from the brand mark, so a
+ * completed cairn is pixel-identical to the icon, capped by the gold capstone.
+ *
+ * Assets live in /public/cairn/:
+ *   s0.png .. s4.png   five teal stones, bottom -> top
+ *   crown.png          gold capstone
+ * Each PNG is the full 942x1051 logo canvas with only its own stone painted,
+ * so they stack by simply overlaying at the same offset.
+ *
+ * The survey has 7 sections but only shows this on the 6 between-section
+ * "you finished X" cards (counts 1-6) plus the final processing screen. Five
+ * stones + the crown = six pieces, one per card: stones drop on cards 1-5, the
+ * crown pops on card 6. So `crowned` is decoupled from the stone count — the
+ * caller decides when the capstone lands.
+ */
 
-// Two angular, faceted rock shapes — rugged straight-edged slabs, centred at
-// the origin (~150 wide x 38 tall). Alternating them keeps the stack natural.
-const ROCKS = [
-  'M -75,2 L -62,-12 L -34,-17 L 6,-14 L 40,-18 L 66,-10 L 75,2 L 64,14 L 30,19 L -10,16 L -46,18 L -68,10 Z',
-  'M -74,-2 L -56,-15 L -20,-16 L 22,-18 L 52,-13 L 73,0 L 67,13 L 38,17 L 2,19 L -34,15 L -60,16 L -73,6 Z',
-];
+const LAYERS = ['s0', 's1', 's2', 's3', 's4'] as const; // bottom -> top
+// Source canvas + the cairn's bounding box within it (used to crop the margins).
+const SRC = { w: 942, h: 1051, x0: 255, y0: 183, cw: 382, ch: 627 };
 
-// Per-stone placement, bottom (index 0) to top (index 6):
-// [scale, centreY, xOffset, rotationDeg, flipX]
-const STONES: ReadonlyArray<[number, number, number, number, number]> = [
-  [1.0, 298, 0, -3, 1],
-  [0.92, 266, -8, 4, -1],
-  [0.85, 235, 7, -4, 1],
-  [0.75, 206, -5, 3, -1],
-  [0.65, 178, 8, -5, 1],
-  [0.54, 152, -4, 4, -1],
-  [0.44, 128, 3, -3, 1],
-];
-
-const CX = 120;
-const GOLD = '#D4A024';
-const GOLD_ALT = '#C39019';
-
-interface CairnProgressProps {
-  /** How many stones to show (0-7). */
-  stones: number;
-  /** When true, the topmost shown stone drops in and the crown pops. */
-  animateNewest?: boolean;
+export interface CairnProgressProps {
+  /** Stones placed, 0–5. */
+  filled: number;
+  /** Show the gold capstone. Defaults to filled >= 5 (all stones placed). */
+  crowned?: boolean;
+  /** Which piece drops in on this render: the newest stone, the crown, or
+   *  nothing. Cards remount per section (key=count), so the animation plays
+   *  once. Default 'stone'. */
+  animate?: 'stone' | 'crown' | 'none';
+  /** Rendered cairn width in px. Height follows the icon's aspect. Default 130. */
+  width?: number;
+  /** Folder the layer PNGs live in. Default '/cairn'. */
+  assetBase?: string;
   className?: string;
 }
 
-const CairnProgress = ({ stones, animateNewest = true, className }: CairnProgressProps) => {
-  const count = Math.max(0, Math.min(STONES.length, Math.round(stones)));
+export default function CairnProgress({
+  filled,
+  crowned,
+  animate = 'stone',
+  width = 130,
+  assetBase = '/cairn',
+  className,
+}: CairnProgressProps) {
+  const n = Math.max(0, Math.min(LAYERS.length, Math.round(filled)));
+  const showCrown = crowned ?? n >= LAYERS.length;
 
-  // Fixed viewBox = the full 7-stone cairn's bounding box. Partial cairns sit
-  // at the bottom and grow upward into the same frame, so every section
-  // transition card reserves identical cairn height.
+  const scale = width / SRC.cw;
+  const frameH = SRC.ch * scale;
+  const plane: React.CSSProperties = {
+    position: 'absolute',
+    width: SRC.w * scale,
+    height: SRC.h * scale,
+    left: -SRC.x0 * scale,
+    top: -SRC.y0 * scale,
+  };
+  const img: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+  };
+
   return (
-    <svg
-      viewBox="0 60 240 264"
+    <div
       className={className}
+      style={{ position: 'relative', width, height: frameH, overflow: 'hidden' }}
       role="img"
-      aria-label={`Cairn progress: ${count} of ${STONES.length} stones placed`}
+      aria-label={`Cairn progress: ${n} of ${LAYERS.length} stones placed${showCrown ? ', crowned' : ''}`}
     >
-      {STONES.slice(0, count).map(([s, cy, dx, rot, flip], i) => {
-        const isNewest = animateNewest && i === count - 1;
-        return (
-          <g
-            key={i}
-            transform={`translate(${CX + dx},${cy}) rotate(${rot}) scale(${s * flip},${s})`}
-          >
-            <g className={isNewest ? 'cairn-stone-drop' : undefined}>
-              <path d={ROCKS[i % 2]} fill={i % 2 === 0 ? GOLD : GOLD_ALT} />
-            </g>
-          </g>
-        );
-      })}
-    </svg>
+      <div style={plane}>
+        {LAYERS.slice(0, n).map((name, i) => (
+          <img
+            key={name}
+            src={`${assetBase}/${name}.png`}
+            alt=""
+            style={img}
+            className={animate === 'stone' && i === n - 1 ? 'cairn-stone-drop' : undefined}
+          />
+        ))}
+        {showCrown && (
+          <img
+            src={`${assetBase}/crown.png`}
+            alt=""
+            style={{ ...img, transformOrigin: '45.6% 21.5%' }}
+            className={animate === 'crown' ? 'cairn-crown-pop' : undefined}
+          />
+        )}
+      </div>
+    </div>
   );
-};
-
-export default CairnProgress;
+}

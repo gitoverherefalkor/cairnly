@@ -73,8 +73,11 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
             <div className="mb-8 pb-8 border-b border-border">
               <CairnProgress
                 key={completedCount}
-                stones={completedCount}
-                className="mx-auto h-44 w-auto"
+                filled={Math.min(completedCount, 5)}
+                crowned={completedCount >= 6}
+                animate={completedCount >= 6 ? 'crown' : 'stone'}
+                width={132}
+                className="mx-auto"
               />
               <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-atlas-gold">
                 Great! You finished:
