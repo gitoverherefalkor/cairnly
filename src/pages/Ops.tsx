@@ -713,7 +713,7 @@ function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {stat('Visitors (7d)', String(traffic.visits_7d), `${traffic.pageviews_7d} pageviews`)}
         {stat('Visitors today', String(traffic.visits_today))}
-        {stat('Bounce rate (7d)', `${traffic.bounce_rate_7d}%`, 'single-page visits')}
+        {stat('Bounce rate (7d)', `${traffic.bounce_rate_7d}%`, 'one page, left <10s')}
         {stat('Pages / visit', traffic.visits_7d > 0 ? (traffic.pageviews_7d / traffic.visits_7d).toFixed(1) : '—')}
       </div>
 
@@ -737,7 +737,7 @@ function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
       </div>
 
       <div className="text-xs text-gray-600">
-        First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that viewed only one page.
+        First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that saw only one page and left within 10 seconds (engaged sessions don't count).
       </div>
     </div>
   );
