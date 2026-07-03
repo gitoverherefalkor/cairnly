@@ -27,6 +27,13 @@
   font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
 }
 
+/* Intent chips — copy fade when the visitor picks a different reason */
+@keyframes lpIntentFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.lp-intent-fade { animation: lpIntentFade 250ms ease; }
+
 /* Gradient text */
 .lp-text-gold-grad {
   background: linear-gradient(90deg, #C8891A 0%, #F0C040 100%);

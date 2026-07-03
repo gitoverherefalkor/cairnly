@@ -29,14 +29,14 @@ export interface StatGridEntry {
 }
 
 export const statGrid: StatGridEntry[] = [
-  { number: '1 in 5', description: 'Dutch workers report burn-out complaints. 1 in 4 among 25 to 34 year-olds.', source: 'NEA / CBS-TNO 2024' },
-  { number: '20%', description: 'Of employees worldwide are engaged at work. Just 13% in Europe.', source: 'Gallup, State of the Global Workplace 2026' },
-  { number: '34%', description: 'Are thriving in life. 40% felt a lot of stress yesterday.', source: 'Gallup 2026' },
-  { number: '66%', description: 'Of workers have career regrets. Half regret the career they chose.', source: 'Resume Now, International Career Regrets 2024' },
-  { number: '35%', description: 'Of US graduates would now choose a different field. ~1 in 3 Dutch students regret their study choice.', source: 'Federal Reserve 2024 · Studiekeuze123 2021' },
-  { number: '9 in 10', description: 'Gen Z & Millennials say purpose matters more than promotion. Only 6% want to "become a leader."', source: 'Deloitte Gen Z & Millennial Survey 2025' },
+  { number: '1 in 4', description: 'Dutch workers aged 25 to 34 report burn-out complaints. 1 in 5 across all ages.', source: 'NEA / CBS-TNO 2024' },
+  { number: 'Just 13%', description: 'Of European employees are engaged at work. 20% worldwide.', source: 'Gallup, State of the Global Workplace 2026' },
+  { number: '40%', description: 'Of workers felt a lot of stress yesterday. Just 34% are thriving in life.', source: 'Gallup 2026' },
+  { number: 'Two thirds', description: 'Of workers have career regrets. Half regret the career they chose.', source: 'Resume Now, International Career Regrets 2024' },
+  { number: '1 in 3', description: 'Dutch students regret their study choice. 35% of US graduates would now choose a different field.', source: 'Studiekeuze123 2021 · Federal Reserve 2024' },
+  { number: '9 out of 10', description: 'Gen Z & Millennials say purpose matters more than promotion. Only 6% want to "become a leader."', source: 'Deloitte Gen Z & Millennial Survey 2025' },
   { number: '39%', description: 'Of existing skills will be transformed or outdated by 2030. 59% of workers need retraining.', source: 'WEF Future of Jobs Report 2025' },
-  { number: '~90,000', description: "Hours of your life you'll spend at work. A third of your waking adult life.", source: 'Pryce-Jones / Naber, Gettysburg College' },
+  { number: '90 thousand', description: "Hours of your life you'll spend at work. A third of your waking adult life.", source: 'Pryce-Jones / Naber, Gettysburg College' },
 ];
 
 export interface Chapter {

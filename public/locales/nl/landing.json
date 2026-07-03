@@ -6,7 +6,7 @@
     "titleB": "koos, bepaalde de twintig jaar die volgden.",
     "body": "Je koos een algemene richting, business, engineering, healthcare, en die bepaalde stilletjes je studierichting, je eerste baan, en elke baan daarna. Cairnly is één enkel assessment dat de vraag stelt die die 16-jarige nooit had kunnen stellen:",
     "bodyEmphasis": "met de levenservaring die je sindsdien hebt opgedaan, wat zou je nú eigenlijk kiezen?",
-    "ctaPrimary": "Aan de slag · €39",
+    "ctaPrimary": "Aan de slag",
     "ctaSecondary": "Bekijk hoe het werkt",
     "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
@@ -396,5 +396,75 @@
     "body": "Heb je bij het afrekenen een ander e-mailadres of Google-account gebruikt? Log dan in met dat account. Anders kun je hieronder je assessment aanschaffen.",
     "ctaBuy": "Koop toegang",
     "dismissLabel": "Sluiten"
+  },
+  "intentChips": {
+    "prompt": "Wat brengt je hier?",
+    "labels": {
+      "default": "Ik koos m'n richting op m'n zestiende",
+      "goodAtIt": "Goed in m'n werk, maar past het nog?",
+      "aiWorried": "Bezorgd over AI en mijn rol",
+      "lifeChanged": "M'n leven veranderde, m'n werk niet",
+      "understandMyself": "Mezelf en wat ik wil beter begrijpen"
+    },
+    "other": {
+      "label": "Iets anders…",
+      "placeholder": "Vertel in een paar woorden wat je hier brengt",
+      "submit": "Versturen",
+      "thanks": "Dank je, dit helpt ons echt om Cairnly beter te maken."
+    }
+  },
+  "variants": {
+    "goodAtIt": {
+      "hero": {
+        "titleA": "Ergens",
+        "titleHighlight": "goed in zijn",
+        "titleB": "is niet hetzelfde als ergens op je plek zijn.",
+        "body": "Competent zijn en stilletjes twijfelen is geen tegenstrijdigheid, het komt vaker voor dan je denkt. Cairnly is één enkel assessment dat kijkt naar wie je bent geworden, niet naar de rol waar je in bent gegroeid, en vraagt:",
+        "bodyEmphasis": "als je opnieuw kon kiezen, met alles wat je nu weet, zou je hier dan weer voor kiezen?",
+        "ctaPrimary": "Stel de echte vraag"
+      },
+      "whyBuilt": {
+        "p1": "Sommige carrières kies je niet, je groeit erin. Je was ergens goed in, dus kreeg je er meer van. Meer verantwoordelijkheid, meer van hetzelfde soort werk, een functietitel die past bij je vaardigheden maar misschien niet bij de persoon erachter. Competentie is een stille stroming: tegen de tijd dat je omhoog kijkt, ben je degene op wie iedereen rekent, voor werk waarvan je niet meer zeker weet of je het zelf nog zou kiezen. Die vraag verdient meer dan een onderbuikgevoel."
+      }
+    },
+    "aiWorried": {
+      "hero": {
+        "titleA": "De helft van de verhalen over AI en jouw baan is",
+        "titleHighlight": "paniek.",
+        "titleB": "De andere helft is ontkenning.",
+        "body": "Je hebt geen zoveelste opiniestuk nodig, maar een eerlijk antwoord voor jouw situatie. Cairnly beoordeelt elk voorgesteld carrièrepad op hoe AI het gaat veranderen, zodat de echte vraag wordt:",
+        "bodyEmphasis": "welke richting heeft over tien jaar nog ruimte voor jou, en wil je die eigenlijk wel?",
+        "ctaPrimary": "Zie waar je vak naartoe gaat"
+      },
+      "whyBuilt": {
+        "p1": "Ze zijn gebouwd op aannames die niet meer vanzelfsprekend zijn. Je koos een vakgebied, werd er goed in, en rekende erop dat het je decennia zou dragen. Toen begon de grond te schuiven. Sommige rollen groeien, sommige krimpen, de meeste veranderen van vorm, en het eerlijke antwoord voor jouw rol ligt begraven onder evenveel hype als doemdenken. Dat uitzoeken verdient meer dan een krantenkop."
+      }
+    },
+    "lifeChanged": {
+      "hero": {
+        "titleA": "Wat jij",
+        "titleHighlight": "nodig hebt",
+        "titleB": "van werk is veranderd. Je baan heeft de memo nooit gekregen.",
+        "body": "Kinderen, een burn-out, een verhuizing, een verlies, een nieuwe start: de grond verschuift en de oude match past niet meer. Cairnly is één enkel assessment dat uitgaat van waar je nu écht staat, niet van wie je op je 25e was, en vraagt:",
+        "bodyEmphasis": "hoe zou werk eruitzien als het paste bij het leven dat je nu hebt?",
+        "ctaPrimary": "Vind wat nu past"
+      },
+      "whyBuilt": {
+        "p1": "Ze worden één keer gekozen, en daarna wordt aangenomen dat ze voor altijd blijven passen. Maar een leven staat niet stil. Er komen kinderen, gezondheid grijpt in, prioriteiten verschuiven, en wat een baan je op je veertigste moet geven is zelden wat je er op je 25e van vroeg. De meeste mensen dragen een carrière die is gevormd rond een leven dat ze niet meer leiden, en de tools om die vraag opnieuw eerlijk te stellen bestonden niet voor ze."
+      }
+    },
+    "understandMyself": {
+      "hero": {
+        "titleA": "Je kunt niet de juiste richting kiezen zonder te",
+        "titleHighlight": "weten",
+        "titleB": "wie er kiest.",
+        "body": "Cairnly begint met een serieus assessment van wie je bent geworden: je sterke punten, je geschiedenis, wat je werkelijk drijft. De carrière-antwoorden bouwen op dat fundament, en daarom gaat de eerste vraag helemaal niet over banen:",
+        "bodyEmphasis": "wie ben je nu, en wat wil je eigenlijk van het volgende hoofdstuk?",
+        "ctaPrimary": "Begin bij jezelf"
+      },
+      "whyBuilt": {
+        "p1": "Ze worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
+      }
+    }
   }
 }
