@@ -1,8 +1,11 @@
 # WF5 (Cairnly Coach) — career replacement is a last resort, only on strong pushback (PROPOSED)
 
-**Status:** proposed, NOT applied. Needs Sjoerd's explicit go-ahead before editing WF5 in
-the n8n editor (existing production workflow `h7ie9zN080IM2g7N`). Export current state to
-`n8n_wfs_cairnly/` before touching it.
+**Status:** ✅ APPLIED LIVE 2026-07-03 (via the Supabase HTTP bridge, with Sjoerd's approval).
+WF5 (`h7ie9zN080IM2g7N`) systemMessage updated (md5 → `c9b37e8d2d4fa5de477cb2ac54abaa53`),
+still active. WF6 (`CyyjL7D51NbVZNtL`) `Separator4` + `Process Outside Box` + `Update Section
+in DB1` updated (title + metadata mappings added), still active. Both verified post-write; the
+local exports in this folder were updated to match live. Kept below as the record of what
+changed / how to roll back.
 
 ## The bug (observed 2026-07-03, report 4ea66020 / sjn.geurts)
 
