@@ -17,14 +17,8 @@ verify_jwt = false
 # default verify_jwt = true so the Supabase gateway validates the service_role
 # JWT that pg_cron sends in the Authorization header.
 
-[functions.test-email]
-verify_jwt = false
-
 [functions.forward-to-n8n]
 verify_jwt = true
-
-[functions.test-survey-integration]
-verify_jwt = false
 
 [functions.verify-access-code]
 verify_jwt = false
@@ -40,9 +34,6 @@ verify_jwt = false
 # now rejects publishable-key Authorization headers with
 # UNAUTHORIZED_INVALID_JWT_FORMAT on verify_jwt=true functions.
 [functions.signup-with-access-code]
-verify_jwt = false
-
-[functions.test-n8n-integration]
 verify_jwt = false
 
 [functions.send-confirmation-email]

@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "i18n:sync": "tsx scripts/i18n-sync.ts",
-    "translate-survey": "tsx scripts/translate-survey.ts"
+    "translate-survey": "tsx scripts/translate-survey.ts",
+    "deploy:functions": "supabase functions deploy --project-ref pcoyafgsirrznhmdaiji --use-api"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
