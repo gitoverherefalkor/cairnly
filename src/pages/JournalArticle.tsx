@@ -5,6 +5,7 @@ import '../components/landing/landing.css';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { getArticle, type JournalArticle as JournalArticleMeta } from '@/content/journal';
+import ShareVisualButton from '@/components/journal/ShareVisualButton';
 import type {
   Chapter,
   Source,
@@ -194,14 +195,23 @@ const JournalArticle: React.FC = () => {
       {/* Top-eight stat callout */}
       <section className="bg-[#FAF5E8] py-16 md:py-20">
         <div className="lp-container">
-          <div className="max-w-3xl mb-10">
-            <div className="lp-eyebrow text-[#1F8282] mb-4">The eight findings</div>
-            <h2
-              className="font-heading font-bold text-[#122E3B] leading-[1.15]"
-              style={{ fontSize: 'clamp(24px, 2.8vw, 36px)', letterSpacing: '-0.012em' }}
-            >
-              If you only read this part.
-            </h2>
+          <div className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+            <div className="max-w-3xl">
+              <div className="lp-eyebrow text-[#1F8282] mb-4">The eight findings</div>
+              <h2
+                className="font-heading font-bold text-[#122E3B] leading-[1.15]"
+                style={{ fontSize: 'clamp(24px, 2.8vw, 36px)', letterSpacing: '-0.012em' }}
+              >
+                If you only read this part.
+              </h2>
+            </div>
+            <ShareVisualButton
+              shareUrl={`${siteUrl}/journal/${meta.slug}`}
+              title={meta.title}
+              text="Eight findings on burnout, disengagement, and career regret. Read the full report."
+              imageSrc={meta.slug === 'career-uncertainty-report' ? '/images/career-uncertainty-stats.svg' : undefined}
+              fileName="cairnly-career-uncertainty.png"
+            />
           </div>
           <div className="lp-stat-grid">
             {body.statGrid.map((cell) => (
