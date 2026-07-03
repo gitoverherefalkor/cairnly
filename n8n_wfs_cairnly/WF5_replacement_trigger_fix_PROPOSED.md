@@ -131,11 +131,49 @@ Never present a replacement as if it were a scored match. Pass metadata.origin =
 "chat_replacement" through to WF6 so the card is labelled as chat-generated on the dashboard.
 ```
 
-## Secondary finding for WF6 (note, not part of this WF5 change)
-When WF6 *does* apply an approved replacement, it rewrote `content` but not the `title`
-column, leaving a title/body mismatch. If we keep the replacement feature, WF6 should update
-the section `title` (and any header inside `content`) together, or the card ends up
-self-contradictory. Flag for a separate WF6 pass.
+## WF6 changes (workflow `CyyjL7D51NbVZNtL`) — verified against the export 2026-07-03
+
+### Bug 1 (the title/body mismatch) — `Update Section in DB1`
+The outside-box replacement path is: `AI Outside Box` → `Process Outside Box` (code) →
+`Update Section in DB1` (supabase update, matches by `id`). `Process Outside Box` already
+emits `title: aiCareer.title`, but **`Update Section in DB1` never maps a `title` field** — it
+only writes content / feedback_category / feedback / explore / fb_status. So a replacement
+rewrites the body and leaves the old title. **Fix: add a `title` field mapping** to
+`Update Section in DB1` (and, for symmetry, `Update Section in DB2`):
+```
+fieldId: title    fieldValue: ={{ $json.title }}
+```
+
+### Bug 2 (no provenance flag) — `Process Outside Box` + `Update Section in DB1`
+Nothing marks a replaced card as chat-generated, so the frontend can't caveat it. Two small edits:
+
+1. In `Process Outside Box`, emit a `metadata` object, flagging only cards that were actually
+   replaced (title changed vs the original, or a non-empty `explore`/new-career payload):
+```js
+// inside the outputCareers.map(...), after resolving `original`:
+const wasReplaced =
+  (aiCareer.explore && aiCareer.explore.trim().length > 0) ||
+  (original.title && aiCareer.title && original.title !== aiCareer.title);
+// preserve any existing metadata (e.g. move), add origin only on a real replacement:
+const metadata = { ...(original.metadata || {}) };
+if (wasReplaced) metadata.origin = 'chat_replacement';
+```
+   and add `metadata` (plus `title`, already emitted) to the returned `json`. NOTE: for this to
+   work, `Separator4`/the `careers` array must carry each original's `id`, `title` AND
+   `metadata` — confirm `metadata` is selected when the originals are fetched (`Get Outside Box`
+   uses `select=*`, so it should be present; verify it survives into `Separator4`).
+2. In `Update Section in DB1`, add a `metadata` field mapping:
+```
+fieldId: metadata   fieldValue: ={{ $json.metadata }}
+```
+   (The frontend pill in `CareerScoreCard` reads `metadata.origin === 'chat_replacement'` — already shipped.)
+
+### Optional stop-gap (covers the dashboard tab view too)
+The dashboard's outside-box tabs render body content, not the pill row, so they won't show the
+frontend pill. If you want the caveat visible there immediately, have `AI Outside Box` prepend a
+one-line italic caveat to a replacement's `content` (in the report's language), e.g.
+*"Suggested from your report and our conversation, not the scored matching."* This is belt-and-
+suspenders with the pill; skip if the pill is enough for now.
 
 ## Test (after applying WF5)
 Re-run a chat to the outside-the-box (or any career) section and type a dislike + "next
