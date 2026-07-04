@@ -9,6 +9,9 @@ export type ReviewState = {
   staged: Record<string, StagedDecision>;
 };
 
+// Contract: callers must only dispatch undo/goto/accept/skip with ids drawn
+// from state.queue (and for undo, ids present in state.staged). The reducer
+// is deliberately dumb and does not defend against arbitrary ids.
 export type ReviewAction =
   | { type: 'accept'; id: string; user_input?: string }
   | { type: 'skip'; id: string }

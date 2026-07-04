@@ -38,6 +38,7 @@ import { CoverLetter } from '../templates/CoverLetter';
 import { TEMPLATES, getTemplate, type TemplateId, type ResumeJson, type CoverLetterJson, type KeywordCoverage } from '../types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { StrengthPill, StrengthBanner, reviewLooksStuck } from '../strengthen/StrengthSummary';
+import { StrengthenReview } from '../strengthen/StrengthenReview';
 import { useStrengthen, AUTO_ANALYZE } from '../strengthen/useStrengthen';
 import type { StrengthReview } from '../strengthen/types';
 
@@ -193,9 +194,7 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
 // ── Active panel ──────────────────────────────────────────────
 const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   const [localTemplate, setLocalTemplate] = useState<TemplateId>(row.template_id as TemplateId);
-  // Placeholder for the Strengthen review panel, which lands in Task 8. The
-  // pill/banner just need somewhere to send "open" clicks to for now.
-  const [, setStrengthenOpen] = useState(false);
+  const [strengthenOpen, setStrengthenOpen] = useState(false);
 
   useEffect(() => {
     setLocalTemplate(row.template_id as TemplateId);
@@ -338,6 +337,21 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
 
       {review ? (
         <StrengthBanner review={review} hasEverApplied={hasEverApplied} onOpen={handleOpenStrengthen} />
+      ) : null}
+
+      {strengthenOpen && review?.status === 'ready' ? (
+        <StrengthenReview
+          // Remount when a fresh review lands (re-analyze or post-apply
+          // Realtime update) so staged client state never points at stale ids.
+          key={`${row.id}-${review.generated_at}`}
+          customResumeId={row.id}
+          review={review}
+          onClose={() => setStrengthenOpen(false)}
+          // No extra action needed beyond close (row refresh arrives via
+          // Realtime and the banner recomputes); kept so Task 10 can hook
+          // analytics later.
+          onApplied={() => {}}
+        />
       ) : null}
 
       <DocumentTabs
