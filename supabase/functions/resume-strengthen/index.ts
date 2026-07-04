@@ -21,7 +21,7 @@ import {
   checkRateLimit,
 } from '../_shared/cors.ts';
 import { parseRequest } from './request.ts';
-import { applyDecisions, type StrengthReview } from './strength.ts';
+import { applyDecisions, reviewInFlight, type StrengthReview } from './strength.ts';
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -51,7 +51,7 @@ serve(async (req) => {
     // Ownership + state check. JWT proves a user; the row must be theirs.
     const { data: row, error: rowError } = await sb
       .from('custom_resumes')
-      .select('id, user_id, status, resume_json, career_title, keyword_coverage, strength_review')
+      .select('id, user_id, status, resume_json, career_title, keyword_coverage, strength_review, updated_at')
       .eq('id', request.custom_resume_id)
       .maybeSingle();
     if (rowError || !row) return errorResponse('Résumé not found', 404, corsHeaders);
@@ -94,12 +94,15 @@ serve(async (req) => {
     const preferred_language = profileForLang?.preferred_language || 'en';
 
     if (request.action === 'analyze') {
-      const existing = row.strength_review as StrengthReview | null;
-      if (existing?.status === 'pending' || existing?.status === 'applying') {
+      // A stale pending/applying (WF10 died mid-run) no longer blocks: the new
+      // analyze simply proceeds and overwrites the wedged state.
+      const previous = row.strength_review as StrengthReview | null;
+      if (reviewInFlight(previous, Date.now())) {
         return errorResponse('Analysis already in progress', 409, corsHeaders);
       }
+      const nowIso = new Date().toISOString();
       await sb.from('custom_resumes')
-        .update({ strength_review: { status: 'pending', generated_at: new Date().toISOString() } })
+        .update({ strength_review: { status: 'pending', generated_at: nowIso, status_changed_at: nowIso } })
         .eq('id', row.id);
 
       const ok = await fireWebhook({
@@ -111,8 +114,13 @@ serve(async (req) => {
         preferred_language,
       });
       if (!ok) {
+        // Don't clobber a perfectly good previous review with a dead-end
+        // 'failed' state — restore it (flagged) so the user keeps their cards.
+        const fallback = previous?.status === 'ready'
+          ? { ...previous, error: 'Analysis failed. Try again.' }
+          : { status: 'failed', error: 'Analysis service unavailable.' };
         await sb.from('custom_resumes')
-          .update({ strength_review: { status: 'failed', error: 'Analysis service unavailable.' } })
+          .update({ strength_review: fallback })
           .eq('id', row.id);
         return errorResponse('Could not start analysis. Please try again.', 502, corsHeaders);
       }
@@ -123,8 +131,19 @@ serve(async (req) => {
 
     // action === 'apply'
     const review = row.strength_review as StrengthReview | null;
-    if (!review || review.status !== 'ready') {
+    if (!review || (review.status !== 'ready' && review.status !== 'applying')) {
+      // null, pending, failed (or garbage) — nothing applicable here.
       return errorResponse('No review ready to apply', 409, corsHeaders);
+    }
+    if (review.status === 'applying') {
+      if (reviewInFlight(review, Date.now())) {
+        return errorResponse('Changes still being applied', 409, corsHeaders);
+      }
+      // Stale 'applying': WF10 died mid-compose. The deterministic progress
+      // was persisted before the webhook fired, so self-heal to 'ready' and
+      // let this apply proceed over the recovered state.
+      review.status = 'ready';
+      review.error = 'Some changes needed another try.';
     }
 
     let result;
@@ -136,16 +155,23 @@ serve(async (req) => {
 
     if (result.composeItems.length === 0) {
       // Fully deterministic apply — synchronous, no LLM, done right now.
-      const { error: updError } = await sb.from('custom_resumes')
+      // Optimistic concurrency: only write if the row hasn't changed since we
+      // read it (another tab's apply, or WF10 finishing, bumps updated_at).
+      const { data: updRows, error: updError } = await sb.from('custom_resumes')
         .update({
           resume_json: result.patchedResume,
           strength_review: result.review,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', row.id);
+        .eq('id', row.id)
+        .eq('updated_at', row.updated_at)
+        .select('id');
       if (updError) {
         console.error('apply update failed:', updError);
         return errorResponse('Could not save changes. Please try again.', 500, corsHeaders);
+      }
+      if (!updRows || updRows.length === 0) {
+        return errorResponse('Résumé changed in another tab. Reload and try again.', 409, corsHeaders);
       }
       return new Response(JSON.stringify({ status: 'ready', score: result.review.score }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -154,17 +180,26 @@ serve(async (req) => {
 
     // Persist deterministic progress FIRST so a compose failure never loses
     // the user's one-tap accepts/skips; then hand the LLM part to WF10.
-    const applyingReview: StrengthReview = { ...result.review, status: 'applying' };
-    const { error: stageError } = await sb.from('custom_resumes')
+    const applyingReview: StrengthReview = {
+      ...result.review,
+      status: 'applying',
+      status_changed_at: new Date().toISOString(),
+    };
+    const { data: stageRows, error: stageError } = await sb.from('custom_resumes')
       .update({
         resume_json: result.patchedResume,
         strength_review: applyingReview,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', row.id);
+      .eq('id', row.id)
+      .eq('updated_at', row.updated_at)
+      .select('id');
     if (stageError) {
       console.error('staging update failed:', stageError);
       return errorResponse('Could not save changes. Please try again.', 500, corsHeaders);
+    }
+    if (!stageRows || stageRows.length === 0) {
+      return errorResponse('Résumé changed in another tab. Reload and try again.', 409, corsHeaders);
     }
 
     const ok = await fireWebhook({
@@ -173,6 +208,8 @@ serve(async (req) => {
       resume_json: result.patchedResume,
       items: result.composeItems,
       final_score: result.finalScoreAfterCompose,
+      // Compose in the language the analysis was written in, not the user's
+      // current setting — cards and composed lines must match.
       preferred_language: review.language || preferred_language,
     });
     if (!ok) {

@@ -31,11 +31,25 @@ export type StrengthReview = {
   score_potential: number;
   language: string;
   generated_at: string;
+  status_changed_at?: string; // stamped on every pending/applying transition
   error?: string;
   issues: StrengthIssue[];
 };
 
 export type Decision = { id: string; action: 'apply' | 'skip'; user_input?: string };
+
+export const REVIEW_STALE_MS = 5 * 60_000;
+
+// True while an analyze/compose round-trip is genuinely in flight. A
+// pending/applying review older than REVIEW_STALE_MS is treated as dead
+// (WF10 crashed or never ran) so callers may recover instead of 409ing.
+export function reviewInFlight(review: StrengthReview | null, nowMs: number): boolean {
+  if (!review) return false;
+  if (review.status !== 'pending' && review.status !== 'applying') return false;
+  const changed = Date.parse((review as { status_changed_at?: string }).status_changed_at ?? review.generated_at ?? '');
+  if (Number.isNaN(changed)) return false; // unparseable → treat as stale, allow recovery
+  return nowMs - changed < REVIEW_STALE_MS;
+}
 
 // deno-lint-ignore no-explicit-any
 type ResumeJson = any; // shape owned by WF9; we only address lines inside it

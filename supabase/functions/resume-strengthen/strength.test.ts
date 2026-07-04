@@ -5,6 +5,8 @@ import {
   getLineAtTarget,
   setLineAtTarget,
   applyDecisions,
+  reviewInFlight,
+  REVIEW_STALE_MS,
   type StrengthReview,
   type StrengthIssue,
 } from './strength.ts';
@@ -168,4 +170,44 @@ Deno.test('getLineAtTarget rejects non-numeric indices (n8n Code-node slip)', ()
   assertEquals(getLineAtTarget(resume, { section: 'highlights', index: '0' } as any), null);
   // deno-lint-ignore no-explicit-any
   assertEquals(getLineAtTarget(resume, { section: 'skills', group: 'soft', index: 0.5 } as any), null);
+});
+
+// --- reviewInFlight: staleness guard for wedged pending/applying reviews ---
+
+const NOW = Date.parse('2026-07-04T12:00:00.000Z');
+
+const flightReview = (over: Partial<StrengthReview>): StrengthReview => ({
+  status: 'pending', score: 50, score_base: 50, score_potential: 60,
+  language: 'en', generated_at: new Date(NOW - 1_000).toISOString(), issues: [], ...over,
+});
+
+Deno.test('reviewInFlight: fresh pending is in flight', () => {
+  const r = flightReview({ status: 'pending', status_changed_at: new Date(NOW - 1_000).toISOString() });
+  assertEquals(reviewInFlight(r, NOW), true);
+  // falls back to generated_at when status_changed_at is absent:
+  assertEquals(reviewInFlight(flightReview({ status: 'pending' }), NOW), true);
+});
+
+Deno.test('reviewInFlight: applying older than the staleness window is dead', () => {
+  const r = flightReview({
+    status: 'applying',
+    status_changed_at: new Date(NOW - REVIEW_STALE_MS - 1).toISOString(),
+  });
+  assertEquals(reviewInFlight(r, NOW), false);
+});
+
+Deno.test('reviewInFlight: ready is never in flight', () => {
+  const r = flightReview({ status: 'ready', status_changed_at: new Date(NOW).toISOString() });
+  assertEquals(reviewInFlight(r, NOW), false);
+});
+
+Deno.test('reviewInFlight: null review is not in flight', () => {
+  assertEquals(reviewInFlight(null, NOW), false);
+});
+
+Deno.test('reviewInFlight: missing or garbage timestamp counts as stale', () => {
+  // no status_changed_at AND no generated_at → recoverable
+  assertEquals(reviewInFlight(flightReview({ generated_at: undefined as unknown as string }), NOW), false);
+  // unparseable timestamp → recoverable
+  assertEquals(reviewInFlight(flightReview({ generated_at: 'not-a-date' }), NOW), false);
 });
