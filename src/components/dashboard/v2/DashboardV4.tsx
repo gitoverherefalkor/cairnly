@@ -1280,11 +1280,7 @@ const SecondaryMatch: React.FC<{
       boxShadow: '0 24px 50px -22px rgba(0,0,0,0.4)',
     }}
   >
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-      <Eyebrow>CAREER #{match.rank}</Eyebrow>
-      {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
-            {match.move && <MovePill level={match.move} />}
-    </div>
+    <Eyebrow>CAREER #{match.rank}</Eyebrow>
     <h3
       style={{
         fontFamily: FONT_DISPLAY,
@@ -1303,6 +1299,12 @@ const SecondaryMatch: React.FC<{
         {match.shape}
       </div>
     )}
+    {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
+    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+      <MatchPill pct={match.matchPct} />
+      {match.move && <MovePill level={match.move} />}
+      {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+    </div>
     {match.teaser && (
       <p
         style={{
@@ -1317,10 +1319,7 @@ const SecondaryMatch: React.FC<{
         {match.teaser}
       </p>
     )}
-    <div style={{ marginTop: 'auto' }}>
-      <MatchMeter pct={match.matchPct} />
-    </div>
-    <div style={{ display: 'flex', gap: 8 }}>
+    <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
       <button
         type="button"
         onClick={onOpen}
@@ -1368,58 +1367,6 @@ const SecondaryMatch: React.FC<{
       </button>
     </div>
   </article>
-);
-
-// ── Match meter ───────────────────────────────────────────────
-const MatchMeter: React.FC<{ pct: number; large?: boolean }> = ({ pct, large = false }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: large ? 16 : 12 }}>
-    {large && (
-      <span
-        style={{
-          fontFamily: FONT_DISPLAY,
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.20em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.5)',
-          minWidth: 56,
-        }}
-      >
-        Match
-      </span>
-    )}
-    <div
-      style={{
-        flex: 1,
-        height: large ? 8 : 6,
-        background: 'rgba(255,255,255,0.10)',
-        borderRadius: 9999,
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        style={{
-          width: `${pct}%`,
-          height: '100%',
-          background: `linear-gradient(90deg, ${PALETTE.teal} 0%, ${large ? PALETTE.goldBright : PALETTE.blue} 100%)`,
-          borderRadius: 9999,
-          boxShadow: large ? '0 0 14px rgba(212,160,36,0.35)' : undefined,
-        }}
-      />
-    </div>
-    <span
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: large ? 18 : 14,
-        color: PALETTE.goldBright,
-        minWidth: large ? 50 : undefined,
-        textAlign: 'right',
-      }}
-    >
-      {pct}%
-    </span>
-  </div>
 );
 
 // ── Paths tile ────────────────────────────────────────────────
