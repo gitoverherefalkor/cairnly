@@ -466,6 +466,7 @@ export type Database = {
           report_id: string
           resume_json: Json
           status: string
+          strength_review: Json | null
           template_id: string
           updated_at: string
           user_id: string
@@ -482,6 +483,7 @@ export type Database = {
           report_id: string
           resume_json: Json
           status?: string
+          strength_review?: Json | null
           template_id?: string
           updated_at?: string
           user_id: string
@@ -498,6 +500,7 @@ export type Database = {
           report_id?: string
           resume_json?: Json
           status?: string
+          strength_review?: Json | null
           template_id?: string
           updated_at?: string
           user_id?: string
