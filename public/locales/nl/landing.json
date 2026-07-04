@@ -416,9 +416,9 @@
   "variants": {
     "goodAtIt": {
       "hero": {
-        "titleA": "Ergens",
-        "titleHighlight": "goed in zijn",
-        "titleB": "is niet hetzelfde als ergens op je plek zijn.",
+        "titleA": "Goed zijn in je werk maakt het nog geen",
+        "titleHighlight": "goede match.",
+        "titleB": "",
         "body": "Competent zijn en stilletjes twijfelen is geen tegenstrijdigheid, het komt vaker voor dan je denkt. Cairnly is één enkel assessment dat kijkt naar wie je bent geworden, niet naar de rol waar je in bent gegroeid, en vraagt:",
         "bodyEmphasis": "als je opnieuw kon kiezen, met alles wat je nu weet, zou je hier dan weer voor kiezen?",
         "ctaPrimary": "Stel de echte vraag"
@@ -429,9 +429,9 @@
     },
     "aiWorried": {
       "hero": {
-        "titleA": "De helft van de verhalen over AI en jouw baan is",
-        "titleHighlight": "paniek.",
-        "titleB": "De andere helft is ontkenning.",
+        "titleA": "Welke banen passen bij",
+        "titleHighlight": "jou",
+        "titleB": "in het AI-tijdperk.",
         "body": "Je hebt geen zoveelste opiniestuk nodig, maar een eerlijk antwoord voor jouw situatie. Cairnly beoordeelt elk voorgesteld carrièrepad op hoe AI het gaat veranderen, zodat de echte vraag wordt:",
         "bodyEmphasis": "welke richting heeft over tien jaar nog ruimte voor jou, en wil je die eigenlijk wel?",
         "ctaPrimary": "Zie waar je vak naartoe gaat"
@@ -442,9 +442,9 @@
     },
     "lifeChanged": {
       "hero": {
-        "titleA": "Wat jij",
-        "titleHighlight": "nodig hebt",
-        "titleB": "van werk is veranderd. Je baan heeft de memo nooit gekregen.",
+        "titleA": "Je prioriteiten",
+        "titleHighlight": "veranderden.",
+        "titleB": "Je werk niet.",
         "body": "Kinderen, een burn-out, een verhuizing, een verlies, een nieuwe start: de grond verschuift en de oude match past niet meer. Cairnly is één enkel assessment dat uitgaat van waar je nu écht staat, niet van wie je op je 25e was, en vraagt:",
         "bodyEmphasis": "hoe zou werk eruitzien als het paste bij het leven dat je nu hebt?",
         "ctaPrimary": "Vind wat nu past"
@@ -455,7 +455,7 @@
     },
     "understandMyself": {
       "hero": {
-        "titleA": "Je kunt niet de juiste richting kiezen zonder te",
+        "titleA": "Je kunt geen goede richting kiezen zonder te",
         "titleHighlight": "weten",
         "titleB": "wie er kiest.",
         "body": "Cairnly begint met een serieus assessment van wie je bent geworden: je sterke punten, je geschiedenis, wat je werkelijk drijft. De carrière-antwoorden bouwen op dat fundament, en daarom gaat de eerste vraag helemaal niet over banen:",

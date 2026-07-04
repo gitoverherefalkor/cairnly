@@ -416,9 +416,9 @@
   "variants": {
     "goodAtIt": {
       "hero": {
-        "titleA": "Being",
-        "titleHighlight": "good at it",
-        "titleB": "was never the same as it being you.",
+        "titleA": "You're good at your job. That doesn't make it a",
+        "titleHighlight": "good fit.",
+        "titleB": "",
         "body": "Competent and quietly unsure is not a contradiction, it's more common than you think. Cairnly is one assessment that looks at who you've become, not the role you grew into, and asks:",
         "bodyEmphasis": "if you could choose again, knowing what you know now, would you choose this?",
         "ctaPrimary": "Ask the real question"
@@ -429,9 +429,9 @@
     },
     "aiWorried": {
       "hero": {
-        "titleA": "Half the takes on AI and your job are",
-        "titleHighlight": "panic.",
-        "titleB": "The other half are denial.",
+        "titleA": "AI will not affect all jobs the same. Understand",
+        "titleHighlight": "the risks.",
+        "titleB": "",
         "body": "You don't need another opinion piece, you need a straight answer about your situation. Cairnly scores every career it suggests on how AI is set to reshape it, so the real question becomes:",
         "bodyEmphasis": "which direction still has room for you in ten years, and do you actually want it?",
         "ctaPrimary": "See where your role is heading"
@@ -442,9 +442,9 @@
     },
     "lifeChanged": {
       "hero": {
-        "titleA": "What you",
-        "titleHighlight": "need",
-        "titleB": "from work changed. The job never got the memo.",
+        "titleA": "Your priorities",
+        "titleHighlight": "changed.",
+        "titleB": "The job didn't.",
         "body": "Kids, burnout, a move, a loss, a restart: the ground shifts and the old fit stops fitting. Cairnly is one assessment that takes where you actually are now, not where you were at 25, and asks:",
         "bodyEmphasis": "what would work look like if it fit the life you have today?",
         "ctaPrimary": "Find what fits now"
