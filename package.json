@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "i18n:sync": "tsx scripts/i18n-sync.ts",
     "translate-survey": "tsx scripts/translate-survey.ts",
     "deploy:functions": "supabase functions deploy --project-ref pcoyafgsirrznhmdaiji --use-api"
@@ -101,6 +103,7 @@
     "tsx": "^4.22.3",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "vite": "^5.4.1",
+    "vitest": "^4.1.9"
   }
 }
