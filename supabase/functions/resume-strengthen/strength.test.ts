@@ -125,3 +125,47 @@ Deno.test('applyDecisions: one_tap patches resume, skip persists, unknown id thr
   // user_input longer than 500 chars throws:
   assertThrows(() => applyDecisions(resume, review, [{ id: 'b', action: 'apply', user_input: 'x'.repeat(501) }]));
 });
+
+Deno.test('applyDecisions throws on duplicate decision ids in one payload', () => {
+  const review: StrengthReview = {
+    status: 'ready', score: 62, score_base: 62, score_potential: 84,
+    language: 'en', generated_at: 'x',
+    issues: [iss({ id: 'a', impact: 8 })],
+  };
+  // apply-then-skip for the same id in one payload must be rejected outright,
+  // not silently patch the line while leaving status 'skipped':
+  assertThrows(() => applyDecisions(resume, review, [
+    { id: 'a', action: 'apply' },
+    { id: 'a', action: 'skip' },
+  ]));
+});
+
+Deno.test('applyDecisions throws when the review already marks the issue applied', () => {
+  const review: StrengthReview = {
+    status: 'ready', score: 70, score_base: 62, score_potential: 84,
+    language: 'en', generated_at: 'x',
+    issues: [iss({ id: 'a', impact: 8, status: 'applied' })],
+  };
+  // inter-call replay: a later request re-applying an already-applied issue throws
+  assertThrows(() => applyDecisions(resume, review, [{ id: 'a', action: 'apply' }]));
+});
+
+Deno.test('selectIssues clamps LLM-authored impacts into 1..10', () => {
+  const cands = [
+    iss({ id: 'iss_hi', impact: 30 }),
+    iss({ id: 'iss_neg', impact: -5, target: { section: 'highlights', index: 0 } }),
+    iss({ id: 'iss_nan', impact: NaN, target: { section: 'skills', group: 'soft', index: 0 } }),
+  ];
+  const r = selectIssues(50, cands, resume);
+  const impacts = Object.fromEntries(r.issues.map((x) => [x.id, x.impact]));
+  assertEquals(impacts, { iss_hi: 10, iss_neg: 1, iss_nan: 1 });
+});
+
+Deno.test('getLineAtTarget rejects non-numeric indices (n8n Code-node slip)', () => {
+  // deno-lint-ignore no-explicit-any
+  assertEquals(getLineAtTarget(resume, { section: 'experience', exp_index: '0', bullet_index: 0 } as any), null);
+  // deno-lint-ignore no-explicit-any
+  assertEquals(getLineAtTarget(resume, { section: 'highlights', index: '0' } as any), null);
+  // deno-lint-ignore no-explicit-any
+  assertEquals(getLineAtTarget(resume, { section: 'skills', group: 'soft', index: 0.5 } as any), null);
+});

@@ -45,18 +45,35 @@ const CAP_NORMAL = 5;
 const CAP_WEAK = 7;
 const MAX_INPUT_LEN = 500;
 
+// Runtime guard: this file gets copy-pasted into an n8n JS Code node, where
+// numeric-string indices ('0' instead of 0) are a common slip. Only genuine
+// integers may address a line.
+const isIndex = (n: unknown): n is number => typeof n === 'number' && Number.isInteger(n);
+
 export function getLineAtTarget(resume: ResumeJson, t: IssueTarget): string | null {
   try {
     if (t.section === 'summary') return typeof resume.summary === 'string' ? resume.summary : null;
-    if (t.section === 'experience') return resume.experience?.[t.exp_index]?.bullets?.[t.bullet_index] ?? null;
-    if (t.section === 'highlights') return resume.highlights?.[t.index] ?? null;
-    if (t.section === 'skills') return resume.skills_grouped?.[t.group]?.[t.index] ?? null;
+    if (t.section === 'experience') {
+      if (!isIndex(t.exp_index) || !isIndex(t.bullet_index)) return null;
+      return resume.experience?.[t.exp_index]?.bullets?.[t.bullet_index] ?? null;
+    }
+    if (t.section === 'highlights') {
+      if (!isIndex(t.index)) return null;
+      return resume.highlights?.[t.index] ?? null;
+    }
+    if (t.section === 'skills') {
+      if (!isIndex(t.index)) return null;
+      return resume.skills_grouped?.[t.group]?.[t.index] ?? null;
+    }
     return null;
   } catch {
     return null;
   }
 }
 
+// Precondition: caller must have confirmed getLineAtTarget(resume, t) !== null.
+// Throws on unresolvable targets by design — do not call blind (this applies
+// to the WF10 Code-node copy too).
 export function setLineAtTarget(resume: ResumeJson, t: IssueTarget, text: string): ResumeJson {
   const next = structuredClone(resume);
   if (t.section === 'summary') next.summary = text;
@@ -74,7 +91,13 @@ export function selectIssues(
   const valid = candidates.filter((c) => getLineAtTarget(resume, c.target) !== null);
   const cap = baseline < WEAK_BASELINE ? CAP_WEAK : CAP_NORMAL;
   const surfaced = [...valid].sort((a, b) => b.impact - a.impact).slice(0, cap)
-    .map((c) => ({ ...c, status: 'pending' as const, user_input: null }));
+    .map((c) => ({
+      ...c,
+      // Sanitize LLM-authored impacts at intake: integers 1..10 only.
+      impact: Math.max(1, Math.min(10, Math.round(Number(c.impact) || 1))),
+      status: 'pending' as const,
+      user_input: null,
+    }));
   const potential = Math.min(100, baseline + surfaced.reduce((s, i) => s + i.impact, 0));
   return {
     status: 'ready',
@@ -112,6 +135,11 @@ export function applyDecisions(
   composeItems: ComposeItem[];
   finalScoreAfterCompose: number;
 } {
+  // Reject duplicate ids up front: apply-then-skip for the same issue in one
+  // payload would otherwise patch the line yet leave its status contradicted.
+  const ids = decisions.map((d) => d.id);
+  if (new Set(ids).size !== ids.length) throw new Error('Duplicate decision ids');
+
   const byId = new Map(review.issues.map((i) => [i.id, i]));
   let patched = resume;
   const composeItems: ComposeItem[] = [];
@@ -119,10 +147,11 @@ export function applyDecisions(
   const nextById = new Map(nextIssues.map((i) => [i.id, i]));
 
   for (const d of decisions) {
-    const issue = byId.get(d.id);
+    const issue = byId.get(d.id); // immutable fields only (card_type/target/impact)
     if (!issue) throw new Error(`Unknown issue id: ${d.id}`);
-    if (issue.status === 'applied') throw new Error(`Issue already applied: ${d.id}`);
     const next = nextById.get(d.id)!;
+    // Consult LIVE state for the already-applied guard, not the frozen snapshot:
+    if (next.status === 'applied') throw new Error(`Issue already applied: ${d.id}`);
 
     if (d.action === 'skip') {
       next.status = 'skipped';
