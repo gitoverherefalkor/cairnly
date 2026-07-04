@@ -4,10 +4,8 @@ import { Sparkles } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
 import WorkflowDiagramSimple from './WorkflowDiagramSimple';
+import CairnProgress from '@/components/survey/CairnProgress';
 import { tArray } from '@/lib/i18nArray';
-
-// Stone pill widths, bottom (index 0, widest) to capstone (index 4, narrowest).
-const STONE_WIDTHS = [74, 62, 51, 41, 29];
 
 interface StepCopy {
   eyebrow: string;
@@ -113,28 +111,17 @@ const HowItWorks: React.FC = () => {
               <div className="text-[12px] font-medium text-[#6B7F8B] mb-6 leading-snug">
                 {stepTitles[activeStep]}
               </div>
-              <div className="flex flex-col items-center gap-[6px]">
-                {[4, 3, 2, 1, 0].map((i) => {
-                  const active = i < activeCount;
-                  const cap = i === 4;
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        width: STONE_WIDTHS[i],
-                        height: 13,
-                        borderRadius: 9999,
-                        background: active
-                          ? cap
-                            ? '#D4A024'
-                            : '#1F8282'
-                          : 'rgba(18,46,59,0.13)',
-                        transition: 'background 500ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    />
-                  );
-                })}
-              </div>
+              {/* Brand-icon cairn — one stone per step (5 steps = 5 stones),
+                  gold capstone on the final step. Same asset set the survey
+                  progress cairn uses (/public/cairn). */}
+              <CairnProgress
+                key={activeCount}
+                filled={activeCount}
+                crowned={activeCount >= 5}
+                animate={activeCount >= 5 ? 'crown' : 'stone'}
+                width={104}
+                className="mx-auto"
+              />
             </div>
           </aside>
 
