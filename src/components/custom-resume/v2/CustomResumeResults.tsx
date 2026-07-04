@@ -341,8 +341,9 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
 
       {strengthenOpen && review?.status === 'ready' ? (
         <StrengthenReview
-          // Remount when a fresh review lands (re-analyze or post-apply
-          // Realtime update) so staged client state never points at stale ids.
+          // Remount only on a fresh analyze (generated_at changes); apply
+          // keeps generated_at stable — the panel closes on success and
+          // reopens fresh from the updated row.
           key={`${row.id}-${review.generated_at}`}
           customResumeId={row.id}
           review={review}

@@ -39,10 +39,15 @@ export function StrengthenReview({
   const { t } = useTranslation('resume');
   const [state, dispatch] = useReducer(reviewReducer, review, initReviewState);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [confirmUnsaved, setConfirmUnsaved] = useState(false);
-  // One-tap "Edit" mode: which issue is being edited + the working text.
+  // Unsaved-draft confirm is scoped to the issue id it was raised for, so a
+  // cursor change underneath it (e.g. Undo on a done row) retires the bar
+  // instead of leaving it pointing at the wrong card.
+  const [confirmUnsavedFor, setConfirmUnsavedFor] = useState<string | null>(null);
+  // One-tap "Edit" mode: which issue is being edited + a per-card text buffer
+  // (same pattern as `drafts`), so re-seeding one card's edit text can never
+  // clobber another card's in-progress edit.
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editText, setEditText] = useState('');
+  const [editTexts, setEditTexts] = useState<Record<string, string>>({});
   const { apply, busy, error } = useStrengthen(customResumeId);
 
   const byId = useMemo(() => new Map(review.issues.map((i) => [i.id, i])), [review.issues]);
@@ -54,14 +59,19 @@ export function StrengthenReview({
   const draft = current ? drafts[current.id] ?? '' : '';
 
   const handleUndo = (id: string) => {
+    setConfirmUnsavedFor(null);
     // Restore the user's edited text so undoing an edited one-tap doesn't
     // silently throw their words away. needs_input drafts survive in
     // `drafts` already, so only the one-tap edit path needs re-seeding.
+    // Only the undone card's buffer is written; if another card is mid-edit,
+    // its text and edit focus stay untouched — the restored text simply waits
+    // in editTexts until the user reaches this card.
     const staged = state.staged[id];
     const issue = byId.get(id);
     if (staged?.user_input && issue?.card_type === 'one_tap') {
-      setEditingId(id);
-      setEditText(staged.user_input);
+      const restored = staged.user_input;
+      setEditTexts((m) => ({ ...m, [id]: restored }));
+      if (editingId === null) setEditingId(id);
     }
     dispatch({ type: 'undo', id });
   };
@@ -69,11 +79,11 @@ export function StrengthenReview({
   const handleApply = async () => {
     const hasUnsavedDraft =
       current?.card_type === 'needs_input' && !!draft.trim() && !state.staged[current.id];
-    if (hasUnsavedDraft && !confirmUnsaved) {
-      setConfirmUnsaved(true);
+    if (hasUnsavedDraft && current && confirmUnsavedFor !== current.id) {
+      setConfirmUnsavedFor(current.id);
       return;
     }
-    setConfirmUnsaved(false);
+    setConfirmUnsavedFor(null);
     const payload = buildApplyPayload(state);
     if (payload.length === 0) {
       onClose();
@@ -213,18 +223,28 @@ export function StrengthenReview({
                 <OneTapBody
                   issue={current}
                   editing={editingId === current.id}
-                  editText={editText}
-                  onEditTextChange={setEditText}
+                  editText={editTexts[current.id] ?? ''}
+                  onEditTextChange={(v) => setEditTexts((m) => ({ ...m, [current.id]: v }))}
                   onStartEdit={() => {
                     setEditingId(current.id);
-                    setEditText(current.suggested_text ?? '');
+                    // Seed from the suggestion only when this card has no
+                    // buffer yet — a buffer from an earlier edit or an undo
+                    // restore takes precedence.
+                    setEditTexts((m) =>
+                      current.id in m ? m : { ...m, [current.id]: current.suggested_text ?? '' },
+                    );
                   }}
-                  onAccept={() => dispatch({ type: 'accept', id: current.id })}
+                  onAccept={() => {
+                    setConfirmUnsavedFor(null);
+                    dispatch({ type: 'accept', id: current.id });
+                  }}
                   onSaveEdit={() => {
-                    dispatch({ type: 'accept', id: current.id, user_input: editText });
+                    setConfirmUnsavedFor(null);
+                    dispatch({ type: 'accept', id: current.id, user_input: editTexts[current.id] ?? '' });
                     setEditingId(null);
                   }}
                   onSkip={() => {
+                    setConfirmUnsavedFor(null);
                     if (editingId === current.id) setEditingId(null);
                     dispatch({ type: 'skip', id: current.id });
                   }}
@@ -234,8 +254,14 @@ export function StrengthenReview({
                   issue={current}
                   draft={draft}
                   onDraftChange={(v) => setDrafts((d) => ({ ...d, [current.id]: v }))}
-                  onSave={() => dispatch({ type: 'accept', id: current.id, user_input: draft })}
-                  onSkip={() => dispatch({ type: 'skip', id: current.id })}
+                  onSave={() => {
+                    setConfirmUnsavedFor(null);
+                    dispatch({ type: 'accept', id: current.id, user_input: draft });
+                  }}
+                  onSkip={() => {
+                    setConfirmUnsavedFor(null);
+                    dispatch({ type: 'skip', id: current.id });
+                  }}
                 />
               )}
             </div>
@@ -274,8 +300,10 @@ export function StrengthenReview({
             </div>
           )}
 
-          {/* Footer: unsaved-draft confirm swaps in for the Apply CTA */}
-          {confirmUnsaved ? (
+          {/* Footer: unsaved-draft confirm swaps in for the Apply CTA. The
+              bar only renders while the card it was raised for is still the
+              current one — any cursor change retires it. */}
+          {confirmUnsavedFor !== null && confirmUnsavedFor === state.cursor ? (
             <div style={confirmBarStyle}>
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 13, color: PALETTE.goldBright }}>
@@ -286,10 +314,15 @@ export function StrengthenReview({
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button type="button" onClick={handleApply} style={tealPillDarkStyle}>
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  disabled={busy}
+                  style={{ ...tealPillDarkStyle, opacity: busy ? 0.6 : 1, cursor: busy ? 'not-allowed' : 'pointer' }}
+                >
                   {t('review.unsavedApply')}
                 </button>
-                <button type="button" onClick={() => setConfirmUnsaved(false)} style={ghostPillStyle}>
+                <button type="button" onClick={() => setConfirmUnsavedFor(null)} style={ghostPillStyle}>
                   {t('review.unsavedBack')}
                 </button>
               </div>
