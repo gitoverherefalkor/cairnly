@@ -43,7 +43,11 @@ const Hero: React.FC = () => {
             >
               {/* key={intent} remounts the text so the fade plays on chip switch */}
               <h1 key={intent} className="lp-intent-fade">
-                {vt('hero.titleA')} <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span> {vt('hero.titleB')}
+                {vt('hero.titleA')} <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span>
+                {/* life-changed's titleB is a short standalone clause; force it onto its own row
+                    instead of letting the browser split it mid-sentence at this width */}
+                {intent === 'life-changed' ? <br /> : ' '}
+                {vt('hero.titleB')}
               </h1>
             </Reveal>
 
