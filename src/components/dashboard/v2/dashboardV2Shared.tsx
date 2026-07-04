@@ -3,7 +3,7 @@
 // React components wired to the production asset paths under /public/dashboard.
 
 import React from 'react';
-import { Shield, Route, Gauge } from 'lucide-react';
+import { Cpu, Route, Gauge } from 'lucide-react';
 import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
 
 // ---------- Brand palette ----------
@@ -180,7 +180,7 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Shield size={11} color={color} /> AI · {label}
+      <Cpu size={11} color={color} /> AI · {label}
     </span>
   );
 };
