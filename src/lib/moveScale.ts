@@ -8,8 +8,8 @@ export type MoveLevel = (typeof MOVE_LEVELS)[number];
 
 // Low effort -> high effort. Used by the dashboard pill + share card (hex).
 export const MOVE_COLOR: Record<MoveLevel, string> = {
-  'Ready now': '#14b8a6', // teal
-  Reframe: '#16a34a',     // green
+  'Ready now': '#22c55e', // bright green — green is go
+  Reframe: '#14b8a6',     // teal
   Upskill: '#f59e0b',     // amber
   Retrain: '#f97316',     // orange
 };

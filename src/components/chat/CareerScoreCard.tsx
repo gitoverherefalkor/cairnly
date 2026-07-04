@@ -222,8 +222,8 @@ export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => 
 // 4-level scale + colors + legend live in @/lib/moveScale (shared with the
 // dashboard pill + share card). The Tailwind class styles stay local here.
 const MOVE_STYLES: Record<MoveLevel, { dot: string; text: string; ring: string; tint: string }> = {
-  'Ready now': { dot: 'bg-teal-500',   text: 'text-teal-700',   ring: 'border-teal-500/30',   tint: 'bg-teal-50' },
-  Reframe:     { dot: 'bg-green-600',  text: 'text-green-700',  ring: 'border-green-600/30',  tint: 'bg-green-50' },
+  'Ready now': { dot: 'bg-green-500',  text: 'text-green-700',  ring: 'border-green-500/30',  tint: 'bg-green-50' },
+  Reframe:     { dot: 'bg-teal-500',   text: 'text-teal-700',   ring: 'border-teal-500/30',   tint: 'bg-teal-50' },
   Upskill:     { dot: 'bg-amber-500',  text: 'text-amber-700',  ring: 'border-amber-500/30',  tint: 'bg-amber-50' },
   Retrain:     { dot: 'bg-orange-500', text: 'text-orange-700', ring: 'border-orange-500/30', tint: 'bg-orange-50' },
 };
