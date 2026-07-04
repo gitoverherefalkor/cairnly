@@ -1,0 +1,18 @@
+{
+  "strengthen": {
+    "pillLabel": "Strength",
+    "pillTooltip": "How recognizably YOURS this résumé reads to a recruiter. Raise it by adding the specifics only you know.",
+    "atsTooltip": "How well this résumé matches the keywords and structure applicant-tracking software scans for.",
+    "bannerTitle": "{{count}} quick wins found",
+    "bannerTitleResume": "{{count}} quick wins left",
+    "bannerBody": "A recruiter spends six seconds. Make them count.",
+    "bannerCta": "Strengthen",
+    "bannerCtaResume": "Keep strengthening",
+    "analyzing": "Checking your résumé through a recruiter's eyes…",
+    "analysisFailed": "Review didn't finish.",
+    "retry": "Try again",
+    "recruiterReady": "Recruiter-ready. No quick wins left: this résumé reads as unmistakably yours.",
+    "regenerateNudge": "This résumé needs more than quick wins. Consider adding more detail to your CV and regenerating.",
+    "meterRemaining": "The dashed stretch is what the remaining wins are worth."
+  }
+}

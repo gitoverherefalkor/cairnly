@@ -6,6 +6,7 @@
 // naturally against the dark photo background.
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
 import { buildResumeDocxBlob } from '../templates/docx/resumeToDocx';
@@ -35,6 +36,10 @@ import { useCustomResumes, type CustomResumeRow } from '../hooks/useCustomResume
 import { getTemplateComponent } from '../templates';
 import { CoverLetter } from '../templates/CoverLetter';
 import { TEMPLATES, getTemplate, type TemplateId, type ResumeJson, type CoverLetterJson, type KeywordCoverage } from '../types';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { StrengthPill, StrengthBanner, reviewLooksStuck } from '../strengthen/StrengthSummary';
+import { useStrengthen, AUTO_ANALYZE } from '../strengthen/useStrengthen';
+import type { StrengthReview } from '../strengthen/types';
 
 interface CustomResumeResultsProps {
   customResumeIds: string[];
@@ -188,10 +193,40 @@ export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
 // ── Active panel ──────────────────────────────────────────────
 const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   const [localTemplate, setLocalTemplate] = useState<TemplateId>(row.template_id as TemplateId);
+  // Placeholder for the Strengthen review panel, which lands in Task 8. The
+  // pill/banner just need somewhere to send "open" clicks to for now.
+  const [, setStrengthenOpen] = useState(false);
 
   useEffect(() => {
     setLocalTemplate(row.template_id as TemplateId);
   }, [row.id, row.template_id]);
+
+  // Defensive: a malformed review (e.g. missing `issues` on a 'ready' status;
+  // WF10 writes this column, never trust it blindly) is treated as no review
+  // at all for rendering purposes, so a bad payload can't crash the results
+  // screen. It still counts as "has a review" for the auto-analyze guard
+  // below (raw `row.strength_review` is checked there, not this parsed value),
+  // so a malformed row won't get re-analyzed in a loop beyond the normal
+  // once-per-mount guard.
+  const rawReview = row.strength_review as unknown as StrengthReview | null;
+  const review: StrengthReview | null =
+    rawReview && (rawReview.status !== 'ready' || Array.isArray(rawReview.issues)) ? rawReview : null;
+
+  const { analyze, analyzeForRetry } = useStrengthen(row.id);
+
+  useEffect(() => {
+    if (AUTO_ANALYZE && row.status === 'completed' && !row.strength_review) {
+      analyze();
+    }
+  }, [row.status, row.strength_review, analyze]);
+
+  const handleOpenStrengthen = () => {
+    if (review && (review.status === 'failed' || reviewLooksStuck(review))) {
+      analyzeForRetry();
+      return;
+    }
+    setStrengthenOpen(true);
+  };
 
   if (row.status === 'processing') {
     return (
@@ -275,6 +310,8 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   const coverLetterJson = parseIfString<CoverLetterJson>(row.cover_letter_json);
   const coverage = row.keyword_coverage as unknown as KeywordCoverage | null;
 
+  const hasEverApplied = review?.issues?.some((i) => i.status === 'applied') ?? false;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <PanelHeader
@@ -296,7 +333,12 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
             toast.success('Template saved', { duration: 1500 });
           }
         }}
+        strengthReview={review}
       />
+
+      {review ? (
+        <StrengthBanner review={review} hasEverApplied={hasEverApplied} onOpen={handleOpenStrengthen} />
+      ) : null}
 
       <DocumentTabs
         resumeJson={resumeJson}
@@ -317,7 +359,9 @@ const PanelHeader: React.FC<{
   row: CustomResumeRow;
   templateId: TemplateId;
   onTemplateChange: (id: TemplateId) => void;
-}> = ({ row, templateId, onTemplateChange }) => {
+  strengthReview: StrengthReview | null;
+}> = ({ row, templateId, onTemplateChange, strengthReview }) => {
+  const { t } = useTranslation('resume');
   // 'cards' is the rich form (5 tiles with mini-previews + descriptions) —
   // the default since they explain what each template is for.
   // 'dropdown' is the compact form for users who already know which one
@@ -349,40 +393,49 @@ const PanelHeader: React.FC<{
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         {score != null ? (
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '6px 14px',
-              borderRadius: 9999,
-              background: `${tone}1A`,
-              border: `1px solid ${tone}55`,
-              color: tone,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 18,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              {score}
-            </span>
-            <span
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-              }}
-            >
-              ATS · {score >= 80 ? 'Strong' : score >= 60 ? 'Decent' : 'Adjacent'}
-            </span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '6px 14px',
+                  borderRadius: 9999,
+                  background: `${tone}1A`,
+                  border: `1px solid ${tone}55`,
+                  color: tone,
+                  cursor: 'help',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 700,
+                    fontSize: 18,
+                    letterSpacing: '-0.02em',
+                  }}
+                >
+                  {score}
+                </span>
+                <span
+                  style={{
+                    fontFamily: FONT_DISPLAY,
+                    fontWeight: 700,
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  ATS · {score >= 80 ? 'Strong' : score >= 60 ? 'Decent' : 'Adjacent'}
+                </span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent style={{ maxWidth: 260 }}>{t('strengthen.atsTooltip')}</TooltipContent>
+          </Tooltip>
+        ) : null}
+        {strengthReview && (strengthReview.status === 'ready' || strengthReview.status === 'applying') ? (
+          <StrengthPill review={strengthReview} />
         ) : null}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <PickerModeToggle mode={picker} onChange={setPicker} />
