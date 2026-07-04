@@ -90,3 +90,7 @@ verify_jwt = false
 # Gemini call cannot be hit anonymously.
 [functions.clean-transcript]
 verify_jwt = true
+
+# Résumé Strengthen coaching layer — called by logged-in users only.
+[functions.resume-strengthen]
+verify_jwt = true
