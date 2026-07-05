@@ -113,8 +113,13 @@ export const useSurveySubmission = ({
       // Mark access code as used after successful submission
       await markAccessCodeAsUsed();
 
-      // Update profile with region from survey (question ID: 11111111-1111-1111-1111-111111111114)
-      const regionAnswer = responses['11111111-1111-1111-1111-111111111114'];
+      // Update profile with region from survey. Each survey has its own region
+      // question id: pro (11111111-...114) and starter (a1a1a1a1-0001-...003).
+      const REGION_QUESTION_IDS = [
+        '11111111-1111-1111-1111-111111111114',
+        'a1a1a1a1-0001-4000-a000-000000000003',
+      ];
+      const regionAnswer = REGION_QUESTION_IDS.map((id) => responses[id]).find(Boolean);
       if (regionAnswer && user) {
         try {
           await supabase

@@ -6,6 +6,7 @@ import { AssessmentLayout } from '@/components/assessment/AssessmentLayout';
 import { AssessmentCompletion } from '@/components/assessment/AssessmentCompletion';
 import { PreSurveyUpload } from '@/components/assessment/PreSurveyUpload';
 import { useAssessmentLogic } from '@/components/assessment/useAssessmentLogic';
+import { STARTER_SURVEY_ID } from '@/components/assessment/constants';
 import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSessionContext';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -77,12 +78,16 @@ const AssessmentPage = () => {
     );
   }
 
+  const surveyId = getSurveyIdFromAccessCode(accessCodeData);
+
+  // Starter flavor: skip the CV upload step. The audience mostly has no CV yet,
+  // and the resume pre-fill mapper only knows the pro survey's question ids.
+  const isStarter = surveyId === STARTER_SURVEY_ID;
+
   // Always show pre-survey upload step after verification, unless explicitly completed
-  if (!preSurveyUploadComplete) {
+  if (!isStarter && !preSurveyUploadComplete) {
     return <PreSurveyUpload onContinue={handlePreSurveyUploadComplete} />;
   }
-
-  const surveyId = getSurveyIdFromAccessCode(accessCodeData);
 
   if (!surveyId) {
     console.error('No survey ID found');
