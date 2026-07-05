@@ -36,7 +36,8 @@ export function StrengthenReview({
   onClose: () => void;
   onApplied: () => void;
 }) {
-  const { t } = useTranslation('resume');
+  // keyPrefix: this file's keys live under strengthen.* in resume.json
+  const { t } = useTranslation('resume', { keyPrefix: 'strengthen' });
   const [state, dispatch] = useReducer(reviewReducer, review, initReviewState);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   // Unsaved-draft confirm is scoped to the issue id it was raised for, so a
@@ -371,7 +372,8 @@ const OneTapBody = ({
   onSaveEdit: () => void;
   onSkip: () => void;
 }) => {
-  const { t } = useTranslation('resume');
+  // keyPrefix: this file's keys live under strengthen.* in resume.json
+  const { t } = useTranslation('resume', { keyPrefix: 'strengthen' });
   return (
     <div style={{ marginTop: 12 }}>
       {editing ? (
@@ -421,7 +423,8 @@ const NeedsInputBody = ({
   onSave: () => void;
   onSkip: () => void;
 }) => {
-  const { t } = useTranslation('resume');
+  // keyPrefix: this file's keys live under strengthen.* in resume.json
+  const { t } = useTranslation('resume', { keyPrefix: 'strengthen' });
   return (
     <div style={{ marginTop: 12 }}>
       <div style={{ fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: INK_ON_CREAM, lineHeight: 1.5 }}>

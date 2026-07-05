@@ -47,14 +47,27 @@ export function useCustomResumes({
   });
 
   // Compute terminal state from query data and feed it back into the
-  // refetchInterval guard above.
+  // refetchInterval guard above. A row also counts as in-progress while its
+  // strength_review is pending/applying: the Strengthen analyze/compose
+  // round-trips update completed rows, so polling must keep running as the
+  // Realtime fallback until the review settles.
   useEffect(() => {
     const rows = query.data;
     if (!rows || rows.length < ids.length) {
       setAllTerminal(false);
       return;
     }
-    const done = rows.every((r) => terminalStates.includes(r.status as 'completed' | 'failed'));
+    const reviewInFlight = (r: CustomResumeRow): boolean => {
+      let review = r.strength_review as unknown;
+      if (typeof review === 'string') {
+        try { review = JSON.parse(review); } catch { return false; }
+      }
+      const status = (review as { status?: string } | null)?.status;
+      return status === 'pending' || status === 'applying';
+    };
+    const done = rows.every(
+      (r) => terminalStates.includes(r.status as 'completed' | 'failed') && !reviewInFlight(r),
+    );
     setAllTerminal(done);
   }, [query.data, ids.length, terminalStates]);
 
