@@ -279,6 +279,17 @@ const Dashboard = () => {
     !authLoading && !reportsLoading && latestReport?.status === 'processing';
   const needsChatRedirect =
     !authLoading && !reportsLoading && latestReport?.status === 'pending_review' && !cameFromChat;
+  // Re-edit flow: when a user's survey has been re-opened for editing (their
+  // answers.status flipped back to 'draft'), send them into the assessment to
+  // revise their answers, even when an old completed report already exists
+  // (which otherwise renders the dashboard and hides any "continue" path).
+  // Fires once per browser session so exiting the survey doesn't trap them in
+  // a redirect loop; it self-clears once they resubmit (status → 'submitted').
+  const needsResurveyRedirect =
+    !authLoading &&
+    !reportsLoading &&
+    hasDraftAnswers &&
+    sessionStorage.getItem('resurvey_redirected') !== '1';
 
   useEffect(() => {
     if (needsAuthRedirect) {
@@ -287,8 +298,11 @@ const Dashboard = () => {
       navigate('/report-processing', { replace: true });
     } else if (needsChatRedirect) {
       navigate('/chat', { replace: true });
+    } else if (needsResurveyRedirect) {
+      sessionStorage.setItem('resurvey_redirected', '1');
+      navigate('/assessment', { replace: true });
     }
-  }, [needsAuthRedirect, needsProcessingRedirect, needsChatRedirect, navigate]);
+  }, [needsAuthRedirect, needsProcessingRedirect, needsChatRedirect, needsResurveyRedirect, navigate]);
 
   // Share-card data — two share types, each with its own pickable items.
   //   personalityShares: one entry per personality section the user has
