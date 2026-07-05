@@ -285,11 +285,11 @@ const Dashboard = () => {
   // (which otherwise renders the dashboard and hides any "continue" path).
   // Fires once per browser session so exiting the survey doesn't trap them in
   // a redirect loop; it self-clears once they resubmit (status → 'submitted').
-  const needsResurveyRedirect =
-    !authLoading &&
-    !reportsLoading &&
-    hasDraftAnswers &&
-    sessionStorage.getItem('resurvey_redirected') !== '1';
+  // While a draft survey is open for re-editing, keep sending the user into the
+  // assessment. No once-per-session guard (that survived hard refreshes and made
+  // the redirect stop firing); this self-clears the moment they resubmit
+  // (status → 'submitted' → hasDraftAnswers false).
+  const needsResurveyRedirect = !authLoading && !reportsLoading && hasDraftAnswers;
 
   useEffect(() => {
     if (needsAuthRedirect) {
@@ -299,7 +299,6 @@ const Dashboard = () => {
     } else if (needsChatRedirect) {
       navigate('/chat', { replace: true });
     } else if (needsResurveyRedirect) {
-      sessionStorage.setItem('resurvey_redirected', '1');
       navigate('/assessment', { replace: true });
     }
   }, [needsAuthRedirect, needsProcessingRedirect, needsChatRedirect, needsResurveyRedirect, navigate]);
