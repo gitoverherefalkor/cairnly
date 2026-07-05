@@ -47,6 +47,9 @@ const Journal = lazy(() => import("./pages/Journal"));
 const JournalArticle = lazy(() => import("./pages/JournalArticle"));
 const NewsletterConfirm = lazy(() => import("./pages/NewsletterConfirm"));
 const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe"));
+// Starter flavor (first/second-job seekers) — parallel funnel at /starter
+const StarterIndex = lazy(() => import("./pages/starter/StarterIndex"));
+const StarterPayment = lazy(() => import("./pages/starter/StarterPayment"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -123,6 +126,8 @@ const App = () => {
               <Route path="/journal/:slug" element={<JournalArticle />} />
               <Route path="/newsletter/confirm" element={<NewsletterConfirm />} />
               <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
+              <Route path="/starter" element={<StarterIndex />} />
+              <Route path="/starter/payment" element={<StarterPayment />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

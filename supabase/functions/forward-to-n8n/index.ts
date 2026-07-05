@@ -118,11 +118,19 @@ serve(async (req) => {
       processing_status: 'started'
     };
 
-    // Get N8N webhook URL from environment and validate it
-    const n8nWebhookUrl = Deno.env.get("N8N_WEBHOOK_URL");
+    // Get N8N webhook URL from environment and validate it.
+    // The starter survey (cairnly.io/starter) has its own n8n chain whose
+    // prompts expect the starter question ids — starter submissions must NEVER
+    // fall back to the pro webhook, so a missing starter secret fails the
+    // report explicitly (the user gets the existing retry UI).
+    const STARTER_SURVEY_ID = '00000000-0000-0000-0000-000000000002';
+    const isStarter =
+      (surveyData as Record<string, unknown> | null)?.survey_id === STARTER_SURVEY_ID;
+    const webhookEnvVar = isStarter ? "N8N_STARTER_WEBHOOK_URL" : "N8N_WEBHOOK_URL";
+    const n8nWebhookUrl = Deno.env.get(webhookEnvVar);
 
     if (!n8nWebhookUrl) {
-      console.error('N8N_WEBHOOK_URL environment variable not set');
+      console.error(`${webhookEnvVar} environment variable not set`);
 
       // Update report status to failed
       await supabase
@@ -140,7 +148,7 @@ serve(async (req) => {
         throw new Error('Invalid protocol');
       }
     } catch {
-      console.error('N8N_WEBHOOK_URL is not a valid URL:', n8nWebhookUrl);
+      console.error(`${webhookEnvVar} is not a valid URL:`, n8nWebhookUrl);
       await supabase
         .from('reports')
         .update({ status: 'failed' })

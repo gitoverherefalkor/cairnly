@@ -110,7 +110,16 @@ function extractUserEmail(user: any, profile: any) {
          '';
 }
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  /**
+   * Product flavor being purchased. 'starter' makes payment-success mint an
+   * access code for the starter survey (cairnly.io/starter); default is the
+   * professional assessment. Threaded via Stripe session metadata.
+   */
+  flavor?: 'pro' | 'starter';
+}
+
+export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
   const { user } = useAuth();
   const { profile } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
@@ -203,6 +212,8 @@ export function CheckoutForm() {
           // session metadata so payment-success can send the receipt email in
           // the right language (the buyer may have no profile yet).
           preferredLanguage: i18n.language || 'en',
+          // Product flavor — 'starter' access codes load the starter survey.
+          flavor,
         },
       });
 

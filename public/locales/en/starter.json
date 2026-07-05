@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "eyebrow": "Cairnly Starter",
+    "titleA": "The job market wasn't ready for you.",
+    "titleHighlight": "Start anyway.",
+    "titleB": "",
+    "body": "Fewer entry-level jobs. AI eating the tasks juniors used to learn on. Every posting asking for experience you were never given a chance to get.",
+    "bodyEmphasis": "None of that is your fault. But it is your starting point, and you can play it smart.",
+    "ctaPrimary": "Find your way in",
+    "ctaSecondary": "How it works",
+    "trust": "Built for people starting their first or second serious job"
+  },
+  "limbo": {
+    "eyebrow": "The limbo is real",
+    "title": "Stuck between \"just apply\" and \"we need someone with experience\"",
+    "p1": "You did what you were told. Studied, got the degree or the diploma, kept your head down. And now you're refreshing job boards where every \"junior\" role wants two years of experience, while everyone over 40 tells you to just walk in and shake someone's hand.",
+    "p2": "Meanwhile AI is quietly absorbing the exact tasks that used to be a first job: the research, the drafts, the data entry, the reports. The bottom rungs of the ladder are being sawed off while you're standing in front of it.",
+    "bullets": [
+      {
+        "title": "The experience paradox",
+        "body": "Entry-level roles that require experience are not a joke you're imagining. They're a symptom of companies cutting training budgets and hoping someone else did the investing."
+      },
+      {
+        "title": "AI took the practice work",
+        "body": "The grunt work juniors learned on is increasingly automated. That doesn't make you useless. It changes which doors are worth knocking on."
+      },
+      {
+        "title": "Generic advice doesn't cut it",
+        "body": "\"Follow your passion\" and \"just network\" were written for a different market. You need to know which directions actually fit you and how people without experience get into them now."
+      }
+    ],
+    "closing": "Cairnly Starter exists for exactly this moment: figuring out where you fit and how to get in, when the normal way in is broken."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "From \"no idea\" to a plan, in one sitting",
+    "steps": [
+      {
+        "title": "Tell us who you are",
+        "body": "A 20-minute assessment built for people without a CV full of job titles. Your studies, side jobs, projects and hobbies count as real evidence, because they are."
+      },
+      {
+        "title": "AI does the heavy lifting",
+        "body": "Our engine maps your personality, strengths and drivers against career directions with realistic entry points for someone starting out now, including how AI is changing each one."
+      },
+      {
+        "title": "Get directions, not platitudes",
+        "body": "Three concrete career directions that fit you, why they fit, what a first role looks like, and how people actually get in without experience."
+      },
+      {
+        "title": "Talk it through",
+        "body": "Discuss your results with your AI career coach. Push back, ask the awkward questions, and shape the advice until it's actually yours."
+      }
+    ]
+  },
+  "get": {
+    "eyebrow": "What you get",
+    "title": "Straight answers about you and your options",
+    "items": [
+      {
+        "title": "A real personality profile",
+        "body": "How you operate, decide, learn and work with others. Not a horoscope, an honest mirror."
+      },
+      {
+        "title": "Your strengths, with evidence",
+        "body": "What you're already good at, backed by the things you've actually done, even if none of it happened in an office."
+      },
+      {
+        "title": "3 career directions that fit",
+        "body": "Matched to your head, not just your diploma. Including options you probably haven't considered."
+      },
+      {
+        "title": "Entry routes without experience",
+        "body": "For each direction: how people get in today. First roles, adjacent doors, and what to learn if there's a gap."
+      },
+      {
+        "title": "The AI reality check",
+        "body": "How exposed each direction is to AI, and how to position yourself on the right side of that change."
+      },
+      {
+        "title": "A coach that talks back",
+        "body": "An AI career coach that knows your full report and helps you turn it into next steps."
+      }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "One report. No subscription.",
+    "body": "Cheaper than one session with a career coach, and you can start right now.",
+    "cta": "Get started",
+    "note": "One-time payment. Full assessment, report and coach chat included."
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Fair questions",
+    "items": [
+      {
+        "q": "I have zero work experience. Is this still for me?",
+        "a": "Yes, that's the point. The assessment is built around studies, side jobs, projects and how you operate, not job titles. \"None yet\" is a valid answer in the survey."
+      },
+      {
+        "q": "How is this different from the regular Cairnly assessment?",
+        "a": "The regular assessment is built for professionals with years of work history to analyze. Starter asks different questions, weighs different evidence, and focuses its advice on getting in rather than switching."
+      },
+      {
+        "q": "Is this just AI-generated fluff?",
+        "a": "AI does the analysis, but it works from a structured assessment and a career methodology, not vibes. And it's told to be honest with you, including about the hard parts."
+      },
+      {
+        "q": "Will it tell me AI is taking all the jobs?",
+        "a": "No, because it isn't. It is changing which entry points exist and which skills matter. Your report shows what that means for each direction we recommend, specifically for someone starting out."
+      },
+      {
+        "q": "How long does it take?",
+        "a": "About 20 minutes for the assessment. Your report is ready a few minutes later, and you can chat with the coach as long as you want."
+      },
+      {
+        "q": "What if the advice doesn't fit me?",
+        "a": "Tell the coach. The chat exists so you can push back, correct things, and refine the advice. Your feedback gets worked into your final report."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "The market is what it is. Your move can still be smart.",
+    "body": "Twenty minutes of honest answers gets you a map of where you fit and how to get in.",
+    "cta": "Start your assessment"
+  },
+  "shell": {
+    "eyebrow": "Cairnly Starter",
+    "title": "Get your starter assessment",
+    "subtitle": "One-time payment. Assessment, report and coach chat included."
+  }
+}

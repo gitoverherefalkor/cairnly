@@ -33,7 +33,12 @@ serve(async (req) => {
       return errorResponse("Payment system is temporarily unavailable. Please try again later.", 500, corsHeaders);
     }
 
-    const { firstName, lastName, email, country, referralCode, preferredLanguage } = await req.json();
+    const { firstName, lastName, email, country, referralCode, preferredLanguage, flavor } = await req.json();
+
+    // Product flavor: 'starter' (cairnly.io/starter, first-job seekers) or the
+    // default professional assessment. Only the literal 'starter' is accepted;
+    // anything else (including absent, for all existing callers) means 'pro'.
+    const isStarter = flavor === "starter";
 
     if (!firstName || !lastName || !email || !country) {
       return errorResponse("First name, last name, email, and country are required", 400, corsHeaders);
@@ -94,8 +99,10 @@ serve(async (req) => {
           price_data: {
             currency: "eur",
             product_data: {
-              name: "Cairnly Assessment",
-              description: "Complete assessment with personalized career insights",
+              name: isStarter ? "Cairnly Starter Assessment" : "Cairnly Assessment",
+              description: isStarter
+                ? "Starter assessment with career directions and entry routes for your first serious job"
+                : "Complete assessment with personalized career insights",
             },
             unit_amount: 3900, // €39.00 (beta price)
           },
@@ -107,7 +114,7 @@ serve(async (req) => {
       // Back/cancel from Stripe returns the buyer to the checkout form, not
       // the marketing homepage — they're mid-purchase and usually want to
       // tweak a field (country, email) and try again.
-      cancel_url: `${origin}/payment`,
+      cancel_url: isStarter ? `${origin}/starter/payment` : `${origin}/payment`,
       // `customer` (with pre-set name) gives us the pre-fill; fall back to
       // `customer_email` only if the customer resolution above failed.
       ...(customer ? { customer: customer.id } : { customer_email: email }),
@@ -119,6 +126,9 @@ serve(async (req) => {
         // Language the buyer checked out in. Read by payment-success to send
         // the access-code receipt in the right language. Default 'en'.
         preferred_language: preferredLanguage === "nl" ? "nl" : "en",
+        // Product flavor. Read by payment-success to mint the access code with
+        // the matching survey_type ('starter' loads the starter survey).
+        flavor: isStarter ? "starter" : "pro",
       },
       locale: country === "Netherlands" ? "nl" : country === "Germany" ? "de" : "auto",
     };

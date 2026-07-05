@@ -546,6 +546,14 @@ serve(async (req) => {
     const amountTotal = session.amount_total ? session.amount_total / 100 : 39;
     const currency = session.currency?.toUpperCase() || 'EUR';
 
+    // Flavor threaded from create-checkout via Stripe session metadata.
+    // 'starter' codes load the starter survey (cairnly.io/starter); anything
+    // else, including sessions created before this field existed, stays pro.
+    const surveyType =
+      session.metadata?.flavor === "starter"
+        ? "Starter - First Serious Job - 2026 v1 EN"
+        : "Office / Business Pro - 2025 v1 EN";
+
     // Store the access code in the database with pricing info
     const { data: codeData, error: codeError } = await supabase
       .from("access_codes")
@@ -554,7 +562,7 @@ serve(async (req) => {
         expires_at: expiresAt.toISOString(),
         price_paid: amountTotal,
         currency: currency,
-        survey_type: 'Office / Business Pro - 2025 v1 EN'
+        survey_type: surveyType
       })
       .select("id")
       .single();
