@@ -73,6 +73,25 @@ Current development focus: building out the platform features and establishing n
 - Always check `git status` before committing
 - Use descriptive commit messages (not "update" or "fix")
 
+## Branch → live workflow (Sjoerd's preference)
+The stack has two worlds: **frontend code** goes to a branch first and is NOT live until
+merged to `main` (Vercel auto-deploys `main`); **n8n workflows and Supabase/DB changes are
+live immediately** — there is no branch/staging for them, so treat those with extra care
+(backups, dry-runs).
+
+For frontend/branch work, follow this every time:
+- **Whenever you put code on a branch, say so explicitly** — state what's on it, that it is
+  **NOT live yet**, and offer a preview (Vercel spins up a preview URL per PR). Never sit on
+  branch work silently.
+- Sjoerd will either eyeball the preview or just say "go." With a small user base he often
+  prefers to **merge to live and test there directly** rather than fuss with previews — so
+  default to offering the merge, don't assume everything needs preview sign-off first.
+- **Occasionally give a "not live yet" overview** — e.g. at the start/end of a session, or
+  whenever asked, list everything committed to a branch but not yet merged to `main`, prefixed
+  with **"Heads up, this is not live yet:"**, so nothing gets stranded on a branch and
+  forgotten. (Determine this from the net diff of the branch vs `origin/main` and any open
+  PRs — NOT `git log origin/main..HEAD`, which is misleading after a squash-merge.)
+
 ## Before starting large changes
 1. Explain what you understand from the request
 2. Outline your approach
