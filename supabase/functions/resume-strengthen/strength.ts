@@ -38,6 +38,18 @@ export type StrengthReview = {
 
 export type Decision = { id: string; action: 'apply' | 'skip'; user_input?: string };
 
+// n8n's Supabase update nodes write jsonb via JSON.stringify, which PostgREST
+// stores as a jsonb string primitive rather than an object (long-standing
+// house pattern; the frontend's parseIfString mirrors this). Normalize at
+// every read boundary.
+// deno-lint-ignore no-explicit-any
+export function parseMaybeJson<T = any>(v: unknown): T | null {
+  if (typeof v === 'string') {
+    try { return JSON.parse(v) as T; } catch { return null; }
+  }
+  return (v as T) ?? null;
+}
+
 export const REVIEW_STALE_MS = 5 * 60_000;
 
 // True while an analyze/compose round-trip is genuinely in flight. A

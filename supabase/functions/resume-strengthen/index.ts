@@ -21,7 +21,7 @@ import {
   checkRateLimit,
 } from '../_shared/cors.ts';
 import { parseRequest } from './request.ts';
-import { applyDecisions, reviewInFlight, type StrengthReview } from './strength.ts';
+import { applyDecisions, parseMaybeJson, reviewInFlight, type StrengthReview } from './strength.ts';
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -57,6 +57,14 @@ serve(async (req) => {
     if (rowError || !row) return errorResponse('Résumé not found', 404, corsHeaders);
     if (row.user_id !== userId) return errorResponse('Not your résumé', 403, corsHeaders);
     if (row.status !== 'completed') return errorResponse('Résumé is not ready yet', 409, corsHeaders);
+
+    // n8n writes these jsonb columns as string primitives (JSON.stringify into
+    // the Supabase node), so normalize ONCE here and use the parsed values for
+    // every read below. Writes stay plain objects (supabase-js encodes them).
+    const resumeJson = parseMaybeJson(row.resume_json);
+    const keywordCoverage = parseMaybeJson(row.keyword_coverage);
+    const existingReview = parseMaybeJson<StrengthReview>(row.strength_review);
+    if (!resumeJson) return errorResponse('Résumé data unreadable', 409, corsHeaders);
 
     const webhookUrl = Deno.env.get('N8N_STRENGTHEN_WEBHOOK_URL');
     const sharedSecret = Deno.env.get('N8N_SHARED_SECRET');
@@ -96,7 +104,7 @@ serve(async (req) => {
     if (request.action === 'analyze') {
       // A stale pending/applying (WF10 died mid-run) no longer blocks: the new
       // analyze simply proceeds and overwrites the wedged state.
-      const previous = row.strength_review as StrengthReview | null;
+      const previous = existingReview;
       if (reviewInFlight(previous, Date.now())) {
         return errorResponse('Analysis already in progress', 409, corsHeaders);
       }
@@ -108,9 +116,9 @@ serve(async (req) => {
       const ok = await fireWebhook({
         mode: 'analyze',
         custom_resume_id: row.id,
-        resume_json: row.resume_json,
+        resume_json: resumeJson,
         career_title: row.career_title,
-        keyword_coverage: row.keyword_coverage,
+        keyword_coverage: keywordCoverage,
         preferred_language,
       });
       if (!ok) {
@@ -130,7 +138,7 @@ serve(async (req) => {
     }
 
     // action === 'apply'
-    const review = row.strength_review as StrengthReview | null;
+    const review = existingReview;
     if (!review || (review.status !== 'ready' && review.status !== 'applying')) {
       // null, pending, failed (or garbage) — nothing applicable here.
       return errorResponse('No review ready to apply', 409, corsHeaders);
@@ -148,7 +156,7 @@ serve(async (req) => {
 
     let result;
     try {
-      result = applyDecisions(row.resume_json, review, request.decisions);
+      result = applyDecisions(resumeJson, review, request.decisions);
     } catch (e) {
       return errorResponse((e as Error).message, 400, corsHeaders);
     }

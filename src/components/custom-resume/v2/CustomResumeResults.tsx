@@ -47,6 +47,17 @@ interface CustomResumeResultsProps {
   onStartNew: () => void;
 }
 
+// Defensive: n8n's Supabase nodes write jsonb columns via JSON.stringify, so
+// rows arrive with resume_json / cover_letter_json / strength_review as a
+// stringified JSON instead of an object (long-standing house pattern).
+// Parse-if-string at every read boundary so those rows still render.
+const parseIfString = <T,>(v: unknown): T | null => {
+  if (typeof v === 'string') {
+    try { return JSON.parse(v) as T; } catch { return null; }
+  }
+  return (v as T) ?? null;
+};
+
 export const CustomResumeResults: React.FC<CustomResumeResultsProps> = ({
   customResumeIds,
   onStartNew,
@@ -206,8 +217,9 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   // screen. It still counts as "has a review" for the auto-analyze guard
   // below (raw `row.strength_review` is checked there, not this parsed value),
   // so a malformed row won't get re-analyzed in a loop beyond the normal
-  // once-per-mount guard.
-  const rawReview = row.strength_review as unknown as StrengthReview | null;
+  // once-per-mount guard. WF10 writes the column as a jsonb STRING (see
+  // parseIfString) — normalize before the shape checks.
+  const rawReview = parseIfString<StrengthReview>(row.strength_review);
   const review: StrengthReview | null =
     rawReview && (rawReview.status !== 'ready' || Array.isArray(rawReview.issues)) ? rawReview : null;
 
@@ -296,15 +308,7 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
   }
 
   // status === 'completed'
-  // Defensive: older rows stored resume_json/cover_letter_json as a stringified
-  // JSON instead of an object (n8n double-encoded the LLM output). Parse-if-string
-  // so those rows still render. New rows arrive as objects already.
-  const parseIfString = <T,>(v: unknown): T | null => {
-    if (typeof v === 'string') {
-      try { return JSON.parse(v) as T; } catch { return null; }
-    }
-    return (v as T) ?? null;
-  };
+  // parseIfString (module scope) guards these jsonb-string columns too.
   const resumeJson = parseIfString<ResumeJson>(row.resume_json) as ResumeJson;
   const coverLetterJson = parseIfString<CoverLetterJson>(row.cover_letter_json);
   const coverage = row.keyword_coverage as unknown as KeywordCoverage | null;

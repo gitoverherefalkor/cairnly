@@ -6,6 +6,7 @@ import {
   setLineAtTarget,
   applyDecisions,
   reviewInFlight,
+  parseMaybeJson,
   REVIEW_STALE_MS,
   type StrengthReview,
   type StrengthIssue,
@@ -210,4 +211,24 @@ Deno.test('reviewInFlight: missing or garbage timestamp counts as stale', () => 
   assertEquals(reviewInFlight(flightReview({ generated_at: undefined as unknown as string }), NOW), false);
   // unparseable timestamp → recoverable
   assertEquals(reviewInFlight(flightReview({ generated_at: 'not-a-date' }), NOW), false);
+});
+
+// --- parseMaybeJson: jsonb-string normalization at read boundaries ---
+
+Deno.test('parseMaybeJson: object passes through unchanged', () => {
+  const obj = { summary: 'hi', experience: [] };
+  assertEquals(parseMaybeJson(obj), obj);
+});
+
+Deno.test('parseMaybeJson: valid JSON string parses to the object', () => {
+  assertEquals(parseMaybeJson('{"status":"ready","issues":[]}'), { status: 'ready', issues: [] });
+});
+
+Deno.test('parseMaybeJson: garbage string returns null', () => {
+  assertEquals(parseMaybeJson('not json {'), null);
+});
+
+Deno.test('parseMaybeJson: null and undefined return null', () => {
+  assertEquals(parseMaybeJson(null), null);
+  assertEquals(parseMaybeJson(undefined), null);
 });

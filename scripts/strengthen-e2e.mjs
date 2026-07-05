@@ -17,6 +17,16 @@ const TIMEOUT_MS = 120_000;
 const fail = (msg) => { console.error('❌', msg); process.exit(1); };
 const ok = (msg) => console.log('✅', msg);
 
+// n8n's Supabase nodes write jsonb via JSON.stringify → PostgREST stores a
+// jsonb STRING primitive, not an object (house pattern; the frontend's
+// parseIfString mirrors this). Normalize every jsonb read.
+const parseIfString = (v) => {
+  if (typeof v === 'string') {
+    try { return JSON.parse(v); } catch { return null; }
+  }
+  return v ?? null;
+};
+
 // Two clients: `admin` (service role) ONLY for test-row setup/cleanup/polling —
 // client-side inserts into custom_resumes may be blocked by RLS since prod
 // writes go through edge functions. `sb` (user session) makes the actual
@@ -57,7 +67,7 @@ try {
   for (const start = Date.now(); Date.now() - start < TIMEOUT_MS;) {
     await new Promise((r) => setTimeout(r, 5000));
     const { data } = await admin.from('custom_resumes').select('strength_review').eq('id', clone.id).single();
-    review = data?.strength_review;
+    review = parseIfString(data?.strength_review);
     if (review?.status === 'ready' || review?.status === 'failed') break;
   }
   if (review?.status !== 'ready') fail(`review not ready: ${JSON.stringify(review)?.slice(0, 300)}`);
@@ -82,7 +92,7 @@ try {
   if (needsInput) decisions.push({ id: needsInput.id, action: 'apply', user_input: 'a EUR 50K annual budget, delivering the project 2 weeks early' });
   if (!decisions.length) { ok('résumé came back recruiter-ready (0 issues) — apply path skipped'); await cleanup(); process.exit(0); }
 
-  const before = structuredClone(clone.resume_json);
+  const before = structuredClone(parseIfString(clone.resume_json));
   const { error: pErr } = await sb.functions.invoke('resume-strengthen', {
     body: { action: 'apply', custom_resume_id: clone.id, decisions },
   });
@@ -92,7 +102,8 @@ try {
   let finalRow = null;
   for (const start = Date.now(); Date.now() - start < TIMEOUT_MS;) {
     const { data } = await admin.from('custom_resumes').select('resume_json, strength_review').eq('id', clone.id).single();
-    if (data?.strength_review?.status === 'ready') { finalRow = data; break; }
+    const sr = parseIfString(data?.strength_review);
+    if (sr?.status === 'ready') { finalRow = { resume_json: parseIfString(data.resume_json), strength_review: sr }; break; }
     await new Promise((r) => setTimeout(r, 5000));
   }
   if (!finalRow) fail('apply did not settle to ready in time');
