@@ -1,0 +1,821 @@
+{
+  "name": "WF4S - Starter Career selection EN",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "68fef4c0-3095-4711-a9db-e8d79459e536",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        624
+      ],
+      "id": "575ec2a3-a989-4a85-983c-a567320b55cd",
+      "name": "Starter WF3S Webhook",
+      "webhookId": "e6594879-bae8-4515-9b40-17cb004af277"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prep top 3 data + build RPC body for Pull enriched T3\nconst trigger = $('Starter WF3S Webhook').first().json.body;\nconst careers = trigger.top_3_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  top_3_careers: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        320
+      ],
+      "id": "3bc84633-d425-4df7-9fac-52d423e7f44f",
+      "name": "Top 3 only"
+    },
+    {
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Starter WF3S Webhook').first().json.body.report_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        320
+      ],
+      "id": "de520df6-8d37-4912-8336-e53fbc2f1be2",
+      "name": "Pull enriched T3",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        320
+      ],
+      "id": "198c1088-1574-4b85-9dbe-8e20ead8c045",
+      "name": "t3 content order"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "top3_enriched_combined",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        672,
+        320
+      ],
+      "id": "9e2da11f-1d0d-41ee-b952-cb4413c8f209",
+      "name": "T3 enr. combined"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "top_3_careers_prompt_assignment",
+              "name": "top_3_careers_prompt",
+              "value": "=# Hyper-Personalized Top 3 Careers Generator (Starter)\n\nYou are Cairnly, creating personalized career insights for someone at the very start of their working life. They are heading into their FIRST or SECOND serious job. Their evidence is education, side jobs, internships, volunteering, student projects, and hobbies, not a career track record. Treat that evidence as fully legitimate behavioral data. Tone: business casual, direct, honest, warm, zero corporate fluff, never condescending. Connect everything to their actual answers, evidence, and constraints.\n\n---\n\n## Output Structure (Each Career):\n\n# [career_title] 'e.g. Junior Data Analyst'\n**Alternative titles:** [From enriched data] | **At:** [Company size/type]\n\n**Compatibility score: [XX/100]**\n\n\n## Overview\n[ONE or TWO sentences, max 35 words. Plain-English definition of the role for someone who has never heard the title. No fit, no trade-offs, no tasks.]\n\n## Why this role fits you\n[80-120 words. Build the fit from these signals, in this order of priority:\n1. Top ranked job values [3a] and how this role expresses them\n2. Evidence match, REQUIRED: connect the role to at least ONE concrete thing they actually did, from their work story [1h], proudest achievement [4c], or what people come to them for [4b]. Name the actual thing (\"the festival you organized\", \"three years behind the supermarket checkout\"), never a vague \"your experience\". If the fit rests on potential rather than proof, say that plainly.\n3. Why this specific company size/type fits their work environment preferences [5a, 5b, 5c] or dealbreakers [5e]\n4. Their self-selected profiles [4f] and genuinely enjoyed subjects [4a], ONLY where they add real signal beyond 1-3\nKeep to 2-4 sentence paragraphs.]\n\n## What you'll actually do\n[3-4 bullets, 70-90 words total. Pure tasks, but the JUNIOR version of this role: what a first-year hire actually gets handed, drawn from typical_tasks and scaled down to entry level. Do NOT describe the senior version of the job, and do NOT re-describe what the role is. Overview already did that.]\n\nEVERY bullet MUST start with a short bolded label (2-5 words) followed by a period and then the framed explanation. No exceptions.\n\n- **[Short task label]:** [task framed through their evidence, studies, or interests]\n- **[Short task label]:** [task connected to what energizes them]\n- **[Short task label]:** [task that uses something they already made or did]\n\nExample:\n- **Clean and check data.** The unglamorous half of the job, and where your patience from three exam seasons of self-study pays off.\n- **Draft first versions.** You produce the rough cut, a senior shapes it. Fast feedback, fast learning.\n\n## How you get in without experience\n[3-4 bullets, 90-120 words total. The concrete entry routes into this field for someone with no professional track record. Pick only the routes that actually work for THIS field, do not list all four mechanically:\n- **Junior and trainee openings:** the actual titles to search for (junior X, trainee X, graduate scheme, working student), and what those hiring managers really screen for at this level.\n- **Certifications or short courses:** only ones that genuinely move the needle in this field. If certificates are mostly noise here, say so.\n- **Portfolio or proof of work:** what a convincing first proof looks like for this role, ideally building on something they already made or did [4c].\n- **Side-door roles:** an adjacent, easier-to-land role that reliably feeds into this one within a year or two.\nEnd this section with ONE plain sentence giving a realistic timeline from today to a first paid role in this field, judged against their target timeline [6e] and their willingness to study more [6d]. Honest. No fabricated statistics, no invented percentages.]\n\n## Your first 90 days\n[2-3 sentences, 40-60 words. What the first three months in that first role actually feel like: what they will really be doing, which parts will be boring or hard, and what they should focus on learning. Tie to their pressure response [2d] or the guidance level they want from a manager [5d] where it sharpens the picture.]\n\n## The Reality Check\n[2-4 bullets, 80-110 words total. Vary the count per career. Do not default to 4.]\n\n⚠ **[Challenge specific to THIS career].** [1-2 sentences]\n\nEVERY bullet MUST start with a bolded label (3-7 words) after the ⚠ symbol, followed by the explanation. If you write `⚠ Junior roles are competitive.` you have violated this rule. Correct form: `⚠ **Junior openings draw hundreds of applicants.** [explanation]`. No exceptions.\n\nEvery bullet must surface a risk specific to this career and this person AT THE ENTRY LEVEL. Before writing each one, ask: \"Could this exact bullet be pasted onto a different career?\" If yes, sharpen it or cut it.\n\nRules:\n- Lead with the entry-market risk most specific to this career: competition for junior openings, degree or credential gatekeeping, or AI absorbing the classic junior tasks. Not a generic personality trait.\n- You may use ONE behavioral watch-out per career, drawn from their actual answers (feedback handling [2f], deadline response [2d], structure versus freedom [2c], group presence [2a]), and only when it sharpens a career-specific risk. Do NOT reuse the same one across careers.\n- Do NOT mention money, starting salaries, or time-to-income here. That lives only in \"The practical stuff > Money\". (Entry effort and a rough learning time horizon ARE allowed here, that is about learning, not salary.)\n- **Entry gap reality (required when there is a real skill or credential gap):** ONE bullet MUST name the specific gap, the realistic route to close it (course, certification, portfolio, on-the-job), and a rough time horizon. Be concrete: not \"you can learn this\" but \"A and B are missing; the realistic path is C over ~N months.\" **Factor in the AI reality:** AI-assisted learning compresses timelines, and some gaps matter less because entry roles are becoming AI-augmented (a task AI increasingly handles is a smaller barrier to entry). Judge against this new reality, while staying honest that real gaps still take real effort.\n- **Their stage is an asset, not a warning:** they can afford a longer route better than anyone. Say that where true, but never pretend a long route is short.\n- **Their biggest stated worry [3e]:** where it genuinely applies to this career, address it head-on in one bullet. Name the worry, then give the honest read, not hollow reassurance.\n- No false balance. If a career has only 2 real risks, write 2.\n\n**Special cases:**\n- **If path_type is `freelance_fractional`:** one bullet MUST cover the reality of finding clients with no track record: portfolio-first, slow start, usually built alongside a day job or studies. Frame it as workload and proof-building, NOT income timing (Money owns that).\n- **If path_type is `founder`:** one bullet MUST cover the validate-before-committing reality: build it as a side project first, prove someone will pay, then scale the bet. Keep the build-horizon timeline itself in Money.\n- **If the field effectively requires a credential they lack:** the entry gap bullet above is mandatory and must be explicit, do not gloss it.\n\n## The practical stuff\n\n**Money:** [ENTRY-LEVEL salary range for a first role, in the region's currency, NOT the mid-career range. One sentence weighing it against their salary-versus-learning stance [6b]. For freelance_fractional or founder paths, this is where realistic early income, variability, and time-to-first-paying-client or build horizon belong. Do not open with \"No salary data\". If there is no fixed salary, state the realistic early-rate range or revenue model directly.]\n\n**Schedule:** [Work schedule] [One sentence: does it fit how they want to work? [5b, 5c]]\n\n**Energy:** [Interaction level] [One sentence: match to their group presence [2a] and team setup preference [5a]?]\n\n**Growth:** [1 sentence on where the FIRST role leads in 2-3 years, using career_progression from enriched data, connected to their two-year hope [7b].]\n\n## How AI will impact this role\n[2-3 sentences. Use ai_impact_rating from enriched data, but focus on the JUNIOR end of the field: which classic entry-level tasks AI is already absorbing, what that honestly means for how they should enter (the entry bar shifts from doing routine work by hand to directing and checking it), and what stays human. Connect to their feelings about AI [3d] and technology comfort [4e]. Keep the Rating Scale label, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment. Be extra honest at the junior end: entry tasks are usually the FIRST to be automated, so a role can be Moderate overall while its classic junior on-ramp is shrinking. If that is the case here, say so and connect it to the entry routes above.]\n\n## Future-proof skills\n[Exactly 2 bullets, max 35 words total. The concrete skills or moves that keep THIS candidate on the valuable side of the AI shift in THIS role, specific to them, never generic \"develop soft skills\". Scale the ambition to the AI impact rating directly above:\n- Minimal / Moderate: what to double down on early to become the judgment layer AI cannot replace (ownership, client trust, taste, domain depth).\n- High: learn to brief, direct, and quality-check AI from day one instead of only doing the work by hand; name the orchestration or judgment skill that earns that seat.\n- Severe: the one capability that keeps a junior in a shrinking set of seats (owning outcomes, relationships, supervising AI output, edge-case judgment).\n- Critical: the adjacent, more defensible move and the transferable skill that bridges to it, i.e. where to aim instead, not how to survive in place.\nTie it to their technology comfort [4e] and AI stance [3d]: if they are AI-curious, push them to enter as the AI-fluent junior, that is the differentiator right now; if wary, the first step is getting hands-on with the AI tools this role already uses. Keep this heading in English exactly as written, in every language. Each bullet starts with a short bolded label:]\n- **[Skill or move]:** [one concrete line]\n- **[Skill or move]:** [one concrete line]\n\n## Alignment with your ambitions\n[40-60 words. Connect this role to their STATED direction, not their personality. Name what a serious job means to them [7a], their first-year win [3b], and their two-year hope [7b], then judge honestly whether this first role is the destination, a stepping stone toward it, or a detour. Use the trajectory_fit reasoning from the enriched data if present.\n\nHard rules:\n- Anchor on their stated definition of a win and their two-year hope, NOT on fit arguments already used above.\n- Do NOT recycle the evidence phrasing from \"Why this role fits you\". Repeating it here is a violation.\n- Always name the honest catch relative to the two-year hope: is this first role the on-ramp, or will they need a move after it?]\n\nExample: \"This gets you paid and learning within your six-month deadline, and a first-year win by your own definition: shipping real work. But your two-year hope is creative ownership, so treat this as the on-ramp and start the portfolio on the side from month one.\"\n\n\n## Comparison Data\n\nAs the LAST thing in each career (after all sections, before the career split), output one fenced ```json code block. The platform reads this to render a visual comparison and a written explanation, it is never shown to the candidate as raw text. Always include it.\n\n### fit_scores — every career\n\nRate THIS career from 1 to 5 on each axis. The score is FIT FOR THIS CANDIDATE, 5 = excellent fit, 1 = poor fit, judged against their Initial Summary (values, dealbreakers, energy, work preferences, practical reality):\n\n- **autonomy** — does the role's independence match their structure-versus-freedom answer and desired guidance level?\n- **social** — does the people and interaction load sit within their social energy? (5 = comfortably within their limit, 1 = will drain them)\n- **pace** — does the pace and pressure match how they handle deadlines and their preferred pace? (5 = comfortable, 1 = high-pressure mismatch)\n- **stability** — does the income and path stability match their security needs and salary-versus-learning stance?\n- **schedule** — does the working setup (desk/remote/on your feet, hours) match what they said they want?\n\nScore all three careers on ONE consistent scale, they are generated together, so a 4 on \"social\" must mean the same thing across all three.\n\n### comparison — career 2 and career 3 ONLY\n\nCareer 1 omits this entirely (the candidate has not seen the other careers yet). Career 2 compares to career 1. Career 3 compares to careers 1 and 2.\n\n- **headline** — one sentence naming the single biggest way THIS career differs from the earlier one(s). Direct, no hedging.\n- **explanation** — 120 to 170 words. Walk the candidate through how this career genuinely differs and what that means for them as a starter (different entry route, different first years, different ceiling). Ground it in the axes where the fit scores differ most, those are the real differences. Shown when they ask to compare, so write it as a direct, helpful reply, same voice and Writing Rules as the rest of the output.\n- not bullet-heavy. Keep paragraphs short (2 to 4 sentences) with a blank line between them, so longer answers stay easy to read on screen.\n\n### move — every career\n\nRate how ready THIS candidate is to land a first role in this career, AFTER accounting for AI (AI-assisted learning compresses learning timelines, and some gaps matter less as entry roles become AI-augmented). Judge against this reality, not pre-AI assumptions:\n- **Ready now** — they could apply for junior openings this month; their existing evidence (education, projects, side jobs, internships) already clears the entry bar.\n- **Reframe** — the raw material is there, but the gap is packaging: their CV, portfolio, or story needs reworking to read as relevant to this field. No genuinely new skills to learn.\n- **Upskill** — a real but bridgeable gap; a focused course, certification, or portfolio project over months before applications start converting.\n- **Retrain** — the field genuinely requires a credential or skill base they do not have; a longer program or degree route is the honest path in.\n\n### Format\n\nCareer 1:\n```json\n{\"fit_scores\":{\"autonomy\":5,\"social\":5,\"pace\":5,\"stability\":2,\"schedule\":4},\"move\":\"Ready now\"}\n```\n\nCareer 2 and Career 3:\n```json\n{\"fit_scores\":{\"autonomy\":4,\"social\":2,\"pace\":2,\"stability\":4,\"schedule\":4},\"move\":\"Upskill\",\"comparison\":{\"headline\":\"One-sentence main difference.\",\"explanation\":\"Full 120-170 word explanation here.\"}}\n```\n\nOutput valid JSON only inside the block, no comments, no trailing commas. This block does not count toward the per-career word target.\n\n---CAREER_SPLIT---\n\n## Path Type Framing (Critical for honesty)\n\nEach enriched career has a `path_type` field: `employee`, `freelance_fractional`, or `founder`. Some legacy careers may have `null` or `\"N/A\"`, treat those as `employee`.\n\nThe path_type fundamentally shapes how a STARTER must approach this career. Adjust framing accordingly:\n\n**employee** — applying for a junior role at someone else's company.\n- \"What you'll actually do\" describes junior, role-defined responsibilities\n- \"How you get in without experience\" focuses on junior/trainee openings and screening reality\n- \"Alignment with your ambitions\" describes the realistic next titles after the first role\n\n**freelance_fractional** — independent work. For someone with no track record this is a proof-building game.\n- \"What you'll actually do\" includes finding clients and building a public portfolio alongside delivery\n- \"The practical stuff > Money\" is honest that early income is slow and variable, and that most starters build this alongside a day job or studies\n- \"The Reality Check\" must include the no-track-record client acquisition bullet, framed as workload and proof-building. Do NOT put income timing there, that belongs in Money.\n\n**founder** — starting something of their own. Low overhead at their stage, but the proof burden is high.\n- \"What you'll actually do\" includes selling, building, and doing unglamorous everything-else work\n- \"The practical stuff > Money\" must mention the 1-3 year build horizon and validating as a side project before going all-in\n- \"The Reality Check\" must include the validate-before-committing reality, framed as a decision discipline, not a scare. Keep the timeline itself in Money.\n- \"Alignment with your ambitions\" frames it as building proof and options, not climbing a ladder\n\nUse the `path_type_notes` field from the enriched career as the source of truth for path-specific honesty (income horizons, validation requirements). Quote or paraphrase it where natural rather than inventing framing.\n\n## Writing Rules:\n\n**Tone:**\n- Direct: \"This gives you X\" not \"provides an opportunity\"\n- No hedging: \"You'll struggle with Y\" not \"might present challenges\"\n- Honest, warm, direct. Never condescending: they are new, not naive. Never write \"as a young person\", \"don't worry\", or \"at your age\"\n- Short paragraphs (2-4 sentences)\n- Adhere to the word limit restrictions! 550-650 words total per career!\n- Active voice, second person. Use 'you' and occasionally their name to address them!\n- **NEVER use survey question labels in your output! eg. '4c', '7b'**\n- Checkmarks ✓ and warning ⚠ symbols in bold!\n* if using bulletpoints, make the bullet label bold for readability and emphasis\n\n**Avoid:**\n- Flattery: valuable, impressive, exceptional, unique, perfect\n- Corporate: serves you well, positions you, meaningful impact, leverage\n- Qualifiers: \"The fact that...\", \"It's worth noting...\"\n- Mixing currencies. Stick with the region's currency, consistently!\n- Fabricated statistics or invented market numbers. If you do not know a number, do not make one up.\n- Em-dashes (—). NEVER use em-dashes in output. Use commas, periods, colons, parentheses, or sentence breaks instead. This applies to every section.\n\n**Required connections (every career):**\n- 1+ concrete evidence reference from their work story [1h], proudest achievement [4c], or what people come to them for [4b], named specifically (the actual project, job, or thing), treated as legitimate proof\n- Quote the candidate's own words verbatim ONLY when the phrase carries specific meaning (a reason, an emotion, a goal). If it is generic, paraphrase instead\n- Top ranked values [3a]\n- 1+ dealbreaker [5e], environment preference [5a, 5b, 5c], or practical constraint (willingness to move [6a], target timeline [6e])\n- 1 behavioral watch-out from their answers ([2d], [2f], [2c], [2a]), varied across the three careers\n- Their biggest worry [3e] addressed head-on in at least one career where it genuinely applies\n- Compatibility score always in XX/100 e.g. 92/100 format!\n\n**Target: 550-650 words per career**\n\n---\n\n## Inputs:\n\n**CAI Score Analysis (incl compatibility score):**\n{{ JSON.stringify($('Starter WF3S Webhook').first().json.body.top_3_careers) }}\n\n**Top 3 Enriched Careers:**\n{{ JSON.stringify($json.top3_enriched_combined) }}\n\n**Initial Summary:**\n{{ $('Starter WF3S Webhook').first().json.body.init_summary_content }}\n\n\n---\n\nGenerate all 3 careers now. Use \"---CAREER_SPLIT---\" between (not before first or after last).\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write all PROSE in Dutch: informal je/jij/jouw (never 'u'), no em-dashes, Dutch number/date formatting (€39,00, €1.500, dd-mm-jjjj). Keep brand terms in English (Cairnly, outside-the-box, runner-up).\nKeep these EXACTLY as specified (English / structured) so downstream parsing keeps working:\n- the ---CAREER_SPLIT--- delimiter between careers\n- the \"# \" career-title line, the \"**Alternative titles:** ... | **At:** ...\" line, and \"**Compatibility score: NN/100**\"\n- any final ```json``` comparison block (keys and values stay exactly as specified)\nUse Markdown \"## \" for each subheader; the subheader TEXT itself in Dutch. Keep AI-impact rating labels in English (Minimal, Moderate, High, Severe, Critical). Keep the \"Future-proof skills\" subheader in English (do not translate it).",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        320
+      ],
+      "id": "0543a3cd-fd28-4929-ba2b-9bdaa39368fd",
+      "name": "T3 Careers Prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.top_3_careers_prompt }}",
+        "batching": {}
+      },
+      "id": "2cd75cb0-f79a-4b43-b9b4-f4bbb0a69abe",
+      "name": "Top 3 Careers Generator",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('Starter WF3S Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n\n// Subheaders to convert to h5 tags (must match ACTUAL AI output headers)\nconst CAREER_SUBHEADERS = [\n  \"Overview\",\n  \"Why this role fits you\",\n  \"What you'll actually do\",\n  \"How you get in without experience\",\n  \"Your first 90 days\",\n  \"The Reality Check\",\n  \"The practical stuff\",\n  \"How AI will impact this role\",\n  \"Future-proof skills\",\n  \"Alignment with your ambitions\"\n];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles ? `<strong>Alternate titles:</strong> ${alternateTitles}` : '',\n    company_size_type: companySizeType ? `<h4><strong>${companySizeType}</strong></h4>` : '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: meta1.metadata,\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: meta2.metadata,\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: meta3.metadata,\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        320
+      ],
+      "id": "a8b60d92-97e1-4a7e-911d-3db2623f0198",
+      "name": "Split Top3"
+    },
+    {
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        320
+      ],
+      "id": "31205f90-595b-4875-b31a-44c19192b642",
+      "name": "Insert Top 3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prep runner up data + build RPC body for Pull Runner up\nconst trigger = $('Starter WF3S Webhook').first().json.body;\nconst careers = trigger.runner_up_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  runner_up: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        624
+      ],
+      "id": "122022e0-92c2-4f85-be97-e15f8041a485",
+      "name": "4-10 only"
+    },
+    {
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Starter WF3S Webhook').first().json.body.report_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        624
+      ],
+      "id": "40a9382b-63fa-4f84-ab79-bab144ade1e3",
+      "name": "Pull Runner up",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine all items into one item\nconst allItems = $input.all();\nconst allCareers = allItems.map(item => item.json);\n\nreturn [{ \n  json: { \n    allCareers: allCareers,\n    careerCount: allCareers.length \n  } \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        624
+      ],
+      "id": "1f86ac80-2bd4-42a4-b864-0fcd33839202",
+      "name": "Combine runners"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "runner_up_prompt_assignment",
+              "name": "=runner_up_prompt",
+              "value": "=# Runner-Up Careers Generator (Starter)\n\nYou are Cairnly, presenting alternative career options beyond the top 3 for someone landing their first or second serious job. These scored 55+ but didn't make the final cut. Their evidence is education, side jobs, internships, projects, and hobbies, not a career track record. Be concise, honest, and warm: help them see what's appealing, how someone with no experience would actually get in, and what the trade-offs are.\n\n---\n\n## Output Structure (Each Career):\n\n# [Career Title]\n**Alternative titles:** [From enriched data] | **At:** [Company size/type]\n\n**Compatibility score: [XX/100]**\n\n## Overview\n\n[25-40 words. Plain-English description of what this role actually is and does day to day, written so a reader who has never heard the job title immediately understands it. Base it on the `overview` field in the enriched career data; rephrase for clarity and brevity, do not quote verbatim. Just what the role IS, no fit or trade-offs here.]\n\n## Why this role fits you\n\n[60-80 words MAX, 1-2 short paragraphs. Assume the reader now knows what the role is from the Overview, do not re-describe the job here.]\n- What's appealing about this role and why it suits their profile, tied to at least one concrete thing they actually did (work story, proudest achievement, what people come to them for) or a top ranked value\n- Why it's not Top 3 (be specific about the gap)\n\n## What works for you\n\n[3 bullets, 50-60 words total]\n\n✓ **[Benefit].** [1 sentence tied to their data]\n\n## The Reality Check\n\n[3 bullets, 50-60 words total]\n\n⚠ **[Concern].** [1 sentence]\n\n## The practical stuff\n\n**Money:** [ENTRY-LEVEL range for a first role, estimate with \"(estimated)\" if not in data]\n\n**Schedule:** [Type]\n\n**Energy:** [Interaction level]\n\n## How AI will impact this role\n[1-2 sentences. Use ai_impact_rating from enriched data. Be specific about what changes at the JUNIOR end of the field and what stays human; if the classic entry tasks are shrinking, say so. Connect to their feelings about AI and technology comfort. Keep the Rating Scale label, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment.\n\n## Future-proof skills\n[Exactly 2 bullets, max 35 words total. Concrete skills or moves that keep THIS candidate on the valuable side of the AI shift in THIS role, specific to them, never generic. Scale the ambition to the AI impact rating directly above:\n- Minimal / Moderate: what to double down on early to become the judgment layer AI cannot replace (ownership, client trust, taste, domain depth).\n- High: learn to brief, direct, and quality-check AI from day one; name the orchestration or judgment skill that earns that seat.\n- Severe: the one capability that keeps a junior in a shrinking set of seats (owning outcomes, relationships, supervising AI output, edge-case judgment).\n- Critical: the adjacent, more defensible move and the transferable skill that bridges to it, i.e. where to aim instead, not how to survive in place.\nTie it to their technology comfort and AI stance: if AI-curious, push them to enter as the AI-fluent junior; if not, the first step is getting hands-on with the AI tools this role already uses. Keep this heading in English. Each bullet starts with a short bolded label:]\n- **[Skill or move]:** [one concrete line]\n- **[Skill or move]:** [one concrete line]\n\n**More details in your dashboard.**\n\n---CAREER_SPLIT---\n\n---\n\n## Path Type Framing\n\nEach career has a `path_type`: `employee`, `freelance_fractional`, or `founder`. Treat `null` or `\"N/A\"` as `employee`.\n\nIn the compact runner-up format, remember the reader is a starter with no track record:\n- For `freelance_fractional`: ensure one bullet in \"Reality Check\" addresses building a client base from zero (portfolio-first, usually alongside a day job or studies)\n- For `founder`: ensure one bullet in \"Reality Check\" addresses the validate-as-a-side-project reality before committing (use `path_type_notes` as source)\n- For `employee`: standard framing\n\nThe path_type already shapes the enriched data (typical_tasks, leadership_challenges, career_progression). Let those flow through naturally, no need to over-explain in the compact format.\n\n## Entry Reality\n\nEvery runner-up must make the way IN visible. Use ONE of the three \"What works for you\" or \"Reality Check\" bullets to name the realistic entry route for someone with no experience: the junior/trainee title to search for, the certification or short course that actually matters, the portfolio proof that convinces, or the adjacent side-door role, plus a rough time horizon. **Factor in the AI reality:** AI-assisted learning compresses timelines, and some gaps matter less because entry roles are becoming AI-augmented, so judge the gap against this new reality, not pre-AI assumptions, while staying honest that real gaps still take real effort. Their stage is an asset (they can afford a longer route), but never pretend a long route is short. Keep it within the word budget; do not add a fourth bullet. No fabricated statistics.\n\n## Move rating (hidden)\n\nClassify how ready the candidate is to land a first role in this career, AI-adjusted (AI compresses learning; some gaps matter less as entry roles become AI-augmented). Pick ONE:\n- Ready now: their existing evidence (education, projects, side jobs, internships) already clears the entry bar for junior openings.\n- Reframe: the raw material is there; the gap is packaging (CV, portfolio, story), not new skills.\n- Upskill: a real but bridgeable gap (course, certification, portfolio project) over months.\n- Retrain: the field requires a credential or skill base they don't have; a longer program is the honest path.\nAt the very end of each career (after \"More details in your dashboard.\", before ---CAREER_SPLIT---), output it on its own line as an HTML comment exactly like <!--move:Upskill--> with the chosen level. Never show the rating any other way.\n\n## Critical Rules:\n\n**LENGTH LIMITS (STRICT):**\n- \"Why this role fits you\": 60-80 words MAX\n- \"What works for you\": 50-60 words (3 short bullets)\n- \"The Reality Check\": 50-60 words (3 short bullets)\n- \"The practical stuff\": 30-40 words\n- \"How AI will impact this role\": 15-20 words\n- **Total per career: 200-250 words MAXIMUM**\n\nIf running long, cut adjectives. Be terse.\n\n**MISSING DATA:**\n- If salary missing: provide an entry-level estimate with \"(estimated)\"\n- If AI impact missing: assess based on role type\n- Never write \"not specified\" or \"data not available\"\n\n**TONE:**\n- Business casual, direct\n- Cairnly voice: honest, helpful, no fluff, never condescending (they are new, not naive)\n- Shorter than Top 3 (these are backups)\n- Active voice, second person. Use 'you' and occasionally their name to address them!\n- No em-dashes, ever. Use commas, periods, colons, or parentheses instead.\n\n**PERSONAL CONNECTIONS:**\n- Reference their concrete evidence (work story, proudest achievement, what people come to them for) where relevant\n- Cite dealbreakers, practical constraints, or ranked values\n- Note why not Top 3 specifically\n- Across the runner-up careers, do not lean on the same behavioral watch-out or constraint as the lead concern each time. Vary which one each Reality Check draws on.\n\n**FORMAT:**\n- Use exact headers shown above\n- Compatibility score always in XX/100 e.g. 92/100 format!\n- Use ✓ for benefits, ⚠ for concerns, make these bold\n* if using bulletpoints, make the bullet label bold for readability and emphasis\n- **NEVER use survey question labels in your output! eg. '4c', '7b'**\n- Use ---CAREER_SPLIT--- between careers\n- Output plain markdown (not JSON)\n\n---\n\n## Examples:\n\n**Good \"Why this role fits you\" (70 words):**\n\"You ranked learning and growth first, and this role is a fast classroom: real client work from week one. The community you built around your gaming clips shows you can hold an audience, which is the raw skill here. It didn't make Top 3 because the junior openings are scarce in your region and you said you won't relocate, which makes the runway longer.\"\n\n**Good bullet (15-20 words):**\n✓ **Real entry route exists.** Junior content roles hire on portfolio, and your project channel is 80% of one already.\n\n⚠ **Certificates won't carry you.** Hiring here runs on published proof; budget 3-4 months to build a small portfolio first.\n\n---\n\n## Inputs:\n\n**Runner-Up Careers (with compatibility_scores and patterns):**\n{{ JSON.stringify($('Starter WF3S Webhook').first().json.body.runner_up_careers) }}\n\n**Enriched Career Data:**\n{{ JSON.stringify($json.allCareers) }}\n\n**Initial Summary (evidence log, values [3a], dealbreakers [5e], practical reality):**\n{{ $('Starter WF3S Webhook').first().json.body.init_summary_content }}\n\n---\n\nGenerate all runner-up analyses. Use ---CAREER_SPLIT--- between careers (not before first or after last). Output markdown only.\n\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write all PROSE in Dutch: informal je/jij/jouw (never 'u'), no em-dashes, Dutch number/date formatting (€39,00, €1.500, dd-mm-jjjj). Keep brand terms in English (Cairnly, outside-the-box, runner-up).\nKeep these EXACTLY as specified (English / structured) so downstream parsing keeps working:\n- the ---CAREER_SPLIT--- delimiter between careers\n- the \"# \" career-title line, the \"**Alternative titles:** ... | **At:** ...\" line, and \"**Compatibility score: NN/100**\"\n- any final ```json``` comparison block (keys and values stay exactly as specified)\nUse Markdown \"## \" for each subheader; the subheader TEXT itself in Dutch. Keep AI-impact rating labels in English (Minimal, Moderate, High, Severe, Critical).",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        624
+      ],
+      "id": "fd8e03ae-b234-411b-a637-377b6e5b661d",
+      "name": "Set Runner Up Prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.runner_up_prompt }}",
+        "batching": {}
+      },
+      "id": "d92dfe34-c58e-4142-b4d4-c1ccc61dc9f8",
+      "name": "Runner Up Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        1680
+      ],
+      "id": "0f811083-0b01-4779-9de1-331f668fe5b1",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Runner-Up Careers (Markdown format with CAREER_SPLIT delimiter)\nconst input = $input.first().json.text;\n\n// Get report_id from the same node that Split Top3 uses\nconst reportId = $('Starter WF3S Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n\n// Split by the delimiter\nconst careerBlocks = input.split('---CAREER_SPLIT---').map(block => block.trim()).filter(Boolean);\n\nconst results = careerBlocks.map((block, index) => {\n  // Extract career title (first # heading, not ## subheaders)\n  const titleMatch = block.match(/^# ([^#].+)$/m);\n  const career_title = titleMatch ? titleMatch[1].trim() : `Career ${index + 1}`;\n\n  // Extract alternative titles and company size\n  const altTitlesMatch = block.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n  const alternate_titles = altTitlesMatch ? altTitlesMatch[1].trim() : '';\n  const company_size_type = altTitlesMatch ? altTitlesMatch[2].trim() : '';\n\n  // Extract compatibility score\n  const scoreMatch = block.match(/\\*\\*Compatibility score: (\\d+)\\/100\\*\\*/);\n  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null;\n\n  const moveMatch = block.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n\n  // Build content language-agnostically: from the first \"## \" subheader\n  // onward, drop any trailing \"**More details\" footer, and convert every\n  // \"## X\" header to <h5>X</h5>. Works for English and Dutch headers alike.\n  let __body = block;\n  const __fh = __body.search(/^##\\s+/m);\n  if (__fh >= 0) __body = __body.slice(__fh);\n  __body = __body.split(/\\n\\*\\*More details/)[0];\n  const sections = __body.replace(/^##\\s+(.+?)\\s*$/gm, '<h5>$1</h5>').replace(/<!--move:.*?-->/gi, '').trim();\n\n  // Return one item per career (matches report_sections table structure)\n  return {\n    json: {\n      title: `<h3><strong>${career_title}</strong></h3>`,\n      alternate_titles: alternate_titles ? `<strong>Alternate titles:</strong> ${alternate_titles}` : '',\n      company_size_type: company_size_type ? `<h4><strong>${company_size_type}</strong></h4>` : '',\n      content: sections,\n      score: score,\n      report_id: reportId,\n      metadata: move ? { move } : null,\n      section_type: \"runner_ups\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        624
+      ],
+      "id": "6e8e1b2c-b238-4d16-b0e8-f3a3451929a6",
+      "name": "Parse runner up"
+    },
+    {
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        624
+      ],
+      "id": "1f954c89-a292-4c95-b619-07bffec45458",
+      "name": "Insert Runner Ups",
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for Dream Job Feasibility prompt\nconst trigger = $('Starter WF3S Webhook').first().json.body;\nreturn [{\n  json: {\n    'Top 3 careers': trigger.top_3_careers_str,\n    'Runner up careers': trigger.runner_up_careers_str,\n    'Outside box careers': trigger.outside_box_careers_str\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        928
+      ],
+      "id": "967c19be-18a5-47c8-9b3f-5e3381045b30",
+      "name": "Dream prep"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# ROLE\nYou are an expert career strategist specializing in \"The Smart Entry\": evaluating the feasibility of dream jobs for people at the very start of their working life, who have curiosity, energy, and time on their side, but no professional track record or financial cushion.\n\n# TASK\nAnalyze the feasibility of the candidate's Dream Job(s) as found in Input 1. Look for anything they explicitly name as a dream, plus the strongest interest signals (hobbies, proudest projects, things they keep returning to). Analyze at most the first 3 dream directions; if more are present, focus on the 3 most prominent. You must provide a balanced analysis that respects the dream while being intellectually honest about the entry-level reality: tight junior markets, gatekeeping, and AI absorbing classic starter tasks.\n\n## ANALYSIS DIMENSIONS\n1. **Personality Suitability:** Does the dream job align with how they actually operate: their group presence, structure-versus-freedom preference, and how they handle deadline pressure?\n2. **The \"Smart Entry\" Suggestion:** Instead of only analyzing the dream as a distant title, suggest the realistic way IN for someone starting out (e.g., instead of just \"Game Designer,\" suggest \"QA tester or community manager at a studio while building a portfolio of small shipped games\"). Adjacent junior roles, assistant/apprentice routes, building in public, or running it as a paid side project while a day job covers rent all count.\n3. **Regional & Future Context:** Specifically consider the 2026 economic landscape of Northern and Western Europe (e.g., Netherlands, Germany, Scandinavia) including AI's impact on the junior end of the field and realistic entry-level pay. No fabricated statistics: if you do not know a number, do not invent one.\n4. **Path Type Reality:** Identify whether the dream job (or its Smart Entry version) is realistically an employee role, independent practice (freelance), or a founder path. Each carries different realities for a starter: founder paths mean building proof as a side project first; freelance means finding clients with no track record; employee paths depend on scarce junior openings. The \"Steps for Pursuing This Role\" section must reflect the real path type, not generic career steps.\n\n**TONE:**\n- Business casual, direct\n- Cairnly voice: honest, helpful, warm, no fluff, never condescending: they are new, not naive\n- Active voice, second person. Use 'you' and occasionally their name to address them!\n\n# CRITICAL FORMATTING REQUIREMENTS\n- If there are multiple dream jobs, separate each job analysis with: ---DREAM_JOB_SPLIT---\n- At the very end of each dream job (before ---DREAM_JOB_SPLIT---), output its Move rating (how ready they are to start pursuing it, AI-adjusted) as a hidden HTML comment exactly like <!--move:Retrain--> with ONE of: Ready now (their existing evidence already clears the entry bar), Reframe (gap is packaging not skills), Upskill (a real learning gap), Retrain (a large gap or a credentialed field). Dream jobs are often Upskill or Retrain. Never show the rating any other way.\n- Start directly with the first job title using the ## header.\n- **Strictly DO NOT use the em dash (—)** in your narrative. Use colons, commas, or parentheses instead.\n- **NEVER use survey question labels in your output! eg. '4c', '7b'**\n- Keep bullets to a maximum of 3 per section for scannability.\n- No intro or outro: start with the first Title immediately.\n\n# OUTPUT FORMAT\n\n## [Dream Job Title]\n\n**Overview**\n[A conversational 2-sentence intro explaining why this dream resonates with their profile and evidence, written as if speaking directly to a peer.]\n\n**Feasibility Rating**\n**[Rating]**: [One-sentence \"Bottom Line\" reason for this rating.]\n\nThe rating must be exactly one of these five labels, copied verbatim, with the WHOLE rating in bold (including both words of a hyphenated range): **Low** | **Low - Moderate** | **Moderate** | **Moderate - High** | **High**. Follow it with a colon, a space, and the one-sentence reason.\nCorrect: **Low - Moderate**: Acting as a profession needs a long runway before stable income.\nWrong: \"**Low** - Moderate: ...\" (only half bold), or \"Low - Moderate: ...\" (not bold at all).\n\n**Personality & Energy Fit**\n- [Bullet 1: Alignment with their group presence and social energy]\n- [Bullet 2: Alignment with their structure-versus-freedom preference and how they handle deadline pressure]\n- [Bullet 3: What this dream would demand of them that their evidence (work story, proudest achievement) does or does not yet show]\n\n**The Smart Entry Version**\n- [Bullet 1: The specific realistic way IN for someone starting out: an adjacent junior role, assistant/apprentice route, or a build-in-public side project with a day job covering rent]\n- [Bullet 2: Explain how this entry version solves the \"no experience\" or \"no income\" risk of chasing the dream head-on]\n- [Bullet 3: Note if this dream or its entry version already appeared in their Top 15 or OTB lists for validation]\n\n**Industry Outlook & Regional Trends**\n- [Bullet 1: Realistic ENTRY-LEVEL pay expectations in Northern/Western Europe for this specific field]\n- [Bullet 2: AI Impact: Describe how AI is transforming the junior end of this field, what entry tasks are shrinking and what stays human] - see below\n- [Bullet 3: Regional demand or barriers in Europe (e.g. certifications, degree gatekeeping, linguistic needs, or market saturation at the junior level)]\n\n**Future-proof skills**\n- [Bullet 1: the human-centric skill or positioning that keeps this dream viable as AI reshapes the field]\n- [Bullet 2: one concrete, AI-aware capability to build now, achievable from where they are today, no track record required]\n\n**Steps for Pursuing This Role**\n- [Bullet 1: Immediate low-stakes action this month to \"test\" the dream job for real]\n- [Bullet 2: The certification, education, or portfolio proof that actually matters in the European market, with a rough honest time horizon]\n- [Bullet 3: A \"day job + side build\" suggestion: the paid role that covers rent while the dream gets built, and when to reassess]\n\n*Heads-up: [Only include if entry-level pay in this field is significantly lower than what they said they need, or clashes with their salary-versus-learning stance.]*\n\n---DREAM_JOB_SPLIT---\n\n\n# INPUTS\n1. Where to extract the dreamjob(s)\n{{ $('Starter WF3S Webhook').first().json.body.interests_history_text }}\n2. top 3 careers\n{{ $json['Top 3 careers'] }}\n3. runner up careers\n{{ $json['Runner up careers'] }}\n4. Out of box careers\n{{ $json['Outside box careers'] }}\n\n\n\n## AI impact rating scale\n\n[1-2 sentences. Use ai_impact_rating from enriched data where available. Be specific about what changes and what stays human, especially at the junior end. Connect to their technology comfort and feelings about AI. Keep the Rating Scale label, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment.\n\n\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write in Dutch: informal je-form, no em-dashes, Dutch formatting (€39,00, €1.500, dd-mm-jjjj). Keep brand terms in English (Cairnly, outside-the-box, runner-up). Keep AI-impact rating labels in English (Minimal, Moderate, High, Severe, Critical).\nKeep the ---DREAM_JOB_SPLIT--- delimiter exactly. Use these EXACT Dutch subheaders instead of the English ones:\n  Overview -> Overzicht\n  Feasibility Rating -> Haalbaarheidsscore\n  Personality & Energy Fit -> Aansluiting op persoonlijkheid en energie\n  The Smart Entry Version -> De slimme instapversie\n  Industry Outlook & Regional Trends -> Sectorvooruitzichten en regionale trends\n  Steps for Pursuing This Role -> Stappen om deze rol na te streven",
+        "batching": {}
+      },
+      "id": "231cb4d5-638c-40a8-acbb-8c54c1cc51cd",
+      "name": "Dream Job Feasibility",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        1680
+      ],
+      "id": "3cb7af92-065a-4b07-9360-e82a13b3f169",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get report_id from upstream node\nconst reportId = $('Starter WF3S Webhook').first().json.body.report_id;\n\n// Get the dream jobs text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lr = $('Get Report Language').first().json;\nconst __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\nconst DREAM_JOB_SUBHEADERS_ALL = {\n  en: [\"Overview\",\"Feasibility Rating\",\"Personality & Energy Fit\",\"The Smart Entry Version\",\"Industry Outlook & Regional Trends\",\"Future-proof skills\",\"Steps for Pursuing This Role\"],\n  nl: [\"Overzicht\",\"Haalbaarheidsscore\",\"Aansluiting op persoonlijkheid en energie\",\"De slimme instapversie\",\"Sectorvooruitzichten en regionale trends\",\"Future-proof skills\",\"Stappen om deze rol na te streven\"]\n};\nconst DREAM_JOB_SUBHEADERS = DREAM_JOB_SUBHEADERS_ALL[__lang];\n\nfunction formatDreamJobContent(content) {\n  let formatted = content;\n  \n  DREAM_JOB_SUBHEADERS.forEach(subheader => {\n    /**\n     * Updated Regex:\n     * 1. Looks for the subheader at the start of the string or after a newline\n     * 2. Allows for optional Markdown stars (**)\n     * 3. Allows for an optional colon (:)\n     * 4. Ensures it matches the whole line to avoid replacing the word mid-sentence\n     */\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*(\\\\n|$)`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Convert markdown bold to <strong> — covers the feasibility rating,\n  // which the prompt now bolds in full.\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');\n  \n  return formatted.trim();\n}\n\nfunction parseDreamJob(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    // Match ## Title or just \"Chief Product Officer\" if it's the very first line\n    if (line.match(/^##\\s*.+$/) || (i === 0 && line.length > 0)) {\n      title = line.replace(/^##\\s*/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatDreamJobContent(rawContent);\n  \n  return {\n    title: title || 'Dream Job',\n    content: formattedContent\n  };\n}\n\nconst dreamJobSections = fullText.split('---DREAM_JOB_SPLIT---');\nconst cleanSections = dreamJobSections.filter(section => section.trim().length > 0);\n\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseDreamJob(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      section_type: \"dream_jobs\",\n      title: `<h3>${parsed.title}</h3>`,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        928
+      ],
+      "id": "04111827-9e37-4db8-a7cf-8e53003d4d90",
+      "name": "Parse Dream"
+    },
+    {
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        928
+      ],
+      "id": "66e20bd2-df47-4eb3-865d-1fd266ff0482",
+      "name": "Insert dream",
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2272,
+        608
+      ],
+      "id": "02dc6615-008d-446b-a999-e1357ac8bc97",
+      "name": "Complete merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pcoyafgsirrznhmdaiji.functions.supabase.co/analysis-completed",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "= { \"report_id\": \"{{ $('Starter WF3S Webhook').first().json.body.report_id }}\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2496,
+        624
+      ],
+      "id": "f2075da1-bebb-4ab5-a08e-9a5d5bf18cfb",
+      "name": "HTTP Request",
+      "executeOnce": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aiABzg04zbeDSXRc",
+          "name": "Supabase Edge Functions — Shared Secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        464
+      ],
+      "id": "1e239ace-b324-40cd-aecd-ad1ec2ba4a26",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        784
+      ],
+      "id": "24281098-2118-4664-b89b-7a2ecd5ca9b8",
+      "name": "Anthropic Chat Model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        1072
+      ],
+      "id": "4f6a8057-64a9-4218-aed5-507716a6e05e",
+      "name": "Anthropic Chat Model2",
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Starter WF3S Webhook').first().json.body.report_id }}&select=language&limit=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -480,
+        624
+      ],
+      "id": "16814ad9-c418-46eb-a48e-f5f93c96eb1b",
+      "name": "Get Report Language",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Top 3 only": {
+      "main": [
+        [
+          {
+            "node": "Pull enriched T3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull enriched T3": {
+      "main": [
+        [
+          {
+            "node": "t3 content order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "t3 content order": {
+      "main": [
+        [
+          {
+            "node": "T3 enr. combined",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "T3 enr. combined": {
+      "main": [
+        [
+          {
+            "node": "T3 Careers Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "T3 Careers Prompt": {
+      "main": [
+        [
+          {
+            "node": "Top 3 Careers Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top 3 Careers Generator": {
+      "main": [
+        [
+          {
+            "node": "Split Top3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Top3": {
+      "main": [
+        [
+          {
+            "node": "Insert Top 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Top 3": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4-10 only": {
+      "main": [
+        [
+          {
+            "node": "Pull Runner up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull Runner up": {
+      "main": [
+        [
+          {
+            "node": "Combine runners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine runners": {
+      "main": [
+        [
+          {
+            "node": "Set Runner Up Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Runner Up Prompt": {
+      "main": [
+        [
+          {
+            "node": "Runner Up Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Runner Up Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse runner up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Parse runner up": {
+      "main": [
+        [
+          {
+            "node": "Insert Runner Ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Runner Ups": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dream prep": {
+      "main": [
+        [
+          {
+            "node": "Dream Job Feasibility",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dream Job Feasibility": {
+      "main": [
+        [
+          {
+            "node": "Parse Dream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Parse Dream": {
+      "main": [
+        [
+          {
+            "node": "Insert dream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert dream": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Complete merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Top 3 Careers Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Runner Up Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Dream Job Feasibility",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Report Language": {
+      "main": [
+        [
+          {
+            "node": "Dream prep",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "4-10 only",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top 3 only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Starter WF3S Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Report Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "FbsruPbuZI2Fgtc8",
+    "availableInMCP": false
+  }
+}
