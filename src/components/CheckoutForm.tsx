@@ -112,11 +112,12 @@ function extractUserEmail(user: any, profile: any) {
 
 interface CheckoutFormProps {
   /**
-   * Product flavor being purchased. 'starter' makes payment-success mint an
-   * access code for the starter survey (cairnly.io/starter); default is the
-   * professional assessment. Threaded via Stripe session metadata.
+   * Product flavor being purchased. 'starter' and 'encore' make
+   * payment-success mint an access code for that flavor's survey (and
+   * create-checkout charge that flavor's price); default is the professional
+   * assessment. Threaded via Stripe session metadata.
    */
-  flavor?: 'pro' | 'starter';
+  flavor?: 'pro' | 'starter' | 'encore';
 }
 
 export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {

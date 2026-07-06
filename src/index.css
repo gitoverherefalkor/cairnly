@@ -441,3 +441,20 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ---- Large-type flavor scope (Encore) ----
+   The encore audience (pensioners / pre-retirees) gets the SHARED survey UI
+   rendered roughly 12% larger. Scoped overrides of the Tailwind text utilities
+   beat forking or redesigning shared components: scale, not redesign.
+   Applied via AssessmentLayout / Assessment.tsx when the encore survey loads.
+   Sizes only ever go up, never below their defaults. */
+.survey-lg {
+  font-size: 1.0625rem;
+}
+.survey-lg .text-xs { font-size: 0.85rem; }
+.survey-lg .text-sm { font-size: 0.98rem; }
+.survey-lg .text-base { font-size: 1.125rem; }
+.survey-lg .text-lg { font-size: 1.26rem; }
+.survey-lg .text-xl { font-size: 1.4rem; }
+.survey-lg .text-2xl { font-size: 1.68rem; }
+.survey-lg .text-3xl { font-size: 2.1rem; }

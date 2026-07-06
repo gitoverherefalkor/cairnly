@@ -16,6 +16,7 @@ import { DashboardAppNav } from './DashboardAppNav';
 import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
 
 export type EntryMode = 'empty' | 'resume' | 'chat' | 'failed';
+export type EntryFlavor = 'pro' | 'starter' | 'encore';
 
 interface ResumeProgress {
   sectionsComplete: number;
@@ -36,33 +37,85 @@ interface DashboardEntryStateProps {
   // Only used in 'failed' mode: re-run report generation from saved answers.
   onRetry?: () => void;
   isRetrying?: boolean;
-  // Starter flavor (cairnly.io/starter, first-job seekers): different survey,
-  // shorter timing, and copy that doesn't assume a work history.
-  isStarter?: boolean;
+  // Survey flavor (from the verified access code / draft survey): each flavor
+  // has its own section list, timing eyebrow, intro copy, and preview cards.
+  flavor?: EntryFlavor;
 }
 
-// Mirrors the survey_sections table in DB order. Update both together when
-// sections change in Supabase.
-const ASSESSMENT_SECTIONS = [
-  'Intake questions',
-  'Personality & decision-making',
-  'Values & motivations',
-  'Professional interests & skills',
-  'Work environment & team preferences',
-  'Emotional intelligence',
-  'Career goals & development',
-];
+// Section lists mirror the survey_sections table in DB order. Update both
+// together when sections change in Supabase.
+const FLAVOR_SECTIONS: Record<EntryFlavor, string[]> = {
+  pro: [
+    'Intake questions',
+    'Personality & decision-making',
+    'Values & motivations',
+    'Professional interests & skills',
+    'Work environment & team preferences',
+    'Emotional intelligence',
+    'Career goals & development',
+  ],
+  // Starter survey sections (survey 00000000-...-0002), DB order.
+  starter: [
+    'Getting to know you',
+    'How you operate',
+    'What drives you',
+    'Interests and strengths',
+    'Where you work best',
+    'Practical reality',
+    'Looking ahead',
+  ],
+  // Encore survey sections (survey 00000000-...-0003), DB order.
+  encore: [
+    'Getting to know you',
+    'The career you had',
+    'How you operate now',
+    'What matters now',
+    'Where you thrive',
+    'Practical reality',
+    'Looking ahead',
+  ],
+};
 
-// Starter survey sections (survey 00000000-...-0002), DB order.
-const STARTER_SECTIONS = [
-  'Getting to know you',
-  'How you operate',
-  'What drives you',
-  'Interests and strengths',
-  'Where you work best',
-  'Practical reality',
-  'Looking ahead',
-];
+// Per-flavor entry copy: 'empty' mode intro, timing eyebrow, and the ghosted
+// "when you finish" preview cards.
+const FLAVOR_COPY: Record<
+  EntryFlavor,
+  { emptySub: string; emptyEyebrow: string; ghostCards: Array<{ title: string; sub: string }> }
+> = {
+  pro: {
+    emptySub:
+      "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.",
+    emptyEyebrow: 'NEXT STEP · 25 MINUTES',
+    ghostCards: [
+      { title: 'Personality profile', sub: 'How you think, lead, and operate' },
+      { title: 'Top career matches', sub: '3 roles tailored to you, AI-impact rated' },
+      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
+      { title: 'Dream-job reality check', sub: 'An honest feasibility check' },
+    ],
+  },
+  starter: {
+    emptySub:
+      'In the assessment we cover how you operate, what you enjoy, and where you want to go. No work experience needed: side jobs, school, and projects all count as real evidence. Best in one sitting, and your answers are auto-saved. After this, your AI coach walks you through a personalised report and refines it with you.',
+    emptyEyebrow: 'NEXT STEP · 20 MINUTES',
+    ghostCards: [
+      { title: 'Personality profile', sub: 'How you operate, decide, and learn' },
+      { title: 'Career directions', sub: '3 directions that fit you, AI-aware' },
+      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
+      { title: 'Entry game plan', sub: 'How to get in without experience' },
+    ],
+  },
+  encore: {
+    emptySub:
+      'In the assessment we take proper stock of the career you had, how you operate now, and what matters at this stage of life. Take your time, breaks are fine: your answers are saved automatically. After this, your AI coach walks you through a personalised report and refines it with you.',
+    emptyEyebrow: 'NEXT STEP · 25 MINUTES',
+    ghostCards: [
+      { title: 'Personality profile', sub: 'How you operate now, honestly' },
+      { title: 'Encore directions', sub: '3 directions that fit this stage, paid or not' },
+      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
+      { title: 'The way in', sub: 'How to step in at your seniority' },
+    ],
+  },
+};
 
 export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   mode,
@@ -73,14 +126,15 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   resumeProgress,
   onRetry,
   isRetrying = false,
-  isStarter = false,
+  flavor = 'pro',
 }) => {
   const name = firstName || 'there';
   const isResume = mode === 'resume';
   const isChat = mode === 'chat';
   const isFailed = mode === 'failed';
 
-  const sections = isStarter ? STARTER_SECTIONS : ASSESSMENT_SECTIONS;
+  const sections = FLAVOR_SECTIONS[flavor];
+  const flavorCopy = FLAVOR_COPY[flavor];
 
   const complete = resumeProgress?.sectionsComplete ?? 0;
   const total = resumeProgress?.totalSections ?? sections.length;
@@ -115,9 +169,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
       ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
       : isResume
         ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-        : isStarter
-          ? 'In the assessment we cover how you operate, what you enjoy, and where you want to go. No work experience needed: side jobs, school, and projects all count as real evidence. Best in one sitting, and your answers are auto-saved. After this, your AI coach walks you through a personalised report and refines it with you.'
-          : "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.";
+        : flavorCopy.emptySub;
 
   const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
   const ctaEyebrow = isFailed
@@ -126,9 +178,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
       ? 'NEXT STEP · YOUR COACH'
       : isResume
         ? `PROGRESS · ${pct}% COMPLETE`
-        : isStarter
-          ? 'NEXT STEP · 20 MINUTES'
-          : 'NEXT STEP · 25 MINUTES';
+        : flavorCopy.emptyEyebrow;
 
   return (
     <LakeBackground intensity="heavy">
@@ -304,21 +354,9 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               filter: 'saturate(0.6)',
             }}
           >
-            {isStarter ? (
-              <>
-                <GhostCard title="Personality profile" sub="How you operate, decide, and learn" />
-                <GhostCard title="Career directions" sub="3 directions that fit you, AI-aware" />
-                <GhostCard title="Alternative paths" sub="Runner-ups + outside-the-box" />
-                <GhostCard title="Entry game plan" sub="How to get in without experience" />
-              </>
-            ) : (
-              <>
-                <GhostCard title="Personality profile" sub="How you think, lead, and operate" />
-                <GhostCard title="Top career matches" sub="3 roles tailored to you, AI-impact rated" />
-                <GhostCard title="Alternative paths" sub="Runner-ups + outside-the-box" />
-                <GhostCard title="Dream-job reality check" sub="An honest feasibility check" />
-              </>
-            )}
+            {flavorCopy.ghostCards.map((card) => (
+              <GhostCard key={card.title} title={card.title} sub={card.sub} />
+            ))}
           </div>
 
           {!isChat && !isFailed && (

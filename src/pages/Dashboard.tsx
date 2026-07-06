@@ -15,8 +15,13 @@ import { computeSurveyProgress } from '@/lib/surveyProgress';
 import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
 import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
 import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
-import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/DashboardEntryState';
-import { STARTER_SURVEY_ID, STARTER_SURVEY_TYPE } from '@/components/assessment/constants';
+import { DashboardEntryState, type EntryMode, type EntryFlavor } from '@/components/dashboard/v2/DashboardEntryState';
+import {
+  STARTER_SURVEY_ID,
+  STARTER_SURVEY_TYPE,
+  ENCORE_SURVEY_ID,
+  ENCORE_SURVEY_TYPE,
+} from '@/components/assessment/constants';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import {
   pickShareSentences,
@@ -482,6 +487,21 @@ const Dashboard = () => {
   }
 
   // ── Pre-report states (empty / resume / chat) ────────────────
+  // Flavor for the entry screen, resolved from (in order): the verified access
+  // code's survey_type, a recovered draft's survey id, or the saved local
+  // session. Unknown/absent means pro.
+  const sessionSurveyType = savedSession?.accessCodeData?.survey_type ?? null;
+  const entryFlavor: EntryFlavor =
+    entrySurveyType === STARTER_SURVEY_TYPE ||
+    draftSurveyId === STARTER_SURVEY_ID ||
+    sessionSurveyType === STARTER_SURVEY_TYPE
+      ? 'starter'
+      : entrySurveyType === ENCORE_SURVEY_TYPE ||
+          draftSurveyId === ENCORE_SURVEY_ID ||
+          sessionSurveyType === ENCORE_SURVEY_TYPE
+        ? 'encore'
+        : 'pro';
+
   let mode: EntryMode = 'empty';
   if (latestReport?.status === 'pending_review' && cameFromChat) {
     mode = 'chat';
@@ -554,11 +574,7 @@ const Dashboard = () => {
         resumeProgress={resumeProgress}
         onRetry={handleRetryReport}
         isRetrying={isRetrying}
-        isStarter={
-          entrySurveyType === STARTER_SURVEY_TYPE ||
-          draftSurveyId === STARTER_SURVEY_ID ||
-          savedSession?.accessCodeData?.survey_type === STARTER_SURVEY_TYPE
-        }
+        flavor={entryFlavor}
       />
 
       {showAccessCodeModal && userAccessCode && (

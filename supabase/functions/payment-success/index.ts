@@ -547,12 +547,15 @@ serve(async (req) => {
     const currency = session.currency?.toUpperCase() || 'EUR';
 
     // Flavor threaded from create-checkout via Stripe session metadata.
-    // 'starter' codes load the starter survey (cairnly.io/starter); anything
-    // else, including sessions created before this field existed, stays pro.
+    // 'starter' codes load the starter survey (cairnly.io/starter) and
+    // 'encore' codes the encore survey (cairnly.io/encore); anything else,
+    // including sessions created before this field existed, stays pro.
     const surveyType =
       session.metadata?.flavor === "starter"
         ? "Starter - First Serious Job - 2026 v1 EN"
-        : "Office / Business Pro - 2025 v1 EN";
+        : session.metadata?.flavor === "encore"
+          ? "Encore - Post-Career Direction - 2026 v1 EN"
+          : "Office / Business Pro - 2025 v1 EN";
 
     // Store the access code in the database with pricing info
     const { data: codeData, error: codeError } = await supabase

@@ -1,0 +1,470 @@
+{
+ "name": "WF1P - Encore Profile Insert EN",
+ "nodes": [
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "a36dcbda-795e-4c29-b625-976ade1c051f",
+    "options": {
+     "allowedOrigins": "*",
+     "binaryPropertyName": "",
+     "ignoreBots": false,
+     "responseHeaders": {
+      "entries": [
+       {
+        "name": "Content-Type",
+        "value": "application/json"
+       }
+      ]
+     }
+    }
+   },
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    768,
+    624
+   ],
+   "id": "0a8c0df0-3fce-4ce2-83f9-0d2396516db7",
+   "name": "Encore Survey complete Webhook",
+   "webhookId": "a36dcbda-795e-4c29-b625-976ade1c051f"
+  },
+  {
+   "parameters": {
+    "jsCode": "// Clean up initial summary for downstream use\n// This content feeds directly into prompt_perso_prof AND gets inserted to SB later\nconst summaryRaw = $('Initial_summary1').first().json.text || '';\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Clean markdown formatting, convert to HTML (same logic as original)\nlet content = summaryRaw\n  .replace(/###\\s*\\*\\*([^*]+)\\*\\*/g, '<h5>$1</h5>')\n  .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>')\n  .replace(/\\*([^*]+)\\*/g, '$1')\n  .trim();\n\nreturn [{\n  json: {\n    report_id: reportId,\n    content: content\n  }\n}];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1872,
+    624
+   ],
+   "id": "4db5cbe1-b244-40ad-acbe-1a3be924d281",
+   "name": "Prep init_summary"
+  },
+  {
+   "parameters": {
+    "tableId": "report_sections",
+    "dataToSend": "autoMapInputData"
+   },
+   "type": "n8n-nodes-base.supabase",
+   "typeVersion": 1,
+   "position": [
+    2912,
+    624
+   ],
+   "id": "bb555d97-bead-46c0-be07-0f32a55816c8",
+   "name": "SB insert all sections",
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "b2517078-26eb-406a-8d10-900e66880eb5",
+       "name": "=report_id",
+       "value": "={{ $json.id }}",
+       "type": "string"
+      },
+      {
+       "id": "e608eaae-85e8-4b81-981c-62e7895717d6",
+       "name": "preferred_language",
+       "value": "={{ $('Process Survey Data1').first().json.preferred_language }}",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    3360,
+    624
+   ],
+   "id": "2271daf9-8ab3-4d4c-b55b-b4c43479729c",
+   "name": "pass report_id to WF2",
+   "executeOnce": false
+  },
+  {
+   "parameters": {
+    "jsCode": "// 1. MASTER SCHEMA - Maps ID to UUID and Full Question Data (ENCORE survey 00000000-0000-0000-0000-000000000003)\n  const SURVEY_SCHEMA = {\n    // --- SECTION 1: Getting to know you ---\n    \"1a\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000001\", question: \"Your name\", type: \"short_text\", options: [], description: \"First and last name\" },\n    \"1b\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000002\", question: \"Your age\", type: \"number\", options: [], description: \"\" },\n    \"1c\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000003\", question: \"What region are you based?\", type: \"dropdown\", options: [\"Northern and Western Europe\", \"Southern and Eastern Europe\", \"United Kingdom (London)\", \"United Kingdom (Other)\", \"United States (High-Cost Regions)\", \"United States (Average-Cost Regions)\", \"United States (Lower-Cost Regions)\", \"Canada\", \"Australia and New Zealand\", \"Switzerland\"], description: \"If you are moving somewhere for this next stage, pick that region.\" },\n    \"1d\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000004\", question: \"Where are you in the transition?\", type: \"multiple_choice\", options: [\"Still working, retirement is on the horizon\", \"Working, but winding down (fewer days or a lighter role)\", \"Recently stopped (less than a year ago)\", \"Stopped a while ago (more than a year)\", \"Semi-retired, already doing bits and pieces\"], description: \"\" },\n    \"1e\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000005\", question: \"When does (or did) the big change happen?\", type: \"dropdown\", options: [\"More than 2 years away\", \"Within 1 to 2 years\", \"Within a year\", \"It just happened\", \"More than a year ago\"], description: \"\" },\n    \"1f\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000006\", question: \"What is the highest level of education you have completed?\", type: \"multiple_choice\", options: [\"No formal education\", \"High school diploma or equivalent\", \"Associate's degree (e.g., technical college or vocational training)\", \"Bachelor's degree\", \"Master's degree\", \"Doctorate or professional degree (e.g., PhD, MD, JD)\"], description: \"\" },\n    \"1g\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000007\", question: \"What did you study?\", type: \"short_text\", options: [], description: \"Field or specialization, if applicable. Optional.\" },\n    \"1h\": { uuid: \"b2b2b2b2-0001-4000-a000-000000000008\", question: \"Who or what shapes your week right now?\", type: \"long_text\", options: [], description: \"Optional. Partner, grandchildren, care duties, travel plans, the garden. Whatever structures your time today.\" },\n\n    // --- SECTION 2: The career you had ---\n    \"2a\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000001\", question: \"What were the defining roles of your career?\", type: \"career_history\", options: [], description: \"Your most recent or most defining roles. No need for the full CV, the highlights are enough.\" },\n    \"2b\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000002\", question: \"How happy were you in each of these roles?\", type: \"career_happiness\", options: [], description: \"Rate your happiness (1-10) and explain what about the role's responsibilities and the work itself affected your satisfaction - not the company culture, specific people, or circumstances.\" },\n    \"2c\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000003\", question: \"How many years did you work in total?\", type: \"number\", options: [], description: \"A rough number is fine.\" },\n    \"2d\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000004\", question: \"Skills, Achievements & Languages\", type: \"skills_achievements\", options: [], description: \"What you were good at and what you are proud of. This is the raw material for what comes next.\" },\n    \"2e\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000005\", question: \"What were you known for?\", type: \"long_text\", options: [], description: \"The reputation you had. The thing colleagues would say about you when you were not in the room.\" },\n    \"2f\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000006\", question: \"What will you absolutely NOT miss?\", type: \"long_text\", options: [], description: \"Be specific. Meetings, politics, targets, commuting, being on call...\" },\n    \"2g\": { uuid: \"b2b2b2b2-0002-4000-a000-000000000007\", question: \"And what did you secretly love, even if you rarely said so?\", type: \"long_text\", options: [], description: \"The part of the work you would have done for free. There is usually one.\" },\n\n    // --- SECTION 3: How you operate now ---\n    \"3a\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000001\", question: \"When is your energy at its best these days?\", type: \"multiple_choice\", options: [\"Mornings, sharp and early\", \"Middle of the day\", \"It varies day to day\", \"Most of the day, energy is not my problem\"], description: \"\" },\n    \"3b\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000002\", question: \"How do social interactions affect your energy now?\", type: \"multiple_choice\", options: [\"Energized (I thrive on people)\", \"Somewhat energized (I enjoy it, with a limit)\", \"Somewhat drained (fine, but I need quiet afterwards)\", \"Drained (I guard my alone time)\"], description: \"\" },\n    \"3c\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000003\", question: \"Structure or freedom, at this stage?\", type: \"multiple_choice\", options: [\"Real structure: fixed days and standing commitments\", \"Some structure: a rhythm without a cage\", \"Mostly freedom: I commit per project or season\", \"Total freedom: I have earned it\"], description: \"\" },\n    \"3d\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000004\", question: \"How is your appetite for learning new things?\", type: \"multiple_choice\", options: [\"Strong, I actively want to master something new\", \"Selective, for the right subject\", \"Modest, I would rather apply what I already know\", \"Honestly low, and that is fine\"], description: \"\" },\n    \"3e\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000005\", question: \"Working with people decades younger than you: how does that sit?\", type: \"multiple_choice\", options: [\"Genuinely energizing, I like their pace\", \"Fine, as long as there is mutual respect\", \"A bit awkward, but workable\", \"I would rather work with peers\"], description: \"\" },\n    \"3f\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000006\", question: \"How do you handle feedback at this point in life?\", type: \"multiple_choice\", options: [\"Still hungry for it\", \"Open to it, if it is delivered like an adult\", \"I take it, but my ego has opinions\", \"Frankly, I am done being graded\"], description: \"\" },\n    \"3g\": { uuid: \"b2b2b2b2-0003-4000-a000-000000000007\", question: \"Which of these do you recognize in yourself?\", type: \"multiple_choice\", options: [\"I can be set in my ways\", \"I underestimate what I know\", \"I overcommit and then resent it\", \"I need to be needed\", \"Impatience with slow processes\", \"I dismiss new tools too quickly\", \"I find it hard to say no\", \"None of these\"], description: \"Select all that apply. Honesty beats polish here.\" },\n\n    // --- SECTION 4: What matters now ---\n    \"4a\": { uuid: \"b2b2b2b2-0004-4000-a000-000000000001\", question: \"Rank what matters most in this next stage\", type: \"ranking\", options: [\"**Purpose & contribution** (work that means something to someone)\", \"**Staying sharp** (keeping the mind engaged and challenged)\", \"**Social connection** (people, belonging, being part of something)\", \"**Structure & routine** (a reason to get up and a rhythm to the week)\", \"**Recognition & being valued** (expertise that still counts)\", \"**Income top-up** (meaningful money on top of the pension)\", \"**Freedom for travel & family** (protecting the flexible life)\", \"**Enjoyment of the work itself** (doing things I actually like doing)\"], description: \"(Most important on top, least important on the bottom)\" },\n    \"4b\": { uuid: \"b2b2b2b2-0004-4000-a000-000000000002\", question: \"What does a genuinely good year look like at this stage?\", type: \"long_text\", options: [], description: \"Not a bucket list. An ordinary good year. What is in it?\" },\n    \"4c\": { uuid: \"b2b2b2b2-0004-4000-a000-000000000003\", question: \"What do you fear most about this stage?\", type: \"multiple_choice\", options: [\"Becoming irrelevant\", \"Boredom and empty days\", \"Losing the identity my work gave me\", \"Losing social contact\", \"Going soft without a reason to stay sharp\", \"My partner and I driving each other mad\", \"Honestly nothing, I am ready\"], description: \"Pick up to 2. This is between you and the report.\" },\n    \"4d\": { uuid: \"b2b2b2b2-0004-4000-a000-000000000004\", question: \"The pace of technology and AI: how does it feel from where you sit?\", type: \"multiple_choice\", options: [\"Exciting, I want to stay in the game\", \"Manageable, I keep up where it matters\", \"Uncomfortable, the world moves faster than I like\", \"Irrelevant to what I want next\"], description: \"\" },\n    \"4e\": { uuid: \"b2b2b2b2-0004-4000-a000-000000000005\", question: \"List personal interests or hobbies that matter to you\", type: \"interests_hobbies\", options: [], description: \"Provide **up to 3** (e.g. sailing, gardening, history, bridge, photography, wine, grandkids' football club...)\" },\n\n    // --- SECTION 5: Where you thrive ---\n    \"5a\": { uuid: \"b2b2b2b2-0005-4000-a000-000000000001\", question: \"How many hours a week do you actually want to commit?\", type: \"multiple_choice\", options: [\"Under 8 hours\", \"8 to 16 hours\", \"16 to 24 hours\", \"24 to 32 hours\", \"Depends entirely on the season or project\"], description: \"\" },\n    \"5b\": { uuid: \"b2b2b2b2-0005-4000-a000-000000000002\", question: \"In person, remote, or both?\", type: \"multiple_choice\", options: [\"Mostly in person, the social part is the point\", \"Mostly remote, I value the freedom\", \"A real mix\", \"Depends on the work\"], description: \"\" },\n    \"5c\": { uuid: \"b2b2b2b2-0005-4000-a000-000000000003\", question: \"Leading, contributing, or advising?\", type: \"multiple_choice\", options: [\"Leading, I still like being in charge\", \"Contributing, meaningful work without the politics\", \"Advising, my judgment is the product\", \"Mentoring, developing people one on one\", \"A blend, depending on the setting\"], description: \"\" },\n    \"5d\": { uuid: \"b2b2b2b2-0005-4000-a000-000000000004\", question: \"Which environments are you simply done with?\", type: \"multiple_choice\", options: [\"Corporate politics and steering committees\", \"Targets and performance reviews\", \"Open-plan offices\", \"Rigid schedules\", \"Being managed by process instead of sense\", \"Travel-heavy work\", \"High-stakes pressure cookers\"], description: \"Optional. Pick up to 3.\" },\n    \"5e\": { uuid: \"b2b2b2b2-0005-4000-a000-000000000005\", question: \"How social should the work itself be?\", type: \"multiple_choice\", options: [\"Highly social, lots of people contact\", \"Regular contact with a familiar group\", \"Occasional contact, mostly independent work\", \"As little as possible\"], description: \"\" },\n\n    // --- SECTION 6: Practical reality ---\n    \"6a\": { uuid: \"b2b2b2b2-0006-4000-a000-000000000001\", question: \"Where does income from this next stage sit for you?\", type: \"multiple_choice\", options: [\"Not a factor, I am financially set\", \"Nice to have, it should pay something reasonable\", \"Needed, it has to meaningfully supplement my pension\"], description: \"Nobody sees this but the model. Honesty here changes the advice.\" },\n    \"6b\": { uuid: \"b2b2b2b2-0006-4000-a000-000000000002\", question: \"How mobile are you?\", type: \"multiple_choice\", options: [\"Fully mobile, happy to travel for the right thing\", \"Regional, within an hour or so\", \"Local, close to home\", \"Mostly home-based\"], description: \"\" },\n    \"6c\": { uuid: \"b2b2b2b2-0006-4000-a000-000000000003\", question: \"Which commitments shape your calendar?\", type: \"multiple_choice\", options: [\"Grandchildren\", \"Caring for a partner or family member\", \"Extended travel plans\", \"Volunteer commitments I intend to keep\", \"My own health rhythm\", \"A partner's schedule\", \"None that constrain me\"], description: \"Select all that apply.\" },\n    \"6d\": { uuid: \"b2b2b2b2-0006-4000-a000-000000000004\", question: \"When do you want this next thing to start?\", type: \"dropdown\", options: [\"It already started, I am refining it\", \"As soon as possible\", \"Within 6 months\", \"Within a year\", \"Later, I am orienting first\"], description: \"\" },\n    \"6e\": { uuid: \"b2b2b2b2-0006-4000-a000-000000000005\", question: \"What is your appetite for formal responsibility?\", type: \"multiple_choice\", options: [\"Yes, formal roles with real accountability suit me\", \"Some, if the obligations are clearly bounded\", \"Influence without formal liability, please\", \"None, no formal obligations again\"], description: \"Board and supervisory seats carry real legal liability and fixed obligations. Worth being honest about.\" },\n\n    // --- SECTION 7: Looking ahead ---\n    \"7a\": { uuid: \"b2b2b2b2-0007-4000-a000-000000000001\", question: \"When you say you want to do something \\\"meaningful\\\", what do you actually mean?\", type: \"long_text\", options: [], description: \"Meaningful to whom? Your family, your field, strangers, yourself? There is no wrong answer, but there is a vague one.\" },\n    \"7b\": { uuid: \"b2b2b2b2-0007-4000-a000-000000000002\", question: \"What is the thing you always wanted to try but never had time for?\", type: \"long_text\", options: [], description: \"Serious or not. This question has surprised people.\" },\n    \"7c\": { uuid: \"b2b2b2b2-0007-4000-a000-000000000003\", question: \"What do you want Cairnly to tell you straight?\", type: \"multiple_choice\", options: [\"What kinds of work actually fit me now\", \"What my experience is genuinely worth in today's market\", \"An honest read on my personality, not flattery\", \"How to stay relevant in a world full of AI\", \"How to build a week that feels like a life, not a schedule\", \"Whether my own idea for this stage holds up\"], description: \"Select everything that applies.\" },\n    \"7d\": { uuid: \"b2b2b2b2-0007-4000-a000-000000000004\", question: \"Anything else we should know?\", type: \"long_text\", options: [], description: \"Optional. Anything that did not fit the boxes.\" }\n\n  };\n\n  // --- ROBUST DATA PROCESSING LOGIC ---\n  const inputItem = $input.first().json;\n  const rawResponses = inputItem.survey_responses?.responses || inputItem.body?.survey_responses?.responses || {};\n\n  // Surface report_id + user_id so downstream nodes can reference them\n  // via $('this_node').first().json.report_id without depending on rep_id1.\n  const reportId = inputItem.report_id || inputItem.body?.report_id || null;\n  const userId = inputItem.user_id || inputItem.body?.user_id || null;\n\n  const formattedQuestions = [];\n  let answeredCount = 0;\n\n  for (const [id, config] of Object.entries(SURVEY_SCHEMA)) {\n      let answer = rawResponses[config.uuid];\n\n      const result = {\n          questionId: id,\n          question: config.question,\n          type: config.type,\n          description: config.description || \"\",\n          chosen: [],\n          notChosen: [],\n          hasAnswer: false\n      };\n\n      if (answer !== undefined && answer !== \"\" && answer !== null) {\n          result.hasAnswer = true;\n          answeredCount++;\n\n          if (config.type === \"skills_achievements\") {\n              result.chosen = {\n                  topSkills: answer.topSkills || [],\n                  certifications: answer.certifications || [],\n                  achievements: answer.achievements || \"\",\n                  languages: answer.languages || []\n              };\n          }\n          else if ([\"career_history\", \"career_happiness\"].includes(config.type)) {\n              result.chosen = Array.isArray(answer) ? answer : [answer];\n          }\n          else {\n              let answerArray = Array.isArray(answer) ? answer : [answer];\n              const cleanAnswers = answerArray.map(a => {\n                  return typeof a === 'string' ? a.replace(/\\*\\*/g, '').trim() : a;\n              });\n\n              result.chosen = cleanAnswers;\n\n              if (config.options && config.options.length > 0) {\n                  result.notChosen = config.options.filter(opt => {\n                      const optClean = opt.replace(/\\*\\*/g, '').trim();\n                      return !cleanAnswers.some(userAns => String(userAns).includes(optClean));\n                  });\n              }\n          }\n      } else {\n          result.chosen = [];\n          result.notChosen = config.options || [];\n      }\n\n      formattedQuestions.push(result);\n  }\n\n  return [{\n      report_id: reportId,\n      user_id: userId,\n      preferred_language: inputItem.preferred_language || inputItem.body?.preferred_language || 'en',\n      summary: {\n          totalQuestions: Object.keys(SURVEY_SCHEMA).length,\n          answeredQuestions: answeredCount\n      },\n      questions: formattedQuestions\n  }];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1024,
+    624
+   ],
+   "id": "7c58dc3a-b0b7-41eb-8854-ac52ade77019",
+   "name": "Process Survey Data1"
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "7aa95d3a-1db7-4d83-a689-72a703d056a5",
+       "name": "initi summ prompt",
+       "value": "=# ROLE\nYou are a Lead Data Architect specializing in candidate profile normalization. Your goal is to transform structured JSON survey data into a high-fidelity, judgment-free \"Source of Truth\" Fact Sheet.\n\n# TASK\nExtract every specific detail from the input JSON. Preserve verbatim free-text entries, \"Other\" answers, specific role details, and personal comments. This candidate is at or approaching the end of a long professional career and is mapping what comes next. Their full career history is prime evidence, and so are their answers about how they operate NOW. Do not interpret or coach; your job is to ensure the downstream Career Coach has 100% of the facts in a readable format.\n\n# OUTPUT FORMAT\n\n### **1. Core Identity & Transition Status**\n- **Name:** [1a]\n- **Age:** [1b]\n- **Region:** [1c]\n- **Transition Status:** [1d]\n- **Timing of the Big Change:** [1e]\n- **Desired Start of the Next Thing:** [6d]\n\n### **2. Career Record & Sentiment Log**\n- **Total Years Worked:** [2c]\n- **Detailed Career History:** [Extract all roles from 2a. Include Title, Company, Size, Culture, Sector, and Dates]\n- **Sentiment Log:** [Extract Happiness scores and verbatim Reasons from 2b for each corresponding role]\n- **Skills & Technical Footprint:**\n  - **Top Skills:** [Extract from topSkills in 2d]\n  - **Certifications:** [Extract from certifications in 2d]\n  - **Languages and proficiency level:** [Extract from languages in 2d]\n  - **Notable Achievements:** [Extract verbatim from achievements in 2d]\n- **Professional Reputation (Known For):** [Extract verbatim from 2e]\n- **Will Absolutely NOT Miss:** [Extract verbatim from 2f]\n- **Secretly Loved:** [Extract verbatim from 2g]\n\n### **3. Education & Personal Context**\n- **Education Level:** [1f]\n- **Field of Study:** [1g]\n- **Who or What Shapes Their Week:** [Extract verbatim from 1h - partner, grandchildren, care duties, travel, whatever structures their time]\n- **Personal Interests/Hobbies:** [4e]\n- **Additional Context/Constraints:** [7d - Include any constraints, plans, or personal notes]\n\n### **4. What Matters Now (Values, Fears & Aspirations)**\n- **Ranked Priorities for This Next Stage (High to Low):** [4a]\n- **A Genuinely Good Year:** [Extract verbatim from 4b]\n- **Biggest Fears About This Stage:** [4c]\n- **Definition of \"Meaningful\":** [Extract verbatim from 7a]\n- **Always Wanted to Try:** [Extract verbatim from 7b]\n- **Feelings About Technology/AI Pace:** [4d]\n\n### **5. How They Operate Now**\n- **Energy Timing:** [3a]\n- **Social Energy:** [3b]\n- **Structure vs Freedom:** [3c]\n- **Learning Appetite:** [3d]\n- **Working with Younger Colleagues:** [3e]\n- **Feedback Handling:** [3f]\n- **Self-Identified Tendencies:** [3g]\n\n### **6. Practical Reality & Working Preferences**\n- **Desired Hours per Week:** [5a]\n- **In Person / Remote:** [5b]\n- **Preferred Role Posture (Leading/Contributing/Advising/Mentoring):** [5c]\n- **Environments They Are Done With (Hard Constraints):** [5d]\n- **Desired Social Intensity of the Work:** [5e]\n- **Income Need for This Stage:** [6a]\n- **Mobility:** [6b]\n- **Calendar Commitments:** [6c]\n- **Appetite for Formal Responsibility (incl. board liability):** [6e]\n\n### **7. What They Want From Cairnly**\n- **Straight Answers Requested:** [7c]\n\n# CRITICAL INSTRUCTIONS\n- **Reference IDs:** Keep the Question ID (e.g., 1a, 7c) in brackets next to each fact\n- **Verbatim Content:** If a user wrote text, do not summarize it. Use the exact words\n- **Completeness:** If data exists for a field (like Achievements in 2d or the career history in 2a), extract it fully\n- **Judgment-Free:** Do not use words like \"appears to be\" or \"struggles with.\" Simply state: \"Candidate reports [X]\"\n- **No Fabrication:** If a field has no answer, write \"Not provided\". Never invent data\n- **Evidence Parity:** The fears, \"will not miss\", \"secretly loved\", and \"shapes their week\" answers are first-class facts. Extract them fully and without editorializing\n\n\n# INPUT:\n\n{{ JSON.stringify($json.questions, null, 2) }}\n",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1264,
+    624
+   ],
+   "id": "308eb890-9f2b-4799-8e13-3870a7cbf9cb",
+   "name": "prompt_init_summary1"
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json[\"initi summ prompt\"] }}",
+    "batching": {}
+   },
+   "id": "01564a9f-d77e-402f-95be-11493989861e",
+   "name": "Initial_summary1",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    1504,
+    624
+   ]
+  },
+  {
+   "parameters": {
+    "modelName": "models/gemini-flash-latest",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+   "typeVersion": 1,
+   "position": [
+    1504,
+    784
+   ],
+   "id": "3147d3a2-b2d7-4cfc-a758-f8e430d08440",
+   "name": "3F",
+   "credentials": {
+    "googlePalmApi": {
+     "id": "Q653Teuy9nP6VLoE",
+     "name": "Google Gemini(PaLM) Api account 3"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "34c766ad-413a-463d-8f0b-50a646be4f67",
+       "name": "instructions_perso_profile",
+       "value": "=# ABSOLUTE OUTPUT LANGUAGE — HIGHEST PRIORITY (overrides everything below)\nWrite EVERY word of your output — every heading and every sentence — in {{ ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'DUTCH (informal je/jij/jouw, never \"u\")' : 'ENGLISH' }}. The candidate's name, nationality, employers, or any non-target-language words in their data must NEVER change your output language. If you catch yourself writing a heading or sentence in another language, rewrite it in the target language before continuing.\n\n# Context\n\n# MANDATORY: SECOND PERSON VOICE\nThe input data below refers to the candidate in third person (\"the candidate\", \"he/his\").\nYou MUST write ALL output in second person: \"you\" and \"your\" throughout.\nUse their first name occasionally for warmth, but NEVER write about them in third person.\nThis applies to every sentence in every section. No exceptions.\n\nReview thoroughly:\n* the initial summary for candidate data:\n{{ $json.content }}\n\n# Role\n\nYou are a world-class career coach creating insightful personality analysis for someone at or approaching retirement after a long professional career.\n\nThis candidate is not searching for an identity. They are stepping out of one that defined them for 30 to 45 years. Their evidence is rich: a full career history with happiness ratings per role, a professional reputation, what they will absolutely not miss, what they secretly loved, and direct answers about how they operate NOW. Read the career record as behavioral data about how this person works, not as a track to extend. Analyze who they are today, at this age and stage, not who they were at 45.\n\n# Prompt for Narrative Generation\n\nUsing the candidate's detailed summary of survey answers, generate a narrative report that follows the layout below. Write in clear, direct business casual language.\n\nYour narrative report must include the following four sections:\n\n# Required Sections:\n\n## Understanding Your Approach\n\n**Personality and Interaction Style**\n\nDiscuss how the candidate's personality traits and interaction style showed up across their career (their reputation, what they secretly loved, their happiness patterns) and how those same traits operate now, at this stage of life.\n\n**Impact in Different Environments**\n\nExplore how their personal attributes are likely to play out across the kinds of settings this next stage offers: advisory rooms, mentoring conversations, boards, classrooms, volunteer organizations, their own projects. Extrapolate carefully from the environments where they demonstrably thrived or suffered.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations the candidate might not see themselves. Focus on connections or patterns that explain why they experience what they do. Reveal non-obvious implications, don't restate what they told you.\n\n## Strengths and How to Grow Them\n\n**Identifying Your Core Strengths**\n\nAnalyze the candidate's core strengths as revealed in their summary: the career record, the reputation they built, what they secretly loved doing, and the happiness ratings that show where the work itself fed them.\n\n**Leveraging Strengths in Your Career**\n\nExplain how these strengths carry into this next stage. Decades of judgment, pattern recognition, and knowing-what-good-looks-like are assets that transfer into advisory, mentoring, teaching, board, and project forms. Be concrete about what transfers and what does not.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about what their strengths actually mean. Focus on the underlying capability or pattern that connects different examples. Reveal what their experience is genuinely worth, without flattery.\n\n## Areas for Development\n\n**Understanding Potential Growth Areas**\n\nIdentify potential friction points drawing on the summary. At this stage, growth areas are not career defects to fix; they are habits formed over decades that may serve the next stage badly. Name them plainly, without alarm and without softening them into nothing.\n\n**Implications for Your Growth**\n\nDiscuss how these patterns might affect the shape and quality of their next stage: the commitments they take on, the boundaries they keep, the environments they should avoid despite old reflexes.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about why these challenges exist or how they connect to each other. Look for genuine patterns, but present any underlying cause as a tentative hypothesis the candidate can confirm or reject (e.g. 'this might stem from...', 'one read is...'), not as a fixed diagnosis. Do not force a single root cause. Never name a specific tendency (e.g. impatience) unless this candidate's own data shows it, and only build on tendencies they actually selected or described.\n\n[note on this section: when relevant for the user, address the pace of technology and AI honestly. For this candidate the question is not job loss but relevance. Decades of pattern recognition, judgment, and knowing what good looks like become MORE useful in an AI-saturated world, because AI produces output fast but cannot tell which output is sound. That is what experienced judgment is for. Frame staying relevant as selective, dignified upkeep: learning the few tools that serve their next stage, not scrambling to keep up with everything. Only include this where the candidate's data makes it relevant, and never lecture.]\n\n## Aligning with Your Values\n\n**Identifying Your Core Values**\n\nHighlight the candidate's core values as evidenced by their ranked priorities for this stage, their description of a genuinely good year, their definition of \"meaningful\", and what they always wanted to try.\n\n**Values in Career Decisions**\n\nExplain how these values should shape the commitments they say yes to in this next stage: which opportunities to take, which to decline despite old reflexes, and what to protect from day one. Remember this person does not need a job; they need a reason.\n\n**Key Insight**\n\nProvide 1-2 bottom-line realizations about what their values reveal. Focus on tensions between stated priorities, mismatches between what they fear and what they say they want, or non-obvious implications for how they should build this next stage.\n\n# Content Requirements:\n\n**Critical focus areas:**\n\n* PERSONALITY ONLY - Do not discuss career feasibility, specific role recommendations, or dream-pursuit analysis. Those come in later phases. Stick to personality traits, interaction patterns, and what can be derived from behavioral data.\n* Focus on interpretation and pattern recognition, not recitation of survey answers\n* Don't list their career back to them - they lived it and they know what they've done\n* Extract the underlying capability or pattern instead\n* Key insights reveal something non-obvious - what their data means, not what they said\n* Never tell the candidate something they explicitly stated in their answers; restating their own input is not an insight. Connect or contrast across answers to reveal a pattern they did not name themselves.\n* Ground every trait or tendency you mention in this candidate's actual data. Do not infer or import tendencies that aren't supported (for example, do not assume rigidity from a long tenure); when you propose a cause, frame it as a hypothesis to confirm, not a verdict.\n* Integrate what they asked Cairnly to tell them straight and their definition of \"meaningful\" naturally where relevant.\n\n**Encore Interpretation Lens (Cairnly Encore serves people leaving a long career):**\nThis candidate is at or approaching retirement, roughly 58 to 72, ending a career of decades. Apply these rules when reading their data:\n\n- They do not need a job; they need a reason. Do not analyze them as if they want to climb, optimize, or maximize a career. Career progression, promotion potential, and salary maximization are the wrong lenses; energy, purpose, social connection, dignity, and desired hours are the right ones.\n- The personality evidence lives in the career narrative: their reputation (known for), what they will not miss, what they secretly loved, the happiness ratings per role, and the how-they-operate-now answers. What they secretly loved is often the single strongest signal in the data. Weigh what they say about themselves TODAY over what their titles imply.\n- Be identity-transition aware: identify which parts of their professional identity are load-bearing (the parts that supplied structure, status, usefulness, or social contact) and what the data suggests happens when those disappear. This is personality analysis, not retirement advice.\n- Fears (irrelevance, boredom, identity loss, losing contact, partner friction) are honest data, not weaknesses. Where the data shows them, acknowledge them directly and without drama. Do not amplify them and do not soothe them away.\n- Discomfort with the pace of technology is context, not a flaw. Where relevant, be honest about what upkeep their next stage actually requires, and about what their judgment is worth precisely because it cannot be generated on demand.\n- Tone: respectful, direct, zero condescension. No \"60 is the new 40\" fluff, no \"golden years\" language, no implying their working life is behind them. Talk to them like the experienced adult they are. Hard truths are welcome when the data supports them; sugar is not.\n- If their ranked priorities, fears, good-year description, or definition of meaningful contradict each other, surface that tension as a Key Insight in Aligning with Your Values. Do not take stated serenity at face value when other signals point to unease, and vice versa.\n- DO NOT MENTION QUESTION LABELS eg. '7b' in your narratives! Never!\n\n\n**Writing style:**\n\n* Write in active voice with short, punchy sentences\n* Break content into smaller paragraphs (2-4 sentences max)\n* Use sub-sub-headers within narrative sections when helpful for clarity, but make them **bold**\n* if using bulletpoints, make the bullet lable bold for readability and emphasis\n* Maintain business casual tone throughout\n* Do not use the em-dash in your narrative\n* Refer to the avoid words list at the bottom\n* Active voice, SECOND PERSON. Use 'you' and occasionally their name to adress them!\n\n* STAY BETWEEN 280 and 350 WORDS PER REPORT SECTION\n\n# Formatting Requirements:\n\nClearly separate each section with the section header exactly as written above (e.g., `Understanding Your Approach`).\n\nWithin each section, use plain paragraphs with **bolded sub-sub-headers** where helpful.\n\nFor Key Insight, write 1-2 concise paragraphs that reveal the bottom line - not numbered lists.\n\n# Personality Scoring (Internal — DO NOT SHOW IN PROSE)\n\nIn ADDITION to the four narrative sections above, append a structured score block at the very end of your response, after \"Aligning with Your Values\" and its Key Insight.\n\nThis block is for internal database use only. It powers a Personality Radar visualization in the candidate's dashboard. It MUST NOT appear anywhere in the prose. Do NOT mention these scores in the narrative. Do NOT reference numbers, percentages, or ratings in the report. Do NOT explain the dimensions to the candidate.\n\nScore the candidate on five interpretively rich dimensions, each on a 1-10 integer scale, based on your full reading of their data (survey answers, sentiment log, narrative inputs, writing samples, history). These are AI judgments synthesized from the whole picture, NOT echoes of any single multiple-choice answer.\n\n**Dimensions:**\n\n- **strategic_depth** (1-10): Long-arc systems thinking and pattern recognition versus immediate, tactical, in-the-moment focus. High = thinks in years and systems, sees second-order effects, frames problems structurally. Low = strong present-moment focus, executes well on what's in front of them, less natural pull toward systemic framing.\n- **execution_bias** (1-10): Ships fast and iterates versus deliberates carefully before committing. High = strong action orientation, comfortable shipping imperfect work, learns by doing. Low = strong reflection orientation, prefers to think it through, ships when ready.\n- **people_intuition** (1-10): Reads social dynamics, organizational politics, and interpersonal subtext accurately versus misses these signals. High = naturally tracks group dynamics, anticipates interpersonal friction, reads the room. Low = primarily task-focused, surprised by political dynamics, prefers explicit communication.\n- **ambiguity_tolerance** (1-10): Thrives in unclear, evolving, undefined situations versus needs structure and clarity to perform at their best. High = energized by ambiguity, comfortable making decisions with incomplete information. Low = strong need for defined parameters, slows down or stresses without structure.\n- **recognition_pull** (1-10): Driven by external visibility, status, and acknowledgement versus internal satisfaction and the work itself. High = strongly motivated by being seen, public credit, status markers. Low = strongly motivated by internal craft satisfaction, less affected by external acknowledgement.\n\n**Calibration guidance:**\n\n- Use the full 1-10 range. Most candidates will land between 4 and 8 on most dimensions; reserve 9-10 and 1-2 for genuinely outlier signals supported by multiple data points.\n- Score on what the data shows, not on what the candidate self-reports they ARE. Someone who self-reports \"Still hungry for feedback\" but whose narratives reveal a bruised ego should NOT automatically score high on that basis.\n- A long senior career is NOT automatic evidence of high strategic_depth or people_intuition. Titles are not data; score what the reputation, sentiment log, and free text actually show about how this person operates now.\n- The dimensions are independent. A candidate can be high on both strategic_depth and execution_bias.\n\n**Output format (REQUIRED, exact format):**\n\nAfter the final \"Aligning with Your Values\" section and one blank line, output the block exactly like this on a single line:\n\n`<personality_scores>{\"strategic_depth\": N, \"execution_bias\": N, \"people_intuition\": N, \"ambiguity_tolerance\": N, \"recognition_pull\": N}</personality_scores>`\n\nReplace each N with an integer from 1 to 10. No other text inside the tag. No commentary, no explanation, no formatting. The platform parses this tag, strips it from the user-facing content, and saves the JSON to the database.\n\n---\n\n# CRITICAL: How to use the example below\nThe example output below is based on ONE fictional candidate. It illustrates STRUCTURE, VOICE, DEPTH, and second-person tone ONLY. Do NOT carry any of its specific content into a real report. Its traits (including overcommitment, difficulty saying no, and impatience with slow processes), its specific tensions, and its career, values, fears, and history belong to that fictional person, not to your candidate. Reproduce the FORM, never the CONTENT. Describe only what the current candidate's data supports.\n\n# Example Output Format:\n\n## Understanding Your Approach\n\n**Personality and Interaction Style**\n\nYou ran on being the steady one. Thirty-five years in supply chain taught you to stay level when everything caught fire, and the reputation you describe (\"the one who never panicked\") was built on exactly that. That steadiness is not a job skill you hand back with the badge, Robert. It is how you operate.\n\nNow look at what sits next to it in your data: you overcommit and then resent it, and you find it hard to say no. For three decades the org chart set your limits for you. Deadlines, mandates, a boss. Without that machinery, the only thing standing between you and a calendar full of obligations is a word you admit you rarely use.\n\nPeople energize you, with a limit. You like the room, then you need the door closed. That rhythm matters more now than it ever did, because nobody schedules recovery time into a volunteer board.\n\n**Impact in Different Environments**\n\nPut you where judgment is the product, an advisory session, a mentoring conversation, a messy project that needs a calm head, and you add value within the hour. You do not need ramp-up time. You have pattern recognition instead.\n\nPut you in a standing committee with fixed monthly obligations and slow process, and the impatience you named will surface fast. You tolerated that machinery for years because it came with the role. You told us plainly you are done with it. Believe yourself.\n\n**Key Insight**\n\nYour steadiness and your overcommitment are probably the same reflex: you absorb load so others do not have to. That made you the person everyone leaned on, and it quietly decided your limits for you. One read is that the skill this next stage demands is not staying sharp. It is refusal. Nobody will set your boundaries now; that job just became yours.\n\n---\n\n## Strengths and How to Grow Them\n\n**Identifying Your Core Strengths**\n\nStrip away the titles and look at what repeats across three decades. Every happiness peak in your career record has the same shape: a hard operational problem, a small team in over its head, and you making the situation legible. The rating dips when the work became managing the process instead of solving the problem.\n\nThen there is the answer you almost did not give. The thing you secretly loved was coaching young planners, the ones everyone else had written off as too green. That is not a footnote. The part of the work you would have done for free is the most reliable signal in your data.\n\nYour calm under pressure completes the set. It shows up in your reputation, in your crisis stories, and in how you describe feedback: open to it, if it is delivered like an adult.\n\n**Leveraging Strengths in Your Career**\n\nWhat transfers into this next stage is not the operational knowledge, which dates, but the judgment underneath it: knowing which fire matters, reading a supply problem three steps out, and settling a rattled team. Those carry directly into advisory work, interim calm-hands roles, and the mentoring you already know feeds you.\n\nWhat does not transfer is the always-on availability. Your energy data says mornings; your hours say sixteen to twenty-four. Any form of work that ignores those two numbers will spend your strengths faster than it uses them.\n\n**Key Insight**\n\nYour real product was never logistics. It is composure plus judgment, applied to other people's chaos. That combination does not retire and it does not date the way technical knowledge does. The consequence: what you offer next should be measured in decisions improved, not hours attended. The moment someone prices you by the hour, they are buying the wrong thing.\n\n---\n\n## Areas for Development\n\n**Understanding Potential Growth Areas**\n\nTwo patterns in your data deserve honest attention. First, the cluster you named yourself: hard to say no, overcommit and then resent it. In a career, those had a ceiling; the job could only demand so much. In this next stage the demand side is infinite. Boards, foundations, old colleagues with \"just one project\": all of them will find the person who never says no.\n\nSecond, your relationship with process. You are done with steering committees and being managed by process instead of sense, and your impatience with slow processes is self-declared. Yet several of the forms that fit your strengths, boards especially, run on exactly that machinery, just slower and with wine.\n\n**Implications for Your Growth**\n\nAt sixteen to twenty-four hours a week, one bad yes eats a third of your working life. The math of overcommitment changed the day the full-time buffer disappeared. What used to be an annoying week is now a compromised season.\n\nThis does not argue for saying no to everything. It argues for a waiting period. Your data shows you decide with your sense of duty first and your calendar second. Reversing that order once, before each commitment, is the whole intervention.\n\n**Key Insight**\n\nOne read of your answers is that being needed has been doing quiet work for you all along: it supplied the structure you say you no longer want. That would explain the resentment that follows your yeses. The commitment was never really about the ask; it was about staying necessary. Worth testing against your own experience, because if it holds, no calendar trick will fix what is actually an identity question.\n\n---\n\n## Aligning with Your Values\n\n**Identifying Your Core Values**\n\nYou ranked purpose and staying sharp at the top, income at the bottom, and freedom for travel and family squarely in the middle. Your good year is telling: a standing weekly commitment that matters, two long trips, and, in your words, \"being someone people call when it counts.\"\n\nYour definition of meaningful is specific where most people's is vague: useful to individual people you can name, not to institutions. That matches the mentoring you secretly loved and clashes with the committee work you are done with.\n\n**Values in Career Decisions**\n\nThis gives you a working filter with three questions. Does this use my judgment, not just my availability? Will I know the names of the people it helps? Can I leave it without a lawyer? Anything that fails two of the three is a repeat of the parts of your career you told us you will not miss.\n\nProtect the travel windows deliberately. Freedom ranked mid-list, but it appears in your good year twice. Values that show up in the concrete answers outrank the ones from the ranking exercise when the two disagree.\n\n**Key Insight**\n\nThere is a tension worth naming. You fear becoming irrelevant, yet you are done with every environment where your relevance used to be measured: the targets, the committees, the org chart. Those two answers cannot both run your next stage. One read: you are not afraid of being irrelevant, you are afraid of being irrelevant by the old scoreboard. The work ahead is not proving yourself on it again. It is choosing the new scoreboard on purpose, then letting the old one go.\n\n___\n\n# Avoid Words list:\n\n## Adjectives and Modifiers to Avoid:\n- valuable\n- significant (when describing abilities/advantages)\n- interesting\n- natural/naturally (when describing talents)\n- impressive\n- exceptional\n- remarkable\n- extraordinary\n- outstanding\n- unique\n- rare\n- perfect/perfectly\n- ideal/ideally\n- admirable\n- clear/clearly (as emphasis)\n- obvious/obviously (as emphasis)\n\n## Flattery Phrases to Avoid:\n- \"you have a valuable ability to...\"\n- \"gives you a significant advantage\"\n- \"positions you perfectly for...\"\n- \"you possess...\"\n- \"natural talent for...\"\n- \"you bring a wealth of...\"\n- \"your impressive track record...\"\n- \"this is particularly valuable because...\"\n- \"what makes this especially powerful...\"\n\n## Corporate/Generic Business Speak to Avoid:\n- serves you well\n- positions you as\n- represents an opportunity\n- suggests an untapped opportunity\n- creates a significant advantage\n- gives you a real edge\n- particularly powerful\n- especially impactful\n- meaningful impact\n- drive results\n- move the needle\n- leverage (overuse)\n- synergy\n- dynamic\n- innovative (as adjective for person)\n- forward-thinking (for person)\n- cutting-edge (for person)\n\n## Condescension to Avoid (critical for this audience):\n- \"still sharp\", \"still relevant\", \"still got it\" (the word \"still\" as a compliment)\n- \"golden years\", \"twilight years\", \"well-deserved rest\"\n- \"60 is the new 40\" or any age-reframing fluff\n- \"keeping busy\" (this next stage is not about filling time)\n- \"for someone at your stage of life...\"\n- \"giving back\" as a default frame for mentoring, advising, or volunteering (it implies the exchange only runs one way)\n- any suggestion of slowing down, taking it easy, or enjoying retirement as the resolution to a tension in their data\n\n## Unnecessary Qualifiers/Hedges to Avoid:\n- \"The fact that...\"\n- \"It's worth noting that...\"\n- \"What's interesting is...\"\n- \"The reality is that...\"\n- \"It's important to recognize...\"\n- \"One thing to consider...\"\n- \"What's particularly noteworthy...\"\n- \"An important aspect to highlight...\"\n\n## AI-Sounding Transition Phrases to Avoid:\n- \"Let's explore...\"\n- \"It's crucial to understand...\"\n- \"Building on this...\"\n- \"Taking this further...\"\n- \"Diving deeper...\"\n- \"This begs the question...\"\n- \"At the end of the day...\"\n- \"The bottom line is...\"\n\n## Words to Use Sparingly (Not Banned, But Watch Overuse):\n- visionary (use only if absolutely specific)\n- passionate\n- dedicated\n- driven (okay occasionally)\n- strategic (overused)\n- innovative (as descriptor)\n- transformative\n- impactful\n\n## Better Alternatives:\n\nInstead of → Use:\n- \"serves you well\" → \"works well\" / \"helps\" / \"fits\"\n- \"significant advantage\" → \"advantage\" / \"edge\" / just state the benefit\n- \"positions you perfectly\" → \"positions you well\" / \"fits well with\"\n- \"valuable ability\" → just describe the ability\n- \"interesting pattern\" → \"pattern\" / \"worth noting\"\n- \"particularly powerful\" → \"especially useful\" / just state why it matters\n- \"represents an opportunity\" → \"points to\" / \"suggests\"\n- \"leverage your strengths\" → \"use your strengths\"\n\nThe Core Principle:\nIf you can remove the adjective/modifier and the sentence is still clear and meaningful, remove it. Let the specific observations carry the weight, not the evaluative language.\n\n- DO NOT go below 280 or over 400 words per section\n- remember the second person perspective. NOT \"Robert is a \" BUT \"Robert, you are a\"\n- DO NOT REFERENCE QUESTION LABELS eg. '7b' in your narratives! Never!\n\n# OUTPUT LANGUAGE (CRITICAL — overrides the English headers above)\npreferred_language = {{ $('Process Survey Data1').first().json.preferred_language }}\nIf preferred_language is NOT 'nl', ignore this section and write in English exactly as instructed above.\n\nIf preferred_language IS 'nl', write your ENTIRE output in Dutch: informal je/jij/jouw (never 'u'),\nno em-dashes, Dutch number/date formatting (€39,00, €1.500, dd-mm-jjjj). Keep brand terms in English\n(Cairnly, outside-the-box, runner-up). Keep the meaning and structure identical to the English spec.\n\nWhen writing in Dutch you MUST use these EXACT Dutch section headers (##) and bold subheaders INSTEAD of\nthe English ones, so downstream parsing keeps working:\n## Understanding Your Approach  ->  ## Jouw aanpak begrijpen\n    **Personality and Interaction Style**  ->  **Persoonlijkheid en interactiestijl**\n    **Impact in Different Environments**  ->  **Impact in verschillende omgevingen**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## Strengths and How to Grow Them  ->  ## Sterke punten en hoe je ze ontwikkelt\n    **Identifying Your Core Strengths**  ->  **Je kernkwaliteiten in kaart**\n    **Leveraging Strengths in Your Career**  ->  **Je sterke punten benutten in je loopbaan**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## Areas for Development  ->  ## Ontwikkelpunten\n    **Understanding Potential Growth Areas**  ->  **Inzicht in je groeigebieden**\n    **Implications for Your Growth**  ->  **Wat dit betekent voor je groei**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## Aligning with Your Values  ->  ## Aansluiten bij je waarden\n    **Identifying Your Core Values**  ->  **Je kernwaarden in kaart**\n    **Values in Career Decisions**  ->  **Waarden in loopbaankeuzes**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n\nKeep the <personality_scores>...</personality_scores> block EXACTLY as specified (English keys, structured\nJSON) regardless of language — the dashboard parses it.",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    2112,
+    624
+   ],
+   "id": "c61ad8f0-f68f-4bf0-9eb2-41ec589ed7fd",
+   "name": "prompt_perso_prof1"
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json.instructions_perso_profile }}",
+    "batching": {}
+   },
+   "id": "749b16ca-6338-46d5-b1da-839b8c976ea3",
+   "name": "generate_personality_narrative1",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    2336,
+    624
+   ]
+  },
+  {
+   "parameters": {
+    "model": "anthropic/claude-sonnet-4.6",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+   "typeVersion": 1,
+   "position": [
+    2336,
+    800
+   ],
+   "id": "de87e7f7-dbcf-4c42-b140-4d7bcfd85462",
+   "name": "OpenRouter Chat Model1",
+   "credentials": {
+    "openRouterApi": {
+     "id": "gGM2sOHB72WgN7UU",
+     "name": "OpenRouter account 2"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// ---------------- CONFIG ----------------\nconst SUBHEADER_PATTERNS_ALL = {\n  en: {\n  approach: [\n    \"Personality and Interaction Style\",\n    \"Impact in Different Environments\",\n    \"Key Insight\"\n  ],\n  strengths: [\n    \"Identifying Your Core Strengths\",\n    \"Leveraging Strengths in Your Career\",\n    \"Key Insight\"\n  ],\n  development: [\n    \"Understanding Potential Growth Areas\",\n    \"Implications for Your Growth\",\n    \"Key Insight\"\n  ],\n  values: [\n    \"Identifying Your Core Values\",\n    \"Values in Career Decisions\",\n    \"Key Insight\"\n  ]\n},\n  nl: {\n  approach: [\n    \"Persoonlijkheid en interactiestijl\",\n    \"Impact in verschillende omgevingen\",\n    \"Belangrijkste inzicht\"\n  ],\n  strengths: [\n    \"Je kernkwaliteiten in kaart\",\n    \"Je sterke punten benutten in je loopbaan\",\n    \"Belangrijkste inzicht\"\n  ],\n  development: [\n    \"Inzicht in je groeigebieden\",\n    \"Wat dit betekent voor je groei\",\n    \"Belangrijkste inzicht\"\n  ],\n  values: [\n    \"Je kernwaarden in kaart\",\n    \"Waarden in loopbaankeuzes\",\n    \"Belangrijkste inzicht\"\n  ]\n}\n};\nconst __lang = ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'nl' : 'en';\nconst SUBHEADER_PATTERNS = SUBHEADER_PATTERNS_ALL[__lang];\n\n// ---------------- HELPERS ----------------\nfunction cleanMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n    .replace(/__(.*?)__/g, '$1')\n    .replace(/\\*(.*?)\\*/g, '$1')\n    .trim();\n}\n\nfunction extractSections(content, sectionType) {\n  const patterns = SUBHEADER_PATTERNS[sectionType] || [];\n  if (patterns.length === 0) return [];\n\n  const regex = new RegExp(`(${patterns.join('|')}):?`, 'gi');\n  const parts = content.split(regex).filter(Boolean);\n  const sections = [];\n\n  for (let i = 0; i < parts.length; i++) {\n    const p = parts[i].trim();\n    if (patterns.some(ph => new RegExp(ph, 'i').test(p))) {\n      const subheader = p.replace(/:$/, '').trim();\n      const next = parts[i + 1] ? parts[i + 1].trim() : '';\n      sections.push({ subheader, content: next });\n      i++;\n    }\n  }\n  // Fallback: if no known subheaders matched (e.g. localized text the\n  // patterns don't cover), keep the whole section as one block instead of\n  // dropping it. Guarantees no section is ever lost to a pattern miss.\n  if (sections.length === 0) {\n    const whole = content.trim();\n    return whole ? [{ subheader: '', content: whole }] : [];\n  }\n  return sections;\n}\n\n// ---------------- SOURCE DATA ----------------\nconst narrativeData = $('generate_personality_narrative1').first().json;\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Get the init_summary content from Prep node (already cleaned HTML)\nconst initSummaryContent = $('Prep init_summary').first().json.content;\n\n// ============== Extract personality_scores tag ==============\n// The prompt appends a hidden <personality_scores>{...}</personality_scores>\n// tag at the very end of the narrative. Pull it out, parse the JSON, and\n// strip the tag from the text BEFORE we parse sections so the prose stays\n// clean. The scores get attached to the `approach` section row's metadata\n// column, where the dashboard's Personality Radar reads them from.\nlet personalityScores = null;\nlet narrativeText = narrativeData.text || '';\nconst scoresMatch = narrativeText.match(/<personality_scores>\\s*([\\s\\S]*?)\\s*<\\/personality_scores>/i);\nif (scoresMatch) {\n  try {\n    personalityScores = JSON.parse(scoresMatch[1].trim());\n  } catch (err) {\n    console.warn('[extract_report_sections] personality_scores JSON parse failed:', err.message);\n  }\n  narrativeText = narrativeText.replace(scoresMatch[0], '').trim();\n}\n// ============================================================\n\n// ---------------- NARRATIVE EXTRACTION ----------------\nconst titleRegex = /#{1,3}\\s*([^\\n#]+)/g;\nconst titles = [];\nlet match;\nwhile ((match = titleRegex.exec(narrativeText)) !== null) {\n  titles.push(match[1].trim());\n}\n\nconst contents = narrativeText.split(/#{1,3}\\s*[^\\n#]+\\n*/g);\ncontents.shift();\n\nconst sectionTypes = ['approach', 'strengths', 'development', 'values'];\nconst parsedSections = [];\n\nfor (let i = 0; i < contents.length; i++) {\n  const sectionType = sectionTypes[i];\n  const raw = cleanMarkdown(contents[i]);\n  parsedSections.push(extractSections(raw, sectionType));\n}\n\n// ---------------- OUTPUT ALL 5 SECTIONS ----------------\n// init_summary + 4 narrative sections, all inserted to SB in one batch.\n// Approach gets the personality_scores attached as metadata.\n// Other sections leave metadata null.\nconst allSections = [\n  {\n    section_type: 'init_summary',\n    title: 'Initial Summary',\n    content: initSummaryContent,\n    isRawContent: true,\n    metadata: null\n  },\n  {\n    section_type: 'approach',\n    title: titles[0] || null,\n    content: parsedSections[0] || [],\n    metadata: personalityScores ? { personality_scores: personalityScores } : null\n  },\n  { section_type: 'strengths',   title: titles[1] || null, content: parsedSections[1] || [], metadata: null },\n  { section_type: 'development', title: titles[2] || null, content: parsedSections[2] || [], metadata: null },\n  { section_type: 'values',      title: titles[3] || null, content: parsedSections[3] || [], metadata: null }\n];\n\nreturn allSections\n  .filter(s => s.content && (s.isRawContent || (Array.isArray(s.content) && s.content.length > 0)))\n  .map(s => {\n    let formatted;\n\n    if (s.isRawContent) {\n      formatted = s.content;\n    } else {\n      formatted = s.content.map(block => {\n        const subheader = block.subheader && block.subheader.trim()\n          ? `<h5>${block.subheader}</h5>\\n\\n`\n          : '';\n        const text = block.content || '';\n        return `${subheader}${text}`;\n      }).join('\\n\\n');\n    }\n\n    // CRITICAL: every row MUST have the same set of keys. PostgREST\n    // bulk insert (PGRST102) rejects arrays where keys differ across rows.\n    // metadata is always present and is null unless this is the approach row.\n    return {\n      report_id: reportId,\n      section_type: s.section_type,\n      title: s.title,\n      content: formatted,\n      metadata: s.metadata ?? null,\n      language: __lang\n    };\n  });"
+   },
+   "id": "050a36f6-ffcf-4544-ad6e-ea797f085d64",
+   "name": "extract_report_sections_code1",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2688,
+    624
+   ],
+   "executeOnce": false
+  },
+  {
+   "parameters": {
+    "operation": "update",
+    "tableId": "reports",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "status",
+       "condition": "eq",
+       "keyValue": "=processing"
+      },
+      {
+       "keyName": "id",
+       "condition": "eq",
+       "keyValue": "={{ $json.report_id }}"
+      }
+     ]
+    },
+    "fieldsUi": {
+     "fieldValues": [
+      {
+       "fieldId": "status",
+       "fieldValue": "pending_review"
+      }
+     ]
+    }
+   },
+   "type": "n8n-nodes-base.supabase",
+   "typeVersion": 1,
+   "position": [
+    3136,
+    624
+   ],
+   "id": "1e82c018-ac14-4a67-b64b-96c769209f16",
+   "name": "update status1",
+   "executeOnce": true,
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://falkoratlas.app.n8n.cloud/webhook/a4e3abe2-4a32-4a55-8457-829df0b30ef3",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ report_id: $json.report_id, preferred_language: $json.preferred_language }) }}",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    3584,
+    624
+   ],
+   "id": "8ed2c944-69f1-4cca-a0f7-532623048621",
+   "name": "Trigger WF2P webhook"
+  },
+  {
+   "parameters": {
+    "model": {
+     "__rl": true,
+     "value": "claude-haiku-4-5-20251001",
+     "mode": "list",
+     "cachedResultName": "Claude Haiku 4.5"
+    },
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+   "typeVersion": 1.3,
+   "position": [
+    2336,
+    976
+   ],
+   "id": "cd6bacee-4523-404c-992c-5ca496da1941",
+   "name": "Anthropic Chat Model1",
+   "disabled": true
+  }
+ ],
+ "connections": {
+  "Prep init_summary": {
+   "main": [
+    [
+     {
+      "node": "prompt_perso_prof1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "SB insert all sections": {
+   "main": [
+    [
+     {
+      "node": "update status1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "pass report_id to WF2": {
+   "main": [
+    [
+     {
+      "node": "Trigger WF2P webhook",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Process Survey Data1": {
+   "main": [
+    [
+     {
+      "node": "prompt_init_summary1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "prompt_init_summary1": {
+   "main": [
+    [
+     {
+      "node": "Initial_summary1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Initial_summary1": {
+   "main": [
+    [
+     {
+      "node": "Prep init_summary",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "3F": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Initial_summary1",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "prompt_perso_prof1": {
+   "main": [
+    [
+     {
+      "node": "generate_personality_narrative1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "generate_personality_narrative1": {
+   "main": [
+    [
+     {
+      "node": "extract_report_sections_code1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "OpenRouter Chat Model1": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "generate_personality_narrative1",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "extract_report_sections_code1": {
+   "main": [
+    [
+     {
+      "node": "SB insert all sections",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "update status1": {
+   "main": [
+    [
+     {
+      "node": "pass report_id to WF2",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Encore Survey complete Webhook": {
+   "main": [
+    [
+     {
+      "node": "Process Survey Data1",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "callerPolicy": "workflowsFromSameOwner",
+  "errorWorkflow": "FbsruPbuZI2Fgtc8"
+ }
+}

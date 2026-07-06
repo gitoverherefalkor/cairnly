@@ -57,8 +57,16 @@ export const useSurveySubmission = ({
       // plus a parallel topSkillRanks array marking which three the user tagged as 1/2/3.
       // n8n's scoring workflow expects a 3-item top_skills list, so we reorder here.
       // Fallback (no ranks present, legacy data): take first 3 non-empty in array order.
-      const SKILLS_ACHIEVEMENTS_ID = '11111111-1111-1111-1111-11111111111f';
+      // Each survey with a skills_achievements question needs the same top-3
+      // reorder: pro and encore (starter has no skills widget).
+      const SKILLS_ACHIEVEMENTS_IDS = [
+        '11111111-1111-1111-1111-11111111111f', // pro
+        'b2b2b2b2-0002-4000-a000-000000000004', // encore
+      ];
       const sanitizedResponses = { ...responses };
+      const SKILLS_ACHIEVEMENTS_ID = SKILLS_ACHIEVEMENTS_IDS.find(
+        (id) => sanitizedResponses[id] !== undefined,
+      ) ?? SKILLS_ACHIEVEMENTS_IDS[0];
       const skillsAnswer = sanitizedResponses[SKILLS_ACHIEVEMENTS_ID];
       if (skillsAnswer && typeof skillsAnswer === 'object' && Array.isArray(skillsAnswer.topSkills)) {
         const ranks: number[] = Array.isArray(skillsAnswer.topSkillRanks)
@@ -114,10 +122,12 @@ export const useSurveySubmission = ({
       await markAccessCodeAsUsed();
 
       // Update profile with region from survey. Each survey has its own region
-      // question id: pro (11111111-...114) and starter (a1a1a1a1-0001-...003).
+      // question id: pro (11111111-...114), starter (a1a1a1a1-0001-...003) and
+      // encore (b2b2b2b2-0001-...003).
       const REGION_QUESTION_IDS = [
         '11111111-1111-1111-1111-111111111114',
         'a1a1a1a1-0001-4000-a000-000000000003',
+        'b2b2b2b2-0001-4000-a000-000000000003',
       ];
       const regionAnswer = REGION_QUESTION_IDS.map((id) => responses[id]).find(Boolean);
       if (regionAnswer && user) {

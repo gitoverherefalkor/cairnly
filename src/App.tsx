@@ -50,6 +50,9 @@ const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe")
 // Starter flavor (first/second-job seekers) — parallel funnel at /starter
 const StarterIndex = lazy(() => import("./pages/starter/StarterIndex"));
 const StarterPayment = lazy(() => import("./pages/starter/StarterPayment"));
+// Encore flavor (pensioners / pre-retirees) — parallel funnel at /encore
+const EncoreIndex = lazy(() => import("./pages/encore/EncoreIndex"));
+const EncorePayment = lazy(() => import("./pages/encore/EncorePayment"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -128,6 +131,8 @@ const App = () => {
               <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
               <Route path="/starter" element={<StarterIndex />} />
               <Route path="/starter/payment" element={<StarterPayment />} />
+              <Route path="/encore" element={<EncoreIndex />} />
+              <Route path="/encore/payment" element={<EncorePayment />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

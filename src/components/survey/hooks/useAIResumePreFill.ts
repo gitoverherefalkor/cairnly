@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { translatePreFillForSurvey } from '@/components/resume/utils/resumeDataMapper';
 
 interface UseAIResumePreFillProps {
   isSessionLoaded: boolean;
@@ -135,6 +136,10 @@ export const useAIResumePreFill = ({
       // interests_hobbies (11111111-1111-1111-1111-111111111120) should stay as object
       // with interests array property
     });
+    // The extraction pipeline keys everything by PRO question ids. If this
+    // survey is a different flavor that keeps the CV step (encore), remap the
+    // keys to that survey's question ids; unmapped questions are dropped.
+    preFillResponses = translatePreFillForSurvey(surveyId, preFillResponses);
     // Update the responses with the pre-filled data
     if (Object.keys(preFillResponses).length > 0) {
       setResponses(prev => ({

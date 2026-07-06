@@ -35,10 +35,38 @@ serve(async (req) => {
 
     const { firstName, lastName, email, country, referralCode, preferredLanguage, flavor } = await req.json();
 
-    // Product flavor: 'starter' (cairnly.io/starter, first-job seekers) or the
-    // default professional assessment. Only the literal 'starter' is accepted;
-    // anything else (including absent, for all existing callers) means 'pro'.
-    const isStarter = flavor === "starter";
+    // Product flavor: 'starter' (cairnly.io/starter, first-job seekers),
+    // 'encore' (cairnly.io/encore, pensioners / pre-retirees) or the default
+    // professional assessment. Only known literals are accepted; anything else
+    // (including absent, for all existing callers) means 'pro'.
+    const resolvedFlavor: "pro" | "starter" | "encore" =
+      flavor === "starter" || flavor === "encore" ? flavor : "pro";
+
+    // Per-flavor product presentation and price. Amounts are in cents and must
+    // stay in sync with src/lib/pricing.ts (what the marketing pages display).
+    const FLAVOR_PRODUCTS = {
+      pro: {
+        name: "Cairnly Assessment",
+        description: "Complete assessment with personalized career insights",
+        unitAmount: 3900, // EUR 39.00 (beta price)
+        cancelPath: "/payment",
+      },
+      starter: {
+        name: "Cairnly Starter Assessment",
+        description:
+          "Starter assessment with career directions and entry routes for your first serious job",
+        unitAmount: 3900, // EUR 39.00
+        cancelPath: "/starter/payment",
+      },
+      encore: {
+        name: "Cairnly Encore Assessment",
+        description:
+          "Encore assessment with personality profile and post-career directions that fit this stage of life",
+        unitAmount: 7900, // EUR 79.00
+        cancelPath: "/encore/payment",
+      },
+    } as const;
+    const product = FLAVOR_PRODUCTS[resolvedFlavor];
 
     if (!firstName || !lastName || !email || !country) {
       return errorResponse("First name, last name, email, and country are required", 400, corsHeaders);
@@ -99,12 +127,10 @@ serve(async (req) => {
           price_data: {
             currency: "eur",
             product_data: {
-              name: isStarter ? "Cairnly Starter Assessment" : "Cairnly Assessment",
-              description: isStarter
-                ? "Starter assessment with career directions and entry routes for your first serious job"
-                : "Complete assessment with personalized career insights",
+              name: product.name,
+              description: product.description,
             },
-            unit_amount: 3900, // €39.00 (beta price)
+            unit_amount: product.unitAmount,
           },
           quantity: 1,
         },
@@ -114,7 +140,7 @@ serve(async (req) => {
       // Back/cancel from Stripe returns the buyer to the checkout form, not
       // the marketing homepage — they're mid-purchase and usually want to
       // tweak a field (country, email) and try again.
-      cancel_url: isStarter ? `${origin}/starter/payment` : `${origin}/payment`,
+      cancel_url: `${origin}${product.cancelPath}`,
       // `customer` (with pre-set name) gives us the pre-fill; fall back to
       // `customer_email` only if the customer resolution above failed.
       ...(customer ? { customer: customer.id } : { customer_email: email }),
@@ -127,8 +153,8 @@ serve(async (req) => {
         // the access-code receipt in the right language. Default 'en'.
         preferred_language: preferredLanguage === "nl" ? "nl" : "en",
         // Product flavor. Read by payment-success to mint the access code with
-        // the matching survey_type ('starter' loads the starter survey).
-        flavor: isStarter ? "starter" : "pro",
+        // the matching survey_type ('starter'/'encore' load that flavor's survey).
+        flavor: resolvedFlavor,
       },
       locale: country === "Netherlands" ? "nl" : country === "Germany" ? "de" : "auto",
     };

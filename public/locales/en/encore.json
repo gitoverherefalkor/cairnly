@@ -1,0 +1,133 @@
+{
+  "hero": {
+    "eyebrow": "Cairnly Encore",
+    "titleA": "You finished the career.",
+    "titleHighlight": "You are not finished.",
+    "titleB": "",
+    "body": "After decades of being the person people counted on, the calendar suddenly goes quiet. Nobody hands you a plan for what your experience is for now.",
+    "bodyEmphasis": "That question deserves a serious answer, not a hobby brochure.",
+    "ctaPrimary": "Find what fits now",
+    "ctaSecondary": "How it works",
+    "trust": "Built for people at or approaching retirement who are not done contributing"
+  },
+  "identity": {
+    "eyebrow": "The part nobody prepares you for",
+    "title": "Retirement plans cover your money. Not your Mondays.",
+    "p1": "For forty years your week had a shape: people who needed you, problems worth solving, a reason to be sharp by nine. Then comes the farewell reception, the kind words, and a Monday morning with nothing on it.",
+    "p2": "The advice you get is either financial or decorative. Take up golf. Travel more. Enjoy it, you earned it. All fine, and none of it an answer to the real question: what do I do with everything I know?",
+    "bullets": [
+      {
+        "title": "Identity does not retire",
+        "body": "You were the engineer, the director, the one who fixed things. That does not switch off with the badge. The trick is neither clinging to the old role nor erasing it, but finding where it converts."
+      },
+      {
+        "title": "The market is clumsy with experience",
+        "body": "Recruiters rarely know what to do with a 40-year CV, and ageism is real. But boards, founders, schools and nonprofits still actively look for exactly the judgment you have. You need to know where those doors are."
+      },
+      {
+        "title": "AI raises the value of judgment",
+        "body": "Machines are getting good at producing work. Knowing which work is worth doing, what good looks like, and when someone is fooling themselves: that is experience, and it is getting scarcer."
+      }
+    ],
+    "closing": "Cairnly Encore exists for this exact question: what fits you now, at the hours you want, for reasons that matter to you."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "From a quiet calendar to a real plan",
+    "steps": [
+      {
+        "title": "Tell us about yourself, honestly",
+        "body": "A 25-minute assessment that takes your career seriously and your current life just as seriously. Energy, hours, commitments and the things you refuse to do ever again all count."
+      },
+      {
+        "title": "AI does the analysis",
+        "body": "Our engine maps your personality, your track record and what matters to you now against directions that fit this stage: paid and unpaid, from advisory work to teaching to something entirely your own."
+      },
+      {
+        "title": "Get honest directions",
+        "body": "Three concrete directions plus alternatives. Why they fit, what they look like at your hours, how to step in at your seniority, and where age will and will not be a factor."
+      },
+      {
+        "title": "Talk it through",
+        "body": "Discuss the results with your AI coach. Disagree, ask the blunt questions, and refine the advice until it holds up."
+      }
+    ]
+  },
+  "get": {
+    "eyebrow": "What you get",
+    "title": "A serious answer to what comes next",
+    "items": [
+      {
+        "title": "A personality profile with respect",
+        "body": "How you operate now: energy, structure, people, ego. An honest mirror, not flattery, and no assumption that you want to climb anything."
+      },
+      {
+        "title": "What your experience is worth",
+        "body": "A clear read on the judgment and skills you built, and where they hold real value today, including in a world full of AI."
+      },
+      {
+        "title": "3 directions that fit this stage",
+        "body": "Advisory, mentoring, board work, teaching, part-time roles, volunteering with substance, or a small venture of your own. Matched to you, not to a brochure."
+      },
+      {
+        "title": "The realistic way in",
+        "body": "For each direction: how people your age actually enter. Networks, registries, first conversations, and the honest word about ageism where it applies."
+      },
+      {
+        "title": "A week that feels like a life",
+        "body": "Directions sized to the hours you actually want, around the grandchildren, the travel and the garden. Structure without a cage."
+      },
+      {
+        "title": "A coach that talks back",
+        "body": "An AI coach that knows your full report, answers questions at your pace, and never talks down to you."
+      }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "One report. No subscription. No upsells.",
+    "body": "A one-time assessment with a full report and unlimited coach chat. Less than an hour with any consultant who knows half as much about you.",
+    "cta": "Get started",
+    "note": "One-time payment. Assessment, report and coach chat included. Questions first? Use the support button on any page, a human reads it."
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Fair questions",
+    "items": [
+      {
+        "q": "I am not sure I want a job at all. Is this still useful?",
+        "a": "Yes. Encore is not a job board. Directions include advisory roles, mentoring, teaching, board work, volunteering with real substance, and personal projects. The point is finding what deserves your time, whatever form it takes."
+      },
+      {
+        "q": "How is this different from the regular Cairnly assessment?",
+        "a": "The regular assessment helps professionals plan their next career move. Encore asks different questions: it takes proper stock of the career you had, then focuses on fit with the life you want now. Energy, hours, meaning and people."
+      },
+      {
+        "q": "I am not great with technology. Will I manage?",
+        "a": "If you can answer an email, you can do this. One question at a time, large readable text, answers saved automatically, and a support button on every page with a human behind it."
+      },
+      {
+        "q": "Will it patronize me with \"you earned your rest\"?",
+        "a": "No. It also will not pretend 60 is the new 40. You get an honest read: where your experience holds real value, where ageism is a factor, and what fits the energy you actually have."
+      },
+      {
+        "q": "Is my information safe?",
+        "a": "Yes. Your answers are used to generate your report and for nothing else. No subscription, no selling of data, and you can have everything deleted on request."
+      },
+      {
+        "q": "How long does it take?",
+        "a": "About 25 minutes for the assessment, at your own pace, with breaks whenever you like. Your answers are saved automatically. The report is ready minutes later, and the coach is available as long as you want."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Decades of knowing what you are doing. Let's not waste it.",
+    "body": "Twenty-five honest minutes gets you a serious answer to what comes next.",
+    "cta": "Start your assessment"
+  },
+  "shell": {
+    "eyebrow": "Cairnly Encore",
+    "title": "Get your Encore assessment",
+    "subtitle": "One-time payment. Assessment, report and coach chat included."
+  }
+}

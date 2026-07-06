@@ -6,7 +6,7 @@ import { AssessmentLayout } from '@/components/assessment/AssessmentLayout';
 import { AssessmentCompletion } from '@/components/assessment/AssessmentCompletion';
 import { PreSurveyUpload } from '@/components/assessment/PreSurveyUpload';
 import { useAssessmentLogic } from '@/components/assessment/useAssessmentLogic';
-import { STARTER_SURVEY_ID } from '@/components/assessment/constants';
+import { STARTER_SURVEY_ID, ENCORE_SURVEY_ID } from '@/components/assessment/constants';
 import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSessionContext';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -80,13 +80,20 @@ const AssessmentPage = () => {
 
   const surveyId = getSurveyIdFromAccessCode(accessCodeData);
 
-  // Starter flavor: skip the CV upload step. The audience mostly has no CV yet,
-  // and the resume pre-fill mapper only knows the pro survey's question ids.
+  // Starter flavor: skip the CV upload step. The audience mostly has no CV yet.
+  // Encore deliberately KEEPS the upload step (a 40-year CV is the evidence);
+  // its pre-fill is translated to encore question ids in useAIResumePreFill.
   const isStarter = surveyId === STARTER_SURVEY_ID;
+  // Encore also gets the large-type treatment on every assessment step.
+  const isEncore = surveyId === ENCORE_SURVEY_ID;
 
   // Always show pre-survey upload step after verification, unless explicitly completed
   if (!isStarter && !preSurveyUploadComplete) {
-    return <PreSurveyUpload onContinue={handlePreSurveyUploadComplete} />;
+    return (
+      <div className={isEncore ? 'survey-lg' : undefined}>
+        <PreSurveyUpload onContinue={handlePreSurveyUploadComplete} />
+      </div>
+    );
   }
 
   if (!surveyId) {
@@ -101,7 +108,7 @@ const AssessmentPage = () => {
   }
 
   return (
-    <AssessmentLayout onExit={handleExitAssessment}>
+    <AssessmentLayout onExit={handleExitAssessment} largeType={isEncore}>
       <SurveyForm
         surveyId={surveyId}
         onComplete={handleSurveyComplete}

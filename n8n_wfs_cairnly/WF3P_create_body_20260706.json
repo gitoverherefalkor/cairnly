@@ -1,0 +1,1009 @@
+{
+ "name": "WF3P - Encore scoring directions EN",
+ "nodes": [
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "outside_box_prompt_assignment",
+       "name": "outside_box_prompt",
+       "value": "=# ROLE\nYou are an expert direction-matching system specializing in unconventional paths that represent a \"True Pivot\" for someone at or approaching retirement. Your candidate is ending a professional career of 30 to 45 years. They do not need a job; they need a reason. Directions may be employment OR non-employment forms: teaching, mentoring, volunteering with substance, a portfolio or passion business, expert and assessor roles, hands-on craft.\n\n# TASK\nBased on the candidate's profile (input 1) and personal interests (input 2), generate a list of **3** UNCONVENTIONAL! directions that the candidate likely hasn't considered.\n\n## SELECTION PRINCIPLES (The \"Unseen Pivot\" Layer)\n1. **The \"True Pivot\" Rule (semantic distance, no safe encore move):** Every pick must be a genuine pivot, not the default encore move. For this candidate, the safe moves are the \"Fractional,\" \"Consulting,\" \"Board Member,\" \"Advisory,\" \"Interim,\" and \"Mentor\" versions of their past work: those belong in the main presented set, NOT here. Go beyond exact titles: reject any direction that lives in the SAME FUNCTION FAMILY as a role already in the presented set (input 3 and 3b), even under a fresh title. If the presented directions already cover a family (for example advisory/consulting, board and governance, mentoring/coaching, teaching their own field, or interim management), another entry from that family is NOT outside the box. Litmus test: if this direction could plausibly sit in their Top 3 or runner-ups, or a former colleague would say \"of course, that's basically what you did,\" it is a safe move and must be rejected. A True Pivot puts the candidate in a different field, a different identity, or a genuinely different way of spending their week.\n2. **The Dignity Anchor:** Ensure the intellectual stimulus is on par with their experience and education. NEVER suggest filler roles: no greeter-style positions, badge-scanning volunteering, generic shelf work, or keep-them-busy suggestions. Someone who ran a company does not need help finding a job handing out flyers. Instead, scale an interest to their caliber (e.g., \"Restoration Volunteer\" becomes \"Restoration Project Lead for a heritage foundation\"; \"helping students\" becomes \"Examiner for a professional certification board\").\n3. **Avoid the Explicitly Named Aspiration:** Do not suggest the specific thing they always wanted to try, found in input 2's Dream Jobs section. That aspiration is handled in a separate feasibility step. Focus on the **Unimagined Pivot.**\n4. **The \"Real Title\" Rule (unexpected, not invented):** The direction should be *unexpected*, but the title must be *real*. Use a title that genuinely exists in postings, registries, or volunteer boards - someone must be able to search it. \"Unconventional\" means surfacing a direction they haven't considered, NOT inventing a new title by welding words together. For non-employment forms, use the name the field actually uses (examiner, assessor, trustee, instructor, restorer, ombudsman). If the pivot has no standard title, use the closest real one and put the \"unseen\" angle in the Overview, never in the title. A sector qualifier in parentheses is fine (\"Vocational Instructor (Logistics)\"); an invented headline is not.\n   - Derive every title fresh from THIS candidate's own skills, interests and history. Never reuse a go-to \"clever\" title across people: if a title could plausibly fit many different candidates, it is too generic to be a real outside-the-box pivot. Vary your picks widely across candidates.\n   - OVERUSED DEFAULTS, avoid unless strongly justified: \"Executive Coach\", \"Consultant\", \"Non-Executive Director\", and \"Mentor\" are the reflexive encore suggestions and are almost never outside the box for this audience; they belong in the main set if they fit at all. Only propose a coaching- or governance-flavored pick when it sits in a genuinely different world from their career (e.g., a lifelong engineer as a sailing examiner, not a \"leadership coach\").\n   - BAD invented composite -> GOOD real equivalent (do NOT weld words into a fake title):\n       - \"Legacy Wisdom Curator\"                    -> \"Oral Historian\"\n       - \"Senior Experience Ambassador\"             -> \"Vocational Instructor\"\n       - \"Strategic Life Transition Architect\"      -> \"Retirement Coach\"\n5. **Interest-derived pivots - welcome, but they must earn their place.** A direction built from a stated interest or hobby (e.g., sailing -> Sailing Instructor/Examiner) is a STRONG pick when ALL of these hold: (a) there is a real, non-obvious bridge from their professional depth that makes them unusually valuable there (e.g., their governance rigor inside a volunteer-run club that usually lacks it); (b) it opens a genuinely different world from their career so far; and (c) it respects the Dignity Anchor and their stated hours (never \"they like X, so make them the full-time junior X\"). REJECT interest pivots that are just the hobby as a job with no bridge, or a direction the candidate has obviously already pictured for themselves.\n6. **Hard Divergence from Presented Directions:** None of the 3 options may match, or be a near-synonym of, any title in the \"Already Presented\" list OR its alternate titles (input 3b), and none may share BOTH the primary sector AND the primary function of a presented direction. Alternate titles count as already-covered. Example: if \"Supervisory Board Member (Healthcare)\" is presented with alternates \"Non-Executive Director / Trustee\", then \"Foundation Board Chair\" is NOT outside the box. Reject it and pick a genuinely different lane.\n7. **Mix and Diversity (the balance):**\n   - At MOST ONE direction per named interest. Never two variations of the same hobby (one sailing direction, not two).\n   - The 3 options must span 3 DISTINCT domains; do not return near-duplicates.\n   - At LEAST ONE of the 3 must be a non-hobby lateral pivot: surfaced from the candidate's underlying drivers (what their history and answers reveal they actually need: being needed, developing people, visible impact, craftsmanship, structure-building) in a domain they did NOT explicitly name. This guarantees the set is not just \"their hobbies + their old job.\"\n\n8. **Respect what they want to move AWAY from.** Input 2 states what the candidate will not miss and which environments they are done with (for example: politics and steering committees, targets and reviews, pressure cookers, travel-heavy work). Never recommend a direction whose day-to-day reality runs straight back into that, even when the skills transfer cleanly. Also respect their stated hours, energy, and appetite for formal liability: a statutory board seat is the wrong call for someone who wants influence without liability. When skill-fit and stated direction pull apart, weight their stated direction.\n\n9. **How these principles interact (precedence).** Principles 5 and 7 are the SOURCE of your picks: the best outside-the-box directions come from the candidate's interests and underlying drivers surfaced into a new arena. Principles 1, 6, and 8 are FILTERS that reject safe, duplicate, or contradictory picks, not reasons to abandon a strong interest- or driver-derived pivot. A pivot that reuses a familiar skill is good when the field, identity, or way of spending the week is genuinely new (for example board-level financial rigor applied inside a wildlife sanctuary). Do not reject such a pivot just because it touches a skill they already have.\n\n**Final self-check before output:** for each of the 3 picks, confirm it (a) passes the True Pivot Rule (#1) and respects #8, and (b) is a real, findable direction reachable at their stage without years of retraining, honest about any physical or energy realities. If a pick is a safe adjacent role or collides with what they are done with, replace it. But do not swing to the opposite error: if genuine pivots are hard to find, widen the lens (the same craft in a clearly different world, or a driver-derived direction in a new field) rather than forcing either a safe clone or a far-fetched, invented role. Always return exactly 3.\n\n## GENERAL CONSIDERATIONS\n1. **Non-Desk or People-Centric Directions:** Include potential non-desk directions or highly people-centric ones based on candidate strengths and preferences. Many encore candidates have spent 40 years at a desk and quietly want out of one; others need the human fabric work used to provide.\n2. **AI as Leverage:** Frame AI honestly as leverage for judgment and experience. Favor directions where decades of pattern recognition direct, verify, or teach; avoid directions whose substance is routine production that agentic AI already absorbs. Their fear is irrelevance, not job loss: show where their judgment stays scarce.\n3. **Realistic Change:** Do not suggest directions requiring 4+ years of intensive retraining (e.g., Surgeon or Microbiologist). Focus on directions attainable through standing, transferable expertise, short courses, or attainable certificates, within their stated start timeline.\n4. **Income Honesty:** Input 2 states where income from this stage sits for them (not a factor / nice to have / needed). If income is needed and the direction pays little or nothing (much volunteering, many assessor and trustee roles), you must include a \"Heads-up\" mention at the end of the AI impact section. If income is not a factor, never use pay as a selling point.\n5. **Path Type Honesty:** Identify whether each direction is an employee role, independent practice (freelance/fractional), or founder (new business); pick the closest label for volunteer and appointed roles. Frame the realities honestly for this stage: founder paths mean capital and energy commitment with a shorter runway; freelance means pipeline work they may be done with; employee paths mean hiring cycles and honest ageism where it is real. Do not gloss over the structural difference between these.\n\n# FORMAT AND STYLE\n- Provide exactly 3 careers in a numbered format.\n- At the very end of each career, output its Move rating (readiness to step into it at this stage, AI-adjusted) as a hidden HTML comment exactly like <!--move:Reframe--> with ONE of: Ready now (their standing and skills carry them in this quarter), Reframe (the gap is positioning and framing, not skills), Upskill (a real but bounded learning gap, e.g. a certificate or course), Retrain (meaningful new certification or skill required first). Never show the rating any other way.\n- **NO introductions or outros.** Start with \"1. [Job Title]\" immediately.\n- **DO NOT use the em dash** in any part of your narrative. Use commas, colons, or parentheses instead.\n- **DO NOT use question numbers in your output!**\n- if using bulletpoints, make the bullet lable bold for readability and emphasis\n- Do NOT wrap the [Career Title] in markdown bold (**). Output it as plain text.\n\n# TONE:\n- Respectful, direct, zero condescension\n- Cairnly voice: honest, helpful, no fluff, no \"60 is the new 40\" cheerleading\n- Include hard truths where they exist: ageism where real, energy realities, liability exposure\n- Shorter than Top 3 (these are backups)\n- Active voice, second person. Use 'you' and occasionally their name to adress them!\n\n### Structure for each career:\n[Career Title]\n\n**Overview**\n[2-sentence description of the direction and its core activities.]\n\n**Why this might be a fit**\n[Explain the \"Unseen\" connection. Why does the candidate's specific background, personality, and what they secretly loved make them unusually valuable in this world? Explain how this could give them a reason, real connection, or a week with shape, without being the safe encore move.]\n\n[Heads-up: Mention if the direction pays little or nothing and their income need makes that a problem, if applicable.]\n\n**Path Type & Reality**\n[Identify as employee / freelance_fractional / founder. State 1 sentence on the structural reality at this stage: capital and energy runway for founder, pipeline work for freelance, hiring cycles and honest ageism for employee.]\n\n**AI Impact on this role**\n## How AI will impact this role\n[1-2 sentences. Use ai_impact_rating from enriched data. Be specific about what changes and what stays human, and where decades of judgment stay scarce. Connect to their stated AI outlook from input 2. Keep the Rating Scale lable, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment, even senior roles are augmented.\n\n\n---\n\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Pull Profile Sections').first().json.language }}\n- If preferred_language is NOT 'nl', write in English exactly as instructed above.\n- If preferred_language IS 'nl', write your ENTIRE output in Dutch: informal je/jij/jouw (never 'u'), no em-dashes, Dutch number/date formatting (EUR as €39,00, thousands €1.500, dates dd-mm-jjjj).\n- Keep brand terms in English (Cairnly, outside-the-box, runner-up).\n- When writing in Dutch, use these EXACT Dutch subheaders instead of the English ones so downstream parsing keeps working:\n  Overview  ->  Overzicht\n  Why this might be a fit  ->  Waarom dit bij je past\n  Path Type & Reality  ->  Type pad & realiteit\n  AI Impact on this role  ->  AI-impact op deze rol\n- KEEP the AI-impact rating label itself in English (Low, Moderate, High, Severe) exactly as defined above - it is a fixed scale. Translate only the explanation after it. Keep the numbered format (1., 2., 3.) for the careers.\n\n# INPUTS\n- **1. Personlity Profile**\n{{ $('ShortHisProf').all()[1].json.personality_profile }}\n///\n\n- **2. Goals, history, Personal interests and what to avoid**\n{{ $json.text }}\n///\n\n- **3. Already discussed careers**\n{{ $('ShortHisProf').item.json.shortlist_careers }}\n\n- **3b. Titles already considered, WITH their alternate titles. Your 3 picks must NOT match or closely echo ANY of these, including the alternates.**\n{{ $('Build covered titles').first().json.covered_titles }}\n\n**ROLES THE CANDIDATE HAS ALREADY HELD (their real employment history). A pick is INVALID if it matches, is a near-synonym of, or is merely an industry re-label of ANY title below. \"Outside the box\" means a role they have NOT already done: never hand the candidate their own past job back under a new label.**\n{{ ($('Pull Init Summary').first().json.content.match(/Title:<\\/strong>[^\\n<]*/g) || []).map(s => s.replace(/Title:<\\/strong>\\s*/,'').trim()).filter(Boolean).join(', ') }}\n\n",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    832,
+    2448
+   ],
+   "id": "15f94de6-b716-4407-b754-187ca1d2f589",
+   "name": "Set Outside Box Prompt",
+   "executeOnce": true
+  },
+  {
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "c7b2b624-99be-4123-b6f8-5a10d0ec5919",
+    "options": {
+     "allowedOrigins": "*",
+     "binaryPropertyName": "",
+     "ignoreBots": false,
+     "responseHeaders": {
+      "entries": [
+       {
+        "name": "Content-Type",
+        "value": "application/json"
+       }
+      ]
+     }
+    }
+   },
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    -3008,
+    2128
+   ],
+   "id": "3ee92643-6b6c-4d5d-a388-5c72db0eef76",
+   "name": "Receive from WF2P (Encore)",
+   "webhookId": "825d534d-3370-4add-a677-b1a8be906653"
+  },
+  {
+   "parameters": {
+    "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Pull Init Summary').first().json.report_id }}&select=*",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "supabaseApi",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    -1824,
+    1712
+   ],
+   "id": "61bd120c-d124-475e-bd2e-a987c50ab0c9",
+   "name": "Pull enriched",
+   "alwaysOutputData": true,
+   "executeOnce": false,
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Get all input items. WF3P receives its payload over a webhook from WF2P,\n// so the actual data may sit under item.json.body (single object or array).\nconst rawItems = $input.all();\nconst allItems = [];\nrawItems.forEach(item => {\n  const j = item.json || {};\n  if (j.body !== undefined && j.body !== null && typeof j.body === 'object') {\n    if (Array.isArray(j.body)) {\n      j.body.forEach(b => allItems.push({ json: b }));\n    } else {\n      allItems.push({ json: j.body });\n    }\n  } else {\n    allItems.push({ json: j });\n  }\n});\n\n// Debug the structure\nconsole.log(\"Total items:\", allItems.length);\n\n// Extract data from the complex nested structure\nlet careersData = [];\nlet reportId = \"\";\nlet initialSummary = \"\";\n\n// Process each item to find our data\nallItems.forEach((item, index) => {\n  console.log(`Item ${index} keys:`, Object.keys(item.json || {}));\n\n  // Look for careers data\n  if (item.json?.Tit_co_RID_data) {\n    if (typeof item.json.Tit_co_RID_data === 'string') {\n      try {\n        careersData = JSON.parse(item.json.Tit_co_RID_data);\n      } catch (e) {\n        console.log(\"Error parsing careers data:\", e);\n      }\n    } else if (Array.isArray(item.json.Tit_co_RID_data)) {\n      careersData = item.json.Tit_co_RID_data;\n    }\n  }\n\n  // Look for report ID\n  if (item.json?.[\"report id\"]) {\n    reportId = item.json[\"report id\"];\n  }\n  if (!reportId && item.json?.report_id) {\n    reportId = item.json.report_id;\n  }\n\n  // Look for initial summary\n  if (item.json?.[\"Initial Summary (output)\"]) {\n    initialSummary = item.json[\"Initial Summary (output)\"];\n  }\n});\n\n// Structure the final output with original field names\nconst result = {\n  \"report id\": reportId,\n  \"Initial Summary (output)\": initialSummary,\n  Tit_co_RID_data: careersData\n};\n\nconsole.log(\"Final result structure:\", {\n  has_report_id: !!result[\"report id\"],\n  has_summary: !!result[\"Initial Summary (output)\"],\n  careers_count: result.Tit_co_RID_data.length\n});\n\nreturn [{ json: result }];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -2784,
+    2128
+   ],
+   "id": "3ac567ef-ba95-4127-9351-e8f749e9c9fe",
+   "name": "Add structure"
+  },
+  {
+   "parameters": {
+    "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(approach,strengths,development,values)&select=report_id,section_type,content,language\n",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "supabaseApi",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    -1824,
+    2128
+   ],
+   "id": "bf53055d-b1d6-4a49-9808-b0e01f309e76",
+   "name": "Pull Profile Sections",
+   "executeOnce": false,
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Get profile items from current input (5 items from Pull Profile Sections)\nconst profileItems = $input.all();\n\n// Define the desired order of sections\nconst sectionOrder = ['approach', 'strengths', 'development', 'values'];\n\n// Create a map for quick lookup of items by section_type\nconst itemMap = {};\nprofileItems.forEach(item => {\n  itemMap[item.json.section_type] = item.json.content;\n});\n\n// Combine content in the specified order\nconst combinedContent = sectionOrder\n  .filter(sectionType => itemMap[sectionType]) // Only include sections that exist\n  .map(sectionType => itemMap[sectionType])\n  .join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    personality_profile: combinedContent\n  }\n}];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -1472,
+    2128
+   ],
+   "id": "1e62814e-9d6c-4a6f-9b67-9ba195449e96",
+   "name": "Combine Profile sections"
+  },
+  {
+   "parameters": {
+    "jsCode": "// Career Ranking Code Node - Step 2 Compatible Version (with title dedup)\nconst allCareers = [];\n\n// Extract scored careers from Step 2 output\nfor (const item of $input.all()) {\n  const data = item.json;\n\n  if (data.scored_careers && Array.isArray(data.scored_careers)) {\n    allCareers.push(...data.scored_careers);\n  }\n  else if (data.text) {\n    try {\n      const cleanText = data.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n      const parsed = JSON.parse(cleanText);\n      if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n        allCareers.push(...parsed.scored_careers);\n      }\n    } catch (e) {\n      console.error('Failed to parse text field:', e);\n      continue;\n    }\n  }\n  else if (data.CAI_scored_careers && Array.isArray(data.CAI_scored_careers)) {\n    for (const entry of data.CAI_scored_careers) {\n      if (entry.text) {\n        try {\n          const cleanText = entry.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n          const parsed = JSON.parse(cleanText);\n          if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n            allCareers.push(...parsed.scored_careers);\n          }\n        } catch (e) {\n          continue;\n        }\n      } else if (entry.scored_careers && Array.isArray(entry.scored_careers)) {\n        allCareers.push(...entry.scored_careers);\n      } else if (entry.career_title) {\n        allCareers.push(entry);\n      }\n    }\n  }\n}\n\n// Extract final score (Step 2 structure, normalized to /100)\nconst getScore = (career) => {\n  let score = 0;\n  if (career.final_compatibility_score !== undefined) {\n    score = parseInt(career.final_compatibility_score, 10);\n    score = isNaN(score) ? 0 : score;\n  } else if (career.compatibility_score !== undefined) {\n    score = typeof career.compatibility_score === 'number'\n      ? career.compatibility_score\n      : parseInt(career.compatibility_score, 10);\n  }\n  return Math.round((score / 108) * 100);\n};\n\nconst getSummary = (career) => {\n  if (career.summary) {\n    return {\n      key_strengths: career.summary.key_strengths || '',\n      key_concerns: career.summary.key_concerns || ''\n    };\n  }\n  return {\n    key_strengths: career.key_strengths || '',\n    key_concerns: career.key_concerns || ''\n  };\n};\n\n// Score and sort\nconst sortedCareers = allCareers\n  .map(career => {\n    const summary = getSummary(career);\n    return {\n      ...career,\n      normalized_score: getScore(career),\n      extracted_strengths: summary.key_strengths,\n      extracted_concerns: summary.key_concerns\n    };\n  })\n  .sort((a, b) => b.normalized_score - a.normalized_score);\n\n// Title dedup pass — keep only the highest-scoring entry per unique title\nfunction normalizeTitle(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenTitles = new Set();\nconst dedupedCareers = [];\nconst droppedDuplicates = [];\n\nfor (const career of sortedCareers) {\n  const titleKey = normalizeTitle(career.career_title);\n  if (!titleKey) continue;\n\n  if (seenTitles.has(titleKey)) {\n    droppedDuplicates.push({\n      career_title: career.career_title,\n      company_size_type: career.company_size_type,\n      score: career.normalized_score\n    });\n    continue;\n  }\n\n  seenTitles.add(titleKey);\n  dedupedCareers.push(career);\n}\n\n// Assign ranks on the deduped list\nconst rankedCareers = dedupedCareers.map((career, index) => ({\n  ...career,\n  rank: index + 1\n}));\n\n// Slice Top 3 and Runner-ups (55+ threshold)\nconst top3 = rankedCareers.slice(0, 3);\nconst runnerUps = rankedCareers\n  .slice(3, 10)\n  .filter(career => career.normalized_score >= 55)\n  .slice(0, 3);\n\n// Format Top 3\nconst formattedTop3 = top3.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  step1_objective_score: career.step1_objective_score || \"N/A\",\n  pattern_analysis: career.step2_pattern_analysis || {},\n  penalties: career.penalties || {},\n  key_insights_applied: career.key_insights_applied || \"\",\n  key_strengths: career.extracted_strengths,\n  key_concerns: career.extracted_concerns,\n  justification: career.extracted_strengths && career.extracted_concerns\n    ? `${career.extracted_strengths} ${career.extracted_concerns}`\n    : `Strong alignment with ${career.normalized_score}% compatibility score.`\n}));\n\n// Format Runner-ups\nconst formattedRunnerUps = runnerUps.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  key_strengths: career.extracted_strengths,\n  brief_justification: career.extracted_strengths\n    ? career.extracted_strengths.substring(0, 200)\n    : `Strong alignment with ${career.normalized_score}% compatibility.`,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\"\n}));\n\n// All ranked for context (Outside Box & Dream Job prompts) — also deduped\nconst allRankedForContext = rankedCareers.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type,\n  compatibility_score: career.normalized_score,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  key_strengths: career.extracted_strengths?.substring(0, 100) || \"\"\n}));\n\nreturn [{\n  json: {\n    career_recommendations: {\n      report_generated: new Date().toISOString(),\n      top_3_careers: formattedTop3,\n      runner_up_careers: formattedRunnerUps,\n      all_ranked_careers: allRankedForContext,\n      summary: {\n        total_careers_evaluated: sortedCareers.length,\n        unique_titles_after_dedup: rankedCareers.length,\n        duplicates_dropped: droppedDuplicates.length,\n        dropped_duplicates: droppedDuplicates,\n        top_tier_count: top3.length,\n        runner_up_count: runnerUps.length,\n        careers_above_threshold: rankedCareers.filter(c => c.normalized_score >= 55).length,\n        careers_discarded: rankedCareers.length - rankedCareers.filter(c => c.normalized_score >= 55).length,\n        discarded_reason: \"Careers ranked 11+ or scoring below 55 have been excluded due to insufficient compatibility.\"\n      }\n    }\n  }\n}];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2160,
+    2112
+   ],
+   "id": "15533bf0-f1cf-4aa7-8700-660e08a6244b",
+   "name": "Ranking"
+  },
+  {
+   "parameters": {
+    "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -1472,
+    1712
+   ],
+   "id": "56b47afe-3527-412d-bdce-0880d1ad1876",
+   "name": "content in order"
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json.outside_box_prompt }}",
+    "batching": {}
+   },
+   "id": "0c966a09-e11c-4b97-ad67-f9d91f431d04",
+   "name": "Outside Of Box Analysis",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    1200,
+    2448
+   ],
+   "retryOnFail": true
+  },
+  {
+   "parameters": {
+    "jsCode": "// Get report_id from upstream node\nconst reportId = $node[\"Pull Profile Sections\"].json.report_id;\n// Get the outside box careers text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lang = ($('Pull Profile Sections').first().json.language === 'nl') ? 'nl' : 'en';\nconst OUTSIDE_BOX_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this might be a fit\", \"Path Type & Reality\", \"AI Impact on this role\"],\n  nl: [\"Overzicht\", \"Waarom dit bij je past\", \"Type pad & realiteit\", \"AI-impact op deze rol\"]\n};\nconst OUTSIDE_BOX_SUBHEADERS = OUTSIDE_BOX_SUBHEADERS_ALL[__lang];\n\n// Function to format subheaders to h5 tags and bold AI rating\nfunction formatSubheaders(content) {\n  let formatted = content;\n  \n  // Convert subheaders to h5 tags\n  OUTSIDE_BOX_SUBHEADERS.forEach(subheader => {\n    // Match subheader with optional markdown bold (**), colon, or newline\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Bold the AI impact rating (e.g., \"Augmented -\", \"At Risk -\", \"Displaced -\")\n  formatted = formatted.replace(/\\n(Minimal|Moderate|High|Severe|Critical|Augmented|At Risk|Displaced|Enhanced|Transformed)(\\s*-)/gi, '\\n<strong>$1</strong>$2');\n  \n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  \n  return formatted.trim();\n}\n\n// Function to extract title and return cleaned content\nfunction parseCareer(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  // Look for title patterns\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    // Match \"1. Title Name\" or \"#### 1. Title\" patterns\n    if (line.match(/^#{0,4}\\s*\\d+\\.\\s+.+$/)) {\n      title = line.replace(/^#{0,4}\\s*\\d+\\.\\s+/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  // Strip any markdown bold/italic markers the model wrapped the title in\n  // (e.g. \"**Game Designer**\" -> \"Game Designer\") so they don't leak into\n  // the <strong> tag and render as literal asterisks. Titles never contain *.\n  title = title.replace(/\\*/g, '').trim();\n  \n  // Skip empty lines after title\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  // Get remaining content (everything after title)\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n  \n  return {\n    title: title || 'Outside Box Career',\n    content: formattedContent\n  };\n}\n\n// Split the content by career sections - matches \"1.\", \"2.\", \"3.\" at start of line\n// Uses lookahead to keep the delimiter with the following section\nconst careerSections = fullText.split(/(?=^\\d+\\.\\s+)/m);\n\n// Filter out empty sections and trim whitespace\nconst cleanSections = careerSections.filter(section => section.trim().length > 0);\n\n// Map each section to the required Supabase format\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseCareer(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      title: `<h3><strong>${parsed.title}</strong></h3>`,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      section_type: \"outside_box\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    1712,
+    2448
+   ],
+   "id": "51a564b2-8ad7-4770-b506-aa3204a6c0f7",
+   "name": "Parse OOB"
+  },
+  {
+   "parameters": {
+    "tableId": "report_sections",
+    "dataToSend": "autoMapInputData"
+   },
+   "type": "n8n-nodes-base.supabase",
+   "typeVersion": 1,
+   "position": [
+    2000,
+    2448
+   ],
+   "id": "773f2ffa-5c45-4a4d-a654-1b14804f91b8",
+   "name": "Insert OOB ",
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "modelName": "models/gemini-flash-latest",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+   "typeVersion": 1,
+   "position": [
+    -192,
+    2624
+   ],
+   "id": "a304f9a2-9ca5-4e8a-9610-3863f98acb0b",
+   "name": "Google Gemini Chat Model1",
+   "credentials": {
+    "googlePalmApi": {
+     "id": "Q653Teuy9nP6VLoE",
+     "name": "Cairnly Gstudio Key"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "98af9d96-fb78-4dad-aa57-d317c0def983",
+       "name": "shortlist_careers",
+       "value": "={{ JSON.stringify($items(\"Add structure\")[0].json[\"Tit_co_RID_data\"], null, 2) }}\n\n",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -2176,
+    1952
+   ],
+   "id": "4f000ecf-3392-49c0-8a16-71f8a0ff5a3e",
+   "name": "shortlist_careers",
+   "retryOnFail": true,
+   "waitBetweenTries": 3000,
+   "executeOnce": true
+  },
+  {
+   "parameters": {
+    "modelName": "models/gemini-flash-latest",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+   "typeVersion": 1,
+   "position": [
+    -16,
+    1872
+   ],
+   "id": "c89f1d76-fe12-430a-9984-286d45828e23",
+   "name": "Google Gemini Chat Model",
+   "credentials": {
+    "googlePalmApi": {
+     "id": "Q653Teuy9nP6VLoE",
+     "name": "Cairnly Gstudio Key"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "=# ROLE\nYou are an expert data synthesizer.\n\n# TASK\nSynthesize the candidate's initial summary into a concise, narrative profile. Organize the profile using the provided headers. For each section, write a brief, insightful paragraph that weaves together the specified data points from the input.\n\nThis candidate is at or approaching retirement after a professional career of 30 to 45 years. They are not hunting for a job; they are shaping what comes after a career that defined them for decades. Treat their career history, their stated energy and hours, and their sense of purpose as first-class data.\n\nThe goal is to create a rich, human-readable summary that captures the story behind the data, not just the data itself.\n\n# PROFILE STRUCTURE\n\n### Personal Context\n\nWeave together the candidate's age (1b), region (1c), where they are in the transition out of full-time work (1d), when the big change happens or happened (1e), their total years worked (2c), and who or what shapes their week right now (1h). Add their stated feeling about the pace of technology and AI (4d) as context. Capture the identity dimension: how far along they are in letting go of the working identity.\n\n### Previous Careers\n\nExtract and list the job titles held by the candidate from their Career History (2a) in a numbered list format. This serves as a record of roles to be excluded from future suggestions.\n\n### Personal Interests & Strengths\n\nSynthesize their top skills, achievements, and languages (2d), what they were known for (2e), what they secretly loved even if they rarely said so (2g), and their personal interests and hobbies (4e) to paint a picture of what drives and engages them, and the strengths decades of colleagues saw in them.\n\n### Career Goals & Aspirations\n\nCombine what a genuinely good year looks like at this stage (4b) with what they actually mean by \"meaningful\" (7a) and what they want Cairnly to tell them straight (7c). Incorporate their appetite for learning new things (3d), their preferred start timing (6d), and what they fear most about this stage (4c) to describe the direction and the stakes of this next chapter.\n\n### Career Constraints & Avoidances\n\nSummarize what they will absolutely NOT miss from their career (2f), the environments they are simply done with (5d), their appetite for formal responsibility and liability (6e), the commitments that shape their calendar (6c), and any constraints from the additional context (7d). Frame this as their boundaries or \"non-negotiables\" for this stage.\n\n### Compensation & Work Preferences\n\nDescribe their ideal arrangement by combining the hours they actually want to commit (5a), in person versus remote (5b), whether they want to lead, contribute, advise, or mentor (5c), how social the work itself should be (5e), where income from this next stage sits for them (6a), and how mobile they are (6b).\n\n### Dream Jobs\n\nState the thing they always wanted to try but never had time for (7b) directly, and briefly connect it to their broader interests or values if relevant.\n\n### Report ID\n{{ $('Pull Init Summary').item.json.report_id }}\n\n---\n\n# EXAMPLE OUTPUT\n\n### Personal Context\n\nWillem is 64 and based in Northern and Western Europe. He is winding down after 41 working years and the big change lands within the year. His week is currently shaped by a working partner, two grandchildren on Wednesdays, and a long-postponed travel plan. He describes the pace of AI as fascinating but slightly alien, something he wants to understand rather than outrun. He is not looking for a job; he is deciding what should replace a role that structured his life for four decades.\n\n### Previous Careers\n\n1. CFO, regional logistics group\n2. Finance Director\n3. Group Controller\n4. Management Consultant\n5. Auditor\n\n### Personal Interests & Strengths\n\nHis toolkit is board-level financial stewardship, restructuring, and building finance teams, with a landmark achievement in steering a company through an ownership transition without losing a single key employee. He was known as the calm one in every storm. What he secretly loved was not the numbers but the moment a nervous young controller finally got it. Outside work he sails, reads history, and chairs the neighborhood association.\n\n### Career Goals & Aspirations\n\nA good year at this stage means two or three commitments that matter, real time on the water, and being genuinely useful to people who are still climbing. By \"meaningful\" he means his judgment changing someone's outcome, not his presence filling a seat. He wants Cairnly to tell him straight what his experience is worth and how to stay relevant as AI reshapes his field. His appetite for learning is selective: deep on things that matter, zero patience for tool-of-the-week. His biggest fears are irrelevance and losing the social fabric that work gave him.\n\n### Career Constraints & Avoidances\n\nHe will not miss steering committees, quarterly reporting pressure, or performance review season, and he is done with corporate politics and pressure-cooker environments. He wants influence without personal liability, so a full statutory board seat needs a hard look. Wednesdays belong to the grandchildren and six weeks a year belong to travel.\n\n### Compensation & Work Preferences\n\nHe wants 8 to 16 hours a week, a real mix of in person and remote, and an advising or mentoring stance rather than leading. The social part of the work matters to him: real contact, not a laptop hermitage. Income is nice to have but not a factor, and he is regionally mobile.\n\n### Dream Jobs\n\nTeaching. He always wanted to stand in front of a class and never had time for it, which connects directly to what he secretly loved about developing young controllers.\n\n### Report ID\nf3ba4b05-xxxx etc\n\n---\n\n# INPUT:\n\n{{ $('Pull Init Summary').item.json.content }}\n\n\n",
+    "batching": {}
+   },
+   "id": "ec1a541e-8ef2-49d3-8efa-fcf7b6e4a0bf",
+   "name": "Extract Interests and history",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    -240,
+    2448
+   ],
+   "executeOnce": true
+  },
+  {
+   "parameters": {
+    "modelName": "models/gemini-flash-latest",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+   "typeVersion": 1,
+   "position": [
+    1744,
+    2272
+   ],
+   "id": "a736bad7-e4a4-49eb-8018-254357c3c3ca",
+   "name": "Google Gemini Chat Model2",
+   "credentials": {
+    "googlePalmApi": {
+     "id": "Q653Teuy9nP6VLoE",
+     "name": "Cairnly Gstudio Key"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "cai_score_prompt_assignment",
+       "name": "cai_score_prompt",
+       "value": "=# DIRECTION OBJECTIVE COMPATIBILITY SCORER (ENCORE)\n\n## CRITICAL: READ CANDIDATE'S ACTUAL DATA\n\nDifferent candidates have different values for [2d], [3b], [4a], [5a], [5d], etc.\n\n**Always:**\n1. Extract the ACTUAL value from the Initial Summary for each reference\n2. Apply logic based on THAT specific value\n3. Use IF/THEN conditions (e.g., IF [3b] = \"Drained\" THEN... / IF [3b] = \"Energized\" THEN...)\n\n**Never assume everyone has the same preferences, energy, or constraints.**\n\n---\n\n## ROLE\nEvaluate objective compatibility between an encore-stage candidate and a proposed direction. The candidate is at or approaching retirement after a career of 30 to 45 years. They are not building a career; they are choosing what replaces one. Directions may be employment or non-employment forms: advisory or interim work, board and supervisory seats, mentoring, teaching, volunteering with substance, a portfolio or passion business, or part-time expert roles.\n\nYou score FIT FOR THIS LIFE STAGE: energy and hours fit, purpose alignment, social component, dignity of the work, and income-need fit. You do NOT score career progression, promotion potential, or learnability-for-entry. Their expertise is proven; the question is whether this direction deserves their remaining energy.\n\n## TASK\nScore factual alignment on a 0-64 scale across four dimensions. Focus on: Does this direction fit the hours and energy they actually have? Does it deliver the purpose and social connection they ranked? Does it use their experience with dignity? Does it fit their income need?\n\n## INPUT DATA\n\nYou receive:\n1. **Candidate Initial Summary** - Structured survey responses with reference codes [1a]-[7d]\n2. **Enriched Career Profile** - Role details from database including:\n   - career_title, overview, company_size_type\n   - typical_tasks, technical_skills, soft_skills\n   - work_schedule, autonomy_vs_collaboration\n   - client_interaction, colleague_interaction\n   - salary, education_requirements\n   - motivational_factors, leadership_challenges\n   - careers are presented in batches. Min 2, max 3 batches of max 5 careers each. Run for each item.\n\n---\n\n\n## SCORING FRAMEWORK\n\n### **1. Experience & Standing Match (/27)**\n\n**Extract from Initial Summary:**\n- Top Skills, Achievements & Languages [2d]\n- What They Were Known For [2e]\n- Education Level [1f] and Field of Study [1g]\n- Total Years Worked [2c]\n- Career History [2a]\n\n**Compare against the direction's requirements:**\n- technical_skills / soft_skills: Are these covered by decades of documented evidence in [2a]/[2d]? Does the direction genuinely NEED their level of judgment, or would anyone do?\n- education_requirements: A hard license, degree, or regulatory credential they lack is a real wall. \"Senior experience required\" is an ASSET for this candidate, never a barrier.\n- overview: Would this candidate be a credible appointment tomorrow, on the strength of their standing and network?\n\n**Scoring guide:**\n- 22-27: Direction directly uses their proven expertise and standing; they would be a credible pick tomorrow\n- 16-21: Strong transfer; most of the substance comes from what they already know\n- 9-15: Partial transfer; the direction uses general seniority but little of their specific craft\n- 4-8: Weak connection; their expertise is ornamental in this direction\n- 0-3: Hard credential or regulatory wall (a license or qualification they lack and will not realistically obtain), OR the role is filler\n\n**Scoring principles:**\n- NEVER penalize age, and NEVER treat \"years of experience required\" as a gap.\n- Do NOT reward a direction for being easy to enter. Learnability is not a merit at this stage.\n- DIGNITY RULE: filler roles (greeter-style positions, badge-scanning volunteering, keep-them-busy work) automatically score 0-3 on this dimension regardless of how accessible they are. Substance is a requirement.\n\n**Example citation:**\n\"Direction requires 'financial governance and audit-committee literacy.' Candidate's history [2a] includes 12 years as CFO and their skills [2d] list 'financial stewardship, restructuring.' They were known as 'the calm one in every storm' [2e]. Credible appointment tomorrow. Score: 25/27.\"\n\n---\n\n### **2. Purpose & Values Alignment (/12)**\n\n**Extract from Initial Summary:**\n- Ranked What-Matters-Now [4a] (top 3)\n- Good Year Definition [4b]\n- Meaning of \"Meaningful\" [7a]\n- Income Need [6a]\n\n**Compare against the direction:**\n- motivational_factors: Do they deliver the candidate's top 3 from [4a] (e.g., purpose and contribution, social connection, staying sharp, recognition, enjoyment)?\n- Does the entry-level day-to-day plausibly deliver their good year [4b] and their own definition of meaningful [7a]?\n- salary vs [6a]: IF income is \"needed\", pay must be real and stated honestly. IF \"nice to have\", pay is secondary. IF \"not a factor\", ignore pay entirely; never let salary inflate or deflate this score.\n\n**Scoring guide:**\n- 10-12: Top 3 values from [4a] clearly delivered; direction matches their definition of meaningful [7a]; income fit correct for [6a]\n- 7-9: 2 of top 3 values delivered, income fit acceptable\n- 4-6: 1 of top 3 values delivered, or the direction conflicts with their meaning of meaningful\n- 0-3: Values misaligned, or income \"needed\" [6a] and the direction pays nothing\n\n**Example citation:**\n\"Candidate's top values [4a]: Purpose & contribution, Social connection, Staying sharp. Direction offers mentoring founders in a peer cohort (delivers all 3). Income is 'not a factor' [6a], so the modest stipend is irrelevant. Score: 11/12.\"\n\n---\n\n### **3. Energy, Hours & Social Fit (/14)**\n\n**CRITICAL: Check the Happiness Log [2b] FIRST**\n\nReview [2b] for past roles with similar characteristics:\n- What was the happiness score?\n- What reasons did they give?\n- Does their history validate or contradict a concern?\n\n**Extract from Initial Summary:**\n- Desired Hours per Week [5a]\n- Energy Timing [3a]\n- Social Energy Now [3b]\n- Structure vs Freedom [3c]\n- In Person vs Remote [5b], How Social the Work Should Be [5e]\n- Calendar Commitments [6c], Mobility [6b]\n- Environments Done With [5d]\n- Appetite for Formal Responsibility [6e]\n\n**Compare against the direction:**\n- The REAL time footprint vs [5a]. Advisory, board, and founder work balloons: prep, calls, crises. Count the honest hours, not the advertised ones.\n- colleague_interaction / client_interaction vs [3b] and [5e]\n- Location, travel, and schedule vs [5b], [6b], and the commitments in [6c]\n- Formal liability exposure vs [6e]\n- work_schedule rhythm vs their energy timing [3a] and structure preference [3c]\n\n**SCORING CONSISTENCY RULE:**\nAlign score with violation severity:\n- High severity violation = 0-5/14\n- Medium severity violation = 6-10/14\n- Low severity violation = 11-13/14\n- No violations = 13-14/14\n\n---\n\n### **4. Interest Match (/11)**\n\n**Extract from Initial Summary:**\n- Personal Interests & Hobbies [4e]\n- What They Secretly Loved [2g]\n- Always Wanted to Try [7b]\n- Field of Study [1g]\n\n**Compare the direction against:**\n- typical_tasks: Align with [4e] interests or the thread in [2g]?\n- motivational_factors: Resonate with what they secretly loved [2g] or their hobbies [4e]?\n\n**Scoring guide:**\n- 10-11: Direction's tasks directly match [4e]/[2g]\n\n(Do NOT award points here for matching the always-wanted-to-try answer [7b] directly. That aspiration is handled in a separate feasibility step and must not inflate this score.)\n- 7-9: Interests somewhat relevant\n- 4-6: Tangential connection\n- 0-3: Unrelated to anything they enjoy\n\n---\n\n## HARD CONSTRAINT VIOLATIONS\n\n### **Hours & Energy Overload**\n\n**Extract [5a] (desired hours), [3a] (energy timing), and [6c] (calendar commitments).**\n\n**Compare to the direction's honest weekly footprint:**\n- Direction effectively demands roughly double their stated hours [5a] or more → HIGH severity\n  - Detail: \"Direction's honest footprint is 25+ hrs/week (prep, meetings, crises). Candidate's [5a]: '8-16 hours'.\"\n- Fixed schedule collides with named commitments in [6c] (grandchildren days, care duties, travel blocks) → MEDIUM-HIGH severity\n- Rhythm fights their energy pattern [3a] (e.g., evening-heavy work for a morning-energy candidate) → LOW-MEDIUM severity\n\n**Validate with [2b]:** if they sustained a similar footprint recently and rated it high, reduce severity.\n\n### **Social Energy & Interaction Mismatch**\n\n**Extract [3b] value and [5e]:**\n\n**IF [3b] = \"Drained\" or \"Somewhat drained\":**\n- Very High interaction (constant client or team contact) → HIGH severity, unless [2b] shows a sustained, happily-rated people-heavy role\n- High interaction → MEDIUM severity\n- Moderate/Low → LOW or none\n\n**IF [3b] = \"Energized\" or \"Somewhat energized\":**\n- Very High/High interaction → POSITIVE (no violation)\n- Low interaction, solo remote work → MEDIUM severity (isolation concern), ESPECIALLY if [5e] says the social part is the point\n  - Detail: \"Direction is solo home-based work. Candidate's [3b]: 'Energized' and [5e]: social contact is a primary reason to do this at all.\"\n\n**Validation with [2b]:**\n```\nCheck: did a past role have similar interaction levels?\n- Yes + happiness >=7/10 -> reduce severity or remove violation\n- Yes + happiness <=6/10 -> confirms concern, keep severity\n- No similar evidence -> apply standard severity\n```\n\n### **Dignity Violation**\n\n**Judge whether the direction uses them as cheap labor, a figurehead, or a mascot:**\n- typical_tasks far beneath their caliber (routine execution anyone could do)\n- \"Senior advisor\" title with no actual influence (tokenism)\n- Volunteering whose substance is manning a desk\n\n**Severity: always HIGH.** A dignity violation also forces passes_basic_requirements to \"false\". This platform never hands a 40-year professional a greeter role.\n\n### **Liability Mismatch**\n\n**Extract [6e] (appetite for formal responsibility):**\n\n**IF [6e] = \"influence without liability\" or \"none\":**\n- Statutory board seats, supervisory directorships, treasurer roles with personal legal or financial exposure → HIGH severity\n  - Detail: \"Direction is a statutory supervisory board seat with personal liability. Candidate's [6e]: 'influence without formal liability'.\"\n\n**IF [6e] = formal responsibility welcomed or bounded:**\n- No violation; note it as an enabler in contextual_notes. Flag the reverse only as LOW (a purely informal role for someone who explicitly wants formal accountability).\n\n### **Environments Done With**\n\n**Extract [5d] (list, may be empty):**\n\nFor each item (politics and steering committees, targets and reviews, open-plan, rigid schedules, process over sense, travel-heavy, pressure cookers), check whether the direction's environment recreates it:\n- Central to the direction's day-to-day (60%+) → HIGH severity\n- Regular but not central (30-50%) → MEDIUM severity\n- Occasional (10-20%) → LOW severity\n\n**Validate with [2b]:** if a past role had the same trait and still rated 8+/10, the stated aversion may be narrower than it reads; say so in the detail.\n\n### **Mobility & Location Mismatch**\n\n**Extract [6b] (mobility) and region [1c]:**\n- Direction requires regular travel or on-site presence AND [6b] = \"local\" or \"home-based\" → MEDIUM-HIGH severity\n- Candidate fully mobile → no violation; note as an enabler\n\n### **Income-Need Mismatch**\n\n**Extract [6a]:**\n- IF [6a] = \"needed\": direction pays nothing or nearly nothing (much volunteering, many board and mentoring roles) → HIGH severity\n- IF [6a] = \"nice to have\": unpaid direction → LOW severity, note it\n- IF [6a] = \"not a factor\": never flag pay in either direction\n\n---\n\n## DEALBREAKER VIOLATIONS\n\n**Extract from Initial Summary:**\n- What They Will NOT Miss [2f] (verbatim list)\n- Environments Done With [5d]\n\n### **INTERPRETING DEALBREAKERS:**\n\nFor each item in [2f] and [5d], assess whether the direction violates it:\n- Check typical_tasks, work_schedule, client_interaction, and leadership_challenges for direct overlap\n- Assess centrality: 60%+ of the role (major) / 30-50% (moderate) / 10-20% (minor)\n- Distinguish the surface from the substance: someone who will not miss \"quarterly reporting pressure\" may still happily review a foundation's annual accounts. Check [2b] and [2g] before flagging borderline cases.\n\n**Severity penalties:**\n- Major: 15-20 penalty (60%+ of role)\n- Moderate: 10-15 penalty (30-50% of role)\n- Minor: 5-10 penalty (10-20% of role)\n\n---\n\n## OUTPUT FORMAT\n\nReturn JSON only (no intro/outro):\n```json\n{\n  \"career_title\": \"[Career Title]\",\n  \"company_size_type\": \"[Size] / [Type]\",\n  \"objective_scores\": {\n    \"skills_education\": \"[X/27]\",\n    \"values\": \"[X/12]\",\n    \"work_preferences\": \"[X/14]\",\n    \"interests\": \"[X/11]\"\n  },\n  \"objective_total\": \"[Sum, max 64]\",\n  \"hard_constraint_violations\": [\n    {\n      \"type\": \"[hours_energy_overload / social_energy_mismatch / dignity_violation / liability_mismatch / environment_done_with / mobility_conflict / income_need_mismatch]\",\n      \"severity\": \"[low / medium / high]\",\n      \"detail\": \"[Cite the career field and the candidate's actual value: 'Candidate's [3b]: Drained' not just 'Candidate is drained'. Include [2b] validation if relevant.]\"\n    }\n  ],\n  \"dealbreaker_violations\": [\n    {\n      \"aspect\": \"[Exact text from [2f] or [5d]]\",\n      \"conflict\": \"[How typical_tasks violate it. Specific tasks. Cite the candidate's stated aversion.]\",\n      \"severity\": \"[minor / moderate / major based on centrality]\"\n    }\n  ],\n  \"contextual_notes\": [\n    \"[Context from [2b]/[2a] for Step 2]\",\n    \"[e.g., 'Candidate rated their supervisory board years 9/10: periodic advisory engagement is proven, not theoretical [2b, 2a]']\",\n    \"[e.g., 'Candidate wants formal responsibility [6e] and has audit-committee history: governance routes are wide open']\"\n  ],\n  \"passes_basic_requirements\": \"[true if no MAJOR dealbreakers AND no dignity_violation AND objective_total >=35, false otherwise]\"\n}\n\n\nSo for all this becomes:\n\n{\n  \"scored_careers\": [\n    {\n      \"career_title\": \"Career 1\",\n      \"objective_scores\": {...}\n    },\n    {\n      \"career_title\": \"Career 2\",\n      \"objective_scores\": {...}\n    }\n  ],\n  \"total_careers_scored\": \"[count]\"\n}\n\n\n---\n\n## CRITICAL SCORING PRINCIPLES\n\n### **1. Extract Actual Values First**\n\nNever assume:\n- What their [2d] skills are\n- Whether [3b] is Energized or Drained these days\n- What their [4a] top values are\n- How many hours [5a] they actually want\n- Where income sits for them [6a]\n- What their [5d] done-with environments and [2f] not-miss items are\n\nRead the actual value, then apply logic.\n\n---\n\n### **2. Use [2b] to Validate Violations**\n\nBefore flagging \"high severity\":\n- Did a past role have similar conditions?\n- What happiness score did it get?\n- What reasons did they give?\n\nIf similar conditions scored >=7/10 happiness → reduce severity or remove the violation.\n\n---\n\n### **3. Align Scores with Violations**\n\n- HIGH severity → 0-5/14\n- MEDIUM severity → 6-10/14\n- LOW severity → 11-13/14\n\nNever score 12/14 with a \"high severity\" violation (contradictory).\n\n---\n\n### **4. Check for Inverse Cases**\n\nSome candidates WANT what others avoid:\n- [3b] \"Energized\" → WANTS high interaction; solo work is the risk\n- [6e] formal responsibility welcomed → board seats are an asset, not a hazard\n- [5a] higher hours bands → a fuller commitment is fine\n\nDo not just check if the direction has X. Check whether THIS candidate wants or avoids X.\n\n---\n\n### **5. Provide Context for Step 2**\n\ncontextual_notes examples:\n- \"Candidate rated [role] 9/10: 'easy, interesting, advisory' [2b]. This direction has the same periodic structure\"\n- \"Candidate's [2f]: '[exact quote]' - confirms concern about [trait]\"\n- \"Direction requires [X] which the candidate did happily for 15 years [2b, 2a]\"\n- \"[5d] includes '[environment]' but their happiest role [2b] contained the same trait; the aversion may be narrower than stated\"\n\n---\n\n### **6. Score Objectively**\n\nBase scoring on the candidate's data:\n- Their [2a]/[2d] evidence vs the direction's substance\n- Their [5a], [3a], [3b], [6c] vs the direction's honest footprint\n- Their [6a], [6e], [6b] practical reality vs the direction's structure\n\nDo not infer what \"most retirees\" want. Do not project career ambitions onto someone leaving a career. Score only THIS candidate's fit.\n\n---\n\n## FINAL CHECKLIST\n\nBefore outputting:\n\n- Extracted the candidate's ACTUAL [2d], [3b], [4a], [5a], [5d], [6a], [6e] values\n- Did NOT assume everyone wants quiet, low-stakes work\n- Did NOT score career progression, promotion potential, or ease of entry\n- Did NOT penalize age or treat experience requirements as gaps\n- Checked [2b] before flagging violations\n- Applied IF/THEN logic for [3b] and [6e] variations\n- work_preferences score aligns with violation severity\n- Flagged any filler/greeter-style role as a dignity_violation with passes_basic_requirements false\n- Dealbreakers cite the candidate's actual [2f]/[5d] items\n- Citations reference actual values: \"Candidate's [3b]: 'Energized'\" not \"Candidate is social\"\n- Used \"true\"/\"false\" strings for passes_basic_requirements\n- Checked that I ran ALL careers\n\nCRITICAL: Score ALL careers provided in the Enriched Career Profile input.\nIf multiple careers are in the batch, output ALL of them in the \"scored_careers\" array.\nDo not stop after scoring the first career.\n\n---\n\n# INPUT\n\n1. Candidate Initial Summary\n{{ $json.init_summary }}\n\n\n---\n\n2. Enriched Career Profile\n{{ JSON.stringify($node[\"BatchingOC\"].json) }}",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -224,
+    1712
+   ],
+   "id": "63547852-a131-4409-bf29-53a904e1adcf",
+   "name": "Objective Compat score",
+   "executeOnce": false
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json.cai_score_prompt }}",
+    "batching": {}
+   },
+   "id": "c04b252a-ff91-433d-bf81-32e69de48acd",
+   "name": "OC Score",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    -16,
+    1712
+   ],
+   "executeOnce": false,
+   "retryOnFail": true
+  },
+  {
+   "parameters": {
+    "modelName": "models/gemini-flash-latest",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+   "typeVersion": 1,
+   "position": [
+    -1808,
+    2592
+   ],
+   "id": "77ec0bdf-cece-4ebc-9992-349c00146c4e",
+   "name": "Google Gemini Chat Model3",
+   "credentials": {
+    "googlePalmApi": {
+     "id": "Q653Teuy9nP6VLoE",
+     "name": "Cairnly Gstudio Key"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "=Extract content for [2a], [2b], [2e], [2f], [2g], [1h], [4c], [5a], [5d], [6a], [6c], [6e] and [7d] and nothing else\n\nInput:\n{{ $json.content }}\n",
+    "batching": {}
+   },
+   "id": "ff96e0fa-3c32-431d-8234-db46db426e45",
+   "name": "Extract encore evidence",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    -1824,
+    2448
+   ],
+   "executeOnce": false,
+   "retryOnFail": true
+  },
+  {
+   "parameters": {
+    "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(init_summary)&select=report_id,section_type,content\n",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "supabaseApi",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    -2560,
+    2128
+   ],
+   "id": "8713939b-1ff6-48ba-8b95-780cf68dee72",
+   "name": "Pull Init Summary",
+   "executeOnce": true,
+   "credentials": {
+    "supabaseApi": {
+     "id": "jYr9UcuCbwO8Um80",
+     "name": "SB Cairnly (n8n cred)"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Get careers from direct input\nconst careers = $input.all().map(item => item.json);\n\n// Get init summary from the other node (no direct connection needed)\nconst initSummaryContent = $(\"Pull Init Summary\").first().json.content || '';\n\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  const careerBatch = careers.slice(i, i + batchSize);\n\n  batches.push({\n    json: {\n      careers: careerBatch,\n      init_summary: initSummaryContent,\n      batch_info: {\n        batch_number: Math.floor(i / batchSize) + 1,\n        total_batches: Math.ceil(careers.length / batchSize),\n        careers_in_batch: careerBatch.length\n      }\n    }\n  });\n}\n\nreturn batches;"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -448,
+    1712
+   ],
+   "id": "835adc2a-f45e-40fd-8ad3-f4515918b1f1",
+   "name": "BatchingOC",
+   "alwaysOutputData": true
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "a8db8d5a-f6d0-49da-8034-8124ae5cdd99",
+       "name": "evidence extract",
+       "value": "={{ $json.text }}",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -1472,
+    2448
+   ],
+   "id": "1062795f-cb9d-4724-a5dc-66482a00118e",
+   "name": "Renaming evidence"
+  },
+  {
+   "parameters": {
+    "aggregate": "aggregateAllItemData",
+    "destinationFieldName": "Step 1 scores",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.aggregate",
+   "typeVersion": 1,
+   "position": [
+    320,
+    1712
+   ],
+   "id": "e98a01a4-2ee9-49c7-9b0e-1f27c841ad2f",
+   "name": "Step 1 scores"
+  },
+  {
+   "parameters": {
+    "promptType": "define",
+    "text": "={{ $json['Step 2 analysis (patterns)'] }}",
+    "batching": {}
+   },
+   "id": "db50f294-fc05-4b56-9178-4f7f00f22e74",
+   "name": "Step 2 - Final Score",
+   "type": "@n8n/n8n-nodes-langchain.chainLlm",
+   "typeVersion": 1.7,
+   "position": [
+    1712,
+    2112
+   ],
+   "executeOnce": false,
+   "retryOnFail": true
+  },
+  {
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "fd190ceb-5eab-450f-ad03-2c60b2904caa",
+       "name": "=Step 2 analysis (patterns)",
+       "value": "=# DIRECTION PATTERN FIT & PERSONAL RISK ANALYZER (ENCORE)\n\n## ROLE\nEvaluate whether an encore-stage candidate will THRIVE in pre-scored directions based on personality patterns and a full career of evidence. The candidate is at or approaching retirement after 30 to 45 working years. They have the richest evidence base in this system: decades of roles with happiness ratings, plus explicit statements of what they were known for, what they will not miss, and what they secretly loved. You are building on Step 1's objective assessment to add pattern-based insights.\n\nYou do NOT evaluate career progression or trajectory toward promotion. Focus on: Should they give this direction part of their week? Will it quietly re-create the job they just escaped? Does it replace what work actually gave them: purpose, connection, structure, staying sharp, recognition?\n\n## TASK\nAnalyze fit quality using personality insights and happiness patterns across their whole career. Focus on: Will this direction hold their interest? Will it overload the hours and energy they have? Does it use their judgment with dignity?\n\n## INPUT DATA STRUCTURE\n\nYou receive a combined input containing:\n\n1. **Step 1 Objective Scores** (per career) - includes:\n   - objective_total (0-64 score)\n   - objective_scores breakdown\n   - hard_constraint_violations (with severity levels)\n   - dealbreaker_violations\n   - contextual_notes (critical validation info)\n\n2. **Candidate Personality Analysis** - 4 narrative sections:\n   - Personality and Interaction Style\n   - Identifying Your Core Strengths\n   - Understanding Potential Growth Areas\n   - Identifying Your Core Values\n   - Each section ends with a **Key Insight** (critical patterns)\n\n3. **Relevant Candidate Evidence** - extracted data:\n   - Career History [2a] and Happiness Log [2b] (scores + reasons per role)\n   - What They Were Known For [2e], Will NOT Miss [2f], Secretly Loved [2g]\n   - Who or What Shapes Their Week [1h]\n   - Fears About This Stage [4c]\n   - Desired Hours [5a], Environments Done With [5d]\n   - Income Need [6a], Calendar Commitments [6c], Liability Appetite [6e]\n   - Additional Context [7d]\n\n4. **Enriched Career Profiles** - full role details for each career being scored\n\n**Your job:** Score EVERY career in the input. Output one analysis per career.\n\n---\n\n## ANALYSIS FRAMEWORK\n\nFor each career, perform these analyses:\n\n### **1. Happiness Pattern Matching (/20 points)**\n\n**From the Happiness Log [2b], review the whole career:**\n- Which roles scored 8-10/10? What specific reasons did they give?\n- Which roles scored 5-7/10? What problems did they mention?\n- Which roles scored 0-4/10? What went seriously wrong?\n\n**Cross-reference the self-knowledge answers:**\n- What they secretly loved [2g] is the strongest signal of the conditions to reproduce.\n- What they will not miss [2f] is the strongest signal of the conditions to avoid.\n\n**Pattern matching:**\n- Does THIS direction's structure match the conditions of their 8-10/10 roles and the thread in [2g]? (advisory vs operational, periodic vs always-on, developing people vs delivering output, etc.)\n- Or does it recreate the conditions of the low-rated roles and the [2f] list, just with a friendlier label?\n\n**Scoring:**\n- 16-20 points: Direction closely matches the 8-10/10 pattern and the [2g] thread\n- 11-15 points: Direction has several elements of their high-happiness conditions\n- 6-10 points: Neutral or mixed (some good, some concerning elements)\n- 0-5 points: Direction recreates low-happiness conditions or the [2f] list\n\n**Example citation:**\n\"Happiness Log [2b]: 'Group Controller: 6/10, the numbers were fine, the politics were not' and 'CFO: 8/10 in the years I was building the team.' Secretly loved [2g]: 'the moment a nervous young controller finally got it.' This vocational-teaching direction reproduces the team-building/high-happiness thread and drops the politics entirely. Strong pattern match: 18/20.\"\n\n---\n\n### **2. Overload & Identity Risk Assessment (-0 to -15 penalty)**\n\n**Extract risk indicators from the Personality Analysis Key Insights:**\n- Look for statements about what drains them, what they struggle to put down, and where identity and work fuse\n- Common encore patterns: the need to be needed, inability to say no, overcommitting and resenting it, hours creep in \"light\" advisory roles, taking a direction to flee emptiness rather than to move toward something\n\n**Cross-reference with Step 1 violations:**\n- HIGH severity hours_energy_overload\n- HIGH severity social_energy_mismatch\n- dignity_violation of any kind\n- Multiple HIGH severity violations together\n\n**Check the Career Profile for overload triggers:**\n- work_schedule: footprints that balloon (advisory retainers, founder paths, crisis-driven roles)\n- colleague_interaction + client_interaction: always-on availability expectations\n- leadership_challenges: demands that pull them back into exactly the operational intensity they left\n\n**Check the identity dimension:**\n- Does this direction quietly rebuild their old job at lower pay and with less say? That is the classic encore trap: same meetings, same politics, smaller title.\n- Does it collide with their stated fears [4c] (e.g., a role that makes them feel like a mascot for someone whose fear is irrelevance)?\n\n**Validate with the Happiness Log [2b] and calendar [6c]:**\n- Did similar footprints produce low ratings or exhaustion language before?\n- Does the honest footprint collide with the commitments in [6c]?\n\n**Penalty assessment:**\n- **No penalty (0):** No risk indicators, or the direction actively protects their hours and boundaries\n- **Low penalty (-3 to -5):** Minor risk factors present but manageable\n- **Medium penalty (-6 to -10):** Multiple triggers present; hours creep or partial re-creation of escaped conditions\n- **High penalty (-11 to -15):** Direction directly rebuilds known draining conditions, or its honest footprint will roll over their stated hours and commitments\n\n**Example citation:**\n\"HIGH RISK (-12): Key Insight: 'says yes to being needed, then resents the calendar.' This interim-management direction is crisis-driven with an honest footprint of 30+ hrs/week against their [5a]: '8-16 hours'. Step 1 flagged HIGH hours_energy_overload. Happiness Log [2b] shows their final operational years rated 5/10 with 'always on call' as the stated reason. The direction rebuilds the escaped job at lower pay.\"\n\n---\n\n### **3. Strengths Application (/14 points)**\n\n**From Personality Analysis \"Identifying Your Core Strengths\":**\n- What are their deepest proven strengths and their competitive edge: decades of pattern recognition, judgment, and networks that younger professionals simply do not have?\n- What did they enjoy exercising most (cross-check [2g] and [2e])?\n\n**Check the Career Profile:**\n- Do typical_tasks exercise their judgment and experience, or just their availability?\n- Does the direction let their seasoned pattern recognition DIRECT the work (and increasingly, direct AI-produced output) rather than compete on production speed?\n- Do motivational_factors align with what energized them in their proudest work?\n\n**Cross-reference with the Happiness Log:**\n- In the 8-10/10 roles, which capabilities were they using? Does this direction use the same ones?\n\n**Scoring:**\n- 12-14 points: Direction directly exercises their judgment, standing, and the strengths they loved using\n- 9-11 points: Direction uses relevant strengths regularly\n- 5-8 points: Direction uses some of their strengths, leaves the best ones idle\n- 0-4 points: Direction wants their time, not their expertise\n\n**Example citation:**\n\"Personality Analysis identifies 'judgment under ambiguity' and 'developing people' as core strengths; [2e] says they were known as 'the calm one in every storm.' Mentoring first-time founders through funding decisions exercises both from day one. Strong application: 13/14.\"\n\n---\n\n### **4. Transition Fit (/10 points)**\n\n**For an encore candidate, trajectory means the transition, not promotion. From the Key Insights and Relevant Candidate Evidence:**\n- What did work ACTUALLY give them, per their ranking [4a] and good-year definition: purpose, social connection, structure, staying sharp, recognition, enjoyment?\n- Where are they in the transition [1d], and what does their week look like now [1h]?\n\n**Assess this direction:**\n- Does it replace the specific things work gave them, at the dose they asked for? A candidate who ranked social connection first needs a direction with real human fabric, not a solo laptop role.\n- Does it fit where they are in the transition (someone two years out needs an on-ramp they can start building now; someone already stopped may need structure sooner)?\n- Does it give the week a shape without becoming a cage?\n\n**Check for stated vs revealed conflicts:**\n- Do the Key Insights suggest they SAY they want total freedom but their happiest years [2b] were the structured ones? Flag the tension honestly.\n- Does the direction offer what they say they want or what their evidence says they need?\n\n**Scoring:**\n- 9-10 points: Direction replaces exactly what work gave them, at the right dose, at the right moment in their transition\n- 7-8 points: Direction covers most of what matters now\n- 4-6 points: Direction is pleasant but does not answer their ranked needs, or the dose is wrong\n- 0-3 points: Direction ignores what they said matters (e.g., isolating work for a connection-first candidate) or arrives at the wrong moment\n\n**Example citation:**\n\"Ranked needs [4a]: Social connection first, Purpose second. This direction is a two-person remote research project: worthwhile, but it answers neither of their top needs. A good idea for someone else. Transition fit: 3/10.\"\n\n---\n\n### **5. Development Area Conflicts (-0 to -15 penalty)**\n\n**From Personality Analysis \"Understanding Potential Growth Areas\" and the self-recognized tendencies:**\n- Which tendencies did they recognize in themselves (e.g., set in my ways, underestimate what I know, overcommit and resent, need to be needed, impatience, dismissing new tools, hard to say no)?\n- How do they handle feedback at this point in life, and how does working with people decades younger sit with them?\n\n**Check the Career Profile:**\n- Do typical_tasks REQUIRE exactly the flagged tendency at full strength? (A role demanding daily adoption of new tools for someone who recognizes they dismiss new tools; a role reporting to a 32-year-old for someone who says that sits badly; an unbounded volunteer role for someone who cannot say no.)\n- Do leadership_challenges map directly onto their acknowledged gaps?\n\n**Encore calibration:** a direction that gently stretches a tendency WITH structure (a fixed-scope mentoring program for the over-committer) is a reason to pick it, not a penalty. Penalize only when the role demands the flagged capability immediately, at full strength, without guardrails.\n\n**Severity assessment:**\n- **No penalty (0):** Direction does not press on their flagged tendencies, or contains them by design\n- **Low penalty (-3 to -5):** Direction touches a tendency but with natural boundaries\n- **Medium penalty (-6 to -10):** Direction regularly presses on a flagged tendency\n- **High penalty (-11 to -15):** Direction's core reality is exactly their acknowledged weak spot, unbounded\n\n**Example citation:**\n\"Development conflict (-8): Candidate recognizes 'hard to say no' and 'need to be needed.' This community-chair direction has no fixed scope and an always-open door; the role's leadership_challenges explicitly mention 'boundary setting with volunteers.' Without structure this will eat their calendar.\"\n\n---\n\n## INTEGRATION WITH STEP 1\n\n**Critical: Use Step 1's work, don't redo it**\n\nStep 1 already assessed:\n- Experience and standing match\n- Purpose and values alignment\n- Energy, hours, and social fit violations\n- Interest match\n- Dealbreaker violations\n\n**Your job is to ADD pattern-based insights, not re-score these.**\n\n**Use Step 1's contextual_notes:**\nThese contain critical validation info like:\n- \"Candidate rated their supervisory board years 9/10: periodic advisory engagement is proven\"\n- \"Candidate wants formal responsibility and has audit-committee history\"\n- \"[5d] includes politics but their happiest role contained the same trait\"\n\n**Reference these in your analysis.**\n\n**Use Step 1's violations to inform penalties:**\n- HIGH severity hours_energy_overload → likely medium-high overload penalty\n- dignity_violation → the direction should not survive Step 2 with a high score; say so plainly\n- Multiple HIGH violations → likely high penalty\n- LOW severity violations → likely low or no penalty\n\n---\n\n## FINAL SCORE CALCULATION\n```\nFinal Score = Step 1 Objective Score (0-64)\n            + Happiness Pattern Match (0-20)\n            + Strengths Application (0-14)\n            + Transition Fit (0-10)\n            - Overload/Identity Risk Penalty (0-15)\n            - Development Conflicts (0-15)\n            - Feasibility Penalty (0-20)\n\nMaximum possible: 64 + 20 + 14 + 10 = 108\nRealistic top score: ~90-95 (some penalties usually apply)\n```\n\n**Feasibility Penalty (0-20):** can the candidate actually step INTO this direction from where they stand? Judge the ENTRY ROUTE at their stage: network and standing, board registries, alumni and former-colleague routes, teaching qualification fast-tracks. Penalize only genuine gates: hard credentials or regulatory requirements they lack, or hiring paths that are in practice closed to someone their age with no network route in (be honest about ageism where it is real; never treat age itself as the gap).\n- 0-3: enterable now through their network, standing, or a named registry/route (most well-matched encore directions land here)\n- 5-10: real but bridgeable gate (a governance certification, a teaching credential, one new network to build) within their start timeline\n- 12-16: large gap: a new field's credibility to build largely from scratch, or an ageism-gated hiring funnel with no relationship route\n- 18-20: realistically out of reach without years of retraining or qualifications they lack\nDo NOT penalize a direction for being non-employment, unconventional, or ambitious; Cairnly exists to surface direction. Quote the specific gate from [2a]/[2d]/[6d] evidence.\n\n---\n\n## OUTPUT FORMAT\n\nReturn JSON with NO intro/outro text. Score EVERY career provided:\n```json\n{\n  \"scored_careers\": [\n    {\n      \"career_title\": \"[Career Title]\",\n      \"company_size_type\": \"[Size] / [Type]\",\n      \"step1_objective_score\": \"[X/64 from Step 1]\",\n      \"step2_pattern_analysis\": {\n        \"happiness_pattern_match\": {\n          \"score\": \"[X/20]\",\n          \"pattern\": \"[extends high-happiness pattern / recreates escaped conditions / neutral]\",\n          \"reasoning\": \"[Cite specific Happiness Log entries with scores and reasons. Quote [2g]/[2f] where relevant. Explain the structural similarity.]\"\n        },\n        \"strengths_application\": {\n          \"score\": \"[X/14]\",\n          \"reasoning\": \"[Cite the Personality Analysis strengths section and [2e]. Explain whether the direction exercises their judgment or just their availability.]\"\n        },\n        \"trajectory_fit\": {\n          \"score\": \"[X/10]\",\n          \"reasoning\": \"[Cite their ranked needs [4a] and transition stage [1d]. Explain whether the direction replaces what work gave them, at the right dose and moment.]\"\n        }\n      },\n      \"penalties\": {\n        \"burnout_risk\": {\n          \"penalty\": \"[-X points, 0 to -15]\",\n          \"risk_level\": \"[LOW / MODERATE / HIGH]\",\n          \"reasoning\": \"[Cite Key Insights about overcommitment/identity. Reference Step 1 violations. Connect to Happiness Log evidence and calendar commitments. Name the honest hours footprint.]\"\n        },\n        \"development_conflicts\": {\n          \"penalty\": \"[-X points, 0 to -15]\",\n          \"reasoning\": \"[Cite the specific recognized tendencies and growth areas. Explain whether the direction presses on them unbounded or contains them by design.]\"\n        },\n        \"feasibility_penalty\": {\n          \"penalty\": \"[-X points, 0 to -20]\",\n          \"reasoning\": \"[Name the specific entry route or gate: network, registry, credential, or an honestly ageism-gated funnel. 0 if their standing carries them in. Never cite age itself as the gap.]\"\n        }\n      },\n      \"final_compatibility_score\": \"[Sum: step1 + happiness + strengths + trajectory - overload - development - feasibility]\",\n      \"key_insights_applied\": \"[Which Key Insights from the Personality Analysis were most relevant to this assessment?]\",\n      \"summary\": {\n        \"key_strengths\": \"[2-3 sentences: Why this direction fits this stage of life. Cite happiness patterns, ranked needs, and standing.]\",\n        \"key_concerns\": \"[2-3 sentences: Why this might not work. Cite hours creep, identity traps, recognized tendencies, or entry gates.]\"\n      }\n    }\n  ],\n  \"batch_metadata\": {\n    \"total_careers_scored\": \"[count]\",\n    \"scoring_date\": \"[timestamp]\"\n  }\n}\n```\n\n---\n\n## CRITICAL PRINCIPLES\n\n### **1. Every Career Gets a Full Analysis**\n\nDon't stop at the first career. Score ALL careers in the input, even if some have terrible Step 1 scores. Every career needs:\n- Happiness pattern assessment\n- Overload/identity risk evaluation\n- Strengths fit analysis\n- Transition fit check\n- Final score\n\n### **2. Use Step 1's Contextual Notes**\n\nStep 1 provides validation like:\n```json\n\"contextual_notes\": [\n  \"Candidate rated their supervisory board years 9/10: periodic advisory engagement is proven [2b]\"\n]\n```\n\n**Reference this:** \"Step 1 notes the board years were their happiest structure; this direction extends that exact model.\"\n\n### **3. Quote Specific Happiness Log Entries**\n\nDon't say: \"They liked advisory work\"\nSay: \"Happiness Log [2b]: 'Supervisory Board Member: 9/10, easy, interesting, well paid advisory work'\"\n\n### **4. Connect Patterns Across Data Sources**\n\nGood analysis connects:\n- Key Insight: \"identity fused with being the answer-person\"\n- Secretly loved [2g]: developing young controllers\n- Step 1 contextual note: mentoring conditions match their happiest years\n- This direction: structured mentoring with fixed cohorts\n\n**Conclusion:** \"Direction channels the exact thread their evidence keeps surfacing, inside boundaries that protect their hours.\"\n\n### **5. Be Honest About Concerns**\n\nIf a direction looks good objectively but has real pattern red flags, say so:\n- \"Strong standing match (25/27) but HIGH overload risk: the honest footprint is triple their stated hours and their evidence shows they cannot leave a crisis alone.\"\n\nDon't inflate scores just because Step 1 was high, and never dress up a dignity problem as a minor concern.\n\n---\n\n## EXAMPLES OF GOOD vs BAD ANALYSIS\n\n### **GOOD - Guest Lecturer, Professional Practice:**\n```json\n{\n  \"happiness_pattern_match\": {\n    \"score\": \"17/20\",\n    \"pattern\": \"extends high-happiness pattern\",\n    \"reasoning\": \"Happiness Log [2b]: 'CFO: 8/10 in the years I was building the team' and secretly loved [2g]: 'the moment a nervous young controller finally got it.' Lecturing reproduces the develop-people condition on a fixed schedule with none of the [2f] items (no steering committees, no reporting pressure). Not 20/20 because classroom teaching at scale is untested against their one-on-one evidence.\"\n  }\n}\n```\n\n**Why good:**\n- Quotes exact Happiness Log and [2g]/[2f] entries\n- Explains the structural similarity\n- Explains why not a perfect score\n\n### **BAD - Guest Lecturer:**\n```json\n{\n  \"happiness_pattern_match\": {\n    \"score\": \"20/20\",\n    \"reasoning\": \"They like mentoring so teaching is a perfect match.\"\n  }\n}\n```\n\n**Why bad:**\n- No evidence citation\n- No structural analysis\n- No explanation of the perfect score\n\n---\n\n### **GOOD - Overload Assessment, Interim Finance Director:**\n```json\n{\n  \"burnout_risk\": {\n    \"penalty\": \"-13\",\n    \"risk_level\": \"HIGH\",\n    \"reasoning\": \"Multiple triggers: (1) Key Insight: 'says yes to being needed, then resents the calendar.' (2) Step 1 flagged HIGH hours_energy_overload: interim mandates run 30+ honest hours against [5a]: '8-16 hours'. (3) Happiness Log [2b]: final operational years rated 5/10, reason 'always on call'. (4) Calendar commitments [6c] include fixed grandchildren days and long travel blocks. This direction rebuilds the escaped job at lower pay and will roll over every boundary they named.\"\n  }\n}\n```\n\n### **BAD - Overload Assessment:**\n```json\n{\n  \"burnout_risk\": {\n    \"penalty\": \"-5\",\n    \"risk_level\": \"MODERATE\",\n    \"reasoning\": \"Role is demanding and the candidate is older.\"\n  }\n}\n```\n\n**Why bad:**\n- \"Older\" is not a risk factor; that is the entire user base\n- No citation of evidence, Key Insights, or Step 1 violations\n- Penalty doesn't match described risk\n\n---\n\n## FINAL CHECKLIST\n\nBefore outputting, verify:\n\n- I scored EVERY career in the input (not just one)\n- I quoted specific Happiness Log entries with scores and reasons\n- I referenced Personality Analysis Key Insights\n- I used Step 1's contextual_notes\n- I connected Step 1 violations to the overload assessment\n- I never scored career progression, promotion potential, or ease of entry\n- I never treated age itself as a risk or a gap\n- I explained all scores with specific reasoning\n- My penalties align with severity (HIGH risk = -11 to -15, not -5)\n- Output is valid JSON with scored_careers array\n\nNow proceed to score all careers in the input.\n\n---\n\n# INPUT\n\n{{ JSON.stringify($json['Step 2 input'], null, 2) }}",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   },
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1376,
+    2112
+   ],
+   "id": "01dfe58b-74e6-46ba-bf64-c5efa8a216da",
+   "name": "Step 2 analysis",
+   "executeOnce": true
+  },
+  {
+   "parameters": {},
+   "type": "n8n-nodes-base.merge",
+   "typeVersion": 3.2,
+   "position": [
+    -976,
+    1968
+   ],
+   "id": "d5255cfc-44a1-4529-9831-9f5b6249f00d",
+   "name": "ShortHisProf"
+  },
+  {
+   "parameters": {
+    "model": "anthropic/claude-sonnet-4.6",
+    "options": {}
+   },
+   "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+   "typeVersion": 1,
+   "position": [
+    1200,
+    2608
+   ],
+   "id": "943ce375-569f-4e11-a3d5-4d5571b76ef1",
+   "name": "OpenRouter Chat Model1",
+   "credentials": {
+    "openRouterApi": {
+     "id": "gGM2sOHB72WgN7UU",
+     "name": "OpenRouter account 2"
+    }
+   }
+  },
+  {
+   "parameters": {
+    "jsCode": "// Combine all data WF4 needs and pass directly (no Supabase intermediary)\nconst ranking = $('Ranking').first().json;\nconst reportId = $('Add structure').first().json['report id'];\nconst initSummaryContent = $('Pull Init Summary').first().json.content;\nconst interestsText = $('Extract Interests and history').first().json.text;\nconst oobText = $('Outside Of Box Analysis').first().json.text || '';\n\nconst top3 = ranking.career_recommendations?.top_3_careers || [];\nconst runnerUps = ranking.career_recommendations?.runner_up_careers || [];\nconst allRanked = ranking.career_recommendations?.all_ranked_careers || [];\n\nreturn [{\n  json: {\n    report_id: reportId,\n    top_3_careers: top3,\n    runner_up_careers: runnerUps,\n    all_ranked_careers: allRanked,\n    interests_history_text: interestsText,\n    top_3_careers_str: JSON.stringify(top3, null, 2),\n    runner_up_careers_str: JSON.stringify(runnerUps, null, 2),\n    outside_box_careers_str: oobText,\n    init_summary_content: initSummaryContent\n  }\n}];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2688,
+    2112
+   ],
+   "id": "c2036f73-53f7-4345-be56-5aa562d4374d",
+   "name": "Prep WF4 data"
+  },
+  {
+   "parameters": {
+    "method": "POST",
+    "url": "https://falkoratlas.app.n8n.cloud/webhook/8cffc508-118a-4a66-849c-74840c2cae8d",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify($json) }}",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    2960,
+    2112
+   ],
+   "id": "edaf00ae-eb59-4d44-96eb-4edd425aa90e",
+   "name": "Call WF4P Content Gen",
+   "retryOnFail": true,
+   "waitBetweenTries": 5000
+  },
+  {
+   "parameters": {
+    "mode": "combine",
+    "combineBy": "combineByPosition",
+    "options": {}
+   },
+   "type": "n8n-nodes-base.merge",
+   "typeVersion": 3.2,
+   "position": [
+    2464,
+    2112
+   ],
+   "id": "6b579609-a928-4499-af3c-1087eb7db8e3",
+   "name": "Wait for Ranking + OOB"
+  },
+  {
+   "parameters": {
+    "jsCode": "// Pull all four inputs explicitly. n8n waits for each referenced\n// node to finish before this code runs, so we get them all in sync.\n\nconst enrichedCareers = $('content in order').all().map(i => i.json);\nconst step1Output = $('Step 1 scores').first().json['Step 1 scores'] || [];\nconst personality = $('Combine Profile sections').first().json;\nconst sentimentExtract = $('Renaming evidence').first().json;\n\nreturn [{\n  json: {\n    \"Step 2 input\": [\n      { \"evidence extract\": sentimentExtract.text || sentimentExtract['evidence extract'] || sentimentExtract },\n      { \"Step 1 scores\": step1Output },\n      { \"personality_profile\": personality.personality_profile || personality },\n      { \"enriched_careers\": enrichedCareers }\n    ]\n  }\n}];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    976,
+    2112
+   ],
+   "id": "997039cd-a8bc-4805-8010-1dc0d10ccc28",
+   "name": "Code in JavaScript",
+   "executeOnce": true
+  },
+  {
+   "parameters": {
+    "numberInputs": 4
+   },
+   "type": "n8n-nodes-base.merge",
+   "typeVersion": 3.2,
+   "position": [
+    640,
+    2080
+   ],
+   "id": "15266004-d0d2-4b6a-a895-df614f4d11ca",
+   "name": "Merge"
+  },
+  {
+   "parameters": {
+    "jsCode": "// \"Already considered\" namespace for the OOB prompt: each suitable-15 career's\n// main title + its alternate titles, so OOB can't echo a presented role's alt\n// (e.g. \"Program Director\" is an alt of \"Senior Program Manager, Social Impact\").\nconst enriched = $('Pull enriched').all().map(i => i.json);\nconst covered = enriched\n  .filter(c => c && c.career_title)\n  .map(c => {\n    let alts = c.alternate_titles;\n    if (typeof alts === 'string') { try { alts = JSON.parse(alts); } catch { alts = []; } }\n    if (!Array.isArray(alts)) alts = [];\n    return { title: c.career_title, alternate_titles: alts };\n  });\nreturn [{ json: { covered_titles: JSON.stringify(covered, null, 2) } }];"
+   },
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -1472,
+    1392
+   ],
+   "id": "331012c7-2bd9-4bd0-8759-232ad350286a",
+   "name": "Build covered titles"
+  }
+ ],
+ "connections": {
+  "Set Outside Box Prompt": {
+   "main": [
+    [
+     {
+      "node": "Outside Of Box Analysis",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Receive from WF2P (Encore)": {
+   "main": [
+    [
+     {
+      "node": "Add structure",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pull enriched": {
+   "main": [
+    [
+     {
+      "node": "content in order",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "Build covered titles",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Add structure": {
+   "main": [
+    [
+     {
+      "node": "Pull Init Summary",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pull Profile Sections": {
+   "main": [
+    [
+     {
+      "node": "Combine Profile sections",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Combine Profile sections": {
+   "main": [
+    [
+     {
+      "node": "ShortHisProf",
+      "type": "main",
+      "index": 1
+     }
+    ]
+   ]
+  },
+  "Ranking": {
+   "main": [
+    [
+     {
+      "node": "Wait for Ranking + OOB",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "content in order": {
+   "main": [
+    [
+     {
+      "node": "BatchingOC",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 1
+     }
+    ]
+   ]
+  },
+  "Outside Of Box Analysis": {
+   "main": [
+    [
+     {
+      "node": "Parse OOB",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parse OOB": {
+   "main": [
+    [
+     {
+      "node": "Insert OOB ",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Google Gemini Chat Model1": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Extract Interests and history",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "shortlist_careers": {
+   "main": [
+    [
+     {
+      "node": "Pull enriched",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "ShortHisProf",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Insert OOB ": {
+   "main": [
+    [
+     {
+      "node": "Wait for Ranking + OOB",
+      "type": "main",
+      "index": 1
+     }
+    ]
+   ]
+  },
+  "Google Gemini Chat Model": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "OC Score",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Extract Interests and history": {
+   "main": [
+    [
+     {
+      "node": "Set Outside Box Prompt",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Google Gemini Chat Model2": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Step 2 - Final Score",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Objective Compat score": {
+   "main": [
+    [
+     {
+      "node": "OC Score",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "OC Score": {
+   "main": [
+    [
+     {
+      "node": "Step 1 scores",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Google Gemini Chat Model3": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Extract encore evidence",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Extract encore evidence": {
+   "main": [
+    [
+     {
+      "node": "Renaming evidence",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pull Init Summary": {
+   "main": [
+    [
+     {
+      "node": "shortlist_careers",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "Pull Profile Sections",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "Extract encore evidence",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "BatchingOC": {
+   "main": [
+    [
+     {
+      "node": "Objective Compat score",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Renaming evidence": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 3
+     }
+    ]
+   ]
+  },
+  "Step 1 scores": {
+   "main": [
+    [
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Step 2 - Final Score": {
+   "main": [
+    [
+     {
+      "node": "Ranking",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Step 2 analysis": {
+   "main": [
+    [
+     {
+      "node": "Step 2 - Final Score",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "ShortHisProf": {
+   "main": [
+    [
+     {
+      "node": "Extract Interests and history",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "Merge",
+      "type": "main",
+      "index": 2
+     }
+    ]
+   ]
+  },
+  "OpenRouter Chat Model1": {
+   "ai_languageModel": [
+    [
+     {
+      "node": "Outside Of Box Analysis",
+      "type": "ai_languageModel",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Wait for Ranking + OOB": {
+   "main": [
+    [
+     {
+      "node": "Prep WF4 data",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Prep WF4 data": {
+   "main": [
+    [
+     {
+      "node": "Call WF4P Content Gen",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Code in JavaScript": {
+   "main": [
+    [
+     {
+      "node": "Step 2 analysis",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Merge": {
+   "main": [
+    [
+     {
+      "node": "Code in JavaScript",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "executionOrder": "v1",
+  "callerPolicy": "workflowsFromSameOwner",
+  "errorWorkflow": "FbsruPbuZI2Fgtc8"
+ }
+}

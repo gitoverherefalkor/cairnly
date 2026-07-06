@@ -16,6 +16,17 @@ export const PRICING: Record<Currency, { core: number; original: number }> = {
   usd: { core: 39, original: 79 },
 };
 
+/**
+ * Encore flavor (cairnly.io/encore) has its own premium price point and no
+ * strike-through anchor (we don't invent discounts for this audience).
+ * Must stay in sync with the per-flavor unit_amount in
+ * supabase/functions/create-checkout/index.ts.
+ */
+export const ENCORE_PRICING: Record<Currency, { core: number }> = {
+  eur: { core: 79 },
+  usd: { core: 79 },
+};
+
 /** Pick currency from language (NL/DE → EUR, everything else → USD). */
 export const currencyForLanguage = (lang: string): Currency => {
   if (lang.startsWith("nl") || lang.startsWith("de")) return "eur";

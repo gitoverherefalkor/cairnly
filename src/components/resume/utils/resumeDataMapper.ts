@@ -53,6 +53,44 @@ const SURVEY_OPTIONS = {
   ]
 } as const;
 
+// The resume extraction pipeline (n8n + this mapper) always produces data keyed
+// by PRO question UUIDs. Other flavors that keep the CV upload step translate
+// those keys to their own question ids at pre-fill time. Pro questions with no
+// counterpart in the target survey are dropped (e.g. pronoun, goals, and
+// career_situation, whose encore answer choices are transition-specific).
+const PRO_TO_ENCORE_QUESTION_IDS: Record<string, string> = {
+  '11111111-1111-1111-1111-11111111111a': 'b2b2b2b2-0001-4000-a000-000000000001', // name
+  '11111111-1111-1111-1111-111111111113': 'b2b2b2b2-0001-4000-a000-000000000002', // age
+  '11111111-1111-1111-1111-111111111114': 'b2b2b2b2-0001-4000-a000-000000000003', // region
+  '11111111-1111-1111-1111-111111111116': 'b2b2b2b2-0001-4000-a000-000000000006', // education (same choices)
+  '11111111-1111-1111-1111-111111111117': 'b2b2b2b2-0001-4000-a000-000000000007', // study subject
+  '11111111-1111-1111-1111-111111111118': 'b2b2b2b2-0002-4000-a000-000000000003', // years experience
+  '11111111-1111-1111-1111-111111111110': 'b2b2b2b2-0002-4000-a000-000000000001', // career history
+  '11111111-1111-1111-1111-11111111111d': 'b2b2b2b2-0002-4000-a000-000000000002', // career happiness
+  '11111111-1111-1111-1111-11111111111f': 'b2b2b2b2-0002-4000-a000-000000000004', // skills & achievements
+  '11111111-1111-1111-1111-111111111120': 'b2b2b2b2-0004-4000-a000-000000000005', // interests & hobbies
+};
+
+/**
+ * Translates a pro-UUID-keyed pre-fill object to the target survey's question
+ * ids. Returns the input unchanged for the pro survey; for encore, remaps the
+ * keys and drops anything without an encore counterpart.
+ */
+export const translatePreFillForSurvey = (
+  surveyId: string,
+  preFill: Record<string, any>,
+): Record<string, any> => {
+  const ENCORE_SURVEY_ID = '00000000-0000-0000-0000-000000000003';
+  if (surveyId !== ENCORE_SURVEY_ID) return preFill;
+
+  const translated: Record<string, any> = {};
+  for (const [questionId, value] of Object.entries(preFill)) {
+    const encoreId = PRO_TO_ENCORE_QUESTION_IDS[questionId];
+    if (encoreId) translated[encoreId] = value;
+  }
+  return translated;
+};
+
 // Empty career entry template for padding
 const EMPTY_CAREER_ENTRY = {
   title: '',

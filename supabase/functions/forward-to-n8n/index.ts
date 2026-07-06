@@ -119,14 +119,20 @@ serve(async (req) => {
     };
 
     // Get N8N webhook URL from environment and validate it.
-    // The starter survey (cairnly.io/starter) has its own n8n chain whose
-    // prompts expect the starter question ids — starter submissions must NEVER
-    // fall back to the pro webhook, so a missing starter secret fails the
-    // report explicitly (the user gets the existing retry UI).
-    const STARTER_SURVEY_ID = '00000000-0000-0000-0000-000000000002';
-    const isStarter =
-      (surveyData as Record<string, unknown> | null)?.survey_id === STARTER_SURVEY_ID;
-    const webhookEnvVar = isStarter ? "N8N_STARTER_WEBHOOK_URL" : "N8N_WEBHOOK_URL";
+    // Each non-pro survey flavor has its own n8n chain whose prompts expect
+    // that flavor's question ids — those submissions must NEVER fall back to
+    // the pro webhook, so a missing flavor secret fails the report explicitly
+    // (the user gets the existing retry UI). Unknown/absent survey_id keeps
+    // today's pro behavior.
+    const FLAVOR_WEBHOOK_ENV_VARS: Record<string, string> = {
+      '00000000-0000-0000-0000-000000000002': 'N8N_STARTER_WEBHOOK_URL', // starter
+      '00000000-0000-0000-0000-000000000003': 'N8N_ENCORE_WEBHOOK_URL', // encore
+    };
+    const submittedSurveyId =
+      (surveyData as Record<string, unknown> | null)?.survey_id;
+    const webhookEnvVar =
+      (typeof submittedSurveyId === 'string' && FLAVOR_WEBHOOK_ENV_VARS[submittedSurveyId]) ||
+      'N8N_WEBHOOK_URL';
     const n8nWebhookUrl = Deno.env.get(webhookEnvVar);
 
     if (!n8nWebhookUrl) {
