@@ -16,6 +16,7 @@ import { AccessCodeModal } from '@/components/dashboard/AccessCodeModal';
 import { ExecSummaryModal } from '@/components/dashboard/ExecSummaryModal';
 import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
 import { DashboardEntryState, type EntryMode } from '@/components/dashboard/v2/DashboardEntryState';
+import { STARTER_SURVEY_ID, STARTER_SURVEY_TYPE } from '@/components/assessment/constants';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import {
   pickShareSentences,
@@ -78,6 +79,9 @@ const Dashboard = () => {
   const [showExecSummaryModal, setShowExecSummaryModal] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
   const [userAccessCode, setUserAccessCode] = useState<string | null>(null);
+  // survey_type of the verified access code — drives flavor-aware entry copy
+  // (the starter flavor gets its own section list, timing, and preview cards).
+  const [entrySurveyType, setEntrySurveyType] = useState<string | null>(null);
   // True when this user has a 'draft' row in the answers table — i.e., they've
   // started the survey on a different device (or after clearing localStorage)
   // but haven't submitted yet.
@@ -191,6 +195,7 @@ const Dashboard = () => {
         if (!verifiedCode?.id) return; // genuinely no access code yet
 
         setUserAccessCode(verifiedCode.code);
+        setEntrySurveyType(verifiedCode.survey_type ?? null);
 
         // Does this code have an in-progress (draft) survey? Pull the payload +
         // survey id too, so we can compute exact resume progress for the
@@ -549,6 +554,11 @@ const Dashboard = () => {
         resumeProgress={resumeProgress}
         onRetry={handleRetryReport}
         isRetrying={isRetrying}
+        isStarter={
+          entrySurveyType === STARTER_SURVEY_TYPE ||
+          draftSurveyId === STARTER_SURVEY_ID ||
+          savedSession?.accessCodeData?.survey_type === STARTER_SURVEY_TYPE
+        }
       />
 
       {showAccessCodeModal && userAccessCode && (

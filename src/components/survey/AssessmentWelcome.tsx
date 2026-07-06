@@ -126,8 +126,10 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
           <h1 className="text-4xl font-bold text-[#F5F5F5] mb-4">
             Welcome to the Cairnly Career Assessment
           </h1>
+          {/* Copy is flavor-neutral: this screen renders before the access code
+              is verified, so we can't know yet if it's a pro or starter user. */}
           <p className="text-xl text-[#F5F5F5]/80 max-w-lg mx-auto">
-            Discover your unique career strengths, values, and ideal work environment through our comprehensive professional assessment.
+            Discover your unique career strengths, values, and ideal work environment through our comprehensive assessment.
           </p>
         </div>
 
