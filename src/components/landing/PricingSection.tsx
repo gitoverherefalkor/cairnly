@@ -4,11 +4,13 @@ import { CheckCircle2, Sparkles, ArrowRight, Lock, Shield, ClipboardCheck } from
 import Reveal from './Reveal';
 import { useGetStarted } from './useGetStarted';
 import { tArray } from '@/lib/i18nArray';
+import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
 
 const PricingSection: React.FC = () => {
   const getStarted = useGetStarted();
   const { t } = useTranslation('landing');
   const features = tArray<string>(t, 'pricing.features');
+  const bonusItems = tArray<string>(t, 'pricing.bonusItems');
 
   return (
     <section id="pricing" className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden">
@@ -38,13 +40,27 @@ const PricingSection: React.FC = () => {
                   <span>{f}</span>
                 </li>
               ))}
-              <li className="flex items-start gap-4 text-[15px] font-bold pt-3" style={{ color: '#D4A024' }}>
-                <Sparkles size={20} strokeWidth={2.2} color="#D4A024" className="shrink-0 mt-0.5" />
-                <span>
-                  {t('pricing.bonusA')}{' '}
-                  <span className="font-medium italic">{t('pricing.bonusBeta')}</span>
-                </span>
-              </li>
+            </ul>
+
+            {/* Live example of the rating pills shown on every suggested role in the report */}
+            <div className="mt-6 rounded-2xl p-5" style={{ background: '#122E3B' }}>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50 mb-3">
+                {t('pricing.pillPreviewLabel')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <MatchPill pct={87} />
+                <MovePill level="Reframe" />
+                <AIImpactPill label="Minimal" />
+              </div>
+            </div>
+
+            <ul className="space-y-3.5 mt-6">
+              {bonusItems.map((item, i) => (
+                <li key={i} className="flex items-start gap-4 text-[15px] font-bold" style={{ color: '#D4A024' }}>
+                  <Sparkles size={20} strokeWidth={2.2} color="#D4A024" className="shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
 

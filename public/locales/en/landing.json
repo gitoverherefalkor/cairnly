@@ -268,24 +268,28 @@
       "Complete personality and career assessment",
       "AI analysis tailored to your goals",
       "Interactive coaching chat with follow-up questions",
-      "Up to 14 careers in 4 categories",
+      "Up to 12 careers in 4 categories",
       "Role details and localized salary ranges",
       "AI-impact ratings on every suggested role",
+      "A practical, step-by-step plan for switching into each role",
       "Dream-job feasibility assessment",
-      "Full report incorporating your chat feedback"
+      "Interactive dashboard with your results"
     ],
-    "bonusA": "If the suggestions land, we help you land the job",
-    "bonusBeta": "(beta)",
     "betaPill": "Limited offer · Beta Access",
     "originalPrice": "€69",
     "price": "€39",
     "oneOff": "A one-off payment",
-    "cta": "Get Beta Access — €39",
+    "cta": "Get Beta Access",
     "trust": {
       "stripe": "Stripe",
       "gdpr": "GDPR",
       "noSub": "No subscription"
-    }
+    },
+    "pillPreviewLabel": "Every suggested role, rated:",
+    "bonusItems": [
+      "Like a role? Find real openings with our LinkedIn job search.",
+      "Found the job? Land it with our CV strength optimizer and personal cover letter assistant."
+    ]
   },
   "whoFor": {
     "eyebrow": "Honest fit",

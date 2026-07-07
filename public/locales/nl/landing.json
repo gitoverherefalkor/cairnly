@@ -268,24 +268,28 @@
       "Volledig persoonlijkheids- en carrière-assessment",
       "AI-analyse afgestemd op jouw doelen",
       "Interactieve coaching chat met vervolgvragen",
-      "Tot wel 14 carrières in 4 categorieën",
+      "Tot wel 12 carrières in 4 categorieën",
       "Rol-details en lokale salarisranges",
       "AI-impact ratings voor elke voorgestelde rol",
+      "Een praktisch, stapsgewijs plan om naar elke rol over te stappen",
       "Droombaan-haalbaarheidsassessment",
-      "Volledig rapport waarin de feedback uit je chat is verwerkt"
+      "Interactief dashboard met je resultaten"
     ],
-    "bonusA": "Als de suggesties aanslaan, helpen we je de baan te bemachtigen",
-    "bonusBeta": "(bèta)",
     "betaPill": "Tijdelijk aanbod · Bèta-toegang",
     "originalPrice": "€69",
     "price": "€39",
     "oneOff": "Een eenmalige betaling",
-    "cta": "Krijg Bèta-toegang · €39",
+    "cta": "Krijg Bèta-toegang",
     "trust": {
       "stripe": "Stripe",
       "gdpr": "GDPR",
       "noSub": "Geen abonnement"
-    }
+    },
+    "pillPreviewLabel": "Elke voorgestelde rol, beoordeeld:",
+    "bonusItems": [
+      "Rol zien zitten? Vind actuele vacatures met onze LinkedIn-vacaturezoeker.",
+      "De baan gevonden? Land 'm met onze cv-optimalisator en persoonlijke motivatiebrief-hulp."
+    ]
   },
   "whoFor": {
     "eyebrow": "Eerlijke fit",
