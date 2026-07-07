@@ -242,6 +242,12 @@ function htmlToMarkdown(text: string): string {
     /^(\d+\.\s+[A-Z][^\n]{0,120})$(?=\n\s*\n|\n\s*[-*])/gm,
     '**$1**',
   );
+  // Runner-up / OOB / Reality-Check items are prefixed with ✓ or ⚠ and
+  // separated by single newlines. Markdown treats consecutive single-newline
+  // lines as one paragraph, so those items collapse into a run-on block.
+  // Force a blank line before each ✓/⚠ item so ReactMarkdown renders them as
+  // separate lines (matching the "- " bullet lists in top-career sections).
+  result = result.replace(/([^\n])\n(✓|⚠)/g, '$1\n\n$2');
   return result;
 }
 
