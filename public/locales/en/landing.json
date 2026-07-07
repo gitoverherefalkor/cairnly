@@ -303,11 +303,11 @@
       "You're open to directions you haven't seriously considered before.",
       "You want concrete next steps, not vague personality insights."
     ],
-    "notTitle": "This probably isn't for you if:",
+    "notTitle": "Not for you if:",
     "notItems": [
       "You're not looking to make a change.",
       "You're focused on getting promoted within your current field.",
-      "Your work isn't an office-based job.",
+      "You don't have an 'office job'.",
       "You already know exactly what you want, and nothing will change your mind."
     ]
   },

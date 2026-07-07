@@ -37,11 +37,11 @@ const WhoFor: React.FC = () => {
           </h2>
         </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto items-stretch">
+        <div className="flex flex-col gap-6 md:gap-8 max-w-3xl mx-auto">
           {/* Right place — elevated */}
           <Reveal>
             <div
-              className="relative rounded-3xl overflow-hidden h-full"
+              className="relative rounded-3xl overflow-hidden"
               style={{
                 background: '#FBF6E8',
                 border: '1px solid #D4A024',
@@ -64,7 +64,7 @@ const WhoFor: React.FC = () => {
                     {t('whoFor.rightTitle')}
                   </h3>
                 </div>
-                <ul className="space-y-4 text-[15px] text-[#122E3B] font-semibold leading-relaxed">
+                <ul className="space-y-5 text-[17px] md:text-[18px] text-[#122E3B] font-semibold leading-relaxed">
                   {rightItems.map((item, i) => (
                     <li key={i} className="flex gap-3">
                       <span className="text-[#D4A024] mt-0.5">•</span>
@@ -79,7 +79,7 @@ const WhoFor: React.FC = () => {
           {/* Not for you — muted, same footprint as the "right place" card */}
           <Reveal>
             <div
-              className="rounded-3xl overflow-hidden h-full"
+              className="rounded-3xl overflow-hidden"
               style={{ background: 'rgba(18, 46, 59, 0.04)', border: '1px solid rgba(107, 127, 139, 0.25)' }}
             >
               <div style={{ height: 5, background: 'rgba(107, 127, 139, 0.35)' }} />
@@ -95,7 +95,7 @@ const WhoFor: React.FC = () => {
                     {t('whoFor.notTitle')}
                   </h3>
                 </div>
-                <ul className="space-y-4 text-[15px] text-[#6B7F8B] font-semibold leading-relaxed">
+                <ul className="space-y-5 text-[17px] md:text-[18px] text-[#6B7F8B] font-semibold leading-relaxed">
                   {notItems.map((item, i) => (
                     <li key={i} className="flex gap-3">
                       <span className="text-[#9CA3AF] mt-0.5">•</span>
