@@ -1061,8 +1061,12 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             isSessionCompleted ||
             isWaitingForResponse ||
             (messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) ||
-            latestUnrevealedCount !== 0 ||
-            multiCardLocked ||
+            // The "reveal each section / open each card" gates block the normal
+            // flow, but a user who clicked "Ask about this role" has already
+            // picked a revealed card — let them ask without first opening every
+            // other card. Scoped to askAboutRole so the sequential-reveal gate
+            // is untouched for every other case.
+            (!askAboutRole && (latestUnrevealedCount !== 0 || multiCardLocked)) ||
             wrapUpState !== 'idle'
           }
           placeholder={
@@ -1074,7 +1078,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
                   ? 'Session closed - click Exit to Dashboard above'
                   : messages.length === 0
                     ? "Click 'I'm Ready!' above to begin"
-                    : latestUnrevealedCount > 0
+                    : askAboutRole
+                      ? 'Type your question…'
+                      : latestUnrevealedCount > 0
                       ? `Click to reveal the next ${latestUnrevealedCount} section${latestUnrevealedCount === 1 ? '' : 's'}…`
                       : multiCardLocked
                         ? 'Open each card above to continue…'
