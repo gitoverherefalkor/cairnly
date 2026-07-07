@@ -1,0 +1,484 @@
+<style>
+  :root{
+    --paper:#F6F2E9; --paper-2:#FFFDF7; --card:#FFFDF7;
+    --ink:#17262B; --muted:#5C7077; --faint:#8A9AA0;
+    --teal:#1C7A7A; --teal-deep:#0E2A33; --teal-soft:rgba(28,122,122,.10);
+    --gold:#B77F16; --gold-bright:#D8A63F;
+    --line:rgba(28,122,122,.18); --line-soft:rgba(28,122,122,.10);
+    --amber:#B06A12; --good:#1C7A7A;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --measure:68ch;
+  }
+  *{box-sizing:border-box}
+  .wrap{background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+  .wrap p{margin:0 0 1em}
+  .wrap a{color:var(--teal);text-underline-offset:2px}
+  .shell{max-width:1180px;margin:0 auto;padding:0 24px}
+  .grid{display:grid;grid-template-columns:1fr;gap:0}
+  @media(min-width:1000px){
+    .grid{grid-template-columns:220px minmax(0,1fr);gap:56px;align-items:start}
+  }
+
+  /* ---- hero ---- */
+  .hero{background:var(--teal-deep);color:#EAF1EF;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 90% at 82% -10%,rgba(216,166,63,.16),transparent 55%);
+    pointer-events:none}
+  .hero-inner{max-width:1180px;margin:0 auto;padding:76px 24px 60px;position:relative}
+  .eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+    font-weight:600;color:var(--gold-bright)}
+  .hero h1{font-family:var(--serif);font-weight:600;
+    font-size:clamp(2.3rem,5.4vw,3.5rem);line-height:1.04;letter-spacing:-.01em;
+    text-wrap:balance;margin:.5em 0 .3em;color:#FCFBF5}
+  .hero h1 em{font-style:italic;color:var(--gold-bright)}
+  .hero .thesis{font-size:clamp(1.05rem,2.1vw,1.3rem);line-height:1.5;
+    color:#C9D6D3;max-width:40ch;font-family:var(--serif);font-style:italic}
+  .hero .meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px 10px;font-size:.8rem;
+    color:#9DB2AE;font-family:var(--mono)}
+  .hero .meta span{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);
+    padding:5px 11px;border-radius:100px}
+  .anim{opacity:0;transform:translateY(14px);animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
+  .anim.d1{animation-delay:.06s}.anim.d2{animation-delay:.16s}
+  .anim.d3{animation-delay:.28s}.anim.d4{animation-delay:.42s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.anim{animation:none;opacity:1;transform:none}}
+
+  /* ---- nav ---- */
+  nav.toc{display:none}
+  @media(min-width:1000px){
+    nav.toc{display:block;position:sticky;top:24px;padding-top:52px;font-size:.82rem}
+    nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+    nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:5px 0 5px 16px;
+      margin-left:-1px;border-left:2px solid transparent;line-height:1.3;transition:color .15s}
+    nav.toc a:hover{color:var(--ink)}
+    nav.toc a.on{color:var(--teal);border-left-color:var(--teal);font-weight:600}
+    nav.toc .grp{text-transform:uppercase;letter-spacing:.14em;font-size:.66rem;
+      color:var(--faint);padding:16px 0 4px 16px;font-weight:700}
+  }
+
+  main{padding:52px 0 90px;min-width:0}
+  section{scroll-margin-top:20px;padding:14px 0 6px}
+  section+section{border-top:1px solid var(--line-soft);margin-top:34px;padding-top:40px}
+  .kick{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+    color:var(--gold);margin-bottom:12px}
+  h2{font-family:var(--serif);font-weight:600;font-size:1.85rem;line-height:1.12;
+    letter-spacing:-.01em;margin:.1em 0 .5em;text-wrap:balance;max-width:22ch}
+  h3{font-size:1.02rem;font-weight:650;margin:1.6em 0 .4em;letter-spacing:-.005em}
+  .lead{font-size:1.14rem;line-height:1.55;color:var(--ink);max-width:var(--measure)}
+  main p,main li{max-width:var(--measure)}
+  strong{font-weight:650;color:#0f2126}
+
+  /* pull quote */
+  .pull{font-family:var(--serif);font-size:1.5rem;line-height:1.32;font-style:italic;
+    color:var(--teal-deep);border-left:3px solid var(--gold-bright);
+    padding:2px 0 2px 22px;margin:26px 0;max-width:32ch;text-wrap:balance}
+
+  /* shaper list */
+  .shapers{display:grid;gap:14px;margin:8px 0 0;padding:0;list-style:none;counter-reset:s}
+  .shapers li{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px 16px 56px;position:relative;max-width:none}
+  .shapers li::before{counter-increment:s;content:counter(s);position:absolute;left:16px;top:15px;
+    width:26px;height:26px;border-radius:50%;background:var(--teal-soft);color:var(--teal);
+    font-family:var(--mono);font-size:.82rem;font-weight:600;display:grid;place-items:center}
+  .shapers b{display:block;margin-bottom:2px}
+
+  /* engines */
+  .engines{display:grid;gap:16px;margin-top:14px}
+  @media(min-width:720px){.engines{grid-template-columns:repeat(3,1fr)}}
+  .engine{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;display:flex;flex-direction:column;max-width:none}
+  .engine .tag{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    color:var(--gold);margin-bottom:8px}
+  .engine h3{margin:0 0 4px;font-family:var(--serif);font-size:1.28rem;font-weight:600}
+  .engine .role{font-size:.82rem;color:var(--muted);margin-bottom:10px;font-style:italic}
+  .engine p{font-size:.92rem;line-height:1.5;margin:0 0 8px;color:#2c3d43}
+  .engine .first{margin-top:auto;padding-top:12px;border-top:1px solid var(--line-soft);
+    font-size:.85rem}
+  .engine .first b{color:var(--teal);font-weight:650}
+
+  /* table */
+  .twrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem;background:var(--card)}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  thead th{background:rgba(28,122,122,.06);font-size:.72rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);font-weight:700}
+  tbody tr:last-child td{border-bottom:none}
+  td .n{font-family:var(--mono);color:var(--teal);font-weight:600}
+  .temp{font-family:var(--mono);font-size:.74rem;padding:2px 8px;border-radius:100px;
+    white-space:nowrap;font-weight:600}
+  .t-warm{background:rgba(28,122,122,.12);color:var(--teal)}
+  .t-cool{background:rgba(176,106,18,.12);color:var(--amber)}
+  .t-cold{background:rgba(90,112,120,.12);color:var(--muted)}
+
+  /* two-col do/dont */
+  .split{display:grid;gap:16px;margin-top:12px}
+  @media(min-width:680px){.split{grid-template-columns:1fr 1fr}}
+  .col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .col h3{margin:0 0 10px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase}
+  .col.do h3{color:var(--teal)} .col.dont h3{color:var(--amber)}
+  .col ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+  .col li{font-size:.9rem;line-height:1.42;padding-left:20px;position:relative;max-width:none}
+  .col.do li::before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:700}
+  .col.dont li::before{content:"✕";position:absolute;left:0;color:var(--amber);font-weight:700}
+
+  /* roadmap */
+  .road{display:grid;gap:12px;margin-top:14px;counter-reset:p}
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+    display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;max-width:none}
+  .phase .ph{font-family:var(--mono);font-size:.74rem;font-weight:700;color:#fff;background:var(--teal-deep);
+    padding:4px 9px;border-radius:6px;white-space:nowrap;height:fit-content;letter-spacing:.04em}
+  .phase h3{margin:0 0 3px;font-size:1rem}
+  .phase p{margin:0;font-size:.9rem;color:#2c3d43}
+  .phase .goal{margin-top:6px;font-size:.82rem;color:var(--teal);font-weight:600}
+
+  /* risks */
+  .risk{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:14px 0;max-width:var(--measure)}
+  .risk.hi{border-left-color:var(--amber)}
+  .risk b{display:block}
+  .risk span{font-size:.92rem;color:var(--muted)}
+
+  /* checklist */
+  .checks{list-style:none;margin:12px 0 0;padding:0;counter-reset:c;display:grid;gap:9px}
+  .checks li{position:relative;padding-left:38px;max-width:var(--measure);font-size:.96rem;
+    line-height:1.45}
+  .checks li::before{counter-increment:c;content:counter(c);position:absolute;left:0;top:-1px;
+    width:26px;height:26px;border-radius:7px;background:var(--teal-soft);color:var(--teal);
+    font-family:var(--mono);font-size:.8rem;font-weight:700;display:grid;place-items:center}
+  .checks .star{background:var(--gold-bright);color:#3a2a06}
+
+  /* callout */
+  .note{background:rgba(216,166,63,.10);border:1px solid rgba(183,127,22,.28);border-radius:12px;
+    padding:16px 18px;margin:18px 0;max-width:var(--measure);font-size:.94rem;line-height:1.5}
+  .note b{color:var(--gold)}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:12px 0;
+    max-width:var(--measure);overflow:hidden}
+  details>summary{cursor:pointer;padding:14px 18px;font-weight:650;font-size:.94rem;list-style:none;
+    display:flex;justify-content:space-between;align-items:center;gap:12px}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary::after{content:"+";font-family:var(--mono);color:var(--teal);font-size:1.2rem}
+  details[open]>summary::after{content:"–"}
+  details[open]>summary{border-bottom:1px solid var(--line-soft)}
+  .det-body{padding:6px 18px 18px}
+  .copy{font-family:var(--serif);font-size:.98rem;line-height:1.55;white-space:pre-wrap;
+    background:var(--paper);border-radius:8px;padding:14px 16px;margin:10px 0;color:#22343a;
+    border:1px solid var(--line-soft)}
+  .copy .subj{font-family:var(--sans);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);display:block;margin-bottom:8px}
+
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
+  .foot{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;font-size:.82rem;
+    color:var(--faint);max-width:var(--measure)}
+  .foot code{font-family:var(--mono);font-size:.82em;background:var(--teal-soft);padding:1px 6px;border-radius:5px;color:var(--teal)}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow anim d1">Cairnly Encore · Go-to-market strategy · 7 July 2026</div>
+      <h1 class="anim d2">You finished the career.<br><em>You are not finished.</em></h1>
+      <p class="thesis anim d3">Do not try to buy 65-year-olds with cold ads. Reach them through the people they already trust, and let a warm, honest assessment convert them.</p>
+      <div class="meta anim d4">
+        <span>EUR 79 · one-time</span>
+        <span>Audience 58–72, affluent, skeptical</span>
+        <span>Three engines: Gift · Trust-borrow · Authority</span>
+        <span>Grounded in a 16-report research pass</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <div class="grid">
+      <nav class="toc" aria-label="Contents">
+        <ol>
+          <li><span class="grp">Strategy</span></li>
+          <li><a href="#summary">Executive summary</a></li>
+          <li><a href="#situation">The situation</a></li>
+          <li><a href="#position">Positioning</a></li>
+          <li><a href="#message">Messaging</a></li>
+          <li><span class="grp">The plan</span></li>
+          <li><a href="#engines">Three-engine model</a></li>
+          <li><a href="#channels">Channel shortlist</a></li>
+          <li><a href="#pricing">Pricing &amp; LTV</a></li>
+          <li><a href="#roadmap">Roadmap</a></li>
+          <li><span class="grp">Guardrails</span></li>
+          <li><a href="#risks">Risks</a></li>
+          <li><a href="#first30">First 30 days</a></li>
+          <li><a href="#copy">Example copy</a></li>
+        </ol>
+      </nav>
+
+      <main>
+        <section id="summary">
+          <div class="kick">Executive summary</div>
+          <h2>The whole strategy in one move, then six things that shape it</h2>
+          <p class="pull">Lead with borrowed trust and gifting, not paid search.</p>
+          <ol class="shapers">
+            <li><b>The white space is real.</b> No product anywhere combines an AI assessment, a paid one-time report, an AI coach chat, and explicit 58–72 targeting. The flip side: no existing category language to ride, so we teach the category, not just win share.</li>
+            <li><b>The audience is affluent and skeptical, and hard to reach cold.</b> Only ~8% of over-65s have ever tried an AI chatbot, and they have been warned by the FTC and AARP about online quizzes. Cold digital fights all of this at once.</li>
+            <li><b>So the money is in warm channels.</b> Three engines beat one cold one: Gift (adult children), Trust-borrow (advisors, pensions, outplacement, 50+ orgs), Authority (SEO, LinkedIn, earned media, a free lead magnet).</li>
+            <li><b>EUR 79 is an acquisition price, not a value-captured price.</b> ~2× cheap digital peers, but 10–80× below every human service this audience already buys. Plan the second and third euro before scaling spend.</li>
+            <li><b>The niche is the strategy.</b> The general population unretires for money. Ours does not. Market purpose only to the affluent professional for whom the paycheck is not the constraint.</li>
+            <li><b>Heads up on the name.</b> "Encore" is already owned in the US by Encore.org (now CoGenerate) and Encore Fellowships. Not a rival, but a brand-clarity and SEO risk. Always use the "Cairnly Encore" lockup.</li>
+          </ol>
+        </section>
+
+        <section id="situation">
+          <div class="kick">The situation</div>
+          <h2>Five hard truths, with the numbers behind them</h2>
+          <p class="lead">The market is large and wealthy, but it is the single hardest audience to acquire cold. That tension sets the whole plan.</p>
+          <h3>The market is large, growing, and liquid</h3>
+          <p>T. Rowe Price (Dec 2025): 34% of savers globally and 37% in the US expect to work in retirement. Canada's 65+ participation hit a record 15.2% in 2025; roughly one in four UK retirees "unretire." Cerulli projects ~USD 124 trillion transferring by 2048, Boomers above USD 53 trillion. <strong>Honest caveat:</strong> about half of those turning 65 have under USD 100k in investable assets, so the ICP is the top 20–30% by wealth and education, not the median retiree.</p>
+          <h3>They are the hardest audience to reach cold</h3>
+          <p>Older adults trust online ads at 14% versus 51% for under-35s, and social ads at just 7%, while being better than average at spotting sponsored content and scams. About 69% are uncomfortable sharing personal data with an AI tool. Usage is rising (~45% of Boomers used an AI tool in the last six months) but usage is not trust.</p>
+          <h3>The neighbours prove people pay for this</h3>
+          <p>Modern Elder Academy fills USD 4,000–7,000 retreats; retirement coaches charge 150–300 a session; executive outplacement runs 899–6,499 per person. The direct lane is empty. The one profile-first analogue is KWIEK in the Netherlands, worth watching because it is the home market.</p>
+        </section>
+
+        <section id="position">
+          <div class="kick">Positioning</div>
+          <h2>Honest direction for your next chapter</h2>
+          <p class="lead">Not retirement planning (owned by finance, and it is about money). Not senior services (condescending, a word we never use). We are the accessible, private, honest, on-demand version of a life-design program.</p>
+          <p><strong>For</strong> the accomplished professional ending a long career and not done contributing, <strong>Cairnly Encore</strong> reads your real career and shows where your experience still fits, spanning work, board seats, mentoring, teaching, and building something of your own. Unlike coaching (expensive, slow, intimidating) or retirement planning (only about the money), it gives a straight, private, expert-grade read in an evening, for the price of a nice dinner.</p>
+          <p><strong>The wedge to launch on is the gift.</strong> Cheapest to acquire, uses assets we already have, and sidesteps the cold-reach problem entirely. Everything else builds while the gift engine proves demand.</p>
+        </section>
+
+        <section id="message">
+          <div class="kick">Messaging</div>
+          <h2>Respect, not reassurance</h2>
+          <p class="lead">Four pillars: we take the loss seriously; your experience is the asset, especially now; no condescension and no clichés, including the hard truths; this is a direction, not a job board.</p>
+          <p>Introduce the AI as a mechanism, never the headline, and never claim it "knows you." The honest, higher-converting frame: <em>it knows patterns across thousands of profiles; it does not know you; this is a mirror, not a verdict.</em> Show the report's work from the reader's own answers, and keep a visible human to email.</p>
+          <div class="split">
+            <div class="col do">
+              <h3>Do</h3>
+              <ul>
+                <li>Lead with the real moment before mentioning AI or the category.</li>
+                <li>Name their skepticism out loud ("no 60-is-the-new-40 here").</li>
+                <li>Anchor EUR 79 against a coaching hour; say "one payment, no subscription."</li>
+                <li>Frame the gift around pride in the parent's past, not worry about the future.</li>
+                <li>Use peer testimonials with real names, faces, titles, ages.</li>
+              </ul>
+            </div>
+            <div class="col dont">
+              <h3>Don't</h3>
+              <ul>
+                <li>Write "still" about capability or relevance. It is the tell.</li>
+                <li>Use age-erasure math, or "reinvent," or "starting over."</li>
+                <li>Claim the AI knows the user, or show a confidence score.</li>
+                <li>Cent-price it, or anchor against free quizzes.</li>
+                <li>Use countdown timers or fake urgency. They detect it fastest.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="engines">
+          <div class="kick">The plan · the heart of it</div>
+          <h2>Three engines that feed each other</h2>
+          <p class="lead">Lead with Gift (cheapest, warmest), build Authority in parallel (compounds, produces the trust assets), and layer in Trust-borrow as the scale engine (slower, highest ceiling).</p>
+          <div class="engines">
+            <div class="engine">
+              <div class="tag">Engine 1 · launch wedge</div>
+              <h3>Gift</h3>
+              <div class="role">Adult children buying for a retiring parent</div>
+              <p>Trust is doubly borrowed: the child trusts Cairnly, the parent trusts the child. The 40–55 buyer is digital-native and overlaps Cairnly's existing pro base.</p>
+              <p>Frame it as investment in their next win, never rescue from decline. The acute moment is not the party, it is six to twenty-four months in, when the calendar goes quiet.</p>
+              <p class="first"><b>First move:</b> cross-sell the gift to the existing pro base and email list.</p>
+            </div>
+            <div class="engine">
+              <div class="tag">Engine 2 · scale</div>
+              <h3>Trust-borrow</h3>
+              <div class="role">Rent an intermediary's trust and audience</div>
+              <p>Sharpest wedge: life-planning advisors (Kinder Institute's 600+ Registered Life Planners, the Dutch FFP's ~3,000) already run this conversation by hand with no digital tool.</p>
+              <p>Then pensions (Aviva's Mid-Life MOT), outplacement (Randstad's Creative Retirement), and 50+ orgs (AARP's Indeed deal is the precedent).</p>
+              <p class="first"><b>First move:</b> founder-led pilot with the Kinder/FFP community. Longest lead time, so start now.</p>
+            </div>
+            <div class="engine">
+              <div class="tag">Engine 3 · compounds</div>
+              <h3>Authority</h3>
+              <div class="role">Own the conversation you have to create</div>
+              <p>A free "Next Chapter Reality Check" gives value before asking for money and seeds the retargeting audience. SEO owns the long-tail intent terms no tool ranks for.</p>
+              <p>Founder-led LinkedIn hits execs and their adult children at once. Paid's real job is retargeting warm traffic, not cold prospecting.</p>
+              <p class="first"><b>First move:</b> ship the lead magnet and start a weekly LinkedIn cadence.</p>
+            </div>
+          </div>
+          <div class="note"><b>Why not cold paid?</b> At a high cold-CAC and a one-time EUR 79, a single sale may not clear acquisition cost. Warm gift and partner CAC are far lower, so those sales can be roughly break-even on their own. Cold paid stays a retargeting and list-building tool until a lifetime-value extension is live.</div>
+        </section>
+
+        <section id="channels">
+          <div class="kick">Channel shortlist</div>
+          <h2>Ranked by what to test first</h2>
+          <div class="twrap">
+            <table>
+              <thead><tr><th>#</th><th>Channel</th><th>Warmth</th><th>Why it is here</th></tr></thead>
+              <tbody>
+                <tr><td class="n">1</td><td>Gift cross-sell to pro base</td><td><span class="temp t-warm">warm</span></td><td>Cheapest first sales; trust exists; proves the gift motion.</td></tr>
+                <tr><td class="n">2</td><td>Life-planning advisor pilots (Kinder / FFP)</td><td><span class="temp t-warm">warm</span></td><td>They do this by hand already; longest lead time, so start now.</td></tr>
+                <tr><td class="n">3</td><td>Free "Reality Check" lead magnet</td><td><span class="temp t-cool">cool→warm</span></td><td>Builds the list; defuses the quiz objection; partner giveaway.</td></tr>
+                <tr><td class="n">4</td><td>LinkedIn founder thought leadership</td><td><span class="temp t-cool">cool</span></td><td>Only channel hitting execs and their adult children together.</td></tr>
+                <tr><td class="n">5</td><td>SEO pillar + cluster content</td><td><span class="temp t-cool">high intent</span></td><td>Captures the search demand that exists; compounds.</td></tr>
+                <tr><td class="n">6</td><td>50+ org partnership (Rest Less, KBO-PCOB)</td><td><span class="temp t-warm">warm</span></td><td>Large trusted audiences with no assessment of their own.</td></tr>
+                <tr><td class="n">7</td><td>Retargeting ads (Meta, LinkedIn)</td><td><span class="temp t-warm">warm</span></td><td>Convert people who already touched the brand.</td></tr>
+                <tr><td class="n">8</td><td>Employer / outplacement pilot</td><td><span class="temp t-warm">warm</span></td><td>Dignity offboarding; employer budget already exists.</td></tr>
+                <tr><td class="n">9</td><td>Pension provider content partnership</td><td><span class="temp t-cold">long cycle</span></td><td>Big trusted reach; non-financial readiness is their gap.</td></tr>
+                <tr><td class="n">10</td><td>Earned media / PR</td><td><span class="temp t-cool">cool</span></td><td>Third-party legitimacy this segment weighs heavily.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size:.9rem;color:var(--muted)">Deprioritised for now: cold Meta or Google prospecting at 65-year-olds, and programmatic display. High cost, low trust, wrong first move. The full named-target list (real firms, temperatures, angles) is in the repo doc's Appendix C.</p>
+        </section>
+
+        <section id="pricing">
+          <div class="kick">Pricing &amp; the LTV problem</div>
+          <h2>Read this before scaling spend</h2>
+          <p class="lead">EUR 79 is the right launch price for the wedge. Be clear-eyed that it is a low-friction entry price, not a price that captures the value of the guidance.</p>
+          <p>Against digital peers it is premium (~1.7× CliftonStrengths, ~2.7× 16Personalities). Against every human alternative this audience already buys, it is 10–80× cheaper. So plan the second and third euro now, in order of ease:</p>
+          <ul style="max-width:var(--measure);padding-left:20px">
+            <li><strong>State the coaching-hour anchor</strong> (copy only, do it immediately, protects against "too cheap to be real").</li>
+            <li><strong>A premium tier (test EUR 149–249)</strong> bundling a human coaching session via a partner coach. Captures real willingness to pay, creates affiliate revenue, gives the skeptic the human touch.</li>
+            <li><strong>An annual "check-in" renewal.</strong> A portfolio life evolves; a yearly re-read without a subscription feel.</li>
+            <li><strong>Referral and gift multipliers</strong>, and <strong>B2B volume deals</strong> where per-unit price holds and CAC amortises across a relationship.</li>
+          </ul>
+          <p style="font-size:.92rem;color:var(--muted)">Do not relitigate the EUR 79 launch decision. Do decide which extension ships first. Recommendation: anchor now, gift and referral loops in Phase 1, premium human-coaching tier piloted in Phase 2.</p>
+        </section>
+
+        <section id="roadmap">
+          <div class="kick">Roadmap</div>
+          <h2>Crawl, walk, run</h2>
+          <div class="road">
+            <div class="phase"><span class="ph">Phase 0</span><div>
+              <h3>Clear the runway &amp; warm-launch · weeks 0–4</h3>
+              <p>Finish the launch blockers. Build the gift flow. Ship the Reality Check. Add the price anchor and the plain-language AI and data notes. Stand up a real team and methodology page. Warm-launch to the pro base.</p>
+              <div class="goal">Goal: first 20–50 reports, and the first named peer testimonials.</div>
+            </div></div>
+            <div class="phase"><span class="ph">Phase 1</span><div>
+              <h3>Gift + Authority · months 1–3</h3>
+              <p>Cross-sell the gift. Launch LinkedIn and SEO. Begin outreach to the Kinder/FFP advisors and one 50+ org. Modest retargeting off the list.</p>
+              <div class="goal">Goal: proof of warm-channel demand, 10+ testimonials, first partner pilot signed.</div>
+            </div></div>
+            <div class="phase"><span class="ph">Phase 2</span><div>
+              <h3>Add Trust-borrow · months 3–9</h3>
+              <p>Formalise the advisor program. Pursue a pension or larger 50+ org pilot and an employer/outplacement pilot. Pilot the premium coaching tier. PR push.</p>
+              <div class="goal">Goal: a repeatable partner motion and the first institutional deal.</div>
+            </div></div>
+            <div class="phase"><span class="ph">Phase 3</span><div>
+              <h3>Scale what works · months 9–18</h3>
+              <p>Double down on the best CAC-to-value engine. Expand to UK and US; defend the NL home market against KWIEK. Add the renewal layer.</p>
+              <div class="goal">Goal: predictable acquisition, not dependent on a single EUR 79 sale.</div>
+            </div></div>
+          </div>
+        </section>
+
+        <section id="risks">
+          <div class="kick">Guardrails</div>
+          <h2>Risks, named honestly</h2>
+          <div class="risk hi"><b>Reachability (the big one)</b><span>Hardest audience to acquire cold. Mitigation: the entire warm-first plan. Do not fight this with ad budget.</span></div>
+          <div class="risk hi"><b>Thin lifetime value on one-time EUR 79</b><span>Mitigation: the pricing extensions, decided before scaling spend.</span></div>
+          <div class="risk"><b>Legitimacy for a young unknown brand</b><span>Mitigation: named peer testimonials, a real team page, partner trust-borrowing, PR, plain-language data and AI notes.</span></div>
+          <div class="risk"><b>The gifting landmine</b><span>"Are you saying I'm old and lost?" Mitigation: pride-not-worry framing, and privacy reassurance for both parent and child.</span></div>
+          <div class="risk"><b>The name</b><span>"Encore" is contested in the US. Always the "Cairnly Encore" lockup; compete on long-tail intent terms, not the head term; trademark check before heavy spend.</span></div>
+          <div class="risk"><b>MyPassion.AI &amp; KWIEK</b><span>The AI competitor to watch (not retiree-focused yet) and the NL profile-first analogue. Mitigation: move first, own the niche and trust assets, trial and out-position.</span></div>
+        </section>
+
+        <section id="first30">
+          <div class="kick">First 30 days</div>
+          <h2>Concrete, in order</h2>
+          <ol class="checks">
+            <li class="star" style="--x:0">Finish the launch checklist: activate WF1P–WF4P, set the webhook secret, review survey copy, smoke test.</li>
+            <li class="star">Ship the gift path (/encore/gift) and collect the first named testimonials.</li>
+            <li>Add to the landing page: the coaching-hour price anchor, a plain-language "how the AI works," a plain-language data note.</li>
+            <li>Stand up a real named team and methodology page.</li>
+            <li>Ship the free "Next Chapter Reality Check" lead magnet.</li>
+            <li>Email the pro base twice: once for the gift, once for the free Reality Check.</li>
+            <li>Start the weekly LinkedIn cadence and publish the SEO pillar plus two clusters.</li>
+            <li>List 15 advisors and one 50+ org; send the partner email to the first five.</li>
+            <li>Instrument CAC by channel; rule: no channel scales until CAC beats near-term value per customer.</li>
+          </ol>
+          <p style="font-size:.9rem;color:var(--muted);margin-top:14px">If you only do three: finish the launch, ship the gift path, collect the first testimonials. Everything else compounds off those.</p>
+        </section>
+
+        <section id="copy">
+          <div class="kick">Example copy</div>
+          <h2>Drafts, ready to lift</h2>
+          <p class="lead">On-brand, em-dash-free. Voice: honest, direct, warm, zero condescension. The full set (advisor pitch, ad concepts, lead-magnet spec, SEO outline) is in the repo doc's Appendix A.</p>
+
+          <details>
+            <summary>Gift email to the adult child</summary>
+            <div class="det-body">
+              <div class="copy"><span class="subj">Subject: A gift for the parent who is about to retire and has no idea what comes next</span>Your dad ran teams for thirty years. Your mum built something real. Now the farewell reception is on the calendar and nobody, including them, has a plan for the Monday after.
+
+Retirement advice is all about the money. Almost none of it is about the part they will actually struggle with: what to do with everything they know.
+
+Cairnly Encore is an honest assessment built for exactly this moment. It takes their real career, not a quiz, and gives them a clear read on who they are now and where their experience still fits. Not a job board. A direction: advisory work, a board seat, mentoring, teaching, something of their own, or simply a week that feels like a life again.
+
+It is a serious gift, not a mug that says "world's best retiree." One payment, no subscription, their data stays theirs.
+
+Give them the one thing the party will not: a reason to look forward to Monday.</div>
+            </div>
+          </details>
+
+          <details>
+            <summary>LinkedIn post · for the pre-retiree executive</summary>
+            <div class="det-body">
+              <div class="copy">There is a specific kind of quiet that lands about a month after a big retirement.
+
+The trips are booked. The garden is handled. And then a Tuesday arrives with nothing on it, and a person who solved hard problems for a living realises that "relax, you have earned it" was never actually the answer to the question they are sitting with.
+
+The question is simpler and harder than the pension conversation: what is all of this experience for now?
+
+We built Cairnly Encore for that question. Not a retirement plan, a direction. It takes a real career and reads it honestly: what you were genuinely great at, what you will never miss, what you quietly loved. Then it maps where that still fits, whether that is a board seat, advising founders, teaching, mentoring, or building the thing you never had time for.
+
+No "keeping busy." No pretending sixty is forty. Just a straight answer for people who are not finished.</div>
+            </div>
+          </details>
+
+          <details>
+            <summary>LinkedIn post · AI as leverage</summary>
+            <div class="det-body">
+              <div class="copy">Most people your age are told to worry that AI will make their experience obsolete.
+
+I think that is exactly backwards.
+
+AI is very good at knowing things. It is still terrible at judgment: the pattern you recognise in a deal because you have seen it fail twice, the read on a room, the instinct for when a plan is quietly wrong. Thirty years bought you that, and it is not depreciating.
+
+The opportunity in your next chapter is not to compete with AI. It is to be the judgment on top of it. Advise the founder using it. Sit on the board asking the questions it cannot. Mentor the person who has the tools but not the scars.
+
+Your experience is an asset. The trick is aiming it.</div>
+            </div>
+          </details>
+        </section>
+
+        <div class="foot">
+          Full strategy, named-partner target list, and complete example-copy library live in the repo at
+          <code>handoff/Encore/encore-marketing-strategy.md</code>. Research sources and confidence flags are in that doc's Appendix B. Prepared 7 July 2026.
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+    var map = {};
+    links.forEach(function(a){ var id=a.getAttribute('href').slice(1); map[id]=a; });
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){l.classList.remove('on');});
+          if(map[e.target.id]) map[e.target.id].classList.add('on');
+        }
+      });
+    }, {rootMargin:'-10% 0px -75% 0px', threshold:0});
+    document.querySelectorAll('main section[id]').forEach(function(s){obs.observe(s);});
+    links.forEach(function(a){
+      a.addEventListener('click', function(ev){
+        var t=document.getElementById(a.getAttribute('href').slice(1));
+        if(t){ ev.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+      });
+    });
+  })();
+</script>
