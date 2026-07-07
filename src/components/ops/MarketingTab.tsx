@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, Plus, Download, Trash2, Pencil, ChevronDown, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { Loader2, RefreshCw, Plus, Download, Trash2, Pencil, ChevronDown, ChevronRight, Image as ImageIcon, Sparkles } from 'lucide-react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -156,14 +156,43 @@ function PostForm({
     status: 'posted',
     author: 'Sjoerd',
     profile: 'personal',
-    has_image: false,
+    // Most posts carry an image, and the dashboard is used the day a post goes
+    // live — so pre-fill both rather than making Sjoerd set them every time.
+    has_image: true,
     is_series: false,
     body: '',
+    posted_at: new Date().toISOString(),
     ...initial,
   }));
   const [saving, setSaving] = useState(false);
+  const [classifying, setClassifying] = useState(false);
 
   const set = (k: keyof Post, v: unknown) => setF((prev) => ({ ...prev, [k]: v }));
+
+  // Ask Haiku to read the pasted post and guess its type + hook style, so those
+  // don't have to be tagged by hand. Only fills empty-ish fields aren't forced —
+  // the returned values overwrite, but everything stays editable afterwards.
+  const autofill = async () => {
+    if (!f.body?.trim()) {
+      toast.error('Paste the post text first');
+      return;
+    }
+    setClassifying(true);
+    try {
+      const r = await callMarketing({ action: 'classify', text: f.body });
+      setF((prev) => ({
+        ...prev,
+        post_type: r.post_type ?? prev.post_type,
+        hook_style: r.hook_style ?? prev.hook_style,
+      }));
+      if (r.post_type || r.hook_style) toast.success('Filled type & hook from the text');
+      else toast.message('Nothing confident to fill — tag it manually');
+    } catch (e: any) {
+      toast.error(e.message ?? 'Could not auto-fill');
+    } finally {
+      setClassifying(false);
+    }
+  };
 
   // datetime-local wants "YYYY-MM-DDTHH:mm" in local time.
   const localDT = (iso?: string | null) => {
@@ -198,6 +227,15 @@ function PostForm({
           value={f.body ?? ''}
           onChange={(e) => set('body', e.target.value)}
         />
+        <button
+          type="button"
+          onClick={autofill}
+          disabled={classifying}
+          className="mt-2 text-xs text-atlas-teal hover:underline inline-flex items-center gap-1 disabled:opacity-50"
+        >
+          {classifying ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+          Auto-fill type &amp; hook from the text
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

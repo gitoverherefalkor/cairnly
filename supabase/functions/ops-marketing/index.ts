@@ -156,6 +156,71 @@ serve(async (req) => {
       return json({ ok: true }, corsHeaders);
     }
 
+    // ── Classify a pasted post (type + hook style) with a small model ─────────
+    // Saves hand-tagging: reads the verbatim text and guesses the post type and
+    // the opening-hook technique. Best-effort — returns nulls (never errors the
+    // form) if the key is missing or the model is unsure.
+    if (action === 'classify') {
+      const text = typeof body.text === 'string' ? body.text.trim() : '';
+      const empty = { post_type: null as string | null, hook_style: null as string | null };
+      if (!text) return json(empty, corsHeaders);
+      const key = Deno.env.get('ANTHROPIC_API_KEY');
+      if (!key) return json(empty, corsHeaders);
+
+      const prompt = `You tag LinkedIn posts for a marketing dashboard. Read the post and return ONLY valid JSON:
+{"post_type": one of ["personal_story","opinion","behind_the_build","career_data","success_story","launch_series"] or null, "hook_style": "2-4 word label for the opening-line technique"}
+
+post_type meanings:
+- personal_story: a personal narrative or lived experience
+- opinion: a take, argument, or hot take
+- behind_the_build: building Cairnly in public — product/dev progress
+- career_data: data, teardown, or analysis about careers / jobs / AI's impact on work
+- success_story: a user's or customer's positive outcome
+- launch_series: announcing or launching something / part of a launch push
+
+hook_style examples: "bold claim", "question", "personal confession", "surprising stat", "story open", "contrarian take", "how-to promise".
+
+Post:
+"""
+${text.slice(0, 6000)}
+"""
+Return only the JSON object, no prose.`;
+
+      try {
+        const r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 200,
+            messages: [{ role: 'user', content: prompt }],
+          }),
+          signal: AbortSignal.timeout(20000),
+        });
+        if (!r.ok) return json(empty, corsHeaders);
+        const resp = await r.json();
+        const t: string = resp.content?.[0]?.text ?? '';
+        const m = t.match(/\{[\s\S]*\}/);
+        if (!m) return json(empty, corsHeaders);
+        const parsed = JSON.parse(m[0]);
+        const TYPES = new Set(['personal_story', 'opinion', 'behind_the_build', 'career_data', 'success_story', 'launch_series']);
+        return json(
+          {
+            post_type: TYPES.has(parsed.post_type) ? parsed.post_type : null,
+            hook_style: typeof parsed.hook_style === 'string' ? parsed.hook_style.trim().slice(0, 60) : null,
+          },
+          corsHeaders,
+        );
+      } catch (e: any) {
+        console.error('[ops-marketing] classify failed:', e?.message ?? e);
+        return json(empty, corsHeaders);
+      }
+    }
+
     // ── Default: read everything the tab needs ────────────────────────────────
     const [postsRes, statsRes, seriesRes] = await Promise.all([
       supabase.from('marketing_posts').select('*').order('posted_at', { ascending: false, nullsFirst: true }),

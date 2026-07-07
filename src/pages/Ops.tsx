@@ -965,7 +965,7 @@ export default function Ops() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('traffic');
+  const [activeTab, setActiveTab] = useState('overview');
 
   const isAdmin = !authLoading && !!user && ADMIN_EMAILS.has(user.email ?? '');
 
@@ -1199,20 +1199,13 @@ export default function Ops() {
 
       {feed && (
         <div className="space-y-5">
-          {/* At-a-glance — the metrics that matter most, always visible */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {hero('📈 Traffic', traffic ? traffic.visits_7d.toLocaleString() : '—', traffic ? `visitors · ${traffic.bounce_rate_7d}% bounce (7d)` : 'no data yet', 'traffic', 'teal')}
-            {hero('⚙️ Errors', String(n8nErrors.length), `${blockers.length} blocker${blockers.length === 1 ? '' : 's'}`, 'n8n', n8nErrors.length > 0 ? 'red' : 'neutral')}
-            {hero('👥 New signups', String(newThisWeek), 'this week', 'people', 'blue')}
-            {hero('📉 Drop-offs', String(stuckCount), leakiestLabel ? `mostly at ${leakiestLabel}` : 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
-          </div>
-
-          {/* Action queues — clickable, jump to the matching tab */}
-          <StatsRow items={items} onSelect={setActiveTab} />
-
-          {/* Detail tabs — ordered by how often they're needed */}
+          {/* Tabs — each tab shows only its own content. The at-a-glance summary
+              lives in its own Overview tab so it isn't repeated above everything. */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-black/25 border border-white/10 w-full flex flex-wrap h-auto gap-1 p-1">
+              <TabsTrigger value="overview" className="data-[state=active]:bg-white/10 text-xs">
+                📊 Overview
+              </TabsTrigger>
               <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
                 📈 Traffic
               </TabsTrigger>
@@ -1242,6 +1235,19 @@ export default function Ops() {
               </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="overview" className="mt-4">
+              <div className="space-y-5">
+                {/* At-a-glance — the metrics that matter most */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {hero('📈 Traffic', traffic ? traffic.visits_7d.toLocaleString() : '—', traffic ? `visitors · ${traffic.bounce_rate_7d}% bounce (7d)` : 'no data yet', 'traffic', 'teal')}
+                  {hero('⚙️ Errors', String(n8nErrors.length), `${blockers.length} blocker${blockers.length === 1 ? '' : 's'}`, 'n8n', n8nErrors.length > 0 ? 'red' : 'neutral')}
+                  {hero('👥 New signups', String(newThisWeek), 'this week', 'people', 'blue')}
+                  {hero('📉 Drop-offs', String(stuckCount), leakiestLabel ? `mostly at ${leakiestLabel}` : 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
+                </div>
+                {/* Action queues — clickable, jump to the matching tab */}
+                <StatsRow items={items} onSelect={setActiveTab} />
+              </div>
+            </TabsContent>
             <TabsContent value="traffic" className="mt-4">
               <TrafficPanel traffic={feed.traffic} />
             </TabsContent>
