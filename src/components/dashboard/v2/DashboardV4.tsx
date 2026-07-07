@@ -798,7 +798,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               </div>
 
               {radarAxes.length > 0 && (
-                <div style={{ padding: 20, minWidth: 0 }}>
+                <div style={{ padding: 20, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div style={{ position: 'sticky', top: 24 }}>
                     <V4ChartBanner
                       layout="vertical"
@@ -863,7 +863,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               </div>
 
               {careerMapPoints.length > 0 && (
-                <div style={{ padding: 20, minWidth: 0 }}>
+                <div style={{ padding: 20, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div style={{ position: 'sticky', top: 24 }}>
                     <V4ChartBanner
                       layout="vertical"
