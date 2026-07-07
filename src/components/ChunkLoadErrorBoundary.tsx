@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { isChunkLoadError } from '@/lib/lazyWithRetry';
 
 /**
  * Error boundary that catches failed lazy-loaded chunks and reloads the page.
@@ -23,20 +24,6 @@ interface State {
   // so the user never sees a scary "Something went wrong" flash before the
   // page silently reloads itself.
   reloading: boolean;
-}
-
-function isChunkLoadError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  const msg = error.message || '';
-  const name = error.name || '';
-  return (
-    name === 'ChunkLoadError' ||
-    /Loading chunk [\d]+ failed/i.test(msg) ||
-    /Loading CSS chunk/i.test(msg) ||
-    /Failed to fetch dynamically imported module/i.test(msg) ||
-    /error loading dynamically imported module/i.test(msg) ||
-    /Importing a module script failed/i.test(msg)
-  );
 }
 
 const RELOAD_TS_KEY = 'chunk_reload_ts';

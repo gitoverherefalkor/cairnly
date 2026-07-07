@@ -1,5 +1,6 @@
 
-import React, { Suspense, lazy } from "react";
+import React, { Suspense } from "react";
+import { lazyWithRetry } from "@/lib/lazyWithRetry";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,36 +24,36 @@ import SupportButton from "./components/support/SupportButton";
 import { ChunkLoadErrorBoundary } from "./components/ChunkLoadErrorBoundary";
 
 // Lazy load all other routes — only downloaded when the user navigates to them
-const PaymentSuccess = lazy(() => import("./components/PaymentSuccess"));
-const Assessment = lazy(() => import("./pages/Assessment"));
-const Auth = lazy(() => import("./pages/Auth"));
-const AuthConfirm = lazy(() => import("./pages/AuthConfirm"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Chat = lazy(() => import("./pages/Chat"));
-const ReportProcessing = lazy(() => import("./pages/ReportProcessing"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
-const ReferralTerms = lazy(() => import("./pages/ReferralTerms"));
-const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
-const Support = lazy(() => import("./pages/Support"));
-const Security = lazy(() => import("./pages/Security"));
-const ColorTest = lazy(() => import("./pages/ColorTest"));
-const Jobs = lazy(() => import("./pages/Jobs"));
-const CustomResume = lazy(() => import("./pages/CustomResume"));
-const Ops = lazy(() => import("./pages/Ops"));
-const Journal = lazy(() => import("./pages/Journal"));
-const JournalArticle = lazy(() => import("./pages/JournalArticle"));
-const NewsletterConfirm = lazy(() => import("./pages/NewsletterConfirm"));
-const NewsletterUnsubscribe = lazy(() => import("./pages/NewsletterUnsubscribe"));
+const PaymentSuccess = lazyWithRetry(() => import("./components/PaymentSuccess"));
+const Assessment = lazyWithRetry(() => import("./pages/Assessment"));
+const Auth = lazyWithRetry(() => import("./pages/Auth"));
+const AuthConfirm = lazyWithRetry(() => import("./pages/AuthConfirm"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
+const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
+const Profile = lazyWithRetry(() => import("./pages/Profile"));
+const Chat = lazyWithRetry(() => import("./pages/Chat"));
+const ReportProcessing = lazyWithRetry(() => import("./pages/ReportProcessing"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
+const ReferralTerms = lazyWithRetry(() => import("./pages/ReferralTerms"));
+const CookiePolicy = lazyWithRetry(() => import("./pages/CookiePolicy"));
+const Support = lazyWithRetry(() => import("./pages/Support"));
+const Security = lazyWithRetry(() => import("./pages/Security"));
+const ColorTest = lazyWithRetry(() => import("./pages/ColorTest"));
+const Jobs = lazyWithRetry(() => import("./pages/Jobs"));
+const CustomResume = lazyWithRetry(() => import("./pages/CustomResume"));
+const Ops = lazyWithRetry(() => import("./pages/Ops"));
+const Journal = lazyWithRetry(() => import("./pages/Journal"));
+const JournalArticle = lazyWithRetry(() => import("./pages/JournalArticle"));
+const NewsletterConfirm = lazyWithRetry(() => import("./pages/NewsletterConfirm"));
+const NewsletterUnsubscribe = lazyWithRetry(() => import("./pages/NewsletterUnsubscribe"));
 // Starter flavor (first/second-job seekers) — parallel funnel at /starter
-const StarterIndex = lazy(() => import("./pages/starter/StarterIndex"));
-const StarterPayment = lazy(() => import("./pages/starter/StarterPayment"));
+const StarterIndex = lazyWithRetry(() => import("./pages/starter/StarterIndex"));
+const StarterPayment = lazyWithRetry(() => import("./pages/starter/StarterPayment"));
 // Encore flavor (pensioners / pre-retirees) — parallel funnel at /encore
-const EncoreIndex = lazy(() => import("./pages/encore/EncoreIndex"));
-const EncorePayment = lazy(() => import("./pages/encore/EncorePayment"));
+const EncoreIndex = lazyWithRetry(() => import("./pages/encore/EncoreIndex"));
+const EncorePayment = lazyWithRetry(() => import("./pages/encore/EncorePayment"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
