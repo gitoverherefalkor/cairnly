@@ -305,9 +305,10 @@
     ],
     "notTitle": "This probably isn't for you if:",
     "notItems": [
+      "You're not looking to make a change.",
       "You're focused on getting promoted within your current field.",
-      "You need industry-specific technical training.",
-      "You want validation for a decision you've already made."
+      "Your work isn't an office-based job.",
+      "You already know exactly what you want, and nothing will change your mind."
     ]
   },
   "forkDivider": {
@@ -438,7 +439,7 @@
         "titleB": "",
         "body": "AI is rewriting some careers and barely touching others. Cairnly scores every path it suggests on how AI is set to reshape it, so the real question becomes:",
         "bodyEmphasis": "which direction still has room for you in the coming years, and do you actually want it?",
-        "ctaPrimary": "See the risks"
+        "ctaPrimary": "Understand the impact"
       },
       "whyBuilt": {
         "p1": "They're built on assumptions that stopped being safe. You picked a field, got good at it, and planned on it carrying you for decades. Then the ground started moving. Some roles will grow, some will shrink, most will change shape, and the honest answer for yours is buried under equal parts hype and doom. Sorting that out deserves better than a headline."

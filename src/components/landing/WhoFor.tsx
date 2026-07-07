@@ -37,11 +37,11 @@ const WhoFor: React.FC = () => {
           </h2>
         </Reveal>
 
-        <div className="grid md:grid-cols-5 gap-6 md:gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto items-stretch">
           {/* Right place — elevated */}
-          <Reveal className="md:col-span-3">
+          <Reveal>
             <div
-              className="relative rounded-3xl overflow-hidden"
+              className="relative rounded-3xl overflow-hidden h-full"
               style={{
                 background: '#FBF6E8',
                 border: '1px solid #D4A024',
@@ -76,27 +76,34 @@ const WhoFor: React.FC = () => {
             </div>
           </Reveal>
 
-          {/* Not for you — muted */}
-          <Reveal className="md:col-span-2">
+          {/* Not for you — muted, same footprint as the "right place" card */}
+          <Reveal>
             <div
-              className="rounded-3xl p-8 md:p-10 h-full"
-              style={{ background: 'rgba(18, 46, 59, 0.05)', border: '1px dashed rgba(107, 127, 139, 0.4)' }}
+              className="rounded-3xl overflow-hidden h-full"
+              style={{ background: 'rgba(18, 46, 59, 0.04)', border: '1px solid rgba(107, 127, 139, 0.25)' }}
             >
-              <h3
-                className="font-heading font-bold text-[#6B7F8B] mb-6 flex items-center gap-2.5"
-                style={{ fontSize: 15, letterSpacing: '-0.005em' }}
-              >
-                <XCircle size={18} strokeWidth={1.8} color="#9CA3AF" className="shrink-0" />
-                {t('whoFor.notTitle')}
-              </h3>
-              <ul className="space-y-4 text-[13.5px] text-[#6B7F8B] font-medium leading-relaxed">
-                {notItems.map((item, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="text-[#9CA3AF]">·</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+              <div style={{ height: 5, background: 'rgba(107, 127, 139, 0.35)' }} />
+              <div className="p-8 md:p-10">
+                <div className="flex items-center gap-3 mb-7">
+                  <div
+                    className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+                    style={{ background: 'rgba(107, 127, 139, 0.15)' }}
+                  >
+                    <XCircle size={20} strokeWidth={1.8} color="#6B7F8B" />
+                  </div>
+                  <h3 className="font-heading font-bold text-[#6B7F8B]" style={{ fontSize: 22, letterSpacing: '-0.012em' }}>
+                    {t('whoFor.notTitle')}
+                  </h3>
+                </div>
+                <ul className="space-y-4 text-[15px] text-[#6B7F8B] font-semibold leading-relaxed">
+                  {notItems.map((item, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-[#9CA3AF] mt-0.5">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </Reveal>
         </div>

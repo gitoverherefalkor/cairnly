@@ -5,7 +5,6 @@ import Hero from '@/components/landing/Hero';
 import NoPurchaseBanner from '@/components/landing/NoPurchaseBanner';
 import Pillars from '@/components/landing/Pillars';
 import HowItWorks from '@/components/landing/HowItWorks';
-import ForkDivider from '@/components/landing/ForkDivider';
 import Methodology from '@/components/landing/Methodology';
 import CoachCards from '@/components/landing/CoachCards';
 import ComparisonTable from '@/components/landing/ComparisonTable';
@@ -40,7 +39,7 @@ const Index: React.FC = () => (
       <CostMath />
       <PricingSection />
       <WhoFor />
-      <ForkDivider />
+      {/* ForkDivider hidden — the same-path/different-path diagram wasn't landing well */}
       <WhyWeBuiltThis />
       <FAQ />
       <FinalCTA />
