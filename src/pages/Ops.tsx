@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
+import MarketingTab from '@/components/ops/MarketingTab';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1236,6 +1237,9 @@ export default function Ops() {
               <TabsTrigger value="misses" className="data-[state=active]:bg-white/10 text-xs">
                 {tabLabel('🎯 Assessment Misses', misses.length)}
               </TabsTrigger>
+              <TabsTrigger value="marketing" className="data-[state=active]:bg-white/10 text-xs">
+                📣 Marketing
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="traffic" className="mt-4">
@@ -1281,6 +1285,12 @@ export default function Ops() {
                 <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
               </div>
               <Feed items={misses} onDismiss={dismissItem} />
+            </TabsContent>
+            <TabsContent value="marketing" className="mt-4">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
+                Log every LinkedIn post (verbatim), enter reach as it climbs (snapshots, not overwrites), and read the uptick against the site traffic already tracked here. Numbers are hand-entered — LinkedIn has no personal-profile API.
+              </div>
+              <MarketingTab />
             </TabsContent>
           </Tabs>
 
