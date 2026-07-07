@@ -168,7 +168,7 @@ serve(async (req) => {
       if (!key) return json(empty, corsHeaders);
 
       const prompt = `You tag LinkedIn posts for a marketing dashboard. Read the post and return ONLY valid JSON:
-{"post_type": one of ["personal_story","opinion","behind_the_build","career_data","success_story","launch_series"] or null, "hook_style": "2-4 word label for the opening-line technique"}
+{"post_type": exactly one of ["personal_story","opinion","behind_the_build","career_data","success_story","launch_series"] — always pick the single closest fit, never null, "hook_style": "2-4 word label for the opening-line technique"}
 
 post_type meanings:
 - personal_story: a personal narrative or lived experience

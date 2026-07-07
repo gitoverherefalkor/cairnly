@@ -104,10 +104,13 @@ const STATUS_CLS: Record<Post['status'], string> = {
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
 
-const card = 'rounded-lg border border-white/10 bg-black/25';
+// Cairnly card language, adapted to the dark ops console: soft rounded-2xl
+// surfaces, Poppins (font-heading) titles, atlas brand palette for accents.
+const card = 'rounded-2xl border border-white/10 bg-black/25 shadow-sm';
 const input =
-  'bg-black/40 border border-white/10 rounded px-2 py-1.5 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-atlas-teal/60 w-full';
-const label = 'text-[11px] uppercase tracking-wider text-gray-500 mb-1 block';
+  'bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-atlas-teal/60 w-full';
+const label = 'text-[11px] uppercase tracking-wider font-semibold text-gray-500 mb-1 block';
+const heading = 'font-heading font-semibold';
 
 function fmtDate(iso: string | null, withTime = false): string {
   if (!iso) return '—';
@@ -217,7 +220,7 @@ function PostForm({
 
   return (
     <div className={`${card} p-4 space-y-3`}>
-      <div className="text-sm font-semibold text-gray-200">{initial?.id ? 'Edit post' : 'Add post'}</div>
+      <div className={`text-sm text-gray-100 ${heading}`}>{initial?.id ? 'Edit post' : 'Add post'}</div>
 
       <div>
         <label className={label}>Verbatim post text</label>
@@ -453,7 +456,7 @@ function PostCard({ post, onChanged, onEdit }: { post: Post; onChanged: () => vo
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 mb-1">
               <span className={`text-[11px] px-2 py-0.5 rounded-full border ${STATUS_CLS[post.status]}`}>{post.status}</span>
-              <span className="text-xs font-semibold text-gray-200">{typeLabel(post.post_type)}</span>
+              <span className={`text-xs text-gray-100 ${heading}`}>{typeLabel(post.post_type)}</span>
               {post.has_image && <ImageIcon size={12} className="text-gray-500" />}
               {post.is_series && <span className="text-[10px] text-atlas-teal">series{post.series_name ? `: ${post.series_name}` : ''}</span>}
             </div>
@@ -582,8 +585,8 @@ function TrafficOverlay({ series, posts }: { series: TrafficPoint[]; posts: Post
         <AreaChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
           <defs>
             <linearGradient id="visitsFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#2dd4bf" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#2dd4bf" stopOpacity={0} />
+              <stop offset="0%" stopColor="#27A1A1" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#27A1A1" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -602,15 +605,15 @@ function TrafficOverlay({ series, posts }: { series: TrafficPoint[]; posts: Post
             labelFormatter={(t) => new Date(t as number).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
             formatter={(val: number, name) => [val, name === 'visits' ? 'visits' : 'pageviews']}
           />
-          <Area type="monotone" dataKey="visits" stroke="#2dd4bf" strokeWidth={2} fill="url(#visitsFill)" />
+          <Area type="monotone" dataKey="visits" stroke="#27A1A1" strokeWidth={2} fill="url(#visitsFill)" />
           {markers.map((m) => (
             <ReferenceLine
               key={m.post.id}
               x={m.t}
-              stroke="#f59e0b"
+              stroke="#EA7923"
               strokeDasharray="4 3"
-              strokeOpacity={0.8}
-              label={{ value: '▲', position: 'top', fill: '#f59e0b', fontSize: 10 }}
+              strokeOpacity={0.85}
+              label={{ value: '▲', position: 'top', fill: '#EA7923', fontSize: 10 }}
             />
           ))}
         </AreaChart>
@@ -619,7 +622,7 @@ function TrafficOverlay({ series, posts }: { series: TrafficPoint[]; posts: Post
       {markers.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {markers.map((m) => (
-            <span key={m.post.id} className="text-[11px] px-2 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 text-amber-200">
+            <span key={m.post.id} className="text-[11px] px-2 py-0.5 rounded-full border border-atlas-orange/40 bg-atlas-orange/10 text-atlas-orange">
               ▲ {typeLabel(m.post.post_type)} · {fmtDate(m.post.posted_at, true)}
             </span>
           ))}
@@ -797,9 +800,9 @@ export default function MarketingTab() {
             ['Total reach', summary.totalImpr.toLocaleString()],
             ['Wins', summary.wins],
           ].map(([l, v]) => (
-            <div key={l} className={`${card} px-3 py-2`}>
-              <div className="text-lg font-bold text-gray-100 tabular-nums leading-none">{v}</div>
-              <div className="text-[11px] text-gray-500 mt-0.5">{l}</div>
+            <div key={l} className={`${card} px-3.5 py-2.5`}>
+              <div className={`text-xl text-atlas-teal tabular-nums leading-none ${heading}`}>{v}</div>
+              <div className="text-[11px] text-gray-500 mt-1">{l}</div>
             </div>
           ))}
         </div>
@@ -831,7 +834,7 @@ export default function MarketingTab() {
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`text-xs px-3 py-1.5 rounded ${view === v ? 'bg-white/10 text-gray-100' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${view === v ? 'bg-atlas-teal/15 text-atlas-teal font-medium' : 'text-gray-500 hover:text-gray-300'}`}
           >
             {l}
           </button>
