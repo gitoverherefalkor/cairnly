@@ -903,9 +903,15 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </section>
         )}
 
-        {/* Saved coaching responses from the career chapter, under its
-            report sections. Renders nothing if none saved. */}
-        <V4SavedResponses reportId={reportId} chapter="career" />
+        {/* Saved coaching responses from the career chapter, under its report
+            sections. Also carries the conversation-wide "Chat wrap-up summary"
+            (the chat_highlights section) as a collapsed top row — shown here
+            once, at the end of the report. Renders nothing if both are empty. */}
+        <V4SavedResponses
+          reportId={reportId}
+          chapter="career"
+          wrapUpSummary={sections.find((s) => s.section_type === 'chat_highlights')?.content ?? null}
+        />
       </div>
     </LakeBackground>
   );
