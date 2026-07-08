@@ -2,7 +2,6 @@ import React, { useRef, useState, type ComponentType } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
   Sparkles,
-  X,
   Lightbulb,
   HandHeart,
   Meh,
@@ -214,22 +213,18 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
   }, [open]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => !o && !submitting && onCancel()}>
+    <Dialog.Root open={open}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-atlas-navy/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <Dialog.Content
           className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-0 shadow-2xl border border-gray-200 overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+          // Temporary: no exit. Escape, overlay-click and the (removed) X all
+          // used to soft-cancel, which left users stuck. Force completion of
+          // this short feedback form; it closes only on submit.
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
         >
-          {/* Soft-cancel close button — top right */}
-          <button
-            onClick={onCancel}
-            disabled={submitting}
-            className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Close — return to chat"
-          >
-            <X size={18} />
-          </button>
-
           {/* Header — encouraging tone */}
           <div className="bg-gradient-to-br from-atlas-teal/10 to-atlas-teal/5 px-6 sm:px-8 pt-7 pb-5 border-b border-atlas-teal/15">
             <div className="flex items-center gap-2 mb-1.5">
