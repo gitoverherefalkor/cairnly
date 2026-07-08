@@ -1,9 +1,39 @@
+# Cairnly robots.txt
+# Public marketing + Journal content is crawlable; app and internal routes are
+# blocked. Because the site is a client-rendered SPA, robots.txt (not a meta
+# noindex tag) is the reliable way to keep these paths out of search results.
+
 User-agent: Googlebot
 Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /chat
+Disallow: /assessment
+Disallow: /report-processing
+Disallow: /jobs
+Disallow: /custom-resume
+Disallow: /payment
+Disallow: /payment-success
+Disallow: /ops
+Disallow: /color-test
 
 User-agent: Bingbot
 Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /chat
+Disallow: /assessment
+Disallow: /report-processing
+Disallow: /jobs
+Disallow: /custom-resume
+Disallow: /payment
+Disallow: /payment-success
+Disallow: /ops
+Disallow: /color-test
 
+# Social preview crawlers need to reach any shared URL to build link cards.
 User-agent: Twitterbot
 Allow: /
 
@@ -12,3 +42,17 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /chat
+Disallow: /assessment
+Disallow: /report-processing
+Disallow: /jobs
+Disallow: /custom-resume
+Disallow: /payment
+Disallow: /payment-success
+Disallow: /ops
+Disallow: /color-test
+
+Sitemap: https://www.cairnly.io/sitemap.xml

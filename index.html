@@ -3,28 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cairnly — Career path clarity.</title>
-    <meta name="description" content="Discover careers that fit your personality, skills, and goals. Take the Cairnly assessment and get personalized career recommendations with an AI career coach." />
+    <!-- Bare pre-render fallback title only. Description, canonical, and all
+         Open Graph / Twitter tags are intentionally NOT hardcoded here — they
+         are owned exclusively by the <Seo> component (react-helmet-async),
+         rendered once with site defaults at the App root and overridden
+         per-page. Duplicating them here would create two conflicting copies
+         of each tag once React mounts, since Helmet can only replace tags it
+         rendered itself, not static markup. -->
+    <title>Cairnly — Career change clarity. Find a career that fits.</title>
     <meta name="author" content="Cairnly" />
 
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-    <!-- Open Graph (Facebook, LinkedIn, Slack, iMessage, WhatsApp). The
-         og:image should be a 1200x630 PNG/JPG hosted on this domain so
-         crawlers can fetch it. cairnly-logo.png is the placeholder until a
-         proper share-card image is produced. -->
-    <meta property="og:title" content="Cairnly — Career path clarity." />
-    <meta property="og:description" content="Discover careers that fit your personality, skills, and goals. Personalized career recommendations powered by an AI coach." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.cairnly.io/" />
-    <meta property="og:site_name" content="Cairnly" />
-    <meta property="og:image" content="https://www.cairnly.io/cairnly-logo.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Cairnly — Career path clarity." />
-    <meta name="twitter:description" content="Discover careers that fit your personality, skills, and goals. Personalized career recommendations powered by an AI coach." />
-    <meta name="twitter:image" content="https://www.cairnly.io/cairnly-logo.png" />
   </head>
 
   <body>

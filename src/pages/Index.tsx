@@ -16,6 +16,8 @@ import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { IntentProvider } from '@/contexts/IntentContext';
+import Seo from '@/components/Seo';
+import { organizationSchema, websiteSchema } from '@/lib/seo';
 
 /**
  * Cairnly homepage (v2) — an editorial, cairn-as-way-marker landing page.
@@ -23,6 +25,7 @@ import { IntentProvider } from '@/contexts/IntentContext';
  */
 const Index: React.FC = () => (
   <IntentProvider>
+  <Seo path="/" jsonLd={[organizationSchema, websiteSchema]} />
   <div
     className="min-h-screen font-sans overflow-x-clip"
     style={{ background: '#F4ECDA', color: '#122E3B' }}
