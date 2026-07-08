@@ -1,7 +1,7 @@
 # Design: Entrepreneurship appetite question + Additional Context enrichment
 
 - **Date:** 2026-07-08
-- **Status:** Approved design, pending spec review
+- **Status:** In progress. `1n` description applied live 2026-07-08 (migration `20260708120000`). `7f` migration written (`20260708130000`) but NOT applied live yet, pending WF1/WF2 wiring + approval.
 - **Survey:** Pro / "Cairnly Personality & Career Assessment 2026 [seeking change]" only
 - **Author:** Sjoerd + Claude
 
@@ -88,11 +88,17 @@ This removes the "shifting question numbers breaks prompts" risk entirely, as lo
 **Current:**
 > Anything else we should know? (Optional - skip if nothing comes to mind)
 
-**New (EN):**
-> Anything else that should shape your recommendations? Optional. Useful things to mention: your household's financial situation or need for a stable income, how far you'd be willing to relocate, any family or caregiving commitments, and any health or accessibility considerations. Skip if nothing comes to mind.
+**New (EN)** — final, applied 2026-07-08 (line breaks stored as `\n`, rendered as `<br>`):
+> Anything else that should shape your recommendations? (Optional)
+> E.g. your (household's) financial situation, any family or caregiving commitments, and any health or accessibility considerations. Any other highly noteworthy disclaimers or remarks.
+> Skip if nothing comes to mind.
 
 **New (NL):**
-> Is er nog iets dat je aanbevelingen zou moeten beïnvloeden? Optioneel. Handig om te noemen: de financiële situatie van je huishouden of behoefte aan een stabiel inkomen, hoe ver je bereid bent te verhuizen, eventuele gezins- of zorgverplichtingen, en gezondheids- of toegankelijkheidsoverwegingen. Sla over als er niets is.
+> Is er nog iets dat je aanbevelingen zou moeten beïnvloeden? (Optioneel)
+> Bijv. je financiële situatie (of die van je huishouden), eventuele gezins- of zorgverplichtingen, en eventuele gezondheids- of toegankelijkheidsoverwegingen. Of andere zeer noemenswaardige kanttekeningen of opmerkingen.
+> Sla over als er niets te binnen schiet.
+
+(Relocation was in an earlier draft but dropped from the final copy per Sjoerd.)
 
 Business appetite is intentionally **left out** of `1n` because `7f` owns it now; `1n` carries feasibility color only.
 
