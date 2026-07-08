@@ -105,6 +105,20 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
       onMultiCardLockChange?.(multiCardLocked);
     }, [multiCardLocked, onMultiCardLockChange]);
 
+    // Id of the last multi-card (2+ ###) bot message. Dream jobs is the final
+    // card-list section, so once the user is on the dream section this is the
+    // dream-cards message — even after they ask a follow-up (which pushes a
+    // non-card reply after it). We fire onDreamJobsRead based on THIS message's
+    // cards, not on whether the dream message is currently the last one.
+    let lastMultiCardMessageId: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.sender === 'bot' && (m.content.match(/^### /gm) || []).length >= 2) {
+        lastMultiCardMessageId = m.id;
+        break;
+      }
+    }
+
     // Detect if the user has already sent a wrap-up message
     const hasWrappedUp = messages.some(
       (msg) => msg.sender === 'user' && msg.content.toLowerCase().includes('wrap up')
@@ -227,8 +241,13 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
               if (arr[i].sender === 'bot') { latestBotIdx = i; break; }
             }
             const isLatestBotMessage = idx === latestBotIdx;
-            // Dream jobs message: collapse all blocks by default, track when all opened
-            const isDreamJobsMessage = isLastBotMessage && isDreamJobsSection;
+            // The dream-cards message = the last multi-card list, while the user
+            // is on the dream section. Identified by content, NOT by being the
+            // last message — so opening its remaining cards still fires
+            // onDreamJobsRead after the user has asked a follow-up (which pushes
+            // a non-card reply below it). This is what unlocks wrap-up.
+            const isDreamCardsMessage =
+              msg.id === lastMultiCardMessageId && isDreamJobsSection;
             // Multi-card section detection: any bot message with 2+ ###
             // headings is a multi-card delivery (runner_ups / outside_box /
             // dream_jobs). The QuickReplies underneath should stay hidden
@@ -237,7 +256,10 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
             const headingCount = msg.sender === 'bot'
               ? (msg.content.match(/^### /gm) || []).length
               : 0;
-            const isMultiCardMessage = isLastBotMessage && headingCount >= 2;
+            // Intrinsic to the message (it has 2+ cards), independent of whether
+            // it's currently the last message — so card open-tracking keeps
+            // working after a follow-up reply is appended below it.
+            const isMultiCardMessage = headingCount >= 2;
             const allCardsOpened = openedByMessageId[msg.id] === true;
 
             // Detect what KIND of bot message this is so QuickReplies show
@@ -282,7 +304,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   defaultAllCollapsed={isMultiCardMessage}
                   onAllBlocksOpened={isMultiCardMessage ? () => {
                     setOpenedByMessageId((prev) => prev[msg.id] ? prev : { ...prev, [msg.id]: true });
-                    if (isDreamJobsMessage) onDreamJobsRead?.();
+                    if (isDreamCardsMessage) onDreamJobsRead?.();
                   } : undefined}
                   sections={sections}
                   isLatestBotMessage={isLatestBotMessage}
