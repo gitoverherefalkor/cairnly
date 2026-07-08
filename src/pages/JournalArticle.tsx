@@ -115,13 +115,13 @@ const JournalArticle: React.FC = () => {
 
   const siteUrl = SITE_URL;
   const articlePath = `/journal/${meta.slug}`;
-  // Per-article share image. A dedicated 1200x630 card under /og/ doesn't exist
-  // yet, so fall back to a real in-repo asset (the report's stat graphic) or the
-  // brand logo, rather than pointing crawlers at a 404.
+  // Per-article share image: the report's stat graphic where one exists,
+  // otherwise the brand share card. Keep this rule in sync with
+  // scripts/seo-routes.mjs (static shells for non-JS scrapers).
   const ogImage =
     meta.slug === 'career-uncertainty-report'
       ? '/images/career-uncertainty-stats.png'
-      : '/cairnly-logo.png';
+      : '/og-card.png';
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
