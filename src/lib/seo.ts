@@ -20,9 +20,9 @@ export const SITE_URL = 'https://www.cairnly.io';
 export const DEFAULT_TITLE = 'Cairnly — Career change clarity. Find a career that fits.';
 export const DEFAULT_DESCRIPTION =
   "Thinking about a career change? Cairnly's assessment matches your personality, skills, and goals to careers that actually fit — with an AI career coach to talk it through.";
-// Dedicated 1200x630 share card (public/og-card.png), regenerated via a
-// headless-browser render of the brand card — not the raw logo file.
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-card.png`;
+// Dedicated 1200x630 share card (public/og-card.jpg): the cairn-trail photo
+// with the brand overlay, rendered via headless browser — not the raw logo.
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-card.jpg`;
 
 /** Build an absolute canonical URL from a route path (e.g. "/journal"). */
 export function canonical(path = '/'): string {
