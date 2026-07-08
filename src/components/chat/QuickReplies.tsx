@@ -74,16 +74,10 @@ const STANDARD_REPLIES: QuickReply[] = [
   },
 ];
 
-// Final section (dream jobs) — "next section" becomes "wrap up"
+// Final section (dream jobs) — "next section" becomes "wrap up".
+// Explore / see-differently / something-else come first; the primary
+// "wrap up" sits last so it reads as the deliberate end-of-session action.
 const FINAL_REPLIES: QuickReply[] = [
-  {
-    label: 'All done, wrap up session',
-    mobileLabel: 'Wrap up',
-    message: 'Looks good, I\'m all done! Let\'s wrap up the session.',
-    icon: <CheckCircle size={14} />,
-    variant: 'primary',
-    intent: 'wrap_up',
-  },
   {
     label: 'I\'d like to explore this more',
     mobileLabel: 'Explore more',
@@ -103,6 +97,14 @@ const FINAL_REPLIES: QuickReply[] = [
     message: '',
     icon: <Pencil size={14} />,
     inputPlaceholder: "Let me know what's on your mind…",
+  },
+  {
+    label: 'All done, wrap up session',
+    mobileLabel: 'Wrap up',
+    message: 'Looks good, I\'m all done! Let\'s wrap up the session.',
+    icon: <CheckCircle size={14} />,
+    variant: 'primary',
+    intent: 'wrap_up',
   },
 ];
 
