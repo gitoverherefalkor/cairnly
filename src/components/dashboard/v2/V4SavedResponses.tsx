@@ -76,6 +76,19 @@ function htmlToMarkdown(text: string): string {
     .trim();
 }
 
+// The stored chat_highlights content bundles three parts: the auto-summary
+// bullets, a "Saved Responses" block (the replies the user Kept — already shown
+// as their own rows in this card), and an "Also flagged by you" note. For the
+// wrap-up-summary row we drop the Saved-Responses block to avoid duplicating
+// those rows, keeping the summary bullets + the user's flagged note.
+function summaryOnly(content: string): string {
+  const savedIdx = content.search(/\n*#{3,5}\s*Saved Responses/i);
+  if (savedIdx === -1) return content.trim();
+  const before = content.slice(0, savedIdx).trim();
+  const flagged = content.match(/\n*#{3,5}\s*Also flagged by you[\s\S]*$/i);
+  return (flagged ? `${before}\n\n${flagged[0].trim()}` : before).trim();
+}
+
 // Plain-text snippet for the collapsed state: strip HTML + light markdown
 // tokens, collapse whitespace, then truncate.
 function toSnippet(content: string, max = 150): string {
@@ -120,15 +133,35 @@ const MD_COMPONENTS = {
 interface V4SavedResponsesProps {
   reportId: string;
   chapter: Chapter;
+  // Raw chat_highlights section content. When present, a "Chat wrap-up summary"
+  // row is shown at the top of this card. Only passed to one instance so the
+  // conversation-wide summary appears once.
+  wrapUpSummary?: string | null;
 }
 
-export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, chapter }) => {
+const WRAP_UP_ID = '__wrap_up_summary__';
+
+export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
+  reportId,
+  chapter,
+  wrapUpSummary = null,
+}) => {
   const { savedResponses, removeSavedResponse } = useSavedChatResponses(reportId);
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const items = savedResponses.filter((r) => inChapter(r.section_type, chapter));
+  const saved = savedResponses.filter((r) => inChapter(r.section_type, chapter));
 
-  // Nothing saved in this chapter → render nothing (no empty placeholder).
+  const summaryContent = wrapUpSummary?.trim() ? summaryOnly(wrapUpSummary) : '';
+  // Combined rows: the conversation-wide wrap-up summary first (when present),
+  // then the individually-kept replies for this chapter.
+  const items = [
+    ...(summaryContent
+      ? [{ id: WRAP_UP_ID, section_type: null, content: summaryContent }]
+      : []),
+    ...saved,
+  ];
+
+  // Nothing to show in this chapter → render nothing (no empty placeholder).
   if (items.length === 0) return null;
 
   return (
@@ -162,6 +195,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, ch
         {items.map((item, i) => {
           const isOpen = openId === item.id;
           const isLast = i === items.length - 1;
+          const isSummary = item.id === WRAP_UP_ID;
           return (
             <div
               key={item.id}
@@ -202,7 +236,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, ch
                       marginBottom: 6,
                     }}
                   >
-                    {sectionLabel(item.section_type)}
+                    {isSummary ? 'Chat wrap-up summary' : sectionLabel(item.section_type)}
                   </div>
                   {!isOpen && (
                     <div
@@ -243,25 +277,29 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({ reportId, ch
                   >
                     <ChevronDown size={18} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isOpen) setOpenId(null);
-                      removeSavedResponse(item.id);
-                    }}
-                    aria-label="Remove from saved"
-                    title="Remove from saved"
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'rgba(255,255,255,0.45)',
-                      padding: 4,
-                      display: 'inline-flex',
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
+                  {/* The wrap-up summary is a report section, not a removable
+                      saved reply — no delete affordance for it. */}
+                  {!isSummary && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isOpen) setOpenId(null);
+                        removeSavedResponse(item.id);
+                      }}
+                      aria-label="Remove from saved"
+                      title="Remove from saved"
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'rgba(255,255,255,0.45)',
+                        padding: 4,
+                        display: 'inline-flex',
+                      }}
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
