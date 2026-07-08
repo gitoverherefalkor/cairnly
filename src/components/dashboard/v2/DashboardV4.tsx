@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
-import { Activity, ArrowRight, BookOpen, Briefcase, ChevronRight, Coins, FileText, FilePlus, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
@@ -75,6 +75,12 @@ interface DashboardV4Props {
   reportId: string;
   reportGeneratedAt: string | null;
   sections: ReportSection[];
+  // Async executive-summary state. WF7 writes the exec summary a few seconds
+  // after chat wrap-up, so on first dashboard load it may not exist yet.
+  // 'pending' = generating, 'arrived' = just landed (offer an Open button),
+  // 'timedout' = took too long, null = nothing to show (already present).
+  execSummaryStatus?: 'pending' | 'arrived' | 'timedout' | null;
+  onOpenExecSummary?: () => void;
   referralCode: string | null;
   referralCount: number;
   features: ResolvedFeature[];
@@ -185,6 +191,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   reportId,
   reportGeneratedAt,
   sections,
+  execSummaryStatus = null,
+  onOpenExecSummary,
   referralCode,
   referralCount,
   features,
@@ -636,6 +644,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           </div>
         </div>
 
+        {/* ─── Executive summary status banner (async WF7) ─── */}
+        <ExecSummaryBanner status={execSummaryStatus} onOpen={onOpenExecSummary} />
+
         {/* ─── HERO + secondary stack ─── */}
         {hero && (
           <div
@@ -783,6 +794,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
                 </div>
+                {(execSummaryStatus === 'pending' || execSummaryStatus === 'timedout') && (
+                  <ExecSummaryPlaceholderRow status={execSummaryStatus} />
+                )}
                 {aboutRows.map((row, i) => (
                   <ReportAccordionRow
                     key={row.id}
@@ -2226,6 +2240,120 @@ const SharePromoBlock: React.FC<{
     </div>
   </section>
 );
+
+// ── Executive summary status banner ──────────────────────────
+// Surfaces the async WF7 exec-summary state at the top of the dashboard so a
+// still-generating summary is never a silent gap. Renders nothing when the
+// summary is already present (status null).
+const ExecSummaryBanner: React.FC<{
+  status: 'pending' | 'arrived' | 'timedout' | null | undefined;
+  onOpen?: () => void;
+}> = ({ status, onOpen }) => {
+  if (!status) return null;
+
+  const config = {
+    pending: {
+      icon: <Loader2 size={18} className="animate-spin" style={{ color: PALETTE.teal }} />,
+      title: 'Putting together your executive summary…',
+      body: 'The snapshot of your whole profile is generating now. It will appear here in a moment, no need to refresh.',
+    },
+    arrived: {
+      icon: <CheckCircle2 size={18} style={{ color: PALETTE.teal }} />,
+      title: 'Your executive summary is ready.',
+      body: 'The high-level read of your career profile is done.',
+    },
+    timedout: {
+      icon: <Clock size={18} style={{ color: '#d4a024' }} />,
+      title: 'Your executive summary is taking a little longer than usual.',
+      body: 'It is still being generated behind the scenes. Check back in a few minutes. The rest of your report is ready below.',
+    },
+  }[status];
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        marginBottom: 24,
+        padding: '16px 20px',
+        background: 'rgba(18, 46, 59, 0.62)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: 16,
+        boxShadow: '0 20px 40px -24px rgba(0,0,0,0.5)',
+      }}
+    >
+      <div style={{ flexShrink: 0, display: 'flex' }}>{config.icon}</div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff', marginBottom: 2 }}>
+          {config.title}
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)', lineHeight: 1.45 }}>
+          {config.body}
+        </div>
+      </div>
+      {status === 'arrived' && onOpen && (
+        <button
+          type="button"
+          onClick={onOpen}
+          style={{
+            flexShrink: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '10px 18px',
+            background: PALETTE.teal,
+            color: '#fff',
+            border: 'none',
+            borderRadius: 999,
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 14,
+            cursor: 'pointer',
+          }}
+        >
+          Open <ArrowRight size={15} />
+        </button>
+      )}
+    </div>
+  );
+};
+
+// Placeholder shown as the first "About You" accordion row while the exec
+// summary is still generating (or timed out), so the slot where it lands is
+// never empty. Non-interactive — it swaps for the real row once WF7 writes it.
+const ExecSummaryPlaceholderRow: React.FC<{ status: 'pending' | 'timedout' }> = ({ status }) => {
+  const pending = status === 'pending';
+  return (
+    <div
+      style={{
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        padding: '20px 28px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+      }}
+    >
+      {pending ? (
+        <Loader2 size={18} className="animate-spin" style={{ color: PALETTE.teal, flexShrink: 0 }} />
+      ) : (
+        <Clock size={18} style={{ color: '#d4a024', flexShrink: 0 }} />
+      )}
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: 'rgba(255,255,255,0.92)' }}>
+          Executive summary
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
+          {pending
+            ? 'Generating your snapshot… this appears automatically.'
+            : 'Taking longer than usual. Check back shortly.'}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ── Report accordion row ──────────────────────────────────────
 const ReportAccordionRow: React.FC<{

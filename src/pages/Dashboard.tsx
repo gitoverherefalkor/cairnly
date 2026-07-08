@@ -75,6 +75,11 @@ const TOTAL_SURVEY_SECTIONS = 7;
 // Update when sections/questions change in Supabase.
 const TOTAL_SURVEY_QUESTIONS = 60;
 
+// How long to show the "generating your executive summary" state before
+// giving up (WF7 normally finishes in well under a minute). After this the
+// banner switches to a "taking longer than usual" message and polling stops.
+const EXEC_SUMMARY_WAIT_CAP_MS = 3 * 60 * 1000;
+
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
@@ -82,6 +87,14 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
   const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
   const [showExecSummaryModal, setShowExecSummaryModal] = useState(false);
+  // Async executive-summary tracking. WF7 writes the exec_summary section a
+  // few seconds AFTER wrap-up (i.e. after this dashboard has already loaded),
+  // so we poll for it and surface a "generating" state instead of a silent
+  // gap. `execWaitTimedOut` stops the poll after a cap; `sawExecPending`
+  // records that we were ever waiting, so a late arrival shows a gentle
+  // "ready — open" affordance rather than hijacking with an auto-modal.
+  const [execWaitTimedOut, setExecWaitTimedOut] = useState(false);
+  const [sawExecPending, setSawExecPending] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
   const [userAccessCode, setUserAccessCode] = useState<string | null>(null);
   // survey_type of the verified access code — drives flavor-aware entry copy
@@ -111,11 +124,43 @@ const Dashboard = () => {
 
   // latestReport computed early so hooks can use it (hooks can't be conditional).
   const latestReport = !reports || reports.length === 0 ? null : reports[0];
+  const reportCompleted = latestReport?.status === 'completed';
 
-  const { sections: reportSections } = useReportSections(latestReport?.id);
+  // Poll for the exec summary while the report is complete but the summary
+  // hasn't landed yet. The hook self-stops once it appears; we also stop once
+  // we've timed out so a stuck/errored WF7 doesn't poll indefinitely.
+  const { sections: reportSections } = useReportSections(latestReport?.id, {
+    pollForExecSummary: reportCompleted && !execWaitTimedOut,
+  });
   const execSummarySection = reportSections.find(
     (s) => s.section_type === 'exec_summary' || s.section_type === 'executive_summary'
   );
+
+  // Still waiting on the async exec summary (report done, summary not written).
+  const execSummaryPending = reportCompleted && !execSummarySection && !execWaitTimedOut;
+  // Landed after we'd been waiting → show a "ready — open" affordance.
+  const execSummaryJustArrived = sawExecPending && !!execSummarySection;
+  // Drives the dashboard banner + the accordion placeholder row.
+  const execSummaryStatus: 'pending' | 'arrived' | 'timedout' | null =
+    execSummaryJustArrived
+      ? 'arrived'
+      : execSummaryPending
+        ? 'pending'
+        : reportCompleted && !execSummarySection && execWaitTimedOut
+          ? 'timedout'
+          : null;
+
+  // Cap the wait so a stuck WF7 doesn't leave the "generating" state up forever.
+  useEffect(() => {
+    if (!reportCompleted || execSummarySection) return; // nothing to wait for
+    const t = setTimeout(() => setExecWaitTimedOut(true), EXEC_SUMMARY_WAIT_CAP_MS);
+    return () => clearTimeout(t);
+  }, [reportCompleted, execSummarySection]);
+
+  // Remember we were pending so a late arrival doesn't auto-pop the modal.
+  useEffect(() => {
+    if (execSummaryPending) setSawExecPending(true);
+  }, [execSummaryPending]);
 
   // Referral / virality status — invite code, count, feature unlocks.
   const referralStatus = useReferralStatus();
@@ -137,14 +182,18 @@ const Dashboard = () => {
     }
   }, [latestReport?.id]);
 
-  // Show exec summary modal on first visit after report completion.
+  // Show exec summary modal on first visit after report completion — but only
+  // when the summary was already present on load. If it arrived while the user
+  // was already on the dashboard (sawExecPending), don't hijack their view;
+  // the "ready — open" banner button drives the modal instead.
   useEffect(() => {
     if (!latestReport || latestReport.status !== 'completed' || !execSummarySection) return;
+    if (sawExecPending) return;
     const dismissKey = `exec_summary_dismissed_${latestReport.id}`;
     if (!localStorage.getItem(dismissKey)) {
       setShowExecSummaryModal(true);
     }
-  }, [latestReport, execSummarySection]);
+  }, [latestReport, execSummarySection, sawExecPending]);
 
   const handleDismissExecSummary = () => {
     setShowExecSummaryModal(false);
@@ -439,6 +488,8 @@ const Dashboard = () => {
           reportId={latestReport.id}
           reportGeneratedAt={latestReport.updated_at ?? latestReport.created_at ?? null}
           sections={reportSections}
+          execSummaryStatus={execSummaryStatus}
+          onOpenExecSummary={() => setShowExecSummaryModal(true)}
           referralCode={referralStatus.referralCode}
           referralCount={referralStatus.referralCount}
           features={referralStatus.features}
