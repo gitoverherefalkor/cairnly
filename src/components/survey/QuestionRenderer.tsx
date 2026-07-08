@@ -38,6 +38,9 @@ interface QuestionRendererProps {
   // Drives the red outline on the offending input so the "why you're blocked"
   // hint has something to point at. Off by default → no red on a pristine question.
   showValidation?: boolean;
+  // Toggles the optional "non-negotiable" rider for a question. Written to the
+  // sidecar (responses.__non_negotiables), separate from the question's answer.
+  onNonNegotiableChange?: (checked: boolean) => void;
 }
 
 // Career history entry type - comprehensive (satisfaction is separate question)
@@ -321,6 +324,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   onChange,
   allResponses,
   showValidation,
+  onNonNegotiableChange,
 }) => {
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
@@ -690,6 +694,22 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   className="w-full bg-gray-50 border-0 focus:ring-0 focus:outline-none px-4 py-3 rounded-md mt-2"
                   autoFocus
                 />
+              </div>
+            )}
+            {question.config?.non_negotiable_rider && (
+              <div className="mt-4 flex items-start gap-3 rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 px-4 py-3">
+                <Checkbox
+                  id={`nonneg-${question.id}`}
+                  checked={!!allResponses?.['__non_negotiables']?.[question.id]}
+                  onCheckedChange={(checked) => onNonNegotiableChange?.(checked === true)}
+                  className="mt-0.5 flex-shrink-0"
+                />
+                <Label
+                  htmlFor={`nonneg-${question.id}`}
+                  className="text-sm font-light leading-relaxed text-gray-700 cursor-pointer"
+                >
+                  {question.config.non_negotiable_rider}
+                </Label>
               </div>
             )}
           </div>
