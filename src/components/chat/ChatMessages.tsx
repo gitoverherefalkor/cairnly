@@ -30,6 +30,7 @@ interface ChatMessagesProps {
   // prompt (e.g. 'Tell me how you see it…') when focusing without sending.
   onFocusInput: (placeholder?: string) => void;
   onDreamJobsRead?: () => void;
+  dreamJobsRead?: boolean; // True once all dream-job cards have been opened
   // Forwarded from the latest bot message's SequentialSubsections so the
   // parent (ChatContainer) can lock the input until everything's read.
   onSequentialRevealStateChange?: (revealed: number, total: number) => void;
@@ -79,7 +80,7 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, dreamJobsRead = false, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
@@ -308,6 +309,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                     isLastSection={isDreamJobsSection}
                     isWrappedUp={hasWrappedUp}
                     isDeepDive={isDeepDive}
+                    wrapUpReady={dreamJobsRead}
                   />
                 )}
               </React.Fragment>

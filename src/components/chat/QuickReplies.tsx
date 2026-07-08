@@ -34,6 +34,11 @@ interface QuickRepliesProps {
   // — Explore More / I see this differently / Something else would just
   // loop the conversation. Active chat input handles free-form follow-ups.
   isDeepDive?: boolean;
+  // True once the user has opened all dream-job cards. On the final section
+  // the wrap-up option is withheld until this is true, so a deep-dive reply
+  // (e.g. after "Ask about this role") can't offer "wrap up" before the user
+  // has actually seen every dream card.
+  wrapUpReady?: boolean;
 }
 
 // Standard button set for all sections except the last one.
@@ -127,11 +132,14 @@ const POST_WRAP_REPLIES: QuickReply[] = [
   },
 ];
 
-export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput, visible, isLastSection = false, isWrappedUp = false, isDeepDive = false }) => {
+export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput, visible, isLastSection = false, isWrappedUp = false, isDeepDive = false, wrapUpReady = false }) => {
   const replies = isWrappedUp
     ? POST_WRAP_REPLIES
     : isLastSection
-      ? FINAL_REPLIES
+      // On the final section, only offer "wrap up" once every dream card has
+      // been opened. Until then, drop the wrap-up pill so a deep-dive reply
+      // can't let the user finish before seeing all cards.
+      ? (wrapUpReady ? FINAL_REPLIES : FINAL_REPLIES.filter((r) => r.intent !== 'wrap_up'))
       : isDeepDive
         ? MINIMAL_REPLIES
         : STANDARD_REPLIES;
