@@ -1,6 +1,6 @@
 # Privacyverklaring
 
-Laatst bijgewerkt: 30 mei 2026
+Laatst bijgewerkt: 8 juli 2026
 
 ## 1. Inleiding
 
@@ -59,11 +59,14 @@ Deze integratie is optioneel en kan op elk moment worden losgekoppeld via jouw p
 Wij verkopen jouw persoonsgegevens niet. Wij delen gegevens met de volgende verwerkers om ons platform te exploiteren:
 
 - Supabase Inc. (EU/VS) ,  database-hosting, authenticatie en bestandsopslag
-- n8n GmbH (Duitsland) ,  AI-ondersteunde assessment-analyse en het genereren van loopbaanrapporten
-- Google LLC (VS, EU Data Privacy Framework) ,  tekstextractie uit cv’s via Gemini AI
-- Stripe Inc. (VS, EU Data Privacy Framework) ,  betalingsverwerking, inclusief uitvoering van gedeeltelijke terugbetalingen in het kader van het Referral Programma
+- n8n GmbH (Duitsland) ,  workflow-orkestratie voor assessment-verwerking en het genereren van loopbaanrapporten
+- Anthropic PBC (VS, EU-US Data Privacy Framework) ,  AI-analyse van jouw assessment-antwoorden en de coaching chat, via Claude
+- Google LLC (VS, EU-US Data Privacy Framework) ,  tekstextractie uit cv’s via Gemini AI
+- Stripe Inc. (VS, EU-US Data Privacy Framework) ,  betalingsverwerking, inclusief uitvoering van gedeeltelijke terugbetalingen in het kader van het Referral Programma
 - Resend Inc. (VS) ,  verzending van transactionele e-mails
 - Vercel Inc. (VS) ,  website-hosting en levering
+
+Anthropic en Google verwerken jouw gegevens uitsluitend om jouw resultaten te genereren en gebruiken deze niet om hun AI-modellen te trainen, conform hun zakelijke API-voorwaarden.
 
 Wij kunnen daarnaast gegevens delen wanneer:
 
@@ -104,7 +107,14 @@ Op grond van artikel 22 AVG heb je het recht om menselijke beoordeling van een g
 
 ## 8. Bewaartermijnen
 
-Wij bewaren jouw persoonsgegevens tot maximaal 3 jaar na jouw laatste login, of zolang jouw account bestaat, afhankelijk van welke periode langer is. Je kunt jouw account en alle bijbehorende gegevens op elk moment verwijderen via jouw profielinstellingen. Na accountverwijdering worden alle persoonsgegevens binnen 30 dagen definitief verwijderd.
+Wij bewaren verschillende categorieën gegevens voor verschillende periodes, afhankelijk van hoe lang ze daadwerkelijk nodig zijn:
+
+- **Rapporten en de inhoud daarvan** (jouw scores, loopbaanaanbevelingen en de hoogtepunten uit jouw coaching chat): bewaard zolang jouw account bestaat.
+- **Ruwe antwoorden op de assessment-vragen**: automatisch verwijderd 30 dagen nadat je jouw coaching chat-sessie hebt afgerond. Na verwijdering kunnen wij geanonimiseerde, geaggregeerde statistieken bewaren op basis van meerkeuze- en rangschikkingsvragen (bijvoorbeeld brede patronen naar leeftijdscategorie, geslacht en land) ten behoeve van methodologisch onderzoek. Deze statistieken zijn niet tot jou te herleiden.
+- **Chatgesprekken**: automatisch verwijderd 30 dagen nadat je jouw coaching chat-sessie hebt afgerond. Een korte, geanonimiseerde samenvatting van het gesprek (niet het letterlijke gesprek) blijft bewaard als onderdeel van jouw rapport.
+- **Cv-gegevens**: bewaard totdat je deze verwijdert via jouw profielinstellingen of jouw account verwijdert.
+
+Je kunt jouw account en alle bijbehorende gegevens op elk moment verwijderen via jouw profielinstellingen. Na accountverwijdering worden alle persoonsgegevens binnen 30 dagen definitief verwijderd.
 
 Uitzondering voor fiscale en administratieve gegevens: gegevens over aankopen, betalingen, terugbetalingen (waaronder uitkeringen in het kader van het Referral Programma) en facturen bewaren wij voor de duur die op grond van de Nederlandse fiscale en boekhoudwetgeving is vereist (op dit moment zeven jaar), ook als je jouw account in de tussentijd verwijdert. Deze gegevens worden afgeschermd en uitsluitend gebruikt om aan onze wettelijke verplichtingen te voldoen.
 
@@ -118,7 +128,7 @@ Sommige van onze dienstverleners verwerken gegevens buiten de EU/EER:
 
 - n8n GmbH ,  Duitsland (EU, geen aanvullende doorgifte nodig)
 - Supabase Inc. ,  EU-regio geselecteerd voor database-hosting
-- Google LLC, Stripe Inc. ,  VS, gedekt door het EU-US Data Privacy Framework
+- Anthropic PBC, Google LLC, Stripe Inc. ,  VS, gedekt door het EU-US Data Privacy Framework
 - Resend Inc., Vercel Inc. ,  VS, gedekt door modelcontractbepalingen (Standard Contractual Clauses)
 
 Wij zorgen ervoor dat er voor alle internationale overdrachten passende waarborgen aanwezig zijn conform Hoofdstuk V van de AVG.

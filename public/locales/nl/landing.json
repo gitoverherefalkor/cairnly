@@ -109,7 +109,7 @@
     "engineSubtitle": "Elke stap heeft een doel. Elke prompt is co-geschreven met actieve carrièrecoaches, zodat het resultaat leest als advies van een pro, niet van een chatbot.",
     "trust": {
       "gdpr": "GDPR compliant",
-      "gdprDetail": "Europese servers",
+      "gdprDetail": "Data in de EU",
       "stripe": "Betalingen via Stripe",
       "stripeDetail": "Wij zien je kaart nooit",
       "delete": "One-click delete",
@@ -387,7 +387,7 @@
       },
       {
         "q": "Is mijn data veilig?",
-        "a": "GDPR-compliant, Europese servers, betalingen via Stripe (wij zien je kaart nooit), en one-click delete op elk moment. Je data is van jou."
+        "a": "GDPR-compliant. Je gegevens staan op servers in de EU, en de AI-providers die we gebruiken voor het assessment en de coaching chat (Anthropic en Google) trainen hun modellen niet op jouw data, conform hun zakelijke API-voorwaarden. Betalingen verlopen via Stripe (wij zien je kaart nooit), en je kunt je account en alle bijbehorende data op elk moment met één klik permanent verwijderen. Je data is van jou."
       },
       {
         "q": "Hoe lang duurt het?",

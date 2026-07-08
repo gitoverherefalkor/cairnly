@@ -306,6 +306,8 @@ const Profile = () => {
                           resume_data: null,
                           resume_parsed_data: null,
                           resume_uploaded_at: null,
+                          resume_full_data: null,
+                          resume_full_data_extracted_at: null,
                           updated_at: new Date().toISOString(),
                         })
                         .eq('id', user.id);

@@ -733,6 +733,104 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_post_stats: {
+        Row: {
+          captured_at: string
+          comments: number
+          id: string
+          impressions: number
+          post_id: string
+          reactions: number
+          reposts: number
+        }
+        Insert: {
+          captured_at?: string
+          comments?: number
+          id?: string
+          impressions?: number
+          post_id: string
+          reactions?: number
+          reposts?: number
+        }
+        Update: {
+          captured_at?: string
+          comments?: number
+          id?: string
+          impressions?: number
+          post_id?: string
+          reactions?: number
+          reposts?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_stats_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_posts: {
+        Row: {
+          author: string
+          body: string
+          comment_sentiment: string | null
+          created_at: string
+          gut_read: string | null
+          has_image: boolean
+          hook_style: string | null
+          id: string
+          image_type: string | null
+          is_series: boolean
+          notes: string | null
+          post_type: string | null
+          posted_at: string | null
+          profile: string
+          series_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string
+          body?: string
+          comment_sentiment?: string | null
+          created_at?: string
+          gut_read?: string | null
+          has_image?: boolean
+          hook_style?: string | null
+          id?: string
+          image_type?: string | null
+          is_series?: boolean
+          notes?: string | null
+          post_type?: string | null
+          posted_at?: string | null
+          profile?: string
+          series_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          body?: string
+          comment_sentiment?: string | null
+          created_at?: string
+          gut_read?: string | null
+          has_image?: boolean
+          hook_style?: string | null
+          id?: string
+          image_type?: string | null
+          is_series?: boolean
+          notes?: string | null
+          post_type?: string | null
+          posted_at?: string | null
+          profile?: string
+          series_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       n8n_chat_histories: {
         Row: {
           created_at: string | null
@@ -1438,6 +1536,47 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_response_stats: {
+        Row: {
+          age_range: string | null
+          created_at: string
+          gender: string | null
+          id: string
+          question_id: string
+          region: string | null
+          report_language: string | null
+          response_value: string
+        }
+        Insert: {
+          age_range?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          question_id: string
+          region?: string | null
+          report_language?: string | null
+          response_value: string
+        }
+        Update: {
+          age_range?: string | null
+          created_at?: string
+          gender?: string | null
+          id?: string
+          question_id?: string
+          region?: string | null
+          report_language?: string | null
+          response_value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_response_stats_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       survey_sections: {
         Row: {
           created_at: string | null
@@ -1807,7 +1946,9 @@ export type Database = {
           similarity: number
         }[]
       }
+      ops_traffic_series: { Args: { p_days?: number }; Returns: Json }
       ops_traffic_stats: { Args: never; Returns: Json }
+      purge_expired_assessment_data: { Args: never; Returns: Json }
       rerun_report: {
         Args: {
           p_clear?: boolean

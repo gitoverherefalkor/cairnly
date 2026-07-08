@@ -109,7 +109,7 @@
     "engineSubtitle": "Every step has a purpose. Every prompt was co-written with working career coaches, so the output reads like advice from a pro, not a chatbot.",
     "trust": {
       "gdpr": "GDPR compliant",
-      "gdprDetail": "European servers",
+      "gdprDetail": "EU-hosted data",
       "stripe": "Payments by Stripe",
       "stripeDetail": "We never see your card",
       "delete": "One-click delete",
@@ -387,7 +387,7 @@
       },
       {
         "q": "Is my data safe?",
-        "a": "GDPR-compliant, European servers, payments handled by Stripe (we never see your card), and one-click delete at any time. Your data is yours."
+        "a": "GDPR-compliant. Your data is stored on EU-based servers, and the AI providers we use for the assessment and coaching chat (Anthropic and Google) don't train their models on it, per their commercial API terms. Payments are handled by Stripe (we never see your card), and you can permanently delete your account and everything in it with one click, any time. Your data is yours."
       },
       {
         "q": "How long does it take?",

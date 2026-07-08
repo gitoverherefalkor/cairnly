@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: May 30, 2026
+Last updated: July 8, 2026
 
 ## 1. Introduction
 
@@ -59,11 +59,14 @@ This integration is optional and you can disconnect it at any time from your pro
 We do not sell your personal information. We share data with the following processors to operate our platform:
 
 - Supabase Inc. (EU/US) ,  Database hosting, authentication, and file storage
-- n8n GmbH (Germany) ,  AI-powered assessment analysis and career report generation
-- Google LLC (US, EU Data Privacy Framework) ,  Resume text extraction via Gemini AI
-- Stripe Inc. (US, EU Data Privacy Framework) ,  Payment processing, including the execution of partial refunds in the context of the Referral Programme
+- n8n GmbH (Germany) ,  Workflow orchestration for assessment processing and career report generation
+- Anthropic PBC (US, EU-US Data Privacy Framework) ,  AI analysis of your assessment responses and coaching chat, via Claude
+- Google LLC (US, EU-US Data Privacy Framework) ,  Resume text extraction via Gemini AI
+- Stripe Inc. (US, EU-US Data Privacy Framework) ,  Payment processing, including the execution of partial refunds in the context of the Referral Programme
 - Resend Inc. (US) ,  Transactional email delivery
 - Vercel Inc. (US) ,  Website hosting and delivery
+
+Anthropic and Google process your data solely to generate your results and do not use it to train their AI models, under their commercial API terms.
 
 We may also share information when:
 
@@ -104,7 +107,14 @@ Under GDPR Article 22, you have the right to request human review of any automat
 
 ## 8. Data Retention
 
-We retain your personal information for up to 3 years after your last login, or for the duration of your account, whichever is longer. You can delete your account and all associated data at any time from your Profile settings. After account deletion, all personal data is permanently removed within 30 days.
+We retain different categories of data for different periods, based on how long each is actually needed:
+
+- **Reports and their contents** (your scores, career recommendations, and the highlights from your coaching chat): kept for as long as your account exists.
+- **Raw survey answers**: automatically deleted 30 days after you finish your coaching chat session. After deletion, we may retain anonymized, aggregate statistics derived from multiple-choice and ranking questions (e.g. broad patterns by age range, gender, and country) for methodology research. These statistics cannot be traced back to you.
+- **Chat conversation transcripts**: automatically deleted 30 days after you finish your coaching chat session. A short, de-identified summary of the discussion (not the verbatim conversation) is retained as part of your report.
+- **Resume/CV data**: kept until you remove it from your Profile settings or delete your account.
+
+You can delete your account and all associated data at any time from your Profile settings. After account deletion, all personal data is permanently removed within 30 days.
 
 Exception for tax and accounting records: data relating to purchases, payments, refunds (including payouts under the Referral Programme), and invoices is retained for the period required by Dutch tax and accounting law (currently seven years), even if you delete your account in the meantime. This data is access-restricted and used solely to comply with our legal obligations.
 
@@ -118,7 +128,7 @@ Some of our service providers process data outside the EU/EEA:
 
 - n8n GmbH ,  Germany (EU, no transfer needed)
 - Supabase Inc. ,  EU region selected for database hosting
-- Google LLC, Stripe Inc. ,  US, covered by the EU-US Data Privacy Framework
+- Anthropic PBC, Google LLC, Stripe Inc. ,  US, covered by the EU-US Data Privacy Framework
 - Resend Inc., Vercel Inc. ,  US, covered by Standard Contractual Clauses
 
 We ensure appropriate safeguards are in place for all international transfers in accordance with GDPR Chapter V.

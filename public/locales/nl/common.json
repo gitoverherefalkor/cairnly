@@ -16,7 +16,7 @@
   },
   "trust": {
     "gdpr": "GDPR compliant",
-    "gdprDetail": "Europese servers",
+    "gdprDetail": "Data in de EU",
     "stripe": "Betalingen via Stripe",
     "stripeDetail": "Wij zien je kaart nooit",
     "delete": "One-click delete",

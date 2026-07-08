@@ -16,7 +16,7 @@
   },
   "trust": {
     "gdpr": "GDPR compliant",
-    "gdprDetail": "European servers",
+    "gdprDetail": "EU-hosted data",
     "stripe": "Payments by Stripe",
     "stripeDetail": "We never see your card",
     "delete": "One-click delete",

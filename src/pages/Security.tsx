@@ -30,7 +30,7 @@ const Security = () => {
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Where it lives</h2>
                 <p>
-                  On encrypted servers in Europe, hosted by Supabase. Your data is encrypted in transit and at rest.
+                  Your survey answers, chat, and reports are stored on encrypted servers in Europe, hosted by Supabase, encrypted in transit and at rest. To generate your assessment and power the coaching chat, that data is processed by Anthropic and Google's business AI APIs. Neither trains its models on your data, under their commercial terms.
                 </p>
               </section>
 
@@ -44,7 +44,7 @@ const Security = () => {
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">How long we keep it</h2>
                 <p>
-                  As long as you have an account. The moment you delete your account, every survey response, chat message, and report is permanently removed within 24 hours. We don't keep "backup copies for our records."
+                  Your report, its scores, and the highlights from your coaching chat are kept for as long as your account exists. Your raw survey answers and the chat conversation itself are automatically deleted 30 days after you finish your coaching session. After that, at most some anonymized, aggregate statistics may remain (never anything traceable back to you). Delete your account at any time from your profile settings, and everything, reports included, is permanently removed within 24 hours. We don't keep "backup copies for our records."
                 </p>
               </section>
 
