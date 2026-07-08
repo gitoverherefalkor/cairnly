@@ -92,6 +92,7 @@ export function iconForSubsection(title: string): LucideIcon | null {
     .trim()
     .toLowerCase()
     .replace(/[‘’]/g, "'") // curly → straight apostrophes
+    .replace(/["“”]/g, '') // drop decorative double-quotes (e.g. The "Executive Version" Suggestion)
     .replace(/\s+/g, ' ');
   return ICON_MAP[key] ?? null;
 }
