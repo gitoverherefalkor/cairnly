@@ -1,7 +1,7 @@
 # Design: Non-negotiable riders for salary & schedule
 
 - **Date:** 2026-07-08
-- **Status:** Approved design; implementation staged
+- **Status:** ✅ LIVE end-to-end 2026-07-08. Checkbox merged to prod (PR #55); WF1/WF3/WF4 wired. See "Implementation status" at the end.
 - **Survey:** Pro / "Cairnly Personality & Career Assessment 2026 [seeking change]" only (Starter/Encore later)
 - **Author:** Sjoerd + Claude
 
@@ -56,3 +56,12 @@ WF + DB edits are no-ops until a user can tick the box (needs the frontend merge
 
 ## 8. Open/none
 Numbers chosen: salary margin **15%**, safety floor **6** careers. Adjustable.
+
+## 9. Implementation status (applied 2026-07-08)
+All LIVE + verified. Fresh pre-edit backups: `n8n_wfs_cairnly/*_LIVE_pre_nonneg_20260708.json`.
+- **Frontend** (PR #55, merged to main): checkbox on `3f`/`3d` gated on `config.non_negotiable_rider`; flag stored in `responses.__non_negotiables`. Copy split (salary → "below the bottom of this range"; migration `20260708150000` + `20260708160000`). Sidecar verified end-to-end on a live draft.
+- **WF1** (`Process Survey Data1`): reads `rawResponses.__non_negotiables`, appends ` [NON-NEGOTIABLE]` to `3f`/`3d` answers; `prompt_init_summary1` surfaces a "Hard Requirements" line + preserves the marker.
+- **WF3** (`Objective Compat score`): new PRE-SCORING HARD CONSTRAINTS section — salary violated only if career top pay < floor−15% (forgiving); schedule strict; on violation OVERRIDE `objective_total` to 5 so the career sinks via the existing `final_compatibility_score = step1 + subjective − penalties` flow. **No Ranking edit / no field-threading** — the score-sink self-provides the safety floor (least-bad still surface). Chosen over a hard `passes_basic_requirements` filter because that field is computed but NOT enforced in `Ranking` today, and threading a new boolean through the 2-step LLM scoring is fragile.
+- **WF4** (`T3 Careers Prompt`): adds the "estimated pay may be slightly below your minimum, often negotiable" line when `[3f]` is non-negotiable and the career is below floor.
+
+**Note:** enforcement is LLM-based (like the founder cap), not a deterministic gate — eyeball a few reports. A future hardening could thread `path_type`/`non_negotiable_disqualified` deterministically into `Ranking` (same work the founder top-3 guard needs).
