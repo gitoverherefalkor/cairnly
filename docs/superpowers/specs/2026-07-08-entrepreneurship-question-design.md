@@ -116,6 +116,15 @@ Layer `7f` on top of the existing desire gate, and add a feasibility-framing pas
 
 **Feasibility framing pass** (only once a founder path is allowed): weigh `1n` (household finances, need for stable income, relocation, caregiving, health) and `2h` (risk comfort). If readiness signals are weak, still include the path but frame it as a 12–18 month build-toward goal with explicit preconditions and rank it below a safer primary. Never present "start a business" as a do-it-now recommendation when readiness is weak.
 
+### Part D — Founder-path ceiling (anti-flood)
+
+WF2 today has a **floor but no ceiling**: it says to suggest "at least one" founder path when a signal is present, with no upper bound. A strong signal can therefore tip the 15 toward own-business variations. Add a ceiling and diversity rule to STEP 3's path-type gating:
+
+- **Cap:** at most 2–3 of the 15 are `founder` path_type, regardless of signal strength (keeps the existing ≥1 floor → range 1–3).
+- **Headline guard (WF4):** at most 1 founder path in the top 3 the user sees first.
+- **Signal strength drives framing, not quantity.** A stronger entrepreneurial signal means acknowledge it clearly and offer breadth *around* it, not more founder slots. The "what business should I start" deep-dive is not Cairnly's job (users do that in a focused session); Cairnly maps career/role directions across the market.
+- **Weave, don't flood:** honor the entrepreneurial drive in the narrative of employed / freelance_fractional / consulting picks ("this role builds the network and capital to go independent later") and via entrepreneurial-adjacent roles (startup operator, fractional exec, franchise, intrapreneur), rather than N literal "found a company" entries.
+
 ## 5. Blast radius — exact edits
 
 | Layer | Change | Notes |
@@ -125,8 +134,8 @@ Layer `7f` on top of the existing desire gate, and add a feasibility-framing pas
 | `forward-to-n8n` | **None** | Forwards full `survey_responses` by UUID; new answer flows automatically. |
 | Supabase types | **None** | No schema change; no regen needed. |
 | WF1 (`0Z8WxV5tVFMJqIZt`) | Add `"7f": { uuid: …776, ... }` to the code dict; surface `7f` in the emitted profile; broaden the `1n` extraction line from "Include burnout notes, family commitments, etc." to also capture finances / stable-income need / relocation / health-accessibility | Live workflow. Export first. |
-| WF2 (`vVv0tsnFlBnarMdq`) | Read `7f` in the founder gate per §4C; add the feasibility-framing pass using `1n` + `2h` | Live workflow, delicately tuned. Export first. |
-| WF4 (`seWmQPFQqIe60TkU`) | Optional: reference `7f`/`1n` to add realism caveats in the founder narrative | Can be deferred to a fast follow. |
+| WF2 (`vVv0tsnFlBnarMdq`) | Read `7f` in the founder gate per §4C; add the feasibility-framing pass (`1n` + `2h`); add the founder-path ceiling ≤2–3 of 15 per §4D | Live workflow, delicately tuned. Export first. |
+| WF4 (`seWmQPFQqIe60TkU`) | Headline guard: ≤1 founder path in the top 3 (§4D); optionally reference `7f`/`1n` for realism caveats in the founder narrative | Small selection guard; the narrative caveat can be a fast follow. |
 
 ## 6. Localization scope
 
