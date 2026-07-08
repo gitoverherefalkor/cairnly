@@ -176,10 +176,11 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
           <p className="text-sm text-gray-600 mt-1 leading-relaxed">
             Your conversation won't be saved word-for-word. These highlights
             {savedResponses.length > 0
-              ? `, plus the ${savedResponses.length} ${savedResponses.length === 1 ? 'response' : 'responses'} you bookmarked,`
+              ? `, plus the ${savedResponses.length} ${savedResponses.length === 1 ? 'reply' : 'replies'} you kept,`
               : ''}{' '}
-            become part of your report. If there's a specific reply you want
-            preserved, click <strong>Save</strong> on it before closing.
+            are saved to your report when you hit <strong>Save &amp; Close</strong>{' '}
+            below. Want a specific reply preserved in full? Click{' '}
+            <strong>Keep</strong> on it before closing.
           </p>
         </div>
 

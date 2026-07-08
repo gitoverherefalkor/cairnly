@@ -198,8 +198,8 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
               onClick={onBookmarkToggle}
               title={
                 bookmarked
-                  ? 'Saved to your report — click to unsave'
-                  : 'Save this response to your report'
+                  ? 'Kept — this reply is preserved in full in your report. Click to remove.'
+                  : 'Keep this reply in full in your report'
               }
               aria-pressed={bookmarked}
               className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
@@ -209,7 +209,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
               }`}
             >
               <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
-              <span className="font-medium">{bookmarked ? 'Saved' : 'Save'}</span>
+              <span className="font-medium">{bookmarked ? 'Kept' : 'Keep'}</span>
             </button>
           )
         )}

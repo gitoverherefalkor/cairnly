@@ -188,9 +188,10 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // on this mount, so we don't loop-set state every time messages or
     // sections change later in the session.
     const wrapUpRehydratedRef = useRef(false);
-    // IDs of bot messages the user bookmarked via the inline "Save"
+    // IDs of bot messages the user kept via the inline "Keep"
     // button. Persisted to localStorage so a refresh mid-session
-    // doesn't drop selections. Sent to wrap-up-save as verbatim
+    // doesn't drop selections (the content itself is written to
+    // saved_chat_responses on click). Sent to wrap-up-save as verbatim
     // "Saved Responses" appended to the chat_highlights row.
     const BOOKMARK_STORAGE_KEY = `atlas_chat_bookmarks_${reportId}`;
     const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
