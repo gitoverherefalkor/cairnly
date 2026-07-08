@@ -133,6 +133,7 @@ interface ChatContainerProps {
   onSectionDetected: (index: number) => void;
   onSessionComplete: () => void;
   onDreamJobsRead?: () => void;
+  dreamJobsRead?: boolean; // True once all dream-job cards have been opened
   onUserActivity?: () => void;
   isSessionCompleted: boolean;
   isSidebarCollapsed: boolean;
@@ -160,6 +161,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       onSectionDetected,
       onSessionComplete,
       onDreamJobsRead,
+      dreamJobsRead,
       onUserActivity,
       isSessionCompleted,
       isSidebarCollapsed,
@@ -1006,6 +1008,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onQuickReply={handleSend}
           onFocusInput={handleFocusInput}
           onDreamJobsRead={onDreamJobsRead}
+          dreamJobsRead={dreamJobsRead}
           onSequentialRevealStateChange={handleRevealStateChange}
           onMultiCardLockChange={setMultiCardLocked}
           hasUnrevealedSubsections={latestUnrevealedCount !== 0}
