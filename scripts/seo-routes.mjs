@@ -24,7 +24,7 @@ export const SITE_URL = 'https://www.cairnly.io';
 export const DEFAULT_TITLE = 'Cairnly — Career change clarity. Find a career that fits.';
 export const DEFAULT_DESCRIPTION =
   "Thinking about a career change? Cairnly's assessment matches your personality, skills, and goals to careers that actually fit — with an AI career coach to talk it through.";
-export const DEFAULT_OG_IMAGE = '/og-card.png';
+export const DEFAULT_OG_IMAGE = '/og-card.jpg';
 
 const organizationSchema = {
   '@context': 'https://schema.org',

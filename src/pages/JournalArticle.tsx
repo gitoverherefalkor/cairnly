@@ -121,7 +121,7 @@ const JournalArticle: React.FC = () => {
   const ogImage =
     meta.slug === 'career-uncertainty-report'
       ? '/images/career-uncertainty-stats.png'
-      : '/og-card.png';
+      : '/og-card.jpg';
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
