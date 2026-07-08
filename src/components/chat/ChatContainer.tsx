@@ -1084,7 +1084,13 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
                       ? `Click to reveal the next ${latestUnrevealedCount} section${latestUnrevealedCount === 1 ? '' : 's'}…`
                       : multiCardLocked
                         ? 'Open each card above to continue…'
-                        : (inputPlaceholderOverride ?? 'Type here')
+                        : (currentSectionIndex >= ALL_SECTIONS.length - 1 && !dreamJobsRead)
+                          // On the dream section with a card still collapsed: the
+                          // input is open (you can keep asking) but wrap-up is
+                          // withheld until every card is seen. Nudge instead of
+                          // leaving the user wondering why "wrap up" isn't there.
+                          ? 'Open each dream card above to wrap up'
+                          : (inputPlaceholderOverride ?? 'Type here')
           }
           isSidebarCollapsed={isSidebarCollapsed}
         />
