@@ -5,12 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { captureReferralFromUrl } from "@/lib/referral";
 import { Loader2 } from "lucide-react";
+import Seo from "@/components/Seo";
 
 // Eagerly load the landing page, payment route, and global components.
 // Payment is eagerly loaded because it's the primary conversion route — a
@@ -90,6 +91,28 @@ const PageViewTracker = () => {
   return null;
 };
 
+// Signed-in / internal app routes. robots.txt already disallows crawling
+// these, but that alone doesn't stop indexing if a URL is discovered via an
+// external link — an explicit noindex tag is the reliable way to keep them
+// out of search results (per Google's own guidance).
+const INTERNAL_PATH_PREFIXES = [
+  '/dashboard', '/profile', '/chat', '/assessment', '/report-processing',
+  '/jobs', '/custom-resume', '/payment', '/payment-success', '/ops',
+  '/color-test', '/auth', '/forgot-password', '/reset-password',
+];
+
+// Baseline SEO tags (title/description/canonical/OG/Twitter) for every route,
+// keyed to the current path. Pages that render their own <Seo> (Index,
+// Journal, JournalArticle, Starter, Encore) override these — react-helmet-async
+// keeps the most specific/most-recently-rendered instance of each tag.
+// Internal app routes (dashboard, chat, auth, etc.) have no page-specific
+// <Seo>, so they fall back to this instead of carrying no tags at all.
+const DefaultSeo = () => {
+  const { pathname } = useLocation();
+  const isInternal = INTERNAL_PATH_PREFIXES.some((p) => pathname.startsWith(p));
+  return <Seo path={pathname} noindex={isInternal} />;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -101,6 +124,7 @@ const App = () => {
         <BrowserRouter>
           <ThemeScopeGuard />
           <PageViewTracker />
+          <DefaultSeo />
           <ChunkLoadErrorBoundary>
             <Suspense fallback={<PageLoader />}>
             <Routes>

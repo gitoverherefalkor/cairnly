@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../../components/landing/landing.css';
+import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import EncoreHero from '@/components/encore/EncoreHero';
@@ -17,15 +18,16 @@ import EncoreFinalCTA from '@/components/encore/EncoreFinalCTA';
  * readability (this audience reads glasses-on).
  */
 const EncoreIndex: React.FC = () => {
-  useEffect(() => {
-    document.title = 'Cairnly Encore';
-  }, []);
-
   return (
     <div
       className="min-h-screen font-sans overflow-x-clip"
       style={{ background: '#F4ECDA', color: '#122E3B' }}
     >
+      <Seo
+        title="Cairnly Encore — Find your next chapter after your main career"
+        description="Pre-retirement or newly retired and looking for meaningful work? Cairnly Encore turns a lifetime of experience into concrete next-chapter directions."
+        path="/encore"
+      />
       <LandingNav variant="page" />
       <main>
         <EncoreHero />

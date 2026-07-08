@@ -4,6 +4,7 @@ import '../components/landing/landing.css';
 import { Clock, Calendar, FileText, ArrowRight, Check } from 'lucide-react';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
+import Seo from '@/components/Seo';
 import { featuredArticle, otherArticles, type JournalArticle } from '@/content/journal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -184,6 +185,11 @@ const FeaturedCard: React.FC<{ article: JournalArticle }> = ({ article }) => (
 
 const Journal: React.FC = () => (
   <div className="min-h-screen font-sans overflow-x-clip" style={{ background: '#F4ECDA', color: '#122E3B' }}>
+    <Seo
+      title="The Cairnly Journal — Research on careers, work & changing paths"
+      description="Original research and essays on career change, burnout, disengagement, and what actually makes work fit. From the team behind the Cairnly career assessment."
+      path="/journal"
+    />
     <LandingNav variant="page" />
 
     {/* Hero */}

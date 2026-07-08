@@ -4,6 +4,8 @@ import { Clock, Calendar, User, FileText, ArrowRight } from 'lucide-react';
 import '../components/landing/landing.css';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
+import Seo from '@/components/Seo';
+import { SITE_URL } from '@/lib/seo';
 import { getArticle, type JournalArticle as JournalArticleMeta } from '@/content/journal';
 import ShareVisualButton from '@/components/journal/ShareVisualButton';
 import type {
@@ -111,13 +113,21 @@ const JournalArticle: React.FC = () => {
 
   if (!meta || !body) return <NotFoundShell />;
 
-  const siteUrl = 'https://cairnly.io';
+  const siteUrl = SITE_URL;
+  const articlePath = `/journal/${meta.slug}`;
+  // Per-article share image. A dedicated 1200x630 card under /og/ doesn't exist
+  // yet, so fall back to a real in-repo asset (the report's stat graphic) or the
+  // brand logo, rather than pointing crawlers at a 404.
+  const ogImage =
+    meta.slug === 'career-uncertainty-report'
+      ? '/images/career-uncertainty-stats.png'
+      : '/cairnly-logo.png';
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: meta.title,
     description: body.description,
-    image: `${siteUrl}/og/${meta.slug}.png`,
+    image: `${siteUrl}${ogImage}`,
     datePublished: meta.publishedAt,
     dateModified: meta.publishedAt,
     author: {
@@ -130,7 +140,7 @@ const JournalArticle: React.FC = () => {
       name: 'Cairnly',
       logo: { '@type': 'ImageObject', url: `${siteUrl}/cairnly-logo.png` },
     },
-    mainEntityOfPage: `${siteUrl}/journal/${meta.slug}`,
+    mainEntityOfPage: `${siteUrl}${articlePath}`,
   };
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -138,12 +148,20 @@ const JournalArticle: React.FC = () => {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/` },
       { '@type': 'ListItem', position: 2, name: 'Journal', item: `${siteUrl}/journal` },
-      { '@type': 'ListItem', position: 3, name: meta.title, item: `${siteUrl}/journal/${meta.slug}` },
+      { '@type': 'ListItem', position: 3, name: meta.title, item: `${siteUrl}${articlePath}` },
     ],
   };
 
   return (
     <div className="min-h-screen font-sans overflow-x-clip" style={{ background: '#F4ECDA', color: '#122E3B' }}>
+      <Seo
+        title={`${meta.title} — Cairnly Journal`}
+        description={body.description}
+        path={articlePath}
+        type="article"
+        image={ogImage}
+        jsonLd={[articleSchema, breadcrumbSchema]}
+      />
       <LandingNav variant="page" />
 
       {/* Article hero */}
@@ -316,10 +334,6 @@ const JournalArticle: React.FC = () => {
       </section>
 
       <LandingFooter />
-
-      {/* JSON-LD schema for SEO / LLM citing */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
     </div>
   );
 };

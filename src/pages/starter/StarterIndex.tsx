@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../../components/landing/landing.css';
+import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import StarterHero from '@/components/starter/StarterHero';
@@ -16,15 +17,16 @@ import StarterFinalCTA from '@/components/starter/StarterFinalCTA';
  * reusing the visual language of the pro landing page (src/components/landing/).
  */
 const StarterIndex: React.FC = () => {
-  useEffect(() => {
-    document.title = 'Cairnly Starter';
-  }, []);
-
   return (
     <div
       className="min-h-screen font-sans overflow-x-clip"
       style={{ background: '#F4ECDA', color: '#122E3B' }}
     >
+      <Seo
+        title="Cairnly Starter — Figure out your first career move"
+        description="Just starting out and unsure what to do? Cairnly Starter turns who you are into concrete first- and second-job directions, built with career coaches."
+        path="/starter"
+      />
       <LandingNav variant="page" />
       <main>
         <StarterHero />
