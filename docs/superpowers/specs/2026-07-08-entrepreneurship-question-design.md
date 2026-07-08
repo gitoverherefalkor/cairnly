@@ -1,7 +1,7 @@
 # Design: Entrepreneurship appetite question + Additional Context enrichment
 
 - **Date:** 2026-07-08
-- **Status:** In progress. `1n` description applied live 2026-07-08 (migration `20260708120000`). `7f` migration written (`20260708130000`) but NOT applied live yet, pending WF1/WF2 wiring + approval.
+- **Status:** ✅ LIVE end-to-end 2026-07-08. `1n` enrichment + `7f` question applied to DB; WF1/WF2/WF3-OTB wired via public-API PUT. Founder cap set to **2**. WF3 top-3 hard guard **deferred** (no `path_type` in WF3). See "Implementation status" at the end.
 - **Survey:** Pro / "Cairnly Personality & Career Assessment 2026 [seeking change]" only
 - **Author:** Sjoerd + Claude
 
@@ -171,3 +171,17 @@ Pro survey only. The Starter (`…0002`) and Encore (`…0003`) flavors are sepa
 ## 11. Deferred follow-up
 
 **Non-negotiable riders:** an optional "is this a non-negotiable?" checkbox under the salary (`3f`) and schedule (`3d`) preference questions. When ticked, converts a preference into a hard filter signal for WF3/WF4. Own spec, because it changes existing question shapes and multiple scoring prompts.
+
+## 12. Implementation status (applied 2026-07-08)
+
+All applied to LIVE and verified. Fresh pre-edit backups saved to `n8n_wfs_cairnly/*_LIVE_pre_eship7f_apply_20260708.json`; canonical exports re-synced from live.
+
+- **DB:** `1n` enrichment (migration `20260708120000`) + `7f` question inserted (migration `20260708130000`, `order_num` 6, required, `allow_other`). NL included.
+- **WF1** (`0Z8WxV5tVFMJqIZt`): `7f` in `Process Survey Data1` dict; `- **Entrepreneurial appetite:** [7f]` in `prompt_init_summary1`; `1n` extraction line broadened. This is what feeds `7f` into WF2/WF3 (both read the `initial_summary` profile).
+- **WF2** (`vVv0tsnFlBnarMdq`, `Set Suitable 15 Prompt1`): `7f` primary signal + "Not for me" hard opt-out; **founder ceiling = at most 2 of 15** (floor ≥1); feasibility framing pass.
+- **WF3** (`zhgJuiDp60PS5ZKJ`, `Set Outside Box Prompt`): OTB respects the `7f` opt-out and caps founder pivots at ≤1 of 3.
+- **Dream jobs / WF4:** unchanged by design.
+
+**Deferred — WF3 top-3 hard guard (≤1 founder in top 3):** NOT applied. `path_type` does not exist anywhere in WF3 (the `Ranking` code node carries careers by title/score only), so the guard needs `path_type` plumbed from WF2 → WF3 scoring → `Ranking` first. The WF2 ≤2 cap already makes a founder-heavy top-3 unlikely; revisit if reports skew founder-heavy.
+
+**Pending polish:** `7e` label still opens "Lastly, which areas…" while `7f` now follows it — drop "Lastly," from `7e` (safe display-only edit).
