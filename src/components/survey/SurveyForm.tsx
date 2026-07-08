@@ -161,8 +161,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
 
     const totalQ = survey.sections.reduce((acc: number, s: any) =>
       acc + getFilteredQuestions(s).length, 0);
-    const answered = Object.values(responses).filter(
-      v => v !== null && v !== undefined && v !== ''
+    const answered = Object.entries(responses).filter(
+      ([k, v]) => !k.startsWith('__') && v !== null && v !== undefined && v !== ''
     ).length;
     const pct = totalQ > 0 ? (answered / totalQ) * 100 : 0;
 
@@ -622,6 +622,12 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     onChange={(value) => handleResponseChange(currentQuestion.id, value)}
                     allResponses={responses}
                     showValidation={showIncompleteHint}
+                    onNonNegotiableChange={(checked) =>
+                      handleResponseChange('__non_negotiables', {
+                        ...(responses['__non_negotiables'] || {}),
+                        [currentQuestion.id]: checked,
+                      })
+                    }
                   />
                 </div>
 

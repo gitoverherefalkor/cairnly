@@ -19,6 +19,14 @@ export interface Question {
     max?: number;
     description?: string;
     max_length?: number;
+    /**
+     * When set (to its label text), a single-select question shows a
+     * "non-negotiable" checkbox under the options. The flag is stored in a
+     * sidecar (`responses.__non_negotiables[questionId]`), NOT in the answer,
+     * so the question's own value stays a plain string. Localizable via
+     * translations.<lang>.non_negotiable_rider.
+     */
+    non_negotiable_rider?: string;
   };
   /**
    * Display-only map of the ENGLISH choice string → its translation in the
@@ -57,6 +65,7 @@ interface QuestionTranslation {
   label?: string;
   description?: string;
   choices?: Record<string, string>;
+  non_negotiable_rider?: string;
   languages_presets?: Record<string, string>;
   languages_other?: Record<string, string>;
   languages_proficiency_levels?: Record<string, string>;
@@ -128,6 +137,8 @@ export const useSurvey = (surveyId: string) => {
                   config: {
                     ...baseConfig,
                     description: qt.description || baseConfig.description,
+                    // Display-only override; the flag itself lives in the EN config.
+                    non_negotiable_rider: qt.non_negotiable_rider || baseConfig.non_negotiable_rider,
                   },
                   choiceLabels: qt.choices ?? {},
                   langLabels: useTranslations
