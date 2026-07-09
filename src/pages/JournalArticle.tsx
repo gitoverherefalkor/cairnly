@@ -226,9 +226,9 @@ const JournalArticle: React.FC = () => {
             <ShareVisualButton
               shareUrl={`${siteUrl}/journal/${meta.slug}`}
               title={meta.title}
-              text="Eight findings on burnout, disengagement, and career regret. Read the full report."
+              text={`${meta.title} Read the full report.`}
               imageSrc={meta.slug === 'career-uncertainty-report' ? '/images/career-uncertainty-stats.svg' : undefined}
-              fileName="cairnly-career-uncertainty.png"
+              fileName={`cairnly-${meta.slug}.png`}
             />
           </div>
           <div className="lp-stat-grid">
