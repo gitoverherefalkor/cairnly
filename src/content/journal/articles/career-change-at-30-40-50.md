@@ -12,7 +12,7 @@ reportLabel: Cairnly Research · Report 02
 featuredStatNumber: 56%
 featuredStatCaption: of workers over 50 in stable jobs are laid off or pushed out at least once before retirement. Only 1 in 10 ever earns as much again.
 featuredStatSource: ProPublica / Urban Institute
-excerpt: The internet says it's never too late to change careers. The data is more interesting. The famous "5-to-7 careers" number was never measured, the pay-cut fear is mostly wrong, ageism is real but wrong about you — and staying put carries its own risk. Fourteen sources, no pep talk.
+excerpt: Career advice says it's never too late to switch. The research says something more useful. The famous "5-to-7 careers" number was never measured, most switchers don't take the pay cut they fear, and staying put carries risks of its own. Fourteen sources from the US and Europe, no pep talk.
 authorName: The Cairnly team
 authorLocation: Utrecht
 ---
