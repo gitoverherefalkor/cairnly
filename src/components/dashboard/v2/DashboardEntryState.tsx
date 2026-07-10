@@ -1,8 +1,9 @@
 // Pre-report dashboard states (handoff prototype: empty-state.jsx).
-//  - 'empty'  → paid, assessment never started
-//  - 'resume' → assessment in progress
-//  - 'chat'   → coach conversation in progress (report not yet generated)
-//  - 'failed' → answers submitted but report generation failed; offer a retry
+//  - 'empty'      → paid, assessment never started
+//  - 'resume'     → assessment in progress
+//  - 'processing' → answers submitted, WF1-WF4 still building the report
+//  - 'chat'       → coach conversation in progress (report not yet generated)
+//  - 'failed'     → answers submitted but report generation failed; offer a retry
 
 import React from 'react';
 import { ArrowRight, CheckCircle2, RefreshCw, Loader2 } from 'lucide-react';
@@ -15,7 +16,7 @@ import {
 import { DashboardAppNav } from './DashboardAppNav';
 import cairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
-export type EntryMode = 'empty' | 'resume' | 'chat' | 'failed';
+export type EntryMode = 'empty' | 'resume' | 'processing' | 'chat' | 'failed';
 export type EntryFlavor = 'pro' | 'starter' | 'encore';
 
 interface ResumeProgress {
@@ -131,6 +132,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   const name = firstName || 'there';
   const isResume = mode === 'resume';
   const isChat = mode === 'chat';
+  const isProcessing = mode === 'processing';
   const isFailed = mode === 'failed';
 
   const sections = FLAVOR_SECTIONS[flavor];
@@ -151,34 +153,46 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
 
   const headline: React.ReactNode = isFailed
     ? `We hit a snag, ${name}.`
-    : isChat
-      ? `Your coach is ready, ${name}.`
-      : isResume
-        ? `Pick up where you left off, ${name}.`
-        : (
-            <>
-              Welcome, {name}.
-              <br />
-              Let's start.
-            </>
-          );
+    : isProcessing
+      ? `Building your profile, ${name}.`
+      : isChat
+        ? `Your coach is ready, ${name}.`
+        : isResume
+          ? `Pick up where you left off, ${name}.`
+          : (
+              <>
+                Welcome, {name}.
+                <br />
+                Let's start.
+              </>
+            );
 
   const sub = isFailed
     ? 'Your answers are saved, so nothing is lost. We could not finish generating your report this time. You can start it again right now.'
-    : isChat
-      ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
-      : isResume
-        ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-        : flavorCopy.emptySub;
+    : isProcessing
+      ? "We're building your personality profile and career matches — this usually takes about 5 minutes. We'll email you the moment it's ready."
+      : isChat
+        ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
+        : isResume
+          ? 'You are partway through. A few sections left, then your coach walks you through the report.'
+          : flavorCopy.emptySub;
 
-  const ctaLabel = isChat ? 'Continue with your coach' : isResume ? 'Resume assessment' : 'Start your assessment';
+  const ctaLabel = isProcessing
+    ? 'Check progress'
+    : isChat
+      ? 'Continue with your coach'
+      : isResume
+        ? 'Resume assessment'
+        : 'Start your assessment';
   const ctaEyebrow = isFailed
     ? 'REPORT · ACTION NEEDED'
-    : isChat
-      ? 'NEXT STEP · YOUR COACH'
-      : isResume
-        ? `PROGRESS · ${pct}% COMPLETE`
-        : flavorCopy.emptyEyebrow;
+    : isProcessing
+      ? 'IN PROGRESS · BUILDING YOUR REPORT'
+      : isChat
+        ? 'NEXT STEP · YOUR COACH'
+        : isResume
+          ? `PROGRESS · ${pct}% COMPLETE`
+          : flavorCopy.emptyEyebrow;
 
   return (
     <LakeBackground intensity="heavy">
@@ -359,7 +373,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             ))}
           </div>
 
-          {!isChat && !isFailed && (
+          {!isChat && !isFailed && !isProcessing && (
             <div
               // Left-aligned on mobile (centering looks cramped there); centered
               // and width-capped on desktop for the balanced 4 / 3 chip split.

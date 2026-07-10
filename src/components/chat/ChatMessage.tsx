@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { ChevronDown, MessageCircle, Pencil, RotateCw, Route } from 'lucide-react';
+import { ChevronDown, MessageCircle, Pencil, RotateCw, Route, MousePointerClick } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
 import {
@@ -24,6 +24,14 @@ interface ChatMessageProps {
   sender: 'user' | 'bot';
   onSectionDetected?: (sectionIndex: number) => void;
   onAllBlocksOpened?: () => void;
+  // Fires on every newly-opened card in a multi-card message with the
+  // running "N of M ever opened" count. Purely informational (drives the
+  // progress chip) — doesn't gate anything itself.
+  onOpenProgress?: (opened: number, total: number) => void;
+  // Shows a one-time tinted hint above the cards explaining tap-to-open.
+  // Parent decides which single message (across the whole report) earns
+  // this — see ChatMessages' hintMessageId.
+  showOpenCardsHint?: boolean;
   defaultAllCollapsed?: boolean;
   // Career sections from the user's report. Used to lookup match scores
   // for headings that appear inside this message.
@@ -796,6 +804,8 @@ const CollapsibleCareerBlocks: React.FC<{
   blocks: CareerBlock[];
   defaultAllCollapsed?: boolean;
   onAllBlocksOpened?: () => void;
+  onOpenProgress?: (opened: number, total: number) => void;
+  showOpenCardsHint?: boolean;
   sections?: ReportSection[];
   // Boilerplate intro extracted from the platform-delivery body (rendered
   // as a tinted panel above the blocks). Distinct from the `intro` above,
@@ -819,6 +829,8 @@ const CollapsibleCareerBlocks: React.FC<{
   // we always start with all blocks collapsed now (clean uniform list).
   defaultAllCollapsed: _defaultAllCollapsed,
   onAllBlocksOpened,
+  onOpenProgress,
+  showOpenCardsHint = false,
   sections,
   deliveryIntro,
   deliveryOutro,
@@ -844,6 +856,7 @@ const CollapsibleCareerBlocks: React.FC<{
       if (prev.has(idx)) return prev;
       const next = new Set(prev);
       next.add(idx);
+      onOpenProgress?.(next.size, blocks.length);
       if (next.size >= blocks.length && !firedRef.current && onAllBlocksOpened) {
         firedRef.current = true;
         onAllBlocksOpened();
@@ -874,6 +887,19 @@ const CollapsibleCareerBlocks: React.FC<{
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {deliveryIntro}
           </ReactMarkdown>
+        </div>
+      )}
+
+      {/* One-time "tap to open" hint — shown for the first multi-card
+          section a user hits (runner-ups / outside-the-box / dream jobs),
+          never repeated once they've seen it. Explains the interaction
+          before they get stuck instead of after. */}
+      {showOpenCardsHint && (
+        <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+          <MousePointerClick className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+          <span>
+            Tap a card below to open it. Once you've opened all of them, you can continue.
+          </span>
         </div>
       )}
 
@@ -1017,6 +1043,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   sender,
   onSectionDetected,
   onAllBlocksOpened,
+  onOpenProgress,
+  showOpenCardsHint = false,
   defaultAllCollapsed = false,
   sections,
   isLatestBotMessage = false,
@@ -1270,6 +1298,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             blocks={blocks}
             defaultAllCollapsed={defaultAllCollapsed}
             onAllBlocksOpened={onAllBlocksOpened}
+            onOpenProgress={onOpenProgress}
+            showOpenCardsHint={showOpenCardsHint}
             sections={sections}
             deliveryIntro={deliveryIntro}
             deliveryOutro={deliveryOutro}

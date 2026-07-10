@@ -38,6 +38,10 @@ interface ChatMessagesProps {
   // outside_box / dream_jobs) whose cards aren't all expanded yet — lets the
   // parent lock the chat input until the user has opened every card.
   onMultiCardLockChange?: (locked: boolean) => void;
+  // Live "N of M cards ever opened" for the currently-locked multi-card
+  // message. Null when nothing is locked. Drives the progress chip in
+  // ChatContainer — purely informational, doesn't gate anything.
+  onCardOpenProgressChange?: (progress: { opened: number; total: number } | null) => void;
   // True when the latest section reveal still has hidden sub-sections.
   // We use this to suppress quick replies until the user has clicked
   // through every chevron — otherwise they'd react to half a section.
@@ -80,7 +84,7 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, dreamJobsRead = false, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, dreamJobsRead = false, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
@@ -91,6 +95,20 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
     // hasn't been fully read. CollapsibleCareerBlocks fires the parent's
     // onAllBlocksOpened callback once everOpened reaches blocks.length.
     const [openedByMessageId, setOpenedByMessageId] = useState<Record<string, boolean>>({});
+    // Live "N of M ever opened" per multi-card message, reported by
+    // CollapsibleCareerBlocks on every newly-opened card. Only the entry for
+    // the currently-locked message is surfaced (see cardOpenProgress below).
+    const [progressByMessageId, setProgressByMessageId] = useState<
+      Record<string, { opened: number; total: number }>
+    >({});
+    // Id of the multi-card message currently showing the "tap each card to
+    // open it" hint. Decided once per report (whichever multi-card section —
+    // runner-ups, outside-the-box, dream jobs — the user hits first) and
+    // persisted so it doesn't repeat on later sections once they've seen it.
+    // Pinned to a single message id (not a plain boolean) so the hint stays
+    // visible for that message the whole time it's locked, instead of
+    // vanishing the instant the "seen" flag is written to localStorage.
+    const [hintMessageId, setHintMessageId] = useState<string | null>(null);
 
     // Lock the chat input while the latest bot message is a multi-card section
     // whose cards aren't all expanded yet — the same gate the Continue button
@@ -105,6 +123,27 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
     useEffect(() => {
       onMultiCardLockChange?.(multiCardLocked);
     }, [multiCardLocked, onMultiCardLockChange]);
+
+    const lockedProgressEntry =
+      multiCardLocked && lastMsg ? progressByMessageId[lastMsg.id] : undefined;
+    useEffect(() => {
+      onCardOpenProgressChange?.(
+        lockedProgressEntry ? { ...lockedProgressEntry } : null,
+      );
+      // Depend on primitive fields, not the object reference, so this only
+      // fires when the actual counts change.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lockedProgressEntry?.opened, lockedProgressEntry?.total, onCardOpenProgressChange]);
+
+    useEffect(() => {
+      if (!multiCardLocked || !lastMsg || hintMessageId !== null) return;
+      const alreadySeen =
+        !!reportId && localStorage.getItem(`multicard_hint_seen_${reportId}`) === '1';
+      if (alreadySeen) return;
+      setHintMessageId(lastMsg.id);
+      if (reportId) localStorage.setItem(`multicard_hint_seen_${reportId}`, '1');
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [multiCardLocked, lastMsg?.id, hintMessageId, reportId]);
 
     // Id of the last multi-card (2+ ###) bot message. Dream jobs is the final
     // card-list section, so once the user is on the dream section this is the
@@ -307,6 +346,14 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                     setOpenedByMessageId((prev) => prev[msg.id] ? prev : { ...prev, [msg.id]: true });
                     if (isDreamCardsMessage) onDreamJobsRead?.();
                   } : undefined}
+                  onOpenProgress={isMultiCardMessage ? (opened, total) => {
+                    setProgressByMessageId((prev) => {
+                      const existing = prev[msg.id];
+                      if (existing && existing.opened === opened && existing.total === total) return prev;
+                      return { ...prev, [msg.id]: { opened, total } };
+                    });
+                  } : undefined}
+                  showOpenCardsHint={isMultiCardMessage && msg.id === hintMessageId && !allCardsOpened}
                   sections={sections}
                   isLatestBotMessage={isLatestBotMessage}
                   onChipSend={onQuickReply}

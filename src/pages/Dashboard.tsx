@@ -119,6 +119,11 @@ const Dashboard = () => {
 
   // If user explicitly navigated here (e.g. from chat), don't auto-redirect back.
   const cameFromChat = location.state?.fromChat === true;
+  // Set by ReportProcessing's "Go to Dashboard" buttons. Without this, a user
+  // who clicks that button while status is still 'processing' gets bounced
+  // straight back to /report-processing by needsProcessingRedirect below —
+  // the click looks like it does nothing.
+  const cameFromProcessing = location.state?.fromProcessing === true;
 
   const savedSession = getAssessmentSession();
 
@@ -335,7 +340,7 @@ const Dashboard = () => {
   // Redirects must happen in useEffect, not during render.
   const needsAuthRedirect = !authLoading && !user;
   const needsProcessingRedirect =
-    !authLoading && !reportsLoading && latestReport?.status === 'processing';
+    !authLoading && !reportsLoading && latestReport?.status === 'processing' && !cameFromProcessing;
   const needsChatRedirect =
     !authLoading && !reportsLoading && latestReport?.status === 'pending_review' && !cameFromChat;
   // Re-edit flow: when a user's survey has been re-opened for editing (their
@@ -556,6 +561,8 @@ const Dashboard = () => {
   let mode: EntryMode = 'empty';
   if (latestReport?.status === 'pending_review' && cameFromChat) {
     mode = 'chat';
+  } else if (latestReport?.status === 'processing' && cameFromProcessing) {
+    mode = 'processing';
   } else if (latestReport?.status === 'failed') {
     mode = 'failed';
   } else if (!latestReport && hasMeaningfulProgress()) {
@@ -581,6 +588,8 @@ const Dashboard = () => {
   const handleStart = () => {
     if (mode === 'chat') {
       navigate('/chat');
+    } else if (mode === 'processing') {
+      navigate('/report-processing');
     } else if (mode === 'resume') {
       navigate('/assessment');
     } else if (userAccessCode) {

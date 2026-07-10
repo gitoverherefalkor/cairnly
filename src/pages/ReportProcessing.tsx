@@ -35,6 +35,14 @@ const ReportProcessing = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const redirectedRef = useRef(false);
 
+  // Flags the navigation so Dashboard knows this is a deliberate "I'll check
+  // back later" exit, not a stray page load — otherwise Dashboard's own
+  // needsProcessingRedirect bounces the user straight back here (the bug
+  // reported as "Go to Dashboard does nothing").
+  const goToDashboard = useCallback(() => {
+    navigate('/dashboard', { state: { fromProcessing: true } });
+  }, [navigate]);
+
   const redirectToChat = useCallback(() => {
     if (redirectedRef.current) return; // guard against the poll firing again mid-redirect
     redirectedRef.current = true;
@@ -138,16 +146,16 @@ const ReportProcessing = () => {
         <Card className="shadow-lg border-0">
           <CardContent className="pt-8 pb-6 px-6">
             {phase === 'failed' ? (
-              <FailedState onDashboard={() => navigate('/dashboard')} />
+              <FailedState onDashboard={goToDashboard} />
             ) : phase === 'redirecting' ? (
               <RedirectingState />
             ) : phase === 'end-state' ? (
-              <EndState onDashboard={() => navigate('/dashboard')} />
+              <EndState onDashboard={goToDashboard} />
             ) : (
               <NormalState
                 timeElapsed={timeElapsed}
                 phase={phase}
-                onDashboard={() => navigate('/dashboard')}
+                onDashboard={goToDashboard}
               />
             )}
           </CardContent>
