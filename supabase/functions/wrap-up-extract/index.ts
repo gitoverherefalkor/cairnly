@@ -49,6 +49,7 @@ Rules:
   - GOOD: "Toggl-style fractional CPO model as the bridge."
   - BAD: "Career path options."
 - The clarifying sentence should preserve the concrete numbers, names, mechanics, or sequencing the coach gave (€-ranges, specific cohort sizes, named playbooks, "first do X then Y" steps). If the coach gave a multi-step recipe, summarise the steps in one sentence rather than collapsing them into a theme.
+- Also capture key reframes or pivots: moments where the coach reframed a problem, named a pattern, or shifted the user's perspective in a way that wasn't already in the report. These are worth preserving even when no action step follows. Examples: distinguishing "leading work" from "leading an organisation", naming burnout as a structural consequence of the current role rather than a personal failing, reframing a scattered background as a narrative problem rather than a substance problem. Phrase them as the insight itself ("Your burnout arrived at your most senior role: the coach named that as non-coincidental, not a personal failing"), not as generic themes.
 - Skip small talk, navigation messages ("ready to continue?"), and content that just restates the report.
 - Skip anything the user explicitly pushed back on or rejected.
 - Use second person ("you"). No em-dashes; use commas, colons, or parentheses.

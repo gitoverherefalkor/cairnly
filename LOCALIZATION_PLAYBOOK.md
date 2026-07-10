@@ -103,6 +103,7 @@ This creates `public/locales/de/*.json` with arrays preserved. **Human-review th
 ### Step 5 — AI edge functions
 - Confirm `LANG_NAMES` in `wrap-up-extract` and `generate-share-quotes` includes the language (de is present). Add it if missing.
 - If any **new** AI-output edge function was added since this playbook, give it the same `preferred_language` lookup + output-language instruction.
+- Make that output-language instruction a **forceful, expression-resolved lock at the top of the prompt**, not a buried "if nl … else …" conditional — LLMs code-switch to the wrong language on strong name/employer cues otherwise. This applies to the **n8n workflow prompts (WF1–WFX)** too, which this playbook doesn't otherwise cover. See Pitfall **P9**.
 - (Optional, polish) `aiResumeParser.ts`: add the language's CV date conventions (German: `dd.mm.yyyy`, "Heute" = Present, "Berufserfahrung"/"Ausbildung" headers).
 
 ### Step 6 — Build, commit, push
@@ -156,6 +157,14 @@ A shell may export `ANTHROPIC_API_KEY=` (empty), which shadows the `.env` value.
 
 ### P8 — The switcher must actually be mounted where users look
 Dutch went "live" but no flag appeared, because the switcher was only in `Navbar.tsx` and the homepage uses `LandingNav.tsx`. When adding language UI, confirm the switcher renders on the surfaces users actually start from (landing + app).
+
+### P9 — LLM prompts code-switch to the wrong language on strong name/context cues
+A buried conditional ("if `preferred_language` is 'nl' … else English") is **not** enough to force the output language. On 2026-07-06, WF1's personality prompt (`prompt_perso_prof1`) correctly rendered `preferred_language = en`, yet the model wrote the entire personality narrative in **Dutch** for a candidate named "Sjoerd Prins" with Dutch employers — reliably (two separate runs; verified the prompt saw `en`). English-named users on the *same* prompt stayed English. The Dutch header-translations and instructions living inline in the prompt gave the model something to latch onto, and a strongly Dutch-cued candidate tipped it over. Careers (WF3/WF4) were fine because they enforce language robustly; the personality narrative was the weak link.
+- **Fix pattern:** put an **absolute, expression-resolved output-language lock at the very TOP** of every LLM prompt, before any other content:
+  `Write EVERY word — every heading and every sentence — in {{ preferred_language === 'nl' ? 'DUTCH' : 'ENGLISH' }}. The candidate's name, nationality, or employers must NEVER change your output language.`
+  A resolved token ("ENGLISH"/"DUTCH") up front beats a conditional the model must evaluate against buried inline examples.
+- **This covers the n8n workflow prompts (WF1–WFX) too**, which this playbook otherwise doesn't touch. When adding a language, audit **every** LLM prompt (n8n + AI edge functions) for this top-of-prompt lock; ideally inject *only* the target language's examples so there's nothing cross-language to bleed from.
+- **Test for it:** generate a report for a user whose NAME/employers strongly imply language X but whose `preferred_language` is Y. If any section comes out in X, the lock is missing or too weak.
 
 ---
 

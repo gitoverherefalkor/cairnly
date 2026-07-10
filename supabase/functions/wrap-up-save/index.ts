@@ -181,8 +181,13 @@ serve(async (req) => {
   // cron stops sending "your chat is incomplete" / "your report is ready"
   // emails. The frontend trackChatComplete() hook only fires on the legacy
   // ClosingCard path, not the WrapUpCard path used today, so without this
-  // every wrap-up user gets a stale reminder 24h later. Guarded on NULL so
-  // a re-run of wrap-up preserves the original completion time.
+  // every wrap-up user gets a stale reminder 24h later.
+  //
+  // Deliberately NOT guarded on NULL: chat_completed_at must track the LATEST
+  // wrap-up, because the 30-day retention purge (purge_expired_assessment_data)
+  // counts from it. A user who buys a second assessment (Starter/Encore) gets
+  // their new chat's clock started here; with the old NULL guard their second
+  // assessment would never become eligible for the retention purge.
   const nowIso = new Date().toISOString();
   const { error: engagementErr } = await supabase
     .from('user_engagement_tracking')
@@ -192,8 +197,7 @@ serve(async (req) => {
       chat_last_section_index: 10,
       updated_at: nowIso,
     })
-    .eq('user_id', authUserId)
-    .is('chat_completed_at', null);
+    .eq('user_id', authUserId);
 
   if (engagementErr) {
     // Non-fatal: highlights are saved. A stale reminder email is annoying

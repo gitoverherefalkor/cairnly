@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-05T11:21:33.062Z",
+  "updatedAt": "2026-07-08T17:43:19.693Z",
   "createdAt": "2026-04-02T10:35:12.472Z",
   "id": "Bx0uNW4gnnXIGO8j",
   "name": "WF8 - Finding selected roles",
@@ -174,7 +174,7 @@
       "credentials": {
         "googlePalmApi": {
           "id": "Q653Teuy9nP6VLoE",
-          "name": "Google Gemini(PaLM) Api account 3"
+          "name": "Cairnly Gstudio Key"
         }
       }
     },
@@ -223,7 +223,7 @@
             {
               "id": "0fbe100b-c012-41e0-ac93-779efe49b3c7",
               "name": "scoring_prompt",
-              "value": "=You are scoring LinkedIn job listings for relevance to a user's recommended career path.\n\nUser's recommended career: \"{{ $json.careerTitle }}\"\nAlternative acceptable titles for the same career (treat as equivalent match targets): {{ $json.alt_titles_summary }}\nWhat this role actually does (plain-English, 25-40 words): {{ $json.career_overview || 'not provided' }}\nUser's languages (with proficiency): {{ $json.languages_summary }}\n\nScore each job 0-10 based on how well it matches this career path:\n- 10 = direct match in role, level, and domain\n- 7-9 = strong match (same domain, similar role level)\n- 4-6 = adjacent (related skills or seniority but different focus)\n- 0-3 = unrelated role, wrong domain, or junior/senior mismatch\n\nConsider: role type (e.g. board/coach/leader/individual contributor), seniority level, domain (people/culture, product, engineering, sales, etc.), and whether the job sensibly aligns with the career path described.\n\nALT-TITLES RULE: The recommended career has alternative acceptable titles (listed above) that are different real-world labels for the SAME target role. A job that closely matches ANY one of them (in role function + domain) MUST be scored as if it matched the primary career — do not dock it for using a different label. Primary and alternatives are equally valid match targets. If the alt titles value is \"none\", ignore this rule.\n\nSPECIALIZATION RULE (critical): The career has a core specialization — usually a domain like \"AI / Machine Learning\" plus a function. If a job does NOT clearly involve that core specialization (e.g. a generic \"Software Engineer\" with no AI/ML focus when the career is \"AI Workflow Automation Engineer\", or a generic \"Transformation Lead\" with no AI focus), CAP its score at 3 even if seniority and general field match. We would much rather show the user nothing, or an honestly low-scored match, than a confident-looking result that misses the whole point of their target role. Do not be generous.\n\nAVOID-PREFERENCES RULE: The user explicitly told us to AVOID these industries / role aspects / environments: {{ $json.avoid_summary }}. If a job clearly matches one or more of them, apply a SIGNIFICANT penalty — drop 3-5 points, and cap the score at 2 for a strong match (e.g. a sales or client-facing role when \"Sales\" is on the avoid list). Briefly note the conflict in the reason. If the value is \"none specified\", ignore this rule.\n\nLanguage-fit rule:\n- If a job's title or description implies a language requirement (e.g. 'Native Dutch', 'Fluent German', a job description written in a language the user doesn't speak at conversational+), apply a SIGNIFICANT score penalty (typically drop 3-5 points) because the user couldn't realistically take the role.\n- If the user's languages are 'unknown — assume English only', treat non-English jobs as language-restricted.\n- Briefly note language fit in the reason when it materially affects the score.\n\nROLE-FUNCTION RULE: A consultant/advisor role (external, multi-client) is NOT the same as an in-house architect or platform owner (single-employer, internal). Same distinction applies to IC vs manager, hands-on vs strategy-only. When the role function clearly differs even though the domain overlaps, CAP the score at 5.\n\nSENIORITY RULE: If the career title implies senior level (Principal, Head of, Director, Lead, VP, Chief, Fractional, Interim), and the job description specifies a years-of-experience range below 8 OR describes itself as \"Mid-level\" or \"Associate\", CAP at 4. When the description doesn't explicitly state seniority, treat the title alone as ambiguous and score no higher than 6.\n\nBIAS TO STRICTNESS: When uncertain between two scores, pick the lower one. False high scores (\"confident wrong\") are worse than missing a marginal match.\n\nReturn ONLY valid JSON in this exact shape, no other text or commentary:\n{\"scores\":[{\"i\":0,\"score\":8,\"reason\":\"Director-level people role at scale-up — strong fit\"}]}\n\nReason must be max 14 words, concrete (cite domain/level + language fit if relevant), no fluff.\n\nJobs to score:\n{{ JSON.stringify($json.jobList, null, 2) }}",
+              "value": "=!!! LANGUAGE LOCK !!! Write every human-readable text value you output (especially each \"reason\") in ENGLISH only. Never write Dutch and never mix languages, regardless of the language of the job postings below.\n\nYou are scoring LinkedIn job listings for relevance to a user's recommended career path.\n\nUser's recommended career: \"{{ $json.careerTitle }}\"\nAlternative acceptable titles for the same career (treat as equivalent match targets): {{ $json.alt_titles_summary }}\nWhat this role actually does (plain-English, 25-40 words): {{ $json.career_overview || 'not provided' }}\nUser's languages (with proficiency): {{ $json.languages_summary }}\n\nScore each job 0-10 based on how well it matches this career path:\n- 10 = direct match in role, level, and domain\n- 7-9 = strong match (same domain, similar role level)\n- 4-6 = adjacent (related skills or seniority but different focus)\n- 0-3 = unrelated role, wrong domain, or junior/senior mismatch\n\nConsider: role type (e.g. board/coach/leader/individual contributor), seniority level, domain (people/culture, product, engineering, sales, etc.), and whether the job sensibly aligns with the career path described.\n\nALT-TITLES RULE: The recommended career has alternative acceptable titles (listed above) that are different real-world labels for the SAME target role. A job that closely matches ANY one of them (in role function + domain) MUST be scored as if it matched the primary career — do not dock it for using a different label. Primary and alternatives are equally valid match targets. If the alt titles value is \"none\", ignore this rule.\n\nSPECIALIZATION RULE (critical): The career has a core specialization — usually a domain like \"AI / Machine Learning\" plus a function. If a job does NOT clearly involve that core specialization (e.g. a generic \"Software Engineer\" with no AI/ML focus when the career is \"AI Workflow Automation Engineer\", or a generic \"Transformation Lead\" with no AI focus), CAP its score at 3 even if seniority and general field match. We would much rather show the user nothing, or an honestly low-scored match, than a confident-looking result that misses the whole point of their target role. Do not be generous.\n\nAVOID-PREFERENCES RULE: The user explicitly told us to AVOID these industries / role aspects / environments: {{ $json.avoid_summary }}. If a job clearly matches one or more of them, apply a SIGNIFICANT penalty — drop 3-5 points, and cap the score at 2 for a strong match (e.g. a sales or client-facing role when \"Sales\" is on the avoid list). Briefly note the conflict in the reason. If the value is \"none specified\", ignore this rule.\n\nLanguage-fit rule:\n- If a job's title or description implies a language requirement (e.g. 'Native Dutch', 'Fluent German', a job description written in a language the user doesn't speak at conversational+), apply a SIGNIFICANT score penalty (typically drop 3-5 points) because the user couldn't realistically take the role.\n- If the user's languages are 'unknown — assume English only', treat non-English jobs as language-restricted.\n- Briefly note language fit in the reason when it materially affects the score.\n\nROLE-FUNCTION RULE: A consultant/advisor role (external, multi-client) is NOT the same as an in-house architect or platform owner (single-employer, internal). Same distinction applies to IC vs manager, hands-on vs strategy-only. When the role function clearly differs even though the domain overlaps, CAP the score at 5.\n\nSENIORITY RULE: If the career title implies senior level (Principal, Head of, Director, Lead, VP, Chief, Fractional, Interim), and the job description specifies a years-of-experience range below 8 OR describes itself as \"Mid-level\" or \"Associate\", CAP at 4. When the description doesn't explicitly state seniority, treat the title alone as ambiguous and score no higher than 6.\n\nBIAS TO STRICTNESS: When uncertain between two scores, pick the lower one. False high scores (\"confident wrong\") are worse than missing a marginal match.\n\nReturn ONLY valid JSON in this exact shape, no other text or commentary:\n{\"scores\":[{\"i\":0,\"score\":8,\"reason\":\"Director-level people role at scale-up — strong fit\"}]}\n\nReason must be max 14 words, concrete (cite domain/level + language fit if relevant), no fluff.\n\nJobs to score:\n{{ JSON.stringify($json.jobList, null, 2) }}",
               "type": "string"
             }
           ]
@@ -256,7 +256,7 @@
         224
       ],
       "id": "2fab53f6-3c98-4d5f-b42a-4c1948301de9",
-      "name": "Claude Sonnet 4.6 (Scoring)",
+      "name": "Claude Son5",
       "credentials": {
         "anthropicApi": {
           "id": "RhTKhZPWZ6gcGD13",
@@ -398,7 +398,7 @@
         ]
       ]
     },
-    "Claude Sonnet 4.6 (Scoring)": {
+    "Claude Son5": {
       "ai_languageModel": [
         [
           {
@@ -420,9 +420,9 @@
   "meta": null,
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "047934b3-0bf6-40a9-a2aa-9e1dae6b3018",
-  "activeVersionId": "047934b3-0bf6-40a9-a2aa-9e1dae6b3018",
-  "versionCounter": 200,
+  "versionId": "960212dc-6c7b-4776-9ca3-f635c0c83e01",
+  "activeVersionId": "960212dc-6c7b-4776-9ca3-f635c0c83e01",
+  "versionCounter": 202,
   "triggerCount": 1,
   "sourceWorkflowId": null,
   "shared": [
@@ -450,9 +450,9 @@
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-07-05T11:21:33.065Z",
-    "createdAt": "2026-07-05T11:21:33.065Z",
-    "versionId": "047934b3-0bf6-40a9-a2aa-9e1dae6b3018",
+    "updatedAt": "2026-07-08T17:43:19.694Z",
+    "createdAt": "2026-07-08T17:43:19.694Z",
+    "versionId": "960212dc-6c7b-4776-9ca3-f635c0c83e01",
     "workflowId": "Bx0uNW4gnnXIGO8j",
     "nodes": [
       {
@@ -622,7 +622,7 @@
         "credentials": {
           "googlePalmApi": {
             "id": "Q653Teuy9nP6VLoE",
-            "name": "Google Gemini(PaLM) Api account 3"
+            "name": "Cairnly Gstudio Key"
           }
         }
       },
@@ -671,7 +671,7 @@
               {
                 "id": "0fbe100b-c012-41e0-ac93-779efe49b3c7",
                 "name": "scoring_prompt",
-                "value": "=You are scoring LinkedIn job listings for relevance to a user's recommended career path.\n\nUser's recommended career: \"{{ $json.careerTitle }}\"\nAlternative acceptable titles for the same career (treat as equivalent match targets): {{ $json.alt_titles_summary }}\nWhat this role actually does (plain-English, 25-40 words): {{ $json.career_overview || 'not provided' }}\nUser's languages (with proficiency): {{ $json.languages_summary }}\n\nScore each job 0-10 based on how well it matches this career path:\n- 10 = direct match in role, level, and domain\n- 7-9 = strong match (same domain, similar role level)\n- 4-6 = adjacent (related skills or seniority but different focus)\n- 0-3 = unrelated role, wrong domain, or junior/senior mismatch\n\nConsider: role type (e.g. board/coach/leader/individual contributor), seniority level, domain (people/culture, product, engineering, sales, etc.), and whether the job sensibly aligns with the career path described.\n\nALT-TITLES RULE: The recommended career has alternative acceptable titles (listed above) that are different real-world labels for the SAME target role. A job that closely matches ANY one of them (in role function + domain) MUST be scored as if it matched the primary career — do not dock it for using a different label. Primary and alternatives are equally valid match targets. If the alt titles value is \"none\", ignore this rule.\n\nSPECIALIZATION RULE (critical): The career has a core specialization — usually a domain like \"AI / Machine Learning\" plus a function. If a job does NOT clearly involve that core specialization (e.g. a generic \"Software Engineer\" with no AI/ML focus when the career is \"AI Workflow Automation Engineer\", or a generic \"Transformation Lead\" with no AI focus), CAP its score at 3 even if seniority and general field match. We would much rather show the user nothing, or an honestly low-scored match, than a confident-looking result that misses the whole point of their target role. Do not be generous.\n\nAVOID-PREFERENCES RULE: The user explicitly told us to AVOID these industries / role aspects / environments: {{ $json.avoid_summary }}. If a job clearly matches one or more of them, apply a SIGNIFICANT penalty — drop 3-5 points, and cap the score at 2 for a strong match (e.g. a sales or client-facing role when \"Sales\" is on the avoid list). Briefly note the conflict in the reason. If the value is \"none specified\", ignore this rule.\n\nLanguage-fit rule:\n- If a job's title or description implies a language requirement (e.g. 'Native Dutch', 'Fluent German', a job description written in a language the user doesn't speak at conversational+), apply a SIGNIFICANT score penalty (typically drop 3-5 points) because the user couldn't realistically take the role.\n- If the user's languages are 'unknown — assume English only', treat non-English jobs as language-restricted.\n- Briefly note language fit in the reason when it materially affects the score.\n\nROLE-FUNCTION RULE: A consultant/advisor role (external, multi-client) is NOT the same as an in-house architect or platform owner (single-employer, internal). Same distinction applies to IC vs manager, hands-on vs strategy-only. When the role function clearly differs even though the domain overlaps, CAP the score at 5.\n\nSENIORITY RULE: If the career title implies senior level (Principal, Head of, Director, Lead, VP, Chief, Fractional, Interim), and the job description specifies a years-of-experience range below 8 OR describes itself as \"Mid-level\" or \"Associate\", CAP at 4. When the description doesn't explicitly state seniority, treat the title alone as ambiguous and score no higher than 6.\n\nBIAS TO STRICTNESS: When uncertain between two scores, pick the lower one. False high scores (\"confident wrong\") are worse than missing a marginal match.\n\nReturn ONLY valid JSON in this exact shape, no other text or commentary:\n{\"scores\":[{\"i\":0,\"score\":8,\"reason\":\"Director-level people role at scale-up — strong fit\"}]}\n\nReason must be max 14 words, concrete (cite domain/level + language fit if relevant), no fluff.\n\nJobs to score:\n{{ JSON.stringify($json.jobList, null, 2) }}",
+                "value": "=!!! LANGUAGE LOCK !!! Write every human-readable text value you output (especially each \"reason\") in ENGLISH only. Never write Dutch and never mix languages, regardless of the language of the job postings below.\n\nYou are scoring LinkedIn job listings for relevance to a user's recommended career path.\n\nUser's recommended career: \"{{ $json.careerTitle }}\"\nAlternative acceptable titles for the same career (treat as equivalent match targets): {{ $json.alt_titles_summary }}\nWhat this role actually does (plain-English, 25-40 words): {{ $json.career_overview || 'not provided' }}\nUser's languages (with proficiency): {{ $json.languages_summary }}\n\nScore each job 0-10 based on how well it matches this career path:\n- 10 = direct match in role, level, and domain\n- 7-9 = strong match (same domain, similar role level)\n- 4-6 = adjacent (related skills or seniority but different focus)\n- 0-3 = unrelated role, wrong domain, or junior/senior mismatch\n\nConsider: role type (e.g. board/coach/leader/individual contributor), seniority level, domain (people/culture, product, engineering, sales, etc.), and whether the job sensibly aligns with the career path described.\n\nALT-TITLES RULE: The recommended career has alternative acceptable titles (listed above) that are different real-world labels for the SAME target role. A job that closely matches ANY one of them (in role function + domain) MUST be scored as if it matched the primary career — do not dock it for using a different label. Primary and alternatives are equally valid match targets. If the alt titles value is \"none\", ignore this rule.\n\nSPECIALIZATION RULE (critical): The career has a core specialization — usually a domain like \"AI / Machine Learning\" plus a function. If a job does NOT clearly involve that core specialization (e.g. a generic \"Software Engineer\" with no AI/ML focus when the career is \"AI Workflow Automation Engineer\", or a generic \"Transformation Lead\" with no AI focus), CAP its score at 3 even if seniority and general field match. We would much rather show the user nothing, or an honestly low-scored match, than a confident-looking result that misses the whole point of their target role. Do not be generous.\n\nAVOID-PREFERENCES RULE: The user explicitly told us to AVOID these industries / role aspects / environments: {{ $json.avoid_summary }}. If a job clearly matches one or more of them, apply a SIGNIFICANT penalty — drop 3-5 points, and cap the score at 2 for a strong match (e.g. a sales or client-facing role when \"Sales\" is on the avoid list). Briefly note the conflict in the reason. If the value is \"none specified\", ignore this rule.\n\nLanguage-fit rule:\n- If a job's title or description implies a language requirement (e.g. 'Native Dutch', 'Fluent German', a job description written in a language the user doesn't speak at conversational+), apply a SIGNIFICANT score penalty (typically drop 3-5 points) because the user couldn't realistically take the role.\n- If the user's languages are 'unknown — assume English only', treat non-English jobs as language-restricted.\n- Briefly note language fit in the reason when it materially affects the score.\n\nROLE-FUNCTION RULE: A consultant/advisor role (external, multi-client) is NOT the same as an in-house architect or platform owner (single-employer, internal). Same distinction applies to IC vs manager, hands-on vs strategy-only. When the role function clearly differs even though the domain overlaps, CAP the score at 5.\n\nSENIORITY RULE: If the career title implies senior level (Principal, Head of, Director, Lead, VP, Chief, Fractional, Interim), and the job description specifies a years-of-experience range below 8 OR describes itself as \"Mid-level\" or \"Associate\", CAP at 4. When the description doesn't explicitly state seniority, treat the title alone as ambiguous and score no higher than 6.\n\nBIAS TO STRICTNESS: When uncertain between two scores, pick the lower one. False high scores (\"confident wrong\") are worse than missing a marginal match.\n\nReturn ONLY valid JSON in this exact shape, no other text or commentary:\n{\"scores\":[{\"i\":0,\"score\":8,\"reason\":\"Director-level people role at scale-up — strong fit\"}]}\n\nReason must be max 14 words, concrete (cite domain/level + language fit if relevant), no fluff.\n\nJobs to score:\n{{ JSON.stringify($json.jobList, null, 2) }}",
                 "type": "string"
               }
             ]
@@ -704,7 +704,7 @@
           224
         ],
         "id": "2fab53f6-3c98-4d5f-b42a-4c1948301de9",
-        "name": "Claude Sonnet 4.6 (Scoring)",
+        "name": "Claude Son5",
         "credentials": {
           "anthropicApi": {
             "id": "RhTKhZPWZ6gcGD13",
@@ -846,7 +846,7 @@
           ]
         ]
       },
-      "Claude Sonnet 4.6 (Scoring)": {
+      "Claude Son5": {
         "ai_languageModel": [
           [
             {
@@ -865,18 +865,18 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-07-05T11:21:33.329Z",
-        "id": 1454,
+        "createdAt": "2026-07-08T17:43:19.984Z",
+        "id": 1512,
         "workflowId": "Bx0uNW4gnnXIGO8j",
-        "versionId": "047934b3-0bf6-40a9-a2aa-9e1dae6b3018",
+        "versionId": "960212dc-6c7b-4776-9ca3-f635c0c83e01",
         "event": "activated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b"
       },
       {
-        "createdAt": "2026-07-05T11:21:33.261Z",
-        "id": 1453,
+        "createdAt": "2026-07-08T17:43:19.913Z",
+        "id": 1511,
         "workflowId": "Bx0uNW4gnnXIGO8j",
-        "versionId": "047934b3-0bf6-40a9-a2aa-9e1dae6b3018",
+        "versionId": "960212dc-6c7b-4776-9ca3-f635c0c83e01",
         "event": "deactivated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b"
       }

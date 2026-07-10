@@ -4,7 +4,22 @@
     {
       "name": "dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 8080,
+      "autoPort": true
+    },
+    {
+      "name": "dev-resume-wf",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        ".claude/worktrees/resume-wf",
+        "run",
+        "dev"
+      ],
       "port": 8080,
       "autoPort": true
     }

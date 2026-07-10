@@ -30,6 +30,16 @@ dist-ssr
 # Local archive of old handoffs / backups
 /_archive/
 
+# Ad-hoc production data dumps (contain user data — never commit)
+scratchpad_n8n/
+scratchpad*/
+exec_*.json
+
+# User report archives must never enter git history
+handoff/**/*.pdf
+handoff/*.pdf
+*.pdf
+
 # One-off design drops should never be committed at root
 /*.zip
 *.plugin

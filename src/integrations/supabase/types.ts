@@ -1642,6 +1642,7 @@ export type Database = {
           chat_started_at: string | null
           created_at: string | null
           dashboard_visited_after_chat_at: string | null
+          data_purged_at: string | null
           report_reminder_sent_at: string | null
           signup_reminder_sent_at: string | null
           survey_completed_at: string | null
@@ -1662,6 +1663,7 @@ export type Database = {
           chat_started_at?: string | null
           created_at?: string | null
           dashboard_visited_after_chat_at?: string | null
+          data_purged_at?: string | null
           report_reminder_sent_at?: string | null
           signup_reminder_sent_at?: string | null
           survey_completed_at?: string | null
@@ -1682,6 +1684,7 @@ export type Database = {
           chat_started_at?: string | null
           created_at?: string | null
           dashboard_visited_after_chat_at?: string | null
+          data_purged_at?: string | null
           report_reminder_sent_at?: string | null
           signup_reminder_sent_at?: string | null
           survey_completed_at?: string | null
@@ -2099,3 +2102,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
