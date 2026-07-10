@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, FileText, Check, Circle, Lock, PartyPopper, X, ListOrdered, ClipboardList, Compass, Zap, TrendingUp, Heart, Trophy, Award, Lightbulb, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -278,37 +279,52 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         </button>
       )}
 
-      {/* Backdrop */}
-      {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 bg-black/30 z-50"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      {/* Backdrop + drawer are portaled straight to <body>. ChatContainer's
+          row wrapper is `relative z-10`, which establishes its own stacking
+          context — a fixed descendant's z-index is only ever compared
+          *inside* that context, so no z-index on the drawer itself could
+          out-rank the page's sticky top nav (z-50) at the root level. The
+          portal escapes that trap entirely. */}
+      {createPortal(
+        <>
+          {/* Backdrop */}
+          {mobileOpen && (
+            <div
+              className="md:hidden fixed inset-0 bg-black/30 z-[55]"
+              onClick={() => setMobileOpen(false)}
+            />
+          )}
 
-      {/* Slide-over drawer */}
-      <div
-        className={`md:hidden fixed inset-y-0 right-0 z-50 w-72 bg-white shadow-xl flex flex-col transform transition-transform duration-300 ${
-          mobileOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {/* Drawer header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
-          <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-atlas-teal" />
-            <h2 className="font-heading font-semibold text-atlas-navy text-sm">{t('chat:session.reportSections')}</h2>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setMobileOpen(false)}
-            className="hover:bg-gray-100"
+          {/* Slide-over drawer — dark navy, matching the desktop glass
+              sidebar. sectionContent (shared with desktop) styles its text
+              as text-white / text-white/55 for a dark backdrop; a white
+              drawer made every upcoming-section label nearly invisible
+              (near-white text on white). */}
+          <div
+            className={`md:hidden fixed inset-y-0 right-0 z-[60] w-72 bg-[rgb(18,46,59)] shadow-xl flex flex-col transform transition-transform duration-300 ${
+              mobileOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
           >
-            <X className="h-4 w-4 text-gray-500" />
-          </Button>
-        </div>
-        {sectionContent}
-      </div>
+            {/* Drawer header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
+              <div className="flex items-center space-x-2">
+                <FileText className="h-5 w-5 text-atlas-teal" />
+                <h2 className="font-heading font-semibold text-white text-sm">{t('chat:session.reportSections')}</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMobileOpen(false)}
+                className="hover:bg-white/10"
+              >
+                <X className="h-4 w-4 text-white/70" />
+              </Button>
+            </div>
+            {sectionContent}
+          </div>
+        </>,
+        document.body,
+      )}
 
       {/* ===== Desktop: original fixed sidebar ===== */}
 
