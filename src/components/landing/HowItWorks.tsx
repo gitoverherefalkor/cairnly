@@ -136,7 +136,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[0]?.screenshotMeta}
-                  src="/images/landing/take_assessment_jun26.png"
+                  src="/images/live/landing/take_assessment_jun26.png"
                   alt={steps[0]?.screenshotAlt}
                 />
               }
@@ -172,7 +172,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[2]?.screenshotMeta}
-                  src="/images/landing/chat_with_coach_jun26.png"
+                  src="/images/live/landing/chat_with_coach_jun26.png"
                   alt={steps[2]?.screenshotAlt}
                 />
               }
@@ -186,7 +186,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[3]?.screenshotMeta}
-                  src="/images/landing/get_report_jun26.png"
+                  src="/images/live/landing/get_report_jun26.png"
                   alt={steps[3]?.screenshotAlt}
                 />
               }
@@ -206,7 +206,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[4]?.screenshotMeta}
-                  src="/images/landing/land_the_job_jun26_v2.png"
+                  src="/images/live/landing/land_the_job_jun26_v2.png"
                   alt={steps[4]?.screenshotAlt || steps[4]?.screenshotLabel}
                 />
               }

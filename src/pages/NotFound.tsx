@@ -54,7 +54,7 @@ const NotFound = () => {
         {/* Wordmark */}
         <a href="/" className="inline-flex mb-9">
           <img
-            src="/cairnly-logo-white.png"
+            src="/logos/cairnly-logo-white.png"
             alt="Cairnly"
             className="h-12 sm:h-14 w-auto"
           />

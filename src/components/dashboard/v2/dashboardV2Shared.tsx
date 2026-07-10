@@ -35,10 +35,10 @@ export const FONT_BODY = "'Inter', sans-serif";
 // LakeBackground now uses the water-and-cairn shot from /public/images — the
 // original lake-reflection asset was retired but the dashboard wants water,
 // not the dry mountain trail.
-export const LAKE_BG_URL = '/images/trail_over_water.png';
+export const LAKE_BG_URL = '/images/live/trail_over_water.png';
 export const CAIRN_TRAIL_URL = '/dashboard/cairn_trail_landscape.jpg';
-export const LOGO_INVERTED_URL = '/dashboard/cairnly_logo_wordmark_inverted.png';
-export const LOGO_WORDMARK_URL = '/dashboard/cairnly_logo_wordmark.png';
+export const LOGO_INVERTED_URL = '/logos/cairnly_logo_wordmark_inverted.png';
+export const LOGO_WORDMARK_URL = '/logos/cairnly_logo_wordmark.png';
 
 // ---------- AI impact ----------
 // extractAIImpact (src/components/chat/CareerScoreCard.tsx) returns these five

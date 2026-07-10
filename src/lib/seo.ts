@@ -46,7 +46,7 @@ export const organizationSchema = {
   '@type': 'Organization',
   name: 'Cairnly',
   url: SITE_URL,
-  logo: `${SITE_URL}/cairnly-logo.png`,
+  logo: `${SITE_URL}/logos/cairnly-logo.png`,
   description: DEFAULT_DESCRIPTION,
 };
 

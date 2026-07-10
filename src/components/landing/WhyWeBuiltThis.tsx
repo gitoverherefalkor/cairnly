@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { FileText, ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
 import { useIntentCopy } from './useIntentCopy';
-import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 const REPORT_URL = 'https://www.cairnly.io/journal/career-uncertainty-report';
 

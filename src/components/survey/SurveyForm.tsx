@@ -434,7 +434,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   // grew tall enough to scroll behind it.
   const SurveyLogoMark = (
     <img
-      src="/cairnly-logo-white.png"
+      src="/logos/cairnly-logo-white.png"
       alt="Cairnly"
       className="w-[150px] h-auto opacity-70 pl-1"
     />

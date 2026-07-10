@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useStarterGetStarted } from './useStarterGetStarted';
-import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 const StarterHero: React.FC = () => {
   const getStarted = useStarterGetStarted();

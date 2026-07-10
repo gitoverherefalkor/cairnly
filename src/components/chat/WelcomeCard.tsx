@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, CheckCircle2 } from 'lucide-react';
-import atlasFigure from '@/logos/cairnly-logo/cairnly_logo_symbol_only.png';
+import atlasFigure from '@/logos/live/cairnly_logo_symbol_only.png';
 
 interface WelcomeCardProps {
   onReady: () => void;

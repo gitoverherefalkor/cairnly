@@ -13,7 +13,7 @@ import {
   LakeBackground,
 } from './dashboardV2Shared';
 import { DashboardAppNav } from './DashboardAppNav';
-import cairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
+import cairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 export type EntryMode = 'empty' | 'resume' | 'chat' | 'failed';
 export type EntryFlavor = 'pro' | 'starter' | 'encore';

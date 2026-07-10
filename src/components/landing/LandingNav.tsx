@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Menu, X, ArrowRight, Shield, Lock, Trash2 } from 'lucide-react';
-import CairnlyWordmarkInverted from '@/logos/cairnly-logo/cairnly_logo_wordmark_inverted.png';
+import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface LandingNavProps {

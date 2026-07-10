@@ -12,32 +12,32 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
-    src: '/images/landing/carousel/assessment-welcome.jpg',
+    src: '/images/live/landing/carousel/assessment-welcome.jpg',
     slug: 'assessment',
     alt: 'Cairnly assessment welcome screen',
   },
   {
-    src: '/images/landing/carousel/assessment-resume.jpg',
+    src: '/images/live/landing/carousel/assessment-resume.jpg',
     slug: 'assessment',
     alt: 'Resume upload step in the Cairnly assessment',
   },
   {
-    src: '/images/landing/carousel/assessment-section.jpg',
+    src: '/images/live/landing/carousel/assessment-section.jpg',
     slug: 'assessment',
     alt: 'A section transition inside the Cairnly assessment',
   },
   {
-    src: '/images/landing/carousel/report-careermap.jpg',
+    src: '/images/live/landing/carousel/report-careermap.jpg',
     slug: 'dashboard',
     alt: 'Career report with the career match map',
   },
   {
-    src: '/images/landing/carousel/coach-chat.jpg',
+    src: '/images/live/landing/carousel/coach-chat.jpg',
     slug: 'chat',
     alt: 'Chatting with the Cairnly career coach',
   },
   {
-    src: '/images/landing/carousel/jobs-pipeline.jpg',
+    src: '/images/live/landing/carousel/jobs-pipeline.jpg',
     slug: 'jobs',
     alt: 'Job pipeline tracking saved and applied roles',
   },

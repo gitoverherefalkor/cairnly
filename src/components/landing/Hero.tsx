@@ -6,7 +6,7 @@ import HeroCarousel from './HeroCarousel';
 import IntentChips from './IntentChips';
 import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
-import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 const Hero: React.FC = () => {
   const getStarted = useGetStarted();

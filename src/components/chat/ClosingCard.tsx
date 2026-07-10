@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileDown, LayoutDashboard, Info, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import atlasFigure from '@/logos/cairnly-logo/cairnly_logo_symbol_only.png';
+import atlasFigure from '@/logos/live/cairnly_logo_symbol_only.png';
 
 interface ClosingCardProps {
   firstName?: string;

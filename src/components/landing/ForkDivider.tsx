@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import CairnlySymbol from '@/logos/cairnly-logo/cairnly_logo_symbol_only.png';
+import CairnlySymbol from '@/logos/live/cairnly_logo_symbol_only.png';
 
 /** The inflection-point divider: one approach path forks into a flat
  *  continuation and a rising golden path, with the cairn at the fork. */

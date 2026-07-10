@@ -17,8 +17,8 @@ import {
   type AIImpactLevel,
 } from './dashboardV2Shared';
 import { MOVE_COLOR, moveLegend, type MoveLevel } from '@/lib/moveScale';
-import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
-import CairnImageHero from '@/logos/Cairn_image_hero.png';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
+import CairnImageHero from '@/logos/live/Cairn_image_hero.png';
 
 const CARD_W = 1200;
 const CARD_H = 627;

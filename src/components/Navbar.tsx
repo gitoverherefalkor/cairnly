@@ -30,7 +30,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <a href="/" className="flex items-center">
               <img
-                src="/cairnly-logo.png"
+                src="/logos/cairnly-logo.png"
                 alt="Cairnly"
                 className="h-28 w-auto"
               />

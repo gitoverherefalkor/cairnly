@@ -120,7 +120,7 @@ const JournalArticle: React.FC = () => {
   // scripts/seo-routes.mjs (static shells for non-JS scrapers).
   const ogImage =
     meta.slug === 'career-uncertainty-report'
-      ? '/images/career-uncertainty-stats.png'
+      ? '/images/live/career-uncertainty-stats.png'
       : '/og-card.jpg';
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -138,7 +138,7 @@ const JournalArticle: React.FC = () => {
     publisher: {
       '@type': 'Organization',
       name: 'Cairnly',
-      logo: { '@type': 'ImageObject', url: `${siteUrl}/cairnly-logo.png` },
+      logo: { '@type': 'ImageObject', url: `${siteUrl}/logos/cairnly-logo.png` },
     },
     mainEntityOfPage: `${siteUrl}${articlePath}`,
   };
@@ -227,7 +227,7 @@ const JournalArticle: React.FC = () => {
               shareUrl={`${siteUrl}/journal/${meta.slug}`}
               title={meta.title}
               text={`${meta.title} Read the full report.`}
-              imageSrc={meta.slug === 'career-uncertainty-report' ? '/images/career-uncertainty-stats.svg' : undefined}
+              imageSrc={meta.slug === 'career-uncertainty-report' ? '/images/live/career-uncertainty-stats.svg' : undefined}
               fileName={`cairnly-${meta.slug}.png`}
             />
           </div>

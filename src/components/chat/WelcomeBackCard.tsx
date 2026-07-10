@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, CheckCircle2, Shield } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
-import atlasFigure from '@/logos/cairnly-logo/cairnly_logo_symbol_only.png';
+import atlasFigure from '@/logos/live/cairnly_logo_symbol_only.png';
 
 interface WelcomeBackCardProps {
   onContinue: () => void;

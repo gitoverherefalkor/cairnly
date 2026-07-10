@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useEncoreGetStarted } from './useEncoreGetStarted';
-import CairnSymbolInvert from '@/logos/cairnly-logo/cairn_symbol_invert.png';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 /**
  * Encore hero. Same visual language as the starter hero, but the whole flavor

@@ -5,7 +5,7 @@ const AuthHeader = () => {
   return (
     <div className="text-center mb-8">
       <img
-        src="/cairnly-logo-white.png"
+        src="/logos/cairnly-logo-white.png"
         alt="Cairnly"
         className="h-16 w-auto mx-auto"
       />

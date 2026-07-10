@@ -489,7 +489,7 @@ const Chat = () => {
           <div className="flex justify-between items-center py-2.5">
             <div className="flex items-center gap-3">
               <a href="/" className="flex items-center">
-                <img src="/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto" />
+                <img src="/logos/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto" />
               </a>
               <span className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy">
                 <span className="h-4 w-px bg-gray-200" aria-hidden="true" />
