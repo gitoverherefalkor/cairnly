@@ -135,7 +135,7 @@ export const chapters: Chapter[] = [
               </tr>
               <tr style={{ background: 'rgba(212,160,36,0.09)' }}>
                 <td style={cellTd}><strong>Cairnly</strong> (that's us)</td>
-                <td style={cellTd}>€39, one-time</td>
+                <td style={cellTd}>€39 one-time (introductory; rising to €59 after summer 2026)</td>
                 <td style={cellTd}>Assessment mapped to specific careers + AI coach on your results</td>
                 <td style={cellTd}>Yes; built on validated instruments (see our methodology)</td>
               </tr>
@@ -300,9 +300,11 @@ export const chapters: Chapter[] = [
         <p>
           <strong>Where we sit, disclosed:</strong> Cairnly is the one-time-diagnosis option
           in the table: €39 for a validated assessment mapped to specific careers, with an AI
-          coach to work through the results. We built it to fill the cell the market left
-          empty, structured measurement first, guidance on top, no renewal date. Judge us by
-          the same filters we just handed you. That is what they are for.
+          coach to work through the results. In the spirit of the pricing transparency this
+          guide demands of everyone else: that is an introductory price, and it rises to €59
+          after summer 2026. We built Cairnly to fill the cell the market left empty,
+          structured measurement first, guidance on top, no renewal date. Judge us by the
+          same filters we just handed you. That is what they are for.
         </p>
       </>
     ),
