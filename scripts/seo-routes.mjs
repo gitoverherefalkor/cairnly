@@ -31,7 +31,7 @@ const organizationSchema = {
   '@type': 'Organization',
   name: 'Cairnly',
   url: SITE_URL,
-  logo: `${SITE_URL}/cairnly-logo.png`,
+  logo: `${SITE_URL}/logos/cairnly-logo.png`,
   description: DEFAULT_DESCRIPTION,
 };
 
@@ -117,7 +117,7 @@ function articleRoutes() {
     // graphic where one exists, otherwise the brand share card.
     const image =
       fm.slug === 'career-uncertainty-report'
-        ? '/images/career-uncertainty-stats.png'
+        ? '/images/live/career-uncertainty-stats.png'
         : DEFAULT_OG_IMAGE;
     routes.push({
       path,
@@ -141,7 +141,7 @@ function articleRoutes() {
           publisher: {
             '@type': 'Organization',
             name: 'Cairnly',
-            logo: { '@type': 'ImageObject', url: `${SITE_URL}/cairnly-logo.png` },
+            logo: { '@type': 'ImageObject', url: `${SITE_URL}/logos/cairnly-logo.png` },
           },
           mainEntityOfPage: `${SITE_URL}${path}`,
         },
