@@ -221,22 +221,24 @@ const IntakeChatOverlay: React.FC = () => {
 
         {/* Input */}
         <div className="border-t px-4 py-3" style={{ borderColor: 'rgba(201,182,144,0.45)' }}>
-          <div className="flex gap-2">
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              send();
+            }}
+          >
             <input
               ref={inputRef}
               type="text"
               value={draft}
               maxLength={600}
               onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') send();
-              }}
               placeholder={t('intake.inputPlaceholder')}
               className="min-w-0 flex-1 rounded-full border border-[#C9B690] bg-white px-4 py-2.5 text-[14px] text-[#122E3B] outline-none focus:border-[#D4A024]"
             />
             <button
-              type="button"
-              onClick={send}
+              type="submit"
               disabled={chat.sending || !draft.trim()}
               aria-label={t('intake.send')}
               className="shrink-0 rounded-full p-3 text-white transition-opacity disabled:opacity-40"
@@ -244,7 +246,7 @@ const IntakeChatOverlay: React.FC = () => {
             >
               <ArrowRight size={17} strokeWidth={2.4} />
             </button>
-          </div>
+          </form>
           <button
             type="button"
             onClick={() => navigate('/payment')}

@@ -81,14 +81,22 @@ export function storePrefill(prefill: IntakePrefill | null): void {
 }
 
 export function storeContact(contact: { email?: string | null; firstName?: string | null }): void {
-  const cleaned = {
-    email: contact.email ?? null,
-    firstName: contact.firstName ?? null,
-  };
-  if (!cleaned.email && !cleaned.firstName) return;
   try {
-    localStorage.setItem(INTAKE_CONTACT_KEY, JSON.stringify(cleaned));
+    // Merge with what's already stored: the name arrives at pitch time and
+    // the email later, and neither write may wipe the other.
+    let existing: { email?: string | null; firstName?: string | null } = {};
+    try {
+      existing = JSON.parse(localStorage.getItem(INTAKE_CONTACT_KEY) ?? '{}');
+    } catch {
+      existing = {};
+    }
+    const merged = {
+      email: contact.email ?? existing.email ?? null,
+      firstName: contact.firstName ?? existing.firstName ?? null,
+    };
+    if (!merged.email && !merged.firstName) return;
+    localStorage.setItem(INTAKE_CONTACT_KEY, JSON.stringify(merged));
   } catch {
-    // Same: best effort only.
+    // Private mode: best effort only.
   }
 }

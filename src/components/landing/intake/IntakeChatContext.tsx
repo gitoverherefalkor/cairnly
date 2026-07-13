@@ -69,7 +69,10 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { t, i18n } = useTranslation('landing');
   const persisted = useRef<PersistedSession | null>(loadPersisted());
 
-  const [visibility, setVisibility] = useState<Visibility>('closed');
+  // A conversation from a previous visit comes back as the floating pill.
+  const [visibility, setVisibility] = useState<Visibility>(
+    persisted.current ? 'minimized' : 'closed',
+  );
   const [dismissed, setDismissed] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(persisted.current?.sessionId ?? null);
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
