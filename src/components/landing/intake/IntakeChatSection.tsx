@@ -152,7 +152,10 @@ const IntakeChatPanel: React.FC = () => {
           })}
           {chat.started && currentBeat <= BEAT_COUNT && (
             <span className="ml-1.5 text-[12px] font-semibold text-white/70">
-              {t(`intake.beats.${currentBeat}`)}
+              {/* beat 3 is pill-specific, its label follows the intent */}
+              {currentBeat === 3
+                ? t(`intake.beats3.${SEED_KEY[intent]}`)
+                : t(`intake.beats.${currentBeat}`)}
             </span>
           )}
         </div>

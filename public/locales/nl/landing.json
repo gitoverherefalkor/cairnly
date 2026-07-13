@@ -510,6 +510,13 @@
     "other": "Iets anders…",
     "chipsConfirm": "Dat is 'm →",
     "earlier": "Eerdere berichten ({{count}})",
-    "collapse": "Inklappen"
+    "collapse": "Inklappen",
+    "beats3": {
+      "default": "Wat in de weg zit",
+      "goodAtIt": "Wat je wilt vermijden",
+      "aiWorried": "Jouw AI-niveau",
+      "lifeChanged": "Wat werk moet respecteren",
+      "understandMyself": "Jouw archetypes"
+    }
   }
 }

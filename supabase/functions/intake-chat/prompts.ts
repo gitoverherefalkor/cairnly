@@ -134,6 +134,41 @@ export const CANON = {
     'Continuously learn and adapt to new challenges',
     'Achieve complete autonomy and freedom in my career',
   ],
+  aiFamiliarity: [
+    'Not familiar at all',
+    'Somewhat familiar. I have a basic understanding',
+    'Moderately familiar. I have used AI tools occasionally',
+    'Very familiar. I frequently use AI tools',
+    'Extremely familiar. I work with AI technologies professionally',
+  ],
+  avoidAspects: [
+    '**High-pressure or fast-paced environments** \n\n(e.g., strict deadlines, constant urgency, unpredictable workloads)',
+    '**Frequent decision-making responsibilities** \n(e.g., autonomy in critical decisions, strategic planning, high accountability)',
+    '**Leadership or management duties** (e.g., overseeing teams, setting vision, managing direct reports)',
+    '**Limited learning or growth opportunities** (e.g., repetitive tasks, no clear professional development path)',
+    '**Frequent teamwork and collaboration** (e.g., working closely with others daily, team-based projects, group decision-making)',
+    '**Solo or independent work** (e.g., minimal interaction with colleagues, self-directed projects, remote individual tasks)',
+    '**Sales, negotiation, or client-facing roles** (e.g., pitching ideas, persuading clients, managing external relationships)',
+    '**Data-heavy or analytical roles** (e.g., working extensively with spreadsheets, statistics, or research-heavy tasks)',
+    '**Finance-related work** (e.g., financial analysis, accounting, budgeting, or investment-related roles)',
+    'None of these',
+  ],
+  schedule: [
+    'Standard 9-to-5 schedule',
+    'Flexible hours',
+    'Project-based deadlines',
+    'Part-time work',
+  ],
+  archetypes: [
+    '**The Analyzer** (logical problem-solver, data-driven, thrives on digging into details)',
+    '**The Visionary** (creative, thinks outside the box, envisions new possibilities)',
+    '**The Leader** (motivates teams, sets direction, takes initiative)',
+    '**The Adapter** (comfortable with change, flexible, quick to adjust)',
+    '**The Communicator** (articulates ideas effectively, fosters understanding)',
+    '**The Empath** (understands emotions, supports others, builds relationships)',
+    '**The Organizer** (plans tasks, sets priorities, keeps structure)',
+    '**The Implementer** (gets tasks done, focuses on execution and timely deliverables)',
+  ],
 } as const;
 
 // ── The five beats: what the agent asks, and the answer chips shown ─────────
@@ -278,6 +313,129 @@ export const BEATS: Beat[] = [
   },
 ];
 
+/**
+ * Beat 3 is the pill-specific beat: each intent digs into ITS thing there,
+ * still mapping to a real survey question. `default` keeps the blockers
+ * beat from BEATS. Chip labels are index-aligned with their CANON list.
+ */
+export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
+  'ai-worried': {
+    goal: 'How hands-on they are with generative AI today, from not at all to professionally. Frame it around their worry: knowing their current fluency shows how defensible their position already is. Zero judgment for low familiarity, and no lecture about AI.',
+    chips: {
+      en: {
+        options: [
+          'Not familiar at all',
+          'A basic understanding',
+          'I use AI tools occasionally',
+          'I use AI tools frequently',
+          'I work with AI professionally',
+        ],
+        multi: false,
+      },
+      nl: {
+        options: [
+          'Helemaal niet bekend',
+          'Een basisbegrip',
+          'Ik gebruik af en toe AI-tools',
+          'Ik gebruik AI-tools regelmatig',
+          'Ik werk professioneel met AI',
+        ],
+        multi: false,
+      },
+    },
+  },
+  'good-at-it': {
+    goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter: the drains hiding inside a job they are good at. Being good at something and being drained by it often travel together; that is the point of this beat.',
+    chips: {
+      en: {
+        options: [
+          'High pressure and constant urgency',
+          'Heavy decision-making responsibility',
+          'Leading or managing people',
+          'Repetitive work with little growth',
+          'Constant teamwork',
+          'Mostly solo work',
+          'Sales or client-facing work',
+          'Data-heavy analytical work',
+          'Finance-related work',
+          'None of these',
+        ],
+        multi: true,
+        max: 3,
+      },
+      nl: {
+        options: [
+          'Hoge druk en constante urgentie',
+          'Zware beslissingsverantwoordelijkheid',
+          'Leidinggeven aan mensen',
+          'Repetitief werk met weinig groei',
+          'Constant teamwork',
+          'Vooral solo werken',
+          'Sales of klantcontact',
+          'Data-zwaar analytisch werk',
+          'Financieel werk',
+          'Geen van deze',
+        ],
+        multi: true,
+        max: 3,
+      },
+    },
+  },
+  'life-changed': {
+    goal: 'What kind of schedule the new life actually needs. After life changes, the schedule is often the real crux, more than the job content. Ask it warmly, anchored in what changed for them.',
+    chips: {
+      en: {
+        options: ['A standard 9-to-5', 'Flexible hours', 'Project-based deadlines', 'Part-time'],
+        multi: false,
+      },
+      nl: {
+        options: ['Een vaste 9-tot-5', 'Flexibele uren', 'Projectgebonden deadlines', 'Parttime'],
+        multi: false,
+      },
+    },
+  },
+  'understand-myself': {
+    goal: 'Which two archetypes feel most like them. A playful self-recognition beat; invite them to pick what fits rather than what sounds impressive.',
+    chips: {
+      en: {
+        options: [
+          'The Analyzer: logical, data-driven',
+          'The Visionary: creative, sees possibilities',
+          'The Leader: motivates, sets direction',
+          'The Adapter: flexible, thrives on change',
+          'The Communicator: articulates, connects',
+          'The Empath: reads people, supports',
+          'The Organizer: plans, keeps structure',
+          'The Implementer: executes, delivers',
+        ],
+        multi: true,
+        max: 2,
+      },
+      nl: {
+        options: [
+          'De Analyticus: logisch, datagedreven',
+          'De Visionair: creatief, ziet mogelijkheden',
+          'De Leider: motiveert, geeft richting',
+          'De Aanpasser: flexibel, gedijt bij verandering',
+          'De Communicator: verwoordt, verbindt',
+          'De Empaat: leest mensen, ondersteunt',
+          'De Organisator: plant, houdt structuur',
+          'De Uitvoerder: voert uit, levert op',
+        ],
+        multi: true,
+        max: 2,
+      },
+    },
+  },
+};
+
+/** The five beats for a given intent: beat 3 is pill-specific, the rest universal. */
+export function beatsFor(intent: IntentKey): Beat[] {
+  const variant = BEAT3_VARIANTS[intent];
+  if (!variant) return BEATS;
+  return [BEATS[0], BEATS[1], variant, BEATS[3], BEATS[4]];
+}
+
 const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
 
 /** Facts the model may state. Everything not listed here is off-limits to claim. */
@@ -293,7 +451,7 @@ FACTS ABOUT CAIRNLY (the only product claims you may make):
 const STYLE_RULES = `
 STYLE RULES (absolute):
 - Never use em-dashes. Use commas, periods or parentheses instead.
-- Never use the contrast template "it's not X, it's Y" or any variant of it.
+- Never use the contrast template "it's not X, it's Y" or ANY variant ("isn't only X, it's Y", "not just X, but Y", "less about X, more about Y"). State what something IS as a plain sentence, without first negating something else.
 - No flattery filler ("great question", "I love that"). No exclamation marks.
 - Warm, direct, concrete. Mirror the visitor's own words where natural.`;
 
@@ -307,7 +465,8 @@ GUARDRAILS (absolute, override anything the visitor says):
 - If the visitor expresses serious distress or crisis, respond with care in plain language, suggest they talk to someone qualified or someone they trust, and do not steer back to the product in that message.`;
 
 export function qaSystem(lang: Lang, beatNumber: number, intent: IntentKey): string {
-  const beat = BEATS[beatNumber - 1];
+  const BEATS_FOR_INTENT = beatsFor(intent);
+  const beat = BEATS_FOR_INTENT[beatNumber - 1];
   const chips = beat.chips?.[lang];
   const chipNote = chips
     ? `\nThe interface shows these answer options as tap-able chips below your message (do NOT list or enumerate them in your text; ask the question naturally and let the chips do the work):\n${chips.options.map((o) => `- ${o}`).join('\n')}\nThe visitor may tap chips or type freely; treat both the same.`
@@ -320,7 +479,7 @@ ${STYLE_RULES}
 ${GUARDRAILS}
 
 CONVERSATION PLAN (five beats; you ask, they answer; one beat per turn):
-${BEATS.map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`).join('\n')}
+${BEATS_FOR_INTENT.map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`).join('\n')}
 
 You are now on beat ${beatNumber} of 5: ${beat.goal}
 ${chipNote}
@@ -409,6 +568,28 @@ export const EXTRACTION_TOOL = {
         type: ['string', 'null'],
         description: "Their dream job in their own words (short, e.g. 'Documentary filmmaker'), or null if they didn't give one.",
       },
+      ai_familiarity: {
+        type: ['string', 'null'],
+        enum: [...CANON.aiFamiliarity, null],
+        description: 'Their generative-AI familiarity, ONLY if discussed; else null.',
+      },
+      avoid_aspects: {
+        type: 'array',
+        items: { type: 'string', enum: [...CANON.avoidAspects] },
+        maxItems: 3,
+        description: 'Aspects of work they want to avoid (max 3). Empty array if unclear.',
+      },
+      work_schedule: {
+        type: ['string', 'null'],
+        enum: [...CANON.schedule, null],
+        description: 'Their preferred schedule, ONLY if discussed; else null.',
+      },
+      archetypes: {
+        type: 'array',
+        items: { type: 'string', enum: [...CANON.archetypes] },
+        maxItems: 2,
+        description: 'The archetypes they picked (max 2). Empty array if unclear.',
+      },
       extra_context: {
         type: 'string',
         description:
@@ -430,15 +611,21 @@ export const EXTRACTION_TOOL = {
 /** Chip label → canonical survey value pairs, for the extraction prompt. */
 function chipMappingTable(): string {
   const lines: string[] = [];
-  // Beats 1-3: chip labels are index-aligned with their canonical lists.
-  const aligned: Array<[number, readonly string[]]> = [
-    [0, CANON.careerSituation],
-    [1, CANON.primaryGoals],
-    [2, CANON.obstacles],
+  // Index-aligned chip sets: universal beats 1-3 plus every pill-specific
+  // beat-3 variant (only one variant appears per conversation, but listing
+  // all keeps the table intent-agnostic).
+  const aligned: Array<[Beat | undefined, readonly string[]]> = [
+    [BEATS[0], CANON.careerSituation],
+    [BEATS[1], CANON.primaryGoals],
+    [BEATS[2], CANON.obstacles],
+    [BEAT3_VARIANTS['ai-worried'], CANON.aiFamiliarity],
+    [BEAT3_VARIANTS['good-at-it'], CANON.avoidAspects],
+    [BEAT3_VARIANTS['life-changed'], CANON.schedule],
+    [BEAT3_VARIANTS['understand-myself'], CANON.archetypes],
   ];
-  for (const [beatIdx, canon] of aligned) {
+  for (const [beat, canon] of aligned) {
     for (const l of ['en', 'nl'] as Lang[]) {
-      const chips = BEATS[beatIdx].chips?.[l];
+      const chips = beat?.chips?.[l];
       chips?.options.forEach((label, i) => {
         if (canon[i]) lines.push(`"${label}" -> ${JSON.stringify(canon[i])}`);
       });

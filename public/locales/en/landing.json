@@ -510,6 +510,13 @@
     "other": "Something else…",
     "chipsConfirm": "That's it →",
     "earlier": "Earlier messages ({{count}})",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "beats3": {
+      "default": "What's in the way",
+      "goodAtIt": "What to avoid",
+      "aiWorried": "Your AI fluency",
+      "lifeChanged": "What work must respect",
+      "understandMyself": "Your archetypes"
+    }
   }
 }

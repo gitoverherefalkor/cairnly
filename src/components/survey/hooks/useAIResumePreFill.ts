@@ -138,7 +138,9 @@ export const useAIResumePreFill = ({
           questionId !== '11111111-1111-1111-1111-111111111115' &&
           questionId !== '77777777-7777-7777-7777-777777777773' &&
           questionId !== '77777777-7777-7777-7777-777777777771' &&
-          questionId !== '77777777-7777-7777-7777-777777777772') {
+          questionId !== '77777777-7777-7777-7777-777777777772' &&
+          questionId !== '33333333-3333-3333-3333-333333333338' &&
+          questionId !== '44444444-4444-4444-4444-444444444442') {
         preFillResponses[questionId] = value.join(', ');
       }
       // skills_achievements (11111111-1111-1111-1111-11111111111f) should stay as object

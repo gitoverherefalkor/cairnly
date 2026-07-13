@@ -43,6 +43,7 @@ import {
   OPENER_REPLIES,
   CANON,
   BEATS,
+  beatsFor,
   type BeatChips,
   qaSystem,
   pitchSystem,
@@ -178,6 +179,11 @@ const QUESTION_IDS = {
   dreamJob: '44444444-4444-4444-4444-444444444448',
   extraContext: '11111111-1111-1111-1111-111111111121',
   name: '11111111-1111-1111-1111-11111111111a',
+  // pill-specific beat-3 targets
+  aiFamiliarity: '44444444-4444-4444-4444-444444444445',
+  avoidAspects: '33333333-3333-3333-3333-333333333338',
+  schedule: '33333333-3333-3333-3333-333333333334',
+  archetypes: '44444444-4444-4444-4444-444444444442',
 } as const;
 
 function validChoices(value: unknown, canon: readonly string[], max: number): string[] | null {
@@ -203,6 +209,16 @@ function prefillFromExtraction(extraction: Record<string, unknown> | null): Reco
   if (typeof extraction.dream_job === 'string' && extraction.dream_job.trim()) {
     prefill[QUESTION_IDS.dreamJob] = extraction.dream_job.trim();
   }
+  if (typeof extraction.ai_familiarity === 'string' && (CANON.aiFamiliarity as readonly string[]).includes(extraction.ai_familiarity)) {
+    prefill[QUESTION_IDS.aiFamiliarity] = extraction.ai_familiarity;
+  }
+  const avoid = validChoices(extraction.avoid_aspects, CANON.avoidAspects, 3);
+  if (avoid) prefill[QUESTION_IDS.avoidAspects] = avoid;
+  if (typeof extraction.work_schedule === 'string' && (CANON.schedule as readonly string[]).includes(extraction.work_schedule)) {
+    prefill[QUESTION_IDS.schedule] = extraction.work_schedule;
+  }
+  const archetypes = validChoices(extraction.archetypes, CANON.archetypes, 2);
+  if (archetypes) prefill[QUESTION_IDS.archetypes] = archetypes;
   if (typeof extraction.extra_context === 'string' && extraction.extra_context.trim().length >= 20) {
     prefill[QUESTION_IDS.extraContext] = extraction.extra_context.trim();
   }
@@ -254,7 +270,7 @@ async function handleStart(body: Record<string, unknown>, corsHeaders: Record<st
       return errorResponse('Could not start the conversation', 500, corsHeaders);
     }
     return json(
-      { sessionId: data.id, reply, stage: 'chat', beat: 1, chips: BEATS[0].chips?.[language] ?? null, prefill: null },
+      { sessionId: data.id, reply, stage: 'chat', beat: 1, chips: beatsFor(intent)[0].chips?.[language] ?? null, prefill: null },
       corsHeaders,
     );
   }
@@ -330,7 +346,7 @@ async function advanceConversation(
       reply = textFrom(resp);
       tokens = usedTokens(resp);
       beat = userTurns;
-      chips = BEATS[userTurns - 1].chips?.[lang] ?? null;
+      chips = beatsFor(intent)[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
       // Pitch phase: personalized preview + structured extraction.
       const pitchResp = await callClaude({
@@ -460,6 +476,7 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
   if (error || !data) return errorResponse('Invalid link', 404, corsHeaders);
   const row = data as SessionRow;
   const resumeLang = sanitizeLang(row.language);
+  const resumeIntent: IntentKey = INTENT_KEYS.includes(row.intent as IntentKey) ? (row.intent as IntentKey) : 'default';
   const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= QA_TURNS
     ? row.user_turns
     : null;
@@ -469,7 +486,7 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
       messages: (row.messages as TranscriptMessage[]).map((m) => ({ role: m.role, text: m.text })),
       stage: row.status === 'active' ? 'chat' : 'pitched',
       beat: midBeat,
-      chips: midBeat ? BEATS[midBeat - 1].chips?.[resumeLang] ?? null : null,
+      chips: midBeat ? beatsFor(resumeIntent)[midBeat - 1].chips?.[resumeLang] ?? null : null,
       emailCaptured: row.status === 'email_captured',
       intent: row.intent,
       language: row.language,
