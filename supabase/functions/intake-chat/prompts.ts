@@ -35,37 +35,9 @@ export const INTENT_LABELS: Record<Lang, Record<IntentKey, string>> = {
   },
 };
 
-/**
- * Deterministic opening message per intent. Doubles as question 1
- * (current role + how they got there), so the model's first live turn
- * is question 2.
- */
-export const OPENERS: Record<Lang, Record<IntentKey, string>> = {
-  en: {
-    default:
-      "Most of us picked a direction before we'd done a single day of real work, and that choice quietly made the ones after it. Let's take a proper look at where it landed you. What do you do right now, and how did you end up in it?",
-    'good-at-it':
-      "Being good at your work and quietly wondering if it's really yours can exist side by side. It's more common than people admit. So let's start there: what's the job, and how did you get into it?",
-    'ai-worried':
-      "AI is rewriting some careers and barely touching others, so the worry is worth taking seriously rather than pushing away. First things first though: what do you do right now, and how did you land in that role?",
-    'life-changed':
-      "Kids, a burnout, a move, a loss, a restart. The ground shifts and the old fit stops fitting. I'd like to understand what that looks like for you. What's your work situation right now, and how did you get there?",
-    'understand-myself':
-      "That's honestly the best starting point: you can't pick a direction without knowing who's choosing. So let's build that picture. What do you do at the moment, and how did you end up doing it?",
-  },
-  nl: {
-    default:
-      "De meesten van ons kozen een richting voordat we ook maar één dag echt gewerkt hadden, en die keuze maakte stilletjes alle keuzes daarna. Laten we eens goed kijken waar jij bent uitgekomen. Wat doe je nu, en hoe ben je daarin beland?",
-    'good-at-it':
-      "Goed zijn in je werk en stilletjes twijfelen of het echt bij je past kan prima naast elkaar bestaan. Het komt vaker voor dan mensen toegeven. Laten we daar beginnen: wat is je werk, en hoe ben je erin gerold?",
-    'ai-worried':
-      "AI verandert sommige carrières ingrijpend en raakt andere nauwelijks, dus die zorg verdient serieuze aandacht in plaats van wegdrukken. Maar eerst: wat doe je nu, en hoe ben je in die rol terechtgekomen?",
-    'life-changed':
-      "Kinderen, een burn-out, een verhuizing, een verlies, een nieuwe start. De grond verschuift en de oude match past niet meer. Ik wil graag begrijpen hoe dat er bij jou uitziet. Wat is je werksituatie nu, en hoe ben je daar gekomen?",
-    'understand-myself':
-      "Dat is eerlijk gezegd het beste startpunt: je kunt geen richting kiezen zonder te weten wie er kiest. Laten we dat beeld opbouwen. Wat doe je op dit moment, en hoe ben je daar beland?",
-  },
-};
+// NOTE: the conversation starts with the VISITOR's message (seeded from the
+// intent pill they clicked, editable, or free text via "something else").
+// The model's first turn acknowledges that opener and asks question 1.
 
 const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
 
@@ -101,14 +73,16 @@ ${CAIRNLY_FACTS}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
-CONVERSATION PLAN (you ask, they answer; one question per turn):
-1. Current work and how they got into it (already asked in your opening message).
-2. What is nagging them, or what made them click on this today.
+The visitor opened the conversation with a message about what brings them here (seeded from the option they picked on the page, or written by them). You ask, they answer; one question per turn.
+
+CONVERSATION PLAN:
+1. Current work and how they got into it.
+2. What specifically is nagging them, or what triggered this today (dig one level deeper than their opening message).
 3. What a better fit would look like: what they would want more of, or less of.
 4. What they are genuinely good at, what people count on them for.
 5. Timeline and what they would want a report like this to tell them.
 
-You are now on question ${questionNumber} of 5. Respond to their last answer in one or two short sentences that show you actually heard the specifics, then ask question ${questionNumber} in a natural way that builds on what they said. Do not number the question. Do not preview future questions. Maximum 3 sentences total before the question.
+You are now on question ${questionNumber} of 5. Respond to their last message in one or two short sentences that show you actually heard the specifics, then ask question ${questionNumber} in a natural way that builds on what they said. If a question is already clearly answered by what they wrote, fold your acknowledgment of that in and move to the next unanswered beat. Do not number the question. Do not preview future questions. Maximum 3 sentences total before the question.
 
 Respond in ${LANG_NAME[lang]} only, regardless of the language the visitor writes in.`;
 }

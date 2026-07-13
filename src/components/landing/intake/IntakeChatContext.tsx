@@ -10,39 +10,39 @@ import {
 } from './intakeApi';
 
 /**
- * State machine for the landing-page intake chat overlay.
+ * State for the inline intake chat section on the homepage (below the hero).
  *
- * Mounted only on the homepage (inside Index.tsx). Components elsewhere
- * (LandingNav on other pages) use `useIntakeChatOptional`, which returns
- * null outside the provider so they can fall back to navigating to /payment.
+ * The conversation opens with the VISITOR's message: the intent pills seed an
+ * editable first message written in the visitor's voice, and they hit send.
+ * Server-side phase machine takes it from there (5 questions -> pitch).
  *
- * Visibility rules (agreed design):
- * - Intent pill click opens the chat, unless the visitor dismissed it (X).
- * - The Get Started CTA always opens it (explicit intent beats a dismissal).
- * - Minimize collapses to a floating "continue our chat" pill.
+ * Mounted only on the homepage. Shared components (nav CTAs) use
+ * `useIntakeChatOptional`, which returns null outside the provider so they
+ * can fall back to navigating to /payment.
  */
 
-type Visibility = 'closed' | 'open' | 'minimized';
-
 interface IntakeChatValue {
-  visibility: Visibility;
-  /** True once a conversation exists (drives the floating pill after minimize). */
-  hasSession: boolean;
+  /** True once a conversation exists (switches the section from seed-input to thread). */
+  started: boolean;
   stage: IntakeStage;
   emailCaptured: boolean;
   messages: IntakeMessage[];
   sending: boolean;
   error: string | null;
-  openFromPill: (intent: string) => void;
-  openFromCta: () => void;
-  openFromToken: (token: string) => void;
-  minimize: () => void;
-  dismiss: () => void;
+  /** Starts the conversation with the visitor's first message. */
+  start: (text: string, intent: string) => void;
   sendMessage: (text: string) => void;
   submitEmail: (email: string) => Promise<boolean>;
+  /** Restores a session from a magic-link token, then scrolls to the chat. */
+  openFromToken: (token: string) => void;
+  /** Scrolls the chat section into view (used by the Get Started CTA). */
+  focusChat: () => void;
 }
 
 const IntakeChatContext = createContext<IntakeChatValue | null>(null);
+
+/** DOM id of the inline section; CTA clicks scroll here. */
+export const INTAKE_SECTION_ID = 'intake-chat';
 
 interface PersistedSession {
   sessionId: string;
@@ -69,11 +69,6 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { t, i18n } = useTranslation('landing');
   const persisted = useRef<PersistedSession | null>(loadPersisted());
 
-  // A conversation from a previous visit comes back as the floating pill.
-  const [visibility, setVisibility] = useState<Visibility>(
-    persisted.current ? 'minimized' : 'closed',
-  );
-  const [dismissed, setDismissed] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(persisted.current?.sessionId ?? null);
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
   const [stage, setStage] = useState<IntakeStage>(persisted.current?.stage ?? 'chat');
@@ -97,69 +92,49 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [sessionId, messages, stage, emailCaptured]);
 
-  const startSession = useCallback(
-    async (intent: string, source: 'cta' | 'pill') => {
-      if (sessionId || starting.current) return;
-      starting.current = true;
-      setSending(true);
-      setError(null);
-      try {
-        const res = await intakeApi.start(intent, lang, source);
-        setSessionId(res.sessionId);
-        setMessages([{ role: 'assistant', text: res.greeting }]);
-      } catch {
-        setError(t('intake.error'));
-      } finally {
-        setSending(false);
-        starting.current = false;
+  const focusChat = useCallback(() => {
+    document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const handleReply = useCallback(
+    (res: { reply: string; stage: IntakeStage; prefill: Parameters<typeof storePrefill>[0] }) => {
+      setMessages((prev) => [...prev, { role: 'assistant', text: res.reply }]);
+      if (res.stage === 'pitched') {
+        setStage('pitched');
+        storePrefill(res.prefill);
+        if (res.prefill && typeof res.prefill.name === 'string') {
+          storeContact({ firstName: res.prefill.name });
+        }
       }
     },
-    [sessionId, lang, t],
+    [],
   );
 
-  const openFromPill = useCallback(
-    (intent: string) => {
-      if (dismissed) return; // a dismissal is respected; pills only swap copy
-      setVisibility('open');
-      void startSession(intent, 'pill');
-    },
-    [dismissed, startSession],
-  );
-
-  const openFromCta = useCallback(() => {
-    setVisibility('open');
-    setDismissed(false); // the main CTA is explicit intent
-    void startSession(localStorage.getItem('cairnly_intent') ?? 'default', 'cta');
-  }, [startSession]);
-
-  const openFromToken = useCallback(
-    (token: string) => {
-      setVisibility('open');
-      setDismissed(false);
+  const start = useCallback(
+    (text: string, intent: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || sessionId || starting.current) return;
+      starting.current = true;
+      setMessages([{ role: 'user', text: trimmed }]);
       setSending(true);
       setError(null);
       intakeApi
-        .resume(token)
+        .start(intent, lang, 'pill', trimmed)
         .then((res) => {
           setSessionId(res.sessionId);
-          setMessages(res.messages);
-          setStage(res.stage);
-          setEmailCaptured(res.emailCaptured);
-          storePrefill(res.prefill);
-          storeContact(res.contact);
+          handleReply(res);
         })
-        .catch(() => setError(t('intake.error')))
-        .finally(() => setSending(false));
+        .catch(() => {
+          setMessages([]);
+          setError(t('intake.error'));
+        })
+        .finally(() => {
+          setSending(false);
+          starting.current = false;
+        });
     },
-    [t],
+    [sessionId, lang, t, handleReply],
   );
-
-  const minimize = useCallback(() => setVisibility('minimized'), []);
-
-  const dismiss = useCallback(() => {
-    setVisibility(sessionId ? 'minimized' : 'closed');
-    setDismissed(true);
-  }, [sessionId]);
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -170,14 +145,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setError(null);
       intakeApi
         .message(sessionId, trimmed)
-        .then((res) => {
-          setMessages((prev) => [...prev, { role: 'assistant', text: res.reply }]);
-          if (res.stage === 'pitched') {
-            setStage('pitched');
-            storePrefill(res.prefill);
-            if (res.prefill?.name) storeContact({ firstName: res.prefill.name });
-          }
-        })
+        .then(handleReply)
         .catch(() => {
           // Roll the optimistic user message back so they can retry it.
           setMessages((prev) => prev.slice(0, -1));
@@ -185,7 +153,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         })
         .finally(() => setSending(false));
     },
-    [sessionId, sending, t],
+    [sessionId, sending, t, handleReply],
   );
 
   const submitEmail = useCallback(
@@ -204,23 +172,42 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [sessionId, t],
   );
 
+  const openFromToken = useCallback(
+    (token: string) => {
+      setSending(true);
+      setError(null);
+      intakeApi
+        .resume(token)
+        .then((res) => {
+          setSessionId(res.sessionId);
+          setMessages(res.messages);
+          setStage(res.stage);
+          setEmailCaptured(res.emailCaptured);
+          storePrefill(res.prefill);
+          storeContact(res.contact);
+          // Let the section render the restored thread, then scroll to it.
+          setTimeout(focusChat, 150);
+        })
+        .catch(() => setError(t('intake.error')))
+        .finally(() => setSending(false));
+    },
+    [t, focusChat],
+  );
+
   return (
     <IntakeChatContext.Provider
       value={{
-        visibility,
-        hasSession: !!sessionId,
+        started: !!sessionId,
         stage,
         emailCaptured,
         messages,
         sending,
         error,
-        openFromPill,
-        openFromCta,
-        openFromToken,
-        minimize,
-        dismiss,
+        start,
         sendMessage,
         submitEmail,
+        openFromToken,
+        focusChat,
       }}
     >
       {children}

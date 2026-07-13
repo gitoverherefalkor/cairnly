@@ -17,7 +17,7 @@ import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { IntentProvider } from '@/contexts/IntentContext';
 import { IntakeChatProvider } from '@/components/landing/intake/IntakeChatContext';
-import IntakeChatOverlay from '@/components/landing/intake/IntakeChatOverlay';
+import IntakeChatSection from '@/components/landing/intake/IntakeChatSection';
 import IntakeResumeParam from '@/components/landing/intake/IntakeResumeParam';
 import Seo from '@/components/Seo';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
@@ -38,6 +38,7 @@ const Index: React.FC = () => (
     <LandingNav variant="home" />
     <main>
       <Hero />
+      <IntakeChatSection />
       <Pillars />
       <HowItWorks />
       <Methodology />
@@ -53,7 +54,6 @@ const Index: React.FC = () => (
     </main>
     <LandingFooter />
   </div>
-  <IntakeChatOverlay />
   <IntakeResumeParam />
   </IntakeChatProvider>
   </IntentProvider>

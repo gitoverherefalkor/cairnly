@@ -490,6 +490,15 @@
     "emailLater": "Maybe later",
     "emailSaved": "Saved. Check your inbox for your personal link.",
     "ctaCheckout": "Continue to the full assessment",
-    "ctaNote": "€39 one-off during beta · your answers carry over"
+    "ctaNote": "€39 one-off during beta · your answers carry over",
+    "seeds": {
+      "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
+      "goodAtIt": "I'm good at my job, but I'm not sure it's really me.",
+      "aiWorried": "I'm worried about what AI means for my role.",
+      "lifeChanged": "My life has changed a lot, but my work hasn't kept up.",
+      "understandMyself": "I want to understand myself better and figure out what I actually want."
+    },
+    "seedLabel": "Your opening message, edit it or send it as is",
+    "seedPlaceholder": "Tell us in your own words what brings you here…"
   }
 }

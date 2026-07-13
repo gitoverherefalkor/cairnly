@@ -6,7 +6,8 @@ import { useIntakeChatOptional } from './intake/IntakeChatContext';
 /**
  * The primary landing-page CTA: logged-in visitors go to their dashboard.
  * On the homepage (where IntakeChatProvider is mounted) logged-out visitors
- * get the intake chat first; anywhere else they go straight to payment.
+ * are scrolled to the inline intake chat; anywhere else they go straight
+ * to payment.
  */
 export const useGetStarted = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export const useGetStarted = () => {
     if (user) {
       navigate('/dashboard');
     } else if (intakeChat) {
-      intakeChat.openFromCta();
+      intakeChat.focusChat();
     } else {
       navigate('/payment');
     }

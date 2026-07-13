@@ -23,8 +23,9 @@ export type IntakeStage = 'chat' | 'pitched';
 
 interface StartResponse {
   sessionId: string;
-  greeting: string;
+  reply: string;
   stage: IntakeStage;
+  prefill: IntakePrefill | null;
 }
 
 interface MessageResponse {
@@ -53,8 +54,8 @@ async function invoke<T>(body: Record<string, unknown>): Promise<T> {
 }
 
 export const intakeApi = {
-  start: (intent: string, language: string, source: 'cta' | 'pill') =>
-    invoke<StartResponse>({ action: 'start', intent, language, source }),
+  start: (intent: string, language: string, source: 'cta' | 'pill', text: string) =>
+    invoke<StartResponse>({ action: 'start', intent, language, source, text }),
   message: (sessionId: string, text: string) =>
     invoke<MessageResponse>({ action: 'message', sessionId, text }),
   email: (sessionId: string, email: string) =>

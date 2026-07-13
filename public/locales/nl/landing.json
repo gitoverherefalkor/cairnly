@@ -490,6 +490,15 @@
     "emailLater": "Misschien later",
     "emailSaved": "Bewaard. Check je inbox voor je persoonlijke link.",
     "ctaCheckout": "Door naar het volledige assessment",
-    "ctaNote": "€39 eenmalig tijdens de beta · je antwoorden gaan mee"
+    "ctaNote": "€39 eenmalig tijdens de beta · je antwoorden gaan mee",
+    "seeds": {
+      "default": "Ik koos m'n richting op m'n zestiende, en ik vraag me af wat ik nu zou kiezen met alles wat ik sindsdien heb geleerd.",
+      "goodAtIt": "Ik ben goed in m'n werk, maar ik weet niet zeker of het echt bij me past.",
+      "aiWorried": "Ik maak me zorgen over wat AI voor mijn rol betekent.",
+      "lifeChanged": "M'n leven is flink veranderd, maar m'n werk is niet meeveranderd.",
+      "understandMyself": "Ik wil mezelf beter begrijpen en uitzoeken wat ik echt wil."
+    },
+    "seedLabel": "Je openingsbericht, pas het aan of verstuur het zo",
+    "seedPlaceholder": "Vertel in je eigen woorden wat je hier brengt…"
   }
 }

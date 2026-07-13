@@ -40,7 +40,6 @@ import {
   type IntentKey,
   INTENT_KEYS,
   INTENT_LABELS,
-  OPENERS,
   qaSystem,
   pitchSystem,
   postPitchSystem,
@@ -184,26 +183,32 @@ function sanitizeLang(input: unknown): Lang {
 
 // ── Action handlers ──────────────────────────────────────────────────────────
 
+/**
+ * The conversation opens with the VISITOR's message (seeded from the intent
+ * pill, editable, or free text). Creates the session and generates the
+ * agent's first reply (acknowledge + question 1).
+ */
 async function handleStart(body: Record<string, unknown>, corsHeaders: Record<string, string>): Promise<Response> {
+  const text = typeof body.text === 'string' ? body.text.trim() : '';
+  if (!text) return errorResponse('Empty message', 400, corsHeaders);
+  if (text.length > MAX_MESSAGE_CHARS) {
+    return errorResponse('Message too long', 400, corsHeaders);
+  }
   const language = sanitizeLang(body.language);
   const intent: IntentKey = INTENT_KEYS.includes(body.intent as IntentKey)
     ? (body.intent as IntentKey)
     : 'default';
   const source = body.source === 'pill' ? 'pill' : 'cta';
-  const greeting = OPENERS[language][intent];
-  const messages: TranscriptMessage[] = [
-    { role: 'assistant', text: greeting, at: new Date().toISOString() },
-  ];
   const { data, error } = await supabase
     .from('intake_sessions')
-    .insert({ intent, language, source, messages })
-    .select('id')
+    .insert({ intent, language, source, messages: [] })
+    .select('*')
     .single();
   if (error || !data) {
     console.error('[intake-chat] session insert failed:', error?.message);
     return errorResponse('Could not start the conversation', 500, corsHeaders);
   }
-  return json({ sessionId: data.id, greeting, stage: 'chat' }, corsHeaders);
+  return await advanceConversation(data as SessionRow, text, corsHeaders, true);
 }
 
 async function handleMessage(body: Record<string, unknown>, corsHeaders: Record<string, string>): Promise<Response> {
@@ -214,7 +219,20 @@ async function handleMessage(body: Record<string, unknown>, corsHeaders: Record<
   }
   const row = await getSession(String(body.sessionId ?? ''));
   if (!row) return errorResponse('Unknown session', 404, corsHeaders);
+  return await advanceConversation(row, text, corsHeaders, false);
+}
 
+/**
+ * Shared turn handler: appends the user message, picks the phase from the
+ * turn count (turns 1-5 ask questions 1-5, turn 6 fires the pitch +
+ * extraction, later turns are post-pitch follow-ups), persists, replies.
+ */
+async function advanceConversation(
+  row: SessionRow,
+  text: string,
+  corsHeaders: Record<string, string>,
+  includeSessionId: boolean,
+): Promise<Response> {
   const lang = sanitizeLang(row.language);
   const userTurns = row.user_turns + 1;
 
@@ -236,10 +254,10 @@ async function handleMessage(body: Record<string, unknown>, corsHeaders: Record<
   let pitch = row.pitch;
 
   try {
-    if (row.status === 'active' && userTurns < QA_TURNS) {
-      // Q&A phase: opener was question 1, so we're asking question userTurns + 1.
+    if (row.status === 'active' && userTurns <= QA_TURNS) {
+      // Q&A phase: the visitor's opener is turn 1, replied to with question 1.
       const resp = await callClaude({
-        system: qaSystem(lang, userTurns + 1),
+        system: qaSystem(lang, userTurns),
         messages: apiMessages(rowForApi),
         maxTokens: 300,
       });
@@ -304,7 +322,12 @@ async function handleMessage(body: Record<string, unknown>, corsHeaders: Record<
   if (updateError) console.error('[intake-chat] session update failed:', updateError.message);
 
   return json(
-    { reply, stage, prefill: stage === 'pitched' ? prefillFromExtraction(extraction) : null },
+    {
+      ...(includeSessionId ? { sessionId: row.id } : {}),
+      reply,
+      stage,
+      prefill: stage === 'pitched' ? prefillFromExtraction(extraction) : null,
+    },
     corsHeaders,
   );
 }
