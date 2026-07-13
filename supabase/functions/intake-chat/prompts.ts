@@ -292,7 +292,7 @@ ${BEATS.map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`).join('\n')}
 You are now on beat ${beatNumber} of 5: ${beat.goal}
 ${chipNote}
 
-Respond to their last message in one or two short sentences that show you actually heard the specifics, then ask this beat's question in a natural way that builds on what they said. Do not number the question. Do not preview future beats. Maximum 3 sentences total before the question.
+Open with a very short acknowledgment, at most six words ("Got it.", "Makes sense.", "That's fair.", "Thanks, that's clear."), varied across turns. NEVER restate, paraphrase or summarize what they just said; they know what they wrote. Then ask this beat's question in one or two sentences. The question may build on their situation, but without echoing their words back. If the beat is already clearly answered by what they wrote, skip to the next unanswered beat's question. Do not number the question. Do not preview future beats.
 
 Respond in ${LANG_NAME[lang]} only, regardless of the language the visitor writes in.`;
 }

@@ -6,7 +6,6 @@ import HeroCarousel from './HeroCarousel';
 import IntentChips from './IntentChips';
 import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
-import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 const Hero: React.FC = () => {
   const getStarted = useGetStarted();
@@ -14,17 +13,12 @@ const Hero: React.FC = () => {
   const { vt, intent } = useIntentCopy();
 
   return (
-    <section className="relative bg-[#213F4F] text-white pt-12 md:pt-16 pb-24 md:pb-28 overflow-hidden">
+    <section className="relative bg-[#213F4F] text-white pt-12 md:pt-16 pb-14 md:pb-16 overflow-hidden">
       {/* Atmospheric teal bloom */}
       <div
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
-      {/* Cairn silhouette */}
-      <div className="absolute left-[-30px] bottom-[-50px] pointer-events-none opacity-[0.07]">
-        <img src={CairnSymbolInvert} alt="" className="w-[200px] md:w-[260px] h-auto" />
-      </div>
-
       <div className="lp-container relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Copy */}
@@ -36,9 +30,11 @@ const Hero: React.FC = () => {
               <span className="h-px w-12 bg-[#D4A024]/40" />
             </Reveal>
 
+            {/* min-height reserves 3 title lines on md+ so the intent chips
+                below don't jump when a variant's H1 wraps to 2 vs 3 lines */}
             <Reveal
               as="div"
-              className="font-heading font-bold leading-[1.15] text-white"
+              className="font-heading font-bold leading-[1.15] text-white md:min-h-[3.45em]"
               style={{ fontSize: 'clamp(28px, 3.2vw, 46px)', letterSpacing: '-0.015em', maxWidth: 720 }}
             >
               {/* key={intent} remounts the text so the fade plays on chip switch */}
@@ -51,7 +47,8 @@ const Hero: React.FC = () => {
               </h1>
             </Reveal>
 
-            <Reveal as="div" className="mt-8 max-w-2xl">
+            {/* same trick for the body copy: variants run 3-4 lines */}
+            <Reveal as="div" className="mt-8 max-w-2xl md:min-h-[122px]">
               <p key={intent} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
                 {vt('hero.body')}{' '}
                 <span className="text-white font-semibold">
