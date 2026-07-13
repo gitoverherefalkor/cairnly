@@ -469,8 +469,8 @@ export function qaSystem(lang: Lang, beatNumber: number, intent: IntentKey): str
   const beat = BEATS_FOR_INTENT[beatNumber - 1];
   const chips = beat.chips?.[lang];
   const chipNote = chips
-    ? `\nThe interface shows these answer options as tap-able chips below your message (do NOT list or enumerate them in your text; ask the question naturally and let the chips do the work):\n${chips.options.map((o) => `- ${o}`).join('\n')}\nThe visitor may tap chips or type freely; treat both the same.`
-    : '\nThis question has no answer chips; invite a free, honest answer.';
+    ? `\nThe interface shows these answer options as tap-able choices below your message:\n${chips.options.map((o) => `- ${o}`).join('\n')}\nCRITICAL: your question must stay OPEN. Do not name, list, paraphrase or walk through any of the options in your text; the interface presents them. A question like "is it more about A, B, or C?" is wrong; "what's really driving this for you?" is right. The visitor may tap options or type freely; treat both the same.`
+    : '\nThis question has no answer options; invite a free, honest answer.';
   return `You are Cairnly's intake guide, in a short conversation with a visitor on the cairnly.io landing page. They have not paid or signed up; this conversation shows them what Cairnly could do for them, in their own terms. The visitor opened with a message about what brings them here.
 
 WHY THEY ARE HERE (based on the option they picked): ${INTENT_BRIEFS[intent]}

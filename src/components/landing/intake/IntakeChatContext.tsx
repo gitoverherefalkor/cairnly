@@ -62,6 +62,10 @@ interface PersistedSession {
   messages: IntakeMessage[];
   stage: IntakeStage;
   emailCaptured: boolean;
+  /** Current beat + its answer options: without these, a reload would
+      restore the conversation but silently drop the options panel. */
+  beat?: number | null;
+  chips?: IntakeChips | null;
 }
 
 function loadPersisted(): PersistedSession | null {
@@ -86,8 +90,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
   const [stage, setStage] = useState<IntakeStage>(persisted.current?.stage ?? 'chat');
   const [emailCaptured, setEmailCaptured] = useState(persisted.current?.emailCaptured ?? false);
-  const [beat, setBeat] = useState<number | null>(null);
-  const [chips, setChips] = useState<IntakeChips | null>(null);
+  const [beat, setBeat] = useState<number | null>(persisted.current?.beat ?? null);
+  const [chips, setChips] = useState<IntakeChips | null>(persisted.current?.chips ?? null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const starting = useRef(false);
@@ -100,12 +104,12 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       localStorage.setItem(
         INTAKE_SESSION_KEY,
-        JSON.stringify({ sessionId, messages, stage, emailCaptured } satisfies PersistedSession),
+        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips } satisfies PersistedSession),
       );
     } catch {
       // Best effort.
     }
-  }, [sessionId, messages, stage, emailCaptured]);
+  }, [sessionId, messages, stage, emailCaptured, beat, chips]);
 
   const focusChat = useCallback(() => {
     document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
