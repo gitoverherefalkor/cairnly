@@ -499,6 +499,15 @@
       "understandMyself": "Ik wil mezelf beter begrijpen en uitzoeken wat ik echt wil."
     },
     "seedLabel": "Je openingsbericht, pas het aan of verstuur het zo",
-    "seedPlaceholder": "Vertel in je eigen woorden wat je hier brengt…"
+    "seedPlaceholder": "Vertel in je eigen woorden wat je hier brengt…",
+    "beats": {
+      "1": "Waar je staat",
+      "2": "Wat je drijft",
+      "3": "Wat in de weg zit",
+      "4": "Je droombaan",
+      "5": "Je horizon"
+    },
+    "other": "Iets anders…",
+    "chipsConfirm": "Dat is 'm →"
   }
 }

@@ -40,6 +40,9 @@ import {
   type IntentKey,
   INTENT_KEYS,
   INTENT_LABELS,
+  CANON,
+  BEATS,
+  type BeatChips,
   qaSystem,
   pitchSystem,
   postPitchSystem,
@@ -160,19 +163,50 @@ async function getSession(sessionId: string): Promise<SessionRow | null> {
   return data as SessionRow | null;
 }
 
-/** Mapper-compatible pre-fill fields (safe subset only; see prompts.ts). */
+/**
+ * Survey pre-fill, keyed directly by question UUID so the frontend hook can
+ * merge it verbatim. Enum values were validated by the extraction tool's
+ * schema; we re-check shape and the survey's selection caps here anyway.
+ */
+const QUESTION_IDS = {
+  careerSituation: '11111111-1111-1111-1111-111111111119',
+  primaryGoals: '11111111-1111-1111-1111-111111111115',
+  obstacles: '77777777-7777-7777-7777-777777777773',
+  shortTermGoals: '77777777-7777-7777-7777-777777777771',
+  longTermGoals: '77777777-7777-7777-7777-777777777772',
+  dreamJob: '44444444-4444-4444-4444-444444444448',
+  extraContext: '11111111-1111-1111-1111-111111111121',
+  name: '11111111-1111-1111-1111-11111111111a',
+} as const;
+
+function validChoices(value: unknown, canon: readonly string[], max: number): string[] | null {
+  if (!Array.isArray(value)) return null;
+  const picked = value.filter((v): v is string => typeof v === 'string' && canon.includes(v)).slice(0, max);
+  return picked.length > 0 ? picked : null;
+}
+
 function prefillFromExtraction(extraction: Record<string, unknown> | null): Record<string, unknown> | null {
   if (!extraction) return null;
   const prefill: Record<string, unknown> = {};
-  if (typeof extraction.name === 'string' && extraction.name.trim()) prefill.name = extraction.name.trim();
-  if (typeof extraction.goals === 'string' && extraction.goals.trim().length >= 20) {
-    prefill.goals = extraction.goals.trim();
+  if (typeof extraction.career_situation === 'string' && (CANON.careerSituation as readonly string[]).includes(extraction.career_situation)) {
+    prefill[QUESTION_IDS.careerSituation] = extraction.career_situation;
   }
-  if (typeof extraction.years_experience === 'number' && extraction.years_experience >= 0) {
-    prefill.years_experience = extraction.years_experience;
+  const goals = validChoices(extraction.primary_goals, CANON.primaryGoals, 2);
+  if (goals) prefill[QUESTION_IDS.primaryGoals] = goals;
+  const obstacles = validChoices(extraction.obstacles, CANON.obstacles, 2);
+  if (obstacles) prefill[QUESTION_IDS.obstacles] = obstacles;
+  const shortTerm = validChoices(extraction.short_term_goals, CANON.shortTermGoals, 3);
+  if (shortTerm) prefill[QUESTION_IDS.shortTermGoals] = shortTerm;
+  const longTerm = validChoices(extraction.long_term_goals, CANON.longTermGoals, 3);
+  if (longTerm) prefill[QUESTION_IDS.longTermGoals] = longTerm;
+  if (typeof extraction.dream_job === 'string' && extraction.dream_job.trim()) {
+    prefill[QUESTION_IDS.dreamJob] = extraction.dream_job.trim();
   }
-  if (typeof extraction.study_subject === 'string' && extraction.study_subject.trim()) {
-    prefill.study_subject = extraction.study_subject.trim();
+  if (typeof extraction.extra_context === 'string' && extraction.extra_context.trim().length >= 20) {
+    prefill[QUESTION_IDS.extraContext] = extraction.extra_context.trim();
+  }
+  if (typeof extraction.name === 'string' && extraction.name.trim()) {
+    prefill[QUESTION_IDS.name] = extraction.name.trim();
   }
   return Object.keys(prefill).length > 0 ? prefill : null;
 }
@@ -247,26 +281,34 @@ async function advanceConversation(
   ];
   const rowForApi = { ...row, messages: transcript } as SessionRow;
 
+  const intent: IntentKey = INTENT_KEYS.includes(row.intent as IntentKey)
+    ? (row.intent as IntentKey)
+    : 'default';
+
   let reply: string;
   let stage: 'chat' | 'pitched' = row.status === 'active' ? 'chat' : 'pitched';
+  let chips: BeatChips | null = null;
+  let beat: number | null = null;
   let tokens = 0;
   let extraction = row.extraction;
   let pitch = row.pitch;
 
   try {
     if (row.status === 'active' && userTurns <= QA_TURNS) {
-      // Q&A phase: the visitor's opener is turn 1, replied to with question 1.
+      // Q&A phase: the visitor's opener is turn 1, replied to with beat 1.
       const resp = await callClaude({
-        system: qaSystem(lang, userTurns),
+        system: qaSystem(lang, userTurns, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 300,
       });
       reply = textFrom(resp);
       tokens = usedTokens(resp);
+      beat = userTurns;
+      chips = BEATS[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
       // Pitch phase: personalized preview + structured extraction.
       const pitchResp = await callClaude({
-        system: pitchSystem(lang),
+        system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 600,
       });
@@ -326,6 +368,8 @@ async function advanceConversation(
       ...(includeSessionId ? { sessionId: row.id } : {}),
       reply,
       stage,
+      beat,
+      chips,
       prefill: stage === 'pitched' ? prefillFromExtraction(extraction) : null,
     },
     corsHeaders,
@@ -389,11 +433,17 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
     .maybeSingle();
   if (error || !data) return errorResponse('Invalid link', 404, corsHeaders);
   const row = data as SessionRow;
+  const resumeLang = sanitizeLang(row.language);
+  const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= QA_TURNS
+    ? row.user_turns
+    : null;
   return json(
     {
       sessionId: row.id,
       messages: (row.messages as TranscriptMessage[]).map((m) => ({ role: m.role, text: m.text })),
       stage: row.status === 'active' ? 'chat' : 'pitched',
+      beat: midBeat,
+      chips: midBeat ? BEATS[midBeat - 1].chips?.[resumeLang] ?? null : null,
       emailCaptured: row.status === 'email_captured',
       intent: row.intent,
       language: row.language,

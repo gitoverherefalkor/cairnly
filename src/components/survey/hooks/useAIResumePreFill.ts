@@ -128,10 +128,17 @@ export const useAIResumePreFill = ({
       // EXCEPT for career_history which needs to stay as an array of objects
       // EXCEPT for skills_achievements which needs to stay as an object
       // EXCEPT for interests_hobbies which needs to stay as an object
+      // EXCEPT for the multi-select choice questions the intake chat
+      // pre-fills (primary goals, obstacles, short/long-term goals), whose
+      // answers are arrays of choice strings
       if (Array.isArray(value) &&
           questionId !== '11111111-1111-1111-1111-111111111110' &&
           questionId !== '11111111-1111-1111-1111-11111111111f' &&
-          questionId !== '11111111-1111-1111-1111-111111111120') {
+          questionId !== '11111111-1111-1111-1111-111111111120' &&
+          questionId !== '11111111-1111-1111-1111-111111111115' &&
+          questionId !== '77777777-7777-7777-7777-777777777773' &&
+          questionId !== '77777777-7777-7777-7777-777777777771' &&
+          questionId !== '77777777-7777-7777-7777-777777777772') {
         preFillResponses[questionId] = value.join(', ');
       }
       // skills_achievements (11111111-1111-1111-1111-11111111111f) should stay as object

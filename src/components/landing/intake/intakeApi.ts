@@ -11,28 +11,30 @@ export interface IntakeMessage {
   text: string;
 }
 
-/** Mapper-compatible survey pre-fill fields (safe subset). */
-export interface IntakePrefill {
-  name?: string;
-  goals?: string;
-  years_experience?: number;
-  study_subject?: string;
-}
+/** Survey pre-fill payload, keyed by question UUID (server-validated). */
+export type IntakePrefill = Record<string, unknown>;
 
 export type IntakeStage = 'chat' | 'pitched';
 
-interface StartResponse {
-  sessionId: string;
-  reply: string;
-  stage: IntakeStage;
-  prefill: IntakePrefill | null;
+/** Answer chips shown under the agent's question. */
+export interface IntakeChips {
+  options: string[];
+  multi: boolean;
+  max?: number;
 }
 
 interface MessageResponse {
   reply: string;
   stage: IntakeStage;
+  /** Which of the 5 beats the agent just asked (null once pitched). */
+  beat: number | null;
+  chips: IntakeChips | null;
   prefill: IntakePrefill | null;
   closed?: boolean;
+}
+
+interface StartResponse extends MessageResponse {
+  sessionId: string;
 }
 
 interface ResumeResponse {
@@ -40,6 +42,8 @@ interface ResumeResponse {
   messages: IntakeMessage[];
   stage: IntakeStage;
   emailCaptured: boolean;
+  beat: number | null;
+  chips: IntakeChips | null;
   intent: string;
   language: string;
   prefill: IntakePrefill | null;

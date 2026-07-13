@@ -7,7 +7,10 @@ import {
   INTAKE_SESSION_KEY,
   type IntakeMessage,
   type IntakeStage,
+  type IntakeChips,
 } from './intakeApi';
+
+const NAME_QUESTION_ID = '11111111-1111-1111-1111-11111111111a';
 
 /**
  * State for the inline intake chat section on the homepage (below the hero).
@@ -27,6 +30,10 @@ interface IntakeChatValue {
   stage: IntakeStage;
   emailCaptured: boolean;
   messages: IntakeMessage[];
+  /** Which of the 5 beats is currently being asked (null before start / after pitch). */
+  beat: number | null;
+  /** Answer chips for the current question (null = free text only). */
+  chips: IntakeChips | null;
   sending: boolean;
   error: string | null;
   /** Starts the conversation with the visitor's first message. */
@@ -73,6 +80,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
   const [stage, setStage] = useState<IntakeStage>(persisted.current?.stage ?? 'chat');
   const [emailCaptured, setEmailCaptured] = useState(persisted.current?.emailCaptured ?? false);
+  const [beat, setBeat] = useState<number | null>(null);
+  const [chips, setChips] = useState<IntakeChips | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const starting = useRef(false);
@@ -97,14 +106,21 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const handleReply = useCallback(
-    (res: { reply: string; stage: IntakeStage; prefill: Parameters<typeof storePrefill>[0] }) => {
+    (res: {
+      reply: string;
+      stage: IntakeStage;
+      beat?: number | null;
+      chips?: IntakeChips | null;
+      prefill: Parameters<typeof storePrefill>[0];
+    }) => {
       setMessages((prev) => [...prev, { role: 'assistant', text: res.reply }]);
+      setBeat(res.beat ?? null);
+      setChips(res.chips ?? null);
       if (res.stage === 'pitched') {
         setStage('pitched');
         storePrefill(res.prefill);
-        if (res.prefill && typeof res.prefill.name === 'string') {
-          storeContact({ firstName: res.prefill.name });
-        }
+        const name = res.prefill?.[NAME_QUESTION_ID];
+        if (typeof name === 'string') storeContact({ firstName: name });
       }
     },
     [],
@@ -116,6 +132,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (!trimmed || sessionId || starting.current) return;
       starting.current = true;
       setMessages([{ role: 'user', text: trimmed }]);
+      setChips(null);
       setSending(true);
       setError(null);
       intakeApi
@@ -141,6 +158,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const trimmed = text.trim();
       if (!trimmed || !sessionId || sending) return;
       setMessages((prev) => [...prev, { role: 'user', text: trimmed }]);
+      setChips(null);
       setSending(true);
       setError(null);
       intakeApi
@@ -183,6 +201,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setMessages(res.messages);
           setStage(res.stage);
           setEmailCaptured(res.emailCaptured);
+          setBeat(res.beat ?? null);
+          setChips(res.chips ?? null);
           storePrefill(res.prefill);
           storeContact(res.contact);
           // Let the section render the restored thread, then scroll to it.
@@ -201,6 +221,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         stage,
         emailCaptured,
         messages,
+        beat,
+        chips,
         sending,
         error,
         start,
