@@ -471,5 +471,25 @@
         "p1": "Ze worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
       }
     }
+  },
+  "intake": {
+    "title": "Jouw verhaal, in vijf vragen",
+    "subtitle": "Beantwoord vijf vragen en zie waar Cairnly voor jou in zou duiken.",
+    "inputPlaceholder": "Typ je antwoord…",
+    "send": "Versturen",
+    "skip": "Direct naar afrekenen",
+    "minimize": "Chat minimaliseren",
+    "close": "Chat sluiten",
+    "continuePill": "Ga verder met ons gesprek",
+    "typing": "Cairnly is aan het typen",
+    "error": "Dat kwam niet door. Probeer het nog eens?",
+    "emailTitle": "Wil je dit bewaren?",
+    "emailBody": "Laat je e-mailadres achter en we bewaren dit gesprek en je voortgang, zodat je het elk moment kunt oppakken.",
+    "emailPlaceholder": "jij@voorbeeld.nl",
+    "emailSubmit": "Bewaren",
+    "emailLater": "Misschien later",
+    "emailSaved": "Bewaard. Check je inbox voor je persoonlijke link.",
+    "ctaCheckout": "Door naar het volledige assessment",
+    "ctaNote": "€39 eenmalig tijdens de beta · je antwoorden gaan mee"
   }
 }

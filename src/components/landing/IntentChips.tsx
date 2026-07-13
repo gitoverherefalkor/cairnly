@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useIntent, INTENT_KEYS, type IntentKey } from '@/contexts/IntentContext';
+import { useIntakeChatOptional } from './intake/IntakeChatContext';
 
 const VISITOR_KEY = 'cairnly_visitor_id';
 
@@ -47,6 +48,7 @@ const LABEL_KEY: Record<IntentKey, string> = {
 const IntentChips: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
   const { intent, setIntent } = useIntent();
+  const intakeChat = useIntakeChatOptional();
   // 'idle' → other input closed, 'open' → typing, 'thanked' → submitted
   const [otherState, setOtherState] = useState<'idle' | 'open' | 'thanked'>('idle');
   const [otherText, setOtherText] = useState('');
@@ -55,6 +57,9 @@ const IntentChips: React.FC = () => {
     if (key !== intent) logPick(key, i18n.language);
     setIntent(key);
     if (otherState === 'open') setOtherState('idle');
+    // Picking a pill also opens the intake chat seeded with that intent
+    // (unless the visitor already dismissed it; that stays respected).
+    intakeChat?.openFromPill(key);
   };
 
   const submitOther = () => {

@@ -181,6 +181,26 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
     }
   }, [user, profile, form]);
 
+  // Anonymous visitors coming from the landing-page intake chat: pre-fill
+  // name/email from what they shared there (logged-in data above wins).
+  useEffect(() => {
+    if (user) return;
+    try {
+      const raw = localStorage.getItem('cairnly_intake_contact');
+      if (!raw) return;
+      const contact = JSON.parse(raw) as { email?: string | null; firstName?: string | null };
+      const currentValues = form.getValues();
+      const updates: Partial<CheckoutFormValues> = {};
+      if (contact.firstName && !currentValues.firstName) updates.firstName = contact.firstName;
+      if (contact.email && !currentValues.email) updates.email = contact.email;
+      if (Object.keys(updates).length > 0) {
+        form.reset({ ...currentValues, ...updates });
+      }
+    } catch {
+      // Blocked or corrupt storage: the form just starts empty.
+    }
+  }, [user, form]);
+
   async function onSubmit(values: CheckoutFormValues) {
     setIsLoading(true);
     setError(null);

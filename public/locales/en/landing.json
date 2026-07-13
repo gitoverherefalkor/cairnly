@@ -471,5 +471,25 @@
         "p1": "They're chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
       }
     }
+  },
+  "intake": {
+    "title": "Your story, in five questions",
+    "subtitle": "Answer five questions and see what Cairnly would dig into for you.",
+    "inputPlaceholder": "Type your answer…",
+    "send": "Send",
+    "skip": "Skip to checkout",
+    "minimize": "Minimize chat",
+    "close": "Close chat",
+    "continuePill": "Continue our chat",
+    "typing": "Cairnly is typing",
+    "error": "That didn't come through. Try again?",
+    "emailTitle": "Want to keep this?",
+    "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
+    "emailPlaceholder": "you@example.com",
+    "emailSubmit": "Save it",
+    "emailLater": "Maybe later",
+    "emailSaved": "Saved. Check your inbox for your personal link.",
+    "ctaCheckout": "Continue to the full assessment",
+    "ctaNote": "€39 one-off during beta · your answers carry over"
   }
 }
