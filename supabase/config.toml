@@ -94,3 +94,8 @@ verify_jwt = true
 # Résumé Strengthen coaching layer — called by logged-in users only.
 [functions.resume-strengthen]
 verify_jwt = true
+
+# Landing-page intake chat — anonymous visitors, no JWT exists yet. Abuse is
+# fenced inside the function (rate limit, turn caps, token budget).
+[functions.intake-chat]
+verify_jwt = false
