@@ -54,6 +54,39 @@ export const INTENT_BRIEFS: Record<IntentKey, string> = {
   'understand-myself': `They want self-understanding before direction. Often reflective, may have done tests before and found them shallow. Listen for: patterns across their history they have not named; the difference between what they are praised for and what energizes them; be concrete, they are allergic to horoscope-style vagueness.`,
 };
 
+/**
+ * Canned agent reply to a pill-seeded opener: a short acknowledgment of the
+ * pill's sentiment plus the beat-1 question (career stage). Served without
+ * an LLM call, so the conversation starts instantly; custom-typed openers
+ * still get a live model reply.
+ */
+export const OPENER_REPLIES: Record<Lang, Record<IntentKey, string>> = {
+  en: {
+    default:
+      "That question deserves a real answer, and it starts with where you stand today. What does your work look like right now: working solo, leading people, or somewhere in between?",
+    'good-at-it':
+      "That tension is more common than people admit, and worth taking seriously. First, help me place you: are you working solo these days, leading a team, or somewhere in between?",
+    'ai-worried':
+      "Fair worry, and it deserves a straight answer rather than reassurance. First, help me place you: are you working solo, leading people, or somewhere in between?",
+    'life-changed':
+      "That gap between the life and the job is worth taking seriously. To start, where are you right now: working solo, leading a team, on a break, or somewhere in between?",
+    'understand-myself':
+      "Good starting point, knowing who's choosing comes before choosing. First, help me place you: working solo these days, leading people, or somewhere in between?",
+  },
+  nl: {
+    default:
+      "Die vraag verdient een echt antwoord, en dat begint bij waar je nu staat. Hoe ziet je werk er op dit moment uit: werk je solo, geef je leiding, of iets ertussenin?",
+    'good-at-it':
+      "Die spanning komt vaker voor dan mensen toegeven, en is serieus te nemen. Help me eerst even plaatsen: werk je tegenwoordig solo, stuur je een team aan, of iets ertussenin?",
+    'ai-worried':
+      "Terechte zorg, en die verdient een eerlijk antwoord in plaats van geruststelling. Help me eerst even plaatsen: werk je solo, geef je leiding, of iets ertussenin?",
+    'life-changed':
+      "Die kloof tussen het leven en de baan is serieus te nemen. Om te beginnen: waar sta je nu, werk je solo, stuur je een team aan, zit je er even tussenuit, of iets ertussenin?",
+    'understand-myself':
+      "Goed startpunt, weten wie er kiest komt vóór het kiezen. Help me eerst even plaatsen: werk je tegenwoordig solo, geef je leiding, of iets ertussenin?",
+  },
+};
+
 // ── Canonical survey answer values (must match questions.config.choices
 //    EXACTLY, markdown included; answer values stay English for NL users) ──
 

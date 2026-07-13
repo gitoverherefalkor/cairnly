@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 export interface IntakeMessage {
   role: 'assistant' | 'user';
   text: string;
+  /** True for the pill-seeded opening message (rendered gold, tied to the pill). */
+  seeded?: boolean;
 }
 
 /** Survey pre-fill payload, keyed by question UUID (server-validated). */
@@ -58,8 +60,8 @@ async function invoke<T>(body: Record<string, unknown>): Promise<T> {
 }
 
 export const intakeApi = {
-  start: (intent: string, language: string, source: 'cta' | 'pill', text: string) =>
-    invoke<StartResponse>({ action: 'start', intent, language, source, text }),
+  start: (intent: string, language: string, source: 'cta' | 'pill', text: string, seeded: boolean) =>
+    invoke<StartResponse>({ action: 'start', intent, language, source, text, seeded }),
   message: (sessionId: string, text: string) =>
     invoke<MessageResponse>({ action: 'message', sessionId, text }),
   email: (sessionId: string, email: string) =>

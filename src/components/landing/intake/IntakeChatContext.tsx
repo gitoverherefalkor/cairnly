@@ -36,8 +36,14 @@ interface IntakeChatValue {
   chips: IntakeChips | null;
   sending: boolean;
   error: string | null;
-  /** Starts the conversation with the visitor's first message. */
+  /** Starts the conversation with the visitor's first message (typed/edited). */
   start: (text: string, intent: string) => void;
+  /**
+   * Pill click: starts (or restarts, if nothing substantive was said yet)
+   * the conversation with that pill's seed as a gold message, and reveals
+   * the canned opener after a short "typing" beat.
+   */
+  startFromPill: (intent: string, seedText: string) => void;
   sendMessage: (text: string) => void;
   submitEmail: (email: string) => Promise<boolean>;
   /** Restores a session from a magic-link token, then scrolls to the chat. */
@@ -126,31 +132,62 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [],
   );
 
-  const start = useCallback(
-    (text: string, intent: string) => {
+  const startConversation = useCallback(
+    (text: string, intent: string, seeded: boolean) => {
       const trimmed = text.trim();
-      if (!trimmed || sessionId || starting.current) return;
+      if (!trimmed || starting.current) return;
       starting.current = true;
-      setMessages([{ role: 'user', text: trimmed }]);
+      setSessionId(null);
+      setStage('chat');
+      setEmailCaptured(false);
+      setMessages([{ role: 'user', text: trimmed, seeded }]);
       setChips(null);
+      setBeat(null);
       setSending(true);
       setError(null);
+      // Seeded openers come back instantly (canned server-side); hold the
+      // typing indicator for a beat so the reply feels generated, not pasted.
+      const revealDelay = seeded ? 1400 : 0;
+      const startedAt = Date.now();
       intakeApi
-        .start(intent, lang, 'pill', trimmed)
+        .start(intent, lang, seeded ? 'pill' : 'cta', trimmed, seeded)
         .then((res) => {
-          setSessionId(res.sessionId);
-          handleReply(res);
+          const wait = Math.max(0, revealDelay - (Date.now() - startedAt));
+          setTimeout(() => {
+            setSessionId(res.sessionId);
+            handleReply(res);
+            setSending(false);
+            starting.current = false;
+          }, wait);
         })
         .catch(() => {
           setMessages([]);
           setError(t('intake.error'));
-        })
-        .finally(() => {
           setSending(false);
           starting.current = false;
         });
     },
-    [sessionId, lang, t, handleReply],
+    [lang, t, handleReply],
+  );
+
+  const start = useCallback(
+    (text: string, intent: string) => {
+      if (sessionId) return;
+      startConversation(text, intent, false);
+    },
+    [sessionId, startConversation],
+  );
+
+  const startFromPill = useCallback(
+    (intent: string, seedText: string) => {
+      // Respect a real conversation in progress; only a barely-started one
+      // (nothing substantive said) gets replaced by a new pill click.
+      const userMsgs = messages.filter((m) => m.role === 'user').length;
+      if (sessionId && (stage === 'pitched' || userMsgs > 1)) return;
+      if (starting.current || sending) return;
+      startConversation(seedText, intent, true);
+    },
+    [sessionId, stage, messages, sending, startConversation],
   );
 
   const sendMessage = useCallback(
@@ -226,6 +263,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         sending,
         error,
         start,
+        startFromPill,
         sendMessage,
         submitEmail,
         openFromToken,

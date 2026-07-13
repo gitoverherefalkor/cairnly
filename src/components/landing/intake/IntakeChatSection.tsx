@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Pencil } from 'lucide-react';
 import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
 import Reveal from '../Reveal';
@@ -55,6 +55,14 @@ const IntakeChatSection: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent, chat.started, t]);
 
+  // The seed textarea and the thread input share `draft`; when a pill
+  // auto-starts the conversation, clear it so the seed doesn't linger in
+  // the input box.
+  useEffect(() => {
+    if (chat.started) setDraft('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat.started]);
+
   // Reset chip selection whenever a new question (with chips) arrives.
   useEffect(() => {
     setPicked([]);
@@ -78,6 +86,9 @@ const IntakeChatSection: React.FC = () => {
     if (!draft.trim() || chat.sending) return;
     if (chat.started) {
       chat.sendMessage(draft);
+    } else if (draft.trim() === t(`intake.seeds.${SEED_KEY[intent]}`)) {
+      // Unedited pill seed: same gold treatment + canned opener as a pill click.
+      chat.startFromPill(intent, draft);
     } else {
       chat.start(draft, intent);
     }
@@ -182,14 +193,15 @@ const IntakeChatSection: React.FC = () => {
                       <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-white/45">
                         {t('intake.seedLabel')}
                       </p>
+                      {/* Gold, matching the selected pill: this message IS the pill speaking */}
                       <div className="flex justify-end">
-                        <div className="w-full rounded-2xl bg-atlas-teal px-4 py-3.5 md:max-w-[85%]">
+                        <div className="w-full rounded-2xl px-4 py-3.5 md:max-w-[85%]" style={{ background: '#D4A024' }}>
                           <textarea
                             value={draft}
                             maxLength={600}
                             rows={2}
                             onChange={(e) => setDraft(e.target.value)}
-                            className="w-full resize-none bg-transparent text-[0.9375rem] leading-relaxed text-white outline-none placeholder:text-white/50"
+                            className="w-full resize-none bg-transparent text-[0.9375rem] font-medium leading-relaxed text-[#122E3B] outline-none placeholder:text-[#122E3B]/50"
                             placeholder={t('intake.seedPlaceholder')}
                           />
                         </div>
@@ -224,7 +236,14 @@ const IntakeChatSection: React.FC = () => {
                         {chat.messages.map((m, i) =>
                           m.role === 'user' ? (
                             <div key={i} className="flex justify-end">
-                              <div className="max-w-[75%] whitespace-pre-wrap rounded-2xl bg-atlas-teal px-4 py-3.5 text-[0.9375rem] leading-relaxed text-white">
+                              <div
+                                className="max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-3.5 text-[0.9375rem] leading-relaxed"
+                                style={
+                                  m.seeded
+                                    ? { background: '#D4A024', color: '#122E3B', fontWeight: 500 }
+                                    : { background: '#27A1A1', color: '#fff' }
+                                }
+                              >
                                 {m.text}
                               </div>
                             </div>
@@ -257,45 +276,60 @@ const IntakeChatSection: React.FC = () => {
                           </div>
                         )}
 
-                        {/* Answer chips */}
+                        {/* Answer options: numbered list panel, app-chat style */}
                         {showChips && (
-                          <div className="flex flex-wrap justify-end gap-2 pt-1">
-                            {chat.chips!.options.map((option) => {
-                              const selected = picked.includes(option);
-                              return (
-                                <button
-                                  key={option}
-                                  type="button"
-                                  onClick={() => tapChip(option)}
-                                  aria-pressed={selected}
-                                  className="rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors"
-                                  style={
-                                    selected
-                                      ? { background: '#27A1A1', borderColor: '#27A1A1', color: '#fff' }
-                                      : { borderColor: 'rgba(42,191,191,0.55)', color: '#8FD9D9', background: 'rgba(42,191,191,0.08)' }
-                                  }
-                                >
-                                  {option}
-                                </button>
-                              );
-                            })}
-                            <button
-                              type="button"
-                              onClick={() => inputRef.current?.focus()}
-                              className="rounded-full border border-dashed border-white/35 px-3.5 py-1.5 text-[13px] font-semibold text-white/55"
+                          <div className="flex justify-start">
+                            <div
+                              className="w-full max-w-[85%] overflow-hidden rounded-[16px] border"
+                              style={{ background: '#FDFBF2', borderColor: 'rgba(39,161,161,0.35)', boxShadow: '0 20px 44px -20px rgba(0,0,0,0.4)' }}
                             >
-                              {t('intake.other')}
-                            </button>
-                            {chat.chips!.multi && picked.length > 0 && (
+                              {chat.chips!.options.map((option, idx) => {
+                                const selected = picked.includes(option);
+                                return (
+                                  <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => tapChip(option)}
+                                    aria-pressed={selected}
+                                    className="flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors hover:bg-atlas-teal/5"
+                                    style={{
+                                      borderColor: 'rgba(201,182,144,0.35)',
+                                      background: selected ? 'rgba(39,161,161,0.10)' : undefined,
+                                    }}
+                                  >
+                                    <span
+                                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold"
+                                      style={
+                                        selected
+                                          ? { background: '#27A1A1', color: '#fff' }
+                                          : { background: 'rgba(39,161,161,0.12)', color: '#1F8282' }
+                                      }
+                                    >
+                                      {selected ? <Check size={13} strokeWidth={3} /> : idx + 1}
+                                    </span>
+                                    <span className="text-[14px] leading-snug text-[#1F2937]">{option}</span>
+                                  </button>
+                                );
+                              })}
                               <button
                                 type="button"
-                                onClick={confirmChips}
-                                className="rounded-full px-4 py-1.5 text-[13px] font-bold text-white"
-                                style={{ background: '#2ABFBF' }}
+                                onClick={() => inputRef.current?.focus()}
+                                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-atlas-teal/5"
                               >
-                                {t('intake.chipsConfirm')}
+                                <Pencil size={14} className="ml-1.5 shrink-0 text-[#6B7F8B]" />
+                                <span className="text-[14px] text-[#6B7F8B]">{t('intake.other')}</span>
                               </button>
-                            )}
+                              {chat.chips!.multi && picked.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={confirmChips}
+                                  className="w-full py-2.5 text-center text-[13px] font-bold text-white transition-opacity hover:opacity-90"
+                                  style={{ background: '#27A1A1' }}
+                                >
+                                  {t('intake.chipsConfirm')}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
 

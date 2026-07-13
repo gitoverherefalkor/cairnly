@@ -3,6 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useIntent, INTENT_KEYS, type IntentKey } from '@/contexts/IntentContext';
+import { useIntakeChatOptional } from './intake/IntakeChatContext';
+
+/** i18n seed keys per intent under intake.seeds (mirrors IntakeChatSection). */
+const INTAKE_SEED_KEY: Record<IntentKey, string> = {
+  default: 'default',
+  'good-at-it': 'goodAtIt',
+  'ai-worried': 'aiWorried',
+  'life-changed': 'lifeChanged',
+  'understand-myself': 'understandMyself',
+};
 
 const VISITOR_KEY = 'cairnly_visitor_id';
 
@@ -47,6 +57,7 @@ const LABEL_KEY: Record<IntentKey, string> = {
 const IntentChips: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
   const { intent, setIntent } = useIntent();
+  const intakeChat = useIntakeChatOptional();
   // 'idle' → other input closed, 'open' → typing, 'thanked' → submitted
   const [otherState, setOtherState] = useState<'idle' | 'open' | 'thanked'>('idle');
   const [otherText, setOtherText] = useState('');
@@ -55,8 +66,9 @@ const IntentChips: React.FC = () => {
     if (key !== intent) logPick(key, i18n.language);
     setIntent(key);
     if (otherState === 'open') setOtherState('idle');
-    // The inline intake chat below the hero reseeds its first message from
-    // this intent (via IntentContext); nothing opens or moves on pill click.
+    // Kick off the intake chat below the hero with this pill's seed message
+    // (no-op if a real conversation is already underway).
+    intakeChat?.startFromPill(key, t(`intake.seeds.${INTAKE_SEED_KEY[key]}`));
   };
 
   const submitOther = () => {

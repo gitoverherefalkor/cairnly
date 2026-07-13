@@ -40,6 +40,7 @@ import {
   type IntentKey,
   INTENT_KEYS,
   INTENT_LABELS,
+  OPENER_REPLIES,
   CANON,
   BEATS,
   type BeatChips,
@@ -233,6 +234,31 @@ async function handleStart(body: Record<string, unknown>, corsHeaders: Record<st
     ? (body.intent as IntentKey)
     : 'default';
   const source = body.source === 'pill' ? 'pill' : 'cta';
+
+  // Pill-seeded openers get a canned reply (no LLM call): instant, free, and
+  // deterministic. Custom-typed openers go through the live model instead.
+  if (body.seeded === true) {
+    const reply = OPENER_REPLIES[language][intent];
+    const now = new Date().toISOString();
+    const messages: TranscriptMessage[] = [
+      { role: 'user', text, at: now },
+      { role: 'assistant', text: reply, at: now },
+    ];
+    const { data, error } = await supabase
+      .from('intake_sessions')
+      .insert({ intent, language, source, messages, user_turns: 1 })
+      .select('id')
+      .single();
+    if (error || !data) {
+      console.error('[intake-chat] session insert failed:', error?.message);
+      return errorResponse('Could not start the conversation', 500, corsHeaders);
+    }
+    return json(
+      { sessionId: data.id, reply, stage: 'chat', beat: 1, chips: BEATS[0].chips?.[language] ?? null, prefill: null },
+      corsHeaders,
+    );
+  }
+
   const { data, error } = await supabase
     .from('intake_sessions')
     .insert({ intent, language, source, messages: [] })
