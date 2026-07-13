@@ -34,22 +34,18 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="lp-container relative z-10">
-        <div className="grid lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-12">
-          {/* Copy + pills (row 1 left) */}
-          <div className="lg:col-span-7">
-            <Reveal className="flex items-center gap-3 mb-8">
-              <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-                {t('hero.eyebrow')}
-              </span>
-              <span className="h-px w-12 bg-[#D4A024]/40" />
-            </Reveal>
-
-            {/* min-height reserves 3 title lines on md+ so the intent chips
-                below don't jump when a variant's H1 wraps to 2 vs 3 lines */}
+        {/* Everything the pill controls sits together: pills + chat on the
+            left, headline / copy / product screenshot reacting on the right.
+            DOM order keeps the mobile flow: headline -> pills -> chat -> proof. */}
+        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-10">
+          {/* Headline + body (desktop: right column, row 1) */}
+          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
+            {/* min-height reserves 3 title lines on md+ so the blocks below
+                don't jump when a variant's H1 wraps to 2 vs 3 lines */}
             <Reveal
               as="div"
               className="font-heading font-bold leading-[1.15] text-white md:min-h-[3.45em]"
-              style={{ fontSize: 'clamp(28px, 3.2vw, 46px)', letterSpacing: '-0.015em', maxWidth: 720 }}
+              style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
             >
               {/* key={intent} remounts the text so the fade plays on chip switch */}
               <h1 key={intent} className="lp-intent-fade">
@@ -62,7 +58,7 @@ const Hero: React.FC = () => {
             </Reveal>
 
             {/* same trick for the body copy: variants run 3-4 lines */}
-            <Reveal as="div" className="mt-8 max-w-2xl md:min-h-[122px]">
+            <Reveal as="div" className="mt-6 max-w-2xl md:min-h-[122px]">
               <p key={intent} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
                 {vt('hero.body')}{' '}
                 <span className="text-white font-semibold">
@@ -70,19 +66,27 @@ const Hero: React.FC = () => {
                 </span>
               </p>
             </Reveal>
+          </div>
 
-            <Reveal as="div" className="mt-2">
+          {/* Pills + chat as ONE left block (spans both rows, so the chat sits
+              tight under its pills regardless of the right column's height) */}
+          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:row-span-2">
+            <Reveal className="flex items-center gap-3 mb-6">
+              <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
+                {t('hero.eyebrow')}
+              </span>
+              <span className="h-px w-12 bg-[#D4A024]/40" />
+            </Reveal>
+            <Reveal as="div">
               <IntentChips />
+            </Reveal>
+            <Reveal as="div" className="mt-8">
+              <IntakeChatPanel />
             </Reveal>
           </div>
 
-          {/* Intake chat (right column, spans both rows, beside the pills) */}
-          <Reveal as="div" className="lg:col-span-5 lg:row-span-2 lg:col-start-8">
-            <IntakeChatPanel />
-          </Reveal>
-
-          {/* Product proof + CTA (row 2 left) */}
-          <Reveal as="div" className="lg:col-span-7 lg:col-start-1">
+          {/* Product proof + CTA (desktop: right column, row 2) */}
+          <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
             <HeroCarousel />
             <div className="mt-8 flex flex-col items-center gap-5">
               <div className="flex flex-col sm:flex-row items-center gap-5">

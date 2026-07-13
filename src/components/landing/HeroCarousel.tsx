@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Lock } from 'lucide-react';
+import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 
 // Each slide is a real product screen. `slug` mirrors the app route that page
 // lives at (see src/App.tsx), so the fake browser URL bar reads like the
@@ -46,14 +47,34 @@ const SLIDES: Slide[] = [
 const ROTATE_MS = 4000;
 
 /**
+ * Which slide best answers each "what brings you here?" pill. Clicking a
+ * pill jumps the carousel there (rotation continues from that point).
+ * Best match within the existing six screenshots; dedicated per-intent
+ * shots (e.g. an AI-impact rating close-up for ai-worried) can slot in later.
+ */
+const INTENT_SLIDE: Record<IntentKey, number> = {
+  default: 0, // assessment welcome — the "start over properly" story
+  'good-at-it': 4, // coach chat — pressure-testing whether the fit is real
+  'ai-worried': 3, // career report — paths scored incl. AI impact
+  'life-changed': 3, // career report — new paths for new priorities
+  'understand-myself': 2, // assessment section — the self-understanding work
+};
+
+/**
  * Hero product preview rendered as a faux browser window whose screenshot
  * rotates every 4s. The URL bar updates to the active page's real slug.
  * Pauses on hover and honours prefers-reduced-motion.
  */
 const HeroCarousel: React.FC = () => {
+  const { intent } = useIntent();
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const reduceMotion = useRef(false);
+
+  // A pill click jumps the carousel to that intent's most relevant screen.
+  useEffect(() => {
+    setActive(INTENT_SLIDE[intent] ?? 0);
+  }, [intent]);
 
   useEffect(() => {
     reduceMotion.current =

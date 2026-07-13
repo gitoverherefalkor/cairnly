@@ -180,14 +180,14 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const startFromPill = useCallback(
     (intent: string, seedText: string) => {
-      // Respect a real conversation in progress; only a barely-started one
-      // (nothing substantive said) gets replaced by a new pill click.
-      const userMsgs = messages.filter((m) => m.role === 'user').length;
-      if (sessionId && (stage === 'pitched' || userMsgs > 1)) return;
+      // Pills own the pre-pitch conversation: a click restarts it with the
+      // new angle. Once the pitch has been delivered (real value on screen),
+      // pill clicks leave the conversation alone.
+      if (stage === 'pitched') return;
       if (starting.current || sending) return;
       startConversation(seedText, intent, true);
     },
-    [sessionId, stage, messages, sending, startConversation],
+    [stage, sending, startConversation],
   );
 
   const sendMessage = useCallback(
