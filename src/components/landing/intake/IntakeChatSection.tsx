@@ -14,8 +14,6 @@ const SEED_KEY: Record<IntentKey, string> = {
   'understand-myself': 'understandMyself',
 };
 
-const BEAT_COUNT = 5;
-
 /** App chat design tokens (mirrors components/chat/ChatMessage.tsx). */
 const ASSISTANT_BUBBLE: React.CSSProperties = {
   background: '#FDFBF2',
@@ -73,7 +71,8 @@ const IntakeChatPanel: React.FC = () => {
     () => chat.messages.filter((m) => m.role === 'user').length,
     [chat.messages],
   );
-  const currentBeat = chat.stage === 'pitched' ? BEAT_COUNT + 1 : chat.beat ?? Math.min(userMsgCount, BEAT_COUNT);
+  const totalBeats = chat.totalBeats;
+  const currentBeat = chat.stage === 'pitched' ? totalBeats + 1 : chat.beat ?? Math.min(userMsgCount, totalBeats);
 
   // Collapse everything except the latest exchange; the panel keeps a
   // stable height instead of growing an inner scrollbar.
@@ -131,7 +130,7 @@ const IntakeChatPanel: React.FC = () => {
         </p>
         <p className="mt-1 text-[13px] leading-snug text-white/60">{t('intake.subtitle')}</p>
         <div className="mt-3 flex items-center gap-2">
-          {Array.from({ length: BEAT_COUNT }, (_, i) => i + 1).map((n) => {
+          {Array.from({ length: totalBeats }, (_, i) => i + 1).map((n) => {
             const done = currentBeat > n;
             const active = currentBeat === n && chat.started;
             return (
@@ -150,12 +149,9 @@ const IntakeChatPanel: React.FC = () => {
               </span>
             );
           })}
-          {chat.started && currentBeat <= BEAT_COUNT && (
+          {chat.started && currentBeat <= totalBeats && chat.beatLabels[currentBeat - 1] && (
             <span className="ml-1.5 text-[12px] font-semibold text-white/70">
-              {/* beat 3 is pill-specific, its label follows the intent */}
-              {currentBeat === 3
-                ? t(`intake.beats3.${SEED_KEY[intent]}`)
-                : t(`intake.beats.${currentBeat}`)}
+              {chat.beatLabels[currentBeat - 1]}
             </span>
           )}
         </div>

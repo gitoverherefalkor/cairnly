@@ -37,6 +37,8 @@ interface MessageResponse {
 
 interface StartResponse extends MessageResponse {
   sessionId: string;
+  totalBeats: number;
+  beatLabels: string[];
 }
 
 interface ResumeResponse {
@@ -46,6 +48,8 @@ interface ResumeResponse {
   emailCaptured: boolean;
   beat: number | null;
   chips: IntakeChips | null;
+  totalBeats: number;
+  beatLabels: string[];
   intent: string;
   language: string;
   prefill: IntakePrefill | null;

@@ -44,6 +44,7 @@ import {
   CANON,
   BEATS,
   beatsFor,
+  beatLabels,
   type BeatChips,
   qaSystem,
   pitchSystem,
@@ -55,7 +56,6 @@ import {
 } from './prompts.ts';
 
 const MODEL = 'claude-sonnet-5'; // NOTE: never send `temperature` to sonnet-5 (API rejects it)
-const QA_TURNS = 5; // user answers before the pitch fires
 const MAX_USER_TURNS = 12; // hard stop per session
 const MAX_MESSAGE_CHARS = 600;
 const MAX_SESSION_TOKENS = 60_000; // input+output budget across the session
@@ -270,7 +270,7 @@ async function handleStart(body: Record<string, unknown>, corsHeaders: Record<st
       return errorResponse('Could not start the conversation', 500, corsHeaders);
     }
     return json(
-      { sessionId: data.id, reply, stage: 'chat', beat: 1, chips: beatsFor(intent)[0].chips?.[language] ?? null, prefill: null },
+      { sessionId: data.id, reply, stage: 'chat', beat: 1, chips: beatsFor(intent)[0].chips?.[language] ?? null, totalBeats: beatsFor(intent).length, beatLabels: beatLabels(intent, language), prefill: null },
       corsHeaders,
     );
   }
@@ -336,23 +336,24 @@ async function advanceConversation(
   let pitch = row.pitch;
 
   try {
-    if (row.status === 'active' && userTurns <= QA_TURNS) {
+    const plan = beatsFor(intent);
+    if (row.status === 'active' && userTurns <= plan.length) {
       // Q&A phase: the visitor's opener is turn 1, replied to with beat 1.
       const resp = await callClaude({
         system: qaSystem(lang, userTurns, intent),
         messages: apiMessages(rowForApi),
-        maxTokens: 300,
+        maxTokens: 800,
       });
       reply = textFrom(resp);
       tokens = usedTokens(resp);
       beat = userTurns;
-      chips = beatsFor(intent)[userTurns - 1].chips?.[lang] ?? null;
+      chips = plan[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
       // Pitch phase: personalized preview + structured extraction.
       const pitchResp = await callClaude({
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
-        maxTokens: 600,
+        maxTokens: 1500,
       });
       reply = textFrom(pitchResp);
       tokens = usedTokens(pitchResp);
@@ -362,7 +363,7 @@ async function advanceConversation(
         const extractResp = await callClaude({
           system: extractionSystem(lang),
           messages: apiMessages(rowForApi),
-          maxTokens: 500,
+          maxTokens: 1200,
           tools: [EXTRACTION_TOOL],
           toolChoice: { type: 'tool', name: EXTRACTION_TOOL.name },
         });
@@ -378,7 +379,7 @@ async function advanceConversation(
       const resp = await callClaude({
         system: postPitchSystem(lang),
         messages: apiMessages(rowForApi),
-        maxTokens: 300,
+        maxTokens: 800,
       });
       reply = textFrom(resp);
       tokens = usedTokens(resp);
@@ -407,7 +408,9 @@ async function advanceConversation(
 
   return json(
     {
-      ...(includeSessionId ? { sessionId: row.id } : {}),
+      ...(includeSessionId
+        ? { sessionId: row.id, totalBeats: beatsFor(intent).length, beatLabels: beatLabels(intent, lang) }
+        : {}),
       reply,
       stage,
       beat,
@@ -477,7 +480,8 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
   const row = data as SessionRow;
   const resumeLang = sanitizeLang(row.language);
   const resumeIntent: IntentKey = INTENT_KEYS.includes(row.intent as IntentKey) ? (row.intent as IntentKey) : 'default';
-  const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= QA_TURNS
+  const resumePlan = beatsFor(resumeIntent);
+  const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= resumePlan.length
     ? row.user_turns
     : null;
   return json(
@@ -486,7 +490,9 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
       messages: (row.messages as TranscriptMessage[]).map((m) => ({ role: m.role, text: m.text })),
       stage: row.status === 'active' ? 'chat' : 'pitched',
       beat: midBeat,
-      chips: midBeat ? beatsFor(resumeIntent)[midBeat - 1].chips?.[resumeLang] ?? null : null,
+      chips: midBeat ? resumePlan[midBeat - 1].chips?.[resumeLang] ?? null : null,
+      totalBeats: resumePlan.length,
+      beatLabels: beatLabels(resumeIntent, resumeLang),
       emailCaptured: row.status === 'email_captured',
       intent: row.intent,
       language: row.language,

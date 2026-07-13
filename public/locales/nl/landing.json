@@ -473,8 +473,8 @@
     }
   },
   "intake": {
-    "title": "Jouw verhaal, in vijf vragen",
-    "subtitle": "Beantwoord vijf vragen en zie waar Cairnly voor jou in zou duiken.",
+    "title": "Jouw verhaal, in een paar vragen",
+    "subtitle": "Beantwoord een paar korte vragen en zie waar Cairnly voor jou op in zou gaan.",
     "inputPlaceholder": "Typ je antwoord…",
     "send": "Versturen",
     "skip": "Direct naar afrekenen",

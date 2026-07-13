@@ -34,6 +34,10 @@ interface IntakeChatValue {
   beat: number | null;
   /** Answer chips for the current question (null = free text only). */
   chips: IntakeChips | null;
+  /** Number of beats in this conversation's plan (varies per pill). */
+  totalBeats: number;
+  /** Localized stepper labels for the plan. */
+  beatLabels: string[];
   sending: boolean;
   error: string | null;
   /** Starts the conversation with the visitor's first message (typed/edited). */
@@ -66,6 +70,8 @@ interface PersistedSession {
       restore the conversation but silently drop the options panel. */
   beat?: number | null;
   chips?: IntakeChips | null;
+  totalBeats?: number;
+  beatLabels?: string[];
 }
 
 function loadPersisted(): PersistedSession | null {
@@ -92,6 +98,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [emailCaptured, setEmailCaptured] = useState(persisted.current?.emailCaptured ?? false);
   const [beat, setBeat] = useState<number | null>(persisted.current?.beat ?? null);
   const [chips, setChips] = useState<IntakeChips | null>(persisted.current?.chips ?? null);
+  const [totalBeats, setTotalBeats] = useState<number>(persisted.current?.totalBeats ?? 5);
+  const [beatLabels, setBeatLabels] = useState<string[]>(persisted.current?.beatLabels ?? []);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const starting = useRef(false);
@@ -104,12 +112,12 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       localStorage.setItem(
         INTAKE_SESSION_KEY,
-        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips } satisfies PersistedSession),
+        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels } satisfies PersistedSession),
       );
     } catch {
       // Best effort.
     }
-  }, [sessionId, messages, stage, emailCaptured, beat, chips]);
+  }, [sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels]);
 
   const focusChat = useCallback(() => {
     document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -159,6 +167,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           const wait = Math.max(0, revealDelay - (Date.now() - startedAt));
           setTimeout(() => {
             setSessionId(res.sessionId);
+            setTotalBeats(res.totalBeats ?? 5);
+            setBeatLabels(res.beatLabels ?? []);
             handleReply(res);
             setSending(false);
             starting.current = false;
@@ -244,6 +254,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setEmailCaptured(res.emailCaptured);
           setBeat(res.beat ?? null);
           setChips(res.chips ?? null);
+          setTotalBeats(res.totalBeats ?? 5);
+          setBeatLabels(res.beatLabels ?? []);
           storePrefill(res.prefill);
           storeContact(res.contact);
           // Let the section render the restored thread, then scroll to it.
@@ -264,6 +276,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         messages,
         beat,
         chips,
+        totalBeats,
+        beatLabels,
         sending,
         error,
         start,

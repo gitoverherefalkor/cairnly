@@ -183,6 +183,8 @@ export interface BeatChips {
 }
 
 interface Beat {
+  /** Stepper label shown in the frontend, per language. */
+  label: Record<Lang, string>;
   /** Model-facing description of what this beat must find out. */
   goal: string;
   chips: Record<Lang, BeatChips> | null;
@@ -190,6 +192,7 @@ interface Beat {
 
 export const BEATS: Beat[] = [
   {
+    label: { en: 'Where you are', nl: 'Waar je staat' },
     goal: 'Their career stage and type of authority: individual contributor, managing a team, senior/executive, entrepreneur looking for employment, on a break or transition, or re-entering the workforce. Ask it lightly and personally, not like a form.',
     chips: {
       en: {
@@ -219,6 +222,7 @@ export const BEATS: Beat[] = [
     },
   },
   {
+    label: { en: "What's driving this", nl: 'Wat je drijft' },
     goal: 'What is REALLY driving this, one level under their opening message: a new path, work-life balance, understanding their strengths, or burnout / lack of fulfillment. Let them pick up to two, or say it in their own words.',
     chips: {
       en: {
@@ -244,6 +248,7 @@ export const BEATS: Beat[] = [
     },
   },
   {
+    label: { en: "What's in the way", nl: 'Wat in de weg zit' },
     goal: 'What is actually in the way: their blockers, spoken or unspoken. This is the most sensitive beat, especially "personal doubts". Acknowledge whatever they pick without judgment and without therapy-speak.',
     chips: {
       en: {
@@ -279,10 +284,12 @@ export const BEATS: Beat[] = [
     },
   },
   {
+    label: { en: 'Your dream job', nl: 'Je droombaan' },
     goal: 'Their dream job, with zero constraining factors: no salary, status, education or feasibility limits. Encourage honesty and playfulness; a "silly" answer is signal. Free text, no options.',
     chips: null,
   },
   {
+    label: { en: 'Your horizon', nl: 'Je horizon' },
     goal: 'Their horizon: what they want in the next 1-2 years and where they want to be in 5-10 years. Ambition level matters here (leadership? expertise? own business? autonomy? balance?). Keep it light, this is the last question.',
     chips: {
       en: {
@@ -320,6 +327,7 @@ export const BEATS: Beat[] = [
  */
 export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
   'ai-worried': {
+    label: { en: 'Your AI fluency', nl: 'Jouw AI-niveau' },
     goal: 'How hands-on they are with generative AI today, from not at all to professionally. Frame it around their worry: knowing their current fluency shows how defensible their position already is. Zero judgment for low familiarity, and no lecture about AI.',
     chips: {
       en: {
@@ -345,6 +353,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
     },
   },
   'good-at-it': {
+    label: { en: 'What to avoid', nl: 'Wat je wilt vermijden' },
     goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter: the drains hiding inside a job they are good at. Being good at something and being drained by it often travel together; that is the point of this beat.',
     chips: {
       en: {
@@ -382,6 +391,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
     },
   },
   'life-changed': {
+    label: { en: 'What work must respect', nl: 'Wat werk moet respecteren' },
     goal: 'What kind of schedule the new life actually needs. After life changes, the schedule is often the real crux, more than the job content. Ask it warmly, anchored in what changed for them.',
     chips: {
       en: {
@@ -395,6 +405,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
     },
   },
   'understand-myself': {
+    label: { en: 'Your archetypes', nl: 'Jouw archetypes' },
     goal: 'Which two archetypes feel most like them. A playful self-recognition beat; invite them to pick what fits rather than what sounds impressive.',
     chips: {
       en: {
@@ -429,11 +440,30 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
   },
 };
 
-/** The five beats for a given intent: beat 3 is pill-specific, the rest universal. */
+/**
+ * The beat plan per intent. Lengths vary deliberately:
+ * - ai-worried skips the generic driver beat (the pill IS the driver).
+ * - life-changed skips the 5-10 year horizon beat (mid-upheaval, keep it light).
+ * - the rest run the full five-beat arc.
+ */
 export function beatsFor(intent: IntentKey): Beat[] {
-  const variant = BEAT3_VARIANTS[intent];
-  if (!variant) return BEATS;
-  return [BEATS[0], BEATS[1], variant, BEATS[3], BEATS[4]];
+  switch (intent) {
+    case 'ai-worried':
+      return [BEATS[0], BEAT3_VARIANTS['ai-worried']!, BEATS[3], BEATS[4]];
+    case 'life-changed':
+      return [BEATS[0], BEATS[1], BEAT3_VARIANTS['life-changed']!, BEATS[3]];
+    case 'good-at-it':
+      return [BEATS[0], BEATS[1], BEAT3_VARIANTS['good-at-it']!, BEATS[3], BEATS[4]];
+    case 'understand-myself':
+      return [BEATS[0], BEATS[1], BEAT3_VARIANTS['understand-myself']!, BEATS[3], BEATS[4]];
+    default:
+      return BEATS;
+  }
+}
+
+/** Localized stepper labels for an intent's plan. */
+export function beatLabels(intent: IntentKey, lang: Lang): string[] {
+  return beatsFor(intent).map((b) => b.label[lang]);
 }
 
 const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
@@ -478,10 +508,10 @@ ${CAIRNLY_FACTS}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
-CONVERSATION PLAN (five beats; you ask, they answer; one beat per turn):
+CONVERSATION PLAN (you ask, they answer; one beat per turn):
 ${BEATS_FOR_INTENT.map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`).join('\n')}
 
-You are now on beat ${beatNumber} of 5: ${beat.goal}
+You are now on beat ${beatNumber} of ${BEATS_FOR_INTENT.length}: ${beat.goal}
 ${chipNote}
 
 Open with a very short acknowledgment, at most six words ("Got it.", "Makes sense.", "That's fair.", "Thanks, that's clear."), varied across turns. NEVER restate, paraphrase or summarize what they just said; they know what they wrote. Then ask this beat's question in one or two sentences. The question may build on their situation, but without echoing their words back. If the beat is already clearly answered by what they wrote, skip to the next unanswered beat's question. Do not number the question. Do not preview future beats.
