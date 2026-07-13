@@ -6,22 +6,36 @@ import HeroCarousel from './HeroCarousel';
 import IntentChips from './IntentChips';
 import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
+import IntakeChatPanel from './intake/IntakeChatSection';
+import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
+/**
+ * Hero + intake chat as one continuous section on the app's nature
+ * background (survey-bg starts navy at the top, so the header area stays
+ * dark). Left column: copy, intent pills, then the product carousel + CTA.
+ * Right column: the intake chat, directly beside the pills that seed it,
+ * overlapping the semi-transparent cairn mark.
+ */
 const Hero: React.FC = () => {
   const getStarted = useGetStarted();
   const { t } = useTranslation('landing');
   const { vt, intent } = useIntentCopy();
 
   return (
-    <section className="relative bg-[#213F4F] text-white pt-12 md:pt-16 pb-14 md:pb-16 overflow-hidden">
+    <section className="survey-bg relative text-white pt-12 md:pt-16 pb-16 md:pb-20 overflow-hidden">
       {/* Atmospheric teal bloom */}
       <div
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
+      {/* Cairn mark behind the chat column */}
+      <div className="absolute bottom-6 right-[-20px] pointer-events-none z-0 hidden lg:block">
+        <img src={CairnSymbolInvert} alt="" aria-hidden="true" className="w-[280px] h-auto opacity-[0.08]" />
+      </div>
+
       <div className="lp-container relative z-10">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          {/* Copy */}
+        <div className="grid lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-12">
+          {/* Copy + pills (row 1 left) */}
           <div className="lg:col-span-7">
             <Reveal className="flex items-center gap-3 mb-8">
               <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
@@ -62,16 +76,15 @@ const Hero: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Product preview — rotating browser carousel, CTAs beneath */}
-          <Reveal className="lg:col-span-5">
-            <HeroCarousel />
+          {/* Intake chat (right column, spans both rows, beside the pills) */}
+          <Reveal as="div" className="lg:col-span-5 lg:row-span-2 lg:col-start-8">
+            <IntakeChatPanel />
+          </Reveal>
 
-            {/* lg:translate-y-8 drops the CTA block so its top lines up with
-                the intent chips in the left column. A transform (not margin) is
-                used on purpose: the grid is items-center, so a margin would be
-                half-absorbed by re-centering — a transform moves it predictably
-                without disturbing the chips. */}
-            <div className="mt-8 lg:translate-y-8 flex flex-col items-center gap-5">
+          {/* Product proof + CTA (row 2 left) */}
+          <Reveal as="div" className="lg:col-span-7 lg:col-start-1">
+            <HeroCarousel />
+            <div className="mt-8 flex flex-col items-center gap-5">
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <button onClick={getStarted} className="lp-btn-primary">
                   <span key={intent} className="lp-intent-fade">{vt('hero.ctaPrimary')}</span>

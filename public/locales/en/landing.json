@@ -508,6 +508,8 @@
       "5": "Your horizon"
     },
     "other": "Something else…",
-    "chipsConfirm": "That's it →"
+    "chipsConfirm": "That's it →",
+    "earlier": "Earlier messages ({{count}})",
+    "collapse": "Collapse"
   }
 }

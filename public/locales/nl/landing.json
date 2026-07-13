@@ -508,6 +508,8 @@
       "5": "Je horizon"
     },
     "other": "Iets anders…",
-    "chipsConfirm": "Dat is 'm →"
+    "chipsConfirm": "Dat is 'm →",
+    "earlier": "Eerdere berichten ({{count}})",
+    "collapse": "Inklappen"
   }
 }
