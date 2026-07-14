@@ -1,9 +1,20 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 import { ArrowRight, Check, ChevronDown, Pencil } from 'lucide-react';
 import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
+
+/**
+ * Renders `**bold**` markers the agent uses to emphasize a phrase (same
+ * convention as the survey's own choice labels, see QuestionRenderer.tsx).
+ * Sanitized: only <strong>/<br> survive.
+ */
+function formatEmphasis(text: string): { __html: string } {
+  const html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  return { __html: DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'br'] }) };
+}
 
 /** i18n seed keys per intent under intake.seeds (first message, in the visitor's voice). */
 const SEED_KEY: Record<IntentKey, string> = {
@@ -240,10 +251,10 @@ const IntakeChatPanel: React.FC = () => {
               ) : (
                 <div key={i} className="flex justify-start">
                   <div
-                    className="max-w-[92%] whitespace-pre-wrap rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6]"
+                    className="max-w-[92%] rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6]"
                     style={ASSISTANT_BUBBLE}
+                    dangerouslySetInnerHTML={formatEmphasis(m.text)}
                   >
-                    {m.text}
                   </div>
                 </div>
               ),

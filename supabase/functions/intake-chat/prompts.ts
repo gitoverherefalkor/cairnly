@@ -48,7 +48,7 @@ export const INTENT_LABELS: Record<Lang, Record<IntentKey, string>> = {
  */
 export const INTENT_BRIEFS: Record<IntentKey, string> = {
   default: `They chose their direction as a teenager and the choice compounded: major, first job, every job after. Listen for: whether the origin was pressure (parents, money, "safe choice") or drift; which parts of the accumulated experience they actually value; the gap between who chose then and who is choosing now.`,
-  'good-at-it': `Competent but quietly unsure the work is really theirs. Listen for: the difference between being good at something and being fed by it; what they do effortlessly that others find hard (often invisible to them); whether the doubt is about the role, the field, or the environment. Do not talk them out of the doubt and do not dramatize it.`,
+  'good-at-it': `Competent but quietly unsure the work is really theirs. Listen for: the difference between being good at something and being fed by it; what they do effortlessly that others find hard (often invisible to them); whether the doubt is about the role, the field, or the environment. Frame the doubt as the fit fading over time, e.g. "this job isn't quite you (anymore)", not as it never having been them; most people in this bucket chose it deliberately once and grew out of it. Do not talk them out of the doubt and do not dramatize it.`,
   'ai-worried': `Worried AI will reshape or replace their role. Take the worry seriously, never dismiss it and never fuel it. Listen for: which parts of their job are routine coordination or production (exposed) versus judgment, relationships and taste (durable); whether the worry is really about AI or AI is the socially acceptable wrapper for older doubts about the fit.`,
   'life-changed': `Life shifted (children, burnout, a move, loss, health, a restart) and the job no longer fits the life. Listen for: what specifically changed in their constraints and values; what the old job was optimized for that no longer matters; unnegotiable new realities (hours, energy, location, care duties). Be extra warm and unhurried here.`,
   'understand-myself': `They want self-understanding before direction. Often reflective, may have done tests before and found them shallow. Listen for: patterns across their history they have not named; the difference between what they are praised for and what energizes them; be concrete, they are allergic to horoscope-style vagueness.`,
@@ -354,7 +354,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
   },
   'good-at-it': {
     label: { en: 'What to avoid', nl: 'Wat je wilt vermijden' },
-    goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter: the drains hiding inside a job they are good at. Being good at something and being drained by it often travel together; that is the point of this beat.',
+    goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter: the drains hiding inside a job they are good at. Being good at something and being drained by it often travel together; that is the point of this beat. Make explicit that this question is about AVOIDANCE, not aspiration: wrap the phrase that signals this in double asterisks for emphasis, e.g. "what would you want **less of this time around**," so the interface renders it bold. Use that exact bolded phrase (or a close natural variant) in your question.',
     chips: {
       en: {
         options: [
