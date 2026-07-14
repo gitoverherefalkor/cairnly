@@ -30,7 +30,7 @@ const SLIDES: Slide[] = [
   {
     src: '/images/live/landing/carousel/report-careermap.jpg',
     slug: 'dashboard',
-    alt: 'Career report with the career match map',
+    alt: 'Career dashboard with the career match map',
   },
   {
     src: '/images/live/landing/carousel/coach-chat.jpg',

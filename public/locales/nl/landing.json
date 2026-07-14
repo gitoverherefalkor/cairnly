@@ -24,7 +24,7 @@
       },
       {
         "title": "Interactief, niet statisch",
-        "body": "Elk rapport komt met een coaching chat. Slaat een aanbeveling de plank mis? Geef gerust tegengas. Het rapport past zich aan tot het écht klopt."
+        "body": "Elk assessment komt met een coaching chat. Slaat een aanbeveling de plank mis? Geef gerust tegengas. Je resultaten passen zich aan tot ze écht kloppen."
       },
       {
         "title": "Toekomstbewust",
@@ -47,7 +47,7 @@
       "Doe het assessment",
       "AI analyseert je",
       "Chat met de coach",
-      "Ontvang je rapport",
+      "Ontvang je dashboard",
       "Land de baan"
     ],
     "steps": [
@@ -71,9 +71,9 @@
         "screenshotAlt": "AI-coachsessie met je persoonlijkheidsprofiel"
       },
       {
-        "eyebrow": "Ontvang je rapport",
-        "body": "Je definitieve rapport, verfijnd door de chat: persoonlijkheids- en waardenanalyse, alle carrière-aanbevelingen, salarisdata, AI-impact ratings en concrete volgende stappen.",
-        "screenshotMeta": "4 : 3 · Carrièrerapport",
+        "eyebrow": "Ontvang je dashboard",
+        "body": "Je definitieve carrièredashboard, verfijnd door de chat: persoonlijkheids- en waardenanalyse, alle carrière-aanbevelingen, salarisdata, AI-impact ratings en concrete volgende stappen.",
+        "screenshotMeta": "4 : 3 · Carrièredashboard",
         "screenshotAlt": "Het Cairnly dashboard met je career signature en top matches"
       },
       {
@@ -94,7 +94,7 @@
     "oldCard": {
       "pill": "Eerst het hokje, dan het label",
       "title": "De oude aanpak",
-      "p1": "Je beantwoordt een vaste set vragen. Een formule deelt je in bij een van een klein aantal types. Het rapport beschrijft wat mensen van dat type gemiddeld doen, niet wat bij jóú zou passen, met jouw geschiedenis, in jouw leven.",
+      "p1": "Je beantwoordt een vaste set vragen. Een formule deelt je in bij een van een klein aantal types. Het resultaat beschrijft wat mensen van dat type gemiddeld doen, niet wat bij jóú zou passen, met jouw geschiedenis, in jouw leven.",
       "p2": "De labels zijn catchy. De wetenschap achter sommige ervan is omstreden. En of je nu de ene of de andere letter bent, vertelt je niet of je UX-designer of recruiter moet worden."
     },
     "newCard": {
@@ -102,7 +102,7 @@
       "title": "Cairnly's aanpak",
       "p1": "Ons assessment is gebouwd op de gevalideerde delen van gevestigd psychometrisch onderzoek; het werk dat daadwerkelijk career fit, match qua waarden en werkvoorkeuren voorspelt.",
       "p1Emphasis": "We hebben behouden wat standhoudt.",
-      "p2": "Daarbovenop leggen we de laag die formules niet kunnen vangen: je echte carrièregeschiedenis, wat je energie heeft gegeven, wat je heeft leeggezogen en waar je naartoe wilt. Frontier AI, aangestuurd door actieve carrièrecoaches, leest dit allemaal in samenhang en schrijft een rapport voor déze persoon. Niet voor een type."
+      "p2": "Daarbovenop leggen we de laag die formules niet kunnen vangen: je echte carrièregeschiedenis, wat je energie heeft gegeven, wat je heeft leeggezogen en waar je naartoe wilt. Frontier AI, aangestuurd door actieve carrièrecoaches, leest dit allemaal in samenhang en bouwt een concreet plan voor déze persoon. Niet voor een type."
     },
     "engineEyebrow": "Achter de schermen",
     "engineTitle": "Zeven AI-workflows. Eén coach-getunede pipeline.",
@@ -118,26 +118,26 @@
     "closer": "De gevalideerde delen van psychometrisch onderzoek, de praktische intuïtie van echte carrièrecoaches, en moderne AI die dit allemaal tegelijk in gedachten kan houden. Zo krijg je advies dat écht over jou gaat."
   },
   "chatRefine": {
-    "eyebrow": "De chat die bij je rapport hoort",
+    "eyebrow": "De chat die bij je dashboard hoort",
     "titleA": "Klopt er iets niet? Zeg het gewoon.",
-    "titleHighlight": "Het rapport past zich aan.",
-    "intro": "Elk Cairnly-rapport komt met een interactieve coaching chat, maar niet het soort dat je maandelijks factureert om je vriend te zijn. Het is een refinement loop. Een manier om de AI uit te dagen wanneer iets niet helemaal klopt, zodat het eindrapport dat wel doet.",
+    "titleHighlight": "Het plan past zich aan.",
+    "intro": "Elk Cairnly-assessment komt met een interactieve coaching chat, maar niet het soort dat je maandelijks factureert om je vriend te zijn. Het is een refinement loop. Een manier om de AI uit te dagen wanneer iets niet helemaal klopt, zodat het eindresultaat dat wel doet.",
     "staticPdf": {
       "title": "Een statische PDF",
       "body": "Leest je één keer, print een antwoord en loopt weg. Als een aanbeveling verkeerd voelt, is je enige optie om deze te negeren."
     },
     "cairnly": {
       "label": "Cairnly",
-      "title": "Een Cairnly-rapport",
+      "title": "Een Cairnly-dashboard",
       "body": "Komt met een chat die maar één taak heeft:",
       "bodyHighlight": "het antwoord aanscherpen",
-      "bodyContinued": ". Geef tegengas. Zeg \"eigenlijk lijkt me dat vreselijk\" of \"vertel me meer over runner-up #2.\" Het eindrapport verwerkt je feedback. Daarna neem je het mee en kun je aan de slag."
+      "bodyContinued": ". Geef tegengas. Zeg \"eigenlijk lijkt me dat vreselijk\" of \"vertel me meer over runner-up #2.\" Je dashboard verwerkt je feedback. Daarna neem je het mee en kun je aan de slag."
     },
     "subChat": {
       "title": "Een chat op abonnementsbasis",
       "body": "Blijft voor altijd beschikbaar. Ontworpen om je te laten blijven inloggen. Gezellig voor het gezelschap, minder geschikt om de vraag daadwerkelijk te beantwoorden."
     },
-    "closer": "Het is het verschil tussen een rapport over jou en een rapport met jou. En als het eenmaal klopt, dan klopt het."
+    "closer": "Het is het verschil tussen een assessment over jou en een dat mét jou is gemaakt. En als het eenmaal klopt, dan klopt het."
   },
   "comparison": {
     "eyebrow": "Een directe vergelijking",
@@ -346,7 +346,7 @@
     "profile": "Profiel",
     "match": "Match rollen",
     "wild": "Wild cards",
-    "report": "RAPPORT"
+    "report": "DASHBOARD"
   },
   "workflow": {
     "wf1Label": "WF1 RESUME (CV)",
@@ -383,7 +383,7 @@
       },
       {
         "q": "Wat als de aanbevelingen niet kloppen?",
-        "a": "Geef tegengas. Daarvoor bestaat de coaching chat juist. Als een rol niet past, zeg het, en het rapport past zich aan. Tegen de tijd dat het rapport definitief is, zit jouw feedback er al in."
+        "a": "Geef tegengas. Daarvoor bestaat de coaching chat juist. Als een rol niet past, zeg het, en je resultaten passen zich aan. Tegen de tijd dat alles definitief is, zit jouw feedback er al in."
       },
       {
         "q": "Is mijn data veilig?",
@@ -391,7 +391,7 @@
       },
       {
         "q": "Hoe lang duurt het?",
-        "a": "Eén sessie. De meeste mensen ronden het assessment en de chat af binnen een uur. Het volledige rapport is direct van jou."
+        "a": "Eén sessie. De meeste mensen ronden het assessment en de chat af binnen een uur. Je volledige dashboard is direct van jou."
       }
     ]
   },
