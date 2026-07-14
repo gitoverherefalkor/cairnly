@@ -534,6 +534,8 @@
       ],
       "footer": "Klaar in ~5 minuten",
       "footerSub": "verfijnd door je coachgesprek"
-    }
+    },
+    "pickHint": "Kies er maximaal {{max}}",
+    "pickCounter": "{{count}} van {{max}} gekozen"
   }
 }

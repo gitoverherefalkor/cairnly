@@ -280,6 +280,18 @@ const IntakeChatPanel: React.FC = () => {
                   className="w-full overflow-hidden rounded-[16px] border"
                   style={{ background: '#FDFBF2', borderColor: 'rgba(39,161,161,0.35)', boxShadow: '0 20px 44px -20px rgba(0,0,0,0.4)' }}
                 >
+                  {/* Subtle pick-limit hint for multi-select; becomes a live
+                      counter once they start choosing. */}
+                  {chat.chips!.multi && (
+                    <div
+                      className="border-b px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#6B7F8B]"
+                      style={{ borderColor: 'rgba(201,182,144,0.35)', background: 'rgba(39,161,161,0.04)' }}
+                    >
+                      {picked.length > 0
+                        ? t('intake.pickCounter', { count: picked.length, max: chat.chips!.max ?? picked.length })
+                        : t('intake.pickHint', { max: chat.chips!.max ?? 1 })}
+                    </div>
+                  )}
                   {chat.chips!.options.map((option, idx) => {
                     const selected = picked.includes(option);
                     return (

@@ -534,6 +534,8 @@
       ],
       "footer": "Ready in ~5 minutes",
       "footerSub": "refined by your coaching chat"
-    }
+    },
+    "pickHint": "Pick up to {{max}}",
+    "pickCounter": "{{count}} of {{max}} picked"
   }
 }
