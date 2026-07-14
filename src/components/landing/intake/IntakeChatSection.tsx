@@ -7,14 +7,41 @@ import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
 
 /**
- * Renders `**bold**` markers the agent uses to emphasize a phrase (same
- * convention as the survey's own choice labels, see QuestionRenderer.tsx).
- * Sanitized: only <strong>/<br> survive.
+ * Renders the agent's light markdown for chat bubbles: `**bold**` emphasis
+ * (same convention as the survey's choice labels) plus `- ` bullet lists,
+ * which the pitch uses for its "threads." Sanitized to a small tag set; the
+ * bubble styles ul/li/p via arbitrary child selectors.
  */
-function formatEmphasis(text: string): { __html: string } {
-  const html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-  return { __html: DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'br'] }) };
+function formatRichText(text: string): { __html: string } {
+  const bold = (s: string) => s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  const out: string[] = [];
+  let inList = false;
+  for (const raw of text.split('\n')) {
+    const line = raw.trimEnd();
+    const bullet = line.match(/^\s*[-•]\s+(.*)$/);
+    if (bullet) {
+      if (!inList) {
+        out.push('<ul>');
+        inList = true;
+      }
+      out.push(`<li>${bold(bullet[1])}</li>`);
+    } else {
+      if (inList) {
+        out.push('</ul>');
+        inList = false;
+      }
+      if (line.trim()) out.push(`<p>${bold(line)}</p>`);
+    }
+  }
+  if (inList) out.push('</ul>');
+  return { __html: DOMPurify.sanitize(out.join(''), { ALLOWED_TAGS: ['strong', 'br', 'ul', 'li', 'p'] }) };
 }
+
+/** Tailwind child-selector styling for the sanitized rich-text HTML above. */
+const RICH_TEXT_CLASSES =
+  '[&_p]:m-0 [&_p:not(:first-child)]:mt-3 ' +
+  '[&_ul]:my-2.5 [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 ' +
+  "[&_li]:relative [&_li]:pl-4 [&_li]:before:content-[''] [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:top-[0.6em] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:rounded-full [&_li]:before:bg-[#27A1A1]";
 
 /** i18n seed keys per intent under intake.seeds (first message, in the visitor's voice). */
 const SEED_KEY: Record<IntentKey, string> = {
@@ -48,8 +75,6 @@ const IntakeChatPanel: React.FC = () => {
 
   const [draft, setDraft] = useState('');
   const [picked, setPicked] = useState<string[]>([]);
-  const [email, setEmail] = useState('');
-  const [emailBusy, setEmailBusy] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -120,15 +145,6 @@ const IntakeChatPanel: React.FC = () => {
     chat.sendMessage(picked.join('; '));
   };
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || emailBusy) return;
-    setEmailBusy(true);
-    await chat.submitEmail(email);
-    setEmailBusy(false);
-  };
-
-  const showEmailCard = chat.stage === 'pitched' && !chat.emailCaptured;
   const showChips = chat.started && chat.stage === 'chat' && !chat.sending && !!chat.chips?.options.length;
 
   return (
@@ -250,11 +266,11 @@ const IntakeChatPanel: React.FC = () => {
               ) : (
                 <div key={i} className="flex justify-start">
                   <div
-                    className="max-w-[92%] rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6]"
+                    className={`max-w-[92%] rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6] ${RICH_TEXT_CLASSES}`}
                     style={ASSISTANT_BUBBLE}
-                    dangerouslySetInnerHTML={formatEmphasis(m.text)}
-                  >
-                  </div>
+                    dangerouslySetInnerHTML={formatRichText(m.text)}
+                  />
+
                 </div>
               ),
             )}
@@ -343,74 +359,38 @@ const IntakeChatPanel: React.FC = () => {
             )}
 
             {chat.error && <p className="px-1 text-[13px] font-medium text-[#F2B8AC]">{chat.error}</p>}
-
-            {/* After the pitch: the checkout CTA now lives on the report
-                deliverables card (right column / below on mobile), so this
-                is just the demoted save-by-email escape hatch. */}
-            {chat.stage === 'pitched' && (
-              <div className="space-y-3 pt-1">
-                {showEmailCard && (
-                  <div className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5">
-                    <p className="text-[12px] font-medium text-white/60">{t('intake.emailTitle')}</p>
-                    <form onSubmit={handleEmailSubmit} className="mt-2 flex gap-2">
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t('intake.emailPlaceholder')}
-                        className="min-w-0 flex-1 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[13px] text-white outline-none placeholder:text-white/35 focus:border-atlas-teal"
-                      />
-                      <button
-                        type="submit"
-                        disabled={emailBusy}
-                        className="shrink-0 rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition-colors hover:bg-white/10 disabled:opacity-60"
-                      >
-                        {t('intake.emailSubmit')}
-                      </button>
-                    </form>
-                  </div>
-                )}
-
-                {chat.emailCaptured && (
-                  <p className="text-[13px] font-medium" style={{ color: '#7FD4D4' }}>
-                    {t('intake.emailSaved')}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* Input (app chat style) */}
-          <div className="mt-4">
-            <form
-              className="relative"
-              onSubmit={(e) => {
-                e.preventDefault();
-                submit();
-              }}
-            >
-              <input
-                ref={inputRef}
-                type="text"
-                value={draft}
-                maxLength={600}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={t('intake.inputPlaceholder')}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-14 text-[0.9375rem] leading-normal text-[#1F2937] shadow-md outline-none transition-colors focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10"
-              />
-              <button
-                type="submit"
-                disabled={chat.sending || !draft.trim()}
-                aria-label={t('intake.send')}
-                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md bg-atlas-teal text-white transition-opacity disabled:opacity-40"
+          {/* Input (app chat style). Once the pitch lands the conversation is
+              done: the checkout CTA on the dashboard card is the next step, so
+              the input and its escape hatch step away. */}
+          {chat.stage !== 'pitched' && (
+            <div className="mt-4">
+              <form
+                className="relative"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submit();
+                }}
               >
-                <ArrowRight size={16} strokeWidth={2.4} />
-              </button>
-            </form>
-            {/* Once pitched, the report card's CTA is the checkout path;
-                this early "skip the chat" escape hatch would be redundant. */}
-            {chat.stage !== 'pitched' && (
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={draft}
+                  maxLength={600}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder={t('intake.inputPlaceholder')}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-14 text-[0.9375rem] leading-normal text-[#1F2937] shadow-md outline-none transition-colors focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10"
+                />
+                <button
+                  type="submit"
+                  disabled={chat.sending || !draft.trim()}
+                  aria-label={t('intake.send')}
+                  className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md bg-atlas-teal text-white transition-opacity disabled:opacity-40"
+                >
+                  <ArrowRight size={16} strokeWidth={2.4} />
+                </button>
+              </form>
               <button
                 type="button"
                 onClick={() => navigate('/payment')}
@@ -418,8 +398,8 @@ const IntakeChatPanel: React.FC = () => {
               >
                 {t('intake.skip')}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>

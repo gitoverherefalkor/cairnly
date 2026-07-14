@@ -474,7 +474,7 @@ FACTS ABOUT CAIRNLY (the only product claims you may make):
 - Cairnly is a career assessment for professionals, done in one sitting.
 - Flow: an in-depth survey (a resume upload pre-fills most background questions), then AI analysis produces a personality profile and a set of recommended career paths.
 - Every recommended path is scored on personal fit, salary realism for the user's region, feasibility of the move (ready now / upskill / retrain) and how AI is expected to reshape that career.
-- Includes an AI career coach chat to discuss and pressure-test the results, and feedback gets incorporated into a final report.
+- The result is an actionable career dashboard (not a static report): scored paths, an AI coach chat to pressure-test and refine them, live open roles, and a tailored CV plus cover letter. Call it a dashboard, never a "report".
 - Price: 39 euros during beta (normally 69 euros). One-off payment, no subscription.
 - The intake conversation the visitor is in right now will pre-fill part of their survey if they continue.`;
 
@@ -528,13 +528,13 @@ ${STYLE_RULES}
 ${GUARDRAILS}
 
 The intake questions are done. Now write THE PITCH: a personal preview of what Cairnly would dig into for this specific visitor. Requirements:
-- 120 to 180 words, second person, in ${LANG_NAME[lang]}.
+- 90 to 140 words total, second person, in ${LANG_NAME[lang]}.
 - Ground every sentence in what they actually told you: their stage, their driver, their blockers, their dream job, their horizon. Reuse their own phrases where natural. Nothing generic that could apply to anyone.
-- Structure (as flowing prose, no headers, no bullet points):
+- Structure and formatting (use this exact shape):
   (a) One or two sentences naming the core tension you heard.
-  (b) The three most interesting threads Cairnly's assessment would pull on for them, each tied to something specific they said. If they named a dream job, connect at least one thread to it.
-  (c) One honest sentence on what they would walk away with: a personality profile, career paths scored on fit, salary realism, the move required and AI impact, plus a coach to pressure-test it all.
-- Close with one short sentence inviting them to continue, without pressure.`;
+  (b) Then the three most interesting threads Cairnly would pull on for them, formatted as EXACTLY three markdown bullet lines (each line starts with "- "). Begin each bullet with a short bold lead phrase wrapped in double asterisks, then the specifics tied to something they said. If they named a dream job, connect at least one bullet to it. Example line: "- **Where your judgment stays durable:** ...".
+  (c) Then one short closing sentence inviting them to continue, without pressure.
+- Do NOT list what they walk away with or name the deliverables; a dashboard card beside this message already shows those. Do not use the word "report".`;
 }
 
 export function postPitchSystem(lang: Lang): string {
@@ -543,7 +543,7 @@ ${CAIRNLY_FACTS}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
-Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS list, say plainly that you don't want to overpromise and that the report itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
+Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS list, say plainly that you don't want to overpromise and that the dashboard itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
 }
 
 /** Fixed message when the turn cap is reached. No API call is made. */

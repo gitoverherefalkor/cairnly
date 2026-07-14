@@ -489,7 +489,7 @@
     "emailSubmit": "Mail 't",
     "emailLater": "Misschien later",
     "emailSaved": "Bewaard. Check je inbox voor je persoonlijke link.",
-    "ctaCheckout": "Bouw mijn volledige rapport",
+    "ctaCheckout": "Bouw mijn dashboard",
     "ctaNote": "€39 eenmalig · geen abonnement · je antwoorden gaan mee",
     "seeds": {
       "default": "Ik koos m'n richting op m'n zestiende, en ik vraag me af wat ik nu zou kiezen met alles wat ik sindsdien heb geleerd.",
@@ -519,8 +519,8 @@
       "understandMyself": "Jouw archetypes"
     },
     "report": {
-      "eyebrow": "Jouw rapport van €39",
-      "title": "Alles wat het volledige rapport je geeft",
+      "eyebrow": "Jouw dashboard van €39",
+      "title": "Alles in jouw dashboard",
       "items": [
         "Eerlijke persoonlijkheidsanalyse",
         "Top 3 carrièrematches",

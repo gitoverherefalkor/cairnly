@@ -8,6 +8,7 @@ import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
+import IntakeEmailHatch from './intake/IntakeEmailHatch';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
@@ -100,19 +101,23 @@ const Hero: React.FC = () => {
           <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
             {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
             {pitched ? (
-              <div className="mt-6 flex justify-center">
-                <a
-                  href="#how-it-works"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="lp-btn-secondary-text"
-                >
-                  {t('hero.ctaSecondary')}
-                  <ChevronDown size={14} strokeWidth={2} />
-                </a>
-              </div>
+              <>
+                {/* Secondary save-my-spot email, moved out of the chat thread. */}
+                <IntakeEmailHatch />
+                <div className="mt-5 flex justify-center">
+                  <a
+                    href="#how-it-works"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="lp-btn-secondary-text"
+                  >
+                    {t('hero.ctaSecondary')}
+                    <ChevronDown size={14} strokeWidth={2} />
+                  </a>
+                </div>
+              </>
             ) : (
               <div className="mt-8 flex flex-col items-center gap-5">
                 <div className="flex flex-col sm:flex-row items-center gap-5">

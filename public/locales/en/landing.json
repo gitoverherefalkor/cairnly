@@ -489,7 +489,7 @@
     "emailSubmit": "Email it",
     "emailLater": "Maybe later",
     "emailSaved": "Saved. Check your inbox for your personal link.",
-    "ctaCheckout": "Build my full report",
+    "ctaCheckout": "Build my dashboard",
     "ctaNote": "€39 one-off · no subscription · your answers carry over",
     "seeds": {
       "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
@@ -519,8 +519,8 @@
       "understandMyself": "Your archetypes"
     },
     "report": {
-      "eyebrow": "Your €39 report",
-      "title": "Everything the full report gives you",
+      "eyebrow": "Your €39 dashboard",
+      "title": "Everything in your dashboard",
       "items": [
         "Honest personality read",
         "Top 3 career matches",
