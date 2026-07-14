@@ -490,7 +490,7 @@
     "emailLater": "Misschien later",
     "emailSaved": "Bewaard. Check je inbox voor je persoonlijke link.",
     "ctaCheckout": "Bouw mijn dashboard",
-    "ctaNote": "€39 eenmalig · geen abonnement · je antwoorden gaan mee",
+    "ctaNote": "Je antwoorden gaan mee",
     "seeds": {
       "default": "Ik koos m'n richting op m'n zestiende, en ik vraag me af wat ik nu zou kiezen met alles wat ik sindsdien heb geleerd.",
       "goodAtIt": "Ik ben goed in m'n werk, maar ik weet niet zeker of het echt bij me past.",
@@ -520,7 +520,7 @@
     },
     "report": {
       "eyebrow": "Jouw dashboard van €39",
-      "title": "Alles in jouw dashboard",
+      "title": "De duidelijkheid die Cairnly biedt",
       "items": [
         "Eerlijke persoonlijkheidsanalyse",
         "Top 3 carrièrematches",
@@ -533,11 +533,13 @@
         "Aangepast cv + motivatiebrief"
       ],
       "footer": "Klaar in ~5 minuten",
-      "footerSub": "verfijnd door je coachgesprek"
+      "footerSub": "verfijnd door je coachgesprek",
+      "priceLine": "€39 eenmalig · geen abonnement"
     },
     "pickHint": "Kies er maximaal {{max}}",
     "pickCounter": "{{count}} van {{max}} gekozen",
     "restingInvite": "Tik hierboven aan wat je hier brengt, of vertel het in je eigen woorden.",
-    "restingPlaceholder": "Vertel me wat je hier brengt…"
+    "restingPlaceholder": "Vertel me wat je hier brengt…",
+    "ctaLabel": "Start het volledige assessment"
   }
 }

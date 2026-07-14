@@ -26,10 +26,10 @@ const ReportDeliverablesCard: React.FC = () => {
         boxShadow: '0 40px 80px -32px rgba(0,0,0,0.55)',
       }}
     >
-      {/* Header */}
+      {/* Header: price note up top (once, no repeat at the bottom), then the title */}
       <div className="px-7 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(201,182,144,0.4)' }}>
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: '#D4A024' }}>
-          {t('intake.report.eyebrow')}
+        <p className="text-[12px] font-medium" style={{ color: 'rgba(18,46,59,0.55)' }}>
+          {t('intake.report.priceLine')}
         </p>
         <p
           className="mt-1.5 text-[24px] font-bold leading-tight text-[#122E3B]"
@@ -56,6 +56,12 @@ const ReportDeliverablesCard: React.FC = () => {
 
       {/* CTA: the card's own footer. This is the moment to ask for the click. */}
       <div className="px-7 pb-7">
+        <p
+          className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.18em]"
+          style={{ color: '#D4A024' }}
+        >
+          {t('intake.ctaLabel')}
+        </p>
         <button
           type="button"
           onClick={() => navigate('/payment')}

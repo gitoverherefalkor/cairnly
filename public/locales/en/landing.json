@@ -490,7 +490,7 @@
     "emailLater": "Maybe later",
     "emailSaved": "Saved. Check your inbox for your personal link.",
     "ctaCheckout": "Build my dashboard",
-    "ctaNote": "€39 one-off · no subscription · your answers carry over",
+    "ctaNote": "Your answers carry over",
     "seeds": {
       "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
       "goodAtIt": "I'm good at my job, but I'm not sure it's really me.",
@@ -520,7 +520,7 @@
     },
     "report": {
       "eyebrow": "Your €39 dashboard",
-      "title": "Everything in your dashboard",
+      "title": "The clarity Cairnly offers",
       "items": [
         "Honest personality read",
         "Top 3 career matches",
@@ -533,11 +533,13 @@
         "Tuned CV + cover letter"
       ],
       "footer": "Ready in ~5 minutes",
-      "footerSub": "refined by your coaching chat"
+      "footerSub": "refined by your coaching chat",
+      "priceLine": "€39 one-off · no subscription"
     },
     "pickHint": "Pick up to {{max}}",
     "pickCounter": "{{count}} of {{max}} picked",
     "restingInvite": "Tap what brings you here above, or tell me in your own words.",
-    "restingPlaceholder": "Tell me what brings you here…"
+    "restingPlaceholder": "Tell me what brings you here…",
+    "ctaLabel": "Start full assessment"
   }
 }
