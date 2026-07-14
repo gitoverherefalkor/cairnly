@@ -33,6 +33,7 @@ const IntakeEmailHatch: React.FC = () => {
   return (
     <div className="mx-auto mt-4 max-w-[560px] rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3">
       <p className="text-[12px] font-medium text-white/60">{t('intake.emailTitle')}</p>
+      <p className="mt-0.5 text-[11px] leading-snug text-white/40">{t('intake.emailHint')}</p>
       <form onSubmit={onSubmit} className="mt-2 flex gap-2">
         <input
           type="email"

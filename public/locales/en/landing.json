@@ -483,7 +483,7 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "emailTitle": "Not ready yet? We'll hold your spot.",
+    "emailTitle": "Not ready, or switching device?",
     "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
     "emailPlaceholder": "you@example.com",
     "emailSubmit": "Email it",
@@ -540,6 +540,7 @@
     "pickCounter": "{{count}} of {{max}} picked",
     "restingInvite": "Tap what brings you here above, or tell me in your own words.",
     "restingPlaceholder": "Tell me what brings you here…",
-    "ctaLabel": "Start full assessment"
+    "ctaLabel": "Start full assessment",
+    "emailHint": "We'll email your conversation so you can pick up on any device."
   }
 }
