@@ -536,6 +536,8 @@
       "footerSub": "refined by your coaching chat"
     },
     "pickHint": "Pick up to {{max}}",
-    "pickCounter": "{{count}} of {{max}} picked"
+    "pickCounter": "{{count}} of {{max}} picked",
+    "restingInvite": "Tap what brings you here above, or tell me in your own words.",
+    "restingPlaceholder": "Tell me what brings you here…"
   }
 }

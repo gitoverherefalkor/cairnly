@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { ArrowRight, Check, ChevronDown, Pencil } from 'lucide-react';
-import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
 
 /**
@@ -43,15 +42,6 @@ const RICH_TEXT_CLASSES =
   '[&_ul]:my-2.5 [&_ul]:flex [&_ul]:flex-col [&_ul]:gap-1.5 ' +
   "[&_li]:relative [&_li]:pl-4 [&_li]:before:content-[''] [&_li]:before:absolute [&_li]:before:left-0 [&_li]:before:top-[0.6em] [&_li]:before:h-1.5 [&_li]:before:w-1.5 [&_li]:before:rounded-full [&_li]:before:bg-[#27A1A1]";
 
-/** i18n seed keys per intent under intake.seeds (first message, in the visitor's voice). */
-const SEED_KEY: Record<IntentKey, string> = {
-  default: 'default',
-  'good-at-it': 'goodAtIt',
-  'ai-worried': 'aiWorried',
-  'life-changed': 'lifeChanged',
-  'understand-myself': 'understandMyself',
-};
-
 /** App chat design tokens (mirrors components/chat/ChatMessage.tsx). */
 const ASSISTANT_BUBBLE: React.CSSProperties = {
   background: '#FDFBF2',
@@ -69,7 +59,6 @@ const ASSISTANT_BUBBLE: React.CSSProperties = {
  */
 const IntakeChatPanel: React.FC = () => {
   const chat = useIntakeChat();
-  const { intent } = useIntent();
   const { t } = useTranslation('landing');
   const navigate = useNavigate();
 
@@ -79,21 +68,19 @@ const IntakeChatPanel: React.FC = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // The pills write the visitor's first message; a pill click replaces the
-  // draft with that intent's seed (only until the conversation starts).
-  useEffect(() => {
-    if (!chat.started) {
-      setDraft(t(`intake.seeds.${SEED_KEY[intent]}`));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intent, chat.started, t]);
-
-  // The seed textarea and the thread input share `draft`; when a pill
-  // auto-starts the conversation, clear it so the seed doesn't linger.
+  // A pill auto-starts the conversation; clear any half-typed custom draft
+  // so it doesn't linger in the input.
   useEffect(() => {
     if (chat.started) setDraft('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.started]);
+
+  // "Something else" (and any focus request) pulls the cursor into the input.
+  useEffect(() => {
+    if (chat.focusInputNonce > 0) {
+      inputRef.current?.focus();
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [chat.focusInputNonce]);
 
   // Reset chip selection whenever a new question (with options) arrives.
   useEffect(() => {
@@ -118,11 +105,10 @@ const IntakeChatPanel: React.FC = () => {
     if (!draft.trim() || chat.sending) return;
     if (chat.started) {
       chat.sendMessage(draft);
-    } else if (draft.trim() === t(`intake.seeds.${SEED_KEY[intent]}`)) {
-      // Unedited pill seed: same gold treatment + canned opener as a pill click.
-      chat.startFromPill(intent, draft);
     } else {
-      chat.start(draft, intent);
+      // Resting-state input = the "in your own words" route: a custom
+      // conversation the model reads directly (no preset archetype).
+      chat.start(draft, 'other');
     }
     setDraft('');
   };
@@ -183,49 +169,14 @@ const IntakeChatPanel: React.FC = () => {
         </div>
       </div>
 
-      {!chat.started ? (
-        /* Seed state: the visitor's first message, pre-written and editable.
-           Gold, matching the selected pill: this message IS the pill speaking. */
-        <div>
-          <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-white/45">
-            {t('intake.seedLabel')}
-          </p>
-          <div className="flex justify-end">
-            <div className="w-full rounded-2xl px-4 py-3.5" style={{ background: '#D4A024' }}>
-              <textarea
-                value={draft}
-                maxLength={600}
-                rows={2}
-                onChange={(e) => setDraft(e.target.value)}
-                className="w-full resize-none bg-transparent text-[0.9375rem] font-medium leading-relaxed text-[#122E3B] outline-none placeholder:text-[#122E3B]/50"
-                placeholder={t('intake.seedPlaceholder')}
-              />
-            </div>
-          </div>
-          {chat.error && <p className="mt-2 text-[13px] font-medium text-[#F2B8AC]">{chat.error}</p>}
-          <div className="mt-4 flex items-center justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => navigate('/payment')}
-              className="text-[12px] text-white/50 underline underline-offset-2"
-            >
-              {t('intake.skip')}
-            </button>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={chat.sending || !draft.trim()}
-              className="lp-btn-primary disabled:opacity-50"
-              style={{ fontSize: 15, padding: '12px 24px' }}
-            >
-              {t('intake.send')}
-              <ArrowRight size={16} strokeWidth={2.4} />
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* Conversation state */
-        <>
+      <>
+        {/* Resting state: nothing is preloaded here. Preset pills launch the
+            chat themselves; this input is the "in your own words" route (also
+            where the "Something else" pill drops the cursor). */}
+        {!chat.started && (
+          <p className="text-[13px] leading-relaxed text-white/55">{t('intake.restingInvite')}</p>
+        )}
+        {chat.started && (
           <div className="space-y-3">
             {/* Collapsed history expander */}
             {hiddenMessages.length > 0 && (
@@ -360,12 +311,13 @@ const IntakeChatPanel: React.FC = () => {
 
             {chat.error && <p className="px-1 text-[13px] font-medium text-[#F2B8AC]">{chat.error}</p>}
           </div>
+        )}
 
-          {/* Input (app chat style). Once the pitch lands the conversation is
-              done: the checkout CTA on the dashboard card is the next step, so
-              the input and its escape hatch step away. */}
-          {chat.stage !== 'pitched' && (
-            <div className="mt-4">
+        {/* Input (app chat style). Present in the resting state (the custom
+            "own words" route) and during Q&A; steps away once pitched, when the
+            dashboard card's CTA is the next step. */}
+        {chat.stage !== 'pitched' && (
+          <div className="mt-4">
               <form
                 className="relative"
                 onSubmit={(e) => {
@@ -379,7 +331,7 @@ const IntakeChatPanel: React.FC = () => {
                   value={draft}
                   maxLength={600}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder={t('intake.inputPlaceholder')}
+                  placeholder={chat.started ? t('intake.inputPlaceholder') : t('intake.restingPlaceholder')}
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 pr-14 text-[0.9375rem] leading-normal text-[#1F2937] shadow-md outline-none transition-colors focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10"
                 />
                 <button
@@ -399,9 +351,8 @@ const IntakeChatPanel: React.FC = () => {
                 {t('intake.skip')}
               </button>
             </div>
-          )}
-        </>
-      )}
+        )}
+      </>
     </div>
   );
 };

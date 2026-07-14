@@ -13,8 +13,11 @@
 // or the resume covers better.
 
 export type Lang = 'en' | 'nl';
-export type IntentKey = 'default' | 'good-at-it' | 'ai-worried' | 'life-changed' | 'understand-myself';
+// 'other' = the visitor typed their own reason instead of tapping a preset pill.
+// It is never "seeded" (no canned opener); the model reads their words directly.
+export type IntentKey = 'default' | 'good-at-it' | 'ai-worried' | 'life-changed' | 'understand-myself' | 'other';
 
+/** The five preset pills (validation + iteration). 'other' is valid but not a pill. */
 export const INTENT_KEYS: IntentKey[] = [
   'default',
   'good-at-it',
@@ -22,6 +25,9 @@ export const INTENT_KEYS: IntentKey[] = [
   'life-changed',
   'understand-myself',
 ];
+
+/** Every intent the edge accepts (presets + the custom 'other' route). */
+export const VALID_INTENTS: IntentKey[] = [...INTENT_KEYS, 'other'];
 
 /** Chip labels, used in the synthetic context line so the model knows what the visitor clicked. */
 export const INTENT_LABELS: Record<Lang, Record<IntentKey, string>> = {
@@ -31,6 +37,7 @@ export const INTENT_LABELS: Record<Lang, Record<IntentKey, string>> = {
     'ai-worried': 'Worried about AI and my role',
     'life-changed': "Life changed, work didn't",
     'understand-myself': 'Understanding myself and what I want',
+    other: 'Something else (in their own words)',
   },
   nl: {
     default: "Ik koos m'n richting op m'n zestiende",
@@ -38,6 +45,7 @@ export const INTENT_LABELS: Record<Lang, Record<IntentKey, string>> = {
     'ai-worried': 'Bezorgd over AI en mijn rol',
     'life-changed': "M'n leven veranderde, m'n werk niet",
     'understand-myself': 'Mezelf en wat ik wil beter begrijpen',
+    other: 'Iets anders (in eigen woorden)',
   },
 };
 
@@ -52,15 +60,16 @@ export const INTENT_BRIEFS: Record<IntentKey, string> = {
   'ai-worried': `Worried AI will reshape or replace their role. Take the worry seriously, never dismiss it and never fuel it. Listen for: which parts of their job are routine coordination or production (exposed) versus judgment, relationships and taste (durable); whether the worry is really about AI or AI is the socially acceptable wrapper for older doubts about the fit.`,
   'life-changed': `Life shifted (children, burnout, a move, loss, health, a restart) and the job no longer fits the life. Listen for: what specifically changed in their constraints and values; what the old job was optimized for that no longer matters; unnegotiable new realities (hours, energy, location, care duties). Be extra warm and unhurried here.`,
   'understand-myself': `They want self-understanding before direction. Often reflective, may have done tests before and found them shallow. Listen for: patterns across their history they have not named; the difference between what they are praised for and what energizes them; be concrete, they are allergic to horoscope-style vagueness.`,
+  other: `They typed their own reason for being here instead of picking a preset. Take their exact framing at face value; do NOT assume an archetype or reach for a preset story. Read what they actually wrote, reflect their own words back, and let their situation lead. Your opening reply must be genuinely built from their message.`,
 };
 
 /**
  * Canned agent reply to a pill-seeded opener: a short acknowledgment of the
  * pill's sentiment plus the beat-1 question (career stage). Served without
  * an LLM call, so the conversation starts instantly; custom-typed openers
- * still get a live model reply.
+ * (intent 'other') never use this — they always get a live model reply.
  */
-export const OPENER_REPLIES: Record<Lang, Record<IntentKey, string>> = {
+export const OPENER_REPLIES: Record<Lang, Partial<Record<IntentKey, string>>> = {
   en: {
     default:
       "That question deserves a real answer, and it starts with where you stand today. What does your work look like right now: working solo, leading people, or somewhere in between?",

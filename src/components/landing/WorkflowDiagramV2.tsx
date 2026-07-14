@@ -1,6 +1,23 @@
 import React from 'react';
 
-/** A node pill inside the workflow graph. */
+// Brand palette — mirrors the dashboard's PALETTE (dashboardV2Shared.tsx) so the
+// engine diagram reads as the same product surface as the dashboard it feeds.
+const C = {
+  canvas: '#213F4F',
+  canvasDeep: '#122E3B',
+  cream: '#ECE4D2',
+  creamLight: '#F5EFE2',
+  tan: '#C9B690',
+  teal: '#27A1A1',
+  tealBright: '#2ABFBF',
+  tealDeep: '#1F8282',
+  gold: '#D4A024',
+  goldWarm: '#E3B04D',
+  goldBright: '#EFBE48',
+  ink: '#122E3B',
+} as const;
+
+/** A node pill inside the workflow graph — a lifted "cream paper" chip. */
 const Node: React.FC<{ x: number; y: number; label: string; llm?: boolean; width?: number }> = ({
   x,
   y,
@@ -9,8 +26,15 @@ const Node: React.FC<{ x: number; y: number; label: string; llm?: boolean; width
   width = 124,
 }) => (
   <g transform={`translate(${x}, ${y})`}>
-    <rect width={width} height="26" rx="6" fill="#ECE4D2" />
-    <circle cx="9" cy="13" r="2.4" fill={llm ? '#D4A024' : '#27A1A1'} />
+    <rect
+      width={width}
+      height="26"
+      rx="7"
+      fill={C.cream}
+      stroke="rgba(18,46,59,0.12)"
+      strokeWidth="0.75"
+    />
+    <circle cx="9" cy="13" r="2.4" fill={llm ? C.gold : C.teal} />
     <text
       x={(width + 8) / 2}
       y="17"
@@ -18,7 +42,7 @@ const Node: React.FC<{ x: number; y: number; label: string; llm?: boolean; width
       fontFamily="Inter"
       fontSize="10"
       fontWeight="600"
-      fill="#122E3B"
+      fill={C.ink}
     >
       {label}
     </text>
@@ -80,7 +104,7 @@ const REPORT_ROWS = [
 ];
 
 // Vertically center the deliverable list between the panel's title-divider and footer-pill.
-const REPORT_CONTENT_TOP_OFFSET = 50;    // y-offset from REPORT_Y to where content area starts
+const REPORT_CONTENT_TOP_OFFSET = 72;    // y-offset from REPORT_Y to where content area starts
 const REPORT_FOOTER_HEIGHT = 54;          // height of the "Ready" footer pill
 const REPORT_ITEM_GAP = 38;
 
@@ -95,6 +119,7 @@ const REPORT_X = 600;
 const REPORT_W = 180;
 const REPORT_Y = 80;
 const REPORT_H = 480;
+const REPORT_CX = REPORT_X + REPORT_W / 2;
 
 // Build flat layout with computed Y positions
 type LayoutItem =
@@ -130,12 +155,26 @@ const CYCLE_DUR = TOTAL_ROWS * STEP_DELAY + 1.4;
 
 const fmt = (n: number) => n.toFixed(4);
 
+// Small stacked-stone cairn — the brand "summit" mark, crowning the dashboard
+// card the way the cairn glyph anchors the dashboard sections.
+const ReportCairn: React.FC = () => {
+  const stone = { fill: 'rgba(31,130,130,0.12)', stroke: C.tealDeep, strokeWidth: 0.9 };
+  return (
+    <g>
+      <ellipse cx={REPORT_CX} cy={REPORT_Y + 30} rx="14" ry="4" {...stone} />
+      <ellipse cx={REPORT_CX} cy={REPORT_Y + 23} rx="10" ry="3.2" {...stone} />
+      <ellipse cx={REPORT_CX} cy={REPORT_Y + 17} rx="6.5" ry="2.6" {...stone} />
+      <circle cx={REPORT_CX} cy={REPORT_Y + 11} r="3" fill={C.gold} />
+    </g>
+  );
+};
+
 const WorkflowDiagramV2: React.FC = () => (
   <>
     {/* Desktop / wide-tablet animated SVG */}
     <div
       className="hidden lg:block lp-screenshot-slot lp-on-dark aspect-[5/4] w-full"
-      style={{ background: '#122E3B' }}
+      style={{ background: C.canvasDeep }}
     >
       <div className="lp-screenshot-slot__meta">Engine</div>
       <svg
@@ -145,31 +184,62 @@ const WorkflowDiagramV2: React.FC = () => (
         className="absolute inset-0 w-full h-full"
       >
         <defs>
+          {/* Atmospheric canvas — subtle top-lit gradient rather than a flat fill */}
+          <linearGradient id="wfBg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#17333F" />
+            <stop offset="1" stopColor="#0E252F" />
+          </linearGradient>
+          {/* Soft gold glow where the lanes converge toward the dashboard */}
+          <radialGradient id="wfHubGlow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stopColor={C.goldWarm} stopOpacity="0.22" />
+            <stop offset="1" stopColor={C.goldWarm} stopOpacity="0" />
+          </radialGradient>
+          {/* Cream "paper" card fill */}
+          <linearGradient id="wfCard2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={C.creamLight} />
+            <stop offset="1" stopColor={C.cream} />
+          </linearGradient>
           <pattern id="wfGrid2" width="36" height="36" patternUnits="userSpaceOnUse">
             <circle cx="0.5" cy="0.5" r="0.5" fill="rgba(255,255,255,0.05)" />
           </pattern>
           <filter id="wfGlow2" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="1.8" />
           </filter>
+          <filter id="wfSoftGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+          {/* One shared drop shadow lifts the whole pill layer off the canvas */}
+          <filter id="wfPillShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1.3" floodColor="#000000" floodOpacity="0.28" />
+          </filter>
+          {/* Report card lift */}
+          <filter id="wfCardShadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="12" stdDeviation="16" floodColor="#000000" floodOpacity="0.42" />
+          </filter>
           <marker id="wfArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
             <path d="M0,0 L10,5 L0,10 Z" fill="rgba(255,255,255,0.45)" />
           </marker>
         </defs>
-        <rect width="800" height="640" fill="url(#wfGrid2)" />
 
-        {/* Report panel */}
+        {/* Canvas: gradient base + dot grid + convergence glow */}
+        <rect width="800" height="640" fill="url(#wfBg2)" />
+        <rect width="800" height="640" fill="url(#wfGrid2)" />
+        <ellipse cx="565" cy={REPORT_HUB_Y} rx="120" ry="150" fill="url(#wfHubGlow)" />
+
+        {/* Report panel — lifted cream "paper" card */}
         <rect
           x={REPORT_X}
           y={REPORT_Y}
           width={REPORT_W}
           height={REPORT_H}
           rx="16"
-          fill="#FBF6E8"
-          stroke="#D4A024"
+          fill="url(#wfCard2)"
+          stroke={C.gold}
           strokeWidth="1.5"
           strokeOpacity="0.8"
+          filter="url(#wfCardShadow)"
         >
-          {/* Subtle pulse at end of every cycle = "report ready" */}
+          {/* Subtle pulse at end of every cycle = "dashboard ready" */}
           <animate
             attributeName="stroke-opacity"
             values="0.8;0.8;1;0.8"
@@ -185,10 +255,13 @@ const WorkflowDiagramV2: React.FC = () => (
             repeatCount="indefinite"
           />
         </rect>
-        <text x={REPORT_X + REPORT_W / 2} y={REPORT_Y + 26} textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill="#1F8282" letterSpacing="2">
+
+        {/* Brand cairn crown + wordmark */}
+        <ReportCairn />
+        <text x={REPORT_CX} y={REPORT_Y + 50} textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill={C.tealDeep} letterSpacing="2.5">
           DASHBOARD
         </text>
-        <line x1={REPORT_X + 18} y1={REPORT_Y + 41} x2={REPORT_X + REPORT_W - 18} y2={REPORT_Y + 41} stroke="rgba(31,130,130,0.2)" />
+        <line x1={REPORT_X + 18} y1={REPORT_Y + 64} x2={REPORT_X + REPORT_W - 18} y2={REPORT_Y + 64} stroke="rgba(31,130,130,0.2)" />
         {(() => {
           const contentTop = REPORT_Y + REPORT_CONTENT_TOP_OFFSET;
           const contentBottom = REPORT_Y + REPORT_H - REPORT_FOOTER_HEIGHT;
@@ -196,7 +269,7 @@ const WorkflowDiagramV2: React.FC = () => (
           const firstItemY = contentTop + (contentBottom - contentTop - itemsHeight) / 2;
           return (
             <>
-              <g fontFamily="Inter" fontSize="10.5" fontWeight="600" fill="#122E3B">
+              <g fontFamily="Inter" fontSize="10.5" fontWeight="600" fill={C.ink}>
                 {REPORT_ROWS.map((row, i) => (
                   <text key={row} x={REPORT_X + 24} y={firstItemY + i * REPORT_ITEM_GAP}>
                     {row}
@@ -210,7 +283,7 @@ const WorkflowDiagramV2: React.FC = () => (
                     cx={REPORT_X + 14}
                     cy={firstItemY + i * REPORT_ITEM_GAP - 4}
                     r="2.2"
-                    fill="#27A1A1"
+                    fill={C.teal}
                   />
                 ))}
               </g>
@@ -218,10 +291,10 @@ const WorkflowDiagramV2: React.FC = () => (
           );
         })()}
         <rect x={REPORT_X} y={REPORT_Y + REPORT_H - 54} width={REPORT_W} height="54" rx="12" fill="rgba(39,161,161,0.12)" stroke="rgba(39,161,161,0.3)" />
-        <text x={REPORT_X + REPORT_W / 2} y={REPORT_Y + REPORT_H - 32} textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="800" fill="#27A1A1">
+        <text x={REPORT_CX} y={REPORT_Y + REPORT_H - 32} textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill={C.teal}>
           Ready within 5 minutes
         </text>
-        <text x={REPORT_X + REPORT_W / 2} y={REPORT_Y + REPORT_H - 16} textAnchor="middle" fontFamily="Inter" fontSize="9" fill="rgba(18,46,59,0.55)">
+        <text x={REPORT_CX} y={REPORT_Y + REPORT_H - 16} textAnchor="middle" fontFamily="Inter" fontSize="9" fill="rgba(18,46,59,0.55)">
           refined by your coaching chat
         </text>
 
@@ -229,10 +302,10 @@ const WorkflowDiagramV2: React.FC = () => (
         {PHASES_FLAT.map((phase, i) => (
           <g key={phase.name}>
             <line x1="20" y1={phase.y + 17} x2="500" y2={phase.y + 17} stroke="rgba(212,160,36,0.18)" strokeWidth="1" strokeDasharray="2 4" />
-            <text x="20" y={phase.y + 13} fontFamily="Poppins" fontSize="9.5" fontWeight="700" fill="#D4A024" letterSpacing="2.5">
+            <text x="20" y={phase.y + 13} fontFamily="Poppins" fontSize="9.5" fontWeight="700" fill={C.gold} letterSpacing="2.5">
               {`0${i + 1}`}
             </text>
-            <text x="42" y={phase.y + 13} fontFamily="Poppins" fontSize="9.5" fontWeight="700" fill="#D4A024" letterSpacing="2.5">
+            <text x="42" y={phase.y + 13} fontFamily="Poppins" fontSize="9.5" fontWeight="700" fill={C.gold} letterSpacing="2.5">
               {phase.name}
             </text>
             <text x={42 + phase.name.length * 7 + 14} y={phase.y + 13} fontFamily="Inter" fontSize="9.5" fontWeight="500" fill="rgba(255,255,255,0.4)" letterSpacing="0.5">
@@ -242,13 +315,23 @@ const WorkflowDiagramV2: React.FC = () => (
         ))}
 
         {/* Lane labels */}
-        <g fontFamily="Poppins" fontSize="11" fontWeight="700" fill="#ECE4D2" textAnchor="end">
+        <g fontFamily="Poppins" fontSize="11" fontWeight="700" fill={C.cream} textAnchor="end">
           {ROWS_FLAT.map((item) => (
             <text key={item.row.label} x="185" y={item.y + 17}>
               {item.row.label}
             </text>
           ))}
         </g>
+
+        {/* Soft glow under the trunk → dashboard curve */}
+        <path
+          d={`M ${TRUNK_X} ${REPORT_HUB_Y} C 555 ${REPORT_HUB_Y}, 580 ${REPORT_HUB_Y}, ${REPORT_X} ${REPORT_HUB_Y}`}
+          stroke={C.goldWarm}
+          strokeOpacity="0.5"
+          strokeWidth="6"
+          fill="none"
+          filter="url(#wfSoftGlow)"
+        />
 
         {/* Static connectors */}
         <g stroke="rgba(255,255,255,0.18)" strokeWidth="1.2" fill="none">
@@ -269,7 +352,8 @@ const WorkflowDiagramV2: React.FC = () => (
           {/* Trunk → Report */}
           <path
             d={`M ${TRUNK_X} ${REPORT_HUB_Y} C 555 ${REPORT_HUB_Y}, 580 ${REPORT_HUB_Y}, ${REPORT_X} ${REPORT_HUB_Y}`}
-            stroke="rgba(212,160,36,0.65)"
+            stroke={C.goldBright}
+            strokeOpacity="0.75"
             strokeWidth="2.2"
           />
         </g>
@@ -280,14 +364,19 @@ const WorkflowDiagramV2: React.FC = () => (
             <circle key={item.index} cx={TRUNK_X} cy={item.y + 13} r="2.4" />
           ))}
         </g>
+        {/* Collector node — where every lane meets before the dashboard */}
+        <circle cx={TRUNK_X} cy={REPORT_HUB_Y} r="5.5" fill={C.canvasDeep} stroke={C.goldBright} strokeWidth="1.6" />
+        <circle cx={TRUNK_X} cy={REPORT_HUB_Y} r="2" fill={C.goldBright} />
 
-        {/* Nodes */}
-        {ROWS_FLAT.map((item) => (
-          <g key={`nodes-${item.index}`}>
-            <Node x={210} y={item.y} label={item.row.a.l} llm={item.row.a.llm} />
-            <Node x={345} y={item.y} label={item.row.b.l} llm={item.row.b.llm} />
-          </g>
-        ))}
+        {/* Nodes — one shared shadow lifts the whole pill layer */}
+        <g filter="url(#wfPillShadow)">
+          {ROWS_FLAT.map((item) => (
+            <g key={`nodes-${item.index}`}>
+              <Node x={210} y={item.y} label={item.row.a.l} llm={item.row.a.llm} />
+              <Node x={345} y={item.y} label={item.row.b.l} llm={item.row.b.llm} />
+            </g>
+          ))}
+        </g>
 
         {/*
           Synced sequential wave.
@@ -295,7 +384,7 @@ const WorkflowDiagramV2: React.FC = () => (
           to "hold at start" until its turn, "travel" during its window, then "hold at end" until
           the cycle restarts. That way all 9 pulses stay in lockstep forever — true sequential wave.
         */}
-        <g fill="#E3B04D" filter="url(#wfGlow2)">
+        <g fill={C.goldWarm} filter="url(#wfGlow2)">
           {ROWS_FLAT.map((item) => {
             const y = item.y + 13;
             const path = `M 210 ${y} L 334 ${y} L 345 ${y} L 469 ${y} L ${TRUNK_X} ${y} L ${TRUNK_X} ${REPORT_HUB_Y} L ${REPORT_X} ${REPORT_HUB_Y}`;
@@ -347,7 +436,7 @@ const WorkflowDiagramV2: React.FC = () => (
                 width="170"
                 height="18"
                 rx="4"
-                fill="#D4A024"
+                fill={C.gold}
                 opacity="0"
               >
                 <animate
@@ -364,9 +453,9 @@ const WorkflowDiagramV2: React.FC = () => (
 
         {/* Legend */}
         <g transform="translate(30, 612)" fontFamily="Inter" fontSize="9" fontWeight="600" fill="rgba(255,255,255,0.55)">
-          <circle cx="5" cy="5" r="2.5" fill="#27A1A1" />
+          <circle cx="5" cy="5" r="2.5" fill={C.teal} />
           <text x="14" y="8">Data / code</text>
-          <circle cx="95" cy="5" r="2.5" fill="#D4A024" />
+          <circle cx="95" cy="5" r="2.5" fill={C.gold} />
           <text x="104" y="8">LLM call</text>
         </g>
       </svg>
@@ -375,7 +464,10 @@ const WorkflowDiagramV2: React.FC = () => (
     {/* Mobile / small-tablet stacked fallback */}
     <div
       className="lg:hidden rounded-2xl p-6 sm:p-7"
-      style={{ background: '#122E3B', border: '1px solid rgba(255,255,255,0.08)' }}
+      style={{
+        background: `linear-gradient(180deg, #17333F 0%, ${C.canvasDeep} 100%)`,
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}
     >
       <div className="flex items-center justify-end mb-5">
         <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">

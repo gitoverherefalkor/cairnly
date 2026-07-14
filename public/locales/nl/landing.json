@@ -536,6 +536,8 @@
       "footerSub": "verfijnd door je coachgesprek"
     },
     "pickHint": "Kies er maximaal {{max}}",
-    "pickCounter": "{{count}} van {{max}} gekozen"
+    "pickCounter": "{{count}} van {{max}} gekozen",
+    "restingInvite": "Tik hierboven aan wat je hier brengt, of vertel het in je eigen woorden.",
+    "restingPlaceholder": "Vertel me wat je hier brengt…"
   }
 }

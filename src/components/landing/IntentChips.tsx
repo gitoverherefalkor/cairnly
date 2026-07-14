@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useIntent, INTENT_KEYS, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
@@ -30,12 +29,12 @@ function getVisitorId(): string {
 }
 
 /** Fire-and-forget: a failed log must never block the UI. */
-function logPick(intentKey: string, locale: string, freeText?: string) {
+function logPick(intentKey: string, locale: string) {
   supabase
     .from('intent_picks')
     .insert({
       intent_key: intentKey,
-      free_text: freeText ?? null,
+      free_text: null,
       locale,
       visitor_id: getVisitorId(),
       source: 'chip',
@@ -58,25 +57,26 @@ const IntentChips: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
   const { intent, setIntent } = useIntent();
   const intakeChat = useIntakeChatOptional();
-  // 'idle' → other input closed, 'open' → typing, 'thanked' → submitted
-  const [otherState, setOtherState] = useState<'idle' | 'open' | 'thanked'>('idle');
-  const [otherText, setOtherText] = useState('');
+  // True while the visitor is on the "Something else" (own-words) route. Local
+  // to the chips: it de-highlights the preset pills without changing `intent`
+  // (so the hero headline copy stays put, per design).
+  const [somethingElse, setSomethingElse] = useState(false);
 
   const pick = (key: IntentKey) => {
-    if (key !== intent) logPick(key, i18n.language);
+    if (key !== intent || somethingElse) logPick(key, i18n.language);
+    setSomethingElse(false);
     setIntent(key);
-    if (otherState === 'open') setOtherState('idle');
-    // Kick off the intake chat below the hero with this pill's seed message
-    // (no-op if a real conversation is already underway).
+    // Launch that preset's chat below the hero (canned opener + options).
     intakeChat?.startFromPill(key, t(`intake.seeds.${INTAKE_SEED_KEY[key]}`));
   };
 
-  const submitOther = () => {
-    const text = otherText.trim().slice(0, 280);
-    if (!text) return;
-    logPick('other', i18n.language, text);
-    setOtherState('thanked');
-    setOtherText('');
+  const pickSomethingElse = () => {
+    logPick('other', i18n.language);
+    setSomethingElse(true);
+    // Clear any preset pre-chat and drop the cursor into the chat input; the
+    // visitor writes their own opening, which starts a custom conversation.
+    intakeChat?.reset();
+    intakeChat?.requestInputFocus();
   };
 
   const chipBase =
@@ -90,58 +90,29 @@ const IntentChips: React.FC = () => {
         {t('intentChips.prompt')}
       </p>
       <div className="flex flex-wrap gap-2">
-        {INTENT_KEYS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => pick(key)}
-            aria-pressed={intent === key}
-            className={`${chipBase} ${intent === key ? chipSelected : chipIdle}`}
-          >
-            {t(`intentChips.labels.${LABEL_KEY[key]}`)}
-          </button>
-        ))}
-        {otherState !== 'thanked' && (
-          <button
-            type="button"
-            onClick={() => setOtherState(otherState === 'open' ? 'idle' : 'open')}
-            className={`${chipBase} ${otherState === 'open' ? 'border-white/50 text-white' : chipIdle}`}
-          >
-            {t('intentChips.other.label')}
-          </button>
-        )}
-      </div>
-
-      {otherState === 'open' && (
-        <form
-          className="mt-3 flex items-center gap-2 max-w-md"
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitOther();
-          }}
+        {INTENT_KEYS.map((key) => {
+          const active = !somethingElse && intent === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => pick(key)}
+              aria-pressed={active}
+              className={`${chipBase} ${active ? chipSelected : chipIdle}`}
+            >
+              {t(`intentChips.labels.${LABEL_KEY[key]}`)}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={pickSomethingElse}
+          aria-pressed={somethingElse}
+          className={`${chipBase} ${somethingElse ? chipSelected : chipIdle}`}
         >
-          <input
-            type="text"
-            value={otherText}
-            onChange={(e) => setOtherText(e.target.value)}
-            maxLength={280}
-            autoFocus
-            placeholder={t('intentChips.other.placeholder')}
-            className="flex-1 rounded-full bg-white/10 border border-white/25 px-4 py-2 text-[13px] text-white placeholder:text-white/40 outline-none focus:border-[#D4A024]/70"
-          />
-          <button
-            type="submit"
-            aria-label={t('intentChips.other.submit')}
-            className="rounded-full bg-[#D4A024] text-[#122E3B] p-2.5 hover:brightness-110 transition"
-          >
-            <Send size={14} strokeWidth={2.4} />
-          </button>
-        </form>
-      )}
-
-      {otherState === 'thanked' && (
-        <p className="mt-3 text-[13px] text-[#E6C36A] font-medium">{t('intentChips.other.thanks')}</p>
-      )}
+          {t('intentChips.other.label')}
+        </button>
+      </div>
     </div>
   );
 };

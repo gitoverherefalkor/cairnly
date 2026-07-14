@@ -39,6 +39,7 @@ import {
   type Lang,
   type IntentKey,
   INTENT_KEYS,
+  VALID_INTENTS,
   INTENT_LABELS,
   OPENER_REPLIES,
   CANON,
@@ -246,15 +247,16 @@ async function handleStart(body: Record<string, unknown>, corsHeaders: Record<st
     return errorResponse('Message too long', 400, corsHeaders);
   }
   const language = sanitizeLang(body.language);
-  const intent: IntentKey = INTENT_KEYS.includes(body.intent as IntentKey)
+  const intent: IntentKey = VALID_INTENTS.includes(body.intent as IntentKey)
     ? (body.intent as IntentKey)
     : 'default';
   const source = body.source === 'pill' ? 'pill' : 'cta';
 
   // Pill-seeded openers get a canned reply (no LLM call): instant, free, and
-  // deterministic. Custom-typed openers go through the live model instead.
+  // deterministic. Custom-typed openers ('other') go through the live model.
   if (body.seeded === true) {
-    const reply = OPENER_REPLIES[language][intent];
+    // Only presets are ever seeded; fall back defensively to the default opener.
+    const reply = OPENER_REPLIES[language][intent] ?? OPENER_REPLIES[language].default!;
     const now = new Date().toISOString();
     const messages: TranscriptMessage[] = [
       { role: 'user', text, at: now },
@@ -323,7 +325,7 @@ async function advanceConversation(
   ];
   const rowForApi = { ...row, messages: transcript } as SessionRow;
 
-  const intent: IntentKey = INTENT_KEYS.includes(row.intent as IntentKey)
+  const intent: IntentKey = VALID_INTENTS.includes(row.intent as IntentKey)
     ? (row.intent as IntentKey)
     : 'default';
 
@@ -479,7 +481,7 @@ async function handleResume(body: Record<string, unknown>, corsHeaders: Record<s
   if (error || !data) return errorResponse('Invalid link', 404, corsHeaders);
   const row = data as SessionRow;
   const resumeLang = sanitizeLang(row.language);
-  const resumeIntent: IntentKey = INTENT_KEYS.includes(row.intent as IntentKey) ? (row.intent as IntentKey) : 'default';
+  const resumeIntent: IntentKey = VALID_INTENTS.includes(row.intent as IntentKey) ? (row.intent as IntentKey) : 'default';
   const resumePlan = beatsFor(resumeIntent);
   const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= resumePlan.length
     ? row.user_turns

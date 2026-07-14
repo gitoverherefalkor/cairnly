@@ -54,6 +54,12 @@ interface IntakeChatValue {
   openFromToken: (token: string) => void;
   /** Scrolls the chat section into view (used by the Get Started CTA). */
   focusChat: () => void;
+  /** Tears the conversation back down to the resting state (used by "Something else"). */
+  reset: () => void;
+  /** Bumps whenever the chat input should take focus (watched by the panel). */
+  focusInputNonce: number;
+  /** Requests input focus + scroll (used by the "Something else" pill). */
+  requestInputFocus: () => void;
 }
 
 const IntakeChatContext = createContext<IntakeChatValue | null>(null);
@@ -102,6 +108,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [beatLabels, setBeatLabels] = useState<string[]>(persisted.current?.beatLabels ?? []);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [focusInputNonce, setFocusInputNonce] = useState(0);
   const starting = useRef(false);
 
   const lang = (i18n.language || 'en').slice(0, 2) === 'nl' ? 'nl' : 'en';
@@ -122,6 +129,26 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const focusChat = useCallback(() => {
     document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+
+  // Tear the conversation back down to the resting (not-started) state. Used
+  // when the visitor picks "Something else" so the default pre-chat clears.
+  const reset = useCallback(() => {
+    if (starting.current) return;
+    setSessionId(null);
+    setMessages([]);
+    setStage('chat');
+    setEmailCaptured(false);
+    setBeat(null);
+    setChips(null);
+    setError(null);
+    try {
+      localStorage.removeItem(INTAKE_SESSION_KEY);
+    } catch {
+      // Best effort.
+    }
+  }, []);
+
+  const requestInputFocus = useCallback(() => setFocusInputNonce((n) => n + 1), []);
 
   const handleReply = useCallback(
     (res: {
@@ -286,6 +313,9 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         submitEmail,
         openFromToken,
         focusChat,
+        reset,
+        focusInputNonce,
+        requestInputFocus,
       }}
     >
       {children}
