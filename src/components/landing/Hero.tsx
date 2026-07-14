@@ -1,10 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
 import HeroCarousel from './HeroCarousel';
 import IntentChips from './IntentChips';
-import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
@@ -20,7 +19,6 @@ import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
  * overlapping the semi-transparent cairn mark.
  */
 const Hero: React.FC = () => {
-  const getStarted = useGetStarted();
   const { t } = useTranslation('landing');
   const { vt, intent } = useIntentCopy();
   const intakeChat = useIntakeChatOptional();
@@ -119,28 +117,12 @@ const Hero: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="mt-8 flex flex-col items-center gap-5">
-                <div className="flex flex-col sm:flex-row items-center gap-5">
-                  <button onClick={getStarted} className="lp-btn-primary">
-                    <span key={intent} className="lp-intent-fade">{vt('hero.ctaPrimary')}</span>
-                    <ArrowRight size={18} strokeWidth={2.4} />
-                  </button>
-                  <a
-                    href="#how-it-works"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="lp-btn-secondary-text"
-                  >
-                    {t('hero.ctaSecondary')}
-                    <ChevronDown size={14} strokeWidth={2} />
-                  </a>
-                </div>
-                <p className="text-sm text-white/45 font-medium text-center">
-                  {t('hero.reassurance')}
-                </p>
-              </div>
+              // The pills + chat are the CTA here; a generic "Get Started"
+              // that drops straight into the signup form only invites bounces.
+              // Keep just the reassurance line under the carousel.
+              <p className="mt-8 text-sm text-white/45 font-medium text-center">
+                {t('hero.reassurance')}
+              </p>
             )}
           </Reveal>
         </div>
