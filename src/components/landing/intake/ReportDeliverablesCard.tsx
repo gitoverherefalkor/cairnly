@@ -5,12 +5,12 @@ import { ArrowRight, Check } from 'lucide-react';
 import { tArray } from '@/lib/i18nArray';
 
 /**
- * "Everything in your dashboard" card, shown in the hero's right column once
- * the intake chat reaches the pitch (replacing the rotating product carousel).
- * The deliverables mirror the REPORT panel of the engine diagram
- * (WorkflowDiagramV2). Roomy single-column list (the right column has width to
- * spare), with the checkout CTA on the card itself: this is the moment the
- * visitor is looking at exactly what their €39 buys.
+ * "The clarity Cairnly offers" card, shown in the hero's right column once the
+ * intake chat reaches the pitch (replacing the rotating product carousel). It
+ * borrows the in-app dashboard's dark-glass card styling (see DashboardV4 /
+ * dashboardV2Shared) — translucent navy, blur, bright text and teal accents —
+ * so it reads as the same product surface the visitor is about to unlock. The
+ * checkout CTA lives on the card: this is the moment they see what €39 buys.
  */
 const ReportDeliverablesCard: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -19,49 +19,56 @@ const ReportDeliverablesCard: React.FC = () => {
 
   return (
     <div
-      className="mx-auto w-full max-w-[560px] overflow-hidden rounded-3xl border"
+      className="mx-auto w-full max-w-[560px] overflow-hidden rounded-3xl"
       style={{
-        background: '#FDFBF2',
-        borderColor: 'rgba(201, 182, 144, 0.6)',
-        boxShadow: '0 40px 80px -32px rgba(0,0,0,0.55)',
+        background: 'rgba(18, 46, 59, 0.62)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
       }}
     >
-      {/* Header: price note up top (once, no repeat at the bottom), then the title */}
-      <div className="px-7 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(201,182,144,0.4)' }}>
-        <p className="text-[12px] font-medium" style={{ color: 'rgba(18,46,59,0.55)' }}>
+      {/* Header: price as the eyebrow, then the title */}
+      <div className="px-7 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <p
+          style={{
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 700,
+            fontSize: 11,
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            color: '#EFBE48',
+          }}
+        >
           {t('intake.report.priceLine')}
         </p>
         <p
-          className="mt-1.5 text-[24px] font-bold leading-tight text-[#122E3B]"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
+          className="mt-2 text-[24px] font-bold leading-tight"
+          style={{ fontFamily: "'Poppins', sans-serif", color: '#F4ECDA' }}
         >
           {t('intake.report.title')}
         </p>
       </div>
 
-      {/* Deliverables — single column, roomy */}
+      {/* Deliverables — single column, roomy, bright on dark */}
       <ul className="flex flex-col gap-3 px-7 py-6">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-3">
             <span
               className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
-              style={{ background: 'rgba(39,161,161,0.14)' }}
+              style={{ background: 'rgba(42,191,191,0.16)' }}
             >
-              <Check size={12} strokeWidth={3} style={{ color: '#1F8282' }} />
+              <Check size={12} strokeWidth={3} style={{ color: '#2ABFBF' }} />
             </span>
-            <span className="text-[15px] leading-snug text-[#1F2937]">{item}</span>
+            <span className="text-[15px] leading-snug" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              {item}
+            </span>
           </li>
         ))}
       </ul>
 
       {/* CTA: the card's own footer. This is the moment to ask for the click. */}
       <div className="px-7 pb-7">
-        <p
-          className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.18em]"
-          style={{ color: '#D4A024' }}
-        >
-          {t('intake.ctaLabel')}
-        </p>
         <button
           type="button"
           onClick={() => navigate('/payment')}
@@ -71,7 +78,7 @@ const ReportDeliverablesCard: React.FC = () => {
           {t('intake.ctaCheckout')}
           <ArrowRight size={18} strokeWidth={2.4} />
         </button>
-        <p className="mt-2.5 text-center text-[12px]" style={{ color: 'rgba(18,46,59,0.55)' }}>
+        <p className="mt-2.5 text-center text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
           {t('intake.ctaNote')}
         </p>
       </div>
