@@ -541,8 +541,10 @@ The intake questions are done. Now write THE PITCH: a personal preview of what C
 - Ground every sentence in what they actually told you: their stage, their driver, their blockers, their dream job, their horizon. Reuse their own phrases where natural. Nothing generic that could apply to anyone.
 - Structure and formatting (use this exact shape):
   (a) One or two sentences naming the core tension you heard.
-  (b) Then the three most interesting threads Cairnly would pull on for them, formatted as EXACTLY three markdown bullet lines (each line starts with "- "). Begin each bullet with a short bold lead phrase wrapped in double asterisks, then the specifics tied to something they said. If they named a dream job, connect at least one bullet to it. Example line: "- **Where your judgment stays durable:** ...".
+  (b) Then three threads Cairnly would pull on for them, formatted as EXACTLY three markdown bullet lines (each line starts with "- "). Begin each bullet with a short bold lead phrase wrapped in double asterisks, then the specifics tied to something they said. The three bullets must draw on DIFFERENT inputs (their stage, driver, blockers, values, horizon), not all circle the same one. Example line: "- **Where your judgment stays durable:** ...".
   (c) Then one short closing sentence inviting them to continue, without pressure.
+- WHAT CAIRNLY DOES, framed correctly: it finds career paths that genuinely FIT them and are realistic, and scores several of them. It does not exist to land one particular job.
+- THE DREAM JOB IS A SIGNAL, NOT THE DESTINATION. Treat any dream job they named as a clue to the DIRECTION they are drawn to (hands-on, outdoors, autonomy, creative, etc.), never as the fixed goal Cairnly will help them reach. Do NOT make the pitch about that one job. At most ONE of the three bullets may touch it, and only to say Cairnly would pressure-test it honestly (does it hold up on fit, feasibility and money, or does an adjacent or entirely different path suit them better). The assessment may well conclude the dream job is not the right move; the pitch must leave that door open, not imply they are getting that job.
 - Do NOT list what they walk away with or name the deliverables; a dashboard card beside this message already shows those. Do not use the word "report".`;
 }
 
