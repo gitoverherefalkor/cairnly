@@ -483,14 +483,14 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "emailTitle": "Want to keep this?",
+    "emailTitle": "Not ready? We'll hold your spot.",
     "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
     "emailPlaceholder": "you@example.com",
-    "emailSubmit": "Save it",
+    "emailSubmit": "Email it",
     "emailLater": "Maybe later",
     "emailSaved": "Saved. Check your inbox for your personal link.",
-    "ctaCheckout": "Continue to the full assessment",
-    "ctaNote": "€39 one-off during beta · your answers carry over",
+    "ctaCheckout": "Build my full report",
+    "ctaNote": "€39 one-off · no subscription · your answers carry over",
     "seeds": {
       "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
       "goodAtIt": "I'm good at my job, but I'm not sure it's really me.",
@@ -517,6 +517,23 @@
       "aiWorried": "Your AI fluency",
       "lifeChanged": "What work must respect",
       "understandMyself": "Your archetypes"
+    },
+    "report": {
+      "eyebrow": "Your €39 report",
+      "title": "Everything the full report gives you",
+      "items": [
+        "Honest personality read",
+        "Top 3 career matches",
+        "Runner-up roles",
+        "Outside-the-box paths",
+        "Dream-job feasibility",
+        "AI-impact ratings",
+        "Salary ranges",
+        "Open roles to apply to",
+        "Tuned CV + cover letter"
+      ],
+      "footer": "Ready in ~5 minutes",
+      "footerSub": "refined by your coaching chat"
     }
   }
 }

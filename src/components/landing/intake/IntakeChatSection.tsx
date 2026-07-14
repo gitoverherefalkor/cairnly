@@ -50,7 +50,6 @@ const IntakeChatPanel: React.FC = () => {
   const [picked, setPicked] = useState<string[]>([]);
   const [email, setEmail] = useState('');
   const [emailBusy, setEmailBusy] = useState(false);
-  const [emailHidden, setEmailHidden] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -129,7 +128,7 @@ const IntakeChatPanel: React.FC = () => {
     setEmailBusy(false);
   };
 
-  const showEmailCard = chat.stage === 'pitched' && !chat.emailCaptured && !emailHidden;
+  const showEmailCard = chat.stage === 'pitched' && !chat.emailCaptured;
   const showChips = chat.started && chat.stage === 'chat' && !chat.sending && !!chat.chips?.options.length;
 
   return (
@@ -333,60 +332,51 @@ const IntakeChatPanel: React.FC = () => {
 
             {chat.error && <p className="px-1 text-[13px] font-medium text-[#F2B8AC]">{chat.error}</p>}
 
-            {/* Email capture, after the pitch */}
-            {showEmailCard && (
-              <div className="rounded-[20px] border p-4" style={ASSISTANT_BUBBLE}>
-                <p className="text-[14px] font-bold text-[#122E3B]" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                  {t('intake.emailTitle')}
-                </p>
-                <p className="mt-1 text-[13px] leading-snug text-[#4B6373]">{t('intake.emailBody')}</p>
-                <form onSubmit={handleEmailSubmit} className="mt-3 flex gap-2">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t('intake.emailPlaceholder')}
-                    className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2 text-[13px] text-[#122E3B] outline-none focus:border-atlas-teal"
-                  />
-                  <button
-                    type="submit"
-                    disabled={emailBusy}
-                    className="shrink-0 rounded-full px-4 py-2 text-[13px] font-bold text-white disabled:opacity-60"
-                    style={{ background: '#2ABFBF' }}
-                  >
-                    {t('intake.emailSubmit')}
-                  </button>
-                </form>
-                <button
-                  type="button"
-                  onClick={() => setEmailHidden(true)}
-                  className="mt-2 text-[12px] text-[#6B7F8B] underline underline-offset-2"
-                >
-                  {t('intake.emailLater')}
-                </button>
-              </div>
-            )}
-
-            {chat.emailCaptured && chat.stage === 'pitched' && (
-              <p className="px-1 text-[13px] font-medium" style={{ color: '#7FD4D4' }}>
-                {t('intake.emailSaved')}
-              </p>
-            )}
-
-            {/* Checkout CTA, after the pitch */}
+            {/* After the pitch: dominant checkout CTA, with a demoted
+                save-by-email escape hatch beneath it. */}
             {chat.stage === 'pitched' && (
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => navigate('/payment')}
-                  className="lp-btn-primary w-full justify-center"
-                  style={{ fontSize: 15, padding: '13px 22px' }}
-                >
-                  {t('intake.ctaCheckout')}
-                  <ArrowRight size={16} strokeWidth={2.4} />
-                </button>
-                <p className="mt-2 text-center text-[12px] text-white/50">{t('intake.ctaNote')}</p>
+              <div className="space-y-3 pt-1">
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/payment')}
+                    className="lp-btn-primary w-full justify-center"
+                    style={{ fontSize: 16, padding: '15px 22px' }}
+                  >
+                    {t('intake.ctaCheckout')}
+                    <ArrowRight size={17} strokeWidth={2.4} />
+                  </button>
+                  <p className="mt-2 text-center text-[12px] text-white/55">{t('intake.ctaNote')}</p>
+                </div>
+
+                {showEmailCard && (
+                  <div className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5">
+                    <p className="text-[12px] font-medium text-white/60">{t('intake.emailTitle')}</p>
+                    <form onSubmit={handleEmailSubmit} className="mt-2 flex gap-2">
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t('intake.emailPlaceholder')}
+                        className="min-w-0 flex-1 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-[13px] text-white outline-none placeholder:text-white/35 focus:border-atlas-teal"
+                      />
+                      <button
+                        type="submit"
+                        disabled={emailBusy}
+                        className="shrink-0 rounded-lg border border-white/20 px-3 py-1.5 text-[12px] font-semibold text-white/80 transition-colors hover:bg-white/10 disabled:opacity-60"
+                      >
+                        {t('intake.emailSubmit')}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {chat.emailCaptured && (
+                  <p className="text-[13px] font-medium" style={{ color: '#7FD4D4' }}>
+                    {t('intake.emailSaved')}
+                  </p>
+                )}
               </div>
             )}
           </div>

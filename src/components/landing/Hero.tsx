@@ -7,6 +7,8 @@ import IntentChips from './IntentChips';
 import { useGetStarted } from './useGetStarted';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
+import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
+import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 /**
@@ -20,6 +22,10 @@ const Hero: React.FC = () => {
   const getStarted = useGetStarted();
   const { t } = useTranslation('landing');
   const { vt, intent } = useIntentCopy();
+  const intakeChat = useIntakeChatOptional();
+  // Once the chat delivers its pitch, the right column stops being a generic
+  // product tour and itemizes the report the visitor is about to buy.
+  const pitched = intakeChat?.stage === 'pitched';
 
   return (
     <section className="survey-bg relative text-white pt-12 md:pt-16 pb-16 md:pb-20 overflow-hidden">
@@ -85,9 +91,10 @@ const Hero: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Product proof + CTA (desktop: right column, row 2) */}
+          {/* Product proof + CTA (desktop: right column, row 2). Swaps to the
+              report deliverables card once the chat pitch lands. */}
           <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
-            <HeroCarousel />
+            {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
             <div className="mt-8 flex flex-col items-center gap-5">
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <button onClick={getStarted} className="lp-btn-primary">
