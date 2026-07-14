@@ -92,15 +92,15 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Product proof + CTA (desktop: right column, row 2). Swaps to the
-              report deliverables card once the chat pitch lands. */}
+              report deliverables card once the chat pitch lands — that card
+              carries its own checkout CTA, so the generic hero CTA and
+              reassurance line below step aside to avoid a second, competing
+              button; "See how it works" stays as the one remaining, low-key
+              way to keep browsing instead of buying. */}
           <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
             {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
-            <div className="mt-8 flex flex-col items-center gap-5">
-              <div className="flex flex-col sm:flex-row items-center gap-5">
-                <button onClick={getStarted} className="lp-btn-primary">
-                  <span key={intent} className="lp-intent-fade">{vt('hero.ctaPrimary')}</span>
-                  <ArrowRight size={18} strokeWidth={2.4} />
-                </button>
+            {pitched ? (
+              <div className="mt-6 flex justify-center">
                 <a
                   href="#how-it-works"
                   onClick={(e) => {
@@ -113,10 +113,30 @@ const Hero: React.FC = () => {
                   <ChevronDown size={14} strokeWidth={2} />
                 </a>
               </div>
-              <p className="text-sm text-white/45 font-medium text-center">
-                {t('hero.reassurance')}
-              </p>
-            </div>
+            ) : (
+              <div className="mt-8 flex flex-col items-center gap-5">
+                <div className="flex flex-col sm:flex-row items-center gap-5">
+                  <button onClick={getStarted} className="lp-btn-primary">
+                    <span key={intent} className="lp-intent-fade">{vt('hero.ctaPrimary')}</span>
+                    <ArrowRight size={18} strokeWidth={2.4} />
+                  </button>
+                  <a
+                    href="#how-it-works"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="lp-btn-secondary-text"
+                  >
+                    {t('hero.ctaSecondary')}
+                    <ChevronDown size={14} strokeWidth={2} />
+                  </a>
+                </div>
+                <p className="text-sm text-white/45 font-medium text-center">
+                  {t('hero.reassurance')}
+                </p>
+              </div>
+            )}
           </Reveal>
         </div>
       </div>

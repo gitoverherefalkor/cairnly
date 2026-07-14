@@ -332,23 +332,11 @@ const IntakeChatPanel: React.FC = () => {
 
             {chat.error && <p className="px-1 text-[13px] font-medium text-[#F2B8AC]">{chat.error}</p>}
 
-            {/* After the pitch: dominant checkout CTA, with a demoted
-                save-by-email escape hatch beneath it. */}
+            {/* After the pitch: the checkout CTA now lives on the report
+                deliverables card (right column / below on mobile), so this
+                is just the demoted save-by-email escape hatch. */}
             {chat.stage === 'pitched' && (
               <div className="space-y-3 pt-1">
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/payment')}
-                    className="lp-btn-primary w-full justify-center"
-                    style={{ fontSize: 16, padding: '15px 22px' }}
-                  >
-                    {t('intake.ctaCheckout')}
-                    <ArrowRight size={17} strokeWidth={2.4} />
-                  </button>
-                  <p className="mt-2 text-center text-[12px] text-white/55">{t('intake.ctaNote')}</p>
-                </div>
-
                 {showEmailCard && (
                   <div className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5">
                     <p className="text-[12px] font-medium text-white/60">{t('intake.emailTitle')}</p>
@@ -408,13 +396,17 @@ const IntakeChatPanel: React.FC = () => {
                 <ArrowRight size={16} strokeWidth={2.4} />
               </button>
             </form>
-            <button
-              type="button"
-              onClick={() => navigate('/payment')}
-              className="mt-2 text-[12px] text-white/50 underline underline-offset-2"
-            >
-              {t('intake.skip')}
-            </button>
+            {/* Once pitched, the report card's CTA is the checkout path;
+                this early "skip the chat" escape hatch would be redundant. */}
+            {chat.stage !== 'pitched' && (
+              <button
+                type="button"
+                onClick={() => navigate('/payment')}
+                className="mt-2 text-[12px] text-white/50 underline underline-offset-2"
+              >
+                {t('intake.skip')}
+              </button>
+            )}
           </div>
         </>
       )}

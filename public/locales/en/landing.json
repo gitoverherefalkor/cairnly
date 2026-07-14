@@ -483,7 +483,7 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "emailTitle": "Not ready? We'll hold your spot.",
+    "emailTitle": "Not ready yet? We'll hold your spot.",
     "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
     "emailPlaceholder": "you@example.com",
     "emailSubmit": "Email it",
