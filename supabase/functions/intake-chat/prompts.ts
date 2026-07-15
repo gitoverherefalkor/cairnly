@@ -60,7 +60,7 @@ export const INTENT_BRIEFS: Record<IntentKey, string> = {
   'ai-worried': `Worried AI will reshape or replace their role. Take the worry seriously, never dismiss it and never fuel it. Listen for: which parts of their job are routine coordination or production (exposed) versus judgment, relationships and taste (durable); whether the worry is really about AI or AI is the socially acceptable wrapper for older doubts about the fit.`,
   'life-changed': `Life shifted (children, burnout, a move, loss, health, a restart) and the job no longer fits the life. Listen for: what specifically changed in their constraints and values; what the old job was optimized for that no longer matters; unnegotiable new realities (hours, energy, location, care duties). Be extra warm and unhurried here.`,
   'understand-myself': `They want self-understanding before direction. Often reflective, may have done tests before and found them shallow. Listen for: patterns across their history they have not named; the difference between what they are praised for and what energizes them; be concrete, they are allergic to horoscope-style vagueness.`,
-  other: `They typed their own reason for being here instead of picking a preset. Take their exact framing at face value; do NOT assume an archetype or reach for a preset story. Read what they actually wrote, reflect their own words back, and let their situation lead. Your opening reply must be genuinely built from their message.`,
+  other: `They typed their own reason for being here instead of picking a preset. Take their exact framing at face value; do NOT assume an archetype or reach for a preset story. Read what they actually wrote and let their exact framing and situation lead. Your opening reply must be genuinely built from their message.`,
 };
 
 /**
@@ -87,13 +87,13 @@ export const OPENER_REPLIES: Record<Lang, Partial<Record<IntentKey, string>>> = 
     default:
       "Eén op de drie studenten heeft achteraf twijfels of spijt van de studiekeuze; dat onderzoek verzamelden we voor ons Career Uncertainty Report. Jouw vraag verdient dus een echt antwoord, en dat begint bij het pad tot nu toe. Wat voor werk heb je tot nu toe gedaan? Eén zin is genoeg.",
     'good-at-it':
-      "Bijna de helft van de professionals wereldwijd zegt nog geen werk te hebben gevonden dat echt betekenisvol voelt; dat onderzoek verzamelden we voor ons Career Uncertainty Report. Dat gevoel kennen terwijl je goed bent in je werk komt vaker voor dan mensen toegeven. Om dit te plaatsen: wat voor werk doe je? Eén zin is genoeg.",
+      "Bijna de helft van de professionals wereldwijd zegt nog geen werk te hebben gevonden dat echt betekenisvol voelt; dat onderzoek verzamelden we voor ons Career Uncertainty Report. Dat gevoel, juist terwijl je goed bent in je werk, komt vaker voor dan mensen toegeven. Om dit te plaatsen: wat voor werk doe je? Eén zin is genoeg.",
     'ai-worried':
       "Je bent hierin allesbehalve alleen: 52% van de Amerikaanse werkenden maakt zich zorgen over wat AI voor hun werk betekent, en het World Economic Forum verwacht dat 39% van de vaardigheden verschuift richting 2030; het onderzoek staat in ons Career Uncertainty Report. Je zorg verdient een eerlijk antwoord in plaats van geruststelling. Om dit te plaatsen: wat voor werk doe je, van dag tot dag?",
     'life-changed':
-      "Wereldwijd is werk-privébalans net salaris voorbijgestreefd als belangrijkste reden om een baan te kiezen, voor het eerst in 22 jaar meten; we behandelen het in ons Career Uncertainty Report. De kloof tussen het leven en de baan is dus serieus te nemen. Om te beginnen: wat voor werk heb je gedaan, of deed je voordat het leven veranderde?",
+      "Wereldwijd is werk-privébalans net salaris voorbijgestreefd als belangrijkste reden om een baan te kiezen, voor het eerst in de 22 jaar dat dit wordt gemeten; we behandelen het in ons Career Uncertainty Report. De kloof tussen het leven en de baan is dus serieus te nemen. Om te beginnen: wat voor werk heb je gedaan, of deed je voordat het leven veranderde?",
     'understand-myself':
-      "Goed instinct. Populaire persoonlijkheidstests houden slecht stand: 39 tot 76% van de mensen krijgt een ander MBTI-type bij een hertest; daarom vergeleken we coaches en assessments in een van onze reports. Weten wie er kiest komt vóór het kiezen. Eerst: wat voor werk heb je tot nu toe gedaan? Eén zin is genoeg.",
+      "Goed instinct. Populaire persoonlijkheidstests houden slecht stand: 39 tot 76% van de mensen krijgt een ander MBTI-type bij een hertest; daarom vergeleken we coaches en assessments in een van onze onderzoeksrapporten. Weten wie er kiest komt vóór het kiezen. Eerst: wat voor werk heb je tot nu toe gedaan? Eén zin is genoeg.",
   },
 };
 
@@ -291,12 +291,12 @@ export const BEATS: Beat[] = [
       },
       nl: {
         options: [
-          'Nieuwe vaardigheden of certificaten ontwikkelen',
+          'Nieuwe vaardigheden ontwikkelen of certificaten behalen',
           'Ervaring opdoen in een andere rol of sector',
           'Mijn professionele netwerk uitbreiden',
           'Een promotie of beter salaris',
           'Een betere werk-privébalans',
-          'Verkennen om iets voor mezelf te beginnen',
+          'Onderzoeken of ik voor mezelf wil beginnen',
         ],
         multi: true,
         max: 3,
@@ -428,7 +428,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
 /**
  * The beat plan per intent. Lengths vary deliberately:
  * - ai-worried skips the generic driver beat (the pill IS the driver).
- * - life-changed skips the 5-10 year horizon beat (mid-upheaval, keep it light).
+ * - life-changed skips the next-step beat (mid-upheaval, keep it light; schedule is their pressing question).
  * - the rest run the full five-beat arc.
  */
 export function beatsFor(intent: IntentKey): Beat[] {
@@ -552,7 +552,17 @@ ${CAIRNLY_FACTS}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
-Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS list, say plainly that you don't want to overpromise and that the dashboard itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
+THE PACKAGE (you may also confirm these; they are what the visitor's package card lists):
+- Complete personality and career assessment
+- AI analysis tailored to your goals
+- Up to 12 suggested careers in 4 categories, each scored for personal match
+- Localized salary ranges for every role
+- AI-impact ratings on every suggested role
+- A practical, step-by-step switching plan for each role
+- Dream-job feasibility assessment
+- Live job openings, a CV strength optimizer and cover letter help once a path is chosen
+
+Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS or PACKAGE lists, say plainly that you don't want to overpromise and that the dashboard itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
 }
 
 /** Fixed message when the turn cap is reached. No API call is made. */
