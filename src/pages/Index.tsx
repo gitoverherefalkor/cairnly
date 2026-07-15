@@ -16,6 +16,8 @@ import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { IntentProvider } from '@/contexts/IntentContext';
+import { IntakeChatProvider } from '@/components/landing/intake/IntakeChatContext';
+import IntakeResumeParam from '@/components/landing/intake/IntakeResumeParam';
 import Seo from '@/components/Seo';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
 
@@ -25,6 +27,7 @@ import { organizationSchema, websiteSchema } from '@/lib/seo';
  */
 const Index: React.FC = () => (
   <IntentProvider>
+  <IntakeChatProvider>
   <Seo path="/" jsonLd={[organizationSchema, websiteSchema]} />
   <div
     className="min-h-screen font-sans overflow-x-clip"
@@ -49,6 +52,8 @@ const Index: React.FC = () => (
     </main>
     <LandingFooter />
   </div>
+  <IntakeResumeParam />
+  </IntakeChatProvider>
   </IntentProvider>
 );
 

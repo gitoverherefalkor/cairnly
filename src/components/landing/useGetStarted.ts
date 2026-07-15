@@ -1,15 +1,25 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useIntakeChatOptional } from './intake/IntakeChatContext';
 
 /**
- * The primary landing-page CTA: logged-in visitors go to their dashboard,
- * everyone else goes straight to the payment route.
+ * The primary landing-page CTA: logged-in visitors go to their dashboard.
+ * On the homepage (where IntakeChatProvider is mounted) logged-out visitors
+ * are scrolled to the inline intake chat; anywhere else they go straight
+ * to payment.
  */
 export const useGetStarted = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const intakeChat = useIntakeChatOptional();
   return useCallback(() => {
-    navigate(user ? '/dashboard' : '/payment');
-  }, [navigate, user]);
+    if (user) {
+      navigate('/dashboard');
+    } else if (intakeChat) {
+      intakeChat.focusChat();
+    } else {
+      navigate('/payment');
+    }
+  }, [navigate, user, intakeChat]);
 };

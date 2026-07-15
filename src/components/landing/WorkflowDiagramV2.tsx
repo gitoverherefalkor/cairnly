@@ -186,7 +186,7 @@ const WorkflowDiagramV2: React.FC = () => (
           />
         </rect>
         <text x={REPORT_X + REPORT_W / 2} y={REPORT_Y + 26} textAnchor="middle" fontFamily="Poppins" fontSize="11" fontWeight="700" fill="#1F8282" letterSpacing="2">
-          REPORT
+          DASHBOARD
         </text>
         <line x1={REPORT_X + 18} y1={REPORT_Y + 41} x2={REPORT_X + REPORT_W - 18} y2={REPORT_Y + 41} stroke="rgba(31,130,130,0.2)" />
         {(() => {
@@ -379,7 +379,7 @@ const WorkflowDiagramV2: React.FC = () => (
     >
       <div className="flex items-center justify-end mb-5">
         <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-          → Report
+          → Dashboard
         </span>
       </div>
       <div className="space-y-5">

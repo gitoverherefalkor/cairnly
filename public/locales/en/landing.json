@@ -24,7 +24,7 @@
       },
       {
         "title": "Interactive, not static",
-        "body": "Every report comes with a coaching chat. If a recommendation doesn't land, push back. The report adapts until it actually fits."
+        "body": "Every assessment comes with a coaching chat. If a recommendation doesn't land, push back. Your results adapt until they actually fit."
       },
       {
         "title": "Future-aware",
@@ -47,7 +47,7 @@
       "Take the assessment",
       "AI analyzes you",
       "Chat with the coach",
-      "Get your report",
+      "Get your dashboard",
       "Land the job"
     ],
     "steps": [
@@ -71,9 +71,9 @@
         "screenshotAlt": "AI coaching session with your personality profile"
       },
       {
-        "eyebrow": "Get your report",
-        "body": "Your finished report, refined by the chat: personality and values analysis, every career recommendation, salary data, AI-impact ratings, and concrete next steps.",
-        "screenshotMeta": "4 : 3 · Career report",
+        "eyebrow": "Get your dashboard",
+        "body": "Your finished career-change dashboard, refined by the chat: personality and values analysis, every career recommendation, salary data, AI-impact ratings, and concrete next steps.",
+        "screenshotMeta": "4 : 3 · Career dashboard",
         "screenshotAlt": "The Cairnly dashboard with career signature and top matches"
       },
       {
@@ -94,7 +94,7 @@
     "oldCard": {
       "pill": "Box, then label",
       "title": "The old approach",
-      "p1": "You answer a fixed set of questions. A formula sorts you into one of a small number of types. The report describes what people of that type typically do, not what would suit you, with your history, in your life.",
+      "p1": "You answer a fixed set of questions. A formula sorts you into one of a small number of types. The result describes what people of that type typically do, not what would suit you, with your history, in your life.",
       "p2": "The labels are catchy. The science behind some of them is contested. And whether you're one letter or another doesn't tell you whether to be a UX designer or a recruiter."
     },
     "newCard": {
@@ -102,7 +102,7 @@
       "title": "Cairnly's approach",
       "p1": "Our assessment is built on the validated parts of established psychometric research, the work that actually predicts career fit, values alignment, and work preferences.",
       "p1Emphasis": "We kept what holds up.",
-      "p2": "On top of that, we layer the part formulas can't capture: your actual career history, what's energized you, what's drained you, where you're trying to go. Frontier AI, guided by working career coaches, reads all of it together and writes a report for this person. Not for a type."
+      "p2": "On top of that, we layer the part formulas can't capture: your actual career history, what's energized you, what's drained you, where you're trying to go. Frontier AI, guided by working career coaches, reads all of it together and builds an actionable plan for this person. Not for a type."
     },
     "engineEyebrow": "Inside the engine",
     "engineTitle": "Seven AI workflows. One coach-tuned pipeline.",
@@ -118,26 +118,26 @@
     "closer": "The validated parts of psychometric research, the practical instincts of real career coaches, and modern AI that can hold all of it in mind at once. So you get advice that's actually about you."
   },
   "chatRefine": {
-    "eyebrow": "The chat that comes with your report",
+    "eyebrow": "The chat that comes with your dashboard",
     "titleA": "If something doesn't fit, tell it.",
-    "titleHighlight": "The report adapts.",
-    "intro": "Every Cairnly report comes with an interactive coaching chat, but not the kind that bills you monthly to be your friend. It's a refinement loop. A way to challenge the AI when something doesn't ring true, so the final report actually does.",
+    "titleHighlight": "The plan adapts.",
+    "intro": "Every Cairnly assessment comes with an interactive coaching chat, but not the kind that bills you monthly to be your friend. It's a refinement loop. A way to challenge the AI when something doesn't ring true, so the final result actually does.",
     "staticPdf": {
       "title": "A static PDF",
       "body": "Reads you once, prints an answer, walks away. If a recommendation feels wrong, your only option is to ignore it."
     },
     "cairnly": {
       "label": "Cairnly",
-      "title": "A Cairnly report",
+      "title": "A Cairnly dashboard",
       "body": "Comes with a chat that has one job:",
       "bodyHighlight": "sharpen the answer",
-      "bodyContinued": ". Push back. Say \"actually, I'd hate that one\" or \"tell me more about runner-up #2.\" The final report incorporates your feedback. Then you take it and go."
+      "bodyContinued": ". Push back. Say \"actually, I'd hate that one\" or \"tell me more about runner-up #2.\" Your dashboard incorporates your feedback. Then you take it and go."
     },
     "subChat": {
       "title": "A subscription chat",
       "body": "Stays available forever. Designed to keep you logging in. Great for company. Less great for closing the question."
     },
-    "closer": "It's the difference between a report about you and a report with you. And once it's right, it stays right."
+    "closer": "It's the difference between an assessment about you and one built with you. And once it's right, it stays right."
   },
   "comparison": {
     "eyebrow": "A side-by-side",
@@ -346,7 +346,7 @@
     "profile": "Profile",
     "match": "Match roles",
     "wild": "Wild cards",
-    "report": "REPORT"
+    "report": "DASHBOARD"
   },
   "workflow": {
     "wf1Label": "WF1 RESUME",
@@ -383,7 +383,7 @@
       },
       {
         "q": "What if the recommendations don't feel right?",
-        "a": "Push back. The coaching chat exists precisely for that. If a role doesn't fit, tell it, and the report adapts. By the time the report is finalized, your feedback is already in it."
+        "a": "Push back. The coaching chat exists precisely for that. If a role doesn't fit, tell it, and your results adapt. By the time everything's finalized, your feedback is already in it."
       },
       {
         "q": "Is my data safe?",
@@ -391,7 +391,7 @@
       },
       {
         "q": "How long does it take?",
-        "a": "One sitting. Most people complete the assessment and chat in under an hour. The full report is yours immediately."
+        "a": "One sitting. Most people complete the assessment and chat in under an hour. Your full dashboard is yours immediately."
       }
     ]
   },
@@ -471,5 +471,76 @@
         "p1": "They're chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
       }
     }
+  },
+  "intake": {
+    "title": "Your story, in a few questions",
+    "subtitle": "Answer a few quick questions and see what Cairnly would dig into for you.",
+    "inputPlaceholder": "Type your answer…",
+    "send": "Send",
+    "skip": "Skip to checkout",
+    "minimize": "Minimize chat",
+    "close": "Close chat",
+    "continuePill": "Continue our chat",
+    "typing": "Cairnly is typing",
+    "error": "That didn't come through. Try again?",
+    "emailTitle": "Not ready, or switching device?",
+    "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
+    "emailPlaceholder": "you@example.com",
+    "emailSubmit": "Email it",
+    "emailLater": "Maybe later",
+    "emailSaved": "Saved. Check your inbox for your personal link.",
+    "ctaCheckout": "Start full assessment",
+    "ctaNote": "Your answers carry over",
+    "seeds": {
+      "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
+      "goodAtIt": "I'm good at my job, but I'm not sure it's really me.",
+      "aiWorried": "I'm worried about what AI means for my role.",
+      "lifeChanged": "My life has changed a lot, but my work hasn't kept up.",
+      "understandMyself": "I want to understand myself better and figure out what I actually want."
+    },
+    "seedLabel": "Your opening message, edit it or send it as is",
+    "seedPlaceholder": "Tell us in your own words what brings you here…",
+    "beats": {
+      "1": "Where you are",
+      "2": "What's driving this",
+      "3": "What's in the way",
+      "4": "Your dream job",
+      "5": "Your horizon"
+    },
+    "other": "Something else…",
+    "chipsConfirm": "That's it →",
+    "earlier": "Earlier messages ({{count}})",
+    "collapse": "Collapse",
+    "beats3": {
+      "default": "What's in the way",
+      "goodAtIt": "What to avoid",
+      "aiWorried": "Your AI fluency",
+      "lifeChanged": "What work must respect",
+      "understandMyself": "Your archetypes"
+    },
+    "report": {
+      "eyebrow": "Your €39 dashboard",
+      "title": "The clarity Cairnly offers",
+      "items": [
+        "Honest personality read",
+        "Top 3 career matches",
+        "Runner-up roles",
+        "Outside-the-box paths",
+        "Dream-job feasibility",
+        "AI-impact ratings",
+        "Salary ranges",
+        "Open roles to apply to",
+        "Tuned CV + cover letter"
+      ],
+      "footer": "Ready in ~5 minutes",
+      "footerSub": "refined by your coaching chat",
+      "priceLine": "€39 one-off · no subscription"
+    },
+    "pickHint": "Pick up to {{max}}",
+    "pickCounter": "{{count}} of {{max}} picked",
+    "restingInvite": "Tap what brings you here above, or tell me in your own words.",
+    "restingPlaceholder": "Tell me what brings you here…",
+    "ctaLabel": "Start full assessment",
+    "emailHint": "We'll email your conversation so you can pick up on any device."
   }
 }

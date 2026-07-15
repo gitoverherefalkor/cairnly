@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useGetStarted } from './useGetStarted';
 import { Menu, X, ArrowRight, Shield, Lock, Trash2 } from 'lucide-react';
 import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -45,9 +46,10 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  const getStartedAction = useGetStarted();
   const getStarted = () => {
     setMenuOpen(false);
-    navigate(user ? '/dashboard' : '/payment');
+    getStartedAction();
   };
 
   const handleSection = (e: React.MouseEvent, link: SectionLink) => {

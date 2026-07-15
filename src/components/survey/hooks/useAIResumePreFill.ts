@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { translatePreFillForSurvey } from '@/components/resume/utils/resumeDataMapper';
+import { mergePrefillSources } from '@/components/survey/utils/mergePrefillSources';
 
 interface UseAIResumePreFillProps {
   isSessionLoaded: boolean;
@@ -33,44 +34,39 @@ export const useAIResumePreFill = ({
       return;
     }
 
-    // Look for parsed resume data in multiple locations
-    let parsedData = null;
-    // First check sessionStorage (primary location)
-    const sessionData = sessionStorage.getItem('resume_parsed_data');
-    if (sessionData) {
+    // Pre-fill has two independent sources:
+    // - resume_parsed_data (resume upload; session first, localStorage fallback)
+    // - intake_prefill_data (landing-page intake chat; localStorage only)
+    const readJson = (raw: string | null, label: string): Record<string, any> | null => {
+      if (!raw) return null;
       try {
-        parsedData = JSON.parse(sessionData);
+        return JSON.parse(raw);
       } catch (e) {
-        console.error('[Pre-fill] Failed to parse sessionStorage data:', e);
+        console.error(`[Pre-fill] Failed to parse ${label} data:`, e);
+        return null;
       }
-    }
-    // Fallback to localStorage if not found in sessionStorage
-    if (!parsedData) {
-      const localData = localStorage.getItem('resume_parsed_data');
-      if (localData) {
-        try {
-          parsedData = JSON.parse(localData);
-        } catch (e) {
-          console.error('[Pre-fill] Failed to parse localStorage data:', e);
-        }
-      }
-    }
-    if (!parsedData) {
+    };
+    const resumeData =
+      readJson(sessionStorage.getItem('resume_parsed_data'), 'sessionStorage resume') ??
+      readJson(localStorage.getItem('resume_parsed_data'), 'localStorage resume');
+    const intakeData = readJson(localStorage.getItem('intake_prefill_data'), 'intake chat');
+    if (!resumeData && !intakeData) {
       hasAttemptedPreFill.current = true;
       return;
     }
-    // The parsed data might be in different formats:
+    // Each source might be in either format:
     // 1. Direct UUID mapping: { "11111111-1111-1111-1111-111111111112": "Sjoerd Geurts" }
     // 2. Field name mapping: { "name": "Sjoerd Geurts" }
-    let preFillResponses: Record<string, any> = {};
-    // Check if the data is already in UUID format (from surveyPreFillData)
-    const hasUUIDs = Object.keys(parsedData).some(key =>
-      key.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-    );
-    if (hasUUIDs) {
-      // Data is already mapped to question IDs, use directly
-      preFillResponses = { ...parsedData };
-    } else {
+    // Normalize both to UUID keys, then merge (resume wins per key).
+    const toUuidKeys = (parsedData: Record<string, any>): Record<string, any> => {
+      let preFillResponses: Record<string, any> = {};
+      const hasUUIDs = Object.keys(parsedData).some(key =>
+        key.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      );
+      if (hasUUIDs) {
+        // Data is already mapped to question IDs, use directly
+        preFillResponses = { ...parsedData };
+      } else {
       // Data needs to be mapped from field names to question IDs
       // Based on your survey question IDs from the logs:
       const fieldToQuestionIdMap: Record<string, string> = {
@@ -111,7 +107,14 @@ export const useAIResumePreFill = ({
           preFillResponses[questionId] = value;
         }
       });
-    }
+      }
+      return preFillResponses;
+    };
+    let preFillResponses: Record<string, any> =
+      mergePrefillSources(
+        resumeData ? toUuidKeys(resumeData) : null,
+        intakeData ? toUuidKeys(intakeData) : null,
+      ) ?? {};
     // Handle special transformations
     Object.entries(preFillResponses).forEach(([questionId, value]) => {
       // Convert years of experience to number if needed
@@ -125,10 +128,19 @@ export const useAIResumePreFill = ({
       // EXCEPT for career_history which needs to stay as an array of objects
       // EXCEPT for skills_achievements which needs to stay as an object
       // EXCEPT for interests_hobbies which needs to stay as an object
+      // EXCEPT for the multi-select choice questions the intake chat
+      // pre-fills (primary goals, obstacles, short/long-term goals), whose
+      // answers are arrays of choice strings
       if (Array.isArray(value) &&
           questionId !== '11111111-1111-1111-1111-111111111110' &&
           questionId !== '11111111-1111-1111-1111-11111111111f' &&
-          questionId !== '11111111-1111-1111-1111-111111111120') {
+          questionId !== '11111111-1111-1111-1111-111111111120' &&
+          questionId !== '11111111-1111-1111-1111-111111111115' &&
+          questionId !== '77777777-7777-7777-7777-777777777773' &&
+          questionId !== '77777777-7777-7777-7777-777777777771' &&
+          questionId !== '77777777-7777-7777-7777-777777777772' &&
+          questionId !== '33333333-3333-3333-3333-333333333338' &&
+          questionId !== '44444444-4444-4444-4444-444444444442') {
         preFillResponses[questionId] = value.join(', ');
       }
       // skills_achievements (11111111-1111-1111-1111-11111111111f) should stay as object
