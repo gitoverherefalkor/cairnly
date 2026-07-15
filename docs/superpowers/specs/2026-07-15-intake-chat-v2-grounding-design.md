@@ -59,9 +59,17 @@ First external tester feedback (Gertig, 2026-07-15) on the pre-payment intake ch
 
 ### 1b. Rewritten canned openers (`OPENER_REPLIES`, EN) — now stat-backed
 
-Decision (Sjoerd, 2026-07-15): each opener leads with a real, matched statistic from
-the journal reports, names the report in text (no clickable link, no exit ramp before
-checkout), acknowledges the pill's sentiment, then asks the grounding question.
+Decision (Sjoerd, 2026-07-15): each opener leads with a real, matched statistic or
+FINDING from the journal reports, names the report in text (no clickable link, no
+exit ramp before checkout), acknowledges the pill's sentiment, then asks the
+grounding question.
+
+Sourcing rule (Sjoerd, 2026-07-15): lean almost entirely on the **Career Uncertainty
+Report**; the other journal articles are used sparingly at most. A plainly-phrased
+finding is as good as a percentage. The one deliberate exception below is the
+understand-myself opener (MBTI retest finding, from the coach-vs-assessment report)
+because it matches that pill's test-skeptic audience exactly; swap to the Deloitte
+purpose finding from the uncertainty report if we ever want strict single-source.
 
 Honesty constraint: these are third-party statistics that Cairnly curated (every
 report's methodology note says "the numbers here are not Cairnly's"). Openers must
@@ -75,11 +83,13 @@ statistics live ONLY in this hand-written canned copy.
   Career Uncertainty Report. So your question deserves a real answer, and it starts
   with the path so far. What kind of work have you been doing? A sentence is plenty."
   *(Resume Now 2024; Federal Reserve 2024)*
-- **good-at-it:** "Half of all workers regret the career they chose, and the regret
-  peaks mid-career; we collected that research for our Career Uncertainty Report. So
-  this tension is common, and worth taking seriously. To ground this: what kind of
-  work do you do? A sentence is plenty."
-  *(Resume Now 2024: 50% regret chosen career; ~70% of Millennials, 69% of Gen X)*
+- **good-at-it:** "Almost half of professionals worldwide say they haven't yet found
+  work that feels truly meaningful; we gathered that research for our Career
+  Uncertainty Report. Feeling that while being good at your job is more common than
+  people admit. To ground this: what kind of work do you do? A sentence is plenty."
+  *(PwC Global Hopes & Fears 2025, n=49,843 in 48 countries: only 56% feel they have
+  found a meaningful career. Deliberately NOT a regret framing: this pill's brief
+  says the fit faded, never that they chose wrong.)*
 - **ai-worried:** "You're far from alone in this: 52% of US workers worry about what
   AI means for their work, and the World Economic Forum expects 39% of skills to
   shift by 2030; the research is in our Career Uncertainty Report. Your worry
@@ -176,8 +186,9 @@ FACTS addition (section 3). Draft:
 
 ```
 Now write THE PITCH: a short, personal bridge from what this visitor wants to what
-the Cairnly assessment would do for them. Requirements:
-- 80 to 130 words total, second person, in {language}.
+the Cairnly assessment would do for them. A product screenshot and the package card
+next to this message carry the excitement; you only bridge. Requirements:
+- 70 to 110 words total, second person, in {language}.
 - NEVER read their answers back to them. No "you said", "you told me", "you
   mentioned" recitals, and no summarizing their answers. They know what they wrote.
   You may weave at most a few of their own words into a sentence where natural.
@@ -235,13 +246,57 @@ New bullet, so both the pitch and post-pitch follow-ups can say it:
   coaching experience.
 ```
 
-## 4. UI change (`src/components/landing/intake/IntakeChatSection.tsx`)
+## 4. UI changes
+
+### 4a. Chat panel (`src/components/landing/intake/IntakeChatSection.tsx`)
 
 - When `chat.stage === 'pitched'`: `visibleMessages` becomes only the last assistant
   message (the pitch), and both expander buttons ("Earlier messages", "Collapse") are
-  not rendered. The pitch + deliverables card stand alone as the closing screen.
+  not rendered. The pitch + screenshot + deliverables card stand alone as the
+  closing screen.
 - During Q&A (`stage === 'chat'`): behavior unchanged (last exchange visible,
   expander available).
+
+### 4b. Show-don't-tell screenshots (design principle, Sjoerd 2026-07-15)
+
+The chat collects and acknowledges; REAL product screenshots do the convincing; the
+pitch only bridges. Two integration points:
+
+**Beat-synced carousel** (`src/components/landing/HeroCarousel.tsx`): while the
+intake chat is active, the carousel stops free-rotating (currently 4s timer) and
+pins the screen that answers the beat currently on screen. When the chat has not
+started, today's behavior (rotate + jump on pill click) stays. Mapping, using the
+new `public/Platform screens/` captures (to be moved/renamed, see below):
+
+| Beat | Pinned screen |
+|---|---|
+| Grounding ("your work today") | Dashboard hero (Alain, MATCH pills) |
+| Driver beat | Dashboard hero |
+| Avoid beat (good-at-it) | Jobs page with "Hiding roles you said you'd avoid" |
+| AI-fluency beat (ai-worried) | Coach: "How AI will impact this role" + future-proof skills |
+| Schedule beat (life-changed) | Career detail: salary ranges + steps for pursuing |
+| Archetypes beat (understand-myself) | Coach: Key Insight |
+| Dream-job beat (all routes) | Dream Job Analysis section (capture pending; fallback: dashboard hero) |
+| Next-step beat | Radar comparison + Move: Upskill |
+
+**Screenshot at pitch** (`src/components/landing/Hero.tsx`): today the pitched state
+swaps the carousel for `ReportDeliverablesCard`, removing the product visual at the
+decision moment. Instead, the pitched state shows the intent-matched hero screenshot
+(same faux-browser styling as the carousel, non-rotating) together with the package
+card: good-at-it and default → dashboard hero; ai-worried → AI-impact coach screen;
+life-changed → salary/steps detail; understand-myself → Key Insight coach screen.
+
+**Assets:** the six captures in `public/Platform screens/` (1600px wide, persona
+"Alain", no real personal data) are moved to `public/images/live/landing/intake/`
+with kebab-case names and cropped to focused regions where needed. The Alain
+dashboard shot is cropped above the dream-job list at the bottom edge. Two captures
+still wanted from Sjoerd: the Dream Job Analysis section, and (optional) an About
+You / personality narrative close-up; the mapping uses fallbacks until they exist.
+
+**Out of scope for this build:** an automated Playwright capture pipeline (login as
+test user, persona rename, pixel-perfect crops) was validated as feasible on
+2026-07-15 (session-injection login worked against the local dev app) and can be
+added later so landing screenshots never go stale.
 
 ## 5. Locale updates (`public/locales/{en,nl}/landing.json`)
 
@@ -274,3 +329,6 @@ gracefully (old labels, new prompts server-side).
   claims data/finance strength.
 - Verify prefill: complete a run, check localStorage prefill for short-term goals
   mapping and absent career stage when not stated.
+- Screenshots: verify the carousel pins the mapped screen per beat on each route,
+  resumes normal rotation when the chat resets, and the pitched state shows the
+  intent-matched screenshot beside the package card at desktop and mobile widths.
