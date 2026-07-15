@@ -282,6 +282,28 @@ button.lp-screenshot-slot {
   border: 1px dashed rgba(107, 127, 139, 0.4);
   border-radius: 18px;
 }
+/* Published entry in the "More writing" grid — a real, clickable card. */
+.lp-article-card {
+  display: flex; flex-direction: column;
+  background: #FBF6E8;
+  border: 1px solid rgba(201, 182, 144, 0.7);
+  border-radius: 18px;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.lp-article-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(18, 46, 59, 0.10);
+  border-color: rgba(212, 160, 36, 0.55);
+}
+.lp-article-card__more {
+  margin-top: auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: #1F8282;
+}
+.lp-article-card:hover .lp-article-card__more { color: #178080; }
 .lp-topic-chip {
   display: inline-flex; align-items: center;
   padding: 6px 14px; border-radius: 9999px;
