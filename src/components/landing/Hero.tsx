@@ -20,7 +20,7 @@ import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
-  const { vt, intent } = useIntentCopy();
+  const { vt, intent, picked } = useIntentCopy();
   const intakeChat = useIntakeChatOptional();
   // Once the chat delivers its pitch, the right column stops being a generic
   // product tour and itemizes the report the visitor is about to buy.
@@ -52,8 +52,8 @@ const Hero: React.FC = () => {
               className="font-heading font-bold leading-[1.15] text-white md:min-h-[3.45em]"
               style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
             >
-              {/* key={intent} remounts the text so the fade plays on chip switch */}
-              <h1 key={intent} className="lp-intent-fade">
+              {/* key={`${picked}-${intent}`} remounts the text so the fade plays on chip switch */}
+              <h1 key={`${picked}-${intent}`} className="lp-intent-fade">
                 {vt('hero.titleA')} <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span>
                 {/* life-changed's titleB is a short standalone clause; force it onto its own row
                     instead of letting the browser split it mid-sentence at this width */}
@@ -64,7 +64,7 @@ const Hero: React.FC = () => {
 
             {/* same trick for the body copy: variants run 3-4 lines */}
             <Reveal as="div" className="mt-6 max-w-2xl md:min-h-[122px]">
-              <p key={intent} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
+              <p key={`${picked}-${intent}`} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
                 {vt('hero.body')}{' '}
                 <span className="text-white font-semibold">
                   {vt('hero.bodyEmphasis')}

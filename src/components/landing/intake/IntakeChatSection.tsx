@@ -141,6 +141,9 @@ const IntakeChatPanel: React.FC = () => {
           {t('intake.title')}
         </p>
         <p className="mt-1 text-[13px] leading-snug text-white/60">{t('intake.subtitle')}</p>
+        {/* Progress circles only exist once there is progress to show; at
+            rest they'd just be noise next to an unanswered question. */}
+        {chat.started && (
         <div className="mt-3 flex items-center gap-2">
           {Array.from({ length: totalBeats }, (_, i) => i + 1).map((n) => {
             const done = currentBeat > n;
@@ -167,14 +170,24 @@ const IntakeChatPanel: React.FC = () => {
             </span>
           )}
         </div>
+        )}
       </div>
 
       <>
         {/* Resting state: nothing is preloaded here. Preset pills launch the
             chat themselves; this input is the "in your own words" route (also
             where the "Something else" pill drops the cursor). */}
+        {/* At rest the agent ASKS the question, making the pills above read
+            as its answer options (and the input as the own-words answer). */}
         {!chat.started && (
-          <p className="text-[13px] leading-relaxed text-white/55">{t('intake.restingInvite')}</p>
+          <div className="flex justify-start">
+            <div
+              className="max-w-[92%] rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6]"
+              style={ASSISTANT_BUBBLE}
+            >
+              {t('intake.restingInvite')}
+            </div>
+          </div>
         )}
         {chat.started && (
           <div className="space-y-3">

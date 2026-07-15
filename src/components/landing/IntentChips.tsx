@@ -55,7 +55,7 @@ const LABEL_KEY: Record<IntentKey, string> = {
 
 const IntentChips: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
-  const { intent, setIntent } = useIntent();
+  const { intent, picked, setIntent } = useIntent();
   const intakeChat = useIntakeChatOptional();
   // True while the visitor is on the "Something else" (own-words) route. Local
   // to the chips: it de-highlights the preset pills without changing `intent`
@@ -63,7 +63,7 @@ const IntentChips: React.FC = () => {
   const [somethingElse, setSomethingElse] = useState(false);
 
   const pick = (key: IntentKey) => {
-    if (key !== intent || somethingElse) logPick(key, i18n.language);
+    if (!picked || key !== intent || somethingElse) logPick(key, i18n.language);
     setSomethingElse(false);
     setIntent(key);
     // Launch that preset's chat below the hero (canned opener + options).
@@ -91,7 +91,7 @@ const IntentChips: React.FC = () => {
       </p>
       <div className="flex flex-wrap gap-2">
         {INTENT_KEYS.map((key) => {
-          const active = !somethingElse && intent === key;
+          const active = picked && !somethingElse && intent === key;
           return (
             <button
               key={key}

@@ -1,11 +1,11 @@
 {
   "hero": {
     "eyebrow": "01 · The question",
-    "titleA": "The direction you picked at",
-    "titleHighlight": "16",
-    "titleB": "picked the next twenty years for you.",
-    "body": "You chose a general direction, business, engineering, healthcare, and it quietly chose your major, your first job, and every one after. Cairnly is one assessment to ask the question that 16-year-old never could:",
-    "bodyEmphasis": "with the life you've lived since, what would you actually pick now?",
+    "titleA": "Changing is scary.",
+    "titleHighlight": "Not changing",
+    "titleB": "is just quieter.",
+    "body": "Every career change weighs two discomforts against each other: the anxiety of what could go wrong, and the slow disappointment of staying where you no longer fit. Most people pick the disappointment, one year at a time.",
+    "bodyEmphasis": "Cairnly is one assessment to look at that choice properly: what would change actually look like for you, and would it be worth it?",
     "ctaPrimary": "Get Started",
     "ctaSecondary": "See how it works",
     "reassurance": "Done in one sitting. No subscription. No account left dangling.",
@@ -470,6 +470,15 @@
       "whyBuilt": {
         "p1": "They're chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
       }
+    },
+    "chose16": {
+      "hero": {
+        "titleA": "The direction you picked at",
+        "titleHighlight": "16",
+        "titleB": "picked the next twenty years for you.",
+        "body": "You chose a general direction, business, engineering, healthcare, and it quietly chose your major, your first job, and every one after. Cairnly is one assessment to ask the question that 16-year-old never could:",
+        "bodyEmphasis": "with the life you've lived since, what would you actually pick now?"
+      }
     }
   },
   "intake": {
@@ -538,7 +547,7 @@
     },
     "pickHint": "Pick up to {{max}}",
     "pickCounter": "{{count}} of {{max}} picked",
-    "restingInvite": "Tap what brings you here above, or tell me in your own words.",
+    "restingInvite": "What brings you here? Tap one of the options above, or tell me in your own words.",
     "restingPlaceholder": "Tell me what brings you here…",
     "ctaLabel": "Start full assessment",
     "emailHint": "We'll email your conversation so you can pick up on any device."

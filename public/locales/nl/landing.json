@@ -1,11 +1,11 @@
 {
   "hero": {
     "eyebrow": "01 · De vraag",
-    "titleA": "De richting die je op je",
-    "titleHighlight": "zestiende",
-    "titleB": "koos, bepaalde de twintig jaar die volgden.",
-    "body": "Je koos een algemene richting, business, engineering, healthcare, en die bepaalde stilletjes je studierichting, je eerste baan, en elke baan daarna. Cairnly is één enkel assessment dat de vraag stelt die die 16-jarige nooit had kunnen stellen:",
-    "bodyEmphasis": "met de levenservaring die je sindsdien hebt opgedaan, wat zou je nú eigenlijk kiezen?",
+    "titleA": "Veranderen is eng.",
+    "titleHighlight": "Niet veranderen",
+    "titleB": "is alleen maar stiller.",
+    "body": "Elke carrièrestap weegt twee soorten ongemak tegen elkaar af: de spanning van wat er mis kan gaan, en de trage teleurstelling van blijven waar je niet meer past. De meesten kiezen de teleurstelling, één jaar per keer.",
+    "bodyEmphasis": "Cairnly is één assessment om die keuze echt te bekijken: hoe zou verandering er voor jou uitzien, en zou het dat waard zijn?",
     "ctaPrimary": "Aan de slag",
     "ctaSecondary": "Bekijk hoe het werkt",
     "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
@@ -470,6 +470,15 @@
       "whyBuilt": {
         "p1": "Ze worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
       }
+    },
+    "chose16": {
+      "hero": {
+        "titleA": "De richting die je op je",
+        "titleHighlight": "zestiende",
+        "titleB": "koos, bepaalde de twintig jaar die volgden.",
+        "body": "Je koos een algemene richting, business, engineering, healthcare, en die bepaalde stilletjes je studierichting, je eerste baan, en elke baan daarna. Cairnly is één enkel assessment dat de vraag stelt die die 16-jarige nooit had kunnen stellen:",
+        "bodyEmphasis": "met de levenservaring die je sindsdien hebt opgedaan, wat zou je nú eigenlijk kiezen?"
+      }
     }
   },
   "intake": {
@@ -538,7 +547,7 @@
     },
     "pickHint": "Kies er maximaal {{max}}",
     "pickCounter": "{{count}} van {{max}} gekozen",
-    "restingInvite": "Tik hierboven aan wat je hier brengt, of vertel het in je eigen woorden.",
+    "restingInvite": "Wat brengt je hier? Tik hierboven een optie aan, of vertel het in je eigen woorden.",
     "restingPlaceholder": "Vertel me wat je hier brengt…",
     "ctaLabel": "Start het volledige assessment",
     "emailHint": "We mailen je gesprek, zodat je op elk apparaat verder kunt."
