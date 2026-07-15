@@ -7,6 +7,7 @@ import IntentChips from './IntentChips';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
+import PitchScreenshot from './intake/PitchScreenshot';
 import IntakeEmailHatch from './intake/IntakeEmailHatch';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
@@ -97,7 +98,14 @@ const Hero: React.FC = () => {
               button; "See how it works" stays as the one remaining, low-key
               way to keep browsing instead of buying. */}
           <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
-            {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
+            {pitched ? (
+              <>
+                <PitchScreenshot />
+                <ReportDeliverablesCard />
+              </>
+            ) : (
+              <HeroCarousel />
+            )}
             {pitched ? (
               <>
                 {/* Secondary save-my-spot email, moved out of the chat thread. */}
