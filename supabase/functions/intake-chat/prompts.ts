@@ -650,9 +650,10 @@ export const EXTRACTION_TOOL = {
 /** Chip label → canonical survey value pairs, for the extraction prompt. */
 function chipMappingTable(): string {
   const lines: string[] = [];
-  // Index-aligned chip sets: universal beats 1-3 plus every pill-specific
-  // beat-3 variant (only one variant appears per conversation, but listing
-  // all keeps the table intent-agnostic).
+  // Index-aligned chip sets: universal beats 2-3, every pill-specific beat-3
+  // variant, and the beat-5 next-step chips (beat 1 is free text, no chips).
+  // Only one variant appears per conversation; listing all keeps the table
+  // intent-agnostic.
   const aligned: Array<[Beat | undefined, readonly string[]]> = [
     [BEATS[1], CANON.primaryGoals],
     [BEATS[2], CANON.obstacles],
