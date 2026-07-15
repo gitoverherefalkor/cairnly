@@ -57,22 +57,58 @@ First external tester feedback (Gertig, 2026-07-15) on the pre-payment intake ch
 - `extra_context` extraction description gains: "Start from what work they do or did
   (their own words)."
 
-### 1b. Rewritten canned openers (`OPENER_REPLIES`, EN)
+### 1b. Rewritten canned openers (`OPENER_REPLIES`, EN) — now stat-backed
 
-Each still acknowledges the pill's sentiment, then asks the new grounding question:
+Decision (Sjoerd, 2026-07-15): each opener leads with a real, matched statistic from
+the journal reports, names the report in text (no clickable link, no exit ramp before
+checkout), acknowledges the pill's sentiment, then asks the grounding question.
 
-- **default:** "That question deserves a real answer, and it starts with the path so
-  far. What kind of work have you been doing? A sentence is plenty."
-- **good-at-it:** "That tension is more common than people admit, and worth taking
-  seriously. To ground this: what kind of work do you do? A sentence is plenty."
-- **ai-worried:** "Fair worry, and it deserves a straight answer rather than
-  reassurance. To ground this: what kind of work do you do, day to day?"
-- **life-changed:** "That gap between the life and the job is worth taking seriously.
-  To start: what work have you been doing, or were you doing before things shifted?"
-- **understand-myself:** "Good starting point, knowing who's choosing comes before
-  choosing. First: what kind of work have you been doing? A sentence is plenty."
+Honesty constraint: these are third-party statistics that Cairnly curated (every
+report's methodology note says "the numbers here are not Cairnly's"). Openers must
+phrase this as research we gathered/dug into, never as data we collected from users.
+The existing guardrail "Never invent Cairnly features, statistics, or testimonials"
+already prevents the model from improvising further numbers in Q&A and pitch turns;
+statistics live ONLY in this hand-written canned copy.
 
-NL versions translated at implementation, same structure.
+- **default (chose at 16):** "Two thirds of workers carry career regrets, and 35% of
+  US graduates would pick a different field today; we gathered that research for our
+  Career Uncertainty Report. So your question deserves a real answer, and it starts
+  with the path so far. What kind of work have you been doing? A sentence is plenty."
+  *(Resume Now 2024; Federal Reserve 2024)*
+- **good-at-it:** "Half of all workers regret the career they chose, and the regret
+  peaks mid-career; we collected that research for our Career Uncertainty Report. So
+  this tension is common, and worth taking seriously. To ground this: what kind of
+  work do you do? A sentence is plenty."
+  *(Resume Now 2024: 50% regret chosen career; ~70% of Millennials, 69% of Gen X)*
+- **ai-worried:** "You're far from alone in this: 52% of US workers worry about what
+  AI means for their work, and the World Economic Forum expects 39% of skills to
+  shift by 2030; the research is in our Career Uncertainty Report. Your worry
+  deserves a straight answer rather than reassurance. To ground this: what kind of
+  work do you do, day to day?"
+  *(Pew 2025; WEF Future of Jobs 2025)*
+- **life-changed:** "Worldwide, work-life balance just overtook pay as the number one
+  reason to choose a job, for the first time in 22 years of measuring; we cover it in
+  our Career Uncertainty Report. So the gap between the life and the job is worth
+  taking seriously. To start: what work have you been doing, or were you doing before
+  things shifted?"
+  *(Randstad Workmonitor 2026: balance 83% vs pay 82%)*
+- **understand-myself:** "Good instinct. Popular personality tests hold up poorly:
+  39 to 76% of people get a different MBTI type when they retake it, which is why we
+  compared coaches and assessments in one of our reports. Knowing who's choosing
+  comes before choosing. First: what kind of work have you been doing? A sentence is
+  plenty."
+  *(Pittenger 2005, cited in the coach-vs-assessment report)*
+
+**NL variants:** translated at implementation, same structure, with Dutch-source
+stats swapped in where a matched one exists and lands harder:
+
+- **default NL** uses "1 op de 3 studenten heeft achteraf twijfels of spijt van de
+  studiekeuze" *(Studiekeuze123 2021, from the Career Uncertainty Report)* instead of
+  the US graduates figure.
+- Other pills keep their global stats, translated.
+
+Numbers must be copied verbatim from the journal report bodies at implementation
+time (source of truth: `src/content/journal/bodies/*.tsx`), not from memory.
 
 ### 1c. Good-at-it beat 3 brief: de-prime the avoid-question
 
