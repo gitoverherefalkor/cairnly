@@ -57,11 +57,19 @@ const INTAKE_SLIDE_SLUG: Record<IntakeShot, string> = {
   'key-insight': 'chat',
   radar: 'dashboard',
 };
+const INTAKE_SLIDE_ALT: Record<IntakeShot, string> = {
+  dashboard: 'Career dashboard with three scored matches',
+  'ai-impact': 'Coach chat explaining how AI impacts a suggested role',
+  'jobs-avoids': 'Job search hiding roles the user said to avoid',
+  'salary-steps': 'Career detail with salary ranges and steps for pursuing the role',
+  'key-insight': 'Coach chat sharing a key personal insight',
+  radar: 'Radar chart comparing top career matches',
+};
 const INTAKE_BASE = SLIDES.length;
 const INTAKE_SLIDES: Slide[] = INTAKE_SHOT_ORDER.map((shot) => ({
   src: INTAKE_SHOT_SRC[shot],
   slug: INTAKE_SLIDE_SLUG[shot],
-  alt: 'Cairnly product screen',
+  alt: INTAKE_SLIDE_ALT[shot],
 }));
 const ALL_SLIDES = [...SLIDES, ...INTAKE_SLIDES];
 
@@ -93,10 +101,13 @@ const HeroCarousel: React.FC = () => {
   const reduceMotion = useRef(false);
 
   const intake = useIntakeChatOptional();
+  // The conversation's own intent wins: "Something else" starts an 'other'
+  // conversation while the pill intent (IntentContext) can lag behind.
+  const chatIntent = intake?.intent ?? intent;
   // While the intake chat runs, pin the screen that answers the current beat.
   const pinned =
     intake?.started && intake.stage === 'chat' && intake.beat
-      ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(intakeShotFor(intent, intake.beat))
+      ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(intakeShotFor(chatIntent, intake.beat))
       : null;
 
   // A pill click jumps the carousel to that intent's most relevant screen;
@@ -122,7 +133,11 @@ const HeroCarousel: React.FC = () => {
     return () => window.clearInterval(id);
   }, [paused, pinned]);
 
-  const slug = ALL_SLIDES[active].slug;
+  // At rest only the original six render (no intake-image preload); the intake
+  // close-ups join the stack once a conversation starts. Guarded lookup: for
+  // one render after a reset, `active` can still point at an intake index.
+  const stack = intake?.started ? ALL_SLIDES : SLIDES;
+  const slug = (stack[active] ?? stack[0]).slug;
 
   return (
     <div
@@ -165,7 +180,7 @@ const HeroCarousel: React.FC = () => {
 
         {/* Screenshot stage — images crossfade in place */}
         <div className="relative aspect-[16/10] bg-[#15262F]">
-          {ALL_SLIDES.map((s, i) => (
+          {stack.map((s, i) => (
             <img
               key={s.src}
               src={s.src}
@@ -182,8 +197,13 @@ const HeroCarousel: React.FC = () => {
       </div>
 
       {/* Progress indicators — always the resting six; while an intake slide
-          is pinned, `active` points past the end of SLIDES so none light up. */}
-      <div className="mt-5 flex items-center justify-center gap-2">
+          is pinned, `active` points past the end of SLIDES so none light up,
+          and the dots go inert (the beat owns the carousel until reset). */}
+      <div
+        className={`mt-5 flex items-center justify-center gap-2 transition-opacity duration-300 ${
+          pinned !== null ? 'pointer-events-none opacity-40' : ''
+        }`}
+      >
         {SLIDES.map((s, i) => {
           const restingActive = active < SLIDES.length ? active : -1;
           return (
@@ -192,7 +212,9 @@ const HeroCarousel: React.FC = () => {
               type="button"
               aria-label={`Show ${s.slug} screenshot`}
               aria-current={i === restingActive}
-              onClick={() => setActive(i)}
+              onClick={() => {
+                if (pinned === null) setActive(i);
+              }}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === restingActive ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
               }`}

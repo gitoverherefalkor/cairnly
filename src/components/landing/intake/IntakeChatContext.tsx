@@ -28,6 +28,8 @@ interface IntakeChatValue {
   /** True once a conversation exists (switches the section from seed-input to thread). */
   started: boolean;
   stage: IntakeStage;
+  /** The conversation's intent as sent to the server; null before start (falls back to the pill intent). */
+  intent: string | null;
   emailCaptured: boolean;
   messages: IntakeMessage[];
   /** Which of the 5 beats is currently being asked (null before start / after pitch). */
@@ -78,6 +80,8 @@ interface PersistedSession {
   chips?: IntakeChips | null;
   totalBeats?: number;
   beatLabels?: string[];
+  /** The intent the conversation was started with (drives the hero's beat-to-screenshot mapping). */
+  intent?: string | null;
 }
 
 function loadPersisted(): PersistedSession | null {
@@ -101,6 +105,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [sessionId, setSessionId] = useState<string | null>(persisted.current?.sessionId ?? null);
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
   const [stage, setStage] = useState<IntakeStage>(persisted.current?.stage ?? 'chat');
+  const [intent, setIntent] = useState<string | null>(persisted.current?.intent ?? null);
   const [emailCaptured, setEmailCaptured] = useState(persisted.current?.emailCaptured ?? false);
   const [beat, setBeat] = useState<number | null>(persisted.current?.beat ?? null);
   const [chips, setChips] = useState<IntakeChips | null>(persisted.current?.chips ?? null);
@@ -119,12 +124,12 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       localStorage.setItem(
         INTAKE_SESSION_KEY,
-        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels } satisfies PersistedSession),
+        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels, intent } satisfies PersistedSession),
       );
     } catch {
       // Best effort.
     }
-  }, [sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels]);
+  }, [sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels, intent]);
 
   const focusChat = useCallback(() => {
     document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -137,6 +142,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setSessionId(null);
     setMessages([]);
     setStage('chat');
+    setIntent(null);
     setEmailCaptured(false);
     setBeat(null);
     setChips(null);
@@ -178,6 +184,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       starting.current = true;
       setSessionId(null);
       setStage('chat');
+      setIntent(intent);
       setEmailCaptured(false);
       setMessages([{ role: 'user', text: trimmed, seeded }]);
       setChips(null);
@@ -278,6 +285,8 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setSessionId(res.sessionId);
           setMessages(res.messages);
           setStage(res.stage);
+          // The resume response doesn't carry intent; consumers fall back to IntentContext.
+          setIntent(null);
           setEmailCaptured(res.emailCaptured);
           setBeat(res.beat ?? null);
           setChips(res.chips ?? null);
@@ -299,6 +308,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       value={{
         started: !!sessionId,
         stage,
+        intent,
         emailCaptured,
         messages,
         beat,
