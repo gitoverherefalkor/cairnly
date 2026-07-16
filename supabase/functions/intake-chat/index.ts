@@ -351,11 +351,17 @@ async function advanceConversation(
       beat = userTurns;
       chips = plan[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
-      // Pitch phase: personalized preview + structured extraction.
+      // Pitch phase: personalized preview + structured extraction. maxTokens
+      // is generous on purpose: sonnet-5 may spend part of the budget on an
+      // unrequested `thinking` block before the text block (see textFrom),
+      // and the pitch prompt's rule set (word count, package list, dream-job
+      // constraint, banned patterns) gives it a lot to reason through. A
+      // tighter budget here has produced empty replies (textFrom finds no
+      // text block -> 502) even on ordinary conversations.
       const pitchResp = await callClaude({
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
-        maxTokens: 1500,
+        maxTokens: 3000,
       });
       reply = textFrom(pitchResp);
       tokens = usedTokens(pitchResp);
