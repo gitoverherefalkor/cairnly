@@ -482,8 +482,8 @@
     }
   },
   "intake": {
-    "title": "Jouw verhaal, in een paar vragen",
-    "subtitle": "Beantwoord een paar korte vragen en zie waar Cairnly voor jou op in zou gaan.",
+    "title": "Hoe Cairnly je helpt deze vraag te beantwoorden",
+    "checkin": "Korte pre-assessment check-in",
     "inputPlaceholder": "Typ je antwoord…",
     "send": "Versturen",
     "skip": "Direct naar afrekenen",

@@ -39,7 +39,11 @@ export const IntentProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [state, setState] = useState<{ intent: IntentKey; picked: boolean }>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if ((INTENT_KEYS as readonly string[]).includes(stored ?? '')) {
+      // Restore the picked framing only while an intake conversation exists
+      // (same key intakeApi persists under); otherwise a fresh visit starts
+      // at the neutral resting state instead of last visit's pill forever.
+      const hasSession = !!localStorage.getItem('cairnly_intake_session');
+      if (hasSession && (INTENT_KEYS as readonly string[]).includes(stored ?? '')) {
         return { intent: stored as IntentKey, picked: true };
       }
     } catch {

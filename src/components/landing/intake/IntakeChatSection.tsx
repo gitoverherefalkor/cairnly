@@ -142,41 +142,19 @@ const IntakeChatPanel: React.FC = () => {
 
   return (
     <div id={INTAKE_SECTION_ID} ref={panelRef} className="relative z-10">
-      {/* Header: title + horizontal beat stepper */}
+      {/* Header: one-line promise; numbered stepper circles were dropped in
+          favour of a light "check-in" line (less form, same finiteness cue) */}
       <div className="mb-5">
         <p className="text-[17px] font-bold text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
           {t('intake.title')}
         </p>
-        <p className="mt-1 text-[13px] leading-snug text-white/60">{t('intake.subtitle')}</p>
-        {/* Progress circles only exist once there is progress to show; at
-            rest they'd just be noise next to an unanswered question. */}
-        {chat.started && (
-        <div className="mt-3 flex items-center gap-2">
-          {Array.from({ length: totalBeats }, (_, i) => i + 1).map((n) => {
-            const done = currentBeat > n;
-            const active = currentBeat === n && chat.started;
-            return (
-              <span
-                key={n}
-                className="flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold"
-                style={
-                  done
-                    ? { background: '#2AA1A1', borderColor: '#2AA1A1', color: '#fff' }
-                    : active
-                      ? { borderColor: '#D4A024', color: '#D4A024', background: 'rgba(212,160,36,0.15)' }
-                      : { borderColor: 'rgba(255,255,255,0.25)', color: 'rgba(255,255,255,0.45)' }
-                }
-              >
-                {done ? <Check size={11} strokeWidth={3} /> : n}
-              </span>
-            );
-          })}
-          {chat.started && currentBeat <= totalBeats && chat.beatLabels[currentBeat - 1] && (
-            <span className="ml-1.5 text-[12px] font-semibold text-white/70">
-              {chat.beatLabels[currentBeat - 1]}
-            </span>
-          )}
-        </div>
+        {chat.started && chat.stage === 'chat' && (
+          <p className="mt-2 text-[12px] font-semibold text-white/60">
+            {t('intake.checkin')} · {Math.min(currentBeat, totalBeats)}/{totalBeats}
+            {currentBeat <= totalBeats && chat.beatLabels[currentBeat - 1] && (
+              <span className="text-white/80"> · {chat.beatLabels[currentBeat - 1]}</span>
+            )}
+          </p>
         )}
       </div>
 

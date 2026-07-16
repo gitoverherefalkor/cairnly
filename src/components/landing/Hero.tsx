@@ -79,7 +79,7 @@ const Hero: React.FC = () => {
           <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:row-span-2">
             <Reveal className="flex items-center gap-3 mb-6">
               <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-                {t('hero.eyebrow')}
+                {t('hero.eyebrow')} · {t('intentChips.prompt')}
               </span>
               <span className="h-px w-12 bg-[#D4A024]/40" />
             </Reveal>

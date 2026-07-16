@@ -482,8 +482,8 @@
     }
   },
   "intake": {
-    "title": "Your story, in a few questions",
-    "subtitle": "Answer a few quick questions and see what Cairnly would dig into for you.",
+    "title": "How Cairnly helps you answer this question",
+    "checkin": "Quick pre-assessment check-in",
     "inputPlaceholder": "Type your answer…",
     "send": "Send",
     "skip": "Skip to checkout",

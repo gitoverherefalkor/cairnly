@@ -85,10 +85,8 @@ const IntentChips: React.FC = () => {
   const chipIdle = 'border-white/25 text-white/65 hover:border-[#D4A024]/60 hover:text-white';
 
   return (
-    <div className="mt-10">
-      <p className="text-[11px] font-heading font-bold tracking-[0.2em] uppercase text-white/40 mb-3">
-        {t('intentChips.prompt')}
-      </p>
+    <div>
+      {/* "What brings you here?" lives in the hero eyebrow above the pills. */}
       <div className="flex flex-wrap gap-2">
         {INTENT_KEYS.map((key) => {
           const active = picked && !somethingElse && intent === key;

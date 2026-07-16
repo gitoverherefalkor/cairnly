@@ -15,10 +15,14 @@ describe('intakeShotFor', () => {
   it('pins the key-insight screen on the understand-myself archetypes beat', () => {
     expect(intakeShotFor('understand-myself', 3)).toBe('key-insight');
   });
+  it('opens default and life-changed on the dashboard close-up', () => {
+    expect(intakeShotFor('default', 1)).toBe('dashboard');
+    expect(intakeShotFor('life-changed', 1)).toBe('dashboard');
+    expect(intakeShotFor('nonsense', 1)).toBe('dashboard'); // falls back to the default plan
+  });
   it('leaves the carousel alone (null) on beats without a specific screen', () => {
     expect(intakeShotFor('good-at-it', 1)).toBeNull(); // grounding beat keeps the pill slide
     expect(intakeShotFor('other', 2)).toBeNull();
-    expect(intakeShotFor('nonsense', 1)).toBeNull();
     expect(intakeShotFor('good-at-it', 4)).toBeNull(); // dream beat: no capture yet
     expect(intakeShotFor('good-at-it', 99)).toBeNull(); // out of range
   });
