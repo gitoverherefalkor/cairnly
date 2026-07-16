@@ -46,10 +46,10 @@ const Hero: React.FC = () => {
             the mark + tagline over the landscape, aligned to the H1. */}
         <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
           <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
-            {/* Smaller on phones (the lockup is wide); -mt trims the PNG's
-                transparent top so the letters, not the bounding box, line up
-                with the H1's first line */}
-            <img src={CairnlyLockup} alt="Cairnly — career path clarity" className="h-14 md:h-28 w-auto -mt-1 md:-mt-3" />
+            {/* Width-capped (the lockup is a wide 3.2:1 image): 176px on
+                phones, 220px max on desktop. -mt trims the PNG's transparent
+                top so the letters line up with the H1's first line. */}
+            <img src={CairnlyLockup} alt="Cairnly — career path clarity" className="w-[176px] md:w-[220px] h-auto -mt-1 md:-mt-2" />
           </a>
 
           {/* Headline (desktop: right column, level with the logo) */}
@@ -63,7 +63,11 @@ const Hero: React.FC = () => {
             >
               {/* key={`${picked}-${intent}`} remounts the text so the fade plays on chip switch */}
               <h1 key={`${picked}-${intent}`} className="lp-intent-fade">
-                {vt('hero.titleA')} <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span>
+                {vt('hero.titleA')}
+                {/* default's second sentence is highlight + titleB ("Not changing
+                    is just quieter."); break before it so it sits on its own row */}
+                {intent === 'default' ? <br /> : ' '}
+                <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span>
                 {/* life-changed's titleB is a short standalone clause; force it onto its own row
                     instead of letting the browser split it mid-sentence at this width */}
                 {intent === 'life-changed' ? <br /> : ' '}
