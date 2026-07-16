@@ -238,28 +238,60 @@ const Journal: React.FC = () => (
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-          {otherArticles.map((article) => (
-            <div key={article.slug} className="lp-coming-card p-7">
-              <div className="flex items-center gap-2 mb-5">
-                {article.topics.slice(0, 1).map((topic) => (
-                  <span key={topic} className="lp-topic-chip">{topic}</span>
-                ))}
+          {otherArticles.map((article) =>
+            article.status === 'coming-soon' ? (
+              // Placeholder — not yet written, intentionally not a link.
+              <div key={article.slug} className="lp-coming-card p-7">
+                <div className="flex items-center gap-2 mb-5">
+                  {article.topics.slice(0, 1).map((topic) => (
+                    <span key={topic} className="lp-topic-chip">{topic}</span>
+                  ))}
+                </div>
+                <h3
+                  className="font-heading font-bold text-[#6B7F8B] leading-[1.2] mb-3"
+                  style={{ fontSize: 19, letterSpacing: '-0.012em' }}
+                >
+                  {article.title}
+                </h3>
+                <p className="text-[14px] text-[#6B7F8B] font-medium leading-relaxed mb-6">
+                  {article.excerpt}
+                </p>
+                <div className="text-[11px] text-[#9CA3AF] font-medium italic">
+                  Coming soon{article.category ? ` · ${article.category}` : ''}
+                </div>
               </div>
-              <h3
-                className="font-heading font-bold text-[#6B7F8B] leading-[1.2] mb-3"
-                style={{ fontSize: 19, letterSpacing: '-0.012em' }}
-              >
-                {article.title}
-              </h3>
-              <p className="text-[14px] text-[#6B7F8B] font-medium leading-relaxed mb-6">
-                {article.excerpt}
-              </p>
-              <div className="text-[11px] text-[#9CA3AF] font-medium italic">
-                {article.status === 'coming-soon' ? 'Coming soon' : 'Published'}
-                {article.category ? ` · ${article.category}` : ''}
-              </div>
-            </div>
-          ))}
+            ) : (
+              // Published — a real, clickable card that opens the article.
+              <Link key={article.slug} to={`/journal/${article.slug}`} className="lp-article-card p-7">
+                <div className="flex items-center gap-2 mb-5">
+                  {article.topics.slice(0, 1).map((topic) => (
+                    <span key={topic} className="lp-topic-chip">{topic}</span>
+                  ))}
+                </div>
+                <h3
+                  className="font-heading font-bold text-[#122E3B] leading-[1.2] mb-3"
+                  style={{ fontSize: 19, letterSpacing: '-0.012em' }}
+                >
+                  {article.title}
+                </h3>
+                <p className="text-[14px] text-[#4B6373] font-medium leading-relaxed mb-6">
+                  {article.excerpt}
+                </p>
+                <div className="flex items-center gap-4 text-[11px] text-[#6B7F8B] font-medium mb-6 flex-wrap">
+                  {article.readingTime && (
+                    <span className="flex items-center gap-1.5"><Clock size={13} strokeWidth={1.8} />{article.readingTime} min</span>
+                  )}
+                  {article.sourceCount && (
+                    <span className="flex items-center gap-1.5"><FileText size={13} strokeWidth={1.8} />{article.sourceCount} sources</span>
+                  )}
+                </div>
+                <div className="lp-article-card__more">
+                  Read the report
+                  <ArrowRight size={16} strokeWidth={2.4} />
+                </div>
+              </Link>
+            )
+          )}
         </div>
 
         {/* Subscribe */}
