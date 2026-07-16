@@ -11,7 +11,7 @@ import PitchScreenshot from './intake/PitchScreenshot';
 import IntakeEmailHatch from './intake/IntakeEmailHatch';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
+import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
 
 /**
  * Hero + intake chat as one continuous section on the app's nature
@@ -22,7 +22,6 @@ import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
-  const { t: tc } = useTranslation('common');
   const { vt, intent, picked } = useIntentCopy();
   const intakeChat = useIntakeChatOptional();
   // Once the chat delivers its pitch, the right column stops being a generic
@@ -30,7 +29,7 @@ const Hero: React.FC = () => {
   const pitched = intakeChat?.stage === 'pitched';
 
   return (
-    <section className="survey-bg relative text-white pt-7 md:pt-9 pb-16 md:pb-20 overflow-hidden">
+    <section className="survey-bg relative text-white pt-10 md:pt-14 pb-16 md:pb-20 overflow-hidden">
       {/* Atmospheric teal bloom */}
       <div
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
@@ -42,33 +41,23 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="lp-container relative z-10">
-        {/* Floating brand lockup: the nav stays hidden above the fold, so the
-            page opens with just the mark + cursive tagline over the
-            landscape. The tagline indent tucks it under the wordmark's
-            letters (past the cairn symbol). */}
-        <a href="/" className="inline-flex flex-col items-start">
-          <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-16 md:h-20 w-auto -mb-3 md:-mb-3.5" />
-          <span
-            className="pl-10 md:pl-12 text-[15px] md:text-[17px] italic text-[#D4A024]"
-            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-          >
-            {tc('nav.tagAuth')}
-          </span>
-        </a>
-        {/* Soft separation between the lockup and the hero content */}
-        <div className="mt-6 mb-8 md:mt-7 md:mb-10 h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent" />
+        {/* Header band: the brand lockup (left) sits level with the headline
+            (right). The nav stays hidden above the fold, so the page opens on
+            the mark + tagline over the landscape, aligned to the H1. */}
+        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
+          <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
+            {/* -mt trims the PNG's transparent top so the letters, not the
+                bounding box, line up with the H1's first line */}
+            <img src={CairnlyLockup} alt="Cairnly — career path clarity" className="h-24 md:h-28 w-auto -mt-2 md:-mt-3" />
+          </a>
 
-        {/* Everything the pill controls sits together: pills + chat on the
-            left, headline / copy / product screenshot reacting on the right.
-            DOM order keeps the mobile flow: headline -> pills -> chat -> proof. */}
-        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-10">
-          {/* Headline + body (desktop: right column, row 1) */}
-          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
-            {/* min-height reserves 3 title lines on md+ so the blocks below
-                don't jump when a variant's H1 wraps to 2 vs 3 lines */}
+          {/* Headline (desktop: right column, level with the logo) */}
+          <div className="lg:col-span-7 lg:col-start-6">
+            {/* min-height reserves 2 title lines on md+ so the rule below
+                stays put when a variant's H1 wraps to 1 vs 2 lines */}
             <Reveal
               as="div"
-              className="font-heading font-bold leading-[1.15] text-white md:min-h-[3.45em]"
+              className="font-heading font-bold leading-[1.15] text-white md:min-h-[2.3em]"
               style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
             >
               {/* key={`${picked}-${intent}`} remounts the text so the fade plays on chip switch */}
@@ -80,9 +69,27 @@ const Hero: React.FC = () => {
                 {vt('hero.titleB')}
               </h1>
             </Reveal>
+          </div>
+        </div>
 
-            {/* same trick for the body copy: variants run 3-4 lines */}
-            <Reveal as="div" className="mt-6 max-w-2xl md:min-h-[122px]">
+        {/* Eyebrow + full-width gold rule: this IS the divider between the
+            header band and the content, so the first pill row and the body's
+            first line start from the same edge below it. */}
+        <Reveal className="flex items-center gap-3 mt-6 mb-8 md:mb-10">
+          <span className="whitespace-nowrap text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
+            {t('hero.eyebrow')} · {t('intentChips.prompt')}
+          </span>
+          <span className="h-px flex-1 bg-[#D4A024]/50" />
+        </Reveal>
+
+        {/* Content band: pills + chat on the left, body copy and the product
+            proof on the right. DOM order (body, interactive, proof) keeps the
+            mobile flow sensible; desktop positions are explicit. */}
+        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8 lg:gap-y-10">
+          {/* Body copy (desktop: right column, row 1) */}
+          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
+            {/* min-height keeps the carousel from jumping as body copy varies */}
+            <Reveal as="div" className="max-w-2xl md:min-h-[122px]">
               <p key={`${picked}-${intent}`} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
                 {vt('hero.body')}{' '}
                 <span className="text-white font-semibold">
@@ -93,14 +100,8 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Pills + chat as ONE left block (spans both rows, so the chat sits
-              tight under its pills regardless of the right column's height) */}
+              tight under its pills regardless of the right height) */}
           <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:row-span-2">
-            <Reveal className="flex items-center gap-3 mb-6">
-              <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-                {t('hero.eyebrow')} · {t('intentChips.prompt')}
-              </span>
-              <span className="h-px w-12 bg-[#D4A024]/40" />
-            </Reveal>
             <Reveal as="div">
               <IntentChips />
             </Reveal>
