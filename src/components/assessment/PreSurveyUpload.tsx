@@ -630,6 +630,16 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         A LinkedIn export often has the most up-to-date version of your work history.
                       </p>
                     </div>
+                    {/* We'd love a one-click "Import from LinkedIn" — LinkedIn's
+                        API doesn't expose full profile data to third parties,
+                        so a manual PDF export is the only path available. */}
+                    <p
+                      className="text-[12px] mt-3 text-center"
+                      style={{ color: '#8A9AA5' }}
+                    >
+                      We'd love a one-click LinkedIn import — LinkedIn's platform
+                      doesn't allow it, so this export step is the only way.
+                    </p>
                   </div>
                 )}
               </div>
