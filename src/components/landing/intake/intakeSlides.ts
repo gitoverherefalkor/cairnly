@@ -21,12 +21,22 @@ export const INTAKE_SHOT_SRC: Record<IntakeShot, string> = {
   radar: '/images/live/landing/intake/career-compare-radar.jpg',
 };
 
+export const INTAKE_SHOT_ALT: Record<IntakeShot, string> = {
+  dashboard: 'Career dashboard with three scored matches',
+  'ai-impact': 'Coach chat explaining how AI impacts a suggested role',
+  'jobs-avoids': 'Job search hiding roles the user said to avoid',
+  'salary-steps': 'Career detail with salary ranges and steps for pursuing the role',
+  'key-insight': 'Coach chat sharing a key personal insight',
+  radar: 'Radar chart comparing top career matches',
+};
+
 // Dream-job beat: no dedicated Dream Job Analysis capture yet; the dashboard
 // (which lists the dream jobs) stands in until one is added.
 const DREAM: IntakeShot = 'dashboard';
 
-/** Per-intent beat plans (beat 1 first), mirroring beatsFor() server-side. */
-const PLANS: Record<string, IntakeShot[]> = {
+/** Per-intent beat plans (beat 1 first), mirroring beatsFor() server-side.
+ * Exported for the server-drift test; not part of the component API. */
+export const PLANS: Record<string, IntakeShot[]> = {
   default: ['dashboard', 'dashboard', 'dashboard', DREAM, 'radar'],
   'good-at-it': ['dashboard', 'dashboard', 'jobs-avoids', DREAM, 'radar'],
   'ai-worried': ['dashboard', 'ai-impact', DREAM, 'radar'],
@@ -40,11 +50,15 @@ export function intakeShotFor(intent: string, beat: number): IntakeShot {
   return plan[beat - 1] ?? 'dashboard';
 }
 
-/** Screenshot shown beside the package card once the pitch lands. */
-export const PITCH_SHOT_SRC: Record<string, string> = {
-  default: INTAKE_SHOT_SRC.dashboard,
-  'good-at-it': INTAKE_SHOT_SRC.dashboard,
-  'ai-worried': INTAKE_SHOT_SRC['ai-impact'],
-  'life-changed': INTAKE_SHOT_SRC['salary-steps'],
-  'understand-myself': INTAKE_SHOT_SRC['key-insight'],
+/** Which shot closes the funnel per intent, once the pitch lands. */
+const PITCH_SHOT: Record<string, IntakeShot> = {
+  default: 'dashboard',
+  'good-at-it': 'dashboard',
+  'ai-worried': 'ai-impact',
+  'life-changed': 'salary-steps',
+  'understand-myself': 'key-insight',
 };
+
+export function pitchShotFor(intent: string): IntakeShot {
+  return PITCH_SHOT[intent] ?? 'dashboard';
+}

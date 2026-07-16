@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
-import { INTAKE_SHOT_SRC, intakeShotFor, type IntakeShot } from './intake/intakeSlides';
+import { INTAKE_SHOT_ALT, INTAKE_SHOT_SRC, intakeShotFor, type IntakeShot } from './intake/intakeSlides';
 
 // Each slide is a real product screen. `slug` mirrors the app route that page
 // lives at (see src/App.tsx), so the fake browser URL bar reads like the
@@ -57,19 +57,11 @@ const INTAKE_SLIDE_SLUG: Record<IntakeShot, string> = {
   'key-insight': 'chat',
   radar: 'dashboard',
 };
-const INTAKE_SLIDE_ALT: Record<IntakeShot, string> = {
-  dashboard: 'Career dashboard with three scored matches',
-  'ai-impact': 'Coach chat explaining how AI impacts a suggested role',
-  'jobs-avoids': 'Job search hiding roles the user said to avoid',
-  'salary-steps': 'Career detail with salary ranges and steps for pursuing the role',
-  'key-insight': 'Coach chat sharing a key personal insight',
-  radar: 'Radar chart comparing top career matches',
-};
 const INTAKE_BASE = SLIDES.length;
 const INTAKE_SLIDES: Slide[] = INTAKE_SHOT_ORDER.map((shot) => ({
   src: INTAKE_SHOT_SRC[shot],
   slug: INTAKE_SLIDE_SLUG[shot],
-  alt: INTAKE_SLIDE_ALT[shot],
+  alt: INTAKE_SHOT_ALT[shot],
 }));
 const ALL_SLIDES = [...SLIDES, ...INTAKE_SLIDES];
 
@@ -212,6 +204,7 @@ const HeroCarousel: React.FC = () => {
               type="button"
               aria-label={`Show ${s.slug} screenshot`}
               aria-current={i === restingActive}
+              disabled={pinned !== null}
               onClick={() => {
                 if (pinned === null) setActive(i);
               }}

@@ -178,13 +178,13 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 
   const startConversation = useCallback(
-    (text: string, intent: string, seeded: boolean) => {
+    (text: string, conversationIntent: string, seeded: boolean) => {
       const trimmed = text.trim();
       if (!trimmed || starting.current) return;
       starting.current = true;
       setSessionId(null);
       setStage('chat');
-      setIntent(intent);
+      setIntent(conversationIntent);
       setEmailCaptured(false);
       setMessages([{ role: 'user', text: trimmed, seeded }]);
       setChips(null);
@@ -196,7 +196,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const revealDelay = seeded ? 1400 : 0;
       const startedAt = Date.now();
       intakeApi
-        .start(intent, lang, seeded ? 'pill' : 'cta', trimmed, seeded)
+        .start(conversationIntent, lang, seeded ? 'pill' : 'cta', trimmed, seeded)
         .then((res) => {
           const wait = Math.max(0, revealDelay - (Date.now() - startedAt));
           setTimeout(() => {
@@ -210,6 +210,7 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         })
         .catch(() => {
           setMessages([]);
+          setIntent(null);
           setError(t('intake.error'));
           setSending(false);
           starting.current = false;

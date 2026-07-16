@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntent } from '@/contexts/IntentContext';
 import { useIntakeChatOptional } from './IntakeChatContext';
-import { PITCH_SHOT_SRC } from './intakeSlides';
+import { INTAKE_SHOT_ALT, INTAKE_SHOT_SRC, pitchShotFor } from './intakeSlides';
 
 /**
  * The product screenshot shown beside the package card once the intake pitch
@@ -14,13 +14,13 @@ import { PITCH_SHOT_SRC } from './intakeSlides';
 const PitchScreenshot: React.FC = () => {
   const { intent } = useIntent();
   const chat = useIntakeChatOptional();
-  const src = PITCH_SHOT_SRC[chat?.intent ?? intent] ?? PITCH_SHOT_SRC.default;
+  const shot = pitchShotFor(chat?.intent ?? intent);
   return (
     <div
       className="mx-auto mb-6 w-full max-w-[560px] overflow-hidden rounded-2xl"
       style={{ border: '1px solid rgba(255,255,255,0.10)', boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)' }}
     >
-      <img src={src} alt="Cairnly dashboard preview" className="block w-full h-auto" loading="lazy" />
+      <img src={INTAKE_SHOT_SRC[shot]} alt={INTAKE_SHOT_ALT[shot]} className="block w-full h-auto" loading="lazy" />
     </div>
   );
 };
