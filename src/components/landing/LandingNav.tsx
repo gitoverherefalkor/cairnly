@@ -34,12 +34,18 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // On the homepage the bar stays hidden above the fold (the hero carries a
+  // floating brand lockup instead) and slides in once the visitor scrolls
+  // toward the fold. Other pages keep the always-visible sticky bar.
+  const floating = variant === 'home';
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80);
+    const onScroll = () =>
+      setScrolled(window.scrollY > (floating ? window.innerHeight * 0.55 : 80));
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [floating]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -76,35 +82,41 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
 
   return (
     <>
-      {/* Trust bar */}
-      <div className="bg-[#1A1A1A] text-white/80 py-2.5">
-        <div className="lp-container flex items-center justify-center gap-x-6 gap-y-1 flex-wrap text-[11px] font-medium tracking-wide">
-          <div className="flex items-center gap-2">
-            <Shield size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">{t('trust.gdpr')}</strong> · {t('trust.gdprDetail')}</span>
-          </div>
-          <span className="text-white/20">·</span>
-          <div className="flex items-center gap-2">
-            <Lock size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">{t('trust.stripe')}</strong> · {t('trust.stripeDetail')}</span>
-          </div>
-          <span className="text-white/20">·</span>
-          <div className="flex items-center gap-2">
-            <Trash2 size={14} strokeWidth={2} />
-            <span><strong className="text-white font-semibold">{t('trust.delete')}</strong> · {t('trust.deleteDetail')}</span>
+      {/* Trust bar (pages only; the homepage opens clean on the hero image) */}
+      {!floating && (
+        <div className="bg-[#1A1A1A] text-white/80 py-2.5">
+          <div className="lp-container flex items-center justify-center gap-x-6 gap-y-1 flex-wrap text-[11px] font-medium tracking-wide">
+            <div className="flex items-center gap-2">
+              <Shield size={14} strokeWidth={2} />
+              <span><strong className="text-white font-semibold">{t('trust.gdpr')}</strong> · {t('trust.gdprDetail')}</span>
+            </div>
+            <span className="text-white/20">·</span>
+            <div className="flex items-center gap-2">
+              <Lock size={14} strokeWidth={2} />
+              <span><strong className="text-white font-semibold">{t('trust.stripe')}</strong> · {t('trust.stripeDetail')}</span>
+            </div>
+            <span className="text-white/20">·</span>
+            <div className="flex items-center gap-2">
+              <Trash2 size={14} strokeWidth={2} />
+              <span><strong className="text-white font-semibold">{t('trust.delete')}</strong> · {t('trust.deleteDetail')}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Navbar */}
+      {/* Navbar: fixed + slide-in on the homepage, sticky elsewhere */}
       <nav
-        className="sticky top-0 z-50 transition-all duration-300"
+        className={
+          floating
+            ? `fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
+                scrolled ? 'translate-y-0' : '-translate-y-full'
+              }`
+            : 'sticky top-0 z-50 transition-all duration-300'
+        }
         style={{
           background: 'rgba(33, 63, 79, 0.96)',
           backdropFilter: 'blur(14px)',
-          borderBottom: scrolled
-            ? '1px solid rgba(255,255,255,0.06)'
-            : '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         <div className="lp-container py-3 flex items-center justify-between">

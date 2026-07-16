@@ -4,52 +4,20 @@ import { useIntent, type IntentKey } from '@/contexts/IntentContext';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import { INTAKE_SHOT_ALT, INTAKE_SHOT_SRC, intakeShotFor, type IntakeShot } from './intake/intakeSlides';
 
-// Each slide is a real product screen. `slug` mirrors the app route that page
-// lives at (see src/App.tsx), so the fake browser URL bar reads like the
-// actual product: app.cairnly.io/<slug>.
+// Each slide is a real product screen from the persona captures in
+// public/images/live/landing/intake/ — the SAME set the intake chat pins per
+// beat, so resting rotation and chat pinning share one index space. `slug`
+// mirrors the app route that page lives at (see src/App.tsx), so the fake
+// browser URL bar reads like the actual product: app.cairnly.io/<slug>.
 interface Slide {
   src: string;
   slug: string;
   alt: string;
 }
 
-const SLIDES: Slide[] = [
-  {
-    src: '/images/live/landing/carousel/assessment-welcome.jpg',
-    slug: 'assessment',
-    alt: 'Cairnly assessment welcome screen',
-  },
-  {
-    src: '/images/live/landing/carousel/assessment-resume.jpg',
-    slug: 'assessment',
-    alt: 'Resume upload step in the Cairnly assessment',
-  },
-  {
-    src: '/images/live/landing/carousel/assessment-section.jpg',
-    slug: 'assessment',
-    alt: 'A section transition inside the Cairnly assessment',
-  },
-  {
-    src: '/images/live/landing/carousel/report-careermap.jpg',
-    slug: 'dashboard',
-    alt: 'Career dashboard with the career match map',
-  },
-  {
-    src: '/images/live/landing/carousel/coach-chat.jpg',
-    slug: 'chat',
-    alt: 'Chatting with the Cairnly career coach',
-  },
-  {
-    src: '/images/live/landing/carousel/jobs-pipeline.jpg',
-    slug: 'jobs',
-    alt: 'Job pipeline tracking saved and applied roles',
-  },
-];
-
-// Intake close-ups: pinned while the intake chat runs (beat-synced via
-// intakeSlides.ts), excluded from the resting rotation below.
-const INTAKE_SHOT_ORDER: IntakeShot[] = ['dashboard', 'ai-impact', 'jobs-avoids', 'salary-steps', 'key-insight', 'radar'];
-const INTAKE_SLIDE_SLUG: Record<IntakeShot, string> = {
+/** Rotation order at rest; also the index space for beat pinning. */
+const SHOT_ORDER: IntakeShot[] = ['dashboard', 'ai-impact', 'jobs-avoids', 'salary-steps', 'key-insight', 'radar'];
+const SHOT_SLUG: Record<IntakeShot, string> = {
   dashboard: 'dashboard',
   'ai-impact': 'chat',
   'jobs-avoids': 'jobs',
@@ -57,28 +25,24 @@ const INTAKE_SLIDE_SLUG: Record<IntakeShot, string> = {
   'key-insight': 'chat',
   radar: 'dashboard',
 };
-const INTAKE_BASE = SLIDES.length;
-const INTAKE_SLIDES: Slide[] = INTAKE_SHOT_ORDER.map((shot) => ({
+const SLIDES: Slide[] = SHOT_ORDER.map((shot) => ({
   src: INTAKE_SHOT_SRC[shot],
-  slug: INTAKE_SLIDE_SLUG[shot],
+  slug: SHOT_SLUG[shot],
   alt: INTAKE_SHOT_ALT[shot],
 }));
-const ALL_SLIDES = [...SLIDES, ...INTAKE_SLIDES];
 
 const ROTATE_MS = 4000;
 
 /**
  * Which slide best answers each "what brings you here?" pill. Clicking a
- * pill jumps the carousel there (rotation continues from that point).
- * Best match within the existing six screenshots; dedicated per-intent
- * shots (e.g. an AI-impact rating close-up for ai-worried) can slot in later.
+ * pill jumps the carousel there and the conversation freeze keeps it up.
  */
 const INTENT_SLIDE: Record<IntentKey, number> = {
-  default: 0, // assessment welcome — the "start over properly" story
-  'good-at-it': 4, // coach chat — pressure-testing whether the fit is real
-  'ai-worried': 3, // career report — paths scored incl. AI impact
-  'life-changed': 3, // career report — new paths for new priorities
-  'understand-myself': 2, // assessment section — the self-understanding work
+  default: 0, // dashboard close-up — what you'd choose now, scored
+  'good-at-it': 5, // radar comparison — is the current fit still the best fit
+  'ai-worried': 1, // coach explaining how AI hits a specific role
+  'life-changed': 0, // dashboard close-up — the next chapter, scored
+  'understand-myself': 4, // coach key insight — the self-understanding work
 };
 
 /**
@@ -105,7 +69,7 @@ const HeroCarousel: React.FC = () => {
   // A beat with a specific screen pins it; null beats leave the slide alone,
   // so the pill-matched screen stays up through the early questions.
   const beatShot = chatRunning && intake?.beat ? intakeShotFor(chatIntent, intake.beat) : null;
-  const pinned = beatShot ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(beatShot) : null;
+  const pinned = beatShot ? SHOT_ORDER.indexOf(beatShot) : null;
 
   // A pill click jumps the carousel to that intent's most relevant screen.
   // Deliberately NOT re-run when `pinned` clears: a beat without a specific
@@ -131,11 +95,7 @@ const HeroCarousel: React.FC = () => {
     return () => window.clearInterval(id);
   }, [paused, chatRunning]);
 
-  // At rest only the original six render (no intake-image preload); the intake
-  // close-ups join the stack once a conversation starts. Guarded lookup: for
-  // one render after a reset, `active` can still point at an intake index.
-  const stack = intake?.started ? ALL_SLIDES : SLIDES;
-  const slug = (stack[active] ?? stack[0]).slug;
+  const slug = (SLIDES[active] ?? SLIDES[0]).slug;
 
   return (
     <div
@@ -178,7 +138,7 @@ const HeroCarousel: React.FC = () => {
 
         {/* Screenshot stage — images crossfade in place */}
         <div className="relative aspect-[16/10] bg-[#15262F]">
-          {stack.map((s, i) => (
+          {SLIDES.map((s, i) => (
             <img
               key={s.src}
               src={s.src}
@@ -194,30 +154,22 @@ const HeroCarousel: React.FC = () => {
       </div>
       </div>
 
-      {/* Progress indicators — always the resting six; while an intake slide
-          is pinned, `active` points past the end of SLIDES so none light up,
-          and the dots go inert (the beat owns the carousel until reset). */}
-      <div
-        className="mt-5 flex items-center justify-center gap-2"
-      >
-        {/* Manual flipping stays available during the chat; only the
-            auto-rotation stops. The next beat with a specific screen simply
-            re-pins over whatever the visitor picked. */}
-        {SLIDES.map((s, i) => {
-          const restingActive = active < SLIDES.length ? active : -1;
-          return (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Show ${s.slug} screenshot`}
-              aria-current={i === restingActive}
-              onClick={() => setActive(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === restingActive ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
-              }`}
-            />
-          );
-        })}
+      {/* Progress indicators. Manual flipping stays available during the
+          chat; only the auto-rotation stops. The next beat with a specific
+          screen simply re-pins over whatever the visitor picked. */}
+      <div className="mt-5 flex items-center justify-center gap-2">
+        {SLIDES.map((s, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Show ${s.slug} screenshot`}
+            aria-current={i === active}
+            onClick={() => setActive(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              i === active ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );

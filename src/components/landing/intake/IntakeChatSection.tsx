@@ -168,7 +168,14 @@ const IntakeChatPanel: React.FC = () => {
           <div className="flex justify-start">
             <div
               className="max-w-[92%] rounded-[20px] border px-4 py-3.5 text-[14px] leading-[1.6]"
-              style={ASSISTANT_BUBBLE}
+              style={{
+                ...ASSISTANT_BUBBLE,
+                // Resting invite sits directly on the hero photo: a touch of
+                // transparency keeps it part of the scene until the chat starts.
+                background: 'rgba(253, 251, 242, 0.86)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+              }}
             >
               {t('intake.restingInvite')}
             </div>
@@ -317,7 +324,7 @@ const IntakeChatPanel: React.FC = () => {
         {chat.stage !== 'pitched' && (
           <div className="mt-4">
               <form
-                className="relative"
+                className="relative max-w-[92%]"
                 onSubmit={(e) => {
                   e.preventDefault();
                   submit();

@@ -11,6 +11,7 @@ import PitchScreenshot from './intake/PitchScreenshot';
 import IntakeEmailHatch from './intake/IntakeEmailHatch';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
+import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
 
 /**
  * Hero + intake chat as one continuous section on the app's nature
@@ -21,6 +22,7 @@ import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
+  const { t: tc } = useTranslation('common');
   const { vt, intent, picked } = useIntentCopy();
   const intakeChat = useIntakeChatOptional();
   // Once the chat delivers its pitch, the right column stops being a generic
@@ -28,7 +30,7 @@ const Hero: React.FC = () => {
   const pitched = intakeChat?.stage === 'pitched';
 
   return (
-    <section className="survey-bg relative text-white pt-12 md:pt-16 pb-16 md:pb-20 overflow-hidden">
+    <section className="survey-bg relative text-white pt-7 md:pt-9 pb-16 md:pb-20 overflow-hidden">
       {/* Atmospheric teal bloom */}
       <div
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
@@ -40,6 +42,22 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="lp-container relative z-10">
+        {/* Floating brand lockup: the nav stays hidden above the fold, so the
+            page opens with just the mark + cursive tagline over the
+            landscape. The tagline indent tucks it under the wordmark's
+            letters (past the cairn symbol). */}
+        <a href="/" className="inline-flex flex-col items-start">
+          <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-16 md:h-20 w-auto -mb-3 md:-mb-3.5" />
+          <span
+            className="pl-10 md:pl-12 text-[15px] md:text-[17px] italic text-[#D4A024]"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+          >
+            {tc('nav.tagAuth')}
+          </span>
+        </a>
+        {/* Soft separation between the lockup and the hero content */}
+        <div className="mt-6 mb-8 md:mt-7 md:mb-10 h-px bg-gradient-to-r from-white/20 via-white/10 to-transparent" />
+
         {/* Everything the pill controls sits together: pills + chat on the
             left, headline / copy / product screenshot reacting on the right.
             DOM order keeps the mobile flow: headline -> pills -> chat -> proof. */}

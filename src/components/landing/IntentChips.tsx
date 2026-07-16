@@ -83,6 +83,9 @@ const IntentChips: React.FC = () => {
     'rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
   const chipSelected = 'bg-[#D4A024] border-[#D4A024] text-[#122E3B]';
   const chipIdle = 'border-white/25 text-white/65 hover:border-[#D4A024]/60 hover:text-white';
+  // Resting state: nothing picked, so the open input IS the live route; the
+  // "Something else" pill wears a gold outline to say so without the full fill.
+  const chipOutlined = 'border-[#D4A024] text-white/85 hover:text-white';
 
   return (
     <div>
@@ -106,7 +109,7 @@ const IntentChips: React.FC = () => {
           type="button"
           onClick={pickSomethingElse}
           aria-pressed={somethingElse}
-          className={`${chipBase} ${somethingElse ? chipSelected : chipIdle}`}
+          className={`${chipBase} ${somethingElse ? chipSelected : picked ? chipIdle : chipOutlined}`}
         >
           {t('intentChips.other.label')}
         </button>
