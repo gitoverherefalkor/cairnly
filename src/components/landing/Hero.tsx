@@ -7,7 +7,6 @@ import IntentChips from './IntentChips';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
-import PitchScreenshot from './intake/PitchScreenshot';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
@@ -127,14 +126,7 @@ const Hero: React.FC = () => {
               button; "See how it works" stays as the one remaining, low-key
               way to keep browsing instead of buying. */}
           <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
-            {pitched ? (
-              <>
-                <PitchScreenshot />
-                <ReportDeliverablesCard />
-              </>
-            ) : (
-              <HeroCarousel />
-            )}
+            {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
             {pitched ? (
               <>
                 <div className="mt-5 flex justify-center">

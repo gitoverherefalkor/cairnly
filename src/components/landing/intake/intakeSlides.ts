@@ -56,16 +56,3 @@ export function intakeShotFor(intent: string, beat: number): IntakeShot | null {
   const plan = PLANS[intent] ?? PLANS.default;
   return plan[beat - 1] ?? null;
 }
-
-/** Which shot closes the funnel per intent, once the pitch lands. */
-const PITCH_SHOT: Record<string, IntakeShot> = {
-  default: 'dashboard',
-  'good-at-it': 'dashboard',
-  'ai-worried': 'ai-impact',
-  'life-changed': 'salary-steps',
-  'understand-myself': 'key-insight',
-};
-
-export function pitchShotFor(intent: string): IntakeShot {
-  return PITCH_SHOT[intent] ?? 'dashboard';
-}

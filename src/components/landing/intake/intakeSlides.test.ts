@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { intakeShotFor, pitchShotFor, INTAKE_SHOT_SRC, PLANS } from './intakeSlides';
+import { intakeShotFor, INTAKE_SHOT_SRC, PLANS } from './intakeSlides';
 import { beatsFor, VALID_INTENTS } from '../../../../supabase/functions/intake-chat/prompts';
 
 describe('intakeShotFor', () => {
@@ -26,11 +26,8 @@ describe('intakeShotFor', () => {
     expect(intakeShotFor('good-at-it', 4)).toBeNull(); // dream beat: no capture yet
     expect(intakeShotFor('good-at-it', 99)).toBeNull(); // out of range
   });
-  it('has an image path for every shot and every pitch intent', () => {
+  it('has an image path for every shot', () => {
     Object.values(INTAKE_SHOT_SRC).forEach((src) => expect(src).toMatch(/^\/images\/live\/landing\/intake\/.+\.jpg$/));
-    ['default', 'good-at-it', 'ai-worried', 'life-changed', 'understand-myself', 'other', 'nonsense'].forEach((k) =>
-      expect(INTAKE_SHOT_SRC[pitchShotFor(k)]).toMatch(/\.jpg$/),
-    );
   });
 });
 
