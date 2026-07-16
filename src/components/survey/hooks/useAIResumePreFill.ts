@@ -23,17 +23,6 @@ export const useAIResumePreFill = ({
       return;
     }
 
-    // Check if we have any existing responses (except empty objects)
-    const existingResponseKeys = Object.keys(responses).filter(key =>
-      responses[key] !== undefined &&
-      responses[key] !== null &&
-      responses[key] !== ''
-    );
-    if (existingResponseKeys.length > 0) {
-      hasAttemptedPreFill.current = true;
-      return;
-    }
-
     // Pre-fill has two independent sources:
     // - resume_parsed_data (resume upload; session first, localStorage fallback)
     // - intake_prefill_data (landing-page intake chat; localStorage only)
@@ -152,12 +141,26 @@ export const useAIResumePreFill = ({
     // survey is a different flavor that keeps the CV step (encore), remap the
     // keys to that survey's question ids; unmapped questions are dropped.
     preFillResponses = translatePreFillForSurvey(surveyId, preFillResponses);
-    // Update the responses with the pre-filled data
+    // Fill only questions that are still unanswered. An existing answer —
+    // whether typed by the user or applied by an earlier pre-fill — always
+    // wins, so a newer intake chat can top up gaps (e.g. primary goals from a
+    // second conversation) without ever clobbering what's already there.
     if (Object.keys(preFillResponses).length > 0) {
-      setResponses(prev => ({
-        ...prev,
-        ...preFillResponses
-      }));
+      setResponses(prev => {
+        const merged = { ...prev };
+        Object.entries(preFillResponses).forEach(([questionId, value]) => {
+          const existing = merged[questionId];
+          const isUnanswered =
+            existing === undefined ||
+            existing === null ||
+            existing === '' ||
+            (Array.isArray(existing) && existing.length === 0);
+          if (isUnanswered) {
+            merged[questionId] = value;
+          }
+        });
+        return merged;
+      });
       // Mark in storage that we've completed pre-fill
       sessionStorage.setItem('ai_prefill_completed', 'true');
     }
