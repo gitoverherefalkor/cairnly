@@ -46,9 +46,10 @@ const Hero: React.FC = () => {
             the mark + tagline over the landscape, aligned to the H1. */}
         <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
           <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
-            {/* -mt trims the PNG's transparent top so the letters, not the
-                bounding box, line up with the H1's first line */}
-            <img src={CairnlyLockup} alt="Cairnly — career path clarity" className="h-24 md:h-28 w-auto -mt-2 md:-mt-3" />
+            {/* Smaller on phones (the lockup is wide); -mt trims the PNG's
+                transparent top so the letters, not the bounding box, line up
+                with the H1's first line */}
+            <img src={CairnlyLockup} alt="Cairnly — career path clarity" className="h-14 md:h-28 w-auto -mt-1 md:-mt-3" />
           </a>
 
           {/* Headline (desktop: right column, level with the logo) */}
