@@ -7,10 +7,10 @@
 //      same rule as WF1-WF7).
 //
 // The conversation starts with the VISITOR's message (seeded from the intent
-// pill, editable, or free text). The server drives five beats aimed at the
-// survey questions the resume upload can NOT pre-fill: career stage, the
-// real driver, blockers, dream job, and horizon. Everything else the survey
-// or the resume covers better.
+// pill, editable, or free text). The server drives up to five beats: what work
+// they do (grounding; free text), the real driver, a pill-specific third beat,
+// dream job, and the near-term next step. Background facts (history, education,
+// years) stay with the post-payment resume upload.
 
 export type Lang = 'en' | 'nl';
 // 'other' = the visitor typed their own reason instead of tapping a preset pill.
@@ -60,39 +60,40 @@ export const INTENT_BRIEFS: Record<IntentKey, string> = {
   'ai-worried': `Worried AI will reshape or replace their role. Take the worry seriously, never dismiss it and never fuel it. Listen for: which parts of their job are routine coordination or production (exposed) versus judgment, relationships and taste (durable); whether the worry is really about AI or AI is the socially acceptable wrapper for older doubts about the fit.`,
   'life-changed': `Life shifted (children, burnout, a move, loss, health, a restart) and the job no longer fits the life. Listen for: what specifically changed in their constraints and values; what the old job was optimized for that no longer matters; unnegotiable new realities (hours, energy, location, care duties). Be extra warm and unhurried here.`,
   'understand-myself': `They want self-understanding before direction. Often reflective, may have done tests before and found them shallow. Listen for: patterns across their history they have not named; the difference between what they are praised for and what energizes them; be concrete, they are allergic to horoscope-style vagueness.`,
-  other: `They typed their own reason for being here instead of picking a preset. Take their exact framing at face value; do NOT assume an archetype or reach for a preset story. Read what they actually wrote, reflect their own words back, and let their situation lead. Your opening reply must be genuinely built from their message.`,
+  other: `They typed their own reason for being here instead of picking a preset. Take their exact framing at face value; do NOT assume an archetype or reach for a preset story. Read what they actually wrote and let their exact framing and situation lead. Your opening reply must be genuinely built from their message.`,
 };
 
 /**
- * Canned agent reply to a pill-seeded opener: a short acknowledgment of the
- * pill's sentiment plus the beat-1 question (career stage). Served without
- * an LLM call, so the conversation starts instantly; custom-typed openers
- * (intent 'other') never use this — they always get a live model reply.
+ * Canned agent reply to a pill-seeded opener: a matched statistic from our
+ * journal research, a short acknowledgment of the pill's sentiment, plus the
+ * beat-1 grounding question (what work they do). Served without an LLM call,
+ * so the conversation starts instantly; custom-typed openers (intent 'other')
+ * never use this: they always get a live model reply.
  */
 export const OPENER_REPLIES: Record<Lang, Partial<Record<IntentKey, string>>> = {
   en: {
     default:
-      "That question deserves a real answer, and it starts with where you stand today. What does your work look like right now: working solo, leading people, or somewhere in between?",
+      "Two thirds of workers carry career regrets, and 35% of US graduates would pick a different field today; we gathered that research for our Career Uncertainty Report. So your question deserves a real answer, and it starts with the path so far. What kind of work have you been doing? A sentence is plenty.",
     'good-at-it':
-      "That tension is more common than people admit, and worth taking seriously. First, help me place you: are you working solo these days, leading a team, or somewhere in between?",
+      "Almost half of professionals worldwide say they haven't yet found work that feels truly meaningful; we gathered that research for our Career Uncertainty Report. Feeling that while being good at your job is more common than people admit. To ground this: what kind of work do you do? A sentence is plenty.",
     'ai-worried':
-      "Fair worry, and it deserves a straight answer rather than reassurance. First, help me place you: are you working solo, leading people, or somewhere in between?",
+      "You're far from alone in this: 52% of US workers worry about what AI means for their work, and the World Economic Forum expects 39% of skills to shift by 2030; the research is in our Career Uncertainty Report. Your worry deserves a straight answer rather than reassurance. To ground this: what kind of work do you do, day to day?",
     'life-changed':
-      "That gap between the life and the job is worth taking seriously. To start, where are you right now: working solo, leading a team, on a break, or somewhere in between?",
+      "Worldwide, work-life balance just overtook pay as the number one reason to choose a job, for the first time in 22 years of measuring; we cover it in our Career Uncertainty Report. So the gap between the life and the job is worth taking seriously. To start: what work have you been doing, or were you doing before things shifted?",
     'understand-myself':
-      "Good starting point, knowing who's choosing comes before choosing. First, help me place you: working solo these days, leading people, or somewhere in between?",
+      "Good instinct. Popular personality tests hold up poorly: 39 to 76% of people get a different MBTI type when they retake it, which is why we compared coaches and assessments in one of our reports. Knowing who's choosing comes before choosing. First: what kind of work have you been doing? A sentence is plenty.",
   },
   nl: {
     default:
-      "Die vraag verdient een echt antwoord, en dat begint bij waar je nu staat. Hoe ziet je werk er op dit moment uit: werk je solo, geef je leiding, of iets ertussenin?",
+      "Eén op de drie studenten heeft achteraf twijfels of spijt van de studiekeuze; dat onderzoek verzamelden we voor ons Career Uncertainty Report. Jouw vraag verdient dus een echt antwoord, en dat begint bij het pad tot nu toe. Wat voor werk heb je tot nu toe gedaan? Eén zin is genoeg.",
     'good-at-it':
-      "Die spanning komt vaker voor dan mensen toegeven, en is serieus te nemen. Help me eerst even plaatsen: werk je tegenwoordig solo, stuur je een team aan, of iets ertussenin?",
+      "Bijna de helft van de professionals wereldwijd zegt nog geen werk te hebben gevonden dat echt betekenisvol voelt; dat onderzoek verzamelden we voor ons Career Uncertainty Report. Dat gevoel, juist terwijl je goed bent in je werk, komt vaker voor dan mensen toegeven. Om dit te plaatsen: wat voor werk doe je? Eén zin is genoeg.",
     'ai-worried':
-      "Terechte zorg, en die verdient een eerlijk antwoord in plaats van geruststelling. Help me eerst even plaatsen: werk je solo, geef je leiding, of iets ertussenin?",
+      "Je bent hierin allesbehalve alleen: 52% van de Amerikaanse werkenden maakt zich zorgen over wat AI voor hun werk betekent, en het World Economic Forum verwacht dat 39% van de vaardigheden verschuift richting 2030; het onderzoek staat in ons Career Uncertainty Report. Je zorg verdient een eerlijk antwoord in plaats van geruststelling. Om dit te plaatsen: wat voor werk doe je, van dag tot dag?",
     'life-changed':
-      "Die kloof tussen het leven en de baan is serieus te nemen. Om te beginnen: waar sta je nu, werk je solo, stuur je een team aan, zit je er even tussenuit, of iets ertussenin?",
+      "Wereldwijd is werk-privébalans net salaris voorbijgestreefd als belangrijkste reden om een baan te kiezen, voor het eerst in de 22 jaar dat dit wordt gemeten; we behandelen het in ons Career Uncertainty Report. De kloof tussen het leven en de baan is dus serieus te nemen. Om te beginnen: wat voor werk heb je gedaan, of deed je voordat het leven veranderde?",
     'understand-myself':
-      "Goed startpunt, weten wie er kiest komt vóór het kiezen. Help me eerst even plaatsen: werk je tegenwoordig solo, geef je leiding, of iets ertussenin?",
+      "Goed instinct. Populaire persoonlijkheidstests houden slecht stand: 39 tot 76% van de mensen krijgt een ander MBTI-type bij een hertest; daarom vergeleken we coaches en assessments in een van onze onderzoeksrapporten. Weten wie er kiest komt vóór het kiezen. Eerst: wat voor werk heb je tot nu toe gedaan? Eén zin is genoeg.",
   },
 };
 
@@ -201,34 +202,9 @@ interface Beat {
 
 export const BEATS: Beat[] = [
   {
-    label: { en: 'Where you are', nl: 'Waar je staat' },
-    goal: 'Their career stage and type of authority: individual contributor, managing a team, senior/executive, entrepreneur looking for employment, on a break or transition, or re-entering the workforce. Ask it lightly and personally, not like a form.',
-    chips: {
-      en: {
-        options: [
-          'Individual contributor, no direct reports',
-          'Managing a small team (1-4 people)',
-          'Senior manager (5+ reports)',
-          'Executive (VP to C-suite)',
-          'Entrepreneur seeking an employed role',
-          'On a career break or in transition',
-          'Re-entering the workforce',
-        ],
-        multi: false,
-      },
-      nl: {
-        options: [
-          'Individuele rol, geen directe rapportages',
-          'Ik stuur een klein team aan (1-4 mensen)',
-          'Senior manager (5+ mensen)',
-          'Executive (VP tot C-level)',
-          'Ondernemer, op zoek naar loondienst',
-          'Even eruit of in transitie',
-          'Terug de arbeidsmarkt op',
-        ],
-        multi: false,
-      },
-    },
+    label: { en: 'Your work today', nl: 'Jouw werk nu' },
+    goal: 'What kind of work they actually do, or did most recently: field, role, a sentence of context (e.g. "marketing manager at a startup", "ten years in nursing, now on a break"). This answer grounds every later question and the final pitch. Ask one simple, warm question; a sentence from them is plenty. Do not ask for a CV, an employment history, or their career stage; if leading/solo/on-a-break is unclear, leave it unclear.',
+    chips: null,
   },
   {
     label: { en: "What's driving this", nl: 'Wat je drijft' },
@@ -298,29 +274,29 @@ export const BEATS: Beat[] = [
     chips: null,
   },
   {
-    label: { en: 'Your horizon', nl: 'Je horizon' },
-    goal: 'Their horizon: what they want in the next 1-2 years and where they want to be in 5-10 years. Ambition level matters here (leadership? expertise? own business? autonomy? balance?). Keep it light, this is the last question.',
+    label: { en: 'Your next step', nl: 'Je volgende stap' },
+    goal: 'What they want from the next year or two: the shape of a right next step. Keep it light, this is the last question. Do not ask about 5-10 year plans or lifetime ambitions.',
     chips: {
       en: {
         options: [
-          'Grow into (more) leadership',
-          'Go deep: expertise and recognition',
-          'Run my own business one day',
-          'More autonomy and freedom',
-          'A promotion or better pay soon',
-          'Space for life next to work',
+          'Develop new skills or certifications',
+          'Experience in a different role or industry',
+          'Grow my professional network',
+          'A promotion or better pay',
+          'Better work-life balance',
+          'Explore starting something of my own',
         ],
         multi: true,
         max: 3,
       },
       nl: {
         options: [
-          'Doorgroeien naar (meer) leiderschap',
-          'De diepte in: expertise en erkenning',
-          'Ooit een eigen bedrijf runnen',
-          'Meer autonomie en vrijheid',
-          'Snel een promotie of beter salaris',
-          'Ruimte voor het leven naast werk',
+          'Nieuwe vaardigheden ontwikkelen of certificaten behalen',
+          'Ervaring opdoen in een andere rol of sector',
+          'Mijn professionele netwerk uitbreiden',
+          'Een promotie of beter salaris',
+          'Een betere werk-privébalans',
+          'Onderzoeken of ik voor mezelf wil beginnen',
         ],
         multi: true,
         max: 3,
@@ -363,7 +339,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
   },
   'good-at-it': {
     label: { en: 'What to avoid', nl: 'Wat je wilt vermijden' },
-    goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter: the drains hiding inside a job they are good at. Being good at something and being drained by it often travel together; that is the point of this beat. Make explicit that this question is about AVOIDANCE, not aspiration: wrap the phrase that signals this in double asterisks for emphasis, e.g. "what would you want **less of this time around**," so the interface renders it bold. Use that exact bolded phrase (or a close natural variant) in your question.',
+    goal: 'Which aspects of work they would want LESS of, or to avoid outright, in a next chapter. IMPORTANT: these are preferences about the FUTURE. They may or may not describe their current job; never assume that what they want to avoid is what they currently do. Their actual work came from the first question and nowhere else. Make explicit that this question is about AVOIDANCE, not aspiration: wrap the phrase that signals this in double asterisks for emphasis, e.g. "what would you want **less of this time around**," so the interface renders it bold. Use that exact bolded phrase (or a close natural variant) in your question.',
     chips: {
       en: {
         options: [
@@ -452,7 +428,7 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
 /**
  * The beat plan per intent. Lengths vary deliberately:
  * - ai-worried skips the generic driver beat (the pill IS the driver).
- * - life-changed skips the 5-10 year horizon beat (mid-upheaval, keep it light).
+ * - life-changed skips the next-step beat (mid-upheaval, keep it light; schedule is their pressing question).
  * - the rest run the full five-beat arc.
  */
 export function beatsFor(intent: IntentKey): Beat[] {
@@ -485,7 +461,8 @@ FACTS ABOUT CAIRNLY (the only product claims you may make):
 - Every recommended path is scored on personal fit, salary realism for the user's region, feasibility of the move (ready now / upskill / retrain) and how AI is expected to reshape that career.
 - The result is an actionable career dashboard (not a static report): scored paths, an AI coach chat to pressure-test and refine them, live open roles, and a tailored CV plus cover letter. Call it a dashboard, never a "report".
 - Price: 39 euros during beta (normally 69 euros). One-off payment, no subscription.
-- The intake conversation the visitor is in right now will pre-fill part of their survey if they continue.`;
+- The intake conversation the visitor is in right now will pre-fill part of their survey if they continue.
+- This intake conversation is a short doorway, deliberately lighter than the product itself. The coaching chat inside the dashboard digs far deeper, with the full assessment results in hand. Never present this intake as representative of the coaching experience.`;
 
 const STYLE_RULES = `
 STYLE RULES (absolute):
@@ -523,7 +500,7 @@ ${BEATS_FOR_INTENT.map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`).join('\n'
 You are now on beat ${beatNumber} of ${BEATS_FOR_INTENT.length}: ${beat.goal}
 ${chipNote}
 
-Open with a very short acknowledgment, at most six words ("Got it.", "Makes sense.", "That's fair.", "Thanks, that's clear."), varied across turns. NEVER restate, paraphrase or summarize what they just said; they know what they wrote. Then ask this beat's question in one or two sentences. The question may build on their situation, but without echoing their words back. If the beat is already clearly answered by what they wrote, skip to the next unanswered beat's question. Do not number the question. Do not preview future beats.
+Open with a very short acknowledgment, at most six words ("Got it.", "Makes sense.", "That's fair.", "Thanks, that's clear."), varied across turns. NEVER restate, paraphrase or summarize what they just said; they know what they wrote. Then ask this beat's question in one or two sentences. The question may build on their situation, but without echoing their words back. If the beat is already clearly answered by what they wrote, skip to the next unanswered beat's question. Do not number the question. Do not preview future beats. Never assume facts about their current work beyond what they have stated in this conversation. What they want to avoid or leave behind says NOTHING about what they currently do.
 
 Respond in ${LANG_NAME[lang]} only, regardless of the language the visitor writes in.`;
 }
@@ -531,7 +508,7 @@ Respond in ${LANG_NAME[lang]} only, regardless of the language the visitor write
 export function pitchSystem(lang: Lang, intent: IntentKey): string {
   // The beat plan varies per intent (4 or 5 beats, different topics), so the
   // pitch may only reference what THIS plan actually asked. A static list here
-  // once made the model ask for "missing" inputs instead of pitching — while
+  // once made the model ask for "missing" inputs instead of pitching, while
   // the interface had already closed the chat input. Hence the hard rules below.
   const covered = beatsFor(intent)
     .map((b, i) => `${i + 1}. ${b.goal.split('.')[0]}.`)
@@ -548,16 +525,25 @@ ${covered}
 
 CRITICAL: this is the FINAL message of the intake. The interface has already closed the chat input; the visitor CANNOT reply or answer anything. Do NOT ask a question, do NOT request missing information. If a dimension you'd like was not covered by the topics above, simply leave it out and write the pitch from what you have.
 
-Now write THE PITCH: a personal preview of what Cairnly would dig into for this specific visitor. Requirements:
-- 90 to 140 words total, second person, in ${LANG_NAME[lang]}.
-- Ground every sentence in what they actually told you within the topics above. Reuse their own phrases where natural. Nothing generic that could apply to anyone.
+Now write THE PITCH: a short, personal bridge from what this visitor wants to what the Cairnly assessment would do for them. A product screenshot and a package card next to this message carry the excitement; you only bridge. Requirements:
+- 70 to 110 words total, second person, in ${LANG_NAME[lang]}.
+- NEVER read their answers back to them. No "you said", "you told me", "you mentioned" recitals, and no summarizing their answers. They know what they wrote. You may weave at most a few of their own words into a sentence where natural.
+- NEVER present an interpretation, diagnosis or verdict about who they are, what they are good at, or what their current job involves. Never infer their job, field, strengths or history from what they want to avoid or leave behind. Their actual work is whatever they stated in the conversation, nothing more.
 - Structure and formatting (use this exact shape):
-  (a) One or two sentences naming the core tension you heard.
-  (b) Then three threads Cairnly would pull on for them, formatted as EXACTLY three markdown bullet lines (each line starts with "- "). Begin each bullet with a short bold lead phrase wrapped in double asterisks, then the specifics tied to something they said. The three bullets must draw on DIFFERENT covered topics, not all circle the same one. Example line: "- **Where your judgment stays durable:** ...".
-  (c) Then one short closing sentence inviting them to continue, without pressure (an invitation, never a question).
-- WHAT CAIRNLY DOES, framed correctly: it finds career paths that genuinely FIT them and are realistic, and scores several of them. It does not exist to land one particular job.
-- THE DREAM JOB IS A SIGNAL, NOT THE DESTINATION. Treat any dream job they named as a clue to the DIRECTION they are drawn to (hands-on, outdoors, autonomy, creative, etc.), never as the fixed goal Cairnly will help them reach. Do NOT make the pitch about that one job. At most ONE of the three bullets may touch it, and only to say Cairnly would pressure-test it honestly (does it hold up on fit, feasibility and money, or does an adjacent or entirely different path suit them better). The assessment may well conclude the dream job is not the right move; the pitch must leave that door open, not imply they are getting that job.
-- Do NOT list what they walk away with or name the deliverables; a dashboard card beside this message already shows those. Do not use the word "report".`;
+  (a) One warm opening sentence acknowledging the reason they came, without repeating their answers.
+  (b) Two or three markdown bullet lines (each line starts with "- "). Each bullet connects ONE want or worry they expressed to ONE specific item from the PACKAGE list below, named in bold as the bullet's lead phrase (wrapped in double asterisks), followed by one concrete sentence on what that item would settle for them. Each bullet must draw on a DIFFERENT covered topic. Example line: "- **AI-impact ratings on every suggested role:** a clear read on which paths stay durable as AI reshapes the work you named."
+  (c) A send-off of at most two sentences: to really address this, Cairnly needs the fuller picture the full assessment builds, and everything shared here is already filled in if they continue. This conversation was only the doorway; the coaching chat inside the dashboard goes much deeper. An invitation, never a question, no pressure.
+- PACKAGE (the only capabilities you may name; use these words):
+  - Complete personality and career assessment
+  - AI analysis tailored to your goals
+  - Up to 12 suggested careers in 4 categories, each scored for personal match
+  - Localized salary ranges for every role
+  - AI-impact ratings on every suggested role
+  - A practical, step-by-step switching plan for each role
+  - Dream-job feasibility assessment
+  - Live job openings, a CV strength optimizer and cover letter help once a path is chosen
+- THE DREAM JOB IS A SIGNAL, NOT THE DESTINATION. If they named one, at most ONE bullet may touch it, and only via the dream-job feasibility assessment: it gets pressure-tested honestly (fit, feasibility, money), and the honest answer may be an adjacent or entirely different path. Never imply they are getting that job.
+- Name at most the two or three package items your bullets use; the card next to this message already lists everything else. Do not use the word "report".`;
 }
 
 export function postPitchSystem(lang: Lang): string {
@@ -566,7 +552,17 @@ ${CAIRNLY_FACTS}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
-Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS list, say plainly that you don't want to overpromise and that the dashboard itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
+THE PACKAGE (you may also confirm these; they are what the visitor's package card lists):
+- Complete personality and career assessment
+- AI analysis tailored to your goals
+- Up to 12 suggested careers in 4 categories, each scored for personal match
+- Localized salary ranges for every role
+- AI-impact ratings on every suggested role
+- A practical, step-by-step switching plan for each role
+- Dream-job feasibility assessment
+- Live job openings, a CV strength optimizer and cover letter help once a path is chosen
+
+Answer their question factually in at most 3 short sentences, in ${LANG_NAME[lang]}. If the answer is not covered by the FACTS or PACKAGE lists, say plainly that you don't want to overpromise and that the dashboard itself will show it. When natural, remind them their answers so far will already be filled in if they continue.`;
 }
 
 /** Fixed message when the turn cap is reached. No API call is made. */
@@ -615,7 +611,7 @@ export const EXTRACTION_TOOL = {
         type: 'array',
         items: { type: 'string', enum: [...CANON.longTermGoals] },
         maxItems: 3,
-        description: 'Their 5-10 year goals (max 3). Empty array if unclear.',
+        description: 'Only if they volunteered a long-view (5-10 year) ambition unprompted; usually empty (max 3).',
       },
       dream_job: {
         type: ['string', 'null'],
@@ -646,7 +642,7 @@ export const EXTRACTION_TOOL = {
       extra_context: {
         type: 'string',
         description:
-          "First-person paragraph (60-120 words) in the visitor's language: why they are looking, what is blocking them, what they dream of, their timeline. Written as if the visitor wrote it, reusing their phrasing. No em-dashes.",
+          "First-person paragraph (60-120 words) in the visitor's language: what work they do or did (their own words), why they are looking, what is blocking them, what they dream of, their timeline. Written as if the visitor wrote it, reusing their phrasing. No em-dashes.",
       },
       name: {
         type: ['string', 'null'],
@@ -664,17 +660,18 @@ export const EXTRACTION_TOOL = {
 /** Chip label → canonical survey value pairs, for the extraction prompt. */
 function chipMappingTable(): string {
   const lines: string[] = [];
-  // Index-aligned chip sets: universal beats 1-3 plus every pill-specific
-  // beat-3 variant (only one variant appears per conversation, but listing
-  // all keeps the table intent-agnostic).
+  // Index-aligned chip sets: universal beats 2-3, every pill-specific beat-3
+  // variant, and the beat-5 next-step chips (beat 1 is free text, no chips).
+  // Only one variant appears per conversation; listing all keeps the table
+  // intent-agnostic.
   const aligned: Array<[Beat | undefined, readonly string[]]> = [
-    [BEATS[0], CANON.careerSituation],
     [BEATS[1], CANON.primaryGoals],
     [BEATS[2], CANON.obstacles],
     [BEAT3_VARIANTS['ai-worried'], CANON.aiFamiliarity],
     [BEAT3_VARIANTS['good-at-it'], CANON.avoidAspects],
     [BEAT3_VARIANTS['life-changed'], CANON.schedule],
     [BEAT3_VARIANTS['understand-myself'], CANON.archetypes],
+    [BEATS[4], CANON.shortTermGoals],
   ];
   for (const [beat, canon] of aligned) {
     for (const l of ['en', 'nl'] as Lang[]) {
@@ -683,18 +680,6 @@ function chipMappingTable(): string {
         if (canon[i]) lines.push(`"${label}" -> ${JSON.stringify(canon[i])}`);
       });
     }
-  }
-  // Beat 5 mixes short-term and long-term goals; explicit pairs.
-  const horizon: Array<[string, string, string]> = [
-    ['Grow into (more) leadership', 'Doorgroeien naar (meer) leiderschap', `long_term_goals: ${JSON.stringify(CANON.longTermGoals[0])}`],
-    ['Go deep: expertise and recognition', 'De diepte in: expertise en erkenning', `long_term_goals: ${JSON.stringify(CANON.longTermGoals[1])}`],
-    ['Run my own business one day', 'Ooit een eigen bedrijf runnen', `long_term_goals: ${JSON.stringify(CANON.longTermGoals[2])}`],
-    ['More autonomy and freedom', 'Meer autonomie en vrijheid', `long_term_goals: ${JSON.stringify(CANON.longTermGoals[6])}`],
-    ['A promotion or better pay soon', 'Snel een promotie of beter salaris', `short_term_goals: ${JSON.stringify(CANON.shortTermGoals[3])}`],
-    ['Space for life next to work', 'Ruimte voor het leven naast werk', `short_term_goals: ${JSON.stringify(CANON.shortTermGoals[4])}`],
-  ];
-  for (const [en, nl, target] of horizon) {
-    lines.push(`"${en}" / "${nl}" -> ${target}`);
   }
   return lines.join('\n');
 }

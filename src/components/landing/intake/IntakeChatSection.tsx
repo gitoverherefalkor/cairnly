@@ -97,9 +97,16 @@ const IntakeChatPanel: React.FC = () => {
   const currentBeat = chat.stage === 'pitched' ? totalBeats + 1 : chat.beat ?? Math.min(userMsgCount, totalBeats);
 
   // Collapse everything except the latest exchange; the panel keeps a
-  // stable height instead of growing an inner scrollbar.
-  const hiddenMessages = showHistory ? [] : chat.messages.slice(0, -2);
-  const visibleMessages = showHistory ? chat.messages : chat.messages.slice(-2);
+  // stable height instead of growing an inner scrollbar. Once the pitch has
+  // landed, only the pitch bubble remains and the history stays sealed: the
+  // closing screen is pitch + screenshot + package card, nothing else.
+  const pitchedView = chat.stage === 'pitched';
+  const hiddenMessages = pitchedView || showHistory ? [] : chat.messages.slice(0, -2);
+  const visibleMessages = pitchedView
+    ? chat.messages.slice(-1)
+    : showHistory
+      ? chat.messages
+      : chat.messages.slice(-2);
 
   const submit = () => {
     if (!draft.trim() || chat.sending) return;
@@ -202,7 +209,7 @@ const IntakeChatPanel: React.FC = () => {
                 {t('intake.earlier', { count: hiddenMessages.length })}
               </button>
             )}
-            {showHistory && chat.messages.length > 2 && (
+            {!pitchedView && showHistory && chat.messages.length > 2 && (
               <button
                 type="button"
                 onClick={() => setShowHistory(false)}

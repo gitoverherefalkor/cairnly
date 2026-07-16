@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Lock } from 'lucide-react';
 import { useIntent, type IntentKey } from '@/contexts/IntentContext';
+import { useIntakeChatOptional } from './intake/IntakeChatContext';
+import { INTAKE_SHOT_ALT, INTAKE_SHOT_SRC, intakeShotFor, type IntakeShot } from './intake/intakeSlides';
 
 // Each slide is a real product screen. `slug` mirrors the app route that page
 // lives at (see src/App.tsx), so the fake browser URL bar reads like the
@@ -44,6 +46,25 @@ const SLIDES: Slide[] = [
   },
 ];
 
+// Intake close-ups: pinned while the intake chat runs (beat-synced via
+// intakeSlides.ts), excluded from the resting rotation below.
+const INTAKE_SHOT_ORDER: IntakeShot[] = ['dashboard', 'ai-impact', 'jobs-avoids', 'salary-steps', 'key-insight', 'radar'];
+const INTAKE_SLIDE_SLUG: Record<IntakeShot, string> = {
+  dashboard: 'dashboard',
+  'ai-impact': 'chat',
+  'jobs-avoids': 'jobs',
+  'salary-steps': 'dashboard',
+  'key-insight': 'chat',
+  radar: 'dashboard',
+};
+const INTAKE_BASE = SLIDES.length;
+const INTAKE_SLIDES: Slide[] = INTAKE_SHOT_ORDER.map((shot) => ({
+  src: INTAKE_SHOT_SRC[shot],
+  slug: INTAKE_SLIDE_SLUG[shot],
+  alt: INTAKE_SHOT_ALT[shot],
+}));
+const ALL_SLIDES = [...SLIDES, ...INTAKE_SLIDES];
+
 const ROTATE_MS = 4000;
 
 /**
@@ -71,10 +92,25 @@ const HeroCarousel: React.FC = () => {
   const [paused, setPaused] = useState(false);
   const reduceMotion = useRef(false);
 
-  // A pill click jumps the carousel to that intent's most relevant screen.
+  const intake = useIntakeChatOptional();
+  // The conversation's own intent wins: "Something else" starts an 'other'
+  // conversation while the pill intent (IntentContext) can lag behind.
+  const chatIntent = intake?.intent ?? intent;
+  // While the intake chat runs, pin the screen that answers the current beat.
+  const pinned =
+    intake?.started && intake.stage === 'chat' && intake.beat
+      ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(intakeShotFor(chatIntent, intake.beat))
+      : null;
+
+  // A pill click jumps the carousel to that intent's most relevant screen;
+  // once the chat is running, the beat decides instead.
   useEffect(() => {
-    setActive(INTENT_SLIDE[intent] ?? 0);
-  }, [intent]);
+    if (pinned === null) setActive(INTENT_SLIDE[intent] ?? 0);
+  }, [intent, pinned]);
+
+  useEffect(() => {
+    if (pinned !== null) setActive(pinned);
+  }, [pinned]);
 
   useEffect(() => {
     reduceMotion.current =
@@ -82,14 +118,18 @@ const HeroCarousel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (paused || reduceMotion.current) return;
+    if (paused || pinned !== null || reduceMotion.current) return;
     const id = window.setInterval(() => {
       setActive((i) => (i + 1) % SLIDES.length);
     }, ROTATE_MS);
     return () => window.clearInterval(id);
-  }, [paused]);
+  }, [paused, pinned]);
 
-  const slug = SLIDES[active].slug;
+  // At rest only the original six render (no intake-image preload); the intake
+  // close-ups join the stack once a conversation starts. Guarded lookup: for
+  // one render after a reset, `active` can still point at an intake index.
+  const stack = intake?.started ? ALL_SLIDES : SLIDES;
+  const slug = (stack[active] ?? stack[0]).slug;
 
   return (
     <div
@@ -132,7 +172,7 @@ const HeroCarousel: React.FC = () => {
 
         {/* Screenshot stage — images crossfade in place */}
         <div className="relative aspect-[16/10] bg-[#15262F]">
-          {SLIDES.map((s, i) => (
+          {stack.map((s, i) => (
             <img
               key={s.src}
               src={s.src}
@@ -148,20 +188,32 @@ const HeroCarousel: React.FC = () => {
       </div>
       </div>
 
-      {/* Progress indicators */}
-      <div className="mt-5 flex items-center justify-center gap-2">
-        {SLIDES.map((s, i) => (
-          <button
-            key={i}
-            type="button"
-            aria-label={`Show ${s.slug} screenshot`}
-            aria-current={i === active}
-            onClick={() => setActive(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === active ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
-            }`}
-          />
-        ))}
+      {/* Progress indicators — always the resting six; while an intake slide
+          is pinned, `active` points past the end of SLIDES so none light up,
+          and the dots go inert (the beat owns the carousel until reset). */}
+      <div
+        className={`mt-5 flex items-center justify-center gap-2 transition-opacity duration-300 ${
+          pinned !== null ? 'pointer-events-none opacity-40' : ''
+        }`}
+      >
+        {SLIDES.map((s, i) => {
+          const restingActive = active < SLIDES.length ? active : -1;
+          return (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Show ${s.slug} screenshot`}
+              aria-current={i === restingActive}
+              disabled={pinned !== null}
+              onClick={() => {
+                if (pinned === null) setActive(i);
+              }}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === restingActive ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
+              }`}
+            />
+          );
+        })}
       </div>
     </div>
   );

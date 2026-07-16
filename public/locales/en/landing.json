@@ -510,11 +510,11 @@
     "seedLabel": "Your opening message, edit it or send it as is",
     "seedPlaceholder": "Tell us in your own words what brings you here…",
     "beats": {
-      "1": "Where you are",
+      "1": "Your work today",
       "2": "What's driving this",
       "3": "What's in the way",
       "4": "Your dream job",
-      "5": "Your horizon"
+      "5": "Your next step"
     },
     "other": "Something else…",
     "chipsConfirm": "That's it →",
