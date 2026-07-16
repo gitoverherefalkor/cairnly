@@ -7,7 +7,7 @@ describe('intakeShotFor', () => {
     expect(intakeShotFor('good-at-it', 3)).toBe('jobs-avoids');
   });
   it('pins the AI-impact screen on the ai-worried fluency beat', () => {
-    expect(intakeShotFor('ai-worried', 2)).toBe('ai-impact');
+    expect(intakeShotFor('ai-worried', 3)).toBe('ai-impact');
   });
   it('pins salary/steps on the life-changed schedule beat', () => {
     expect(intakeShotFor('life-changed', 3)).toBe('salary-steps');

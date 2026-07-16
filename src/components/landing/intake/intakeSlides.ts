@@ -45,7 +45,7 @@ export const PLANS: Record<string, (IntakeShot | null)[]> = {
   // their pill-matched resting slide through the early beats.
   default: ['dashboard', null, null, DREAM, 'radar'],
   'good-at-it': [null, null, 'jobs-avoids', DREAM, 'radar'],
-  'ai-worried': [null, 'ai-impact', DREAM, 'radar'],
+  'ai-worried': [null, null, 'ai-impact', DREAM, 'radar'],
   'life-changed': ['dashboard', null, 'salary-steps', DREAM],
   'understand-myself': [null, null, 'key-insight', DREAM, 'radar'],
   other: [null, null, null, DREAM, 'radar'],

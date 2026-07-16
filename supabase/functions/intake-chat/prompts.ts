@@ -427,14 +427,16 @@ export const BEAT3_VARIANTS: Partial<Record<IntentKey, Beat>> = {
 
 /**
  * The beat plan per intent. Lengths vary deliberately:
- * - ai-worried skips the generic driver beat (the pill IS the driver).
  * - life-changed skips the next-step beat (mid-upheaval, keep it light; schedule is their pressing question).
- * - the rest run the full five-beat arc.
+ * - the rest run the full five-beat arc. ai-worried includes the driver beat
+ *   because the AI worry is the trigger, not the goal — underneath it sits one
+ *   of the Q5 drivers (fit, balance, strengths, burnout), and asking keeps the
+ *   survey's primary-goals question pre-fillable for this intent.
  */
 export function beatsFor(intent: IntentKey): Beat[] {
   switch (intent) {
     case 'ai-worried':
-      return [BEATS[0], BEAT3_VARIANTS['ai-worried']!, BEATS[3], BEATS[4]];
+      return [BEATS[0], BEATS[1], BEAT3_VARIANTS['ai-worried']!, BEATS[3], BEATS[4]];
     case 'life-changed':
       return [BEATS[0], BEATS[1], BEAT3_VARIANTS['life-changed']!, BEATS[3]];
     case 'good-at-it':
