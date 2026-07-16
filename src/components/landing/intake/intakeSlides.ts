@@ -30,24 +30,28 @@ export const INTAKE_SHOT_ALT: Record<IntakeShot, string> = {
   radar: 'Radar chart comparing top career matches',
 };
 
-// Dream-job beat: no dedicated Dream Job Analysis capture yet; the dashboard
-// (which lists the dream jobs) stands in until one is added.
-const DREAM: IntakeShot = 'dashboard';
+// Dream-job beat: no dedicated Dream Job Analysis capture yet; null leaves
+// the visitor's current screen in place until one is added.
+const DREAM: IntakeShot | null = null;
 
 /** Per-intent beat plans (beat 1 first), mirroring beatsFor() server-side.
- * Exported for the server-drift test; not part of the component API. */
-export const PLANS: Record<string, IntakeShot[]> = {
-  default: ['dashboard', 'dashboard', 'dashboard', DREAM, 'radar'],
-  'good-at-it': ['dashboard', 'dashboard', 'jobs-avoids', DREAM, 'radar'],
-  'ai-worried': ['dashboard', 'ai-impact', DREAM, 'radar'],
-  'life-changed': ['dashboard', 'dashboard', 'salary-steps', DREAM],
-  'understand-myself': ['dashboard', 'dashboard', 'key-insight', DREAM, 'radar'],
-  other: ['dashboard', 'dashboard', 'dashboard', DREAM, 'radar'],
+ * `null` means "this beat has no specific screen: leave the carousel where it
+ * is" — early beats keep the pill-matched slide instead of all snapping to
+ * the same dashboard shot. Exported for the server-drift test; not part of
+ * the component API. */
+export const PLANS: Record<string, (IntakeShot | null)[]> = {
+  default: [null, null, null, DREAM, 'radar'],
+  'good-at-it': [null, null, 'jobs-avoids', DREAM, 'radar'],
+  'ai-worried': [null, 'ai-impact', DREAM, 'radar'],
+  'life-changed': [null, null, 'salary-steps', DREAM],
+  'understand-myself': [null, null, 'key-insight', DREAM, 'radar'],
+  other: [null, null, null, DREAM, 'radar'],
 };
 
-export function intakeShotFor(intent: string, beat: number): IntakeShot {
+/** The shot a beat should pin, or null when the beat has no opinion. */
+export function intakeShotFor(intent: string, beat: number): IntakeShot | null {
   const plan = PLANS[intent] ?? PLANS.default;
-  return plan[beat - 1] ?? 'dashboard';
+  return plan[beat - 1] ?? null;
 }
 
 /** Which shot closes the funnel per intent, once the pitch lands. */

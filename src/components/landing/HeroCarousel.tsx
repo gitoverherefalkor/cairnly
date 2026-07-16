@@ -96,17 +96,23 @@ const HeroCarousel: React.FC = () => {
   // The conversation's own intent wins: "Something else" starts an 'other'
   // conversation while the pill intent (IntentContext) can lag behind.
   const chatIntent = intake?.intent ?? intent;
-  // While the intake chat runs, pin the screen that answers the current beat.
-  const pinned =
-    intake?.started && intake.stage === 'chat' && intake.beat
-      ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(intakeShotFor(chatIntent, intake.beat))
-      : null;
+  // While the chat runs the carousel holds still (auto-rotation is
+  // distracting mid-conversation); the visitor may still flip slides by hand.
+  // `sending` counts too: it flips true the instant a pill is clicked, so a
+  // stray rotation tick can't shove the pill-matched slide aside while the
+  // opener is still on its way.
+  const chatRunning = !!intake && ((intake.started && intake.stage === 'chat') || intake.sending);
+  // A beat with a specific screen pins it; null beats leave the slide alone,
+  // so the pill-matched screen stays up through the early questions.
+  const beatShot = chatRunning && intake?.beat ? intakeShotFor(chatIntent, intake.beat) : null;
+  const pinned = beatShot ? INTAKE_BASE + INTAKE_SHOT_ORDER.indexOf(beatShot) : null;
 
-  // A pill click jumps the carousel to that intent's most relevant screen;
-  // once the chat is running, the beat decides instead.
+  // A pill click jumps the carousel to that intent's most relevant screen.
+  // Deliberately NOT re-run when `pinned` clears: a beat without a specific
+  // screen keeps whatever is showing rather than snapping back.
   useEffect(() => {
-    if (pinned === null) setActive(INTENT_SLIDE[intent] ?? 0);
-  }, [intent, pinned]);
+    setActive(INTENT_SLIDE[intent] ?? 0);
+  }, [intent]);
 
   useEffect(() => {
     if (pinned !== null) setActive(pinned);
@@ -118,12 +124,12 @@ const HeroCarousel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (paused || pinned !== null || reduceMotion.current) return;
+    if (paused || chatRunning || reduceMotion.current) return;
     const id = window.setInterval(() => {
       setActive((i) => (i + 1) % SLIDES.length);
     }, ROTATE_MS);
     return () => window.clearInterval(id);
-  }, [paused, pinned]);
+  }, [paused, chatRunning]);
 
   // At rest only the original six render (no intake-image preload); the intake
   // close-ups join the stack once a conversation starts. Guarded lookup: for
@@ -192,10 +198,11 @@ const HeroCarousel: React.FC = () => {
           is pinned, `active` points past the end of SLIDES so none light up,
           and the dots go inert (the beat owns the carousel until reset). */}
       <div
-        className={`mt-5 flex items-center justify-center gap-2 transition-opacity duration-300 ${
-          pinned !== null ? 'pointer-events-none opacity-40' : ''
-        }`}
+        className="mt-5 flex items-center justify-center gap-2"
       >
+        {/* Manual flipping stays available during the chat; only the
+            auto-rotation stops. The next beat with a specific screen simply
+            re-pins over whatever the visitor picked. */}
         {SLIDES.map((s, i) => {
           const restingActive = active < SLIDES.length ? active : -1;
           return (
@@ -204,10 +211,7 @@ const HeroCarousel: React.FC = () => {
               type="button"
               aria-label={`Show ${s.slug} screenshot`}
               aria-current={i === restingActive}
-              disabled={pinned !== null}
-              onClick={() => {
-                if (pinned === null) setActive(i);
-              }}
+              onClick={() => setActive(i)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === restingActive ? 'w-7 bg-[#D4A024]' : 'w-4 bg-white/20 hover:bg-white/35'
               }`}

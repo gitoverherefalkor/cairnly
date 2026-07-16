@@ -15,10 +15,12 @@ describe('intakeShotFor', () => {
   it('pins the key-insight screen on the understand-myself archetypes beat', () => {
     expect(intakeShotFor('understand-myself', 3)).toBe('key-insight');
   });
-  it('falls back to the dashboard for unknown intents and out-of-range beats', () => {
-    expect(intakeShotFor('other', 2)).toBe('dashboard');
-    expect(intakeShotFor('nonsense', 1)).toBe('dashboard');
-    expect(intakeShotFor('good-at-it', 99)).toBe('dashboard');
+  it('leaves the carousel alone (null) on beats without a specific screen', () => {
+    expect(intakeShotFor('good-at-it', 1)).toBeNull(); // grounding beat keeps the pill slide
+    expect(intakeShotFor('other', 2)).toBeNull();
+    expect(intakeShotFor('nonsense', 1)).toBeNull();
+    expect(intakeShotFor('good-at-it', 4)).toBeNull(); // dream beat: no capture yet
+    expect(intakeShotFor('good-at-it', 99)).toBeNull(); // out of range
   });
   it('has an image path for every shot and every pitch intent', () => {
     Object.values(INTAKE_SHOT_SRC).forEach((src) => expect(src).toMatch(/^\/images\/live\/landing\/intake\/.+\.jpg$/));
