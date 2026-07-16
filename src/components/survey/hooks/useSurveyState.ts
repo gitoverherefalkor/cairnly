@@ -40,25 +40,13 @@ export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
     const localResponses: Record<string, any> = storedSession?.responses || {};
     const localKeyCount = Object.keys(localResponses).length;
 
-    const applyFromLocal = () => {
-      if (!storedSession) return;
-      setResponses(localResponses);
-      setCurrentSectionIndex(storedSession.currentSectionIndex || 0);
-      setCurrentQuestionIndex(storedSession.currentQuestionIndex || 0);
-      setShowSectionIntro(storedSession.showSectionIntro ?? true);
-      setCompletedSections(storedSession.completedSections || []);
-      const submissionData = storedSession as any;
-      if (submissionData.submissionStatus) {
-        setSubmissionStatus(submissionData.submissionStatus);
-      }
-    };
-
-    const applyFromDb = (savedResponses: Record<string, any>, status?: string) => {
-      setResponses(savedResponses);
-      if (status === 'submitted') {
-        setSubmissionStatus('submitted');
-      }
-
+    // Re-derive the resume cursor (section + question index) and the set of
+    // completed sections purely from a set of answers, by walking the LIVE
+    // survey structure. Resuming lands on the first still-unanswered question.
+    // Deriving instead of trusting any stored index means a stale snapshot
+    // can't point at the wrong — or an out-of-range — question if the survey's
+    // questions changed since it was saved.
+    const deriveResumePosition = (savedResponses: Record<string, any>) => {
       let resumeSectionIdx = 0;
       let resumeQIdx = 0;
       let found = false;
@@ -97,10 +85,40 @@ export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
         resumeQIdx = Math.max(0, lastQuestions.length - 1);
       }
 
+      return { resumeSectionIdx, resumeQIdx, completed };
+    };
+
+    const applyPosition = (savedResponses: Record<string, any>) => {
+      const { resumeSectionIdx, resumeQIdx, completed } =
+        deriveResumePosition(savedResponses);
       setCurrentSectionIndex(resumeSectionIdx);
       setCurrentQuestionIndex(resumeQIdx);
       setShowSectionIntro(resumeQIdx === 0);
       setCompletedSections(completed);
+    };
+
+    const applyFromLocal = () => {
+      if (!storedSession) return;
+      setResponses(localResponses);
+      // Derive the cursor from the live survey rather than restoring the raw
+      // stored currentSectionIndex/currentQuestionIndex. A local snapshot can
+      // be days old; if the survey changed since (question added / removed /
+      // reordered) the stored indices may be wrong or out of range, and
+      // SurveyForm indexes survey.sections[idx] with no bounds check. This
+      // self-heals the same way the DB path does.
+      applyPosition(localResponses);
+      const submissionData = storedSession as any;
+      if (submissionData.submissionStatus) {
+        setSubmissionStatus(submissionData.submissionStatus);
+      }
+    };
+
+    const applyFromDb = (savedResponses: Record<string, any>, status?: string) => {
+      setResponses(savedResponses);
+      if (status === 'submitted') {
+        setSubmissionStatus('submitted');
+      }
+      applyPosition(savedResponses);
     };
 
     // No access code → no per-user scope, so don't restore anything from

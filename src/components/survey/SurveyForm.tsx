@@ -119,6 +119,18 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     setShowIncompleteHint(false);
   }, [currentSectionIndex, currentQuestionIndex, showSectionIntro]);
 
+  // Scroll back to the top on every question / section-intro change. A tall
+  // question can leave the page scrolled down; without this the next question
+  // renders mid-page and the user has to scroll up to read it from the start
+  // (reported in beta feedback). Instant (not smooth) so the new question is
+  // already at the top by the time it paints, with no visible scroll animation
+  // fighting the content swap. The validation-error path scrolls to the first
+  // invalid field instead, and doesn't change these indices, so the two never
+  // collide.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentSectionIndex, currentQuestionIndex, showSectionIntro]);
+
   // Engagement tracking for reminder emails
   const { trackSurveyStart, trackSurveyProgress, trackSurveyQuestionProgress, trackSurveyComplete } =
     useEngagementTracking();
