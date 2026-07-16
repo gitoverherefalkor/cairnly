@@ -29,7 +29,7 @@ const ReportDeliverablesCard: React.FC = () => {
 
   return (
     <div
-      className="relative mx-auto w-full max-w-[480px] overflow-hidden"
+      className="relative mx-auto w-full max-w-2xl overflow-hidden"
       style={{
         background: 'rgba(18, 46, 59, 0.62)',
         backdropFilter: 'blur(18px)',
@@ -52,7 +52,7 @@ const ReportDeliverablesCard: React.FC = () => {
       />
 
       <div className="relative flex flex-col gap-5 p-7">
-        {/* Eyebrow + title */}
+        {/* Eyebrow + title, spanning both columns */}
         <div className="flex flex-col gap-2">
           <Eyebrow>{t('pricing.eyebrow')}</Eyebrow>
           <h3
@@ -70,108 +70,118 @@ const ReportDeliverablesCard: React.FC = () => {
           </h3>
         </div>
 
-        {/* Deliverables */}
-        <ul className="flex flex-col gap-2.5">
-          {features.map((f) => (
-            <li key={f} className="flex items-start gap-3">
-              <CheckCircle2 size={17} strokeWidth={2.2} color="#2ABFBF" className="mt-0.5 shrink-0" />
-              <span
-                style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, lineHeight: 1.45, color: 'rgba(255,255,255,0.88)' }}
+        {/* Two columns, mirroring the pricing section: value list left, price
+            panel right. Stacks on small screens. */}
+        <div className="flex flex-col gap-6 sm:flex-row">
+          {/* Left: deliverables + pill preview + bonus tools */}
+          <div className="flex min-w-0 flex-1 flex-col gap-5">
+            <ul className="flex flex-col gap-2.5">
+              {features.map((f) => (
+                <li key={f} className="flex items-start gap-3">
+                  <CheckCircle2 size={17} strokeWidth={2.2} color="#2ABFBF" className="mt-0.5 shrink-0" />
+                  <span
+                    style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, lineHeight: 1.45, color: 'rgba(255,255,255,0.88)' }}
+                  >
+                    {f}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Live example of the rating pills on every suggested role */}
+            <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(9,26,35,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <p
+                className="mb-2.5"
+                style={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.5)',
+                }}
               >
-                {f}
-              </span>
-            </li>
-          ))}
-        </ul>
+                {t('pricing.pillPreviewLabel')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <MatchPill pct={87} />
+                <MovePill level="Reframe" />
+                <AIImpactPill label="Minimal" />
+              </div>
+            </div>
 
-        {/* Live example of the rating pills on every suggested role */}
-        <div className="rounded-2xl px-4 py-3.5" style={{ background: 'rgba(9,26,35,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p
-            className="mb-2.5"
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.5)',
-            }}
-          >
-            {t('pricing.pillPreviewLabel')}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <MatchPill pct={87} />
-            <MovePill level="Reframe" />
-            <AIImpactPill label="Minimal" />
+            {/* Bonus tools */}
+            <ul className="flex flex-col gap-2.5">
+              {bonusItems.map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <Sparkles size={17} strokeWidth={2.2} color="#EFBE48" className="mt-0.5 shrink-0" />
+                  <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13.5, lineHeight: 1.45, color: '#EFBE48' }}>
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
 
-        {/* Bonus tools */}
-        <ul className="flex flex-col gap-2.5">
-          {bonusItems.map((item) => (
-            <li key={item} className="flex items-start gap-3">
-              <Sparkles size={17} strokeWidth={2.2} color="#EFBE48" className="mt-0.5 shrink-0" />
-              <span style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13.5, lineHeight: 1.45, color: '#EFBE48' }}>
-                {item}
+          {/* Right: price + CTA panel, vertically centered like the pricing
+              section's cream panel. Border flips top→left when columns kick in. */}
+          <div
+            className="flex flex-col items-center justify-center gap-1 border-t pt-5 sm:w-[220px] sm:shrink-0 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0"
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            <span
+              className="whitespace-nowrap rounded-full px-4 py-1.5"
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                background: '#D4A024',
+                color: '#1A1A1A',
+              }}
+            >
+              {t('pricing.betaPill')}
+            </span>
+            <div className="mt-3 flex items-end gap-3">
+              <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
+                {t('pricing.originalPrice')}
               </span>
-            </li>
-          ))}
-        </ul>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 44, lineHeight: 1, letterSpacing: '-0.02em', color: '#fff' }}>
+                {t('pricing.price')}
+              </span>
+            </div>
+            <p
+              style={{
+                fontFamily: FONT_BODY,
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.45)',
+              }}
+            >
+              {t('pricing.oneOff')}
+            </p>
 
-        {/* Price + CTA footer */}
-        <div className="flex flex-col items-center gap-1 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 18 }}>
-          <span
-            className="rounded-full px-4 py-1.5"
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              background: '#D4A024',
-              color: '#1A1A1A',
-            }}
-          >
-            {t('pricing.betaPill')}
-          </span>
-          <div className="mt-3 flex items-end gap-3">
-            <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
-              {t('pricing.originalPrice')}
-            </span>
-            <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 44, lineHeight: 1, letterSpacing: '-0.02em', color: '#fff' }}>
-              {t('pricing.price')}
-            </span>
-          </div>
-          <p
-            style={{
-              fontFamily: FONT_BODY,
-              fontWeight: 700,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.45)',
-            }}
-          >
-            {t('pricing.oneOff')}
-          </p>
+            <button
+              type="button"
+              onClick={() => navigate('/payment')}
+              className="lp-btn-primary mt-4 w-full justify-center"
+              style={{ fontSize: 15, padding: '14px 18px' }}
+            >
+              {t('pricing.cta')}
+              <ArrowRight size={17} strokeWidth={2.4} />
+            </button>
+            <p className="mt-2 text-center text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              {t('intake.ctaNote')}
+            </p>
 
-          <button
-            type="button"
-            onClick={() => navigate('/payment')}
-            className="lp-btn-primary mt-4 w-full justify-center"
-            style={{ fontSize: 16, padding: '16px 22px' }}
-          >
-            {t('pricing.cta')}
-            <ArrowRight size={18} strokeWidth={2.4} />
-          </button>
-          <p className="mt-2 text-center text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            {t('intake.ctaNote')}
-          </p>
-
-          <div className="mt-3 flex items-center justify-center gap-5 text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            <span className="flex items-center gap-1.5"><Lock size={13} strokeWidth={2} />{t('pricing.trust.stripe')}</span>
-            <span className="flex items-center gap-1.5"><Shield size={13} strokeWidth={2} />{t('pricing.trust.gdpr')}</span>
-            <span className="flex items-center gap-1.5"><ClipboardCheck size={13} strokeWidth={2} />{t('pricing.trust.noSub')}</span>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11.5px] font-semibold" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <span className="flex items-center gap-1.5"><Lock size={13} strokeWidth={2} />{t('pricing.trust.stripe')}</span>
+              <span className="flex items-center gap-1.5"><Shield size={13} strokeWidth={2} />{t('pricing.trust.gdpr')}</span>
+              <span className="flex items-center gap-1.5"><ClipboardCheck size={13} strokeWidth={2} />{t('pricing.trust.noSub')}</span>
+            </div>
           </div>
         </div>
       </div>
