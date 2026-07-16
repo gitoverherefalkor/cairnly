@@ -492,12 +492,6 @@
     "continuePill": "Ga verder met ons gesprek",
     "typing": "Cairnly is aan het typen",
     "error": "Dat kwam niet door. Probeer het nog eens?",
-    "emailTitle": "Nog niet zover, of wissel je van apparaat?",
-    "emailBody": "Laat je e-mailadres achter en we bewaren dit gesprek en je voortgang, zodat je het elk moment kunt oppakken.",
-    "emailPlaceholder": "jij@voorbeeld.nl",
-    "emailSubmit": "Mail 't",
-    "emailLater": "Misschien later",
-    "emailSaved": "Bewaard. Check je inbox voor je persoonlijke link.",
     "ctaCheckout": "Start het volledige assessment",
     "ctaNote": "Je antwoorden gaan mee",
     "seeds": {
@@ -549,7 +543,6 @@
     "pickCounter": "{{count}} van {{max}} gekozen",
     "restingInvite": "Wat brengt je hier? Tik hierboven een optie aan, of vertel het in je eigen woorden.",
     "restingPlaceholder": "Vertel me wat je hier brengt…",
-    "ctaLabel": "Start het volledige assessment",
-    "emailHint": "We mailen je gesprek, zodat je op elk apparaat verder kunt."
+    "ctaLabel": "Start het volledige assessment"
   }
 }

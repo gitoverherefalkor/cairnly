@@ -492,12 +492,6 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "emailTitle": "Not ready, or switching device?",
-    "emailBody": "Leave your email and we'll save this conversation and your progress, so you can pick it up any time.",
-    "emailPlaceholder": "you@example.com",
-    "emailSubmit": "Email it",
-    "emailLater": "Maybe later",
-    "emailSaved": "Saved. Check your inbox for your personal link.",
     "ctaCheckout": "Start full assessment",
     "ctaNote": "Your answers carry over",
     "seeds": {
@@ -549,7 +543,6 @@
     "pickCounter": "{{count}} of {{max}} picked",
     "restingInvite": "What brings you here? Tap one of the options above, or tell me in your own words.",
     "restingPlaceholder": "Tell me what brings you here…",
-    "ctaLabel": "Start full assessment",
-    "emailHint": "We'll email your conversation so you can pick up on any device."
+    "ctaLabel": "Start full assessment"
   }
 }

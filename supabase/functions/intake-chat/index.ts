@@ -1,9 +1,11 @@
 // intake-chat — anonymous landing-page intake conversation.
 //
 // The pre-payment funnel warm-up: an agent-led chat that asks ~5 intake
-// questions, delivers a personalized pitch, captures an email for a
-// magic-link resume, and produces a mapper-compatible extraction that
-// pre-fills the survey after purchase (same rails as the resume upload).
+// questions, delivers a personalized pitch, and produces a mapper-compatible
+// extraction that pre-fills the survey after purchase (same rails as the
+// resume upload). Persistence is browser-local only (see intakeApi.ts):
+// there is no email capture or magic-link resume; a visitor who leaves
+// either signs up to save real progress, or starts over / skips to checkout.
 //
 // Control is SERVER-SIDE: this function counts user turns and decides which
 // phase the conversation is in (Q&A -> pitch -> post-pitch -> close). The
@@ -15,26 +17,17 @@
 //   - 600-char cap per message, session token budget
 //   - scope-locked system prompts (see prompts.ts)
 //
-// Secrets used: ANTHROPIC_API_KEY, RESEND_API_KEY, SUPABASE_URL,
-// SUPABASE_SERVICE_ROLE_KEY (all already configured for other functions).
+// Secrets used: ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+// (all already configured for other functions).
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resend } from 'https://esm.sh/resend@2.0.0';
 import {
   getCorsHeaders,
   handleCorsPreFlight,
   errorResponse,
   checkRateLimit,
 } from '../_shared/cors.ts';
-import {
-  renderEmail,
-  bodyRow,
-  ctaRow,
-  h1,
-  paragraph,
-  escapeHtml,
-} from '../_shared/email-chrome.ts';
 import {
   type Lang,
   type IntentKey,
@@ -53,14 +46,12 @@ import {
   extractionSystem,
   EXTRACTION_TOOL,
   CLOSE_MESSAGE,
-  EMAIL_COPY,
 } from './prompts.ts';
 
 const MODEL = 'claude-sonnet-5'; // NOTE: never send `temperature` to sonnet-5 (API rejects it)
 const MAX_USER_TURNS = 12; // hard stop per session
 const MAX_MESSAGE_CHARS = 600;
 const MAX_SESSION_TOKENS = 60_000; // input+output budget across the session
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface TranscriptMessage {
@@ -406,7 +397,7 @@ async function advanceConversation(
       messages: transcript,
       user_turns: userTurns,
       total_tokens: row.total_tokens + tokens,
-      status: stage === 'pitched' ? (row.status === 'email_captured' ? 'email_captured' : 'pitched') : row.status,
+      status: stage === 'pitched' ? 'pitched' : row.status,
       pitch,
       extraction,
       updated_at: new Date().toISOString(),
@@ -424,88 +415,6 @@ async function advanceConversation(
       beat,
       chips,
       prefill: stage === 'pitched' ? prefillFromExtraction(extraction) : null,
-    },
-    corsHeaders,
-  );
-}
-
-async function handleEmail(body: Record<string, unknown>, corsHeaders: Record<string, string>, origin: string): Promise<Response> {
-  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
-  if (!EMAIL_RE.test(email) || email.length > 254) {
-    return errorResponse('Invalid email address', 400, corsHeaders);
-  }
-  const row = await getSession(String(body.sessionId ?? ''));
-  if (!row) return errorResponse('Unknown session', 404, corsHeaders);
-
-  const { error: updateError } = await supabase
-    .from('intake_sessions')
-    .update({ email, status: 'email_captured', updated_at: new Date().toISOString() })
-    .eq('id', row.id);
-  if (updateError) {
-    console.error('[intake-chat] email update failed:', updateError.message);
-    return errorResponse('Could not save your email', 500, corsHeaders);
-  }
-
-  const lang = sanitizeLang(row.language);
-  const copy = EMAIL_COPY[lang];
-  const name = typeof row.extraction?.name === 'string' ? (row.extraction.name as string) : null;
-  const link = `${origin}/?intake=${row.resume_token}`;
-  const pitchHtml = row.pitch
-    ? paragraph(escapeHtml(row.pitch).replace(/\n+/g, '<br/><br/>'))
-    : '';
-  const html = renderEmail({
-    title: copy.title,
-    preheader: copy.preheader,
-    bodyHtml:
-      bodyRow(h1(copy.heading(name)) + paragraph(copy.intro) + pitchHtml + paragraph(copy.outro)) +
-      ctaRow(copy.cta, link),
-  });
-  try {
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-    const { error: sendError } = await resend.emails.send({
-      from: 'Cairnly <no-reply@cairnly.io>',
-      to: [email],
-      subject: copy.subject,
-      html,
-    });
-    if (sendError) console.error('[intake-chat] email send failed:', sendError);
-  } catch (e) {
-    // Email is a courtesy; the funnel continues even if it fails.
-    console.error('[intake-chat] email send threw:', e);
-  }
-  return json({ ok: true }, corsHeaders);
-}
-
-async function handleResume(body: Record<string, unknown>, corsHeaders: Record<string, string>): Promise<Response> {
-  const token = String(body.token ?? '');
-  if (!UUID_RE.test(token)) return errorResponse('Invalid link', 400, corsHeaders);
-  const { data, error } = await supabase
-    .from('intake_sessions')
-    .select('*')
-    .eq('resume_token', token)
-    .maybeSingle();
-  if (error || !data) return errorResponse('Invalid link', 404, corsHeaders);
-  const row = data as SessionRow;
-  const resumeLang = sanitizeLang(row.language);
-  const resumeIntent: IntentKey = VALID_INTENTS.includes(row.intent as IntentKey) ? (row.intent as IntentKey) : 'default';
-  const resumePlan = beatsFor(resumeIntent);
-  const midBeat = row.status === 'active' && row.user_turns >= 1 && row.user_turns <= resumePlan.length
-    ? row.user_turns
-    : null;
-  return json(
-    {
-      sessionId: row.id,
-      messages: (row.messages as TranscriptMessage[]).map((m) => ({ role: m.role, text: m.text })),
-      stage: row.status === 'active' ? 'chat' : 'pitched',
-      beat: midBeat,
-      chips: midBeat ? resumePlan[midBeat - 1].chips?.[resumeLang] ?? null : null,
-      totalBeats: resumePlan.length,
-      beatLabels: beatLabels(resumeIntent, resumeLang),
-      emailCaptured: row.status === 'email_captured',
-      intent: row.intent,
-      language: row.language,
-      prefill: prefillFromExtraction(row.extraction),
-      contact: { email: row.email, firstName: typeof row.extraction?.name === 'string' ? row.extraction.name : null },
     },
     corsHeaders,
   );
@@ -529,19 +438,11 @@ serve(async (req) => {
     return errorResponse('Invalid JSON', 400, corsHeaders);
   }
 
-  // Origin for the magic link: the CORS layer already resolved the caller's
-  // origin to an allowed value (falls back to https://cairnly.io).
-  const origin = corsHeaders['Access-Control-Allow-Origin'] || 'https://cairnly.io';
-
   switch (body.action) {
     case 'start':
       return await handleStart(body, corsHeaders);
     case 'message':
       return await handleMessage(body, corsHeaders);
-    case 'email':
-      return await handleEmail(body, corsHeaders, origin);
-    case 'resume':
-      return await handleResume(body, corsHeaders);
     default:
       return errorResponse('Unknown action', 400, corsHeaders);
   }

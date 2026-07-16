@@ -41,21 +41,6 @@ interface StartResponse extends MessageResponse {
   beatLabels: string[];
 }
 
-interface ResumeResponse {
-  sessionId: string;
-  messages: IntakeMessage[];
-  stage: IntakeStage;
-  emailCaptured: boolean;
-  beat: number | null;
-  chips: IntakeChips | null;
-  totalBeats: number;
-  beatLabels: string[];
-  intent: string;
-  language: string;
-  prefill: IntakePrefill | null;
-  contact: { email: string | null; firstName: string | null };
-}
-
 async function invoke<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('intake-chat', { body });
   if (error) throw new Error(error.message || 'intake-chat failed');
@@ -68,9 +53,6 @@ export const intakeApi = {
     invoke<StartResponse>({ action: 'start', intent, language, source, text, seeded }),
   message: (sessionId: string, text: string) =>
     invoke<MessageResponse>({ action: 'message', sessionId, text }),
-  email: (sessionId: string, email: string) =>
-    invoke<{ ok: boolean }>({ action: 'email', sessionId, email }),
-  resume: (token: string) => invoke<ResumeResponse>({ action: 'resume', token }),
 };
 
 // ── localStorage keys shared with the survey pre-fill + checkout ────────────

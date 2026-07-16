@@ -30,7 +30,6 @@ interface IntakeChatValue {
   stage: IntakeStage;
   /** The conversation's intent as sent to the server; null before start (falls back to the pill intent). */
   intent: string | null;
-  emailCaptured: boolean;
   messages: IntakeMessage[];
   /** Which of the 5 beats is currently being asked (null before start / after pitch). */
   beat: number | null;
@@ -51,9 +50,6 @@ interface IntakeChatValue {
    */
   startFromPill: (intent: string, seedText: string) => void;
   sendMessage: (text: string) => void;
-  submitEmail: (email: string) => Promise<boolean>;
-  /** Restores a session from a magic-link token, then scrolls to the chat. */
-  openFromToken: (token: string) => void;
   /** Scrolls the chat section into view (used by the Get Started CTA). */
   focusChat: () => void;
   /** Tears the conversation back down to the resting state (used by "Something else"). */
@@ -73,7 +69,6 @@ interface PersistedSession {
   sessionId: string;
   messages: IntakeMessage[];
   stage: IntakeStage;
-  emailCaptured: boolean;
   /** Current beat + its answer options: without these, a reload would
       restore the conversation but silently drop the options panel. */
   beat?: number | null;
@@ -106,7 +101,6 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [messages, setMessages] = useState<IntakeMessage[]>(persisted.current?.messages ?? []);
   const [stage, setStage] = useState<IntakeStage>(persisted.current?.stage ?? 'chat');
   const [intent, setIntent] = useState<string | null>(persisted.current?.intent ?? null);
-  const [emailCaptured, setEmailCaptured] = useState(persisted.current?.emailCaptured ?? false);
   const [beat, setBeat] = useState<number | null>(persisted.current?.beat ?? null);
   const [chips, setChips] = useState<IntakeChips | null>(persisted.current?.chips ?? null);
   const [totalBeats, setTotalBeats] = useState<number>(persisted.current?.totalBeats ?? 5);
@@ -124,12 +118,12 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       localStorage.setItem(
         INTAKE_SESSION_KEY,
-        JSON.stringify({ sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels, intent } satisfies PersistedSession),
+        JSON.stringify({ sessionId, messages, stage, beat, chips, totalBeats, beatLabels, intent } satisfies PersistedSession),
       );
     } catch {
       // Best effort.
     }
-  }, [sessionId, messages, stage, emailCaptured, beat, chips, totalBeats, beatLabels, intent]);
+  }, [sessionId, messages, stage, beat, chips, totalBeats, beatLabels, intent]);
 
   const focusChat = useCallback(() => {
     document.getElementById(INTAKE_SECTION_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -143,7 +137,6 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setMessages([]);
     setStage('chat');
     setIntent(null);
-    setEmailCaptured(false);
     setBeat(null);
     setChips(null);
     setError(null);
@@ -185,7 +178,6 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setSessionId(null);
       setStage('chat');
       setIntent(conversationIntent);
-      setEmailCaptured(false);
       setMessages([{ role: 'user', text: trimmed, seeded }]);
       setChips(null);
       setBeat(null);
@@ -260,57 +252,12 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     [sessionId, sending, t, handleReply],
   );
 
-  const submitEmail = useCallback(
-    async (email: string): Promise<boolean> => {
-      if (!sessionId) return false;
-      try {
-        await intakeApi.email(sessionId, email.trim().toLowerCase());
-        setEmailCaptured(true);
-        storeContact({ email: email.trim().toLowerCase() });
-        return true;
-      } catch {
-        setError(t('intake.error'));
-        return false;
-      }
-    },
-    [sessionId, t],
-  );
-
-  const openFromToken = useCallback(
-    (token: string) => {
-      setSending(true);
-      setError(null);
-      intakeApi
-        .resume(token)
-        .then((res) => {
-          setSessionId(res.sessionId);
-          setMessages(res.messages);
-          setStage(res.stage);
-          // The resume response doesn't carry intent; consumers fall back to IntentContext.
-          setIntent(null);
-          setEmailCaptured(res.emailCaptured);
-          setBeat(res.beat ?? null);
-          setChips(res.chips ?? null);
-          setTotalBeats(res.totalBeats ?? 5);
-          setBeatLabels(res.beatLabels ?? []);
-          storePrefill(res.prefill);
-          storeContact(res.contact);
-          // Let the section render the restored thread, then scroll to it.
-          setTimeout(focusChat, 150);
-        })
-        .catch(() => setError(t('intake.error')))
-        .finally(() => setSending(false));
-    },
-    [t, focusChat],
-  );
-
   return (
     <IntakeChatContext.Provider
       value={{
         started: !!sessionId,
         stage,
         intent,
-        emailCaptured,
         messages,
         beat,
         chips,
@@ -321,8 +268,6 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         start,
         startFromPill,
         sendMessage,
-        submitEmail,
-        openFromToken,
         focusChat,
         reset,
         focusInputNonce,

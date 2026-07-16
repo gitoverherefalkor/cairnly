@@ -8,7 +8,6 @@ import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
 import PitchScreenshot from './intake/PitchScreenshot';
-import IntakeEmailHatch from './intake/IntakeEmailHatch';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
@@ -138,8 +137,6 @@ const Hero: React.FC = () => {
             )}
             {pitched ? (
               <>
-                {/* Secondary save-my-spot email, moved out of the chat thread. */}
-                <IntakeEmailHatch />
                 <div className="mt-5 flex justify-center">
                   <a
                     href="#how-it-works"
