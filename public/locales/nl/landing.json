@@ -492,7 +492,7 @@
     "continuePill": "Ga verder met ons gesprek",
     "typing": "Cairnly is aan het typen",
     "error": "Dat kwam niet door. Probeer het nog eens?",
-    "ctaCheckout": "Start het volledige assessment",
+    "ctaCheckout": "Start nu je assessment",
     "ctaNote": "Je antwoorden gaan mee",
     "seeds": {
       "default": "Ik koos m'n richting op m'n zestiende, en ik vraag me af wat ik nu zou kiezen met alles wat ik sindsdien heb geleerd.",
@@ -543,6 +543,11 @@
     "pickCounter": "{{count}} van {{max}} gekozen",
     "restingInvite": "Wat brengt je hier? Tik hierboven een optie aan, of vertel het in je eigen woorden.",
     "restingPlaceholder": "Vertel me wat je hier brengt…",
-    "ctaLabel": "Start het volledige assessment"
+    "ctaLabel": "Start het volledige assessment",
+    "pillLabels": {
+      "match": "Geschiktheidsscore",
+      "move": "Overstapniveau",
+      "ai": "AI-risico"
+    }
   }
 }

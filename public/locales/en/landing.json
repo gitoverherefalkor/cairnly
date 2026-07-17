@@ -492,7 +492,7 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "ctaCheckout": "Start full assessment",
+    "ctaCheckout": "Start assessment now",
     "ctaNote": "Your answers carry over",
     "seeds": {
       "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
@@ -543,6 +543,11 @@
     "pickCounter": "{{count}} of {{max}} picked",
     "restingInvite": "What brings you here? Tap one of the options above, or tell me in your own words.",
     "restingPlaceholder": "Tell me what brings you here…",
-    "ctaLabel": "Start full assessment"
+    "ctaLabel": "Start full assessment",
+    "pillLabels": {
+      "match": "Suitability score",
+      "move": "Pivot level",
+      "ai": "AI risk"
+    }
   }
 }

@@ -103,10 +103,19 @@ const ReportDeliverablesCard: React.FC = () => {
               >
                 {t('pricing.pillPreviewLabel')}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-2">
                 <MatchPill pct={87} />
+                <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+                  {t('intake.pillLabels.match')}
+                </span>
                 <MovePill level="Reframe" />
+                <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+                  {t('intake.pillLabels.move')}
+                </span>
                 <AIImpactPill label="Minimal" />
+                <span style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
+                  {t('intake.pillLabels.ai')}
+                </span>
               </div>
             </div>
 
@@ -129,8 +138,10 @@ const ReportDeliverablesCard: React.FC = () => {
             className="flex flex-col items-center justify-center gap-1 border-t pt-5 sm:w-[220px] sm:shrink-0 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0"
             style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
+            {/* Beta chip on two centered rows — the one-line version overflows
+                the narrow price panel */}
             <span
-              className="whitespace-nowrap rounded-full px-4 py-1.5"
+              className="rounded-2xl px-4 py-1.5 text-center"
               style={{
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
@@ -139,9 +150,12 @@ const ReportDeliverablesCard: React.FC = () => {
                 textTransform: 'uppercase',
                 background: '#D4A024',
                 color: '#1A1A1A',
+                lineHeight: 1.7,
               }}
             >
-              {t('pricing.betaPill')}
+              {t('pricing.betaPill').split('·').map((line) => (
+                <span key={line} className="block">{line.trim()}</span>
+              ))}
             </span>
             <div className="mt-3 flex items-end gap-3">
               <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
@@ -167,10 +181,10 @@ const ReportDeliverablesCard: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/payment')}
-              className="lp-btn-primary mt-4 w-full justify-center"
-              style={{ fontSize: 15, padding: '14px 18px' }}
+              className="lp-btn-primary mt-4 w-full justify-center whitespace-nowrap"
+              style={{ fontSize: 14, padding: '14px 12px' }}
             >
-              {t('pricing.cta')}
+              {t('intake.ctaCheckout')}
               <ArrowRight size={17} strokeWidth={2.4} />
             </button>
             <p className="mt-2 text-center text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
