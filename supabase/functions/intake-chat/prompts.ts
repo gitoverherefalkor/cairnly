@@ -617,7 +617,7 @@ export const EXTRACTION_TOOL = {
       },
       dream_job: {
         type: ['string', 'null'],
-        description: "Their dream job in their own words (short, e.g. 'Documentary filmmaker'), or null if they didn't give one.",
+        description: "Their dream job in their own words (short, e.g. 'Documentary filmmaker'), or null if they didn't give one. Their words ONLY: this pre-fills a survey field the visitor sees as their own answer, so never append extractor commentary like '(no specifics given)'.",
       },
       ai_familiarity: {
         type: ['string', 'null'],
@@ -692,5 +692,5 @@ export function extractionSystem(lang: Lang): string {
 The visitor often answered by tapping chips. Chip labels map to canonical survey values as follows (multiple chips in one message are separated by "; "):
 ${chipMappingTable()}
 
-When the visitor used a listed chip label, ALWAYS map it to its canonical value. For free-text answers, map onto a canonical value only when the meaning clearly matches; otherwise leave it out (null or empty array) rather than guessing. The extra_context paragraph must be in ${LANG_NAME[lang]} and sound like the visitor wrote it themselves. Never use em-dashes.`;
+When the visitor used a listed chip label, ALWAYS map it to its canonical value. For free-text answers, map onto a canonical value when the meaning clearly matches; a close paraphrase counts ("I want to know my strengths and blind spots" maps to the strengths-and-improvement goal, naming an archetype in prose like "the strategist sounds like me" maps to that archetype). Only leave a field out (null or empty array) when no option genuinely fits. The extra_context paragraph must be in ${LANG_NAME[lang]} and sound like the visitor wrote it themselves. Never use em-dashes.`;
 }
