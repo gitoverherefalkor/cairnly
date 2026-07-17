@@ -72,7 +72,13 @@ function json(body: unknown, corsHeaders: Record<string, string>, status = 200):
   });
 }
 
-/** Calls the Anthropic Messages API. Returns the parsed response body. */
+/**
+ * Calls the Anthropic Messages API. Returns the parsed response body.
+ * Retries once on transient failures (429 rate limit, 5xx/529 overload,
+ * network errors, timeouts) — without this, a single blip surfaces to the
+ * visitor as "the conversation hiccuped" mid-funnel. Non-retryable 4xx
+ * errors (bad request, auth) fail immediately.
+ */
 async function callClaude(opts: {
   system: string;
   messages: { role: string; content: string }[];
@@ -90,21 +96,37 @@ async function callClaude(opts: {
   };
   if (opts.tools) body.tools = opts.tools;
   if (opts.toolChoice) body.tool_choice = opts.toolChoice;
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(45_000),
-  });
-  if (!r.ok) {
-    console.error('[intake-chat] Claude API error:', r.status, (await r.text()).slice(0, 500));
-    throw new Error('claude-api-error');
+
+  const attempt = async (): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> => {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!r.ok) {
+      console.error('[intake-chat] Claude API error:', r.status, (await r.text()).slice(0, 500));
+      const err = new Error('claude-api-error') as Error & { retryable?: boolean };
+      err.retryable = r.status === 429 || r.status >= 500;
+      throw err;
+    }
+    return await r.json();
+  };
+
+  try {
+    return await attempt();
+  } catch (e) {
+    // Network errors and AbortSignal timeouts have no `retryable` flag; treat
+    // them as transient. Only explicit non-retryable API errors (4xx) rethrow.
+    if ((e as { retryable?: boolean }).retryable === false) throw e;
+    console.error('[intake-chat] transient Claude failure, retrying once:', e);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    return await attempt();
   }
-  return await r.json();
 }
 
 function usedTokens(resp: { usage?: { input_tokens: number; output_tokens: number } }): number {
