@@ -28,6 +28,13 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { CAREER_HAPPINESS_MIN_REASON_CHARS, isQuestionAnswered } from './questionValidation';
+import {
+  resolveRoleAchievementTexts,
+  applyRoleAchievementEdit,
+  applyOtherAchievementEdit,
+  getOtherAchievementText,
+  type RoleSlot,
+} from './utils/roleAchievements';
 
 interface QuestionRendererProps {
   question: Question;
@@ -1731,16 +1738,27 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         onChange({ ...skillsValue, topSkillRanks: next });
       };
 
-      // Update achievement text for a specific company box
-      const updateCompanyAchievement = (companyName: string, yearRange: string, newText: string) => {
-        const updatedAchievements = [...skillsValue.achievements];
-        const existingIdx = updatedAchievements.findIndex(a => a.company === companyName);
-        if (existingIdx >= 0) {
-          updatedAchievements[existingIdx] = { ...updatedAchievements[existingIdx], text: newText };
-        } else {
-          updatedAchievements.push({ company: companyName, yearRange, text: newText });
-        }
-        onChange({ ...skillsValue, achievements: updatedAchievements });
+      // Achievements are stored as a flat CompanyAchievement[] but shown one box
+      // per role. Each box is bound to its role by (company, occurrence-index) so
+      // two roles at the SAME company stay independent — editing one no longer
+      // rewrites the other. See utils/roleAchievements.ts.
+      const careerYearRange = (career: CareerHistoryEntry): string => {
+        if (!career.startYear) return '';
+        if (career.isCurrent) return `${career.startYear}–Present`;
+        if (career.endYear) return `${career.startYear}–${career.endYear}`;
+        return `${career.startYear}`;
+      };
+      const updateRoleAchievement = (roleSlots: RoleSlot[], roleIndex: number, newText: string) => {
+        onChange({
+          ...skillsValue,
+          achievements: applyRoleAchievementEdit(roleSlots, skillsValue.achievements, roleIndex, newText),
+        });
+      };
+      const updateOtherAchievement = (roleSlots: RoleSlot[], newText: string) => {
+        onChange({
+          ...skillsValue,
+          achievements: applyOtherAchievementEdit(roleSlots, skillsValue.achievements, newText),
+        });
       };
 
       return (
@@ -1849,18 +1867,26 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 const careers: CareerHistoryEntry[] = Array.isArray(rawCareers) ? rawCareers : [];
                 const filledCareers = careers.filter(c => c.companyName && c.companyName.trim() !== '');
 
+                // One slot per role, in display order. The helper resolves each
+                // role's text by (company, occurrence) so same-company roles stay
+                // independent, and serialises edits back to CompanyAchievement[].
+                const roleSlots: RoleSlot[] = filledCareers.map(c => ({
+                  company: c.companyName,
+                  yearRange: careerYearRange(c),
+                }));
+                const roleTexts = resolveRoleAchievementTexts(roleSlots, skillsValue.achievements);
+                const otherText = getOtherAchievementText(skillsValue.achievements);
+
                 if (filledCareers.length === 0) {
                   // No career history yet — show a single general textarea
-                  const generalText = skillsValue.achievements.find(a => a.company === 'Other')?.text ||
-                                       skillsValue.achievements[0]?.text || '';
                   return (
                     <div>
                       <p className="text-xs text-gray-400 italic mb-3">
                         Tip: fill in your career history first to get separate achievement fields per company.
                       </p>
                       <textarea
-                        value={generalText}
-                        onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
+                        value={otherText}
+                        onChange={(e) => updateOtherAchievement(roleSlots, e.target.value)}
                         className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
                         rows={4}
                         placeholder="Describe your key achievements..."
@@ -1869,37 +1895,24 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   );
                 }
 
-                // Per-company achievement textareas
+                // Per-role achievement textareas
                 return (
                   <div className="space-y-4">
                     {filledCareers.map((career, idx) => {
-                      const yearRange = career.startYear
-                        ? career.isCurrent
-                          ? `${career.startYear}–Present`
-                          : career.endYear
-                            ? `${career.startYear}–${career.endYear}`
-                            : `${career.startYear}`
-                        : '';
+                      const yearRange = roleSlots[idx].yearRange;
                       const label = yearRange
                         ? `${career.companyName} (${yearRange})`
                         : career.companyName;
 
-                      // Find matching achievement — try exact match, then case-insensitive
-                      const match = skillsValue.achievements.find(a =>
-                        a.company === career.companyName
-                      ) || skillsValue.achievements.find(a =>
-                        a.company.toLowerCase() === career.companyName.toLowerCase()
-                      );
-
                       return (
-                        <div key={`achievement-${career.companyName}-${idx}`}>
+                        <div key={`achievement-${idx}-${career.companyName}`}>
                           <div className="flex items-center gap-2 mb-1.5">
                             <div className="w-1 h-4 bg-atlas-teal rounded-full" />
                             <label className="text-sm font-medium text-gray-700">{label}</label>
                           </div>
                           <textarea
-                            value={match?.text || ''}
-                            onChange={(e) => updateCompanyAchievement(career.companyName, yearRange, e.target.value)}
+                            value={roleTexts[idx]}
+                            onChange={(e) => updateRoleAchievement(roleSlots, idx, e.target.value)}
                             className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
                             rows={3}
                             placeholder={`Key achievements at ${career.companyName}...`}
@@ -1915,8 +1928,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         <label className="text-sm font-medium text-gray-500">Other Achievements (optional)</label>
                       </div>
                       <AutoResizeTextarea
-                        value={skillsValue.achievements.find(a => a.company === 'Other')?.text || ''}
-                        onChange={(e) => updateCompanyAchievement('Other', '', e.target.value)}
+                        value={otherText}
+                        onChange={(e) => updateOtherAchievement(roleSlots, e.target.value)}
                         className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed"
                         minHeightPx={60}
                         placeholder="Any other achievements not tied to a specific company..."
