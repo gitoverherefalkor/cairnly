@@ -489,12 +489,23 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       (!maxSelections || currentSelections <= maxSelections);
 
     return (
-      <p className="text-sm text-gray-600 mb-4">
-        {requirement}
-        {currentSelections > 0 && (
-          <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+      <div className="mb-4">
+        <p className="text-sm text-gray-600">
+          {requirement}
+          {currentSelections > 0 && (
+            <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+          )}
+        </p>
+        {/* Reassurance for the "narrow it down" questions (those with a max):
+            picking a subset made some early users anxious about getting it
+            "right". There are no wrong answers, and it's only one input among
+            many, so say so at the moment the pressure shows up. */}
+        {maxSelections && (
+          <p className="text-xs text-gray-400 mt-1">
+            No wrong answers here. It's one of several signals we use.
+          </p>
         )}
-      </p>
+      </div>
     );
   };
 
