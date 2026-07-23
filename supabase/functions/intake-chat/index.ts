@@ -85,6 +85,7 @@ async function callClaude(opts: {
   maxTokens: number;
   tools?: unknown[];
   toolChoice?: unknown;
+  thinking?: unknown;
 }): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> {
   const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) throw new Error('ANTHROPIC_API_KEY not configured');
@@ -96,6 +97,7 @@ async function callClaude(opts: {
   };
   if (opts.tools) body.tools = opts.tools;
   if (opts.toolChoice) body.tool_choice = opts.toolChoice;
+  if (opts.thinking) body.thinking = opts.thinking;
 
   const attempt = async (): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> => {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -364,17 +366,21 @@ async function advanceConversation(
       beat = userTurns;
       chips = plan[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
-      // Pitch phase: personalized preview + structured extraction. maxTokens
-      // is generous on purpose: sonnet-5 may spend part of the budget on an
-      // unrequested `thinking` block before the text block (see textFrom),
-      // and the pitch prompt's rule set (word count, package list, dream-job
-      // constraint, banned patterns) gives it a lot to reason through. A
-      // tighter budget here has produced empty replies (textFrom finds no
-      // text block -> 502) even on ordinary conversations.
+      // Pitch phase: personalized preview + structured extraction.
+      // sonnet-5 runs ADAPTIVE THINKING by default whenever `thinking` is
+      // unset, and that thinking shares the max_tokens budget with the visible
+      // text. On the pitch it intermittently ate most of the 3000-token budget
+      // and truncated the closing send-off mid-word ("...Cairnly needs the
+      // fu"). budget_tokens is rejected on sonnet-5, so we turn thinking OFF
+      // here instead: the pitch is a short, tightly-specced writing task, so
+      // the full budget goes to the reply text and the send-off always
+      // completes. (This also removes the empty-reply 502s the old comment
+      // worried about, which were the same thinking-ate-the-budget failure.)
       const pitchResp = await callClaude({
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 3000,
+        thinking: { type: 'disabled' },
       });
       reply = textFrom(pitchResp);
       tokens = usedTokens(pitchResp);
