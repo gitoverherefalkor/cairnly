@@ -605,7 +605,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         <span className="font-bold" style={{ color: '#122E3B' }}>
                           2.
                         </span>{' '}
-                        Click "Resources" → "Save to PDF"
+                        Click the "More" (•••) button near your name, then "Save to PDF"
                       </div>
                       <div>
                         <span className="font-bold" style={{ color: '#122E3B' }}>
@@ -619,15 +619,15 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                       style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
                     >
                       <img
-                        src="/uploads/ad38b517-4c3f-47bd-b4f4-546e532e34cf.png"
-                        alt="LinkedIn Resources menu showing Save to PDF option"
+                        src="/uploads/linkedin-save-to-pdf-more-menu.png"
+                        alt="LinkedIn profile More menu showing the Save to PDF option"
                         className="w-48 mx-auto rounded shadow-sm"
                       />
                       <p
                         className="text-[12px] mt-3 text-center italic"
                         style={{ color: '#6B7F8B' }}
                       >
-                        A LinkedIn export often has the most up-to-date version of your work history.
+                        On some profiles this sits under a "Resources" button instead. A LinkedIn export usually has your most up-to-date work history.
                       </p>
                     </div>
                     {/* We'd love a one-click "Import from LinkedIn" — LinkedIn's
