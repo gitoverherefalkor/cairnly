@@ -3,7 +3,7 @@
 // React components wired to the production asset paths under /public/dashboard.
 
 import React from 'react';
-import { Bot, Route, Gauge } from 'lucide-react';
+import { Bot, Route, Gauge, Coins } from 'lucide-react';
 import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
 
 // ---------- Brand palette ----------
@@ -69,7 +69,7 @@ export const AI_IMPACT_MEANING: Record<AIImpactLevel, string> = {
 // re-exported so existing importers of this module keep working.
 export type { MoveLevel } from '@/lib/moveScale';
 
-// ---------- Career match shape (no salary — omitted per product decision) ----------
+// ---------- Career match shape ----------
 export interface CareerMatch {
   rank: number;
   title: string;
@@ -77,6 +77,10 @@ export interface CareerMatch {
   matchPct: number;
   aiImpact: AIImpactLevel | null;
   move?: MoveLevel | null;
+  // Region-calibrated AI salary estimate (compact range string, e.g.
+  // "€60k–€120k"), shown as a muted "est." pill. Absent on reports generated
+  // before WF4 wrote it into metadata — the pill is simply skipped then.
+  salary?: string | null;
   teaser?: string;
   alignment?: string;
 }
@@ -240,6 +244,45 @@ export const MovePill: React.FC<{ level: MoveLevel }> = ({ level }) => {
       }}
     >
       <Route size={11} color={color} /> {level}
+    </span>
+  );
+};
+
+// ---------- SalaryPill ----------
+// AI-estimated salary range for the role, in the region's currency. Muted grey
+// and prefixed "est." on purpose: it's an estimate, not a sourced figure, so it
+// sits quieter than the Match pill and never reads as a hard number. Real posted
+// ranges live in Find Open Roles.
+function compactRange(s: string): string {
+  return s
+    .replace(/(\d+),?000\b/g, '$1k')       // 60,000 / 60000 -> 60k
+    .replace(/\s*(?:-|–|—|to)\s*/gi, '–')  // any separator -> en dash
+    .trim();
+}
+
+export const SalaryPill: React.FC<{ range: string }> = ({ range }) => {
+  const color = '#6B7F8B'; // muted slate-grey — supporting info, not a headline
+  return (
+    <span
+      title="AI-estimated range for your region. See real posted ranges in Find Open Roles."
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 10px',
+        borderRadius: 9999,
+        background: 'rgba(107,127,139,0.10)',
+        color,
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        border: '1px solid rgba(107,127,139,0.24)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <Coins size={11} color={color} /> est. {compactRange(range)}
     </span>
   );
 };

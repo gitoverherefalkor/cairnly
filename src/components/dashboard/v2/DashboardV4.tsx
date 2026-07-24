@@ -35,6 +35,7 @@ import {
   AIImpactPill,
   MovePill,
   MatchPill,
+  SalaryPill,
   type MoveLevel,
   SectionPhoto,
   SECTION_VISUALS,
@@ -93,6 +94,17 @@ interface DashboardV4Props {
 }
 
 // ── Career extraction ─────────────────────────────────────────
+// Pull the AI salary estimate WF4 writes into metadata. Tolerates a plain
+// range string or a { range } object; returns null (pill skipped) when absent.
+function readSalary(meta: unknown): string | null {
+  const sal = (meta as { salary?: unknown } | null | undefined)?.salary;
+  if (typeof sal === 'string' && sal.trim()) return sal.trim();
+  if (sal && typeof sal === 'object' && typeof (sal as { range?: unknown }).range === 'string') {
+    return (sal as { range: string }).range;
+  }
+  return null;
+}
+
 function getMatch(
   sections: ReportSection[],
   type: string,
@@ -124,6 +136,7 @@ function getMatch(
     matchPct: Math.round(score),
     aiImpact: extractAIImpact(s.content || ''),
     move: (s.metadata?.move as MoveLevel | undefined) ?? null,
+    salary: readSalary(s.metadata),
     // Teaser shows on all three career cards. Alignment prose only on the Hero.
     teaser,
     alignment,
@@ -1030,6 +1043,7 @@ const HeroMatch: React.FC<{
             <MatchPill pct={match.matchPct} />
             {match.move && <MovePill level={match.move} />}
             {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+            {match.salary && <SalaryPill range={match.salary} />}
           </div>
 
           {match.teaser && (
@@ -1324,6 +1338,7 @@ const SecondaryMatch: React.FC<{
       <MatchPill pct={match.matchPct} />
       {match.move && <MovePill level={match.move} />}
       {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
+      {match.salary && <SalaryPill range={match.salary} />}
     </div>
     {match.teaser && (
       <p
