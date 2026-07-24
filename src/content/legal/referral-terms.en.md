@@ -102,6 +102,6 @@ Operating as Cairnly
 
 Utrecht, the Netherlands
 
-KvK: [insert]   |   VAT: [insert]
+KvK: 42088253
 
-Email: legal@cairnly.io   |   Support: info@cairnly.io
+Email: info@cairnly.io

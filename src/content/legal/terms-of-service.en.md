@@ -132,7 +132,7 @@ You may terminate your account at any time through your Profile settings or by c
 
 These Terms are governed by the laws of the Netherlands, without regard to conflict of law principles. If you are a consumer resident in the European Union, you retain the protection of the mandatory consumer-protection rules of your country of residence.
 
-If you have a complaint, please contact us first at legal@cairnly.io so we can try to resolve it directly. We aim to respond within ten (10) business days.
+If you have a complaint, please contact us first at info@cairnly.io so we can try to resolve it directly. We aim to respond within ten (10) business days.
 
 If we cannot resolve the matter, you may bring proceedings before the competent courts in Utrecht, the Netherlands. As a consumer, you may alternatively bring proceedings before the competent courts of the EU member state in which you reside.
 
@@ -160,10 +160,8 @@ These Terms, together with our Privacy Policy and the Referral Programme Terms (
 
 If you have any questions about these Terms of Service, please contact us:
 
-Email: legal@cairnly.io
-
-Support: info@cairnly.io
+Email: info@cairnly.io
 
 Address: Human in the Loop B.V., trading as Cairnly, Utrecht, the Netherlands
 
-KvK: [insert]   |   VAT: [insert]
+KvK: 42088253
