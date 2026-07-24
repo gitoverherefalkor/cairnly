@@ -558,7 +558,6 @@ const Chat = () => {
                 onSectionDetected={handleSectionDetected}
                 onSessionComplete={() => setShowClosing(true)}
                 onDreamJobsRead={handleDreamJobsRead}
-                dreamJobsRead={dreamJobsRead}
                 onUserActivity={handleUserActivity}
                 isSessionCompleted={isSessionCompleted}
                 isSidebarCollapsed={isSidebarCollapsed}
