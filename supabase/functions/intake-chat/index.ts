@@ -371,29 +371,43 @@ async function advanceConversation(
       // constraint, banned patterns) gives it a lot to reason through. A
       // tighter budget here has produced empty replies (textFrom finds no
       // text block -> 502) even on ordinary conversations.
-      const pitchResp = await callClaude({
+      // The pitch is the only thing the visitor is waiting to read; the
+      // extraction just feeds the survey pre-fill in the background. They take
+      // the SAME conversation as input and neither depends on the other's
+      // output, so fire both at once instead of one-after-the-other. Serially
+      // the visitor waited out two full Sonnet-5 round-trips (pitch ~3000 tok +
+      // extraction ~1200 tok) before seeing anything — the main reason the last
+      // step felt like ~30s. Concurrently, the wait collapses to whichever call
+      // is slower (the pitch), shaving the extraction round-trip off entirely.
+      const pitchPromise = callClaude({
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 3000,
       });
+      // Extraction is best-effort: catch here so a failed extraction can never
+      // cost the visitor their pitch, and so the shared await below can't reject.
+      const extractionPromise = callClaude({
+        system: extractionSystem(lang),
+        messages: apiMessages(rowForApi),
+        maxTokens: 1200,
+        tools: [EXTRACTION_TOOL],
+        toolChoice: { type: 'tool', name: EXTRACTION_TOOL.name },
+      }).catch((e) => {
+        console.error('[intake-chat] extraction failed:', e);
+        return null;
+      });
+
+      const pitchResp = await pitchPromise;
       reply = textFrom(pitchResp);
       tokens = usedTokens(pitchResp);
       pitch = reply;
       stage = 'pitched';
-      try {
-        const extractResp = await callClaude({
-          system: extractionSystem(lang),
-          messages: apiMessages(rowForApi),
-          maxTokens: 1200,
-          tools: [EXTRACTION_TOOL],
-          toolChoice: { type: 'tool', name: EXTRACTION_TOOL.name },
-        });
+
+      const extractResp = await extractionPromise;
+      if (extractResp) {
         tokens += usedTokens(extractResp);
         const toolBlock = extractResp.content?.find((c) => c.type === 'tool_use');
         if (toolBlock?.input) extraction = toolBlock.input as Record<string, unknown>;
-      } catch (e) {
-        // Extraction is best-effort: the pitch still ships without pre-fill.
-        console.error('[intake-chat] extraction failed:', e);
       }
     } else {
       // Post-pitch follow-up questions.
