@@ -132,7 +132,7 @@ Je kunt jouw account op elk moment beëindigen via jouw profielinstellingen of d
 
 Op deze Voorwaarden is Nederlands recht van toepassing, met uitsluiting van conflictenrechtelijke bepalingen. Als je consument bent met woonplaats in de Europese Unie, behoud je de bescherming van de dwingendrechtelijke consumentenregels van jouw woonland.
 
-Heb je een klacht, neem dan eerst contact met ons op via legal@cairnly.io zodat we deze rechtstreeks proberen op te lossen. Wij streven naar een reactie binnen tien (10) werkdagen.
+Heb je een klacht, neem dan eerst contact met ons op via info@cairnly.io zodat we deze rechtstreeks proberen op te lossen. Wij streven naar een reactie binnen tien (10) werkdagen.
 
 Lukt het ons niet om de zaak op te lossen, dan kun je een procedure aanhangig maken bij de bevoegde rechter te Utrecht, Nederland. Als consument kun je daarnaast een procedure aanhangig maken bij de bevoegde rechter van de EU-lidstaat waarin je woont.
 
@@ -160,10 +160,8 @@ Deze Voorwaarden vormen, samen met onze Privacyverklaring en, indien van toepass
 
 Vragen over deze Algemene Voorwaarden? Neem contact met ons op:
 
-E-mail: legal@cairnly.io
-
-Support: info@cairnly.io
+E-mail: info@cairnly.io
 
 Adres: Human in the Loop B.V., handelend onder de naam Cairnly, Utrecht, Nederland
 
-KvK: [invullen]   |   Btw: [invullen]
+KvK: 42088253

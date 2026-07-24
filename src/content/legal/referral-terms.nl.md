@@ -102,6 +102,6 @@ Handelend onder de naam Cairnly
 
 Utrecht, Nederland
 
-KvK: [invullen]   |   Btw: [invullen]
+KvK: 42088253
 
-E-mail: legal@cairnly.io   |   Support: info@cairnly.io
+E-mail: info@cairnly.io
