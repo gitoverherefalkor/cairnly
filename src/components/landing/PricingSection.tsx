@@ -1,13 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Sparkles, ArrowRight, Lock, Shield, ClipboardCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Reveal from './Reveal';
-import { useGetStarted } from './useGetStarted';
 import { tArray } from '@/lib/i18nArray';
 import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
 
 const PricingSection: React.FC = () => {
-  const getStarted = useGetStarted();
+  const navigate = useNavigate();
   const { t } = useTranslation('landing');
   const features = tArray<string>(t, 'pricing.features');
   const bonusItems = tArray<string>(t, 'pricing.bonusItems');
@@ -92,7 +92,7 @@ const PricingSection: React.FC = () => {
             </p>
 
             <button
-              onClick={getStarted}
+              onClick={() => navigate('/payment')}
               className="lp-btn-primary w-full justify-center"
               style={{ fontSize: 18, padding: '18px 28px' }}
             >
