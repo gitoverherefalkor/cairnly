@@ -1,6 +1,17 @@
 {
   "sectionOf": "Section {{current}}. {{title}}",
   "questionOf": "Q. {{current}} of {{total}}",
+  "regionPicker": {
+    "placeholder": "Select your country…",
+    "ukLondon": "United Kingdom (London & commuter belt)",
+    "ukOther": "United Kingdom (rest of the UK)",
+    "usHigh": "United States (major metro: SF, NYC, Boston, Seattle, LA, DC)",
+    "usAvg": "United States (mid-size city: Chicago, Austin, Denver, Atlanta, Dallas)",
+    "usLow": "United States (smaller city / lower-cost area)",
+    "elsewhere": "Elsewhere / not listed",
+    "elsewhereNote": "We don't have salary data for your market yet, so estimates will use Europe (EUR) as a rough reference.",
+    "confirmSet": "Currently set to: {{region}}. Pick a country above to change it."
+  },
   "submitted": {
     "title": "Assessment Submitted Successfully!",
     "description": "Your responses are saved and your report is being generated.",

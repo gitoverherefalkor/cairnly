@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -11,6 +12,7 @@ import {
   KEY_TO_OPTION,
   keyForCheckoutCountry,
   keyForRegion,
+  type RegionOption,
 } from '@/lib/countryToRegion';
 
 interface Props {
@@ -28,13 +30,44 @@ interface Props {
 // picker restores their actual choice; the answer sent to n8n is unaffected.
 const hintKey = (qid: string) => `region_pick_${qid}`;
 
+// Non-country option keys → survey.json regionPicker.* keys. The plain
+// two-letter keys are ISO region codes, localized for free via Intl.DisplayNames.
+const TIER_LABEL_KEY: Record<string, string> = {
+  'uk-london': 'ukLondon',
+  'uk-other': 'ukOther',
+  'us-high': 'usHigh',
+  'us-avg': 'usAvg',
+  'us-low': 'usLow',
+  elsewhere: 'elsewhere',
+};
+
 /**
  * A friendly country picker that stores the cost-of-living region band n8n
  * expects. Pre-fills from the checkout country (overridable), splits US/UK by
  * area inline, and falls back to a EUR estimate for markets we can't price.
+ * Country names localize automatically via Intl.DisplayNames; the area tiers
+ * and helper copy come from the survey.json regionPicker strings.
  */
 export const CountryRegionSelect: React.FC<Props> = ({ value, onChange, questionId }) => {
+  const { t, i18n } = useTranslation('survey');
+  const lang = i18n.language || 'en';
   const [selectedKey, setSelectedKey] = useState<string>('');
+
+  const displayNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([lang], { type: 'region' });
+    } catch {
+      return null;
+    }
+  }, [lang]);
+
+  const labelFor = (o: RegionOption): string => {
+    if (/^[A-Z]{2}$/.test(o.key)) {
+      return displayNames?.of(o.key) ?? o.label; // localized country name
+    }
+    const k = TIER_LABEL_KEY[o.key];
+    return k ? t(`regionPicker.${k}`) : o.label;
+  };
 
   // Resolve what to show once on mount: exact remembered key → reverse the
   // stored band → pre-fill from the checkout country.
@@ -98,12 +131,12 @@ export const CountryRegionSelect: React.FC<Props> = ({ value, onChange, question
     <div>
       <Select value={selectedKey} onValueChange={pick}>
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select your country…" />
+          <SelectValue placeholder={t('regionPicker.placeholder')} />
         </SelectTrigger>
         <SelectContent>
           {REGION_OPTIONS.map((o) => (
             <SelectItem key={o.key} value={o.key}>
-              {o.label}
+              {labelFor(o)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -111,19 +144,13 @@ export const CountryRegionSelect: React.FC<Props> = ({ value, onChange, question
 
       {confirmOnly && (
         <p className="text-sm text-atlas-teal mt-2">
-          Currently set to: {value}. Pick a country above to change it.
+          {t('regionPicker.confirmSet', { region: value })}
         </p>
       )}
 
       {selected?.key === 'elsewhere' && (
-        <p className="text-xs text-gray-500 mt-2">
-          We don't have salary data for your market yet, so estimates will use Europe (EUR) as a rough reference.
-        </p>
+        <p className="text-xs text-gray-500 mt-2">{t('regionPicker.elsewhereNote')}</p>
       )}
-
-      <p className="text-xs text-gray-500 mt-2">
-        Pick where you want to build your career — it sets which market's salary estimates you'll see.
-      </p>
     </div>
   );
 };

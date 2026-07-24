@@ -68,13 +68,14 @@ export const REGION_OPTIONS: RegionOption[] = [
   { key: 'EE', label: 'Estonia', region: REGION.seEurope },
   { key: 'LV', label: 'Latvia', region: REGION.seEurope },
   { key: 'LT', label: 'Lithuania', region: REGION.seEurope },
-  // United Kingdom — split by area (spans two bands)
-  { key: 'uk-london', label: 'United Kingdom — London & commuter belt', region: REGION.ukLondon },
-  { key: 'uk-other', label: 'United Kingdom — rest of the UK', region: REGION.ukOther },
+  // United Kingdom — split by area (spans two bands). Labels here are English
+  // fallbacks; the picker shows the localized survey.json strings at runtime.
+  { key: 'uk-london', label: 'United Kingdom (London & commuter belt)', region: REGION.ukLondon },
+  { key: 'uk-other', label: 'United Kingdom (rest of the UK)', region: REGION.ukOther },
   // United States — split by area (spans three bands), anchored by example cities
-  { key: 'us-high', label: 'United States — major metro (SF, NYC, Boston, Seattle, LA, DC)', region: REGION.usHigh },
-  { key: 'us-avg', label: 'United States — mid-size city (Chicago, Austin, Denver, Atlanta, Dallas)', region: REGION.usAvg },
-  { key: 'us-low', label: 'United States — smaller city / lower-cost area', region: REGION.usLow },
+  { key: 'us-high', label: 'United States (major metro: SF, NYC, Boston, Seattle, LA, DC)', region: REGION.usHigh },
+  { key: 'us-avg', label: 'United States (mid-size city: Chicago, Austin, Denver, Atlanta, Dallas)', region: REGION.usAvg },
+  { key: 'us-low', label: 'United States (smaller city / lower-cost area)', region: REGION.usLow },
   // Other covered markets
   { key: 'CA', label: 'Canada', region: REGION.canada },
   { key: 'AU', label: 'Australia', region: REGION.ausNz },
