@@ -201,6 +201,17 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
     }
   }, [user, form]);
 
+  // Dutch site → default the country to Netherlands so NL buyers don't have to
+  // open the dropdown. Only fills an empty field and never overrides a saved
+  // profile country, so a logged-in buyer's real country (and any manual pick)
+  // both still win. `Netherlands` matches the value in the `countries` list.
+  useEffect(() => {
+    if (!i18n.language?.startsWith('nl')) return;
+    if (profile?.country) return;
+    if (form.getValues('country')) return;
+    form.setValue('country', 'Netherlands');
+  }, [form, profile, i18n.language]);
+
   async function onSubmit(values: CheckoutFormValues) {
     setIsLoading(true);
     setError(null);
@@ -354,7 +365,7 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={labelCls}>{t('form.country')}</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger className={inputCls}>
                       <SelectValue placeholder={t('form.countryPlaceholder')} />
