@@ -1,6 +1,17 @@
 {
   "sectionOf": "Onderdeel {{current}}. {{title}}",
   "questionOf": "Vraag {{current}} van {{total}}",
+  "regionPicker": {
+    "placeholder": "Kies je land…",
+    "ukLondon": "Verenigd Koninkrijk (Londen en omgeving)",
+    "ukOther": "Verenigd Koninkrijk (rest van het VK)",
+    "usHigh": "Verenigde Staten (grote stad: SF, NYC, Boston, Seattle, LA, DC)",
+    "usAvg": "Verenigde Staten (middelgrote stad: Chicago, Austin, Denver, Atlanta, Dallas)",
+    "usLow": "Verenigde Staten (kleinere stad / goedkopere regio)",
+    "elsewhere": "Elders / niet in de lijst",
+    "elsewhereNote": "We hebben nog geen salarisdata voor jouw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
+    "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen."
+  },
   "submitted": {
     "title": "Assessment succesvol ingediend!",
     "description": "Je antwoorden zijn opgeslagen en je rapport wordt gegenereerd.",

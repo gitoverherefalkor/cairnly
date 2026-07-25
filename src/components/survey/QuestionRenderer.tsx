@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CountryRegionSelect from './CountryRegionSelect';
 import { Slider } from '@/components/ui/slider';
 import { GripVertical, Mic, Loader2, X, Plus } from 'lucide-react';
 import {
@@ -489,12 +490,23 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       (!maxSelections || currentSelections <= maxSelections);
 
     return (
-      <p className="text-sm text-gray-600 mb-4">
-        {requirement}
-        {currentSelections > 0 && (
-          <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+      <div className="mb-4">
+        <p className="text-sm text-gray-600">
+          {requirement}
+          {currentSelections > 0 && (
+            <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+          )}
+        </p>
+        {/* Reassurance for the "narrow it down" questions (those with a max):
+            picking a subset made some early users anxious about getting it
+            "right". There are no wrong answers, and it's only one input among
+            many, so say so at the moment the pressure shows up. */}
+        {maxSelections && (
+          <p className="text-xs text-gray-400 mt-1">
+            No wrong answers here. It's one of several signals we use.
+          </p>
         )}
-      </p>
+      </div>
     );
   };
 
@@ -560,28 +572,42 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         </div>
       );
 
-    case 'dropdown':
+    case 'dropdown': {
+      // The "region" question stores a cost-of-living band, but self-selecting
+      // one confused early users. Detect it (its choices carry the band
+      // sentinel) and render a friendly country picker that resolves to the
+      // same band string, leaving n8n untouched. Every other dropdown is normal.
+      const isRegionBand = question.config?.choices?.includes('Northern and Western Europe');
       return (
         <div>
-          <div 
+          <div
             className="text-xl font-semibold mb-6"
             dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
           />
           {renderDescription()}
-          <Select value={value || ''} onValueChange={onChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select an option..." />
-            </SelectTrigger>
-            <SelectContent>
-              {question.config?.choices?.map((choice) => (
-                <SelectItem key={choice} value={choice}>
-                  <span dangerouslySetInnerHTML={formatTextWithEmphasis(displayChoice(choice))} />
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {isRegionBand ? (
+            <CountryRegionSelect
+              value={typeof value === 'string' ? value : null}
+              onChange={onChange}
+              questionId={question.id}
+            />
+          ) : (
+            <Select value={value || ''} onValueChange={onChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select an option..." />
+              </SelectTrigger>
+              <SelectContent>
+                {question.config?.choices?.map((choice) => (
+                  <SelectItem key={choice} value={choice}>
+                    <span dangerouslySetInnerHTML={formatTextWithEmphasis(displayChoice(choice))} />
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       );
+    }
 
     case 'multiple_choice': {
       // Two-column layout for long lists of short options — 8+ choices, each

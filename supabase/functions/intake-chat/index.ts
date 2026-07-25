@@ -85,6 +85,7 @@ async function callClaude(opts: {
   maxTokens: number;
   tools?: unknown[];
   toolChoice?: unknown;
+  thinking?: unknown;
 }): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> {
   const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) throw new Error('ANTHROPIC_API_KEY not configured');
@@ -96,6 +97,7 @@ async function callClaude(opts: {
   };
   if (opts.tools) body.tools = opts.tools;
   if (opts.toolChoice) body.tool_choice = opts.toolChoice;
+  if (opts.thinking) body.thinking = opts.thinking;
 
   const attempt = async (): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> => {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -364,25 +366,28 @@ async function advanceConversation(
       beat = userTurns;
       chips = plan[userTurns - 1].chips?.[lang] ?? null;
     } else if (row.status === 'active') {
-      // Pitch phase: personalized preview + structured extraction. maxTokens
-      // is generous on purpose: sonnet-5 may spend part of the budget on an
-      // unrequested `thinking` block before the text block (see textFrom),
-      // and the pitch prompt's rule set (word count, package list, dream-job
-      // constraint, banned patterns) gives it a lot to reason through. A
-      // tighter budget here has produced empty replies (textFrom finds no
-      // text block -> 502) even on ordinary conversations.
+      // Pitch phase: personalized preview + structured extraction.
+      //
+      // sonnet-5 runs ADAPTIVE THINKING by default whenever `thinking` is unset,
+      // and that thinking shares the max_tokens budget with the visible text. On
+      // the pitch it intermittently ate most of the 3000-token budget and
+      // truncated the closing send-off mid-word ("...Cairnly needs the fu").
+      // budget_tokens is rejected on sonnet-5, so we turn thinking OFF here: the
+      // pitch is a short, tightly-specced writing task, so the full budget goes
+      // to the reply text and the send-off always completes. (This also removes
+      // the empty-reply 502s the old comment worried about — same root cause.)
+      //
       // The pitch is the only thing the visitor is waiting to read; the
       // extraction just feeds the survey pre-fill in the background. They take
-      // the SAME conversation as input and neither depends on the other's
-      // output, so fire both at once instead of one-after-the-other. Serially
-      // the visitor waited out two full Sonnet-5 round-trips (pitch ~3000 tok +
-      // extraction ~1200 tok) before seeing anything — the main reason the last
-      // step felt like ~30s. Concurrently, the wait collapses to whichever call
-      // is slower (the pitch), shaving the extraction round-trip off entirely.
+      // the SAME conversation as input and neither depends on the other's output,
+      // so fire both at once instead of one-after-the-other — the wait collapses
+      // to whichever call is slower (the pitch), shaving the extraction
+      // round-trip off entirely.
       const pitchPromise = callClaude({
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 3000,
+        thinking: { type: 'disabled' },
       });
       // Extraction is best-effort: catch here so a failed extraction can never
       // cost the visitor their pitch, and so the shared await below can't reject.

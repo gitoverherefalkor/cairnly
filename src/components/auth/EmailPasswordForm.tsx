@@ -63,6 +63,12 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
   // Memoize purchase data - only read from URL/localStorage once
   const purchaseData = useMemo(() => getPurchaseData(), []);
 
+  // After payment we already have the buyer's name from checkout, so the
+  // signup step shouldn't make them re-type it — collapse the form to just
+  // (a pre-filled, still-editable) email + password. Only fall back to showing
+  // the name fields if we somehow don't have the name to pass through.
+  const hasPrefilledName = !isLogin && !!(purchaseData?.firstName && purchaseData?.lastName);
+
   // Prefill form when in signup mode with purchase data
   useEffect(() => {
     if (!isLogin && purchaseData) {
@@ -273,7 +279,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {!isLogin && (
+      {!isLogin && !hasPrefilledName && (
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="firstName" className="block text-[13px] font-semibold mb-1.5 text-[#122E3B]">
@@ -331,6 +337,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             placeholder={t('placeholders.email')}
           />
         </div>
+        {!isLogin && (
+          <p className="text-[11.5px] font-medium mt-1.5" style={{ color: '#6B7F8B' }}>
+            {t('loginEmailHint')}
+          </p>
+        )}
       </div>
 
       <div>
