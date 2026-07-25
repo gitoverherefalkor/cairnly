@@ -134,7 +134,6 @@ interface ChatContainerProps {
   onSectionDetected: (index: number) => void;
   onSessionComplete: () => void;
   onDreamJobsRead?: () => void;
-  dreamJobsRead?: boolean; // True once all dream-job cards have been opened
   onUserActivity?: () => void;
   isSessionCompleted: boolean;
   isSidebarCollapsed: boolean;
@@ -162,7 +161,6 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       onSectionDetected,
       onSessionComplete,
       onDreamJobsRead,
-      dreamJobsRead,
       onUserActivity,
       isSessionCompleted,
       isSidebarCollapsed,
@@ -1014,7 +1012,6 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onQuickReply={handleSend}
           onFocusInput={handleFocusInput}
           onDreamJobsRead={onDreamJobsRead}
-          dreamJobsRead={dreamJobsRead}
           onSequentialRevealStateChange={handleRevealStateChange}
           onMultiCardLockChange={setMultiCardLocked}
           onCardOpenProgressChange={setCardOpenProgress}
@@ -1109,13 +1106,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
                       ? `Click to reveal the next ${latestUnrevealedCount} section${latestUnrevealedCount === 1 ? '' : 's'}…`
                       : multiCardLocked
                         ? 'Open each card above to continue…'
-                        : (currentSectionIndex >= ALL_SECTIONS.length - 1 && !dreamJobsRead)
-                          // On the dream section with a card still collapsed: the
-                          // input is open (you can keep asking) but wrap-up is
-                          // withheld until every card is seen. Nudge instead of
-                          // leaving the user wondering why "wrap up" isn't there.
-                          ? 'Open each dream card above to wrap up'
-                          : (inputPlaceholderOverride ?? 'Type here')
+                        : (inputPlaceholderOverride ?? 'Type here')
           }
           isSidebarCollapsed={isSidebarCollapsed}
         />
