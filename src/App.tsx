@@ -21,6 +21,7 @@ import Index from "./pages/Index";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 import CookieConsentBanner from "./components/CookieConsentBanner";
+import LanguageSuggestionBanner from "./components/LanguageSuggestionBanner";
 import SupportButton from "./components/support/SupportButton";
 import { ChunkLoadErrorBoundary } from "./components/ChunkLoadErrorBoundary";
 
@@ -125,6 +126,9 @@ const App = () => {
           <ThemeScopeGuard />
           <PageViewTracker />
           <DefaultSeo />
+          {/* Sits above the routes (the cookie banner is pinned to the bottom,
+              so the two never overlap). */}
+          <LanguageSuggestionBanner />
           <ChunkLoadErrorBoundary>
             <Suspense fallback={<PageLoader />}>
             <Routes>
