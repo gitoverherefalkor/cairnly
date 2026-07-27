@@ -635,7 +635,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         so a manual PDF export is the only path available. */}
                     <p
                       className="text-[12px] mt-3 text-center"
-                      style={{ color: '#8A9AA5' }}
+                      style={{ color: '#27A1A1' }}
                     >
                       We'd love a one-click LinkedIn import — LinkedIn's platform
                       doesn't allow it, so this export step is the only way.
