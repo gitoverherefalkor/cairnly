@@ -1500,6 +1500,18 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           />
           {renderDescription()}
 
+          {/* This free text is load-bearing: WF1 pulls each reason in verbatim
+              and mines it for patterns, so a specific line helps far more than
+              the score alone. Nudge for substance + offer voice dictation. */}
+          <div className="mb-5 rounded-lg border border-atlas-teal/20 bg-atlas-teal/5 p-3">
+            <p className="text-sm text-[#4B6373]">
+              What you write here matters as much as the score. We read it closely to learn what actually makes work good or bad for you, so a specific line about what you liked and what wore you down really helps.
+            </p>
+            <p className="text-xs text-[#6B7F8B] mt-1.5">
+              Rather talk than type? Tap the microphone on your phone's keyboard and just say it.
+            </p>
+          </div>
+
           <div className="space-y-6">
             {syncedHappiness.map((entry, index) => (
               <div key={index} className="p-4 border rounded-lg bg-gray-50">
@@ -1550,7 +1562,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     <Input
                       value={entry.reason}
                       onChange={(e) => updateHappiness(index, 'reason', e.target.value)}
-                      placeholder="e.g., Great autonomy, too many direct reports, unclear expectations..."
+                      placeholder="e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
                       className={`w-full text-sm bg-white placeholder:text-gray-300 ${
                         showValidation && (entry.reason || '').trim().length < CAREER_HAPPINESS_MIN_REASON_CHARS
                           ? 'border-red-300 focus:border-red-400'
