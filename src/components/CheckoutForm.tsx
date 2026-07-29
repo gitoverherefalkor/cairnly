@@ -47,13 +47,18 @@ const buildFormSchema = (t: (key: string) => string) =>
 
 type CheckoutFormValues = z.infer<ReturnType<typeof buildFormSchema>>;
 
-// Common countries list
+// Common countries list.
+// Keep in sync with REGION_OPTIONS in lib/countryToRegion.ts: a country offered
+// here should have somewhere to land in the survey's region picker. Iceland,
+// Norway and Switzerland were missing here while the region picker already
+// priced them (Switzerland even has its own salary band), so buyers there had
+// no country to select at checkout.
 const countries = [
-  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", 
-  "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", 
-  "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", 
-  "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia", 
-  "Slovenia", "Spain", "Sweden", "United Kingdom", "United States", 
+  "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
+  "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
+  "Hungary", "Iceland", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg",
+  "Malta", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Slovakia",
+  "Slovenia", "Spain", "Sweden", "Switzerland", "United Kingdom", "United States",
   "Canada", "Australia", "New Zealand", "Japan", "China", "India"
 ];
 

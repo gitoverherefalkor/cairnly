@@ -104,6 +104,7 @@ export const KEY_TO_OPTION: Record<string, RegionOption> = Object.fromEntries(
 const CHECKOUT_COUNTRY_TO_KEY: Record<string, string> = {
   Netherlands: 'NL', Germany: 'DE', France: 'FR', Belgium: 'BE', Luxembourg: 'LU',
   Austria: 'AT', Ireland: 'IE', Denmark: 'DK', Sweden: 'SE', Finland: 'FI',
+  Norway: 'NO', Iceland: 'IS', Switzerland: 'CH',
   Spain: 'ES', Italy: 'IT', Portugal: 'PT', Greece: 'GR', Malta: 'MT', Cyprus: 'CY',
   Poland: 'PL', 'Czech Republic': 'CZ', Slovakia: 'SK', Hungary: 'HU', Romania: 'RO',
   Bulgaria: 'BG', Croatia: 'HR', Slovenia: 'SI', Estonia: 'EE', Latvia: 'LV', Lithuania: 'LT',

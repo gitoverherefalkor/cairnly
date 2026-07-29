@@ -49,6 +49,10 @@ interface QuestionRendererProps {
   // Toggles the optional "non-negotiable" rider for a question. Written to the
   // sidecar (responses.__non_negotiables), separate from the question's answer.
   onNonNegotiableChange?: (checked: boolean) => void;
+  // Free-text location captured when the region picker's "Elsewhere" is chosen.
+  // Also a sidecar (responses.__elsewhere_location) — the answer itself must
+  // stay one of the region-band strings n8n expects.
+  onElsewhereLocationChange?: (value: string) => void;
 }
 
 // Career history entry type - comprehensive (satisfaction is separate question)
@@ -333,6 +337,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   allResponses,
   showValidation,
   onNonNegotiableChange,
+  onElsewhereLocationChange,
 }) => {
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
@@ -590,6 +595,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               value={typeof value === 'string' ? value : null}
               onChange={onChange}
               questionId={question.id}
+              elsewhereLocation={allResponses?.['__elsewhere_location'] ?? ''}
+              onElsewhereLocationChange={onElsewhereLocationChange}
             />
           ) : (
             <Select value={value || ''} onValueChange={onChange}>

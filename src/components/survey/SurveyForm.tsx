@@ -640,6 +640,9 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                         [currentQuestion.id]: checked,
                       })
                     }
+                    onElsewhereLocationChange={(location) =>
+                      handleResponseChange('__elsewhere_location', location)
+                    }
                   />
                 </div>
 
