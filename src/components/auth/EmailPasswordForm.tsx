@@ -41,6 +41,39 @@ const getPurchaseData = () => {
   }
 };
 
+interface SignupErrorBody {
+  error?: string;
+  code?: string;
+}
+
+// supabase-js attaches the raw Response to error.context on a non-2xx reply.
+// Pull the JSON body off it so we can show the server's actual reason.
+const readFunctionError = async (err: unknown): Promise<SignupErrorBody | null> => {
+  const context = (err as { context?: Response })?.context;
+  if (!context || typeof context.json !== 'function') return null;
+  try {
+    return await context.json();
+  } catch {
+    return null;
+  }
+};
+
+// Prefer a translated message for the cases we know about; fall back to the
+// server's (English) text, then to the generic error.
+const mapSignupError = (
+  body: SignupErrorBody | null,
+  t: (key: string) => string,
+): string => {
+  switch (body?.code) {
+    case 'email_exists':
+      return t('errors.emailExists');
+    case 'weak_password':
+      return t('errors.weakPassword');
+    default:
+      return body?.error || t('errors.failedToCreate');
+  }
+};
+
 const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
@@ -165,12 +198,18 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
         );
 
         if (signupError) {
-          setError(signupError.message || t('errors.failedToCreate'));
+          // On a non-2xx status, supabase-js does NOT parse the response body —
+          // signupError.message is the generic "Edge Function returned a non-2xx
+          // status code" and signupData is null. The real reason (email already
+          // registered, password rejected) sits on error.context, so read it there
+          // or the user gets a meaningless message and just retries forever.
+          const body = await readFunctionError(signupError);
+          setError(mapSignupError(body, t));
           return;
         }
 
         if (signupData?.error) {
-          setError(signupData.error);
+          setError(mapSignupError(signupData, t));
           return;
         }
 

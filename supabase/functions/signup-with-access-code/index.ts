@@ -142,9 +142,26 @@ serve(async (req) => {
           createError.message?.includes('already exists') ||
           createError.message?.includes('unique constraint')) {
         return new Response(JSON.stringify({
-          error: 'An account with this email already exists. Please sign in instead.'
+          error: 'An account with this email already exists. Please sign in instead.',
+          code: 'email_exists'
         }), {
           status: 409,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Password rejected by Supabase's own rules (leaked-password / HaveIBeenPwned
+      // check, minimum strength). Pass the reason through instead of the generic
+      // "try again" below — otherwise the user retypes the same weak password
+      // forever with no idea what's wrong.
+      if ((createError as { code?: string }).code === 'weak_password' ||
+          /password/i.test(createError.message ?? '')) {
+        return new Response(JSON.stringify({
+          error: createError.message ||
+            'That password was rejected. Please choose a stronger, less common password.',
+          code: 'weak_password'
+        }), {
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
