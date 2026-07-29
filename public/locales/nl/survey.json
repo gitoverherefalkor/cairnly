@@ -5,9 +5,9 @@
     "placeholder": "Kies je land…",
     "ukLondon": "Verenigd Koninkrijk (Londen en omgeving)",
     "ukOther": "Verenigd Koninkrijk (rest van het VK)",
-    "usHigh": "Verenigde Staten (grote stad: SF, NYC, Boston, Seattle, LA, DC)",
-    "usAvg": "Verenigde Staten (middelgrote stad: Chicago, Austin, Denver, Atlanta, Dallas)",
-    "usLow": "Verenigde Staten (kleinere stad / goedkopere regio)",
+    "usHigh": "Verenigde Staten (duurste steden, bijv. SF, NYC, Boston, Seattle, LA, DC)",
+    "usAvg": "Verenigde Staten (overige steden, bijv. Chicago, Austin, Denver, Atlanta, Philadelphia)",
+    "usLow": "Verenigde Staten (klein stadje of landelijk gebied)",
     "elsewhere": "Elders / niet in de lijst",
     "elsewhereNote": "We hebben nog geen salarisdata voor jouw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
     "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen."

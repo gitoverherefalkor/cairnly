@@ -5,9 +5,9 @@
     "placeholder": "Select your country…",
     "ukLondon": "United Kingdom (London & commuter belt)",
     "ukOther": "United Kingdom (rest of the UK)",
-    "usHigh": "United States (major metro: SF, NYC, Boston, Seattle, LA, DC)",
-    "usAvg": "United States (mid-size city: Chicago, Austin, Denver, Atlanta, Dallas)",
-    "usLow": "United States (smaller city / lower-cost area)",
+    "usHigh": "United States (highest-cost metros, e.g. SF, NYC, Boston, Seattle, LA, DC)",
+    "usAvg": "United States (most other cities, e.g. Chicago, Austin, Denver, Atlanta, Philadelphia)",
+    "usLow": "United States (small town or rural area)",
     "elsewhere": "Elsewhere / not listed",
     "elsewhereNote": "We don't have salary data for your market yet, so estimates will use Europe (EUR) as a rough reference.",
     "confirmSet": "Currently set to: {{region}}. Pick a country above to change it."
