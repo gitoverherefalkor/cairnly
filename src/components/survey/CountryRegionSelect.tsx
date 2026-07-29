@@ -185,7 +185,11 @@ export const CountryRegionSelect: React.FC<Props> = ({
             type="text"
             value={elsewhereLocation ?? ''}
             onChange={(e) => onElsewhereLocationChange?.(e.target.value)}
-            placeholder={t('regionPicker.elsewhereWherePlaceholder')}
+            // No example countries on purpose. Any country we name here is one
+            // of two things: a market we already price (so it belongs in the
+            // dropdown, not in this field's placeholder) or one we intend to
+            // add, at which point the example silently becomes wrong. The label
+            // above already says exactly what to type.
             maxLength={120}
             // text-sm to match the survey's other secondary inputs; text-base
             // is reserved for primary answer boxes and made this optional
