@@ -13,7 +13,7 @@
     "confirmSet": "Currently set to: {{region}}. Pick a country above to change it.",
     "elsewhereWhereLabel": "Which country are you based in?",
     "elsewhereOptional": "Optional",
-    "elsewhereWherePlaceholder": "e.g. Singapore, Brazil, United Arab Emirates"
+    "elsewhereWherePlaceholder": "e.g. Singapore"
   },
   "submitted": {
     "title": "Assessment Submitted Successfully!",

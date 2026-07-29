@@ -187,7 +187,10 @@ export const CountryRegionSelect: React.FC<Props> = ({
             onChange={(e) => onElsewhereLocationChange?.(e.target.value)}
             placeholder={t('regionPicker.elsewhereWherePlaceholder')}
             maxLength={120}
-            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 outline-none focus:border-atlas-teal focus:ring-1 focus:ring-atlas-teal"
+            // text-sm to match the survey's other secondary inputs; text-base
+            // is reserved for primary answer boxes and made this optional
+            // sidecar field shout louder than the question above it.
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm leading-relaxed text-gray-900 placeholder:text-gray-400 outline-none focus:border-atlas-teal focus:ring-1 focus:ring-atlas-teal"
           />
         </div>
       )}
