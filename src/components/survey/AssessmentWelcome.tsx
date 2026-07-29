@@ -237,10 +237,18 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
             with cream text instead of the milky bg-white/50 + dark text. */}
         <div className="mt-8 text-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {/* 15-20 minutes was not achievable on any flavor: the pro survey
+                alone is 61 questions, including five work experiences that each
+                want a written answer. Beta testers consistently ran far over and
+                said the low estimate undersold the depth. This screen renders
+                before the access code is verified, so it cannot know the flavor
+                (pro 61 / encore 41 / starter 40 questions) and has to hold one
+                range for all three. We deliberately err long: finishing early
+                is a pleasant surprise, running double the promise is not. */}
             <div className="bg-white/10 rounded-lg p-4">
               <div className="text-2xl font-bold text-atlas-teal mb-1">⏱️</div>
-              <div className="text-sm font-medium text-[#F5F5F5]">15-20 minutes</div>
-              <div className="text-xs text-[#F5F5F5]/60">Completion time</div>
+              <div className="text-sm font-medium text-[#F5F5F5]">30-60 minutes</div>
+              <div className="text-xs text-[#F5F5F5]/60">At your own pace, saved as you go</div>
             </div>
             <div className="bg-white/10 rounded-lg p-4">
               <div className="text-2xl font-bold text-atlas-teal mb-1">📊</div>
