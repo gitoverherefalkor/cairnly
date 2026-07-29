@@ -72,10 +72,20 @@ export const REGION_OPTIONS: RegionOption[] = [
   // fallbacks; the picker shows the localized survey.json strings at runtime.
   { key: 'uk-london', label: 'United Kingdom (London & commuter belt)', region: REGION.ukLondon },
   { key: 'uk-other', label: 'United Kingdom (rest of the UK)', region: REGION.ukOther },
-  // United States — split by area (spans three bands), anchored by example cities
-  { key: 'us-high', label: 'United States (major metro: SF, NYC, Boston, Seattle, LA, DC)', region: REGION.usHigh },
-  { key: 'us-avg', label: 'United States (mid-size city: Chicago, Austin, Denver, Atlanta, Dallas)', region: REGION.usAvg },
-  { key: 'us-low', label: 'United States (smaller city / lower-cost area)', region: REGION.usLow },
+  // United States — split by area (spans three bands), anchored by example
+  // cities. Two deliberate choices here:
+  //  1. Cities are prefixed "e.g." and the middle band reads "most other
+  //     cities", so it is unmistakably the catch-all. Naming a closed set
+  //     (Chicago, Austin, Denver, Atlanta, Dallas) sent anyone from San Diego,
+  //     Miami or Philadelphia to "Elsewhere / not listed", which maps to the
+  //     European band — they would have been priced in EUR against European
+  //     salaries. No US resident should ever need the "elsewhere" option.
+  //  2. Labels describe COST, not city size, because that is what the band
+  //     actually measures. Chicago metro is ~9.5M people; filing it under
+  //     "mid-size city" invited Chicagoans to skip the option that fits them.
+  { key: 'us-high', label: 'United States (highest-cost metros, e.g. SF, NYC, Boston, Seattle, LA, DC)', region: REGION.usHigh },
+  { key: 'us-avg', label: 'United States (most other cities, e.g. Chicago, Austin, Denver, Atlanta, Philadelphia)', region: REGION.usAvg },
+  { key: 'us-low', label: 'United States (small town or rural area)', region: REGION.usLow },
   // Other covered markets
   { key: 'CA', label: 'Canada', region: REGION.canada },
   { key: 'AU', label: 'Australia', region: REGION.ausNz },
