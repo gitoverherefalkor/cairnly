@@ -12,8 +12,7 @@
     "elsewhereNote": "We don't have salary data for your market yet, so estimates will use Europe (EUR) as a rough reference.",
     "confirmSet": "Currently set to: {{region}}. Pick a country above to change it.",
     "elsewhereWhereLabel": "Which country are you based in?",
-    "elsewhereOptional": "Optional",
-    "elsewhereWherePlaceholder": "e.g. Singapore"
+    "elsewhereOptional": "Optional"
   },
   "submitted": {
     "title": "Assessment Submitted Successfully!",

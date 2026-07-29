@@ -12,8 +12,7 @@
     "elsewhereNote": "We hebben nog geen salarisdata voor jouw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
     "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen.",
     "elsewhereWhereLabel": "In welk land woon je?",
-    "elsewhereOptional": "Optioneel",
-    "elsewhereWherePlaceholder": "bijv. Singapore"
+    "elsewhereOptional": "Optioneel"
   },
   "submitted": {
     "title": "Assessment succesvol ingediend!",
