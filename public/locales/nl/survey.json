@@ -13,7 +13,7 @@
     "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen.",
     "elsewhereWhereLabel": "In welk land woon je?",
     "elsewhereOptional": "Optioneel",
-    "elsewhereWherePlaceholder": "bijv. Singapore, Brazilië, Verenigde Arabische Emiraten"
+    "elsewhereWherePlaceholder": "bijv. Singapore"
   },
   "submitted": {
     "title": "Assessment succesvol ingediend!",
