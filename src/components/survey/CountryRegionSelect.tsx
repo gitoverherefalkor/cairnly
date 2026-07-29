@@ -22,6 +22,13 @@ interface Props {
   onChange: (region: string) => void;
   /** Used to scope the restore hint so questions don't collide. */
   questionId: string;
+  /**
+   * Free-text country/city captured when the user picks "Elsewhere". Stored as
+   * a sidecar response (`__elsewhere_location`), NOT as the answer, because the
+   * answer has to stay one of the exact band strings n8n expects.
+   */
+  elsewhereLocation?: string;
+  onElsewhereLocationChange?: (value: string) => void;
 }
 
 // The answer only carries the region band, which several countries share, so a
@@ -48,7 +55,13 @@ const TIER_LABEL_KEY: Record<string, string> = {
  * Country names localize automatically via Intl.DisplayNames; the area tiers
  * and helper copy come from the survey.json regionPicker strings.
  */
-export const CountryRegionSelect: React.FC<Props> = ({ value, onChange, questionId }) => {
+export const CountryRegionSelect: React.FC<Props> = ({
+  value,
+  onChange,
+  questionId,
+  elsewhereLocation,
+  onElsewhereLocationChange,
+}) => {
   const { t, i18n } = useTranslation('survey');
   const lang = i18n.language || 'en';
   const [selectedKey, setSelectedKey] = useState<string>('');
@@ -148,8 +161,35 @@ export const CountryRegionSelect: React.FC<Props> = ({ value, onChange, question
         </p>
       )}
 
+      {/* "Elsewhere" is the only honest answer for markets we can't price yet
+          (checkout sells to Japan, China and India, none of which have a salary
+          band). Asking where they actually are costs the user one line and
+          tells us which market to build next; without it the answer is stored
+          as the European band and is indistinguishable from a Dutch user, so we
+          cannot even count how often this path is taken. Optional on purpose:
+          it informs our roadmap, it is not needed to finish the survey. */}
       {selected?.key === 'elsewhere' && (
-        <p className="text-xs text-gray-500 mt-2">{t('regionPicker.elsewhereNote')}</p>
+        <div className="mt-2">
+          <p className="text-xs text-gray-500">{t('regionPicker.elsewhereNote')}</p>
+          <label
+            htmlFor={`elsewhere-location-${questionId}`}
+            className="block text-sm font-medium text-gray-700 mt-3 mb-1"
+          >
+            {t('regionPicker.elsewhereWhereLabel')}
+            <span className="ml-1.5 text-xs font-normal text-gray-500">
+              {t('regionPicker.elsewhereOptional')}
+            </span>
+          </label>
+          <input
+            id={`elsewhere-location-${questionId}`}
+            type="text"
+            value={elsewhereLocation ?? ''}
+            onChange={(e) => onElsewhereLocationChange?.(e.target.value)}
+            placeholder={t('regionPicker.elsewhereWherePlaceholder')}
+            maxLength={120}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 outline-none focus:border-atlas-teal focus:ring-1 focus:ring-atlas-teal"
+          />
+        </div>
       )}
     </div>
   );

@@ -10,7 +10,10 @@
     "usLow": "Verenigde Staten (klein stadje of landelijk gebied)",
     "elsewhere": "Elders / niet in de lijst",
     "elsewhereNote": "We hebben nog geen salarisdata voor jouw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
-    "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen."
+    "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen.",
+    "elsewhereWhereLabel": "In welk land woon je?",
+    "elsewhereOptional": "Optioneel",
+    "elsewhereWherePlaceholder": "bijv. Singapore, Brazilië, Verenigde Arabische Emiraten"
   },
   "submitted": {
     "title": "Assessment succesvol ingediend!",
