@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ThumbsDown, ArrowRight, CheckCircle, Search, Pencil, LayoutDashboard } from 'lucide-react';
+import { ThumbsDown, ArrowRight, CheckCircle, Search, Pencil, LayoutDashboard, SkipForward } from 'lucide-react';
 
 // `intent` lets the chat container distinguish between message types that
 // look the same in the chat history but mean different things to the
@@ -8,7 +8,10 @@ import { ThumbsDown, ArrowRight, CheckCircle, Search, Pencil, LayoutDashboard } 
 // without invoking the agent. 'wrap_up' is the dream-jobs final click.
 // undefined means the click should flow through the agent like a normal
 // free-text message (explore-more, see-differently followups).
-export type QuickReplyIntent = 'advance' | 'wrap_up';
+// 'skip_stalled' is the escape hatch offered when a section's content never
+// arrived — it moves the user past the missing section instead of looping on
+// "try Continue again".
+export type QuickReplyIntent = 'advance' | 'wrap_up' | 'skip_stalled';
 
 interface QuickReply {
   label: string;
@@ -34,6 +37,10 @@ interface QuickRepliesProps {
   // — Explore More / I see this differently / Something else would just
   // loop the conversation. Active chat input handles free-form follow-ups.
   isDeepDive?: boolean;
+  // True when we've stopped waiting for a section that never arrived. Replaces
+  // the normal pills with a single way forward, so the user isn't left tapping
+  // Continue against a section that is never going to load.
+  isStalled?: boolean;
 }
 
 // Standard button set for all sections except the last one.
@@ -117,6 +124,26 @@ const MINIMAL_REPLIES: QuickReply[] = [
   },
 ];
 
+// A section never arrived. Offer the way past it (and keep "try again" for
+// the case where the upstream workflow catches up on its own).
+const STALLED_REPLIES: QuickReply[] = [
+  {
+    label: 'Skip ahead and continue',
+    mobileLabel: 'Skip ahead',
+    message: "Let's skip that section and continue",
+    icon: <SkipForward size={14} />,
+    variant: 'primary',
+    intent: 'skip_stalled',
+  },
+  {
+    label: 'Try loading it once more',
+    mobileLabel: 'Try again',
+    message: 'Looks good, let\'s continue to the next section',
+    icon: <ArrowRight size={14} />,
+    intent: 'advance',
+  },
+];
+
 // Post-wrap-up — only option is to leave
 const POST_WRAP_REPLIES: QuickReply[] = [
   {
@@ -129,20 +156,24 @@ const POST_WRAP_REPLIES: QuickReply[] = [
   },
 ];
 
-export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput, visible, isLastSection = false, isWrappedUp = false, isDeepDive = false }) => {
+export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput, visible, isLastSection = false, isWrappedUp = false, isDeepDive = false, isStalled = false }) => {
   const replies = isWrappedUp
     ? POST_WRAP_REPLIES
-    : isLastSection
-      // On the final section the "wrap up" pill is ALWAYS offered, so the
-      // session is always closable. It used to be withheld until every dream
-      // card had been opened, but that gate never fired for users with a
-      // single dream job (the "all cards opened" signal only exists for
-      // multi-card deliveries), leaving them with no way to reach the
-      // dashboard. Opening your own dream job is expected, not enforced.
-      ? FINAL_REPLIES
-      : isDeepDive
-        ? MINIMAL_REPLIES
-        : STANDARD_REPLIES;
+    // Checked before everything else: when a section is stuck, none of the
+    // normal options (explore, disagree, continue) can do anything useful.
+    : isStalled
+      ? STALLED_REPLIES
+      : isLastSection
+        // On the final section the "wrap up" pill is ALWAYS offered, so the
+        // session is always closable. It used to be withheld until every dream
+        // card had been opened, but that gate never fired for users with a
+        // single dream job (the "all cards opened" signal only exists for
+        // multi-card deliveries), leaving them with no way to reach the
+        // dashboard. Opening your own dream job is expected, not enforced.
+        ? FINAL_REPLIES
+        : isDeepDive
+          ? MINIMAL_REPLIES
+          : STANDARD_REPLIES;
   const [show, setShow] = useState(false);
   const [clicked, setClicked] = useState(false);
 
