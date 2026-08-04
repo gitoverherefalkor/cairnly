@@ -45,6 +45,17 @@ const CAREER_SECTION_TYPES = new Set<DeliverableSectionType>([
   'dream_jobs',
 ]);
 
+// Reverse of SECTION_INDEX_TO_TYPE, plus the highest deliverable index. Used
+// by the stalled-section skip to find the next section that actually has
+// content when one never arrives.
+const SECTION_TYPE_TO_INDEX = Object.entries(SECTION_INDEX_TO_TYPE).reduce<
+  Partial<Record<DeliverableSectionType, number>>
+>((acc, [index, type]) => {
+  if (type) acc[type] = Number(index);
+  return acc;
+}, {});
+const LAST_SECTION_INDEX = Math.max(...Object.keys(SECTION_INDEX_TO_TYPE).map(Number));
+
 // Smallest index whose section is a career section. Derived from the maps above
 // so it stays correct if the ordering ever changes.
 const FIRST_CAREER_INDEX = Math.min(
@@ -279,6 +290,17 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // before `sections` (react-query) has refreshed to include the new
     // chapter_1_feedback row.
     const chapterFeedbackDoneRef = useRef(false);
+
+    // Consecutive "waited for the section row and it never appeared" counts,
+    // keyed by section type. Reset the moment the row shows up. Drives the
+    // escalation in the career gate below: one timeout is a slow pipeline,
+    // two means the row probably isn't coming at all.
+    const sectionWaitFailuresRef = useRef<Record<string, number>>({});
+    // The section we've given up waiting for, if any. Surfaces the "Skip this
+    // section" pill so a broken upstream workflow can't dead-end the session.
+    const [stalledSection, setStalledSection] = useState<DeliverableSectionType | null>(null);
+    // Guards against filing the same support request on every retry click.
+    const stallReportedRef = useRef<Record<string, boolean>>({});
 
     const { messages, isLoading, addMessage, seedFromHistory, hasMessages } =
       useChatMessages({ sessionId, reportId, userId });
@@ -600,6 +622,39 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       setInputPlaceholderOverride(null);
     };
 
+    // File a support request when a section never arrives. A stalled section
+    // means an upstream workflow didn't write its rows — invisible to us
+    // otherwise, because nothing errors: the user just sits in front of a
+    // spinner. Routing it through submit-support-request puts it in the same
+    // inbox (and the same ops feed) as a hand-written report, so it actually
+    // gets seen. Fire-and-forget: a failure here must never block the user's
+    // way out of the stall.
+    const reportStalledSection = useCallback(
+      async (sectionType: DeliverableSectionType, attempts: number) => {
+        if (stallReportedRef.current[sectionType]) return;
+        stallReportedRef.current[sectionType] = true;
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          await supabase.functions.invoke('submit-support-request', {
+            body: {
+              category: 'ai_chat',
+              email: session?.user?.email ?? 'unknown@cairnly.io',
+              page: '/chat',
+              user_agent: navigator.userAgent,
+              message:
+                `[automatic] Section "${sectionType}" never appeared for report ${reportId} ` +
+                `after ${attempts} waits. The report_sections rows for this section are missing, ` +
+                `so the chat could not deliver it and the user was offered a skip. ` +
+                `Check the upstream n8n workflow run for this report.`,
+            },
+          });
+        } catch (err) {
+          console.error('[stalled-section] failed to file support request:', err);
+        }
+      },
+      [reportId],
+    );
+
     const handleSend = async (
       message: string,
       intent?: QuickReplyIntent,
@@ -688,6 +743,67 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       // QuickReplies stay hidden until the card completes.
       if (intent === 'wrap_up') {
         addMessage('user', message);
+        setWrapUpState('pending');
+        return;
+      }
+
+      // Stalled-section skip. The user gave up waiting on a section whose rows
+      // never arrived; jump them to the next section that DOES have content so
+      // a broken upstream workflow costs them one section instead of the whole
+      // session. If nothing deliverable is left, go straight to wrap-up.
+      if (intent === 'skip_stalled') {
+        const stalled = stalledSection;
+        addMessage('user', message, { skipPersist: true });
+        setStalledSection(null);
+        setLoadingMode('delivery');
+        setIsWaitingForResponse(true);
+
+        const stalledIndex = (stalled && SECTION_TYPE_TO_INDEX[stalled]) ?? currentSectionIndex + 1;
+        let targetIndex = -1;
+        let targetType: DeliverableSectionType | undefined;
+        for (let i = stalledIndex + 1; i <= LAST_SECTION_INDEX; i++) {
+          const candidate = SECTION_INDEX_TO_TYPE[i];
+          if (!candidate) continue;
+          if (await sectionRowExists(reportId, candidate)) {
+            targetIndex = i;
+            targetType = candidate;
+            break;
+          }
+        }
+
+        if (targetType) {
+          try {
+            const response = await deliver({
+              reportId,
+              sectionType: targetType,
+              previousSectionType: SECTION_INDEX_TO_TYPE[currentSectionIndex] ?? undefined,
+              userMessage: message,
+              sessionId,
+              userId,
+            });
+            addMessage('bot', response, { skipPersist: true });
+            onSectionDetected(targetIndex);
+            lastTurnWasAdvanceRef.current = true;
+            setIsWaitingForResponse(false);
+            return;
+          } catch (error) {
+            console.error('[skip-stalled] deliver failed, wrapping up instead:', error);
+          }
+        }
+
+        // Nothing further to deliver (or that delivery failed too) — close the
+        // session cleanly rather than leaving them stranded again. The skip
+        // click never reached the edge function, so persist it here.
+        supabase.from('chat_messages').insert({
+          session_id: sessionId,
+          report_id: reportId,
+          user_id: userId,
+          sender: 'user',
+          content: message,
+        }).then(({ error: persistErr }) => {
+          if (persistErr) console.error('[skip-stalled] persist failed:', persistErr);
+        });
+        setIsWaitingForResponse(false);
         setWrapUpState('pending');
         return;
       }
@@ -791,22 +907,46 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           setLoadingMode('preparing');
           const becameReady = await waitForSectionRow(reportId, nextType);
           if (!becameReady) {
-            // Timed out waiting for WF4. Leave the user at the values section
-            // (we never advanced) with a friendly nudge to retry shortly. The
-            // user message was added with skipPersist and the deliver never
-            // ran, so nothing is persisted — a refresh cleanly returns them to
-            // the Continue button. Do NOT fall through to the agent.
-            addMessage(
-              'bot',
-              "Your career matches are taking a little longer to finalize. Hang tight — give it a moment and tap Continue again.",
-              { skipPersist: true },
-            );
+            // Timed out waiting for WF4. Leave the user at the current section
+            // (we never advanced). The user message was added with skipPersist
+            // and the deliver never ran, so nothing is persisted — a refresh
+            // cleanly returns them to the Continue button. Do NOT fall through
+            // to the agent.
+            //
+            // Attempt 1 is a genuine "still working" nudge: WF4 really can run
+            // long, and retrying usually works. But when the row is never
+            // coming (e.g. Aug 2026: WF4's "Insert dream" node was left
+            // disabled after a test, so dream_jobs rows silently stopped being
+            // written), repeating that nudge traps the user in a loop with no
+            // way to finish their report and no signal reaching us. From
+            // attempt 2 we stop pretending it's a delay, raise a support
+            // request so it surfaces, and offer a way past the section.
+            const attempts = (sectionWaitFailuresRef.current[nextType] ?? 0) + 1;
+            sectionWaitFailuresRef.current[nextType] = attempts;
+
+            if (attempts === 1) {
+              addMessage(
+                'bot',
+                "Your career matches are taking a little longer to finalize. Hang tight — give it a moment and tap Continue again.",
+                { skipPersist: true },
+              );
+            } else {
+              setStalledSection(nextType);
+              void reportStalledSection(nextType, attempts);
+              addMessage(
+                'bot',
+                "This section still isn't coming through, and that's on our side, not something you did. I've flagged it to the team so they can look at it.\n\nYou don't have to sit here waiting: you can skip ahead and finish the rest of your session now. We'll follow up about this section by email.",
+                { skipPersist: true },
+              );
+            }
             setLoadingMode('agent');
             setIsWaitingForResponse(false);
             return;
           }
           // Ready now — restore the fast "loading section" copy for the actual
-          // deliver call below.
+          // deliver call below, and clear any earlier stall for this section.
+          sectionWaitFailuresRef.current[nextType] = 0;
+          setStalledSection((prev) => (prev === nextType ? null : prev));
           setLoadingMode('delivery');
         }
 
@@ -1027,6 +1167,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           reportId={reportId}
           wrapUpState={wrapUpState}
           onWrapUpCompleted={() => setWrapUpState('completed')}
+          isStalled={stalledSection !== null}
           failedMessageIds={Object.keys(failedSends)}
           onRetryMessage={handleRetry}
           bookmarkedMessageIds={bookmarkedIds}

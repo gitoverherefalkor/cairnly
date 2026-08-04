@@ -64,6 +64,9 @@ interface ChatMessagesProps {
   reportId?: string;
   wrapUpState?: 'idle' | 'pending' | 'completed';
   onWrapUpCompleted?: () => void;
+  // True when the chat gave up waiting on a section whose content never
+  // arrived. Swaps the quick replies for the skip-ahead escape hatch.
+  isStalled?: boolean;
   // IDs of user messages whose agent call threw. ChatMessage renders a
   // small retry affordance to the right of these bubbles. Click hits
   // onRetryMessage(id) and the parent re-runs the send.
@@ -83,7 +86,7 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, isStalled = false, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
@@ -377,6 +380,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                     isLastSection={isDreamJobsSection}
                     isWrappedUp={hasWrappedUp}
                     isDeepDive={isDeepDive}
+                    isStalled={isStalled}
                   />
                 )}
               </React.Fragment>

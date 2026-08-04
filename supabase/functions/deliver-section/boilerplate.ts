@@ -85,7 +85,12 @@ const EN: Record<SectionType, Boilerplate> = {
   },
   dream_jobs: {
     intro:
-      "Everyone has an idea of their ideal job, the one that aligns perfectly with their passions and ambitions. In this section, we take an honest look at how well your dream job(s) align with your personality, experience, and the realities of the job market today. Let's break it down.",
+      // The survey asks for a dream job "regardless of any constraining
+      // factors", then this section rates its feasibility, including
+      // credential barriers. Users have (fairly) called that contradictory.
+      // The intro now names the switch explicitly so the honest read lands as
+      // "here's the route" rather than "you gave the wrong answer".
+      "We asked for your dream job without worrying about constraints, and that was on purpose. This section is where we put the constraints back in: not to talk you out of anything, but to show what it would realistically take to get there, and what a version of it might look like that fits the experience you already have. Let's break it down.",
     // No outro on initial delivery. The wrap-up message is sent separately
     // when the user clicks "All done, wrap up session".
     outro: null,
@@ -147,7 +152,7 @@ const NL: Record<SectionType, Boilerplate> = {
   },
   dream_jobs: {
     intro:
-      "Iedereen heeft een idee van de ideale baan, eentje die perfect aansluit bij passies en ambities. In dit onderdeel kijken we eerlijk naar hoe goed je droombaan of -banen aansluiten bij je persoonlijkheid, ervaring, en de realiteit van de huidige arbeidsmarkt. Laten we het uitsplitsen.",
+      "We vroegen naar je droombaan zonder rekening te houden met beperkingen, en dat was bewust. In dit onderdeel halen we die beperkingen er weer bij: niet om je iets uit het hoofd te praten, maar om te laten zien wat er realistisch voor nodig is om er te komen, en hoe een versie ervan eruit kan zien die aansluit bij de ervaring die je al hebt. Laten we het uitsplitsen.",
     outro: null,
   },
 };
