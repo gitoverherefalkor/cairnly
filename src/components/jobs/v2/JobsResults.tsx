@@ -649,7 +649,7 @@ const JobCardCream: React.FC<{
             >
               {[job.location, postedText].filter(Boolean).join(' · ')}
             </div>
-            {(job.workplace_type || job.employment_type) && (
+            {(job.workplace_type || job.employment_type || job.applicants_count != null) && (
               <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {job.workplace_type && (
                   <JobBadge
@@ -658,6 +658,12 @@ const JobCardCream: React.FC<{
                   />
                 )}
                 {job.employment_type && <JobBadge label={job.employment_type} />}
+                {job.applicants_count != null && (
+                  <JobBadge
+                    label={formatApplicants(job.applicants_count)}
+                    highlight={job.applicants_count <= LOW_APPLICANT_THRESHOLD}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -879,6 +885,15 @@ const LockedActionButton: React.FC<{
     </button>
   );
 };
+
+// Applying early is a real advantage, so a low applicant count gets highlighted.
+// LinkedIn stops counting publicly at 200, hence the "200+".
+const LOW_APPLICANT_THRESHOLD = 30;
+
+function formatApplicants(count: number): string {
+  if (count >= 200) return '200+ applicants';
+  return count === 1 ? '1 applicant' : `${count} applicants`;
+}
 
 // "110–180k" with no currency symbol (per product decision — no currency in schema).
 function formatSalaryRange(min: number | null | undefined, max: number | null | undefined): string {
