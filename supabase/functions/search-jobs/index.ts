@@ -132,7 +132,9 @@ serve(async (req) => {
     // v11: scorer now sees alt titles + alt-search uses up to 3 (was 1) + Apify count cap 15→40 (2026-05-26).
     // v12: keyword generator now sees alt titles too (informs the primary search keyword) (2026-05-26).
     // v13: keyword generator + scorer now receive the report's Overview blurb for the career (2026-05-26).
-    const SEARCH_LOGIC_VERSION = 'v13';
+    // v14: LinkedIn AI-search fallout — per-URL result cap (alt titles no longer starved),
+    //      scorer enforces work arrangement + job commitment, real salary parsing (2026-08-10).
+    const SEARCH_LOGIC_VERSION = 'v14';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
