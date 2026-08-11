@@ -12,11 +12,11 @@
  */
 
 /**
- * The moment the introductory price expires: 15 October 2026, 00:00 Amsterdam.
- * October 15 still falls inside CEST (summer time ends October 25), so the
- * offset is +02:00.
+ * The moment the introductory price expires: 15 October 2026, 23:59 Amsterdam,
+ * so the whole of the 15th still gets the intro price. October 15 falls inside
+ * CEST (summer time ends October 25), so the offset is +02:00.
  */
-export const PRICE_SWITCH_AT = new Date("2026-10-15T00:00:00+02:00");
+export const PRICE_SWITCH_AT = new Date("2026-10-15T23:59:00+02:00");
 
 /** Pro assessment (cairnly.io) — introductory price, then the regular price. */
 export const PRO_PRICE_INTRO = 39;

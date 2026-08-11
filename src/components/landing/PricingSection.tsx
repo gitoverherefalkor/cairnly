@@ -79,7 +79,7 @@ const PricingSection: React.FC = () => {
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
             {/* Flex gap rather than a margin on the pill: the countdown renders
-                nothing outside its window, and a gap collapses with it. */}
+                nothing once the deadline passes, and a gap collapses with it. */}
             <div className="flex flex-col items-center gap-4 mb-8">
               <div
                 className="px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.22em]"

@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/lib/format';
-import {
-  DISPLAY_CURRENCY,
-  introPriceTimeLeft,
-  PRO_PRICE_REGULAR,
-  shouldShowCountdown,
-} from '@/lib/pricing';
+import { DISPLAY_CURRENCY, introPriceTimeLeft, PRO_PRICE_REGULAR } from '@/lib/pricing';
 
 /**
  * Countdown to the end of the introductory price.
@@ -16,8 +11,7 @@ import {
  * decision) reads that as a reason to distrust the offer. The deadline is
  * genuine, so it does not need dressing up.
  *
- * Renders nothing outside the final COUNTDOWN_VISIBLE_DAYS and nothing once the
- * deadline passes, so it appears and disappears on its own with no deploy.
+ * Runs from now until the deadline, then disappears on its own with no deploy.
  */
 
 interface PriceCountdownProps {
@@ -41,8 +35,6 @@ const PriceCountdown: React.FC<PriceCountdownProps> = ({ tone = 'light', classNa
     const id = window.setInterval(() => setNow(new Date()), 60_000);
     return () => window.clearInterval(id);
   }, []);
-
-  if (!shouldShowCountdown(now)) return null;
 
   const left = introPriceTimeLeft(now);
   if (!left) return null;

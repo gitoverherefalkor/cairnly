@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  COUNTDOWN_VISIBLE_DAYS,
   DISPLAY_CURRENCY,
   ENCORE_PRICE,
   PRICE_SWITCH_AT,
@@ -15,7 +14,6 @@ import {
   introPriceTimeLeft,
   isIntroPriceActive,
   proPriceAt,
-  shouldShowCountdown,
 } from "./pricing";
 
 /**
@@ -88,29 +86,30 @@ describe("the pro price flips on the switch date", () => {
     expect(getProPricing(dayAfter).anchor).toBeNull();
   });
 
-  it("keeps the deadline in Amsterdam time", () => {
-    // 15 Oct 2026 00:00 CEST is 14 Oct 22:00 UTC. If summer time were applied
+  it("keeps the deadline at 23:59 Amsterdam time", () => {
+    // 15 Oct 2026 23:59 CEST is 15 Oct 21:59 UTC. If summer time were applied
     // wrongly this would land an hour off and the price would flip early.
-    expect(PRICE_SWITCH_AT.toISOString()).toBe("2026-10-14T22:00:00.000Z");
+    expect(PRICE_SWITCH_AT.toISOString()).toBe("2026-10-15T21:59:00.000Z");
+  });
+
+  it("keeps the intro price for the whole of 15 October", () => {
+    const lateOnTheFifteenth = new Date("2026-10-15T23:00:00+02:00");
+    expect(proPriceAt(lateOnTheFifteenth)).toBe(39);
   });
 });
 
-describe("the countdown only runs in its window", () => {
+describe("the countdown runs until the deadline", () => {
   const daysBefore = (n: number) =>
     new Date(PRICE_SWITCH_AT.getTime() - n * 24 * 60 * 60 * 1000);
 
-  it("stays hidden while the deadline is far away", () => {
-    expect(shouldShowCountdown(daysBefore(COUNTDOWN_VISIBLE_DAYS + 1))).toBe(false);
-  });
-
-  it("appears inside the visible window", () => {
-    expect(shouldShowCountdown(daysBefore(COUNTDOWN_VISIBLE_DAYS - 1))).toBe(true);
-    expect(shouldShowCountdown(daysBefore(1))).toBe(true);
+  it("runs from months out, not just the final days", () => {
+    expect(introPriceTimeLeft(daysBefore(65))).not.toBeNull();
+    expect(introPriceTimeLeft(daysBefore(65))?.days).toBe(65);
   });
 
   it("disappears once the deadline passes", () => {
-    expect(shouldShowCountdown(new Date(PRICE_SWITCH_AT.getTime()))).toBe(false);
     expect(introPriceTimeLeft(new Date(PRICE_SWITCH_AT.getTime()))).toBeNull();
+    expect(introPriceTimeLeft(daysBefore(-1))).toBeNull();
   });
 
   it("reports whole days and hours left", () => {

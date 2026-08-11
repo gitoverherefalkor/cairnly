@@ -167,7 +167,7 @@ const ReportDeliverablesCard: React.FC = () => {
                 ))}
             </span>
 
-            {/* Renders nothing outside the final days before the switch. */}
+            {/* Renders nothing once the deadline passes. */}
             <PriceCountdown tone="dark" className="mt-3" />
 
             <div className="mt-3 flex items-end gap-3">

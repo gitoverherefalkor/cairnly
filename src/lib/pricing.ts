@@ -23,10 +23,11 @@
 export const DISPLAY_CURRENCY = "EUR";
 
 /**
- * The moment the introductory price expires: 15 October 2026, 00:00 Amsterdam.
- * October 15 still falls inside CEST (summer time ends October 25), so +02:00.
+ * The moment the introductory price expires: 15 October 2026, 23:59 Amsterdam,
+ * so the whole of the 15th still gets the intro price. October 15 falls inside
+ * CEST (summer time ends October 25), so the offset is +02:00.
  */
-export const PRICE_SWITCH_AT = new Date("2026-10-15T00:00:00+02:00");
+export const PRICE_SWITCH_AT = new Date("2026-10-15T23:59:00+02:00");
 
 /** Pro assessment (cairnly.io) — introductory price, then the regular price. */
 export const PRO_PRICE_INTRO = 39;
@@ -45,12 +46,6 @@ export const STARTER_PRICE_ANCHOR = 79;
 
 /** Encore has always been priced on its own, with no strike-through anchor. */
 export const ENCORE_PRICE = 79;
-
-/**
- * How long before the switch the countdown appears. A clock that ticks for two
- * months is furniture, not urgency — it only earns its place near the deadline.
- */
-export const COUNTDOWN_VISIBLE_DAYS = 10;
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
@@ -77,12 +72,6 @@ export const introPriceTimeLeft = (
     days: Math.floor(remaining / MS_PER_DAY),
     hours: Math.floor((remaining % MS_PER_DAY) / MS_PER_HOUR),
   };
-};
-
-/** True only inside the visible window before the switch. */
-export const shouldShowCountdown = (now: Date = new Date()): boolean => {
-  const remaining = PRICE_SWITCH_AT.getTime() - now.getTime();
-  return remaining > 0 && remaining <= COUNTDOWN_VISIBLE_DAYS * MS_PER_DAY;
 };
 
 /**
