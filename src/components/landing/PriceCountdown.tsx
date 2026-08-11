@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/lib/format';
-import { DISPLAY_CURRENCY, introPriceTimeLeft, PRO_PRICE_REGULAR } from '@/lib/pricing';
+import {
+  DISPLAY_CURRENCY,
+  introPriceTimeLeft,
+  proPriceAt,
+  PRO_PRICE_REGULAR,
+} from '@/lib/pricing';
 
 /**
  * Countdown to the end of the introductory price.
@@ -17,6 +22,12 @@ import { DISPLAY_CURRENCY, introPriceTimeLeft, PRO_PRICE_REGULAR } from '@/lib/p
 interface PriceCountdownProps {
   /** 'light' for the cream price panel, 'dark' for the navy intake card. */
   tone?: 'light' | 'dark';
+  /**
+   * Name the current price in the opening line. The price panels already show
+   * it in 64px type right underneath; the hero does not show a price at all, so
+   * there "ends in 65 days, then €59" would hang in mid-air.
+   */
+  leadWithPrice?: boolean;
   className?: string;
 }
 
@@ -25,7 +36,11 @@ const TONES = {
   dark: { primary: '#FFFFFF', muted: 'rgba(255,255,255,0.55)' },
 } as const;
 
-const PriceCountdown: React.FC<PriceCountdownProps> = ({ tone = 'light', className }) => {
+const PriceCountdown: React.FC<PriceCountdownProps> = ({
+  tone = 'light',
+  leadWithPrice = false,
+  className,
+}) => {
   const { t, i18n } = useTranslation('landing');
   const [now, setNow] = useState(() => new Date());
 
@@ -58,7 +73,12 @@ const PriceCountdown: React.FC<PriceCountdownProps> = ({ tone = 'light', classNa
       style={{ textAlign: 'center', lineHeight: 1.5 }}
     >
       <p style={{ color: colors.primary, fontSize: 13, fontWeight: 700, margin: 0 }}>
-        {t('pricing.countdown.prefix')} {remaining}
+        {leadWithPrice
+          ? t('pricing.countdown.prefixWithPrice', {
+              price: formatCurrency(proPriceAt(now), i18n.language, DISPLAY_CURRENCY),
+            })
+          : t('pricing.countdown.prefix')}{' '}
+        {remaining}
       </p>
       <p style={{ color: colors.muted, fontSize: 12, fontWeight: 600, margin: 0 }}>
         {t('pricing.countdown.then', { price: regularPrice })}

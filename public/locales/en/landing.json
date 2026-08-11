@@ -279,6 +279,7 @@
     "regularPill": "Beta Access",
     "countdown": {
       "prefix": "Intro price ends in",
+      "prefixWithPrice": "{{price}} intro price ends in",
       "days_one": "{{count}} day",
       "days_other": "{{count}} days",
       "hours_one": "{{count}} hour",

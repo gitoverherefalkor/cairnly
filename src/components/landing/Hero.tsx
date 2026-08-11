@@ -6,6 +6,7 @@ import HeroCarousel from './HeroCarousel';
 import IntentChips from './IntentChips';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
+import PriceCountdown from './PriceCountdown';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
@@ -25,6 +26,11 @@ const Hero: React.FC = () => {
   // Once the chat delivers its pitch, the right column stops being a generic
   // product tour and itemizes the report the visitor is about to buy.
   const pitched = intakeChat?.stage === 'pitched';
+  // The price deadline greets visitors who haven't engaged yet, then gets out
+  // of the way. Once someone is answering questions, the conversation is what
+  // converts, and a ticking price clock only pulls attention off it. It comes
+  // back at the pitch, inside the deliverables card's own price panel.
+  const chatStarted = intakeChat?.started ?? false;
 
   return (
     <section className="survey-bg relative text-white pt-10 md:pt-14 pb-16 md:pb-20 overflow-hidden">
@@ -146,10 +152,15 @@ const Hero: React.FC = () => {
             ) : (
               // The pills + chat are the CTA here; a generic "Get Started"
               // that drops straight into the signup form only invites bounces.
-              // Keep just the reassurance line under the carousel.
-              <p className="mt-8 text-sm text-white/45 font-medium text-center">
-                {t('hero.reassurance')}
-              </p>
+              // Keep the reassurance line under the carousel, with the price
+              // deadline above it until the visitor starts talking. Flex gap so
+              // the spacing closes by itself when the countdown steps aside.
+              <div className="mt-8 flex flex-col items-center gap-3">
+                {!chatStarted && <PriceCountdown tone="dark" leadWithPrice />}
+                <p className="text-sm text-white/45 font-medium text-center">
+                  {t('hero.reassurance')}
+                </p>
+              </div>
             )}
           </Reveal>
         </div>

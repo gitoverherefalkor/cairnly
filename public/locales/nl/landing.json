@@ -279,6 +279,7 @@
     "regularPill": "Bèta-toegang",
     "countdown": {
       "prefix": "Introprijs loopt af over",
+      "prefixWithPrice": "Introprijs van {{price}} loopt af over",
       "days_one": "{{count}} dag",
       "days_other": "{{count}} dagen",
       "hours_one": "{{count}} uur",
