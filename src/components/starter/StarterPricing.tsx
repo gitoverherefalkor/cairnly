@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useStarterGetStarted } from './useStarterGetStarted';
-import { PRICING, currencyForLanguage } from '@/lib/pricing';
+import { getStarterPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 
 /** One-time-payment pricing card. Amounts come from the shared pricing source of truth. */
@@ -11,10 +11,11 @@ const StarterPricing: React.FC = () => {
   const getStarted = useStarterGetStarted();
   const { t, i18n } = useTranslation('starter');
 
-  const currency = currencyForLanguage(i18n.language);
-  const { core, original } = PRICING[currency];
-  const price = formatCurrency(core, i18n.language, currency.toUpperCase());
-  const originalPrice = formatCurrency(original, i18n.language, currency.toUpperCase());
+  // Starter is deliberately excluded from the pro price increase — this
+  // audience is at the start of their working life, with the budget to match.
+  const { core, anchor, currency } = getStarterPricing();
+  const price = formatCurrency(core, i18n.language, currency);
+  const originalPrice = formatCurrency(anchor, i18n.language, currency);
 
   return (
     <section id="pricing" className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden">

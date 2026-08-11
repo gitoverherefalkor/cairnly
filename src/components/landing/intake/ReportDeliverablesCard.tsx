@@ -11,6 +11,9 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
 } from '@/components/dashboard/v2/dashboardV2Shared';
+import PriceCountdown from '@/components/landing/PriceCountdown';
+import { getProPricing } from '@/lib/pricing';
+import { formatCurrency } from '@/lib/format';
 
 /**
  * The package card shown in the hero's right column once the intake chat
@@ -19,13 +22,17 @@ import {
  * mirrors the in-app dashboard's top-career cards (DashboardV4): dark glass,
  * gold glow + eyebrow, Poppins display title, the real rating pills. It reads
  * as the product surface the visitor is about to unlock, with the checkout CTA
- * on the card — this is the moment they see what €39 buys.
+ * on the card — this is the moment they see what the assessment buys.
  */
 const ReportDeliverablesCard: React.FC = () => {
-  const { t } = useTranslation('landing');
+  const { t, i18n } = useTranslation('landing');
   const navigate = useNavigate();
   const features = tArray<string>(t, 'pricing.features');
   const bonusItems = tArray<string>(t, 'pricing.bonusItems');
+
+  // Same shared source as the pricing section, so both cards flip together.
+  const { core, anchor, isIntro, currency } = getProPricing();
+  const price = formatCurrency(core, i18n.language, currency);
 
   return (
     <div
@@ -153,16 +160,24 @@ const ReportDeliverablesCard: React.FC = () => {
                 lineHeight: 1.7,
               }}
             >
-              {t('pricing.betaPill').split('·').map((line) => (
-                <span key={line} className="block">{line.trim()}</span>
-              ))}
+              {t(isIntro ? 'pricing.betaPill' : 'pricing.regularPill')
+                .split('·')
+                .map((line) => (
+                  <span key={line} className="block">{line.trim()}</span>
+                ))}
             </span>
+
+            {/* Renders nothing outside the final days before the switch. */}
+            <PriceCountdown tone="dark" className="mt-3" />
+
             <div className="mt-3 flex items-end gap-3">
-              <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
-                {t('pricing.originalPrice')}
-              </span>
+              {anchor !== null && (
+                <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
+                  {formatCurrency(anchor, i18n.language, currency)}
+                </span>
+              )}
               <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 44, lineHeight: 1, letterSpacing: '-0.02em', color: '#fff' }}>
-                {t('pricing.price')}
+                {price}
               </span>
             </div>
             <p

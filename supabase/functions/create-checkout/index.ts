@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
+import { ENCORE_PRICE, proPriceAt, STARTER_PRICE, toCents } from "../_shared/pricing.ts";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -42,31 +43,35 @@ serve(async (req) => {
     const resolvedFlavor: "pro" | "starter" | "encore" =
       flavor === "starter" || flavor === "encore" ? flavor : "pro";
 
-    // Per-flavor product presentation and price. Amounts are in cents and must
-    // stay in sync with src/lib/pricing.ts (what the marketing pages display).
+    // Per-flavor product presentation and price. Amounts come from
+    // _shared/pricing.ts, which src/lib/pricing.ts mirrors for the marketing
+    // pages. The pro price is resolved per request: it moves from the intro
+    // price to the regular one at PRICE_SWITCH_AT without a deploy on the day.
     const FLAVOR_PRODUCTS = {
       pro: {
         name: "Cairnly Assessment",
         description: "Complete assessment with personalized career insights",
-        unitAmount: 3900, // EUR 39.00 (beta price)
+        unitAmount: toCents(proPriceAt()),
         cancelPath: "/payment",
       },
       starter: {
         name: "Cairnly Starter Assessment",
         description:
           "Starter assessment with career directions and entry routes for your first serious job",
-        unitAmount: 3900, // EUR 39.00
+        unitAmount: toCents(STARTER_PRICE),
         cancelPath: "/starter/payment",
       },
       encore: {
         name: "Cairnly Encore Assessment",
         description:
           "Encore assessment with personality profile and post-career directions that fit this stage of life",
-        unitAmount: 7900, // EUR 79.00
+        unitAmount: toCents(ENCORE_PRICE),
         cancelPath: "/encore/payment",
       },
     } as const;
     const product = FLAVOR_PRODUCTS[resolvedFlavor];
+
+    console.log(`Flavor ${resolvedFlavor} priced at ${product.unitAmount} cents`);
 
     if (!firstName || !lastName || !email || !country) {
       return errorResponse("First name, last name, email, and country are required", 400, corsHeaders);

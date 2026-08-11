@@ -5,12 +5,21 @@ import { useNavigate } from 'react-router-dom';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
 import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
+import PriceCountdown from './PriceCountdown';
+import { getProPricing } from '@/lib/pricing';
+import { formatCurrency } from '@/lib/format';
 
 const PricingSection: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation('landing');
+  const { t, i18n } = useTranslation('landing');
   const features = tArray<string>(t, 'pricing.features');
   const bonusItems = tArray<string>(t, 'pricing.bonusItems');
+
+  // Price and anchor come from the shared source, so the switch to the regular
+  // price on 15 Oct 2026 happens here, in the checkout and in the intake chat
+  // at the same moment. `anchor` goes null at the switch: no invented discount.
+  const { core, anchor, isIntro, currency } = getProPricing();
+  const price = formatCurrency(core, i18n.language, currency);
 
   return (
     <section id="pricing" className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden">
@@ -69,22 +78,30 @@ const PricingSection: React.FC = () => {
             className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center items-center text-center"
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
-            <div
-              className="px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.22em] mb-8"
-              style={{ background: '#D4A024', color: '#1A1A1A' }}
-            >
-              {t('pricing.betaPill')}
+            {/* Flex gap rather than a margin on the pill: the countdown renders
+                nothing outside its window, and a gap collapses with it. */}
+            <div className="flex flex-col items-center gap-4 mb-8">
+              <div
+                className="px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.22em]"
+                style={{ background: '#D4A024', color: '#1A1A1A' }}
+              >
+                {t(isIntro ? 'pricing.betaPill' : 'pricing.regularPill')}
+              </div>
+
+              <PriceCountdown tone="light" />
             </div>
 
             <div className="flex items-end gap-4 mb-3">
-              <span style={{ color: '#9CA3AF', textDecoration: 'line-through', fontSize: 22, fontWeight: 600 }}>
-                {t('pricing.originalPrice')}
-              </span>
+              {anchor !== null && (
+                <span style={{ color: '#9CA3AF', textDecoration: 'line-through', fontSize: 22, fontWeight: 600 }}>
+                  {formatCurrency(anchor, i18n.language, currency)}
+                </span>
+              )}
               <span
                 className="font-heading text-[#122E3B]"
                 style={{ fontSize: 64, lineHeight: 1, fontWeight: 600, letterSpacing: '-0.02em' }}
               >
-                {t('pricing.price')}
+                {price}
               </span>
             </div>
             <p className="text-[#6B7F8B] font-bold uppercase tracking-[0.22em] text-[10px] mb-10">

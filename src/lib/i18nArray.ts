@@ -16,7 +16,10 @@
 export function tArray<T = unknown>(
   t: (key: string, opts?: Record<string, unknown>) => unknown,
   key: string,
+  /** Interpolation values, applied to every string in the array (i18next walks
+   *  nested values). Used for prices, which must not be hardcoded in the JSON. */
+  opts?: Record<string, unknown>,
 ): T[] {
-  const value = t(key, { returnObjects: true });
+  const value = t(key, { returnObjects: true, ...opts });
   return Array.isArray(value) ? (value as T[]) : [];
 }

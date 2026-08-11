@@ -203,7 +203,7 @@
         "quiz": "Free–€50. One-off.",
         "ai": "€20–€30 per month. ~€240–€360 per year.",
         "coach": "€80–€280 per month. Or €80–€150 per session.",
-        "cairnlyEmphasis": "€39.",
+        "cairnlyEmphasis": "{{price}}.",
         "cairnlyBody": " One-off. No subscription, ever."
       }
     ],
@@ -215,7 +215,7 @@
         "**Specificity:** Specific roles, salary, day-to-day, fit reasons.",
         "**Next steps:** Matched openings + tailored resume + cover letter.",
         "**Time to clarity:** One sitting.",
-        "**Cost:** €39. One-off. Forever."
+        "**Cost:** {{price}}. One-off. Forever."
       ],
       "othersLabel": "How the alternatives compare",
       "othersHint": "See how it compares",
@@ -276,8 +276,16 @@
       "Interactive dashboard with your results"
     ],
     "betaPill": "Limited offer · Beta Access",
-    "originalPrice": "€69",
-    "price": "€39",
+    "regularPill": "Beta Access",
+    "countdown": {
+      "prefix": "Intro price ends in",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "hours_one": "{{count}} hour",
+      "hours_other": "{{count}} hours",
+      "lastHour": "less than an hour",
+      "then": "then {{price}}"
+    },
     "oneOff": "A one-off payment",
     "cta": "Get Beta Access",
     "trust": {
@@ -522,7 +530,7 @@
       "understandMyself": "Your archetypes"
     },
     "report": {
-      "eyebrow": "Your €39 dashboard",
+      "eyebrow": "Your {{price}} dashboard",
       "title": "The clarity Cairnly offers",
       "items": [
         "Honest personality read",
@@ -537,7 +545,7 @@
       ],
       "footer": "Ready in ~5 minutes",
       "footerSub": "refined by your coaching chat",
-      "priceLine": "€39 one-off · no subscription"
+      "priceLine": "{{price}} one-off · no subscription"
     },
     "pickHint": "Pick up to {{max}}",
     "pickCounter": "{{count}} of {{max}} picked",

@@ -12,6 +12,13 @@
 // dream job, and the near-term next step. Background facts (history, education,
 // years) stay with the post-payment resume upload.
 
+import {
+  isIntroPriceActive,
+  PRO_PRICE_ANCHOR,
+  PRO_PRICE_INTRO,
+  PRO_PRICE_REGULAR,
+} from '../_shared/pricing.ts';
+
 export type Lang = 'en' | 'nl';
 // 'other' = the visitor typed their own reason instead of tapping a preset pill.
 // It is never "seeded" (no canned opener); the model reads their words directly.
@@ -455,16 +462,30 @@ export function beatLabels(intent: IntentKey, lang: Lang): string[] {
 
 const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
 
+/**
+ * The price line, resolved per request. The intake chat quotes the price to
+ * visitors, so it has to follow the same switch as the checkout — otherwise the
+ * bot keeps promising the intro price after it has expired. The strike-through
+ * anchor is dropped at the switch, matching the landing page.
+ */
+function priceFact(): string {
+  return isIntroPriceActive()
+    ? `- Price: ${PRO_PRICE_INTRO} euros (introductory price, normally ${PRO_PRICE_ANCHOR} euros). One-off payment, no subscription. The introductory price ends on 15 October 2026.`
+    : `- Price: ${PRO_PRICE_REGULAR} euros. One-off payment, no subscription.`;
+}
+
 /** Facts the model may state. Everything not listed here is off-limits to claim. */
-const CAIRNLY_FACTS = `
+function cairnlyFacts(): string {
+  return `
 FACTS ABOUT CAIRNLY (the only product claims you may make):
 - Cairnly is a career assessment for professionals, done in one sitting.
 - Flow: an in-depth survey (a resume upload pre-fills most background questions), then AI analysis produces a personality profile and a set of recommended career paths.
 - Every recommended path is scored on personal fit, salary realism for the user's region, feasibility of the move (ready now / upskill / retrain) and how AI is expected to reshape that career.
 - The result is an actionable career dashboard (not a static report): scored paths, an AI coach chat to pressure-test and refine them, live open roles, and a tailored CV plus cover letter. Call it a dashboard, never a "report".
-- Price: 39 euros during beta (normally 69 euros). One-off payment, no subscription.
+${priceFact()}
 - The intake conversation the visitor is in right now will pre-fill part of their survey if they continue.
 - This intake conversation is a short doorway, deliberately lighter than the product itself. The coaching chat inside the dashboard digs far deeper, with the full assessment results in hand. Never present this intake as representative of the coaching experience.`;
+}
 
 const STYLE_RULES = `
 STYLE RULES (absolute):
@@ -492,7 +513,7 @@ export function qaSystem(lang: Lang, beatNumber: number, intent: IntentKey): str
   return `You are Cairnly's intake guide, in a short conversation with a visitor on the cairnly.io landing page. They have not paid or signed up; this conversation shows them what Cairnly could do for them, in their own terms. The visitor opened with a message about what brings them here.
 
 WHY THEY ARE HERE (based on the option they picked): ${INTENT_BRIEFS[intent]}
-${CAIRNLY_FACTS}
+${cairnlyFacts()}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
@@ -518,7 +539,7 @@ export function pitchSystem(lang: Lang, intent: IntentKey): string {
   return `You are Cairnly's intake guide on the cairnly.io landing page, wrapping up a short intake conversation.
 
 WHY THEY ARE HERE (based on the option they picked): ${INTENT_BRIEFS[intent]}
-${CAIRNLY_FACTS}
+${cairnlyFacts()}
 ${STYLE_RULES}
 ${GUARDRAILS}
 
@@ -550,7 +571,7 @@ Now write THE PITCH: a short, personal bridge from what this visitor wants to wh
 
 export function postPitchSystem(lang: Lang): string {
   return `You are Cairnly's intake guide on the cairnly.io landing page. You have already delivered the personalized pitch; the visitor is now asking follow-up questions before deciding.
-${CAIRNLY_FACTS}
+${cairnlyFacts()}
 ${STYLE_RULES}
 ${GUARDRAILS}
 

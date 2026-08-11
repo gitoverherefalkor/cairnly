@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useEncoreGetStarted } from './useEncoreGetStarted';
-import { ENCORE_PRICING, currencyForLanguage } from '@/lib/pricing';
+import { getEncorePricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 
 /**
@@ -14,9 +14,8 @@ const EncorePricing: React.FC = () => {
   const getStarted = useEncoreGetStarted();
   const { t, i18n } = useTranslation('encore');
 
-  const currency = currencyForLanguage(i18n.language);
-  const { core } = ENCORE_PRICING[currency];
-  const price = formatCurrency(core, i18n.language, currency.toUpperCase());
+  const { core, currency } = getEncorePricing();
+  const price = formatCurrency(core, i18n.language, currency);
 
   return (
     <section id="pricing" className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden">

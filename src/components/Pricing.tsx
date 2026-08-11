@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { getCurrentPricing } from '@/lib/pricing';
+import { getProPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 
 const Pricing = () => {
@@ -12,7 +12,7 @@ const Pricing = () => {
   const { user } = useAuth();
   const { t, i18n } = useTranslation('landing');
 
-  const pricing = getCurrentPricing();
+  const pricing = getProPricing();
   const featureKeys = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9'] as const;
 
   const handleGetBetaAccess = () => {
@@ -42,8 +42,10 @@ const Pricing = () => {
               </div>
               <h3 className="text-2xl font-bold mb-2">{t('pricing.productName')}</h3>
               <div className="flex items-baseline justify-center">
-                <span className="text-4xl font-bold">{formatCurrency(pricing.core, i18n.language)}</span>
-                <span className="text-lg ml-2 opacity-80"><s>{formatCurrency(pricing.original, i18n.language)}</s></span>
+                <span className="text-4xl font-bold">{formatCurrency(pricing.core, i18n.language, pricing.currency)}</span>
+                {pricing.anchor !== null && (
+                  <span className="text-lg ml-2 opacity-80"><s>{formatCurrency(pricing.anchor, i18n.language, pricing.currency)}</s></span>
+                )}
               </div>
               <p className="mt-2 opacity-80">{t('pricing.limitedTimeNote')}</p>
             </div>

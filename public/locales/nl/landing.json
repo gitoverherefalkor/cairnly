@@ -203,7 +203,7 @@
         "quiz": "Gratis tot €50. Eenmalig.",
         "ai": "€20 tot €30 per maand. Ongeveer €240 tot €360 per jaar.",
         "coach": "€80 tot €280 per maand. Of €80 tot €150 per sessie.",
-        "cairnlyEmphasis": "€39.",
+        "cairnlyEmphasis": "{{price}}.",
         "cairnlyBody": " Eenmalig. Nooit meer een abonnement."
       }
     ],
@@ -215,7 +215,7 @@
         "**Specificiteit:** Specifieke rollen, salaris, dagelijkse praktijk, fit-redenen.",
         "**Volgende stappen:** Gematchte vacatures + op maat gemaakt cv + motivatiebrief.",
         "**Tijd tot helderheid:** Eén sessie.",
-        "**Kosten:** €39. Eenmalig. Voor altijd."
+        "**Kosten:** {{price}}. Eenmalig. Voor altijd."
       ],
       "othersLabel": "Hoe de alternatieven zich verhouden",
       "othersHint": "Bekijk de vergelijking",
@@ -276,8 +276,16 @@
       "Interactief dashboard met je resultaten"
     ],
     "betaPill": "Tijdelijk aanbod · Bèta-toegang",
-    "originalPrice": "€69",
-    "price": "€39",
+    "regularPill": "Bèta-toegang",
+    "countdown": {
+      "prefix": "Introprijs loopt af over",
+      "days_one": "{{count}} dag",
+      "days_other": "{{count}} dagen",
+      "hours_one": "{{count}} uur",
+      "hours_other": "{{count}} uur",
+      "lastHour": "minder dan een uur",
+      "then": "daarna {{price}}"
+    },
     "oneOff": "Een eenmalige betaling",
     "cta": "Krijg Bèta-toegang",
     "trust": {
@@ -522,7 +530,7 @@
       "understandMyself": "Jouw archetypes"
     },
     "report": {
-      "eyebrow": "Jouw dashboard van €39",
+      "eyebrow": "Jouw dashboard van {{price}}",
       "title": "De duidelijkheid die Cairnly biedt",
       "items": [
         "Eerlijke persoonlijkheidsanalyse",
@@ -537,7 +545,7 @@
       ],
       "footer": "Klaar in ~5 minuten",
       "footerSub": "verfijnd door je coachgesprek",
-      "priceLine": "€39 eenmalig · geen abonnement"
+      "priceLine": "{{price}} eenmalig · geen abonnement"
     },
     "pickHint": "Kies er maximaal {{max}}",
     "pickCounter": "{{count}} van {{max}} gekozen",
