@@ -20,8 +20,17 @@ import {
  */
 
 interface PriceCountdownProps {
-  /** 'light' for the cream price panel, 'dark' for the navy intake card. */
-  tone?: 'light' | 'dark';
+  /**
+   * 'light' for the cream price panel, 'dark' for the navy intake card, 'gold'
+   * for the hero, where the line has to earn attention on its own rather than
+   * sit next to a price in 64px type.
+   */
+  tone?: 'light' | 'dark' | 'gold';
+  /**
+   * Selector to scroll to on click (e.g. '#pricing'). Turns the line into a
+   * link. Omit on the price panels, which are already the destination.
+   */
+  href?: string;
   /**
    * Name the current price in the opening line. The price panels already show
    * it in 64px type right underneath; the hero does not show a price at all, so
@@ -32,13 +41,15 @@ interface PriceCountdownProps {
 }
 
 const TONES = {
-  light: { primary: '#122E3B', muted: '#6B7F8B' },
-  dark: { primary: '#FFFFFF', muted: 'rgba(255,255,255,0.55)' },
+  light: { primary: '#122E3B', muted: '#6B7F8B', size: 13 },
+  dark: { primary: '#FFFFFF', muted: 'rgba(255,255,255,0.55)', size: 13 },
+  gold: { primary: '#D4A024', muted: 'rgba(212,160,36,0.70)', size: 14 },
 } as const;
 
 const PriceCountdown: React.FC<PriceCountdownProps> = ({
   tone = 'light',
   leadWithPrice = false,
+  href,
   className,
 }) => {
   const { t, i18n } = useTranslation('landing');
@@ -65,14 +76,9 @@ const PriceCountdown: React.FC<PriceCountdownProps> = ({
   // The final 59 minutes: both units are zero, and "0 hours" reads as expired.
   const remaining = parts.length > 0 ? parts.join(', ') : t('pricing.countdown.lastHour');
 
-  return (
-    <div
-      className={className}
-      role="timer"
-      aria-live="off"
-      style={{ textAlign: 'center', lineHeight: 1.5 }}
-    >
-      <p style={{ color: colors.primary, fontSize: 13, fontWeight: 700, margin: 0 }}>
+  const body = (
+    <div role="timer" aria-live="off" style={{ textAlign: 'center', lineHeight: 1.5 }}>
+      <p style={{ color: colors.primary, fontSize: colors.size, fontWeight: 700, margin: 0 }}>
         {leadWithPrice
           ? t('pricing.countdown.prefixWithPrice', {
               price: formatCurrency(proPriceAt(now), i18n.language, DISPLAY_CURRENCY),
@@ -84,6 +90,24 @@ const PriceCountdown: React.FC<PriceCountdownProps> = ({
         {t('pricing.countdown.then', { price: regularPrice })}
       </p>
     </div>
+  );
+
+  if (!href) return <div className={className}>{body}</div>;
+
+  return (
+    <a
+      href={href}
+      className={`lp-countdown-link${className ? ` ${className}` : ''}`}
+      onClick={(e) => {
+        const target = document.querySelector(href);
+        // No target on this page: leave the plain anchor jump alone.
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }}
+    >
+      {body}
+    </a>
   );
 };
 

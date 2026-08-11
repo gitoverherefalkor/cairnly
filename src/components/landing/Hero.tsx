@@ -156,7 +156,7 @@ const Hero: React.FC = () => {
               // deadline above it until the visitor starts talking. Flex gap so
               // the spacing closes by itself when the countdown steps aside.
               <div className="mt-8 flex flex-col items-center gap-3">
-                {!chatStarted && <PriceCountdown tone="dark" leadWithPrice />}
+                {!chatStarted && <PriceCountdown tone="gold" leadWithPrice href="#pricing" />}
                 <p className="text-sm text-white/45 font-medium text-center">
                   {t('hero.reassurance')}
                 </p>

@@ -464,3 +464,25 @@ button.lp-screenshot-slot {
 }
 .lp-sources li:last-child { border-bottom: none; }
 .lp-sources li strong { color: #122E3B; font-weight: 700; }
+
+/* Hero price deadline: a gold link down to the pricing card. The gold tint
+   already carries the attention, so the affordance stays to a hairline that
+   firms up on hover rather than a button. */
+.lp-countdown-link {
+  display: inline-block;
+  text-decoration: none;
+  padding: 6px 14px 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 160, 36, 0.30);
+  background: rgba(212, 160, 36, 0.07);
+  transition: border-color 200ms ease, background 200ms ease;
+  cursor: pointer;
+}
+.lp-countdown-link:hover {
+  border-color: rgba(212, 160, 36, 0.75);
+  background: rgba(212, 160, 36, 0.14);
+}
+.lp-countdown-link:focus-visible {
+  outline: 2px solid #D4A024;
+  outline-offset: 3px;
+}
