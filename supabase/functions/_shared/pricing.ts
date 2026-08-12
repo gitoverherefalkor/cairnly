@@ -23,11 +23,12 @@ export const PRO_PRICE_INTRO = 39;
 export const PRO_PRICE_REGULAR = 59;
 
 /**
- * Anchor shown struck through while the introductory price runs. Deliberately
- * dropped at the switch: €69 struck through to €59 is a 14% "discount" that
- * reads as invented, and the deadline carries the urgency instead.
+ * Anchor shown struck through while the introductory price runs. Matches
+ * PRO_PRICE_REGULAR on purpose — it's the same price the assessment reverts
+ * to once the intro window ends, not an inflated reference number, so the
+ * strike-through and the "then €59" line next to it never disagree.
  */
-export const PRO_PRICE_ANCHOR = 69;
+export const PRO_PRICE_ANCHOR = 59;
 
 /**
  * Starter (cairnly.io/starter) keeps its own price — the increase is for the

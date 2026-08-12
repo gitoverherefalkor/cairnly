@@ -82,7 +82,7 @@ describe("the pro price flips on the switch date", () => {
   });
 
   it("drops the strike-through anchor once the intro price ends", () => {
-    expect(getProPricing(dayBefore).anchor).toBe(69);
+    expect(getProPricing(dayBefore).anchor).toBe(59);
     expect(getProPricing(dayAfter).anchor).toBeNull();
   });
 
