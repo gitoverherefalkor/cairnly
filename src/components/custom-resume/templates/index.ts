@@ -8,6 +8,12 @@ import { BoldResume } from './BoldResume';
 
 export interface TemplateComponentProps {
   data: ResumeJson;
+  /**
+   * Language the résumé body was generated in (WF9 writes it in the user's
+   * `preferred_language`). Drives the section headings only; omitting it keeps
+   * the previous English output.
+   */
+  lang?: string | null;
 }
 
 export const TEMPLATE_COMPONENTS: Record<TemplateId, ComponentType<TemplateComponentProps>> = {

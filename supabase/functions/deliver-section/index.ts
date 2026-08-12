@@ -55,6 +55,31 @@ const VALID_SECTION_TYPES = new Set<SectionType>([
 const CANONICAL_NO_DISCUSSION_FEEDBACK =
   'User confirmed accuracy, no changes needed.';
 
+/**
+ * The language most of these rows were generated in, or null when none of them
+ * record one. Multi-row sections (runner_ups, dream_jobs) can in principle
+ * disagree, so this takes the majority rather than trusting whichever row
+ * PostgREST happened to return first. Ties resolve to the first language seen,
+ * which keeps the result deterministic for a given query order.
+ */
+function majorityLanguage(rows: ReportSectionRow[]): string | null {
+  const tally = new Map<string, number>();
+  for (const row of rows) {
+    const lang = row.language?.trim();
+    if (!lang) continue;
+    tally.set(lang, (tally.get(lang) ?? 0) + 1);
+  }
+  let winner: string | null = null;
+  let best = 0;
+  for (const [lang, count] of tally) {
+    if (count > best) {
+      winner = lang;
+      best = count;
+    }
+  }
+  return winner;
+}
+
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
   if (preflight) return preflight;
@@ -152,7 +177,7 @@ serve(async (req) => {
   const { data: rows, error: fetchErr } = await supabase
     .from('report_sections')
     .select(
-      'section_type, order_number, title, alternate_titles, company_size_type, content, score',
+      'section_type, order_number, title, alternate_titles, company_size_type, content, score, language',
     )
     .eq('report_id', report_id)
     .eq('section_type', section_type)
@@ -171,12 +196,28 @@ serve(async (req) => {
   }
 
   // 2. Render to markdown.
+  //
+  // Wrap the section in boilerplate matching the language the CONTENT is
+  // actually in, not the language the user prefers. Those can disagree: the
+  // report pipeline decides language per workflow, so a report can hold Dutch
+  // personality sections next to English career sections. Keying the wrapper
+  // off the profile would then put a Dutch intro and outro around an English
+  // body inside one chat bubble, which reads worse than a consistent (if
+  // unexpected) language. Falls back to the profile preference when the column
+  // is empty, so legacy rows behave exactly as before.
+  const contentLanguage = majorityLanguage(rows as ReportSectionRow[]) ?? preferredLanguage;
+  if (contentLanguage !== preferredLanguage) {
+    console.warn(
+      `[deliver-section] language mismatch for section_type=${section_type}: ` +
+        `content=${contentLanguage} profile=${preferredLanguage} — rendering in content language`,
+    );
+  }
   let rendered: string;
   try {
     rendered = renderSection(
       section_type as SectionType,
       rows as ReportSectionRow[],
-      preferredLanguage,
+      contentLanguage,
     );
   } catch (e) {
     console.error('[deliver-section] render error:', e);

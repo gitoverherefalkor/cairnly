@@ -95,6 +95,34 @@ serve(async (req) => {
     }
   }
 
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+
+  // These subheaders are stored verbatim in the section content and rendered
+  // to the user, so they follow the user's language. English is the literal
+  // default, unchanged from before, so existing rows and English users are
+  // untouched. Any new language MUST also be added to the reader's pattern in
+  // V4SavedResponses.summaryOnly(), which strips this block back out.
+  const { data: langRow } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', authUserId)
+    .maybeSingle();
+  const wrapUpLabels =
+    langRow?.preferred_language === 'nl'
+      ? {
+          savedResponses: 'Bewaarde antwoorden',
+          savedResponse: 'Bewaard antwoord',
+          alsoFlagged: 'Ook door jou aangemerkt',
+        }
+      : {
+          savedResponses: 'Saved Responses',
+          savedResponse: 'Saved response',
+          alsoFlagged: 'Also flagged by you',
+        };
+
   // Compose the final markdown stored on the section row. Order:
   //   1. Auto-extracted highlights (the LLM bullets).
   //   2. "Saved Responses" subsection — verbatim bot replies the user
@@ -103,20 +131,15 @@ serve(async (req) => {
   //   3. Addendum — the user's own typed note from the wrap-up card.
   const parts: string[] = [trimmedHighlights];
   if (cleanedSaved.length > 0) {
-    parts.push('\n\n##### Saved Responses\n');
+    parts.push(`\n\n##### ${wrapUpLabels.savedResponses}\n`);
     cleanedSaved.forEach((s, i) => {
-      parts.push(`\n\n**Saved response ${i + 1}**\n\n${s.content}`);
+      parts.push(`\n\n**${wrapUpLabels.savedResponse} ${i + 1}**\n\n${s.content}`);
     });
   }
   if (trimmedAddendum) {
-    parts.push(`\n\n##### Also flagged by you\n\n${trimmedAddendum}`);
+    parts.push(`\n\n##### ${wrapUpLabels.alsoFlagged}\n\n${trimmedAddendum}`);
   }
   const content = parts.join('');
-
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-  );
 
   // Ownership check: confirm the report belongs to the authenticated user.
   const { data: reportRow, error: reportLookupErr } = await supabase

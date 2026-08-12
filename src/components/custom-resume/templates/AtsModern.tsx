@@ -4,6 +4,7 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
 import { realCertifications, renderDateRange } from './utils';
+import { resumeLabels } from './labels';
 
 // Helvetica is built into react-pdf, so no Font.register() needed.
 const ACCENT = '#27A1A1'; // atlas-teal — accent rule under name + section dividers.
@@ -142,10 +143,13 @@ const styles = StyleSheet.create({
 });
 
 interface AtsModernProps {
+  /** Language the résumé body was generated in; defaults to English. */
+  lang?: string | null;
   data: ResumeJson;
 }
 
-export function AtsModern({ data }: AtsModernProps) {
+export function AtsModern({ data, lang }: AtsModernProps) {
+  const L = resumeLabels(lang);
   const contactParts = [
     data.contact.email,
     data.contact.phone,
@@ -168,7 +172,7 @@ export function AtsModern({ data }: AtsModernProps) {
 
         {data.summary ? (
           <View>
-            <Text style={styles.sectionHeading}>Summary</Text>
+            <Text style={styles.sectionHeading}>{L.summaryShort}</Text>
             <View style={styles.sectionRule} />
             <Text style={styles.summary}>{data.summary}</Text>
           </View>
@@ -176,7 +180,7 @@ export function AtsModern({ data }: AtsModernProps) {
 
         {data.experience?.length > 0 ? (
           <View>
-            <Text style={styles.sectionHeading}>Experience</Text>
+            <Text style={styles.sectionHeading}>{L.experience}</Text>
             <View style={styles.sectionRule} />
             {/* Pure natural flow: no wrap={false} anywhere. Heading, job
                 headers, and bullets can each land where they fit. Mirrors
@@ -206,29 +210,29 @@ export function AtsModern({ data }: AtsModernProps) {
           data.skills_grouped.soft?.length ||
           data.skills_grouped.languages?.length) ? (
           <View>
-            <Text style={styles.sectionHeading}>Skills</Text>
+            <Text style={styles.sectionHeading}>{L.skills}</Text>
             <View style={styles.sectionRule} />
             {data.skills_grouped.technical?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Technical</Text>
+                <Text style={styles.skillsLabel}>{L.technical}</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.technical.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.tools?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Tools</Text>
+                <Text style={styles.skillsLabel}>{L.tools}</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.tools.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.soft?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Strengths</Text>
+                <Text style={styles.skillsLabel}>{L.strengths}</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.soft.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.languages?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Languages</Text>
+                <Text style={styles.skillsLabel}>{L.languages}</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.languages.join(', ')}</Text>
               </View>
             ) : null}
@@ -237,7 +241,7 @@ export function AtsModern({ data }: AtsModernProps) {
 
         {data.education?.length > 0 ? (
           <View>
-            <Text style={styles.sectionHeading}>Education</Text>
+            <Text style={styles.sectionHeading}>{L.education}</Text>
             <View style={styles.sectionRule} />
             {data.education.map((edu, i) => (
               <View key={i} style={styles.educationItem} wrap={false}>
@@ -259,7 +263,7 @@ export function AtsModern({ data }: AtsModernProps) {
           if (real.length === 0) return null;
           return (
             <View>
-              <Text style={styles.sectionHeading}>Certifications</Text>
+              <Text style={styles.sectionHeading}>{L.certifications}</Text>
               <View style={styles.sectionRule} />
               {real.map((cert, i) => (
                 <Text key={i} style={styles.certificationItem}>

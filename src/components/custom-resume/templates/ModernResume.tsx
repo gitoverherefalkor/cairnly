@@ -8,6 +8,7 @@ import { Document, Page, StyleSheet, Svg, Path, Text, View } from '@react-pdf/re
 import type { ResumeJson, ResumeExperience, ResumeEducation } from '../types';
 import { renderDateRange } from './utils';
 import { registerDesignedFonts } from './fonts';
+import { resumeLabels } from './labels';
 
 registerDesignedFonts();
 
@@ -275,10 +276,11 @@ function Header({ data }: { data: ResumeJson }) {
   );
 }
 
-function Summary({ summary }: { summary: string }) {
+function Summary({ summary, lang }: { summary: string; lang?: string | null }) {
+  const L = resumeLabels(lang);
   return (
     <View style={styles.summarySection}>
-      <Text style={styles.sectionLabel}>Summary</Text>
+      <Text style={styles.sectionLabel}>{L.summaryShort}</Text>
       <Text style={styles.summaryBlock}>{summary}</Text>
     </View>
   );
@@ -330,14 +332,15 @@ const SKILL_LABELS: Record<keyof ResumeJson['skills_grouped'], string> = {
   languages: 'Languages',
 };
 
-function Skills({ skills }: { skills: ResumeJson['skills_grouped'] }) {
+function Skills({ skills, lang }: { skills: ResumeJson['skills_grouped']; lang?: string | null }) {
+  const L = resumeLabels(lang);
   const entries = (Object.keys(SKILL_LABELS) as (keyof typeof SKILL_LABELS)[])
     .map((k) => [SKILL_LABELS[k], skills[k] ?? []] as const)
     .filter(([, items]) => items.length > 0);
   if (entries.length === 0) return null;
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Skills</Text>
+      <Text style={styles.sectionLabel}>{L.skills}</Text>
       {entries.map(([label, items]) => (
         <View key={label} style={styles.skillRow}>
           <Text style={styles.skillGroup}>{label}</Text>
@@ -348,11 +351,12 @@ function Skills({ skills }: { skills: ResumeJson['skills_grouped'] }) {
   );
 }
 
-function Education({ education }: { education: ResumeEducation[] }) {
+function Education({ education, lang }: { education: ResumeEducation[]; lang?: string | null }) {
+  const L = resumeLabels(lang);
   if (!education?.length) return null;
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Education</Text>
+      <Text style={styles.sectionLabel}>{L.education}</Text>
       {education.map((ed, i) => (
         <View key={i} style={styles.eduItem} wrap={false}>
           <View style={styles.eduRow}>
@@ -417,10 +421,13 @@ function PageMark({ name }: { name: string }) {
 }
 
 interface ModernResumeProps {
+  /** Language the résumé body was generated in; defaults to English. */
+  lang?: string | null;
   data: ResumeJson;
 }
 
-export function ModernResume({ data }: ModernResumeProps) {
+export function ModernResume({ data, lang }: ModernResumeProps) {
+  const L = resumeLabels(lang);
   // Single-Page natural-flow approach:
   // - Previously we manually split experience into p1/p2 across two Page
   //   components. That guaranteed an "Experience, continued" header but left
@@ -434,17 +441,17 @@ export function ModernResume({ data }: ModernResumeProps) {
     <Document title={`${data.contact.name} — Résumé`} author={data.contact.name}>
       <Page size="LETTER" style={styles.page}>
         <Header data={data} />
-        {data.summary ? <Summary summary={data.summary} /> : null}
+        {data.summary ? <Summary summary={data.summary} lang={lang} /> : null}
         {data.experience?.length ? (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Experience</Text>
+            <Text style={styles.sectionLabel}>{L.experience}</Text>
             {data.experience.map((j, i) => (
               <Job key={i} job={j} />
             ))}
           </View>
         ) : null}
-        <Skills skills={data.skills_grouped} />
-        <Education education={data.education} />
+        <Skills skills={data.skills_grouped} lang={lang} />
+        <Education education={data.education} lang={lang} />
         <CertsOrHighlights certs={data.certifications} highlights={data.highlights} />
         <PageMark name={data.contact.name} />
       </Page>

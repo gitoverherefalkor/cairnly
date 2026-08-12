@@ -20,6 +20,12 @@ export interface ReportSectionRow {
   company_size_type: string | null;
   content: string | null;
   score: number | null;
+  /**
+   * The language the section CONTENT was generated in, written by the n8n
+   * workflow that produced it. Optional so existing callers that don't select
+   * the column keep type-checking.
+   */
+  language?: string | null;
 }
 
 const PERSONALITY: ReadonlySet<SectionType> = new Set([

@@ -117,14 +117,23 @@ function getMatch(
   if (!Number.isFinite(score)) return null;
   // Prefer the dedicated "Overview" subsection (one to two plain-English
   // sentences defining the role). Legacy reports without an Overview block
-  // fall back to the opening sentences of the body.
-  const overviewHtml = extractSubsectionContent(s.content || '', ['Overview']);
+  // fall back to the opening sentences of the body. "Overzicht" is the exact
+  // Dutch subheader pinned by WF3/WF4; the patterns are OR-ed, so English
+  // matching is unchanged.
+  const overviewHtml = extractSubsectionContent(s.content || '', [
+    'Overview',
+    'Overzicht',
+  ]);
   const teaser = overviewHtml
     ? firstSentences(overviewHtml, 2)
     : firstSentences(s.content || '', 2);
   // Hero card supporting copy: first two sentences of the "Alignment with
   // your ambitions" section. Prose, not bullets — fits compactly under the
   // Overview without restating it.
+  // English-only on purpose: this is a top-3 subheader, and WF4's top-3 prompt
+  // does not pin Dutch subheader wording (it only says "the subheader TEXT
+  // itself in Dutch"), so there is no stable Dutch string to match yet. A
+  // Dutch report simply falls back to no alignment copy.
   const alignmentHtml = withDetail
     ? extractSubsectionContent(s.content || '', ['Alignment with your ambitions'])
     : null;

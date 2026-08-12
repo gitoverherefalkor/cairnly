@@ -8,6 +8,7 @@ import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
 import { renderDateRange } from './utils';
 import { registerDesignedFonts } from './fonts';
+import { resumeLabels } from './labels';
 
 registerDesignedFonts();
 
@@ -238,7 +239,16 @@ function flattenSkills(s: ResumeJson['skills_grouped']): string[] {
   ];
 }
 
-function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
+function Sidebar({
+  data,
+  slim = false,
+  lang,
+}: {
+  data: ResumeJson;
+  slim?: boolean;
+  lang?: string | null;
+}) {
+  const L = resumeLabels(lang);
   const c = data.contact;
   const skills = flattenSkills(data.skills_grouped);
   const langs = data.skills_grouped.languages ?? [];
@@ -259,7 +269,7 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
 
       {!slim && skills.length > 0 ? (
         <View style={styles.sidebarBlock}>
-          <Text style={styles.sidebarLabel}>Areas of Practice</Text>
+          <Text style={styles.sidebarLabel}>{L.areasOfPractice}</Text>
           {skills.map((s, i) => (
             <View key={i} style={styles.sidebarItemRow}>
               <Text style={styles.sidebarDash}>—</Text>
@@ -271,7 +281,7 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
 
       {!slim && data.education?.length ? (
         <View style={styles.sidebarBlock}>
-          <Text style={styles.sidebarLabel}>Education</Text>
+          <Text style={styles.sidebarLabel}>{L.education}</Text>
           {data.education.map((ed, i) => (
             <View key={i} style={{ marginBottom: 8 }} wrap={false}>
               <Text style={styles.sidebarSchool}>{ed.institution}</Text>
@@ -286,7 +296,7 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
 
       {!slim && data.certifications?.length ? (
         <View style={styles.sidebarBlock}>
-          <Text style={styles.sidebarLabel}>Certifications</Text>
+          <Text style={styles.sidebarLabel}>{L.certifications}</Text>
           {data.certifications.map((cert, i) => (
             <Text key={i} style={{ color: CL.ink2, marginBottom: 4, lineHeight: 1.4 }}>
               {cert.name}
@@ -299,7 +309,7 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
 
       {!slim && langs.length > 0 ? (
         <View style={styles.sidebarBlock}>
-          <Text style={styles.sidebarLabel}>Languages</Text>
+          <Text style={styles.sidebarLabel}>{L.languages}</Text>
           {langs.map((l, i) => (
             <Text key={i} style={{ color: CL.ink2, marginBottom: 2, lineHeight: 1.4 }}>
               {l}
@@ -310,7 +320,7 @@ function Sidebar({ data, slim = false }: { data: ResumeJson; slim?: boolean }) {
 
       {!slim && data.highlights?.length ? (
         <View>
-          <Text style={styles.sidebarLabel}>Recognition</Text>
+          <Text style={styles.sidebarLabel}>{L.recognition}</Text>
           {data.highlights.map((h, i) => (
             <Text key={i} style={{ color: CL.ink2, marginBottom: 4, lineHeight: 1.45 }}>
               {h}
@@ -354,10 +364,13 @@ function Job({ job }: { job: ResumeJson['experience'][number] }) {
 }
 
 interface ClassicResumeProps {
+  /** Language the résumé body was generated in; defaults to English. */
+  lang?: string | null;
   data: ResumeJson;
 }
 
-export function ClassicResume({ data }: ClassicResumeProps) {
+export function ClassicResume({ data, lang }: ClassicResumeProps) {
+  const L = resumeLabels(lang);
   const isMulti = (data.experience?.length ?? 0) >= 4;
   const splitAt = 3;
   const p1 = isMulti ? data.experience.slice(0, splitAt) : data.experience;
@@ -366,12 +379,12 @@ export function ClassicResume({ data }: ClassicResumeProps) {
   return (
     <Document title={`${data.contact.name} — Résumé`} author={data.contact.name}>
       <Page size="LETTER" style={styles.page}>
-        <Sidebar data={data} />
+        <Sidebar data={data} lang={lang} />
         <View style={styles.main}>
           <MainHeader data={data} />
           {data.summary ? (
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Professional Summary</Text>
+              <Text style={styles.sectionLabel}>{L.summary}</Text>
               <Text style={styles.summary}>{data.summary}</Text>
             </View>
           ) : null}
@@ -397,7 +410,7 @@ export function ClassicResume({ data }: ClassicResumeProps) {
 
       {isMulti ? (
         <Page size="LETTER" style={styles.page}>
-          <Sidebar data={data} slim />
+          <Sidebar data={data} slim lang={lang} />
           <View style={styles.main}>
             <View style={styles.continuationHeader}>
               <Text style={styles.continuationName}>{data.contact.name}</Text>
@@ -408,7 +421,7 @@ export function ClassicResume({ data }: ClassicResumeProps) {
               />
             </View>
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Experience, continued</Text>
+              <Text style={styles.sectionLabel}>{L.experienceContinued}</Text>
               {p2.map((j, i) => (
                 <Job key={i} job={j} />
               ))}

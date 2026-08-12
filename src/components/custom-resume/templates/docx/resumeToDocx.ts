@@ -20,6 +20,7 @@ import {
 } from 'docx';
 import type { ResumeJson } from '../../types';
 import { renderDateRange } from '../utils';
+import { resumeLabels } from '../labels';
 
 const COLOR = {
   ink: '111111',
@@ -151,7 +152,8 @@ function jobMetaRow(company: string, location?: string): Paragraph {
   });
 }
 
-function buildResumeChildren(data: ResumeJson): Paragraph[] {
+function buildResumeChildren(data: ResumeJson, lang?: string | null): Paragraph[] {
+  const L = resumeLabels(lang);
   const out: Paragraph[] = [];
 
   // Header
@@ -160,13 +162,13 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
 
   // Summary
   if (data.summary?.trim()) {
-    out.push(sectionHeading('Professional Summary'));
+    out.push(sectionHeading(L.summary));
     out.push(paragraphText(data.summary.trim(), { after: 120 }));
   }
 
   // Experience
   if (data.experience?.length) {
-    out.push(sectionHeading('Experience'));
+    out.push(sectionHeading(L.experience));
     for (const job of data.experience) {
       const dates = renderDateRange(job);
       out.push(jobTitleRow(job.title ?? '', dates));
@@ -187,7 +189,7 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
   ];
   const hasAnySkill = skillRows.some(([, v]) => (v?.length ?? 0) > 0);
   if (hasAnySkill) {
-    out.push(sectionHeading('Skills'));
+    out.push(sectionHeading(L.skills));
     for (const [label, values] of skillRows) {
       if (!values?.length) continue;
       out.push(
@@ -204,7 +206,7 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
 
   // Education
   if (data.education?.length) {
-    out.push(sectionHeading('Education'));
+    out.push(sectionHeading(L.education));
     for (const ed of data.education) {
       const right = renderDateRange(ed);
       out.push(jobTitleRow(ed.institution ?? '', right));
@@ -218,7 +220,7 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
     (c) => (c.name || '').trim() && ((c.issuer || '').trim() || (c.year || '').trim()),
   );
   if (realCerts.length) {
-    out.push(sectionHeading('Certifications'));
+    out.push(sectionHeading(L.certifications));
     for (const c of realCerts) {
       const line = [c.name, c.issuer, c.year ? `(${c.year})` : null]
         .filter(Boolean)
@@ -229,7 +231,7 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
 
   // Highlights
   if (data.highlights?.length) {
-    out.push(sectionHeading('Highlights'));
+    out.push(sectionHeading(L.highlights));
     for (const h of data.highlights) {
       if ((h || '').trim()) out.push(bullet(h));
     }
@@ -238,7 +240,12 @@ function buildResumeChildren(data: ResumeJson): Paragraph[] {
   return out;
 }
 
-export async function buildResumeDocxBlob(data: ResumeJson): Promise<Blob> {
+// `lang` drives the section headings only. Omitting it keeps the previous
+// English document, so existing callers are unaffected.
+export async function buildResumeDocxBlob(
+  data: ResumeJson,
+  lang?: string | null,
+): Promise<Blob> {
   const doc = new Document({
     creator: 'Cairnly',
     title: `${data.contact?.name ?? 'Résumé'} — Résumé`,
@@ -259,7 +266,7 @@ export async function buildResumeDocxBlob(data: ResumeJson): Promise<Blob> {
             },
           },
         },
-        children: buildResumeChildren(data),
+        children: buildResumeChildren(data, lang),
       },
     ],
   });

@@ -8,6 +8,7 @@
 import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { ResumeJson } from '../types';
 import { realCertifications, renderDateRange } from './utils';
+import { resumeLabels } from './labels';
 
 // Use Times Roman (built-in to react-pdf) so we don't need to register a
 // custom font for this template. Trade-off: no italics for company location.
@@ -131,10 +132,13 @@ const styles = StyleSheet.create({
 });
 
 interface AtsClassicProps {
+  /** Language the résumé body was generated in; defaults to English. */
+  lang?: string | null;
   data: ResumeJson;
 }
 
-export function AtsClassic({ data }: AtsClassicProps) {
+export function AtsClassic({ data, lang }: AtsClassicProps) {
+  const L = resumeLabels(lang);
   const contactParts = [
     data.contact.email,
     data.contact.phone,
@@ -154,14 +158,14 @@ export function AtsClassic({ data }: AtsClassicProps) {
 
         {data.summary ? (
           <View>
-            <Text style={styles.sectionHeading}>Professional Summary</Text>
+            <Text style={styles.sectionHeading}>{L.summary}</Text>
             <Text style={styles.summary}>{data.summary}</Text>
           </View>
         ) : null}
 
         {data.experience?.length > 0 ? (
           <View>
-            <Text style={styles.sectionHeading}>Experience</Text>
+            <Text style={styles.sectionHeading}>{L.experience}</Text>
             {/* Pure natural flow: no wrap={false} anywhere. Heading, job
                 headers, and bullets land where they fit. Mirrors how Word /
                 Pages / Google Docs handle long résumés. */}
@@ -190,28 +194,28 @@ export function AtsClassic({ data }: AtsClassicProps) {
           data.skills_grouped.soft?.length ||
           data.skills_grouped.languages?.length) ? (
           <View>
-            <Text style={styles.sectionHeading}>Skills</Text>
+            <Text style={styles.sectionHeading}>{L.skills}</Text>
             {data.skills_grouped.technical?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Technical:</Text>
+                <Text style={styles.skillsLabel}>{L.technical}:</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.technical.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.tools?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Tools:</Text>
+                <Text style={styles.skillsLabel}>{L.tools}:</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.tools.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.soft?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Strengths:</Text>
+                <Text style={styles.skillsLabel}>{L.strengths}:</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.soft.join(', ')}</Text>
               </View>
             ) : null}
             {data.skills_grouped.languages?.length ? (
               <View style={styles.skillsRow}>
-                <Text style={styles.skillsLabel}>Languages:</Text>
+                <Text style={styles.skillsLabel}>{L.languages}:</Text>
                 <Text style={styles.skillsValue}>{data.skills_grouped.languages.join(', ')}</Text>
               </View>
             ) : null}
@@ -220,7 +224,7 @@ export function AtsClassic({ data }: AtsClassicProps) {
 
         {data.education?.length > 0 ? (
           <View>
-            <Text style={styles.sectionHeading}>Education</Text>
+            <Text style={styles.sectionHeading}>{L.education}</Text>
             {data.education.map((edu, i) => (
               <View key={i} style={styles.educationItem} wrap={false}>
                 <View style={styles.educationLeft}>
@@ -241,7 +245,7 @@ export function AtsClassic({ data }: AtsClassicProps) {
           if (real.length === 0) return null;
           return (
             <View>
-              <Text style={styles.sectionHeading}>Certifications</Text>
+              <Text style={styles.sectionHeading}>{L.certifications}</Text>
               {real.map((cert, i) => (
                 <Text key={i} style={styles.certificationItem}>
                   {cert.name}

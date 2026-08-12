@@ -84,6 +84,51 @@ const ICON_MAP: Record<string, LucideIcon> = {
   'the executive version suggestion': Crown,
   'industry outlook & regional trends': Telescope,
   'steps for pursuing this role': Footprints,
+
+  // ── Dutch subheaders ────────────────────────────────────────────────
+  // Copied verbatim from the EXACT Dutch subheader tables in the live n8n
+  // prompts, so these only match what the model is actually told to emit:
+  //   WF1 `prompt_perso_prof1`      → the four personality sections
+  //   WF3 `Set Outside Box Prompt`  → outside-the-box
+  //   WF4 `Dream Job Feasibility`   → dream jobs
+  // Purely additive: English lookups are untouched.
+  //
+  // NOT covered: top-3 and runner-up careers. Their prompts only say "the
+  // subheader TEXT itself in Dutch" without prescribing a list, so there is
+  // no fixed string to match. Those subheaders need pinning in the prompt
+  // before an icon map can cover them.
+
+  // approach → Jouw aanpak begrijpen
+  'persoonlijkheid en interactiestijl': Users,
+  'impact in verschillende omgevingen': Layers,
+
+  // strengths → Sterke punten en hoe je ze ontwikkelt
+  'je kernkwaliteiten in kaart': Sparkles,
+  'je sterke punten benutten in je loopbaan': TrendingUp,
+
+  // development → Ontwikkelpunten
+  'inzicht in je groeigebieden': Sprout,
+  'wat dit betekent voor je groei': ArrowUpRight,
+
+  // values → Aansluiten bij je waarden
+  'je kernwaarden in kaart': Compass,
+  'waarden in loopbaankeuzes': Scale,
+
+  // shared closer across all four personality sections
+  'belangrijkste inzicht': Lightbulb,
+
+  // outside-the-box careers
+  overzicht: Eye,
+  'waarom dit bij je past': Puzzle,
+  'type pad & realiteit': Signpost,
+  'ai-impact op deze rol': Bot,
+
+  // dream jobs ('overzicht' shared with outside-the-box, above)
+  haalbaarheidsscore: Gauge,
+  'aansluiting op persoonlijkheid en energie': UserCheck,
+  'de executive-versie': Crown,
+  'sectorvooruitzichten en regionale trends': Telescope,
+  'stappen om deze rol na te streven': Footprints,
 };
 
 export function iconForSubsection(title: string): LucideIcon | null {

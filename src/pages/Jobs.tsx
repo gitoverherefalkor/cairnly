@@ -177,9 +177,13 @@ const Jobs = () => {
   // and return it as plain text. Sections look like:
   //   <h5>Overview</h5>\n\n<25-40 word paragraph>\n\n<h5>Why this role fits…
   // Strip HTML, collapse whitespace, cap at 400 chars for safety.
+  // "Overzicht" is the exact Dutch subheader pinned by WF3/WF4, OR-ed in so
+  // English matching is byte-for-byte unchanged.
   const extractOverview = (content: string | null | undefined): string | null => {
     if (!content) return null;
-    const m = content.match(/<h\d>\s*Overview\s*<\/h\d>\s*([\s\S]*?)(?=<h\d>|$)/i);
+    const m = content.match(
+      /<h\d>\s*(?:Overview|Overzicht)\s*<\/h\d>\s*([\s\S]*?)(?=<h\d>|$)/i,
+    );
     if (!m) return null;
     const text = m[1]
       .replace(/<[^>]*>/g, ' ')

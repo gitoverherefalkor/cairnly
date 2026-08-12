@@ -80,6 +80,25 @@ serve(async (req) => {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 
+  // The label is user-facing (it sits on the collapsed card), so it has to be
+  // written in the user's language. Same shape as wrap-up-extract: the
+  // instruction is only appended for a non-English language, so the English
+  // prompt is byte-for-byte what it was before.
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', userId)
+    .maybeSingle();
+  const preferredLanguage = profileRow?.preferred_language || 'en';
+  const LANG_NAMES: Record<string, string> = {
+    nl: 'Dutch (Nederlands)',
+    de: 'German (Deutsch)',
+  };
+  const systemPrompt =
+    preferredLanguage !== 'en' && LANG_NAMES[preferredLanguage]
+      ? `${SYSTEM_PROMPT}\n\nWrite the label in ${LANG_NAMES[preferredLanguage]}. Keep brand terms in English (Cairnly, outside-the-box, runner-up).`
+      : SYSTEM_PROMPT;
+
   // Generate a short label with gpt-5.4-nano. Non-fatal: on any failure we
   // fall back to the first few words so the save still succeeds.
   let label = fallbackLabel(content);
@@ -96,7 +115,7 @@ serve(async (req) => {
           model: 'gpt-5.4-nano',
           temperature: 0.3,
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: systemPrompt },
             {
               role: 'user',
               content: `Label this saved coach message:\n\n${stripFormatting(content).slice(0, 4000)}`,

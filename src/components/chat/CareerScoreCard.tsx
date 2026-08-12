@@ -293,18 +293,31 @@ export function leadingFeasibilityLevel(text: string): FeasibilityLevel | null {
   return FEASIBILITY_LEVELS.find((l) => l.toLowerCase() === norm) ?? null;
 }
 
+// The subheader that introduces the rating, per language. "Haalbaarheidsscore"
+// is the exact Dutch subheader prescribed by WF4's `Dream Job Feasibility`
+// prompt; adding it here is a pure alternation, so English matching is
+// unchanged.
+const FEASIBILITY_HEADING = /feasibility\s*rating|haalbaarheidsscore/i;
+
 // Pull the dream-job feasibility rating out of section content. The body
 // carries a "Feasibility Rating" subheader followed by e.g. "Low - Moderate: …".
 // Returns null for non-dream careers (no feasibility section).
+//
+// NB the rating VALUES (Low … High) are matched in English only, because the
+// Dutch branch of the prompt does not currently pin them. Until it does, a
+// Dutch dream job can carry a translated value and this returns null (pill
+// hidden, nothing breaks).
 export function extractFeasibility(body: string): FeasibilityLevel | null {
   if (!body) return null;
   // Strip HTML tags AND markdown emphasis markers, so a bolded rating like
   // "**Low** - Moderate" reads as plain "Low - Moderate" and hyphenated
   // ranges still match.
   const text = body.replace(/<[^>]+>/g, ' ').replace(/[*_]/g, '');
-  const idx = text.search(/feasibility\s*rating/i);
+  const idx = text.search(FEASIBILITY_HEADING);
   if (idx < 0) return null;
-  const after = text.slice(idx).replace(/^feasibility\s*rating[\s:.]*/i, '');
+  const after = text
+    .slice(idx)
+    .replace(new RegExp(`^(?:${FEASIBILITY_HEADING.source})[\\s:.]*`, 'i'), '');
   return leadingFeasibilityLevel(after);
 }
 

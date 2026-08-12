@@ -9,6 +9,7 @@ import { Document, Page, StyleSheet, Svg, Path, Text, View } from '@react-pdf/re
 import type { ResumeJson } from '../types';
 import { renderDateRange } from './utils';
 import { registerDesignedFonts } from './fonts';
+import { resumeLabels } from './labels';
 
 registerDesignedFonts();
 
@@ -345,15 +346,18 @@ function flatSkills(s: ResumeJson['skills_grouped']): string[] {
 }
 
 interface BoldResumeProps {
+  /** Language the résumé body was generated in; defaults to English. */
+  lang?: string | null;
   data: ResumeJson;
 }
 
-export function BoldResume({ data }: BoldResumeProps) {
+export function BoldResume({ data, lang }: BoldResumeProps) {
+  const L = resumeLabels(lang);
   const skills = flatSkills(data.skills_grouped);
 
   const SkillsSection =
     skills.length > 0 ? (
-      <BoldSection num="03" label="Skills">
+      <BoldSection num="03" label={L.skills}>
         <View style={styles.skillRow}>
           {skills.map((s, i) => (
             <Text key={i} style={styles.skillChip}>
@@ -366,7 +370,7 @@ export function BoldResume({ data }: BoldResumeProps) {
 
   const EducationSection =
     data.education?.length > 0 ? (
-      <BoldSection num="04" label="Education">
+      <BoldSection num="04" label={L.education}>
         {data.education.map((ed, i) => (
           <View key={i} style={styles.eduItem} wrap={false}>
             <Text style={styles.eduSchool}>{ed.institution}</Text>
@@ -381,7 +385,7 @@ export function BoldResume({ data }: BoldResumeProps) {
 
   const HighlightsSection =
     (data.highlights?.length ?? 0) > 0 || (data.certifications?.length ?? 0) > 0 ? (
-      <BoldSection num="05" label="Recognition">
+      <BoldSection num="05" label={L.recognition}>
         {data.highlights?.map((h, i) => (
           <View key={`h${i}`} style={styles.diamondBullet}>
             <Text style={styles.diamondMark}>◆</Text>
@@ -406,12 +410,12 @@ export function BoldResume({ data }: BoldResumeProps) {
       <Page size="LETTER" style={styles.page}>
         <BoldHeader data={data} />
         {data.summary ? (
-          <BoldSection num="01" label="Summary">
+          <BoldSection num="01" label={L.summaryShort}>
             <Text style={styles.summaryBlock}>{data.summary}</Text>
           </BoldSection>
         ) : null}
         {(data.experience?.length ?? 0) > 0 ? (
-          <BoldSection num="02" label="Experience">
+          <BoldSection num="02" label={L.experience}>
             {data.experience.map((j, i) => (
               <Job key={i} job={j} />
             ))}

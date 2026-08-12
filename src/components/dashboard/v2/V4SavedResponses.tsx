@@ -81,11 +81,21 @@ function htmlToMarkdown(text: string): string {
 // as their own rows in this card), and an "Also flagged by you" note. For the
 // wrap-up-summary row we drop the Saved-Responses block to avoid duplicating
 // those rows, keeping the summary bullets + the user's flagged note.
+//
+// Both label sets must stay listed here. wrap-up-save writes these subheaders
+// in the user's language, and older rows (and every English user) carry the
+// English ones, so the reader has to accept both or a stored block stops being
+// stripped. Keep in sync with `wrapUpLabels` in
+// supabase/functions/wrap-up-save/index.ts.
+const SAVED_RESPONSES_HEADING = /\n*#{3,5}\s*(?:Saved Responses|Bewaarde antwoorden)/i;
+const ALSO_FLAGGED_HEADING =
+  /\n*#{3,5}\s*(?:Also flagged by you|Ook door jou aangemerkt)[\s\S]*$/i;
+
 function summaryOnly(content: string): string {
-  const savedIdx = content.search(/\n*#{3,5}\s*Saved Responses/i);
+  const savedIdx = content.search(SAVED_RESPONSES_HEADING);
   if (savedIdx === -1) return content.trim();
   const before = content.slice(0, savedIdx).trim();
-  const flagged = content.match(/\n*#{3,5}\s*Also flagged by you[\s\S]*$/i);
+  const flagged = content.match(ALSO_FLAGGED_HEADING);
   return (flagged ? `${before}\n\n${flagged[0].trim()}` : before).trim();
 }
 

@@ -622,6 +622,10 @@ const DocumentTabs: React.FC<{
 }> = ({ resumeJson, coverLetterJson, templateId, careerTitle }) => {
   const [tab, setTab] = useState<'resume' | 'cover-letter'>('resume');
   const hasCover = !!coverLetterJson;
+  // WF9 writes the résumé body in the user's preferred_language, and
+  // useLanguage keeps i18n.language in sync with that column, so this is the
+  // same language the content is in. Drives the section headings only.
+  const { i18n } = useTranslation('resume');
 
   return (
     <div>
@@ -639,10 +643,10 @@ const DocumentTabs: React.FC<{
       )}
       {tab === 'resume' ? (
         <PdfFrame
-          doc={<ResumeDoc templateId={templateId} data={resumeJson} />}
+          doc={<ResumeDoc templateId={templateId} data={resumeJson} lang={i18n.language} />}
           fileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'resume')}
           docxFileName={fileNameFor(resumeJson.contact?.name, careerTitle, 'resume').replace(/\.pdf$/, '.docx')}
-          buildDocx={() => buildResumeDocxBlob(resumeJson)}
+          buildDocx={() => buildResumeDocxBlob(resumeJson, i18n.language)}
         />
       ) : (
         coverLetterJson && (
@@ -684,9 +688,13 @@ const TabButton: React.FC<{ active: boolean; onClick: () => void; children: Reac
 
 // Memoised template-component lookup so switching tabs doesn't unnecessarily
 // re-create the doc tree.
-const ResumeDoc: React.FC<{ templateId: TemplateId; data: ResumeJson }> = ({ templateId, data }) => {
+const ResumeDoc: React.FC<{
+  templateId: TemplateId;
+  data: ResumeJson;
+  lang?: string | null;
+}> = ({ templateId, data, lang }) => {
   const TemplateComponent = useMemo(() => getTemplateComponent(templateId), [templateId]);
-  return <TemplateComponent data={data} />;
+  return <TemplateComponent data={data} lang={lang} />;
 };
 
 // Ghost-style outline button — sits next to the gold "Download PDF" CTA
