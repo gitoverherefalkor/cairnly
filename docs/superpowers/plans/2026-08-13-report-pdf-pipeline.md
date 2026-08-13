@@ -2209,9 +2209,30 @@ Nothing to commit — verification only. If any step failed, fix it in the relev
 
 ---
 
-## Known limitations, deliberately deferred
+## Execution notes (2026-08-13) — what changed during the build
 
-**Pagination is fixed-size, not measured.** Sections are chunked N-per-page rather than measured at runtime, so a very long career section can still overflow. Revisit once you have seen real reports.
+Merged to `main` as `84a4785`. Two defects were found by verifying against a real
+20-section report, neither predicted by the plan or the review:
+
+**1. `requestAnimationFrame` never fires on a hidden page.** The readiness flag
+was gated on a double rAF. Measured on the deployed page: fonts resolve
+(`fontStatus: 'loaded'`), but `visibilityState` is `hidden` and rAF never fires,
+so `__REPORT_READY__` stayed unset and every Chromium render would have died at
+the 30s timeout. Fixed by scheduling a 400ms timer alongside the rAF pair.
+
+**2. Fixed-height sheets clipped 7 of 12 pages**, the worst by 1797px. The
+chunk-N-sections-per-sheet model in Task 6 Step 5 is unsalvageable: individual
+career sections are themselves longer than an A4 page, so no chunk size works.
+Replaced with natural flow — Chromium paginates, `break-after: avoid` on
+headings, orphans/widows control, and `@page :first { margin: 0 }` to keep the
+cover full-bleed while other pages get margins. Re-measured: 0 clipped sheets.
+
+That also moved the repeating partner footer to Chromium's `footerTemplate`,
+built by the page (the only thing that knows the branding) and read by the
+renderer via `window.__PDF_FOOTER_HTML__`. An absolutely-positioned footer has
+nothing to pin to once there are no per-sheet DOM nodes.
+
+## Known limitations, deliberately deferred
 
 **Dutch reports are untested here.** `report_sections.language` is carried through but nothing in this plan branches on it. Verify an NL report renders before shipping widely; longer German-style compounds in Dutch can change line-breaking.
 
