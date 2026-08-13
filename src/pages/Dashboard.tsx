@@ -29,6 +29,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { type MoveLevel } from '@/lib/moveScale';
+import { isAdminEmail } from '@/lib/admins';
 
 // Helper to get assessment session from localStorage.
 // Live survey progress is written by useSurveyState/useSurveySession under
@@ -79,9 +80,6 @@ const TOTAL_SURVEY_QUESTIONS = 60;
 // giving up (WF7 normally finishes in well under a minute). After this the
 // banner switches to a "taking longer than usual" message and polling stops.
 const EXEC_SUMMARY_WAIT_CAP_MS = 3 * 60 * 1000;
-
-// Admin allowlist for the temporary PDF test button. Mirrors Ops.tsx.
-const PDF_TEST_ADMINS = new Set(['sjoerd@cairnly.io', 'sjoerd@falkoratlas.com']);
 
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -543,7 +541,7 @@ const Dashboard = () => {
             Admin-only: the renderer needs RENDER_SHARED_SECRET and SITE_URL to
             be set, so until those exist this 500s — no reason to show it to
             real users. Widen or remove the gate when the feature ships. */}
-        {PDF_TEST_ADMINS.has(user?.email ?? '') && (
+        {isAdminEmail(user?.email) && (
         <button
           type="button"
           onClick={handleDownloadPdf}

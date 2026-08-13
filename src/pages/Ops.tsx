@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
@@ -94,7 +95,6 @@ interface OpsFeedResponse {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const ADMIN_EMAILS = new Set(['sjoerd@cairnly.io', 'sjoerd@falkoratlas.com']);
 
 const SUPPORT_CATEGORIES: Record<string, string> = {
   access_code_payment: 'Access / payment',
@@ -967,7 +967,7 @@ export default function Ops() {
   const [lastFetched, setLastFetched] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
-  const isAdmin = !authLoading && !!user && ADMIN_EMAILS.has(user.email ?? '');
+  const isAdmin = !authLoading && !!user && isAdminEmail(user.email);
 
   const fetchFeed = useCallback(async () => {
     setLoading(true);
