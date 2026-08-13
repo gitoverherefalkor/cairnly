@@ -44,6 +44,12 @@ import {
   extractSubsectionContent,
   type CareerMatch,
 } from './dashboardV2Shared';
+import {
+  buildRadarAxes,
+  buildCareerMapPoints,
+  buildCompareCareers,
+  buildCompareCareersRich,
+} from './reportChartData';
 
 // Convert the HTML tags the AI sometimes emits into Markdown so the accordion
 // can render through one pipeline. Same shape as the chat / ExpandedSectionView
@@ -398,143 +404,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   }, [sections]);
 
   // ── Chart data builders ──────────────────────────────────────
-  // Personality radar — read from the `approach` section's structured
-  // metadata.personality_scores (5 axes, 1–10).
-  const radarAxes = useMemo<RadarAxis[]>(() => {
-    const approach = sections.find(
-      (s) => s.section_type === 'approach' || s.section_type === 'personality_team',
-    );
-    const ps = approach?.metadata?.personality_scores;
-    if (!ps) return [];
-    const map: { key: string; label: string; short: string }[] = [
-      { key: 'strategic_depth', label: 'Strategic Depth', short: 'Strategic\nDepth' },
-      { key: 'execution_bias', label: 'Execution', short: 'Execution' },
-      { key: 'people_intuition', label: 'People Intuition', short: 'People\nIntuition' },
-      { key: 'ambiguity_tolerance', label: 'Ambiguity Tolerance', short: 'Ambiguity\nTolerance' },
-      { key: 'recognition_pull', label: 'Recognition Pull', short: 'Recognition\nPull' },
-    ];
-    return map
-      .map((m) => {
-        const score = ps[m.key];
-        if (typeof score !== 'number') return null;
-        return { label: m.label, short: m.short, v: score / 10, score };
-      })
-      .filter(Boolean) as RadarAxis[];
-  }, [sections]);
-
-  // Career map points — top 3 colored bubbles + runner-ups as secondaries.
-  // x = AI exposure on the clinical 5-level scale, spread across 0..1
-  //   (Minimal 0.12 / Moderate 0.35 / High 0.58 / Severe 0.78 / Critical 0.92).
-  // y = 1 - match%/100  (top of chart = strongest).
-  const careerMapPoints = useMemo<CareerPoint[]>(() => {
-    const xFor = (impact: AIImpactLevel | null): number => {
-      switch (impact) {
-        case 'Minimal':
-          return 0.12;
-        case 'Moderate':
-          return 0.35;
-        case 'High':
-          return 0.58;
-        case 'Severe':
-          return 0.78;
-        case 'Critical':
-          return 0.92;
-        default:
-          return 0.5;
-      }
-    };
-    const points: CareerPoint[] = [];
-
-    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
-      { type: 'top_career_1', rank: 1 },
-      { type: 'top_career_2', rank: 2 },
-      { type: 'top_career_3', rank: 3 },
-    ];
-    for (const { type, rank } of tops) {
-      const s = sections.find((x) => x.section_type === type);
-      if (!s) continue;
-      const score = s.score != null ? Number(s.score) : NaN;
-      if (!Number.isFinite(score)) continue;
-      const impact = extractAIImpact(s.content || '');
-      points.push({
-        x: xFor(impact),
-        y: 1 - score / 100,
-        label: stripHtml(s.title || `Career ${rank}`),
-        rank,
-      });
-    }
-
-    // Runner-ups as secondaries — repeating section_type with one career each.
-    const runners = sections.filter((x) => x.section_type === 'runner_ups');
-    for (const s of runners) {
-      const score = s.score != null ? Number(s.score) : NaN;
-      if (!Number.isFinite(score)) continue;
-      const impact = extractAIImpact(s.content || '');
-      points.push({
-        x: xFor(impact),
-        y: 1 - score / 100,
-        label: stripHtml(s.title || 'Runner-up'),
-      });
-    }
-
-    return points;
-  }, [sections]);
-
-  // Comparison radar payloads. Two shapes for two consumers:
-  //  - compareCareers: tuple-array form for the front-face V4CompareRadarSVG
-  //    (the small at-a-glance preview).
-  //  - compareCareersRich: object form for the back-face CareerComparisonRadar
-  //    (the larger detail view with per-axis hover tooltips). Colours match
-  //    front-face ranking so polygons don't change identity through the flip.
-  const RADAR_COLORS: Record<1 | 2 | 3, string> = {
-    1: '#d97706', // amber
-    2: '#6366f1', // indigo
-    3: '#0d9488', // teal
-  };
-  const compareCareers = useMemo<CompareCareer[]>(() => {
-    const out: CompareCareer[] = [];
-    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
-      { type: 'top_career_1', rank: 1 },
-      { type: 'top_career_2', rank: 2 },
-      { type: 'top_career_3', rank: 3 },
-    ];
-    for (const { type, rank } of tops) {
-      const s = sections.find((x) => x.section_type === type);
-      const f = s?.metadata?.fit_scores;
-      if (!s || !f) continue;
-      const norm = (n: number) => Math.max(0, Math.min(1, n / 5));
-      const tuple: [number, number, number, number, number] = [
-        norm(f.autonomy),
-        norm(f.stability),
-        norm(f.schedule),
-        norm(f.pace),
-        norm(f.social),
-      ];
-      out.push({ rank, label: stripHtml(s.title || `Career ${rank}`), scores: tuple });
-    }
-    return out;
-  }, [sections]);
-
-  const compareCareersRich = useMemo<RadarCareer[]>(() => {
-    const out: RadarCareer[] = [];
-    const tops: { type: string; rank: 1 | 2 | 3 }[] = [
-      { type: 'top_career_1', rank: 1 },
-      { type: 'top_career_2', rank: 2 },
-      { type: 'top_career_3', rank: 3 },
-    ];
-    for (const { type, rank } of tops) {
-      const s = sections.find((x) => x.section_type === type);
-      const f = s?.metadata?.fit_scores;
-      if (!s || !f) continue;
-      out.push({
-        label: stripHtml(s.title || `Career ${rank}`),
-        scores: f,
-        color: RADAR_COLORS[rank],
-        focal: rank === 1,
-      });
-    }
-    return out;
-  }, [sections]);
+  // Derivations live in reportChartData.ts so the print/PDF document
+  // builds identical payloads from the same sections.
+  const radarAxes = useMemo(() => buildRadarAxes(sections), [sections]);
+  const careerMapPoints = useMemo(() => buildCareerMapPoints(sections), [sections]);
+  const compareCareers = useMemo(() => buildCompareCareers(sections), [sections]);
+  const compareCareersRich = useMemo(() => buildCompareCareersRich(sections), [sections]);
 
   // Personality stat — names only, no numeric value. With a 1–10 integer
   // scale across 5 axes the digits tie too often to be meaningful; the
