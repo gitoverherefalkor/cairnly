@@ -33,6 +33,7 @@ const AuthConfirm = lazyWithRetry(() => import("./pages/AuthConfirm"));
 const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword"));
 const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
+const ReportPrint = lazyWithRetry(() => import("./pages/ReportPrint"));
 const Profile = lazyWithRetry(() => import("./pages/Profile"));
 const Chat = lazyWithRetry(() => import("./pages/Chat"));
 const ReportProcessing = lazyWithRetry(() => import("./pages/ReportProcessing"));
@@ -99,7 +100,7 @@ const PageViewTracker = () => {
 const INTERNAL_PATH_PREFIXES = [
   '/dashboard', '/profile', '/chat', '/assessment', '/report-processing',
   '/jobs', '/custom-resume', '/payment', '/payment-success', '/ops',
-  '/color-test', '/auth', '/forgot-password', '/reset-password',
+  '/color-test', '/auth', '/forgot-password', '/reset-password', '/report',
 ];
 
 // Baseline SEO tags (title/description/canonical/OG/Twitter) for every route,
@@ -114,6 +115,23 @@ const DefaultSeo = () => {
   return <Seo path={pathname} noindex={isInternal} />;
 };
 
+// Global overlays must never render on the print route — headless Chromium
+// would bake them into the generated PDF. The cookie banner is the dangerous
+// one: a fresh Chromium profile has no stored consent, so it un-hides itself
+// on a 500ms timer, well before the print page signals readiness, and
+// printBackground:true burns the white bar onto every sheet.
+const AppChrome = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/report/print')) return null;
+  return (
+    <>
+      <LanguageSuggestionBanner />
+      <CookieConsentBanner />
+      <SupportButton />
+    </>
+  );
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -126,9 +144,6 @@ const App = () => {
           <ThemeScopeGuard />
           <PageViewTracker />
           <DefaultSeo />
-          {/* Sits above the routes (the cookie banner is pinned to the bottom,
-              so the two never overlap). */}
-          <LanguageSuggestionBanner />
           <ChunkLoadErrorBoundary>
             <Suspense fallback={<PageLoader />}>
             <Routes>
@@ -138,6 +153,9 @@ const App = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              {/* Not linked anywhere. Loaded by headless Chromium to produce
+                  the report PDF; auth is the ?rt= render token. */}
+              <Route path="/report/print" element={<ReportPrint />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/assessment" element={<Assessment />} />
@@ -167,8 +185,9 @@ const App = () => {
             </Routes>
             </Suspense>
           </ChunkLoadErrorBoundary>
-          <CookieConsentBanner />
-          <SupportButton />
+          {/* Cookie banner, language banner and support button. Gated on the
+              route so none of them reach the printed PDF. */}
+          <AppChrome />
         </BrowserRouter>
       </TooltipProvider>
       </LanguageSync>
