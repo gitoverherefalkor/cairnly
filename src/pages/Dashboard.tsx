@@ -80,6 +80,9 @@ const TOTAL_SURVEY_QUESTIONS = 60;
 // banner switches to a "taking longer than usual" message and polling stops.
 const EXEC_SUMMARY_WAIT_CAP_MS = 3 * 60 * 1000;
 
+// Admin allowlist for the temporary PDF test button. Mirrors Ops.tsx.
+const PDF_TEST_ADMINS = new Set(['sjoerd@cairnly.io', 'sjoerd@falkoratlas.com']);
+
 const Dashboard = () => {
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
@@ -535,8 +538,12 @@ const Dashboard = () => {
         />
 
         {/* TEMPORARY test harness for the PDF pipeline. Deliberately a floating
-            button rather than a DashboardV4 prop, because the LinkedIn share
-            gate (Plan 2) replaces this entry point entirely. Remove it then. */}
+            button rather than a DashboardV4 prop, because the eventual entry
+            point (share gate or partner flow) replaces it entirely.
+            Admin-only: the renderer needs RENDER_SHARED_SECRET and SITE_URL to
+            be set, so until those exist this 500s — no reason to show it to
+            real users. Widen or remove the gate when the feature ships. */}
+        {PDF_TEST_ADMINS.has(user?.email ?? '') && (
         <button
           type="button"
           onClick={handleDownloadPdf}
@@ -559,6 +566,7 @@ const Dashboard = () => {
         >
           {pdfLoading ? 'Generating…' : 'Download report PDF'}
         </button>
+        )}
 
         {showShareCard && (
           <ShareCardModal
