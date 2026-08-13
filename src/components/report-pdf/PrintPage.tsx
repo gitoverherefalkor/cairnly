@@ -1,34 +1,16 @@
 import React from 'react';
 
-/** One A4 sheet. Padding is inside the fixed 210×297mm box, so content never
- *  pushes the sheet taller and creates a stray blank page.
+/** A block designed to occupy exactly one printed page — the cover and the
+ *  charts page. The narrative does NOT use this: it flows and lets Chromium
+ *  paginate, because individual report sections can exceed a page and any
+ *  fixed-height container would clip them. See printStyles.ts.
  *
- *  `footer` renders as an absolutely-positioned strip pinned to the bottom of
- *  the sheet. `.print-page` is already `position: relative` (printStyles.ts),
- *  and absolute positioning keeps the footer out of normal flow so it cannot
- *  grow the sheet. It sits at bottom 8mm, inside the 18mm padding band, so it
- *  never collides with body content. Omit it and nothing changes. */
-export const PrintPage: React.FC<{
+ *  `cover` makes the sheet full-bleed (210×297mm with no padding), which pairs
+ *  with the `@page :first { margin: 0 }` rule. Non-cover sheets sit inside the
+ *  @page margins and so need no size of their own. */
+export const PrintSheet: React.FC<{
   children: React.ReactNode;
-  padded?: boolean;
-  footer?: React.ReactNode;
-}> = ({ children, padded = true, footer }) => (
-  <div className="print-page" style={{ padding: padded ? '18mm 16mm' : 0 }}>
-    {children}
-    {footer && (
-      <div
-        style={{
-          position: 'absolute',
-          left: '16mm',
-          right: '16mm',
-          bottom: '8mm',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        {footer}
-      </div>
-    )}
-  </div>
+  cover?: boolean;
+}> = ({ children, cover = false }) => (
+  <div className={cover ? 'print-sheet print-sheet--cover' : 'print-sheet'}>{children}</div>
 );

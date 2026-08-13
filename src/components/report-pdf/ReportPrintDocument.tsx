@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReportSection } from '@/hooks/useReportSections';
-import { PrintPage } from './PrintPage';
+import { PrintSheet } from './PrintPage';
 import { PrintSection } from './PrintSection';
 import {
   PALETTE,
@@ -49,12 +49,6 @@ function orderSections(sections: ReportSection[]): ReportSection[] {
   });
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
-}
-
 /** Minimal partner white-label payload. Scope is deliberately narrow: a logo on
  *  the cover, a logo in a per-page footer, and a credit line. Nothing else. */
 export interface PartnerBrand {
@@ -86,31 +80,15 @@ export const ReportPrintDocument: React.FC<{
   // the other strings kept English in the NL localization batch.
   const poweredBy = partner?.powered_by_text ?? 'Powered by Cairnly';
 
-  // Per-page mark: partner logo left, Cairnly credit right. Null when there is
-  // no partner, so unbranded PDFs keep clean footer-free sheets.
-  const pageFooter = partner ? (
-    <>
-      {partner.logo_data_uri ? (
-        <img
-          src={partner.logo_data_uri}
-          alt={partner.name}
-          style={{ height: 14, width: 'auto', opacity: 0.85 }}
-        />
-      ) : (
-        <span style={{ fontFamily: FONT_BODY, fontSize: 8, color: PALETTE.inkSoft }}>
-          {partner.name}
-        </span>
-      )}
-      <span style={{ fontFamily: FONT_BODY, fontSize: 8, color: PALETTE.inkSoft }}>
-        {poweredBy}
-      </span>
-    </>
-  ) : null;
+  // NOTE: the repeating per-page partner footer is NOT rendered here. It is
+  // drawn by Chromium via the renderer's footerTemplate (see buildFooterHtml in
+  // ReportPrint.tsx), which is the only mechanism that repeats on every page of
+  // a naturally-paginated flow.
 
   return (
     <>
       {/* ── Cover ─────────────────────────────────────────────── */}
-      <PrintPage padded={false}>
+      <PrintSheet cover>
         <div
           style={{
             position: 'absolute',
@@ -174,11 +152,11 @@ export const ReportPrintDocument: React.FC<{
             {partner ? `${dateLabel} · ${poweredBy} · cairnly.io` : `${dateLabel} · cairnly.io`}
           </div>
         </div>
-      </PrintPage>
+      </PrintSheet>
 
       {/* ── Charts ────────────────────────────────────────────── */}
       {(radarAxes.length > 0 || mapPoints.length > 0 || compare.length > 0) && (
-        <PrintPage footer={pageFooter}>
+        <PrintSheet>
           <h2
             style={{
               fontFamily: FONT_DISPLAY,
@@ -212,17 +190,18 @@ export const ReportPrintDocument: React.FC<{
               <V4CompareLegend careers={compare} focalRank={1} />
             </div>
           )}
-        </PrintPage>
+        </PrintSheet>
       )}
 
-      {/* ── Narrative ─────────────────────────────────────────── */}
-      {chunk(ordered, 2).map((group, i) => (
-        <PrintPage key={i} footer={pageFooter}>
-          {group.map((s) => (
-            <PrintSection key={s.id} section={s} />
-          ))}
-        </PrintPage>
-      ))}
+      {/* ── Narrative ─────────────────────────────────────────
+          Flows naturally; Chromium paginates it. Deliberately NOT chunked
+          into fixed sheets: measured against a real 20-section report, fixed
+          sheets clipped 7 of 12 pages because single sections exceed a page. */}
+      <div className="print-flow print-screen-paper">
+        {ordered.map((s) => (
+          <PrintSection key={s.id} section={s} />
+        ))}
+      </div>
     </>
   );
 };

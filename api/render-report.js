@@ -69,11 +69,24 @@ export default async function handler(req, res) {
       return res.status(422).json({ error: `Print page failed: ${renderError}` });
     }
 
+    // The page builds its own footer markup (it is the only thing that knows
+    // the partner branding). Chromium repeats it into the @page bottom margin
+    // on every page — the only mechanism that works for a naturally-paginated
+    // flow, where there are no per-sheet DOM nodes to pin a footer to.
+    const footerTemplate = await page.evaluate(
+      () => window.__PDF_FOOTER_HTML__ || '<div></div>',
+    );
+
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
+      // Page size AND margins come from the stylesheet's @page rules, which is
+      // what lets `@page :first { margin: 0 }` give the cover a full bleed
+      // while every other page keeps its margins.
       preferCSSPageSize: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      displayHeaderFooter: true,
+      headerTemplate: '<div></div>',
+      footerTemplate,
     });
 
     return res.status(200).json({ pdfBase64: Buffer.from(pdf).toString('base64') });

@@ -17,7 +17,41 @@ declare global {
   interface Window {
     __REPORT_READY__?: boolean;
     __REPORT_ERROR__?: string;
+    // Read by the Vercel renderer and handed to page.pdf({ footerTemplate }).
+    // Chromium draws this into the @page bottom margin on EVERY page, which is
+    // the only way to repeat page furniture across a naturally-paginated flow.
+    __PDF_FOOTER_HTML__?: string;
   }
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Footer markup for Chromium's footerTemplate. Must be self-contained: the
+ *  template renders in its own context with no access to the page's styles, so
+ *  everything is inlined and the base font-size must be set explicitly (it
+ *  defaults to something tiny). */
+function buildFooterHtml(partner: PrintData['partner']): string {
+  const poweredBy = partner?.powered_by_text ?? 'Powered by Cairnly';
+  const left = partner?.logo_data_uri
+    ? `<img src="${partner.logo_data_uri}" style="height:9px;width:auto;opacity:0.85" />`
+    : partner
+      ? escapeHtml(partner.name)
+      : '';
+  // Unbranded reports get no footer at all — clean sheets, as before.
+  if (!partner) return '<div></div>';
+  return `
+    <div style="width:100%;font-family:Inter,sans-serif;font-size:7px;color:#6b7280;
+                padding:0 14mm;display:flex;align-items:center;
+                justify-content:space-between;">
+      <span>${left}</span>
+      <span>${escapeHtml(poweredBy)}</span>
+    </div>`;
 }
 
 interface PrintData {
@@ -92,7 +126,9 @@ const ReportPrint: React.FC = () => {
       }
       if (cancelled) return;
       const settle = () => {
-        if (!cancelled) window.__REPORT_READY__ = true;
+        if (cancelled) return;
+        window.__PDF_FOOTER_HTML__ = buildFooterHtml(data.partner);
+        window.__REPORT_READY__ = true;
       };
       requestAnimationFrame(() => requestAnimationFrame(settle));
       timers.push(window.setTimeout(settle, 400));
