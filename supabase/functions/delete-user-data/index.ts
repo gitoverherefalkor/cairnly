@@ -64,6 +64,32 @@ serve(async (req) => {
       errors.push(`storage: ${String(storageError)}`);
     }
 
+    // Delete generated report PDFs (best-effort; not covered by the RPC).
+    //
+    // This MUST be a prefix sweep keyed on userId, not a lookup via
+    // report_pdfs.storage_path: the RPC above already deleted public.reports,
+    // which cascades away the report_pdfs row. Without this the PDFs — the most
+    // sensitive artifact the platform produces — would survive erasure as
+    // orphans with nothing pointing at them.
+    //
+    // Unlike the resumes block above, the returned { error } is checked
+    // explicitly: the storage client resolves rather than throws, so a bare
+    // try/catch silently reports success on failure.
+    try {
+      const { data: pdfs, error: listError } = await supabase.storage
+        .from('report-pdfs')
+        .list(userId);
+      if (listError) throw listError;
+      if (pdfs && pdfs.length > 0) {
+        const { error: removeError } = await supabase.storage
+          .from('report-pdfs')
+          .remove(pdfs.map((f) => `${userId}/${f.name}`));
+        if (removeError) throw removeError;
+      }
+    } catch (storageError) {
+      errors.push(`report-pdfs: ${String(storageError)}`);
+    }
+
     // Delete the auth user last — also clears auth-schema sessions/identities.
     const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
     if (authDeleteError) errors.push(`auth: ${authDeleteError.message}`);
