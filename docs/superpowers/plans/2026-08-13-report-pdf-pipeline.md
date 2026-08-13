@@ -687,9 +687,19 @@ Note the explicit error checks: the supabase-js storage client returns `{ error 
 
 **Do NOT change the `report_pdfs.report_id` FK to `on delete restrict`.** `supabase/migrations/20260616130000_auto_cleanup_on_auth_user_delete.sql` installs a BEFORE DELETE trigger on `auth.users` calling `delete_user_personal_data`, which deletes from `public.reports` without clearing `report_pdfs` first. A RESTRICT FK there raises a foreign-key violation that aborts the whole transaction, permanently breaking both in-app deletion and every Supabase-dashboard user delete. Both FKs stay `on delete cascade`.
 
-- [ ] **Step 4: Regenerate TypeScript types**
+- [ ] **Step 4: TypeScript types — deliberately deferred**
 
-Use the Supabase MCP `generate_typescript_types` tool and write the output to `src/integrations/supabase/types.ts`.
+Do **not** regenerate `src/integrations/supabase/types.ts` for this change.
+
+Nothing in `src/` queries `partners`, `report_pdfs` or `report_render_tokens`: the frontend reaches this feature only through `supabase.functions.invoke('render-report-pdf')` and a raw `fetch` to `report-print-data`, and the edge functions use their own untyped Deno client. The new `profiles.partner_id` column is additive, so existing `select('*')` calls gain a runtime field that TypeScript simply doesn't know about — harmless, not a type error.
+
+Verify the claim rather than trusting it:
+
+```bash
+grep -rn "report_pdfs\|report_render_tokens\|from('partners')\|partner_id" src/
+```
+
+Expected: no matches. If that ever changes, regenerate then. (The `supabase gen types` CLI path hangs waiting on an interactive login in this environment; use the MCP `generate_typescript_types` tool instead.)
 
 - [ ] **Step 5: Verify the build still compiles**
 
