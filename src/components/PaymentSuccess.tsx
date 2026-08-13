@@ -14,9 +14,14 @@ declare global {
   }
 }
 
-// TODO: swap in the real Google Ads conversion label once it exists in the
-// Ads UI — this placeholder fires no actual conversion until then.
-const GOOGLE_ADS_CONVERSION_SEND_TO = 'AW-11471365050/CONVERSION_LABEL';
+// The "Page view" conversion action from the Ads UI, set up for exactly this
+// page (Page load trigger, "measuring conversions after they're complete,
+// such as on a purchase confirmation page"). Fired from here with the real
+// transaction value and a dedup key rather than the raw snippet Google
+// suggests pasting into <head> unconditionally — that version fires on every
+// page load (refreshes, errors before redirect included) with no dedup, which
+// would double up with this and inflate the conversion count.
+const GOOGLE_ADS_CONVERSION_SEND_TO = 'AW-11471365050/veddCM6jiIgZELrH_N0q';
 
 /** Fires once, only on a confirmed real purchase. transaction_id is the Stripe
  *  session_id, which Google Ads uses to dedupe — a refreshed success page
