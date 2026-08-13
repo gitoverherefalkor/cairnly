@@ -35,13 +35,15 @@ Do not reorder. Task 7 is the only step with real technical risk, and everything
 | `supabase/functions/render-report-pdf/index.ts` | Authenticated edge fn. Mints a token, calls the Vercel renderer, stores the PDF. |
 | `api/render-report.js` | Vercel serverless fn. Chromium → PDF buffer. |
 | `supabase/migrations/20260813120000_report_pdf_pipeline.sql` | `report_render_tokens` + `report_pdfs` tables, `report-pdfs` storage bucket. |
+| `supabase/migrations/20260813121000_partner_whitelabel_minimal.sql` | `partners` table, `partner_id` on `access_codes` / `profiles` / `report_pdfs`, `partner-logos` bucket. |
 
 **Modified:**
 
 | Path | Change |
 |---|---|
-| `src/components/dashboard/v2/DashboardV4.tsx:402-540` | Replace inline `useMemo` chart builders with calls into `reportChartData.ts`. |
-| `src/App.tsx:135-164` | Add the `/report/print` route. |
+| `src/components/dashboard/v2/DashboardV4.tsx:400-537` | Replace inline `useMemo` chart builders with calls into `reportChartData.ts`. |
+| `src/App.tsx` | Add the `/report/print` route; gate global overlays behind a new `AppChrome` so the cookie/language banners never render into the PDF; add `/report` to `INTERNAL_PATH_PREFIXES`. |
+| `supabase/functions/delete-user-data/index.ts:65` | Sweep the `report-pdfs` bucket on account deletion (GDPR). |
 | `vercel.json:3` | Exclude `/api/` from the SPA rewrite; add function memory/duration config. |
 | `supabase/config.toml` | Add `verify_jwt` entries for the two new functions. |
 | `package.json` | Add `puppeteer-core` + `@sparticuz/chromium`. |
@@ -50,12 +52,12 @@ Do not reorder. Task 7 is the only step with real technical risk, and everything
 
 ## Task 1: Extract chart data builders into a tested pure module
 
-Today the three chart payloads are built inside `DashboardV4` as `useMemo` blocks (lines 402-540). The print document needs the identical data. Copy-pasting would guarantee the two drift apart, so extract first.
+Today the three chart payloads are built inside `DashboardV4` as `useMemo` blocks (lines 400-537). The print document needs the identical data. Copy-pasting would guarantee the two drift apart, so extract first.
 
 **Files:**
 - Create: `src/components/dashboard/v2/reportChartData.ts`
 - Create: `src/components/dashboard/v2/reportChartData.test.ts`
-- Modify: `src/components/dashboard/v2/DashboardV4.tsx:402-540`
+- Modify: `src/components/dashboard/v2/DashboardV4.tsx:400-537`
 
 ---
 
@@ -216,7 +218,7 @@ Expected: FAIL — `Failed to resolve import "./reportChartData"`.
 
 - [ ] **Step 3: Write the module**
 
-Create `src/components/dashboard/v2/reportChartData.ts`. This is a straight lift of the `useMemo` bodies from `DashboardV4.tsx:402-540`, with the React wrapper removed:
+Create `src/components/dashboard/v2/reportChartData.ts`. This is a straight lift of the `useMemo` bodies from `DashboardV4.tsx:400-537`, with the React wrapper removed:
 
 ```ts
 // Pure chart-data builders shared by the live dashboard (DashboardV4) and the
@@ -359,7 +361,7 @@ export function buildCompareCareersRich(sections: ReportSection[]): RadarCareer[
 npx vitest run src/components/dashboard/v2/reportChartData.test.ts
 ```
 
-Expected: PASS, 12 tests.
+Expected: PASS, 13 tests.
 
 If `buildCompareCareers` fails the clamp test, check that `norm` applies `Math.max(0, ...)` before `Math.min(1, ...)`.
 
@@ -377,7 +379,7 @@ import {
 } from './reportChartData';
 ```
 
-Then delete lines 402-540 (the `// ── Chart data builders ──` block through the end of `compareCareersRich`) and replace with:
+Then delete lines 400-537 (the `// ── Chart data builders ──` block through the end of `compareCareersRich`) and replace with:
 
 ```ts
   // ── Chart data builders ──────────────────────────────────────
@@ -582,6 +584,109 @@ select id, public from storage.buckets where id = 'report-pdfs';
 
 Expected: one row, `public = false`.
 
+- [ ] **Step 3b: Write the partner white-label migration**
+
+Deliberately minimal: enough for a logo on the cover, a logo in a per-page footer, and a credit line. Not a partner system. The fuller partner plan extends `partners` with columns and reuses these foreign keys unchanged.
+
+There is currently **no** partner, whitelabel, agency or tenant concept anywhere in the codebase or DB — this is greenfield, nothing to retrofit.
+
+Create `supabase/migrations/20260813121000_partner_whitelabel_minimal.sql`:
+
+```sql
+-- Minimal partner white-labeling for the report PDF.
+--
+-- Scope is deliberately narrow: partner logo on the PDF cover, partner logo in
+-- a per-page footer, and a "Powered by Cairnly" line. No seats, no billing, no
+-- partner auth, no partner dashboard, no per-partner colours. Those belong to
+-- the fuller partner plan, which extends `partners` and reuses these FKs.
+--
+-- Resolution path for the PDF is profiles.partner_id, because report-print-data
+-- already reads the profiles row and can widen its select for free.
+--
+-- NOTE: reports.access_code_id was considered as a resolution path and
+-- rejected — it is populated on 0 of 27 live reports and is a dead column.
+
+create table if not exists public.partners (
+  id              uuid primary key default gen_random_uuid(),
+  slug            text not null unique,
+  name            text not null,
+  -- Object path inside the private `partner-logos` bucket, e.g. 'acme/logo.svg'.
+  -- NEVER a URL: the deployed CSP's img-src does not allow supabase.co, so the
+  -- logo is inlined as a data: URI by report-print-data.
+  logo_path       text,
+  logo_mime       text,
+  -- Optional override for the credit line. NULL renders "Powered by Cairnly".
+  powered_by_text text,
+  is_active       boolean not null default true,
+  created_at      timestamptz not null default now()
+);
+
+-- No policies: partners are admin-seeded and read only by service-role edge
+-- functions. RLS on with zero policies denies anon/authenticated by default,
+-- matching report_render_tokens and the support-attachments precedent.
+alter table public.partners enable row level security;
+
+-- Grouping anchor: a partner buys a batch of codes. Nothing groups codes by a
+-- purchaser today (access_codes.user_id is the redeeming end-user). Nullable —
+-- every existing code is a direct Cairnly sale.
+alter table public.access_codes
+  add column if not exists partner_id uuid references public.partners(id) on delete set null;
+create index if not exists idx_access_codes_partner on public.access_codes (partner_id);
+
+-- Resolution point read by report-print-data. Nullable — NULL means unbranded
+-- Cairnly output, which is every user today.
+alter table public.profiles
+  add column if not exists partner_id uuid references public.partners(id) on delete set null;
+create index if not exists idx_profiles_partner on public.profiles (partner_id);
+
+-- Cache key: a user assigned to a partner AFTER their PDF was generated must
+-- not keep receiving the unbranded cached copy.
+alter table public.report_pdfs
+  add column if not exists partner_id uuid references public.partners(id) on delete set null;
+
+-- Private, admin-seeded, service-role only. Same shape as support-attachments.
+-- 256 KB cap: base64 inflates ~33%, and the largest live report payload is
+-- 67 KB, so an unoptimised logo would dominate the print-data response. For
+-- reference this repo's own cairnly_logo_wordmark.png is 771 KB — assume a
+-- partner will hand you something equally unoptimised.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('partner-logos', 'partner-logos', false, 262144, array['image/png', 'image/svg+xml'])
+on conflict (id) do nothing;
+```
+
+Apply via MCP `apply_migration` with name `20260813121000_partner_whitelabel_minimal`.
+
+- [ ] **Step 3c: Close the GDPR erasure gap**
+
+**Without this, generated PDFs survive account deletion as unreachable orphans.** The `report_pdfs` row is destroyed by FK cascade when `public.reports` is deleted, and the storage object is keyed by `user_id` which is also gone — so there is no row pointing at the file and no user to enumerate it under. The bucket holds the single most sensitive artifact the platform produces.
+
+In `supabase/functions/delete-user-data/index.ts`, immediately after the existing `resumes` block (ends line 65), add:
+
+```ts
+    // Generated report PDFs. Not covered by delete_user_personal_data: the RPC
+    // deletes public.reports, which cascades away the report_pdfs row holding
+    // storage_path — so this must run as a prefix sweep, and it must run here
+    // rather than after the RPC.
+    try {
+      const { data: pdfs, error: listError } = await supabase.storage
+        .from('report-pdfs')
+        .list(userId);
+      if (listError) throw listError;
+      if (pdfs && pdfs.length > 0) {
+        const { error: removeError } = await supabase.storage
+          .from('report-pdfs')
+          .remove(pdfs.map((f) => `${userId}/${f.name}`));
+        if (removeError) throw removeError;
+      }
+    } catch (storageError) {
+      errors.push(`report-pdfs: ${String(storageError)}`);
+    }
+```
+
+Note the explicit error checks: the supabase-js storage client returns `{ error }` rather than throwing, so without them the sweep fails silently. The existing `resumes` block has this bug — leave it be for now, but do not copy the pattern.
+
+**Do NOT change the `report_pdfs.report_id` FK to `on delete restrict`.** `supabase/migrations/20260616130000_auto_cleanup_on_auth_user_delete.sql` installs a BEFORE DELETE trigger on `auth.users` calling `delete_user_personal_data`, which deletes from `public.reports` without clearing `report_pdfs` first. A RESTRICT FK there raises a foreign-key violation that aborts the whole transaction, permanently breaking both in-app deletion and every Supabase-dashboard user delete. Both FKs stay `on delete cascade`.
+
 - [ ] **Step 4: Regenerate TypeScript types**
 
 Use the Supabase MCP `generate_typescript_types` tool and write the output to `src/integrations/supabase/types.ts`.
@@ -694,7 +799,7 @@ serve(async (req) => {
       .order('order_number', { ascending: true, nullsFirst: false }),
     supabase
       .from('profiles')
-      .select('first_name, country')
+      .select('first_name, country, partner_id')
       .eq('id', burned.user_id)
       .maybeSingle(),
   ]);
@@ -703,11 +808,64 @@ serve(async (req) => {
     return errorResponse('Report not found', 404, corsHeaders);
   }
 
+  // ── Partner white-label (optional) ─────────────────────────────────────────
+  // The deployed CSP is `img-src 'self' data: blob: https://images.unsplash.com`
+  // (vercel.json), applied to every path on the origin — including the one
+  // Chromium loads. A Supabase Storage URL in an <img> is therefore BLOCKED,
+  // and it fails SILENTLY: Chromium renders a broken image and page.pdf() still
+  // succeeds, so you would ship a PDF with a hole in it and no error anywhere.
+  // Downloading here and handing the page a data: URI needs no CSP change, and
+  // generalises to partner-hosted logos whose domains can never be enumerated.
+  let partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null =
+    null;
+
+  if (profile?.partner_id) {
+    const { data: p } = await supabase
+      .from('partners')
+      .select('name, logo_path, logo_mime, powered_by_text, is_active')
+      .eq('id', profile.partner_id)
+      .maybeSingle();
+
+    if (p && p.is_active) {
+      let logoDataUri: string | null = null;
+      if (p.logo_path) {
+        try {
+          const { data: blob, error: dlErr } = await supabase.storage
+            .from('partner-logos')
+            .download(p.logo_path);
+          if (dlErr || !blob) throw dlErr ?? new Error('empty logo');
+
+          const bytes = new Uint8Array(await blob.arrayBuffer());
+          // Defence in depth: the bucket caps at 256 KB, but a bucket limit can
+          // be relaxed by hand. Drop the logo rather than bloat the payload.
+          if (bytes.byteLength > 262_144) {
+            console.warn('[report-print-data] partner logo too large, skipping:', bytes.byteLength);
+          } else {
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            logoDataUri = `data:${p.logo_mime || 'image/png'};base64,${btoa(bin)}`;
+          }
+        } catch (e) {
+          // Never fail a render over branding — fall back to plain Cairnly.
+          console.error('[report-print-data] partner logo fetch failed:', e);
+        }
+      }
+      partner = {
+        name: p.name,
+        logo_data_uri: logoDataUri,
+        powered_by_text: p.powered_by_text ?? null,
+      };
+    }
+  }
+
   return new Response(
     JSON.stringify({
       report,
       sections: sections ?? [],
       profile: { first_name: profile?.first_name ?? '', country: profile?.country ?? null },
+      // null for every user today, so the print page's partner branches never
+      // fire and unbranded output is byte-identical to the pre-white-label design.
+      partner,
     }),
     { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
   );
@@ -822,13 +980,35 @@ Create `src/components/report-pdf/PrintPage.tsx`:
 import React from 'react';
 
 /** One A4 sheet. Padding is inside the fixed 210×297mm box, so content never
- *  pushes the sheet taller and creates a stray blank page. */
+ *  pushes the sheet taller and creates a stray blank page.
+ *
+ *  `footer` renders as an absolutely-positioned strip pinned to the bottom of
+ *  the sheet. `.print-page` is already `position: relative` (printStyles.ts),
+ *  and absolute positioning keeps the footer out of normal flow so it cannot
+ *  grow the sheet. It sits at bottom 8mm, inside the 18mm padding band, so it
+ *  never collides with body content. Omit it and nothing changes. */
 export const PrintPage: React.FC<{
   children: React.ReactNode;
   padded?: boolean;
-}> = ({ children, padded = true }) => (
+  footer?: React.ReactNode;
+}> = ({ children, padded = true, footer }) => (
   <div className="print-page" style={{ padding: padded ? '18mm 16mm' : 0 }}>
     {children}
+    {footer && (
+      <div
+        style={{
+          position: 'absolute',
+          left: '16mm',
+          right: '16mm',
+          bottom: '8mm',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {footer}
+      </div>
+    )}
   </div>
 );
 ```
@@ -940,7 +1120,10 @@ import {
   PALETTE,
   FONT_DISPLAY,
   FONT_BODY,
-  LOGO_WORDMARK_URL,
+  // INVERTED, not LOGO_WORDMARK_URL: the cover background is canvasDeep
+  // (#122E3B) and the standard wordmark is dark navy ink, so it would be
+  // invisible. Both assets are 2:1, so the layout is unchanged.
+  LOGO_INVERTED_URL,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4PersonalityRadarSVG } from '@/components/dashboard/v2/V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend } from '@/components/dashboard/v2/V4CareerMapSVG';
@@ -966,7 +1149,7 @@ const SECTION_ORDER = [
   'top_career_3',
   'runner_ups',
   'outside_box',
-  'dream_job',
+  'dream_jobs',
 ];
 
 function orderSections(sections: ReportSection[]): ReportSection[] {
@@ -981,11 +1164,20 @@ function orderSections(sections: ReportSection[]): ReportSection[] {
   return ranked;
 }
 
+/** Minimal partner white-label payload. Scope is deliberately narrow: a logo on
+ *  the cover, a logo in a per-page footer, and a credit line. Nothing else. */
+export interface PartnerBrand {
+  name: string;
+  logo_data_uri: string | null;
+  powered_by_text: string | null;
+}
+
 export const ReportPrintDocument: React.FC<{
   firstName: string;
   sections: ReportSection[];
   generatedAt: string | null;
-}> = ({ firstName, sections, generatedAt }) => {
+  partner?: PartnerBrand | null;
+}> = ({ firstName, sections, generatedAt, partner }) => {
   const ordered = orderSections(sections);
   const radarAxes = buildRadarAxes(sections);
   const mapPoints = buildCareerMapPoints(sections);
@@ -998,6 +1190,31 @@ export const ReportPrintDocument: React.FC<{
         year: 'numeric',
       })
     : '';
+
+  // Deliberately English in both locales — it's a brand line, consistent with
+  // the other strings kept English in the NL localization batch.
+  const poweredBy = partner?.powered_by_text ?? 'Powered by Cairnly';
+
+  // Per-page mark: partner logo left, Cairnly credit right. Null when there is
+  // no partner, so unbranded PDFs keep clean footer-free sheets.
+  const pageFooter = partner ? (
+    <>
+      {partner.logo_data_uri ? (
+        <img
+          src={partner.logo_data_uri}
+          alt={partner.name}
+          style={{ height: 14, width: 'auto', opacity: 0.85 }}
+        />
+      ) : (
+        <span style={{ fontFamily: FONT_BODY, fontSize: 8, color: PALETTE.inkSoft }}>
+          {partner.name}
+        </span>
+      )}
+      <span style={{ fontFamily: FONT_BODY, fontSize: 8, color: PALETTE.inkSoft }}>
+        {poweredBy}
+      </span>
+    </>
+  ) : null;
 
   return (
     <>
@@ -1015,12 +1232,27 @@ export const ReportPrintDocument: React.FC<{
             color: '#fff',
           }}
         >
-          <img
-            src={LOGO_WORDMARK_URL}
-            alt="Cairnly"
-            crossOrigin="anonymous"
-            style={{ height: 46, width: 'auto' }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <img
+              src={LOGO_INVERTED_URL}
+              alt="Cairnly"
+              crossOrigin="anonymous"
+              style={{ height: 46, width: 'auto' }}
+            />
+            {partner?.logo_data_uri && (
+              <>
+                <div style={{ width: 1, height: 34, background: 'rgba(255,255,255,0.28)' }} />
+                {/* Inlined as a data: URI by report-print-data. A storage URL
+                    here would be silently blocked by the deployed CSP's
+                    img-src, producing a PDF with a hole and no error. */}
+                <img
+                  src={partner.logo_data_uri}
+                  alt={partner.name}
+                  style={{ height: 40, width: 'auto', maxWidth: 260, objectFit: 'contain' }}
+                />
+              </>
+            )}
+          </div>
           <div>
             <div
               style={{
@@ -1048,14 +1280,14 @@ export const ReportPrintDocument: React.FC<{
             </h1>
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
-            {dateLabel} · cairnly.io
+            {partner ? `${dateLabel} · ${poweredBy} · cairnly.io` : `${dateLabel} · cairnly.io`}
           </div>
         </div>
       </PrintPage>
 
       {/* ── Charts ────────────────────────────────────────────── */}
       {(radarAxes.length > 0 || mapPoints.length > 0 || compare.length > 0) && (
-        <PrintPage>
+        <PrintPage footer={pageFooter}>
           <h2
             style={{
               fontFamily: FONT_DISPLAY,
@@ -1093,7 +1325,7 @@ export const ReportPrintDocument: React.FC<{
       )}
 
       {/* ── Narrative ─────────────────────────────────────────── */}
-      <PrintPage>
+      <PrintPage footer={pageFooter}>
         {ordered.map((s) => (
           <PrintSection key={s.id} section={s} />
         ))}
@@ -1174,6 +1406,7 @@ interface PrintData {
   report: { id: string; title: string | null; updated_at: string | null; created_at: string };
   sections: ReportSection[];
   profile: { first_name: string; country: string | null };
+  partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null;
 }
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/report-print-data`;
@@ -1254,6 +1487,7 @@ const ReportPrint: React.FC = () => {
         firstName={data.profile.first_name}
         sections={data.sections}
         generatedAt={data.report.updated_at ?? data.report.created_at}
+        partner={data.partner}
       />
     </>
   );
@@ -1286,6 +1520,43 @@ and add the route inside the `<Routes>` block, after the `/dashboard` route at l
               <Route path="/report/print" element={<ReportPrint />} />
 ```
 
+- [ ] **Step 3b: Keep the global app chrome out of the PDF**
+
+**Without this the cookie-consent banner is baked into every page of every PDF.** `CookieConsentBanner` and `LanguageSuggestionBanner` render unconditionally as siblings of `<Routes>` (lines 131, 170), so they render on `/report/print` too. The banner shows itself whenever `localStorage['cairnly-cookie-consent']` is absent — always true in a fresh headless-Chromium profile — after a 500ms timer, which fires well before `__REPORT_READY__` (that waits on a network round-trip plus font loading). With `printBackground: true`, a fixed white bar with "Essential Only" / "Accept All" lands in the output.
+
+Add this component next to the existing `DefaultSeo` (around line 115 in `src/App.tsx`), following the same router-scoped pattern:
+
+```tsx
+// Global overlays must never render on the print route — headless Chromium
+// would bake them into the generated PDF.
+const AppChrome = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/report/print')) return null;
+  return (
+    <>
+      <CookieConsentBanner />
+      <SupportButton />
+    </>
+  );
+};
+```
+
+Then in the JSX: delete `<LanguageSuggestionBanner />` at line 131, and replace the `<CookieConsentBanner />` + `<SupportButton />` pair at lines 170-171 with:
+
+```tsx
+          <AppChrome />
+```
+
+`LanguageSuggestionBanner` moves inside the same guard — it's a second unconditional overlay and `@sparticuz/chromium`'s Accept-Language is not something the PDF should depend on. Add it to the `AppChrome` fragment above the cookie banner to preserve its current stacking (it sits above the routes, the cookie banner is pinned to the bottom).
+
+Leave `<Toaster />` and `<Sonner />` alone — they're outside `BrowserRouter` and render empty containers with no ink.
+
+While you're here, add the print route to `INTERNAL_PATH_PREFIXES` (line 99-103) so it carries `noindex`:
+
+```tsx
+  '/color-test', '/auth', '/forgot-password', '/reset-password', '/report',
+```
+
 - [ ] **Step 4: Verify it builds and loads**
 
 ```bash
@@ -1315,7 +1586,7 @@ Open `/report/print?rt=<token>` in the browser. On screen you will see the sheet
 ```tsx
       {/* ── Narrative ─────────────────────────────────────────── */}
       {chunk(ordered, 2).map((group, i) => (
-        <PrintPage key={i}>
+        <PrintPage key={i} footer={pageFooter}>
           {group.map((s) => (
             <PrintSection key={s.id} section={s} />
           ))}
@@ -1410,10 +1681,23 @@ export default async function handler(req, res) {
     // flag, which is a stronger signal than an idle network.
     await page.goto(printUrl, { waitUntil: 'domcontentloaded', timeout: READY_TIMEOUT_MS });
 
-    await page.waitForFunction(
-      () => window.__REPORT_READY__ === true || typeof window.__REPORT_ERROR__ === 'string',
-      { timeout: READY_TIMEOUT_MS },
-    );
+    // On timeout, report what actually loaded. The single most common cause is
+    // the print URL and the renderer being on different deployments, where the
+    // SPA catch-all serves NotFound and no readiness flag is ever set.
+    try {
+      await page.waitForFunction(
+        () => window.__REPORT_READY__ === true || typeof window.__REPORT_ERROR__ === 'string',
+        { timeout: READY_TIMEOUT_MS },
+      );
+    } catch {
+      const seen = await page.evaluate(() => ({ path: location.pathname, title: document.title }));
+      return res.status(504).json({
+        error:
+          `Print page never signalled readiness. Loaded ${seen.path} (title: "${seen.title}"). ` +
+          `If that looks like a 404 page, SITE_URL and the deployment running this renderer are ` +
+          `different origins.`,
+      });
+    }
 
     const renderError = await page.evaluate(() => window.__REPORT_ERROR__ || null);
     if (renderError) {
@@ -1486,7 +1770,8 @@ Troubleshooting:
 - `401` → secret mismatch between your shell and Vercel.
 - `404` → the `vercel.json` rewrite fix from Task 2 did not deploy.
 - `422` → the print page errored; the message carries the reason (usually an expired or already-used token).
-- Timeout → check the Vercel function log for a Chromium launch failure, which almost always means a `puppeteer-core` / `@sparticuz/chromium` version mismatch.
+- `504` with "Print page never signalled readiness" → read the `path` and `title` in the message. If it looks like a 404 page, `SITE_URL` and the deployment running the renderer are different origins (see Task 8 Step 3).
+- Timeout with no response → check the Vercel function log for a Chromium launch failure, which almost always means a `puppeteer-core` / `@sparticuz/chromium` version mismatch.
 
 - [ ] **Step 6: Commit**
 
@@ -1536,7 +1821,13 @@ import {
 } from '../_shared/cors.ts';
 
 const LAYOUT_VERSION = 1;
-const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+// 5 minutes. A Supabase signed URL is an UNREVOCABLE bearer credential (an HMAC
+// over path + expiry) — once issued there is no way to invalidate it short of
+// rotating the project JWT secret or deleting the object. The browser fetches
+// it immediately, so a long TTL buys nothing and leaves a link that keeps
+// serving a full career report from browser history. Matches the 300s used in
+// useAIResumeUpload.ts. Re-signing is free via the cached branch below.
+const SIGNED_URL_TTL_SECONDS = 300;
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -1581,14 +1872,42 @@ serve(async (req) => {
     return errorResponse('Report is not finished yet', 409, corsHeaders);
   }
 
-  // Reuse an existing PDF unless the layout changed or force was passed.
+  // The report's language is stamped on its sections by WF1 (one language per
+  // report). NOTE this means "the language the report is stamped as", not "the
+  // language of the prose" — WF3/WF4 narrative content is currently hard-forced
+  // to English even when sections say 'nl'. Do not read it as a guarantee about
+  // the rendered text.
+  const { data: langRow } = await supabase
+    .from('report_sections')
+    .select('language')
+    .eq('report_id', reportId)
+    .limit(1)
+    .maybeSingle();
+  const reportLanguage = langRow?.language ?? 'en';
+
+  // Current partner, resolved fresh. A user assigned to a partner after their
+  // PDF was generated must not keep receiving the unbranded cached copy.
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('partner_id')
+    .eq('id', report.user_id)
+    .maybeSingle();
+  const currentPartnerId = ownerProfile?.partner_id ?? null;
+
+  // Reuse an existing PDF unless the layout changed, the branding changed, or
+  // force was passed.
   const { data: existing } = await supabase
     .from('report_pdfs')
-    .select('storage_path, layout_version')
+    .select('storage_path, layout_version, partner_id')
     .eq('report_id', reportId)
     .maybeSingle();
 
-  if (existing && existing.layout_version === LAYOUT_VERSION && !force) {
+  if (
+    existing &&
+    existing.layout_version === LAYOUT_VERSION &&
+    (existing.partner_id ?? null) === currentPartnerId &&
+    !force
+  ) {
     const { data: signed } = await supabase.storage
       .from('report-pdfs')
       .createSignedUrl(existing.storage_path, SIGNED_URL_TTL_SECONDS);
@@ -1634,11 +1953,15 @@ serve(async (req) => {
     });
     const renderJson = await renderRes.json();
     if (!renderRes.ok) {
-      console.error('[render-report-pdf] renderer error:', renderRes.status, renderJson);
+      // renderJson.error may echo the loaded URL for diagnosis; that URL
+      // contains the render token, so log the status and message only.
+      console.error('[render-report-pdf] renderer error:', renderRes.status, renderJson?.error);
       return errorResponse(`Renderer failed (${renderRes.status})`, 502, corsHeaders);
     }
     pdfBytes = Uint8Array.from(atob(renderJson.pdfBase64), (c) => c.charCodeAt(0));
   } catch (err) {
+    // Deliberately does NOT log printUrl — it carries a live, unburned render
+    // token, and edge-function logs are a lower-trust surface than the DB.
     console.error('[render-report-pdf] renderer unreachable:', err);
     return errorResponse('Renderer unreachable', 502, corsHeaders);
   }
@@ -1662,6 +1985,8 @@ serve(async (req) => {
       storage_path: storagePath,
       byte_size: pdfBytes.byteLength,
       layout_version: LAYOUT_VERSION,
+      language: reportLanguage,
+      partner_id: currentPartnerId,
       generated_at: new Date().toISOString(),
     },
     { onConflict: 'report_id' },
@@ -1695,10 +2020,15 @@ verify_jwt = true
 
 - [ ] **Step 3: Set the remaining secrets**
 
-In Supabase → Edge Functions secrets, confirm all three exist:
-- `RENDER_SHARED_SECRET` (same value as Vercel, from Task 7 Step 3)
-- `SITE_URL` = `https://cairnly.io`
-- `RENDER_ENDPOINT_URL` — only needed when testing against a preview deployment; omit in production and it derives from `SITE_URL`.
+In Supabase → Edge Functions secrets:
+
+- `RENDER_SHARED_SECRET` — same value as Vercel, from Task 7 Step 3.
+- `SITE_URL` — `https://cairnly.io` in production. **When verifying on a Vercel preview, set this to the preview origin instead** (e.g. `https://cairnly-git-feat-report-pdf-pipeline-<team>.vercel.app`), then set it back afterwards.
+- `RENDER_ENDPOINT_URL` — **leave unset.**
+
+`SITE_URL` feeds *both* the renderer endpoint and the print URL, which is exactly what you want: they must be the same origin, because `/report/print` and `/api/render-report` do not exist on production until this branch merges.
+
+**Do not reach for `RENDER_ENDPOINT_URL` as the preview override.** It moves only the endpoint and leaves `printUrl` pointing at production, so Chromium loads a route that isn't there, gets the SPA catch-all, and hangs until the 30s readiness timeout. It exists solely for the case where the renderer is hosted somewhere other than the site itself.
 
 - [ ] **Step 4: Commit**
 
@@ -1717,13 +2047,21 @@ A minimal button proving the pipeline works. The share gate in Plan 2 replaces t
 
 ---
 
-- [ ] **Step 1: Add the handler**
+- [ ] **Step 1: Add the state and handler — placement is load-bearing**
 
-In `src/pages/Dashboard.tsx`, near the existing `latestReport` handlers (around line 606), add:
+`Dashboard.tsx` returns early at line 487 for the completed-report branch. Anything the button touches must be declared **above** that return, or you get a temporal-dead-zone `ReferenceError` on every completed-report render. And a `useState` placed after a conditional return violates the Rules of Hooks, changing the hook count between branches so React throws "Rendered more hooks than during the previous render" the moment a report flips to completed in place.
+
+So, two separate anchors — do not put these together:
+
+**(a) The state goes with the other hooks.** In `src/pages/Dashboard.tsx`, immediately after `const [isRetrying, setIsRetrying] = useState(false);` (in the hook block at lines 88-114):
 
 ```tsx
   const [pdfLoading, setPdfLoading] = useState(false);
+```
 
+**(b) The handler goes above the first early return.** The first is the loading guard at line 469, so place this right after `handleInvite` ends (~line 467). `supabase` is already imported at line 5.
+
+```tsx
   const handleDownloadPdf = async () => {
     if (!latestReport || pdfLoading) return;
     setPdfLoading(true);
@@ -1760,9 +2098,13 @@ Styling is deliberately plain — this is a test harness, and Plan 2 replaces th
 
 - [ ] **Step 3: Verify end to end**
 
+`npm run build` alone cannot catch either failure mode above — Vite does no typechecking and no linting. Run all three:
+
 ```bash
-npm run build
+npx tsc -b --noEmit && npx eslint src/pages/Dashboard.tsx && npm run build
 ```
+
+`tsc` catches the used-before-declaration (TS2448), `eslint` catches the Rules-of-Hooks violation. Lint is scoped to the one changed file because the repo baseline is noisy.
 
 Push the branch, open its Vercel preview, sign in as a user with a completed report, and click the button. Expected: a few seconds of "Generating…", then a new tab with the PDF.
 
@@ -1785,16 +2127,75 @@ git add src/pages/Dashboard.tsx && git commit -m "feat(dashboard): add a tempora
 
 ---
 
+## Task 10: Verify white-labeling with a seeded test partner
+
+The partner code paths are dormant until a `partners` row exists. Prove both branches before calling this done.
+
+**Files:** none — this task is verification only.
+
+---
+
+- [ ] **Step 1: Seed a test partner**
+
+Upload a logo to the private bucket first (Supabase Studio → Storage → `partner-logos` → create folder `testco`, upload `logo.png` or `logo.svg` under 256 KB). Then via MCP `execute_sql`:
+
+```sql
+insert into public.partners (slug, name, logo_path, logo_mime)
+values ('testco', 'TestCo', 'testco/logo.png', 'image/png')
+returning id;
+```
+
+- [ ] **Step 2: Assign yourself to it**
+
+```sql
+update public.profiles set partner_id = '<PARTNER_UUID>' where email = '<your test user email>';
+```
+
+- [ ] **Step 3: Regenerate and inspect**
+
+Click the Task 9 button again. Because `report_pdfs.partner_id` is now part of the cache key, this must re-render rather than return the cached unbranded copy — that behaviour is itself the thing being tested.
+
+Confirm in the PDF:
+- Cover: TestCo logo beside the Cairnly wordmark, separated by a hairline
+- Cover bottom: `<date> · Powered by Cairnly · cairnly.io`
+- Every non-cover page: TestCo logo bottom-left, "Powered by Cairnly" bottom-right
+- No layout shifted, no page gained or lost versus the unbranded run
+
+- [ ] **Step 4: Confirm the CSP fix actually worked**
+
+This is the step that catches the silent failure. If the logo were loaded from a storage URL instead of a data URI, Chromium would render a broken image, `page.pdf()` would still succeed, and you would ship a PDF with a hole and no error anywhere. So verify positively that the logo pixels are present, not merely that the render returned 200.
+
+- [ ] **Step 5: Revert**
+
+```sql
+update public.profiles set partner_id = null where email = '<your test user email>';
+```
+
+Then regenerate once more and confirm the output is footer-free and identical to the unbranded design.
+
+- [ ] **Step 6: Commit**
+
+Nothing to commit — verification only. If any step failed, fix it in the relevant task and re-run.
+
+---
+
 ## Definition of done
 
 - [ ] `npx vitest run` passes
+- [ ] `npx tsc -b --noEmit` passes
 - [ ] `npm run build` passes
+- [ ] The completed-report dashboard still renders (Task 9's button lives there; a render regression silently invalidates the whole end-to-end check)
 - [ ] A signed-in user with a completed report can produce a multi-page A4 PDF
 - [ ] The PDF has coloured backgrounds, all three charts, and match / AI-impact / Move pills
+- [ ] The Cairnly wordmark is legible on the dark cover
+- [ ] **No app chrome (cookie banner, language banner) appears in the PDF, and the page count matches the number of `.print-page` sheets** — a stray extra page is the tell
 - [ ] Text in the PDF is selectable (vector, not raster)
 - [ ] No page clips its content
 - [ ] A second request for the same report returns the cached PDF without re-rendering
 - [ ] A reused or expired render token returns 403 from `report-print-data`
+- [ ] Deleting an account removes that user's objects from the `report-pdfs` bucket
+- [ ] With `profiles.partner_id` set, the partner logo appears on the cover and in every page footer, alongside "Powered by Cairnly"
+- [ ] With `partner_id` NULL, output is byte-identical to the unbranded design (no footer at all)
 
 ---
 
