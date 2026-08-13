@@ -8,6 +8,35 @@ import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
 import AuthShell from '@/components/auth/AuthShell';
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
+// TODO: swap in the real Google Ads conversion label once it exists in the
+// Ads UI — this placeholder fires no actual conversion until then.
+const GOOGLE_ADS_CONVERSION_SEND_TO = 'AW-11471365050/CONVERSION_LABEL';
+
+/** Fires once, only on a confirmed real purchase. transaction_id is the Stripe
+ *  session_id, which Google Ads uses to dedupe — a refreshed success page
+ *  reports the same session_id and doesn't double-count. Never lets a tracking
+ *  failure (e.g. an ad blocker stripping gtag) break the payment flow. */
+const fireConversion = (sessionId: string) => {
+  try {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        send_to: GOOGLE_ADS_CONVERSION_SEND_TO,
+        value: 39.0,
+        currency: 'EUR',
+        transaction_id: sessionId,
+      });
+    }
+  } catch (err) {
+    console.error('Google Ads conversion tracking failed:', err);
+  }
+};
+
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const [isProcessing, setIsProcessing] = useState(true);
@@ -84,6 +113,7 @@ const PaymentSuccess = () => {
         // clear it so it can't apply to a later unrelated checkout.
         clearStoredReferralCode();
 
+        fireConversion(sessionId);
         setIsComplete(true);
         toast({
           title: 'Purchase Successful!',
