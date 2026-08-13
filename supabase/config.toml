@@ -99,3 +99,13 @@ verify_jwt = true
 # fenced inside the function (rate limit, turn caps, token budget).
 [functions.intake-chat]
 verify_jwt = false
+
+# Called by headless Chromium inside the Vercel PDF renderer, which has no
+# Supabase session. Auth is the single-use render token checked in-function.
+[functions.report-print-data]
+verify_jwt = false
+
+# Report PDF orchestrator. Requires a real user JWT — ownership of the report
+# is re-checked inside the function.
+[functions.render-report-pdf]
+verify_jwt = true
