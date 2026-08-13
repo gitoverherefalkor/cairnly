@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -19,6 +20,7 @@ import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 type ReportData = Tables<'reports'>;
 
 const Chat = () => {
+  const { t } = useTranslation('chat');
   // Session management — same localStorage keys as n8n for backward compatibility.
   // Note: hasExistingSession used to drive the welcome-card decision, but a
   // sessionId can be present from a stale visit where the user never engaged.
@@ -323,7 +325,7 @@ const Chat = () => {
       localStorage.setItem(`chat_engaged_${reportData.id}`, '1');
     }
     setShowWelcome(false);
-    setAutoResumeMessage("I'm ready, let's begin!");
+    setAutoResumeMessage(t('welcome.readyMessage'));
     trackChatStart();
   };
 

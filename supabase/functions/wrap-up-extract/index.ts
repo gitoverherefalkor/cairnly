@@ -149,11 +149,22 @@ serve(async (req) => {
   // ~200 chars total skips the model and writes a placeholder so the
   // report still gets a chat_highlights row (avoids special-casing
   // downstream).
+  // Both languages are listed, and the English patterns are never removed:
+  // historical transcripts are plain text with no language metadata, so
+  // dropping them would make old English quick-reply clicks count as
+  // "substantive" and push padded sessions over the threshold. Mirrors
+  // `quickReplies` in public/locales/*/chat.json.
   const QUICK_REPLY_PATTERNS = [
     /looks good,?\s*let'?s continue/i,
     /looks good,?\s*i'?m all done/i,
     /^i'?d like to explore this section a bit more$/i,
     /^let'?s wrap up/i,
+    /ziet er goed uit,?\s*door naar/i,
+    /ziet er goed uit,?\s*ik ben klaar/i,
+    /^hier wil ik wat dieper op ingaan$/i,
+    /laten we de sessie afronden/i,
+    /^laten we deze sectie overslaan/i,
+    /^ik ben er klaar voor,?\s*laten we beginnen/i,
   ];
   let userSubstantiveChars = 0;
   for (const m of messages) {

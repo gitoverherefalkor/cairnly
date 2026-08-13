@@ -5,7 +5,8 @@
     "encouragement": "When you click below, we go straight into your first personality analysis. No long preamble, we just get started.",
     "tip": "No need to take notes. Every message has a Keep button to bookmark it so you can find it again later, and your full report lands on your dashboard once we're done.",
     "ready": "I'm Ready!",
-    "preparing": "Preparing your session..."
+    "preparing": "Preparing your session...",
+    "readyMessage": "I'm ready, let's begin!"
   },
   "input": {
     "placeholder": "Type here...",
@@ -22,5 +23,45 @@
     "completeSession": "Complete Session",
     "reportSections": "Report Sections",
     "progress": "Progress"
+  },
+  "quickReplies": {
+    "continue": {
+      "label": "Continue to next section",
+      "mobile": "Next section",
+      "message": "Looks good, let's continue to the next section"
+    },
+    "explore": {
+      "label": "I'd like to explore this more",
+      "mobile": "Explore more",
+      "message": "I'd like to explore this section a bit more"
+    },
+    "differently": {
+      "label": "I see this differently",
+      "mobile": "I disagree",
+      "placeholder": "Tell me how you see it…"
+    },
+    "somethingElse": {
+      "label": "Something else",
+      "mobile": "Something else",
+      "placeholder": "Let me know what's on your mind…"
+    },
+    "wrapUp": {
+      "label": "All done, wrap up session",
+      "mobile": "Wrap up",
+      "message": "Looks good, I'm all done! Let's wrap up the session."
+    },
+    "skip": {
+      "label": "Skip ahead and continue",
+      "mobile": "Skip ahead",
+      "message": "Let's skip that section and continue"
+    },
+    "retry": {
+      "label": "Try loading it once more",
+      "mobile": "Try again"
+    },
+    "exitDashboard": {
+      "label": "Exit to Dashboard",
+      "mobile": "Exit to Dashboard"
+    }
   }
 }

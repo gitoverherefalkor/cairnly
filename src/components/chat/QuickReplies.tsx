@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ThumbsDown, ArrowRight, CheckCircle, Search, Pencil, LayoutDashboard, SkipForward } from 'lucide-react';
 
 // `intent` lets the chat container distinguish between message types that
@@ -13,17 +14,30 @@ import { ThumbsDown, ArrowRight, CheckCircle, Search, Pencil, LayoutDashboard, S
 // "try Continue again".
 export type QuickReplyIntent = 'advance' | 'wrap_up' | 'skip_stalled';
 
-interface QuickReply {
-  label: string;
-  mobileLabel: string; // Shorter label for small screens
-  message: string; // Text sent as a chat message (empty = focus input instead)
+// A pill is defined by its translation key plus its non-textual traits. All
+// user-visible text and the message text itself live in chat.json under
+// `quickReplies.<key>`, because clicking a pill writes its `message` into the
+// transcript AS THE USER'S OWN TURN. Leaving those English meant every Dutch
+// session fed the coach a stream of English user turns, which is exactly the
+// mixed-language context that makes the model code-switch.
+//
+// IMPORTANT: the message strings are pattern-matched in three places
+// (ChatContainer's advance/wrap-up inference, and wrap-up-extract's
+// formulaic-turn filter). Those matchers accept BOTH languages. If you add a
+// language here, add its patterns there too, and never remove the English
+// ones: historical transcripts are plain text with no language metadata.
+interface QuickReplySpec {
+  /** i18n key under `quickReplies` AND the React list key. */
+  key: string;
   icon: React.ReactNode;
   variant?: 'default' | 'primary'; // Visual emphasis
   action?: 'navigate-dashboard'; // Special action instead of sending a message
   intent?: QuickReplyIntent; // Routing hint for the chat container
-  // When set, focusing the input also sets this as the placeholder so the
-  // user knows what kind of feedback we're inviting.
-  inputPlaceholder?: string;
+  /**
+   * Send `quickReplies.<sendsMessageFrom>.message` on click. When absent the
+   * pill focuses the input instead, using `quickReplies.<key>.placeholder`.
+   */
+  sendsMessageFrom?: string;
 }
 
 interface QuickRepliesProps {
@@ -43,70 +57,47 @@ interface QuickRepliesProps {
   isStalled?: boolean;
 }
 
+const CONTINUE: QuickReplySpec = {
+  key: 'continue',
+  icon: <ArrowRight size={14} />,
+  intent: 'advance',
+  sendsMessageFrom: 'continue',
+};
+
+const EXPLORE: QuickReplySpec = {
+  key: 'explore',
+  icon: <Search size={14} />,
+  sendsMessageFrom: 'explore',
+};
+
+// Focus input + custom placeholder. No bot round-trip needed — user types
+// their actual feedback and the bot responds to that.
+const DIFFERENTLY: QuickReplySpec = {
+  key: 'differently',
+  icon: <ThumbsDown size={14} />,
+};
+
+const SOMETHING_ELSE: QuickReplySpec = {
+  key: 'somethingElse',
+  icon: <Pencil size={14} />,
+};
+
 // Standard button set for all sections except the last one.
-const STANDARD_REPLIES: QuickReply[] = [
-  {
-    label: 'Continue to next section',
-    mobileLabel: 'Next section',
-    message: 'Looks good, let\'s continue to the next section',
-    icon: <ArrowRight size={14} />,
-    intent: 'advance',
-  },
-  {
-    label: 'I\'d like to explore this more',
-    mobileLabel: 'Explore more',
-    message: 'I\'d like to explore this section a bit more',
-    icon: <Search size={14} />,
-  },
-  {
-    // Focus input + custom placeholder. No bot round-trip needed —
-    // user types their actual feedback and the bot responds to that.
-    label: 'I see this differently',
-    mobileLabel: 'I disagree',
-    message: '',
-    icon: <ThumbsDown size={14} />,
-    inputPlaceholder: 'Tell me how you see it…',
-  },
-  {
-    label: 'Something else',
-    mobileLabel: 'Something else',
-    message: '',
-    icon: <Pencil size={14} />,
-    inputPlaceholder: "Let me know what's on your mind…",
-  },
-];
+const STANDARD_REPLIES: QuickReplySpec[] = [CONTINUE, EXPLORE, DIFFERENTLY, SOMETHING_ELSE];
 
 // Final section (dream jobs) — "next section" becomes "wrap up".
 // Explore / see-differently / something-else come first; the primary
 // "wrap up" sits last so it reads as the deliberate end-of-session action.
-const FINAL_REPLIES: QuickReply[] = [
+const FINAL_REPLIES: QuickReplySpec[] = [
+  EXPLORE,
+  DIFFERENTLY,
+  SOMETHING_ELSE,
   {
-    label: 'I\'d like to explore this more',
-    mobileLabel: 'Explore more',
-    message: 'I\'d like to explore this section a bit more',
-    icon: <Search size={14} />,
-  },
-  {
-    label: 'I see this differently',
-    mobileLabel: 'I disagree',
-    message: '',
-    icon: <ThumbsDown size={14} />,
-    inputPlaceholder: 'Tell me how you see it…',
-  },
-  {
-    label: 'Something else',
-    mobileLabel: 'Something else',
-    message: '',
-    icon: <Pencil size={14} />,
-    inputPlaceholder: "Let me know what's on your mind…",
-  },
-  {
-    label: 'All done, wrap up session',
-    mobileLabel: 'Wrap up',
-    message: 'Looks good, I\'m all done! Let\'s wrap up the session.',
+    key: 'wrapUp',
     icon: <CheckCircle size={14} />,
     variant: 'primary',
     intent: 'wrap_up',
+    sendsMessageFrom: 'wrapUp',
   },
 ];
 
@@ -114,42 +105,49 @@ const FINAL_REPLIES: QuickReply[] = [
 // bot answered) — only show 'Continue to next section'. The active chat
 // input is the second 'option' for free-form follow-ups. Keeping just one
 // pill prevents the explore-more / I-see-differently loop.
-const MINIMAL_REPLIES: QuickReply[] = [
-  {
-    label: 'Continue to next section',
-    mobileLabel: 'Next section',
-    message: 'Looks good, let\'s continue to the next section',
-    icon: <ArrowRight size={14} />,
-    intent: 'advance',
-  },
-];
+const MINIMAL_REPLIES: QuickReplySpec[] = [CONTINUE];
 
 // A section never arrived. Offer the way past it (and keep "try again" for
 // the case where the upstream workflow catches up on its own).
-const STALLED_REPLIES: QuickReply[] = [
+const STALLED_REPLIES: QuickReplySpec[] = [
   {
-    label: 'Skip ahead and continue',
-    mobileLabel: 'Skip ahead',
-    message: "Let's skip that section and continue",
+    key: 'skip',
     icon: <SkipForward size={14} />,
     variant: 'primary',
     intent: 'skip_stalled',
+    sendsMessageFrom: 'skip',
   },
   {
-    label: 'Try loading it once more',
-    mobileLabel: 'Try again',
-    message: 'Looks good, let\'s continue to the next section',
+    // Deliberately sends the same message as Continue: this is a retry of the
+    // advance, only the label differs.
+    key: 'retry',
     icon: <ArrowRight size={14} />,
     intent: 'advance',
+    sendsMessageFrom: 'continue',
   },
 ];
 
+// Pitfall P2 guard. i18n runs with `useSuspense: false` and loads namespaces
+// async, so before the chat namespace arrives `t('a.b.c')` returns the KEY
+// STRING, not the text. For a label that is a cosmetic flash that self-corrects
+// on the next render. For the strings below it is not: they get SENT, so a
+// mistimed click would post "quickReplies.continue.message" into the transcript
+// and hand the coach garbage. Passing the English text as i18next's
+// `defaultValue` makes that impossible, and keeps the English path working even
+// if the namespace never loads at all.
+const SENT_TEXT_FALLBACK: Record<string, string> = {
+  'quickReplies.continue.message': "Looks good, let's continue to the next section",
+  'quickReplies.explore.message': "I'd like to explore this section a bit more",
+  'quickReplies.wrapUp.message': "Looks good, I'm all done! Let's wrap up the session.",
+  'quickReplies.skip.message': "Let's skip that section and continue",
+  'quickReplies.differently.placeholder': 'Tell me how you see it…',
+  'quickReplies.somethingElse.placeholder': "Let me know what's on your mind…",
+};
+
 // Post-wrap-up — only option is to leave
-const POST_WRAP_REPLIES: QuickReply[] = [
+const POST_WRAP_REPLIES: QuickReplySpec[] = [
   {
-    label: 'Exit to Dashboard',
-    mobileLabel: 'Exit to Dashboard',
-    message: '',
+    key: 'exitDashboard',
     icon: <LayoutDashboard size={14} />,
     variant: 'primary',
     action: 'navigate-dashboard',
@@ -157,6 +155,7 @@ const POST_WRAP_REPLIES: QuickReply[] = [
 ];
 
 export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput, visible, isLastSection = false, isWrappedUp = false, isDeepDive = false, isStalled = false }) => {
+  const { t } = useTranslation('chat');
   const replies = isWrappedUp
     ? POST_WRAP_REPLIES
     // Checked before everything else: when a section is stuck, none of the
@@ -191,7 +190,7 @@ export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput
 
   if (!show || clicked) return null;
 
-  const handleClick = (reply: QuickReply) => {
+  const handleClick = (reply: QuickReplySpec) => {
     if (reply.action === 'navigate-dashboard') {
       window.location.href = '/dashboard';
       return;
@@ -199,13 +198,15 @@ export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput
 
     setClicked(true);
 
-    if (reply.message) {
-      onSend(reply.message, reply.intent);
+    if (reply.sendsMessageFrom) {
+      const key = `quickReplies.${reply.sendsMessageFrom}.message`;
+      onSend(t(key, { defaultValue: SENT_TEXT_FALLBACK[key] ?? '' }), reply.intent);
     } else {
       // No message → focus the input so user can type freely. If a custom
       // placeholder is configured, pass it through so the chat input shows
       // an inviting prompt ("Tell me how you see it…").
-      onFocusInput(reply.inputPlaceholder);
+      const key = `quickReplies.${reply.key}.placeholder`;
+      onFocusInput(t(key, { defaultValue: SENT_TEXT_FALLBACK[key] ?? '' }));
     }
   };
 
@@ -215,7 +216,7 @@ export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput
         const isPrimary = reply.variant === 'primary';
         return (
           <button
-            key={reply.label}
+            key={reply.key}
             onClick={() => handleClick(reply)}
             className={`inline-flex items-center justify-center sm:justify-start gap-1.5 px-3.5 py-2.5 sm:py-2 text-sm font-medium rounded-full
               transition-all duration-150 shadow-sm hover:shadow
@@ -225,8 +226,8 @@ export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput
               }`}
           >
             {reply.icon}
-            <span className="sm:hidden">{reply.mobileLabel}</span>
-            <span className="hidden sm:inline">{reply.label}</span>
+            <span className="sm:hidden">{t(`quickReplies.${reply.key}.mobile`)}</span>
+            <span className="hidden sm:inline">{t(`quickReplies.${reply.key}.label`)}</span>
           </button>
         );
       })}

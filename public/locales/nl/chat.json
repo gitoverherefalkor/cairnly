@@ -5,7 +5,8 @@
     "encouragement": "Zodra je hieronder klikt, gaan we meteen door naar je eerste persoonlijkheidsanalyse. Geen lange inleiding, we beginnen gewoon.",
     "tip": "Je hoeft geen aantekeningen te maken. Elk bericht heeft een Keep-knop om het te bewaren zodat je het later makkelijk terugvindt, en je volledige rapport verschijnt op je dashboard zodra we klaar zijn.",
     "ready": "Ik ben er klaar voor!",
-    "preparing": "Je sessie wordt voorbereid..."
+    "preparing": "Je sessie wordt voorbereid...",
+    "readyMessage": "Ik ben er klaar voor, laten we beginnen!"
   },
   "input": {
     "placeholder": "Typ hier...",
@@ -22,5 +23,45 @@
     "completeSession": "Sessie afronden",
     "reportSections": "Rapportonderdelen",
     "progress": "Voortgang"
+  },
+  "quickReplies": {
+    "continue": {
+      "label": "Door naar de volgende sectie",
+      "mobile": "Volgende sectie",
+      "message": "Ziet er goed uit, door naar de volgende sectie"
+    },
+    "explore": {
+      "label": "Hier wil ik dieper op ingaan",
+      "mobile": "Verder kijken",
+      "message": "Hier wil ik wat dieper op ingaan"
+    },
+    "differently": {
+      "label": "Dit zie ik anders",
+      "mobile": "Oneens",
+      "placeholder": "Vertel hoe jij het ziet…"
+    },
+    "somethingElse": {
+      "label": "Iets anders",
+      "mobile": "Iets anders",
+      "placeholder": "Laat weten wat je bezighoudt…"
+    },
+    "wrapUp": {
+      "label": "Klaar, sessie afronden",
+      "mobile": "Afronden",
+      "message": "Ziet er goed uit, ik ben klaar. Laten we de sessie afronden."
+    },
+    "skip": {
+      "label": "Sla deze over en ga door",
+      "mobile": "Overslaan",
+      "message": "Laten we deze sectie overslaan en doorgaan"
+    },
+    "retry": {
+      "label": "Nog een keer proberen",
+      "mobile": "Opnieuw"
+    },
+    "exitDashboard": {
+      "label": "Naar het dashboard",
+      "mobile": "Naar dashboard"
+    }
   }
 }
