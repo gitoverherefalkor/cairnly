@@ -69,10 +69,21 @@ const ReportPrint: React.FC = () => {
   }, [token]);
 
   // Flip the readiness flag only after the DOM has painted AND webfonts have
-  // finished loading. Two rAFs guarantee a committed frame.
+  // finished loading.
+  //
+  // Two rAFs would normally guarantee a committed frame, but rAF NEVER FIRES
+  // when document.visibilityState is 'hidden', which is exactly the state a
+  // headless/backgrounded page is in. Relying on rAF alone means the flag is
+  // never set and every render dies at the renderer's 30s timeout. Verified
+  // against the deployed page: fonts resolve, rAF does not fire.
+  //
+  // So: schedule both. rAF wins on a visible page (~32ms, a genuinely
+  // committed frame); the timer guarantees we still signal when hidden.
+  // Whichever lands first sets the flag, and setting it twice is harmless.
   useEffect(() => {
     if (!data) return;
     let cancelled = false;
+    const timers: number[] = [];
     (async () => {
       try {
         await document.fonts.ready;
@@ -80,14 +91,15 @@ const ReportPrint: React.FC = () => {
         // Font loading API unavailable — proceed rather than hang the render.
       }
       if (cancelled) return;
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          if (!cancelled) window.__REPORT_READY__ = true;
-        }),
-      );
+      const settle = () => {
+        if (!cancelled) window.__REPORT_READY__ = true;
+      };
+      requestAnimationFrame(() => requestAnimationFrame(settle));
+      timers.push(window.setTimeout(settle, 400));
     })();
     return () => {
       cancelled = true;
+      timers.forEach((t) => window.clearTimeout(t));
     };
   }, [data]);
 
