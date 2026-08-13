@@ -1,0 +1,92 @@
+// Vercel serverless function: render /report/print to a PDF via headless
+// Chromium.
+//
+// Called only by the render-report-pdf Supabase edge function, authenticated
+// with a shared secret. It never talks to the database — it is handed a
+// fully-formed print URL containing a single-use render token.
+//
+// Requires Vercel Pro: maxDuration 60s and 2048MB memory are set in
+// vercel.json. Chromium OOMs at the default 1024MB on content-heavy reports.
+
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+
+const READY_TIMEOUT_MS = 30_000;
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const secret = process.env.RENDER_SHARED_SECRET;
+  if (!secret || req.headers['x-render-secret'] !== secret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { printUrl } = req.body || {};
+  if (typeof printUrl !== 'string' || !printUrl.startsWith('https://')) {
+    return res.status(400).json({ error: 'printUrl must be an https URL' });
+  }
+
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: { width: 1240, height: 1754 }, // A4 @ ~150dpi
+      executablePath: await chromium.executablePath(),
+      headless: true,
+    });
+
+    const page = await browser.newPage();
+    // domcontentloaded, not networkidle: we gate on the app's own readiness
+    // flag, which is a stronger signal than an idle network.
+    await page.goto(printUrl, { waitUntil: 'domcontentloaded', timeout: READY_TIMEOUT_MS });
+
+    // On timeout, report what actually loaded. The single most common cause is
+    // the print URL and the renderer being on different deployments, where the
+    // SPA catch-all serves NotFound and no readiness flag is ever set.
+    try {
+      await page.waitForFunction(
+        () => window.__REPORT_READY__ === true || typeof window.__REPORT_ERROR__ === 'string',
+        { timeout: READY_TIMEOUT_MS },
+      );
+    } catch {
+      // location.pathname only — the full URL carries the render token.
+      const seen = await page.evaluate(() => ({
+        path: location.pathname,
+        title: document.title,
+      }));
+      return res.status(504).json({
+        error:
+          `Print page never signalled readiness. Loaded ${seen.path} (title: "${seen.title}"). ` +
+          `If that looks like a 404 page, SITE_URL and the deployment running this renderer ` +
+          `are different origins.`,
+      });
+    }
+
+    const renderError = await page.evaluate(() => window.__REPORT_ERROR__ || null);
+    if (renderError) {
+      return res.status(422).json({ error: `Print page failed: ${renderError}` });
+    }
+
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    });
+
+    return res.status(200).json({ pdfBase64: Buffer.from(pdf).toString('base64') });
+  } catch (err) {
+    console.error('[render-report] failed:', err);
+    return res.status(500).json({ error: String((err && err.message) || err) });
+  } finally {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch {
+        // Best effort — the lambda is about to be frozen anyway.
+      }
+    }
+  }
+}

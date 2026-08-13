@@ -112,6 +112,11 @@ const Dashboard = () => {
   const [draftSurveyId, setDraftSurveyId] = useState<string | null>(null);
   // 'failed' dashboard state: re-running report generation from saved answers.
   const [isRetrying, setIsRetrying] = useState(false);
+  // Declared here with the other hooks, NOT next to its handler further down.
+  // Everything below the completed-report early return (~line 490) is
+  // unreachable on that branch, and a useState after a conditional return
+  // changes the hook count between branches.
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -465,6 +470,29 @@ const Dashboard = () => {
     }
   };
 
+  // Defined ABOVE the first early return so the completed-report branch can
+  // reference it. Its state lives with the other hooks near the top.
+  const handleDownloadPdf = async () => {
+    if (!latestReport || pdfLoading) return;
+    setPdfLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('render-report-pdf', {
+        body: { report_id: latestReport.id },
+      });
+      if (error) throw error;
+      if (data?.signed_url) window.open(data.signed_url, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      console.error('[Dashboard] PDF render failed:', err);
+      toast({
+        title: 'Could not build your PDF',
+        description: 'Something went wrong generating the file. Try again in a moment.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   // Loading spinner while data loads OR a redirect is about to happen.
   if (
     authLoading ||
@@ -505,6 +533,32 @@ const Dashboard = () => {
           onInvite={handleInvite}
           onOpenShareCard={() => setShowShareCard(true)}
         />
+
+        {/* TEMPORARY test harness for the PDF pipeline. Deliberately a floating
+            button rather than a DashboardV4 prop, because the LinkedIn share
+            gate (Plan 2) replaces this entry point entirely. Remove it then. */}
+        <button
+          type="button"
+          onClick={handleDownloadPdf}
+          disabled={pdfLoading}
+          style={{
+            position: 'fixed',
+            left: 16,
+            bottom: 16,
+            zIndex: 60,
+            padding: '10px 16px',
+            borderRadius: 9999,
+            border: '1px solid rgba(255,255,255,0.25)',
+            background: '#122E3B',
+            color: '#fff',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: pdfLoading ? 'wait' : 'pointer',
+            opacity: pdfLoading ? 0.7 : 1,
+          }}
+        >
+          {pdfLoading ? 'Generating…' : 'Download report PDF'}
+        </button>
 
         {showShareCard && (
           <ShareCardModal
