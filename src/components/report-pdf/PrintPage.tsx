@@ -12,5 +12,10 @@ export const PrintSheet: React.FC<{
   children: React.ReactNode;
   cover?: boolean;
 }> = ({ children, cover = false }) => (
-  <div className={cover ? 'print-sheet print-sheet--cover' : 'print-sheet'}>{children}</div>
+  // `print-sheet--paper` is styled ONLY inside @media screen: it draws the
+  // paper edge so a chart sheet can be eyeballed in a normal browser without
+  // re-rendering Chromium. The PDF ignores it entirely.
+  <div className={cover ? 'print-sheet print-sheet--cover' : 'print-sheet print-sheet--paper'}>
+    {children}
+  </div>
 );

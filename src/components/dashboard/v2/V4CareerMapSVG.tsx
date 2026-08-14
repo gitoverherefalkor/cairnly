@@ -27,6 +27,44 @@ const PAD_B = 50;
 const PLOT_W = W - PAD_L - PAD_R; // 464
 const PLOT_H = H - PAD_T - PAD_B; // 290
 
+/** Axis label with a double-headed arrow drawn UNDER the text.
+ *
+ *  The label used to read `← AI exposure →` with literal arrow characters.
+ *  Those render as tofu boxes in the PDF: headless Chromium on Lambda has
+ *  virtually no system fonts, and neither Inter nor Poppins carries U+2190 /
+ *  U+2192, so there is no fallback face to borrow the glyph from. Drawing the
+ *  arrow as geometry works in every context and needs no width measurement of
+ *  the text, which a flanking-glyph layout would have. */
+const AxisSpan: React.FC<{ cx: number; cy: number; label: string; rotate?: number }> = ({
+  cx,
+  cy,
+  label,
+  rotate,
+}) => {
+  const half = 46;
+  const head = 3.5;
+  return (
+    <g transform={rotate ? `rotate(${rotate} ${cx} ${cy})` : undefined}>
+      <text
+        x={cx}
+        y={cy}
+        textAnchor="middle"
+        fontFamily="'Inter', sans-serif"
+        fontSize={11}
+        fontWeight={600}
+        fill={PALETTE.inkMuted}
+      >
+        {label}
+      </text>
+      <g stroke={PALETTE.inkMuted} strokeWidth={1} fill="none" opacity={0.7}>
+        <line x1={cx - half} y1={cy + 5} x2={cx + half} y2={cy + 5} />
+        <polyline points={`${cx - half + head},${cy + 5 - head} ${cx - half},${cy + 5} ${cx - half + head},${cy + 5 + head}`} />
+        <polyline points={`${cx + half - head},${cy + 5 - head} ${cx + half},${cy + 5} ${cx + half - head},${cy + 5 + head}`} />
+      </g>
+    </g>
+  );
+};
+
 const RANK_COLOR: Record<1 | 2 | 3, string> = {
   1: '#d97706', // amber
   2: '#6366f1', // indigo
@@ -80,7 +118,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         x={PAD_L + 10}
         y={PAD_T + 16}
         fontFamily="'Poppins', sans-serif"
-        fontWeight={900}
+        fontWeight={700}
         fontSize={10}
         letterSpacing="0.18em"
         fill={PALETTE.tealDeep}
@@ -103,7 +141,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         y={PAD_T + PLOT_H - 10}
         textAnchor="end"
         fontFamily="'Poppins', sans-serif"
-        fontWeight={900}
+        fontWeight={700}
         fontSize={10}
         letterSpacing="0.18em"
         fill="#A53636"
@@ -129,24 +167,14 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
           textAnchor={t.anchor}
           fontFamily="'Poppins', sans-serif"
           fontSize={10}
-          fontWeight={900}
+          fontWeight={700}
           letterSpacing="0.18em"
           fill={t.color}
         >
           {t.label}
         </text>
       ))}
-      <text
-        x={cx}
-        y={H - 8}
-        textAnchor="middle"
-        fontFamily="'Inter', sans-serif"
-        fontSize={11}
-        fontWeight={600}
-        fill={PALETTE.inkMuted}
-      >
-        ← AI exposure →
-      </text>
+      <AxisSpan cx={cx} cy={H - 12} label="AI exposure" />
 
       {/* Y axis labels — pushed further left now that PAD_L gives more room. */}
       <text
@@ -155,7 +183,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         textAnchor="end"
         fontFamily="'Poppins', sans-serif"
         fontSize={10}
-        fontWeight={900}
+        fontWeight={700}
         letterSpacing="0.16em"
         fill={PALETTE.canvasDeep}
       >
@@ -167,24 +195,13 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
         textAnchor="end"
         fontFamily="'Poppins', sans-serif"
         fontSize={10}
-        fontWeight={900}
+        fontWeight={700}
         letterSpacing="0.16em"
         fill={PALETTE.inkMuted}
       >
         WEAKER
       </text>
-      <text
-        x={22}
-        y={cy}
-        textAnchor="middle"
-        transform={`rotate(-90 22 ${cy})`}
-        fontFamily="'Inter', sans-serif"
-        fontSize={11}
-        fontWeight={600}
-        fill={PALETTE.inkMuted}
-      >
-        ← match strength →
-      </text>
+      <AxisSpan cx={26} cy={cy} label="match strength" rotate={-90} />
 
       {/* Secondaries first. Names live in the legend / hover tooltip since
           most points cluster in the same AI-impact bucket and inline labels
@@ -226,7 +243,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
               textAnchor="middle"
               fontFamily="'Poppins', sans-serif"
               fontSize={13}
-              fontWeight={900}
+              fontWeight={700}
               fill="#ffffff"
               pointerEvents="none"
             >
@@ -274,7 +291,10 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
 // Compact legend rendered alongside the chart (the chart no longer prints
 // inline titles because most careers bucket to the same X). Top 3 show
 // colored rank chips with names; secondaries collapse to "+N runner-ups".
-export const V4CareerMapLegend: React.FC<{ points: CareerPoint[] }> = ({ points }) => {
+export const V4CareerMapLegend: React.FC<{ points: CareerPoint[]; print?: boolean }> = ({
+  points,
+  print = false,
+}) => {
   const tops = points
     .filter((p) => p.rank)
     .sort((a, b) => (a.rank! - b.rank!));
@@ -337,7 +357,13 @@ export const V4CareerMapLegend: React.FC<{ points: CareerPoint[] }> = ({ points 
               lineHeight: 1.3,
             }}
           >
-            +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'} (hover the dots for names)
+            {/* "Hover the dots" is a screen affordance and nonsense on paper,
+                where there is no pointer. Print gets the names instead — the
+                page has room for them and the reader has no other way in. */}
+            +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'}
+            {print
+              ? `: ${secondaries.map((p) => p.label).join(', ')}`
+              : ' (hover the dots for names)'}
           </span>
         </div>
       )}
