@@ -13,7 +13,32 @@ import puppeteer from 'puppeteer-core';
 
 const READY_TIMEOUT_MS = 30_000;
 
+// ── Deploy fingerprint ───────────────────────────────────────────────────────
+// BUMP THIS whenever you change this file, then poll it before judging a render:
+//
+//   curl -s https://www.cairnly.io/api/render-report   # → {"renderVersion":"…"}
+//
+// Why this exists: three consecutive renders once came back byte-for-byte
+// identical across two real code changes, because the readiness check only
+// proved the endpoint responded — and the OLD code responds identically. An
+// hour went into debugging a fix that had never deployed. A "did it respond"
+// check cannot tell you "is it new". This can.
+//
+// The print page carries its own independent fingerprint (PRINT_BUILD in
+// src/components/report-pdf/printBuild.ts), because most cosmetic work changes
+// the SPA bundle and not this file. Every POST echoes both back, so the render
+// response itself states which two builds produced the PDF.
+const RENDER_VERSION = 'r6-version-probe';
+
 export default async function handler(req, res) {
+  // Unauthenticated on purpose: a build marker is not a secret, and requiring
+  // the shared secret to answer "are you deployed yet?" makes the check
+  // annoying enough that it stops being run.
+  if (req.method === 'GET') {
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json({ renderVersion: RENDER_VERSION });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -69,6 +94,10 @@ export default async function handler(req, res) {
       return res.status(422).json({ error: `Print page failed: ${renderError}` });
     }
 
+    // Which SPA build actually drew this PDF. Returned to the caller so a
+    // render can never again be judged against code that was not deployed.
+    const printBuild = await page.evaluate(() => window.__PRINT_BUILD__ || 'unknown');
+
     // The page builds its own footer markup (it is the only thing that knows
     // the partner branding). Chromium repeats it into the @page bottom margin
     // on every page — the only mechanism that works for a naturally-paginated
@@ -100,7 +129,11 @@ export default async function handler(req, res) {
         : {}),
     });
 
-    return res.status(200).json({ pdfBase64: Buffer.from(pdf).toString('base64') });
+    return res.status(200).json({
+      pdfBase64: Buffer.from(pdf).toString('base64'),
+      renderVersion: RENDER_VERSION,
+      printBuild,
+    });
   } catch (err) {
     console.error('[render-report] failed:', err);
     return res.status(500).json({ error: String((err && err.message) || err) });

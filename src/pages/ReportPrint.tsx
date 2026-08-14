@@ -12,17 +12,26 @@ import { useSearchParams } from 'react-router-dom';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { ReportPrintDocument } from '@/components/report-pdf/ReportPrintDocument';
 import { PRINT_CSS } from '@/components/report-pdf/printStyles';
+import { PRINT_BUILD } from '@/components/report-pdf/printBuild';
 
 declare global {
   interface Window {
     __REPORT_READY__?: boolean;
     __REPORT_ERROR__?: string;
+    // Which SPA build drew this page. Set at module scope so it is readable the
+    // moment the chunk evaluates, long before readiness. See printBuild.ts.
+    __PRINT_BUILD__?: string;
     // Read by the Vercel renderer and handed to page.pdf({ footerTemplate }).
     // Chromium draws this into the @page bottom margin on EVERY page, which is
     // the only way to repeat page furniture across a naturally-paginated flow.
     __PDF_FOOTER_HTML__?: string;
   }
 }
+
+// Module scope, not an effect: the fingerprint must be readable even if the
+// data fetch fails or readiness never fires, since "which build is this?" is
+// exactly the question you ask when a render misbehaves.
+if (typeof window !== 'undefined') window.__PRINT_BUILD__ = PRINT_BUILD;
 
 function escapeHtml(s: string): string {
   return s
