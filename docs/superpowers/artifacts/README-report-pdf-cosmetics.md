@@ -1,24 +1,38 @@
-# Report PDF — cosmetic polish handoff (2026-08-13)
+# Report PDF — cosmetic polish (updated 2026-08-14)
 
-The server-side report PDF pipeline is **built, merged and working end to end**.
-This doc is for the follow-up session that makes the output *presentable*.
+The server-side report PDF pipeline is **built, merged and working end to end**,
+and as of 2026-08-14 the output is presentable. This doc records the render
+recipe, what was fixed, and the traps that cost real time.
 
 Build plan + execution notes: `docs/superpowers/plans/2026-08-13-report-pdf-pipeline.md`
 
-## Look at the current output first
+## Check the deploy BEFORE judging any render
 
-A real 16-page render is on disk (gitignored, local only):
+This is the first thing to do, every time. Two independent fingerprints:
 
+```bash
+curl -s https://www.cairnly.io/api/render-report      # {"renderVersion":"r7-…"}
 ```
-docs/superpowers/artifacts/sample-report-2026-08-13.pdf
+
+and every render response echoes both back:
+
+```json
+{ "pdfBase64": "…", "renderVersion": "r7-always-footer", "printBuild": "p4-footer-compare" }
 ```
 
-Read it with the Read tool's `pages` param (e.g. `pages: "1-3"`). It is a real
-customer's report used for QA — do not redistribute it.
+- `RENDER_VERSION` lives in `api/render-report.js` — bump on every change to it.
+- `PRINT_BUILD` lives in `src/components/report-pdf/printBuild.ts` — bump on
+  every change to the print page or its components. **This is the one that
+  matters for cosmetic work**, which never touches the serverless function.
 
-## How to render a fresh PDF yourself
+Why: on 2026-08-13 three consecutive renders came back byte-for-byte identical
+across two real code changes, because the readiness check only proved the
+endpoint responded — and the old code responds identically. An hour went into
+debugging a fix that had never deployed. On 2026-08-14 the probe caught stale
+builds on **four** separate render attempts within one session. Vercel takes
+roughly 60–120s; poll, don't assume.
 
-You need three things, all already in place:
+## How to render a fresh PDF
 
 1. `RENDER_SHARED_SECRET` is in `.env.local` (gitignored). Read it from there;
    never print it.
@@ -41,41 +55,34 @@ curl -s --max-time 90 -X POST "https://www.cairnly.io/api/render-report" \
 python3 -c "import json,base64;d=json.load(open('/tmp/r.json'));open('/tmp/out.pdf','wb').write(base64.b64decode(d['pdfBase64']))"
 ```
 
-Tokens are single-use. Mint a fresh one per render.
+**Iterating on layout?** Run the dev server and open
+`http://localhost:8080/report/print?rt=<TOKEN>` — same DOM, instant HMR, no
+deploy. Only pagination and page furniture differ.
 
-You can also inspect layout **without** Chromium by opening
-`https://www.cairnly.io/report/print?rt=<TOKEN>` in the browser tool — same DOM,
-much faster iteration. Only pagination and page furniture differ.
+Tokens are single-use, and a browser reload burns one. For a browser session,
+un-consume it instead of minting a new one each time:
 
-## ⚠️ The trap that wasted an hour
+```sql
+update public.report_render_tokens
+set used_at = null, expires_at = now() + interval '8 hours'
+where token = '<TOKEN>';
+```
 
-**Verify the deploy is actually new before judging a fix.** Three consecutive
-renders came back byte-for-byte identical (836719 bytes) across two real code
-changes, because the "is it deployed" check only confirmed the endpoint
-responded — and the old code responds identically.
+## Status of the original issue list
 
-Make the check version-sensitive. Cheapest way: have `api/render-report.js`
-return a version string on GET, bump it with each change, and poll that before
-re-rendering. Do this first; it makes every later iteration trustworthy.
+| # | Issue | Status |
+|---|---|---|
+| 1 | Cover doesn't fill the page | **Fixed.** `5790b32` was correct all along; it had simply never deployed. |
+| 2 | Charts spill a third, mostly-empty page | **Fixed.** Split into two deliberate sheets, each with a heading and caption. |
+| 3 | Body text too small | **Fixed.** 10.5px → 12px. |
+| 4 | Cover is sparse | **Fixed.** Contour field, drawn cairn, date moved to the head. |
+| 5 | No page numbers | **Fixed.** See the `displayHeaderFooter` note below. |
+| 6 | Dutch reports unverified | **Partly.** Frame strings are in and the branch was verified by forcing `lang='nl'` locally. Not verifiable against real data: **every report in the DB is `en`** (28 reports, 486 sections, zero `nl`). |
 
-## Known cosmetic issues, roughly by severity
-
-1. **Cover does not fill the page.** White gutter down the right and along the
-   bottom; content scaled to ~89% on both axes. An unverified fix is already
-   committed (`5790b32`: dropped `format: 'A4'`, which conflicts with
-   `preferCSSPageSize: true` and makes Chromium scale-to-fit). **Confirm whether
-   that fix actually deployed before doing anything else** — it may already be
-   solved.
-2. **Charts spill onto a third, mostly-empty page.** The charts `PrintSheet` is
-   no longer height-constrained, so it flows. Either split it into two
-   deliberate sheets or shrink the charts to fit one.
-3. **Body text is small.** 10.5px in `PrintSection.tsx` is tight for A4.
-4. **Cover is sparse.** Large empty middle band; the three-slot
-   `space-between` layout leaves a lot of air.
-5. **No page numbers.** Would need `displayHeaderFooter` — see the constraint
-   below.
-6. **Dutch reports unverified.** `report_sections.language` flows through but
-   nothing branches on it.
+The real headline fix was not on that list: the narrative read as an
+undifferentiated slab because **Tailwind's preflight reset zeroes the margin on
+every `p`, `h1-h6`, `ul` and `ol`**, and nothing restored it for a long-form
+document. See the note at the top of `printStyles.ts`.
 
 ## Constraints — do not undo these
 
@@ -85,22 +92,58 @@ re-rendering. Do this first; it makes every later iteration trustworthy.
 - **Readiness must not depend on `requestAnimationFrame` alone.** rAF never
   fires when `visibilityState` is `hidden`, which is a headless page's normal
   state. The 400ms timer fallback in `ReportPrint.tsx` is load-bearing.
-- **`displayHeaderFooter` interacts with the cover.** It is currently enabled
-  only when a partner footer exists. If you add page numbers, re-check the
-  cover's full bleed.
+- **Never pass `format` to `page.pdf()` alongside `preferCSSPageSize`.** Two
+  conflicting page sizes make Chromium scale-to-fit, which shrinks the
+  full-bleed cover to ~89% and leaves white gutters right and bottom. The
+  stylesheet's `@page { size: A4 }` is the single source of truth.
 - **Partner logos must be `data:` URIs.** The CSP blocks storage URLs in
-  `img-src`, and it fails *silently* — broken image, successful PDF.
+  `img-src`, and it fails *silently* — broken image, successful PDF. For the
+  same reason all cover art is inline SVG, never an image file: the readiness
+  gate waits on `document.fonts.ready`, not on image decode.
 - **Internal sections stay excluded.** `init_summary` and `*_feedback` must
   never render (`isInternalSection` in `ReportPrintDocument.tsx`).
+- **No font glyphs outside the Latin set.** Headless Chromium on Lambda ships
+  almost no system fonts, and neither Poppins nor Inter carries `⚠ ✓ ← →`, so
+  there is no fallback face to borrow them from and they render as tofu boxes.
+  The deployed PDF had 27 of them. Every such mark is now drawn as inline SVG.
+  If you add a symbol to any component that reaches the PDF, draw it.
 
-## Files you will touch
+### `displayHeaderFooter` — corrected
+
+The previous version of this doc said `displayHeaderFooter` "reserves its own
+margin band and stops honouring `@page :first { margin: 0 }`", shrinking the
+cover. **That was a misdiagnosis** — the gutters came from `format: 'A4'`, and
+the two changes were tested together. With `format` gone, the cover bleeds to
+all four edges with the footer enabled. Measured, not assumed.
+
+What *is* true: **Chromium draws the footer on page 1 too**, over the cover
+art, and nothing in the template can suppress it — the template has no way to
+test the page number, and `@page :first { margin: 0 }` does not stop the draw.
+The footer is therefore kept to a page number plus an optional partner mark.
+Anything wordier prints the brand twice on the cover.
+
+## Files
 
 | File | What lives there |
 |---|---|
-| `src/components/report-pdf/printStyles.ts` | `@page` rules, pagination model |
-| `src/components/report-pdf/ReportPrintDocument.tsx` | cover, charts sheet, section order |
-| `src/components/report-pdf/PrintSection.tsx` | per-section typography + pills |
+| `src/components/report-pdf/printStyles.ts` | `@page` rules, pagination model, the whole narrative type system |
+| `src/components/report-pdf/ReportPrintDocument.tsx` | section order, chart sheets, en/nl frame strings |
+| `src/components/report-pdf/PrintCover.tsx` | cover art (all drawn, no assets) |
+| `src/components/report-pdf/PrintSection.tsx` | per-section header, pills, ⚠/✓ callouts |
 | `src/components/report-pdf/PrintPage.tsx` | the one-page sheet wrapper |
-| `api/render-report.js` | Chromium options |
+| `src/components/report-pdf/printBuild.ts` | SPA deploy fingerprint |
+| `api/render-report.js` | Chromium options, renderer fingerprint |
 
 Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action).
+
+## Known remaining rough edges
+
+- Chart **axis labels are still English** in Dutch reports (`Autonomy`,
+  `Stability`, `SWEET SPOT`, `AI exposure`…). They live in the shared
+  `V4*SVG` dashboard components, so localizing them is a dashboard change, not
+  a print change.
+- The cover carries a faint page number in Chromium's footer band. Unavoidable
+  without dropping page numbers entirely; see above.
+- Page count went 13 → 18 for the sample report. Four of those pages are the
+  cost of readable body type and real paragraph spacing; one is the second
+  chart sheet.
