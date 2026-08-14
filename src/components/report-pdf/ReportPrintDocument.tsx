@@ -235,7 +235,7 @@ export const ReportPrintDocument: React.FC<{
           <div className="print-nobreak" style={{ textAlign: 'center' }}>
             {/* variant="full" — the 460-wide viewBox. "compact" exists for the
                 dashboard's hero flip card and is too small for print. */}
-            <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" />
+            <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={520} />
           </div>
           <div style={{ marginTop: '6mm' }}>
             <V4CompareLegend careers={compare} focalRank={1} />

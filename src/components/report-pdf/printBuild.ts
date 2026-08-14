@@ -13,4 +13,4 @@
 // didn't work — an hour was lost to exactly that on 2026-08-13.
 //
 // Keep it short and ordered (p1, p2, …) so "is this newer?" is obvious.
-export const PRINT_BUILD = 'p3-pagenumbers-orphans';
+export const PRINT_BUILD = 'p4-footer-compare';

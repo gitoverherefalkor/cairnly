@@ -53,26 +53,27 @@ function escapeHtml(s: string): string {
  *  would otherwise do it, and there are no per-sheet DOM nodes to pin a number
  *  to.
  *
- *  Page 1 is the cover and must stay clean. Chromium gives the template no way
- *  to test the page number, so the number is hidden behind a counter that
- *  starts at 0 and is incremented by the *presence* of the number element:
- *  instead, the whole first-page footer is suppressed by `@page :first`'s zero
- *  margin, which leaves Chromium no band to draw into. Verified against a real
- *  render — see the deploy note in printBuild.ts before changing this. */
+ *  IMPORTANT — the cover is NOT exempt. Chromium draws this template on every
+ *  page including page 1, on top of page content, and `@page :first
+ *  { margin: 0 }` does not stop it: verified on a real render, where the cover
+ *  came back with a footer over its artwork. The template has no way to test
+ *  the page number, so there is no conditional to write.
+ *
+ *  The footer is therefore kept to the bare minimum — a page number, and a
+ *  partner mark where one exists. Anything more (a "cairnly.io" wordmark was
+ *  the first attempt) collides with the cover's own designed footer and prints
+ *  the brand twice on page 1. */
 function buildFooterHtml(partner: PrintData['partner']): string {
-  const poweredBy = partner?.powered_by_text ?? 'Powered by Cairnly';
   const left = partner?.logo_data_uri
     ? `<img src="${partner.logo_data_uri}" style="height:9px;width:auto;opacity:0.85" />`
     : partner
       ? escapeHtml(partner.name)
       : '';
-  const brand = partner ? escapeHtml(poweredBy) : 'cairnly.io';
   return `
-    <div style="width:100%;font-family:Inter,sans-serif;font-size:7.5px;color:#8A9AA4;
+    <div style="width:100%;font-family:Inter,sans-serif;font-size:7.5px;color:#9AA8B0;
                 padding:0 19mm;display:flex;align-items:center;
                 justify-content:space-between;">
       <span>${left}</span>
-      <span style="letter-spacing:0.06em">${brand}</span>
       <span class="pageNumber" style="font-variant-numeric:tabular-nums"></span>
     </div>`;
 }

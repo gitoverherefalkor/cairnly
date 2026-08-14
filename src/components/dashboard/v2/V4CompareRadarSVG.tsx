@@ -34,12 +34,17 @@ interface RadarProps {
   focalRank?: 1 | 2 | 3;
   // 'compact' renders the smaller viewBox used inside the hero flip.
   variant?: 'compact' | 'full';
+  // Overrides the rendered cap. The dashboard's values are tuned for a card;
+  // the printed report gives this chart a whole A4 page and the card-sized
+  // default left half of it empty.
+  maxHeight?: number;
 }
 
 export const V4CompareRadarSVG: React.FC<RadarProps> = ({
   careers,
   focalRank = 1,
   variant = 'compact',
+  maxHeight,
 }) => {
   const compact = variant === 'compact';
   const VB_W = compact ? 380 : 460;
@@ -67,7 +72,7 @@ export const V4CompareRadarSVG: React.FC<RadarProps> = ({
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      style={{ width: '100%', maxHeight: compact ? 280 : 340, height: 'auto' }}
+      style={{ width: '100%', maxHeight: maxHeight ?? (compact ? 280 : 340), height: 'auto' }}
       role="img"
       aria-label="Career comparison radar"
     >

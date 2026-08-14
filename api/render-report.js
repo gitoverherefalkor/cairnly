@@ -112,9 +112,12 @@ export default async function handler(req, res) {
     // reserves its own margin band and stops honouring `@page :first
     // { margin: 0 }`, shrinking the full-bleed cover. That diagnosis was
     // wrong: the culprit was `format: 'A4'` fighting preferCSSPageSize (see
-    // the note on page.pdf below). With format gone, the cover bleeds and the
-    // footer draws into the @page bottom margin as intended — the cover keeps
-    // its zero margin, so it gets no footer band and stays clean.
+    // the note on page.pdf below). With format gone, the cover bleeds to all
+    // four edges with the footer enabled — measured, not assumed.
+    //
+    // What IS true: Chromium draws the footer on page 1 as well, over the
+    // cover art, and nothing in the template can suppress it. buildFooterHtml
+    // keeps the footer down to a page number for exactly that reason.
     //
     // If white gutters ever reappear on the cover, re-test these two settings
     // TOGETHER, and check the deploy fingerprint before believing the result.
