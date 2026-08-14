@@ -23,7 +23,7 @@ const CookiePolicy = () => {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold text-[#27A1A1] mb-2">Cookie Policy</h1>
-        <p className="text-sm text-gray-500 mb-8">Last updated: April 2, 2026</p>
+        <p className="text-sm text-gray-500 mb-8">Last updated: August 14, 2026</p>
 
         <div className="bg-white rounded-lg shadow-sm p-8 space-y-8">
 
@@ -78,11 +78,46 @@ const CookiePolicy = () => {
                 </p>
               </div>
 
+              <div className="border rounded-lg p-4">
+                <h3 className="font-medium text-gray-900 mb-1">Advertising Cookies (Optional)</h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  These are only set if you click "Accept All" on the cookie banner. If you choose
+                  "Essential Only," Google measures ad performance in a privacy-preserving, cookieless
+                  way instead, without setting these cookies.
+                </p>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 pr-4 font-medium text-gray-700">Cookie</th>
+                      <th className="text-left py-2 pr-4 font-medium text-gray-700">Purpose</th>
+                      <th className="text-left py-2 font-medium text-gray-700">Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-600">
+                    <tr>
+                      <td className="py-2 pr-4 font-mono text-xs">_gcl_au</td>
+                      <td className="py-2 pr-4">
+                        Google Ads conversion measurement — links an ad click to a later purchase, so
+                        we can tell whether our ad campaigns are working
+                      </td>
+                      <td className="py-2">90 days</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="text-sm text-gray-600 mt-2">
+                  For confirmed purchases, we may also share a hashed (SHA-256) version of your email
+                  address with Google for conversion matching ("enhanced conversions"). Google cannot
+                  read the email address itself. See our{' '}
+                  <a href="/privacy-policy" className="text-atlas-blue underline">Privacy Policy</a>{' '}
+                  for details.
+                </p>
+              </div>
+
               <div className="border rounded-lg p-4 bg-green-50 border-green-200">
-                <h3 className="font-medium text-green-800 mb-1">No Tracking or Advertising Cookies</h3>
+                <h3 className="font-medium text-green-800 mb-1">No Other Tracking</h3>
                 <p className="text-sm text-green-700">
-                  We do not use any analytics, tracking, or advertising cookies. We do not track your
-                  browsing behavior across websites, and we do not share cookie data with advertisers.
+                  Beyond the essential and Google Ads cookies above, we do not use any other analytics
+                  or tracking cookies, and we do not share cookie data with any other advertisers.
                 </p>
               </div>
             </div>

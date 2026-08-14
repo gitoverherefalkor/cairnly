@@ -8,12 +8,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
 import AuthShell from '@/components/auth/AuthShell';
 
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
-
 // The "Page view" conversion action from the Ads UI, set up for exactly this
 // page (Page load trigger, "measuring conversions after they're complete,
 // such as on a purchase confirmation page"). Fired from here with the real

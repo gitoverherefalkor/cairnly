@@ -22,6 +22,27 @@ const CookieConsentBanner = () => {
       choice,
       timestamp: new Date().toISOString(),
     }));
+
+    // Consent Mode v2: gtag-init.js sets these to "denied" by default on every
+    // load. Accepting here updates them for the rest of this session; the
+    // "denied" default already covers "Essential Only" so no call is needed
+    // for that branch, but we send it explicitly so a changed mind mid-session
+    // (via the Cookie Policy page, once that control exists) has something to
+    // revert to.
+    try {
+      if (typeof window.gtag === 'function') {
+        const state = choice === 'all' ? 'granted' : 'denied';
+        window.gtag('consent', 'update', {
+          ad_storage: state,
+          ad_user_data: state,
+          ad_personalization: state,
+          analytics_storage: state,
+        });
+      }
+    } catch (err) {
+      console.error('Google Ads consent update failed:', err);
+    }
+
     setVisible(false);
   };
 
@@ -33,7 +54,8 @@ const CookieConsentBanner = () => {
         <div className="flex-1 text-sm text-gray-700">
           <p>
             We use essential cookies to keep you logged in and make the platform work.
-            We do not use tracking or advertising cookies.{' '}
+            With your consent, we also use Google Ads cookies to measure whether our
+            advertising leads to purchases.{' '}
             <Link to="/cookie-policy" className="text-atlas-blue underline hover:text-atlas-navy">
               Learn more
             </Link>
