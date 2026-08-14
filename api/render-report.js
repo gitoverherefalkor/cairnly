@@ -85,7 +85,11 @@ export default async function handler(req, res) {
     const hasFooter = footerTemplate.trim() !== '<div></div>';
 
     const pdf = await page.pdf({
-      format: 'A4',
+      // NO `format` here. Passing format alongside preferCSSPageSize gives
+      // Chromium two conflicting page sizes and it scales the content to fit,
+      // which shrank the full-bleed cover to ~89% on both axes and left white
+      // gutters down the right and bottom. The stylesheet's `@page { size: A4 }`
+      // is the single source of truth.
       printBackground: true,
       // Page size AND margins come from the stylesheet's @page rules, which is
       // what lets `@page :first { margin: 0 }` give the cover a full bleed
