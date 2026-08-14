@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: July 8, 2026
+Last updated: August 14, 2026
 
 ## 1. Introduction
 
@@ -32,6 +32,7 @@ By using our services, you agree to the collection and use of information in acc
 - Browser type and version
 - Usage analytics and interaction data
 - Cookies and similar tracking technologies
+- Advertising measurement data: when you arrive via one of our ads and complete a purchase, we record that conversion (Google Ads). For confirmed purchases we may also share a hashed (SHA-256) version of your email address with Google for conversion matching ("enhanced conversions"). Google cannot read the email address itself.
 
 ## 3. How We Use Your Information and Legal Basis
 
@@ -43,6 +44,7 @@ Under the GDPR (Article 6), we process your data based on the following legal gr
 - Legal obligation: Comply with applicable laws and protect our rights
 - Consent: Send marketing communications and optional reminder emails (you can opt out at any time via your profile settings)
 - Consent (Journal newsletter): If you subscribe to the Cairnly Journal, we store your email address solely to send three to four issues per year. We use a confirmed double opt-in and include a one-click unsubscribe link in every email.
+- Consent: Place advertising cookies and measure whether our ad campaigns lead to purchases (Google Ads conversion measurement, including enhanced conversions with a hashed email address). You can decline or withdraw this consent at any time via the cookie banner.
 
 ## 4. LinkedIn Integration
 
@@ -61,7 +63,7 @@ We do not sell your personal information. We share data with the following proce
 - Supabase Inc. (EU/US) ,  Database hosting, authentication, and file storage
 - n8n GmbH (Germany) ,  Workflow orchestration for assessment processing and career report generation
 - Anthropic PBC (US, EU-US Data Privacy Framework) ,  AI analysis of your assessment responses and coaching chat, via Claude
-- Google LLC (US, EU-US Data Privacy Framework) ,  Resume text extraction via Gemini AI
+- Google LLC (US, EU-US Data Privacy Framework) ,  (1) Resume text extraction via Gemini AI; (2) advertising conversion measurement via Google Ads, limited to conversion events and, with your consent, a hashed version of your email address
 - Stripe Inc. (US, EU-US Data Privacy Framework) ,  Payment processing, including the execution of partial refunds in the context of the Referral Programme
 - Resend Inc. (US) ,  Transactional email delivery
 - Vercel Inc. (US) ,  Website hosting and delivery
@@ -120,7 +122,7 @@ Exception for tax and accounting records: data relating to purchases, payments, 
 
 ## 9. Cookies and Tracking
 
-We use only essential cookies required for platform functionality (authentication). We do not use analytics, tracking, or advertising cookies. See our Cookie Policy for details.
+We use essential cookies required for platform functionality (authentication). With your consent, we also use Google Ads cookies to measure whether our advertising leads to purchases (conversion measurement). We do not use any other analytics or tracking cookies. You can accept or decline advertising cookies via the cookie banner and change your choice at any time. See our Cookie Policy for details.
 
 ## 10. International Data Transfers
 

@@ -1,6 +1,6 @@
 # Privacyverklaring
 
-Laatst bijgewerkt: 8 juli 2026
+Laatst bijgewerkt: 14 augustus 2026
 
 ## 1. Inleiding
 
@@ -32,6 +32,7 @@ Door gebruik te maken van onze diensten ga je akkoord met het verzamelen en gebr
 - Browsertype en -versie
 - Gebruiksanalyses en interactiegegevens
 - Cookies en vergelijkbare technologieën
+- Advertentiemeetgegevens: wanneer je via een van onze advertenties binnenkomt en een aankoop afrondt, registreren wij die conversie (Google Ads). Bij bevestigde aankopen kunnen wij ook een gehashte (SHA-256) versie van jouw e-mailadres delen met Google voor conversiematching ("verbeterde conversies"). Google kan het e-mailadres zelf niet lezen.
 
 ## 3. Hoe gebruiken wij jouw gegevens en op welke grondslag?
 
@@ -43,6 +44,7 @@ Op grond van de AVG (artikel 6) verwerken wij jouw gegevens op basis van de volg
 - Wettelijke verplichting: voldoen aan geldende wetgeving en bescherming van onze rechten
 - Toestemming: het versturen van marketingcommunicatie en optionele reminder-e-mails (je kunt je hiervoor op elk moment afmelden via jouw profielinstellingen)
 - Toestemming (Journal-nieuwsbrief): als je je abonneert op de Cairnly Journal, bewaren wij jouw e-mailadres uitsluitend om drie tot vier uitgaven per jaar te versturen. We gebruiken een bevestigde double opt-in en voegen in elke e-mail een 1-klik afmeldlink toe.
+- Toestemming: het plaatsen van advertentiecookies en het meten of onze advertentiecampagnes tot aankopen leiden (Google Ads-conversiemeting, inclusief verbeterde conversies met een gehasht e-mailadres). Je kunt deze toestemming op elk moment weigeren of intrekken via de cookiebanner.
 
 ## 4. LinkedIn-integratie
 
@@ -61,7 +63,7 @@ Wij verkopen jouw persoonsgegevens niet. Wij delen gegevens met de volgende verw
 - Supabase Inc. (EU/VS) ,  database-hosting, authenticatie en bestandsopslag
 - n8n GmbH (Duitsland) ,  workflow-orkestratie voor assessment-verwerking en het genereren van loopbaanrapporten
 - Anthropic PBC (VS, EU-US Data Privacy Framework) ,  AI-analyse van jouw assessment-antwoorden en de coaching chat, via Claude
-- Google LLC (VS, EU-US Data Privacy Framework) ,  tekstextractie uit cv’s via Gemini AI
+- Google LLC (VS, EU-US Data Privacy Framework) ,  (1) tekstextractie uit cv’s via Gemini AI; (2) meting van advertentieconversies via Google Ads, beperkt tot conversiegebeurtenissen en, met jouw toestemming, een gehashte versie van jouw e-mailadres
 - Stripe Inc. (VS, EU-US Data Privacy Framework) ,  betalingsverwerking, inclusief uitvoering van gedeeltelijke terugbetalingen in het kader van het Referral Programma
 - Resend Inc. (VS) ,  verzending van transactionele e-mails
 - Vercel Inc. (VS) ,  website-hosting en levering
@@ -120,7 +122,7 @@ Uitzondering voor fiscale en administratieve gegevens: gegevens over aankopen, b
 
 ## 9. Cookies en tracking
 
-Wij gebruiken uitsluitend essentiële cookies die nodig zijn voor het functioneren van het platform (authenticatie). Wij gebruiken geen analytische, tracking- of advertentie-cookies. Zie ons Cookiebeleid voor details.
+Wij gebruiken essentiële cookies die noodzakelijk zijn voor de werking van het platform (authenticatie). Met jouw toestemming gebruiken wij daarnaast Google Ads-cookies om te meten of onze advertenties tot aankopen leiden (conversiemeting). Wij gebruiken geen andere analyse- of trackingcookies. Via de cookiebanner kun je advertentiecookies accepteren of weigeren en jouw keuze op elk moment wijzigen. Zie ons Cookiebeleid voor details.
 
 ## 10. Internationale gegevensoverdracht
 
