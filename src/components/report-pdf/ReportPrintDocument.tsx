@@ -38,8 +38,20 @@ const SECTION_ORDER = [
   'dream_jobs',
 ];
 
+// Sections that exist in report_sections but must NEVER reach a user-facing
+// document. `init_summary` is WF1's raw internal extraction (deliberately
+// excluded from the AI-tell prompt work for the same reason); `*_feedback`
+// rows record what the user told the coach, not report content.
+//
+// This is a denylist rather than an allowlist because SECTION_ORDER appends
+// unrecognised types at the end rather than dropping them — that rule keeps
+// genuinely new content visible, but it also silently leaked these two.
+function isInternalSection(type: string): boolean {
+  return type === 'init_summary' || /_feedback$/.test(type);
+}
+
 function orderSections(sections: ReportSection[]): ReportSection[] {
-  return [...sections].sort((a, b) => {
+  return [...sections].filter((s) => !isInternalSection(s.section_type)).sort((a, b) => {
     const ai = SECTION_ORDER.indexOf(a.section_type);
     const bi = SECTION_ORDER.indexOf(b.section_type);
     if (ai === -1 && bi === -1) return (a.order_number ?? 0) - (b.order_number ?? 0);
