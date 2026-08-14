@@ -77,6 +77,13 @@ export default async function handler(req, res) {
       () => window.__PDF_FOOTER_HTML__ || '<div></div>',
     );
 
+    // Only turn on header/footer drawing when there is actually a footer to
+    // draw. With displayHeaderFooter on, Chromium reserves its own margin band
+    // and stops honouring `@page :first { margin: 0 }`, which shrinks the
+    // full-bleed cover and leaves white gutters down the right and bottom.
+    // Unbranded reports (every report today) therefore skip it entirely.
+    const hasFooter = footerTemplate.trim() !== '<div></div>';
+
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -84,9 +91,9 @@ export default async function handler(req, res) {
       // what lets `@page :first { margin: 0 }` give the cover a full bleed
       // while every other page keeps its margins.
       preferCSSPageSize: true,
-      displayHeaderFooter: true,
-      headerTemplate: '<div></div>',
-      footerTemplate,
+      ...(hasFooter
+        ? { displayHeaderFooter: true, headerTemplate: '<div></div>', footerTemplate }
+        : {}),
     });
 
     return res.status(200).json({ pdfBase64: Buffer.from(pdf).toString('base64') });
