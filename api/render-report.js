@@ -28,7 +28,7 @@ const READY_TIMEOUT_MS = 30_000;
 // src/components/report-pdf/printBuild.ts), because most cosmetic work changes
 // the SPA bundle and not this file. Every POST echoes both back, so the render
 // response itself states which two builds produced the PDF.
-const RENDER_VERSION = 'r6-version-probe';
+const RENDER_VERSION = 'r7-always-footer';
 
 export default async function handler(req, res) {
   // Unauthenticated on purpose: a build marker is not a secret, and requiring
@@ -106,11 +106,18 @@ export default async function handler(req, res) {
       () => window.__PDF_FOOTER_HTML__ || '<div></div>',
     );
 
-    // Only turn on header/footer drawing when there is actually a footer to
-    // draw. With displayHeaderFooter on, Chromium reserves its own margin band
-    // and stops honouring `@page :first { margin: 0 }`, which shrinks the
-    // full-bleed cover and leaves white gutters down the right and bottom.
-    // Unbranded reports (every report today) therefore skip it entirely.
+    // Every report now gets a footer, because every report wants page numbers.
+    //
+    // This was previously gated off, on the belief that displayHeaderFooter
+    // reserves its own margin band and stops honouring `@page :first
+    // { margin: 0 }`, shrinking the full-bleed cover. That diagnosis was
+    // wrong: the culprit was `format: 'A4'` fighting preferCSSPageSize (see
+    // the note on page.pdf below). With format gone, the cover bleeds and the
+    // footer draws into the @page bottom margin as intended — the cover keeps
+    // its zero margin, so it gets no footer band and stays clean.
+    //
+    // If white gutters ever reappear on the cover, re-test these two settings
+    // TOGETHER, and check the deploy fingerprint before believing the result.
     const hasFooter = footerTemplate.trim() !== '<div></div>';
 
     const pdf = await page.pdf({

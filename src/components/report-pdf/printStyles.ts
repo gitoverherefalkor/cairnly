@@ -87,6 +87,16 @@ export const PRINT_CSS = `
     break-inside: avoid;
   }
 
+  /* A section header must not be the last thing on a page. Keeping the header
+     block intact is not enough on its own — a career title plus its pills was
+     landing at the foot of a page with the role's first paragraph overleaf. */
+  .print-section-head {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
   /* ─── Narrative typography ───────────────────────────────────────────────
      Restated from scratch: Tailwind preflight has zeroed all of it. */
 
@@ -182,9 +192,11 @@ export const PRINT_CSS = `
     font-size: 10px;
   }
 
-  /* Content-level rules. The AI occasionally emits a --- between blocks; it
-     reads as debris next to real section separators, so it is played down to a
-     short centred hairline rather than a full-width divider. */
+  /* Content-level rules. The AI occasionally ends a section with a ---, which
+     then sits directly above the section separator and reads as debris: two
+     rules, 6mm apart, meaning the same thing. Mid-section it is a legitimate
+     break, so it is kept but played down; as a section's last child it is
+     dropped entirely. */
   .print-flow hr {
     border: 0;
     border-top: 1px solid ${PALETTE.tan};
@@ -192,6 +204,7 @@ export const PRINT_CSS = `
     margin: 12px auto;
     opacity: 0.6;
   }
+  .print-flow hr:last-child { display: none; }
 
   .print-flow table {
     width: 100%;

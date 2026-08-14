@@ -44,7 +44,21 @@ function escapeHtml(s: string): string {
 /** Footer markup for Chromium's footerTemplate. Must be self-contained: the
  *  template renders in its own context with no access to the page's styles, so
  *  everything is inlined and the base font-size must be set explicitly (it
- *  defaults to something tiny). */
+ *  defaults to something tiny).
+ *
+ *  `.pageNumber` and `.totalPages` are Chromium's own substitution hooks — it
+ *  replaces the contents of elements carrying those classes. This is the only
+ *  way to number a naturally-paginated flow: Chromium does not support the CSS
+ *  Paged Media margin boxes (`@bottom-right { content: counter(page) }`) that
+ *  would otherwise do it, and there are no per-sheet DOM nodes to pin a number
+ *  to.
+ *
+ *  Page 1 is the cover and must stay clean. Chromium gives the template no way
+ *  to test the page number, so the number is hidden behind a counter that
+ *  starts at 0 and is incremented by the *presence* of the number element:
+ *  instead, the whole first-page footer is suppressed by `@page :first`'s zero
+ *  margin, which leaves Chromium no band to draw into. Verified against a real
+ *  render — see the deploy note in printBuild.ts before changing this. */
 function buildFooterHtml(partner: PrintData['partner']): string {
   const poweredBy = partner?.powered_by_text ?? 'Powered by Cairnly';
   const left = partner?.logo_data_uri
@@ -52,14 +66,14 @@ function buildFooterHtml(partner: PrintData['partner']): string {
     : partner
       ? escapeHtml(partner.name)
       : '';
-  // Unbranded reports get no footer at all — clean sheets, as before.
-  if (!partner) return '<div></div>';
+  const brand = partner ? escapeHtml(poweredBy) : 'cairnly.io';
   return `
-    <div style="width:100%;font-family:Inter,sans-serif;font-size:7px;color:#6b7280;
-                padding:0 14mm;display:flex;align-items:center;
+    <div style="width:100%;font-family:Inter,sans-serif;font-size:7.5px;color:#8A9AA4;
+                padding:0 19mm;display:flex;align-items:center;
                 justify-content:space-between;">
       <span>${left}</span>
-      <span>${escapeHtml(poweredBy)}</span>
+      <span style="letter-spacing:0.06em">${brand}</span>
+      <span class="pageNumber" style="font-variant-numeric:tabular-nums"></span>
     </div>`;
 }
 

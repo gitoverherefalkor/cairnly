@@ -161,7 +161,7 @@ export const PrintSection: React.FC<{ section: ReportSection; first?: boolean }>
         paddingTop: first ? 0 : '7mm',
       }}
     >
-      <div className="print-nobreak">
+      <div className="print-section-head">
         {eyebrow && (
           <div
             style={{
