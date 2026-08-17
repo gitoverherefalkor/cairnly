@@ -97,9 +97,14 @@ document. See the note at the top of `printStyles.ts`.
   full-bleed cover to ~89% and leaves white gutters right and bottom. The
   stylesheet's `@page { size: A4 }` is the single source of truth.
 - **Partner logos must be `data:` URIs.** The CSP blocks storage URLs in
-  `img-src`, and it fails *silently* — broken image, successful PDF. For the
-  same reason all cover art is inline SVG, never an image file: the readiness
-  gate waits on `document.fonts.ready`, not on image decode.
+  `img-src`, and it fails *silently* — broken image, successful PDF.
+- **Readiness now waits on `img.decode()` for every image, and must keep doing
+  so.** This is what makes images safe at all: before it, a photo that had not
+  finished decoding simply missed the snapshot. Two consequences. Any image
+  added to this page needs `loading="eager"` — a lazily-loaded image outside the
+  viewport never starts loading, so it would hang the wait and every render
+  would die at the 30s timeout. And a decode failure is swallowed on purpose,
+  because one broken photo must not cost the whole PDF.
 - **Internal sections stay excluded.** `init_summary` and `*_feedback` must
   never render (`isInternalSection` in `ReportPrintDocument.tsx`).
 - **No font glyphs outside the Latin set.** Headless Chromium on Lambda ships
@@ -144,9 +149,27 @@ Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action)
 ## Document structure
 
 1. Cover (full bleed)
-2. What's inside
-3–5. One chart per sheet, each in the dashboard's cream `V4ChartBanner`
-6+. Narrative, split by two chapter dividers, each carrying a pull quote
+2. What's inside — clickable, links to each section
+3+. Narrative, split by two chapter dividers, each carrying a pull quote
+
+Charts live **inside the narrative**, not in front matter, each placed after the
+prose that earns it: the personality radar follows `approach` (which is where
+its scores come from), the compare radar follows `top_career_3` (once all three
+have been read), and the career map sits just before the first grouped set,
+where it does the work of saying "here is everything, not just the top three".
+An earlier version gave each its own sheet up front, which meant the reader met
+every chart before reading a word of what it described.
+
+Grouped types (runner-ups, outside-the-box, dream jobs) arrive as several rows
+of one `section_type`. Each set gets a `PrintGroupHeader` that owns the type's
+intro and its `h2`; the roles below step down to `h3` and their sub-headings to
+`h4`. That is why sub-headings are styled by CLASS and never by tag — the tag
+varies with nesting depth.
+
+Body copy is **10pt** (13.3px at 96dpi). It was 9pt, which is below what anyone
+would set for A4. Sizes stay in px because the file is CSS, but each rule
+carries its pt equivalent, because "is 13.3px big enough?" is unanswerable and
+"is 10pt big enough?" is not.
 
 **Reused from elsewhere in the app, not reinvented:**
 
@@ -197,6 +220,12 @@ starts printing the LLM line with no change here.
 - **The share modal has no deep link.** The pull quote's "change this line"
   points at `cairnly.io/dashboard` rather than opening the modal. A `?share=1`
   param on the dashboard would fix it.
+- **The PDF is ~3MB with photos**, up from ~1.5MB. The five section JPEGs are
+  embedded at full resolution but drawn at 44px. Downsampling them to ~200px
+  would recover most of that, and matters if the report is ever emailed rather
+  than downloaded.
+- The cover is still placeholder art pending a design pass. Photography is now
+  viable on it (readiness waits for image decode), which it was not before.
 
 ## One more deploy gotcha
 
