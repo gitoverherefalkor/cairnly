@@ -15,8 +15,8 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { iconForSubsection } from '@/components/chat/subsectionIcons';
-import { iconForSection, eyebrowFor, anchorFor, photoKeyFor } from './printSectionMeta';
-import { PrintSectionPhoto } from './PrintGroupHeader';
+import { iconForSection, eyebrowFor, anchorFor, photoKeyFor, careerSlotFor } from './printSectionMeta';
+import { PrintChip } from './PrintGroupHeader';
 import { introFor, type PrintLang } from './printIntros';
 
 /** The AI sometimes emits HTML instead of Markdown. Normalise to Markdown so
@@ -36,6 +36,15 @@ export function htmlToMarkdown(text: string): string {
   r = r.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
   r = r.replace(/\n{3,}/g, '\n\n');
   return r;
+}
+
+/** Strip tags AND stray markdown bold. WF4 writes `company_size_type` as a
+ *  fragment of markup ("<h4><strong>Small (11-50) / Boutique</strong></h4>"),
+ *  so a plain render prints the tags. Mirrors `cleanField` in ReportSidebar,
+ *  which exists for this exact field. */
+function cleanField(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return raw.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim();
 }
 
 // Sections that carry match / AI-impact / move pills.
@@ -222,7 +231,15 @@ export const PrintSection: React.FC<{
   const eyebrow = nested ? null : eyebrowFor(section.section_type, lang);
   const Icon = iconForSection(section.section_type);
   const intro = showIntro && !nested ? introFor(section.section_type, lang) : null;
-  const photoKey = nested ? null : photoKeyFor(section.section_type);
+  const photoKey = photoKeyFor(section.section_type);
+  // Career sections have no photograph; they get the dashboard's wayfinder
+  // glyph on a cream chip instead. Nested roles show one too — inside a group
+  // the chip is the only thing marking where one role ends and the next begins.
+  const hasChip = Boolean(photoKey) || Boolean(careerSlotFor(section.section_type));
+  // WF4 writes this as a fragment of markup, so it needs the same cleaning the
+  // chat sidebar does. It answers "what kind of employer is this?", which the
+  // role title never does.
+  const sizeType = cleanField(section.company_size_type);
   const TitleTag = nested ? 'h3' : 'h2';
 
   return (
@@ -245,7 +262,7 @@ export const PrintSection: React.FC<{
           INTRO rather than with the title because the two belong together —
           both are the section's "here is what this is about" band, and putting
           a 44px square next to a 21px title left the title looking indented. */}
-      <div className="print-section-head" style={{ marginBottom: intro || photoKey ? '7mm' : 0 }}>
+      <div className="print-section-head" style={{ marginBottom: intro || hasChip ? '7mm' : 0 }}>
         {eyebrow && (
           <div
             style={{
@@ -275,11 +292,24 @@ export const PrintSection: React.FC<{
             lineHeight: 1.18,
             letterSpacing: '-0.02em',
             color: PALETTE.canvasDeep,
-            margin: '0 0 8px 0',
+            margin: sizeType ? '0 0 2px 0' : '0 0 8px 0',
           }}
         >
           {stripHtml(section.title || '')}
         </TitleTag>
+
+        {sizeType && (
+          <div
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              color: PALETTE.inkSoft,
+              margin: '0 0 8px 0',
+            }}
+          >
+            {sizeType}
+          </div>
+        )}
 
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 9px 0' }}>
@@ -289,11 +319,9 @@ export const PrintSection: React.FC<{
           </div>
         )}
 
-        {(photoKey || intro) && (
+        {(hasChip || intro) && (
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            {/* The dashboard's own section photograph. Career sections have none —
-                the dashboard uses icon glyphs for those. */}
-            {photoKey && <PrintSectionPhoto visualKey={photoKey} />}
+            <PrintChip visualKey={photoKey} sectionType={section.section_type} />
             {intro && (
               <p
                 style={{

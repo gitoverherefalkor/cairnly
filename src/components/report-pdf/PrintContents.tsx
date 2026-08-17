@@ -219,7 +219,10 @@ export const PrintContents: React.FC<{
                     borderBottom: `1px solid rgba(236, 228, 210, 0.6)`,
                   }}
                 >
-                  <span style={{ flex: '0 0 auto', marginTop: 1, color: PALETTE.tealDeep, display: 'inline-flex' }}>
+                  {/* marginTop optically centres the glyph against the label's cap-height.
+                      flex-start keeps it put when the detail line wraps, but at
+                      marginTop 1 the icons sat visibly high. */}
+                  <span style={{ flex: '0 0 auto', marginTop: 3, color: PALETTE.tealDeep, display: 'inline-flex' }}>
                     {row.rank ? <RankBadge rank={row.rank} /> : Icon ? <Icon size={14} /> : null}
                   </span>
                   <span style={{ flex: '1 1 auto', minWidth: 0 }}>

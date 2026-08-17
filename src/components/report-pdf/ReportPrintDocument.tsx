@@ -232,21 +232,37 @@ export const ReportPrintDocument: React.FC<{
     );
   }
   if (compare.length > 0) {
-    CHART_AFTER.top_career_3 = chartCard(
-      <V4ChartBanner
-        print
-        layout="vertical"
-        eyebrow={t.compareEyebrow}
-        icon={<Scale size={13} />}
-        title={t.compareTitle}
-        blurb={t.compareBlurb}
-        chart={
-          /* variant="full" — the 460-wide viewBox. "compact" exists for the
-             dashboard's hero flip card and is too small for print. */
-          <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={360} />
-        }
-        legend={<V4CompareLegend careers={compare} focalRank={1} />}
-      />,
+    CHART_AFTER.top_career_3 = (
+      <>
+        {chartCard(
+          <V4ChartBanner
+            print
+            layout="vertical"
+            eyebrow={t.compareEyebrow}
+            icon={<Scale size={13} />}
+            title={t.compareTitle}
+            blurb={t.compareBlurb}
+            chart={
+              /* variant="full" — the 460-wide viewBox. "compact" exists for the
+                 dashboard's hero flip card and is too small for print. */
+              <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={360} />
+            }
+            legend={<V4CompareLegend careers={compare} focalRank={1} />}
+          />,
+        )}
+        {/* The career pull quote lands HERE rather than on the chapter divider.
+            It quotes the top match, and it only means something once the reader
+            has met all three and seen them compared — on the divider it arrived
+            before they had read a single role. */}
+        {careerQuote && (
+          <PrintPullQuote
+            quote={careerQuote.quote}
+            attribution={careerQuote.attribution}
+            lang={lang}
+            shareUrl={SHARE_URL}
+          />
+        )}
+      </>
     );
   }
   // The map goes BEFORE the runner-up group rather than after a section, since
@@ -321,7 +337,10 @@ export const ReportPrintDocument: React.FC<{
           const showIntro = !grouped && !seenIntroTypes.has(s.section_type);
           if (showIntro) seenIntroTypes.add(s.section_type);
 
-          const q = chapter === 'about-you' ? aboutQuote : careerQuote;
+          // Only the about-you chapter carries its quote on the divider. The
+          // career quote is emitted after the compare chart instead — see
+          // CHART_AFTER.top_career_3.
+          const q = chapter === 'about-you' ? aboutQuote : null;
 
           return (
             <React.Fragment key={s.id}>

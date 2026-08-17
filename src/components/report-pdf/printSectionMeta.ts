@@ -18,6 +18,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
+import type { CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import type { PrintLang } from './printIntros';
 
 const SECTION_ICONS: Record<string, LucideIcon> = {
@@ -133,4 +134,23 @@ const SECTION_PHOTO_KEY: Record<string, string> = {
 
 export function photoKeyFor(sectionType: string): string | null {
   return SECTION_PHOTO_KEY[sectionType] ?? null;
+}
+
+// ─── Career slot glyphs ─────────────────────────────────────────────────────
+// Career sections have no photograph — the dashboard gives them one of six
+// "wayfinder" glyphs on a cream chip instead (CareerSlotIcon). Same mapping
+// here, so the printed report and the dashboard accordion mark a role the same
+// way. The glyphs are inline SVG with pinned brand colours, so unlike the
+// section photos they carry no loading risk at all.
+const CAREER_SLOT: Record<string, CareerSlot> = {
+  top_career_1: 'primary',
+  top_career_2: 'second',
+  top_career_3: 'third',
+  runner_ups: 'runnerups',
+  outside_box: 'outside',
+  dream_jobs: 'dream',
+};
+
+export function careerSlotFor(sectionType: string): CareerSlot | null {
+  return CAREER_SLOT[sectionType] ?? null;
 }
