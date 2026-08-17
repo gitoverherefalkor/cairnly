@@ -164,7 +164,18 @@ Grouped types (runner-ups, outside-the-box, dream jobs) arrive as several rows
 of one `section_type`. Each set gets a `PrintGroupHeader` that owns the type's
 intro and its `h2`; the roles below step down to `h3` and their sub-headings to
 `h4`. That is why sub-headings are styled by CLASS and never by tag — the tag
-varies with nesting depth.
+varies with nesting depth. The group header is NOT a filled banner: the first
+version used a cream box that shouted louder than the roles it introduced and
+competed with the chapter divider and pull quote, which are already filled
+blocks. Its `h2` is styled as an eyebrow so it keeps the outline without
+competing.
+
+Every section header reads in one fixed order: hairline, eyebrow, title,
+company size/type, pills, then a square chip paired with the intro, then clear
+space. The chip is a photograph for About-You sections and one of the
+dashboard's six `CareerSlotIcon` glyphs for career sections. Chip and intro are
+ONE unit — a nested role has no intro of its own, and rendering the chip
+without one left a floating square with empty space beside it.
 
 Body copy is **10pt** (13.3px at 96dpi). It was 9pt, which is below what anyone
 would set for A4. Sizes stay in px because the file is CSS, but each rule
