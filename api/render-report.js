@@ -10,6 +10,7 @@
 
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import { PDFDocument } from 'pdf-lib';
 
 const READY_TIMEOUT_MS = 30_000;
 
@@ -28,7 +29,7 @@ const READY_TIMEOUT_MS = 30_000;
 // src/components/report-pdf/printBuild.ts), because most cosmetic work changes
 // the SPA bundle and not this file. Every POST echoes both back, so the render
 // response itself states which two builds produced the PDF.
-const RENDER_VERSION = 'r8-header-template';
+const RENDER_VERSION = 'r9-clean-cover-merge';
 
 export default async function handler(req, res) {
   // Unauthenticated on purpose: a build marker is not a secret, and requiring
@@ -119,27 +120,62 @@ export default async function handler(req, res) {
     // the note on page.pdf below). With format gone, the cover bleeds to all
     // four edges with the footer enabled — measured, not assumed.
     //
-    // What IS true: Chromium draws the footer on page 1 as well, over the
-    // cover art, and nothing in the template can suppress it. buildFooterHtml
-    // keeps the footer down to a page number for exactly that reason.
+    // Chromium draws the templates on page 1 as well and nothing in a template
+    // can suppress that, so the cover is exported in a SEPARATE pass with the
+    // furniture off and the two PDFs are merged. See the two-pass block below.
     //
     // If white gutters ever reappear on the cover, re-test these two settings
     // TOGETHER, and check the deploy fingerprint before believing the result.
     const hasFooter = footerTemplate.trim() !== '<div></div>';
 
-    const pdf = await page.pdf({
-      // NO `format` here. Passing format alongside preferCSSPageSize gives
-      // Chromium two conflicting page sizes and it scales the content to fit,
-      // which shrank the full-bleed cover to ~89% on both axes and left white
-      // gutters down the right and bottom. The stylesheet's `@page { size: A4 }`
-      // is the single source of truth.
-      printBackground: true,
-      // Page size AND margins come from the stylesheet's @page rules, which is
-      // what lets `@page :first { margin: 0 }` give the cover a full bleed
-      // while every other page keeps its margins.
-      preferCSSPageSize: true,
-      ...(hasFooter ? { displayHeaderFooter: true, headerTemplate, footerTemplate } : {}),
-    });
+    // Shared across both passes below.
+    //
+    // NO `format` here. Passing format alongside preferCSSPageSize gives
+    // Chromium two conflicting page sizes and it scales the content to fit,
+    // which shrank the full-bleed cover to ~89% on both axes and left white
+    // gutters down the right and bottom. The stylesheet's `@page { size: A4 }`
+    // is the single source of truth.
+    //
+    // Page size AND margins come from the stylesheet's @page rules, which is
+    // what lets `@page :first { margin: 0 }` give the cover a full bleed while
+    // every other page keeps its margins.
+    const baseOptions = { printBackground: true, preferCSSPageSize: true };
+
+    // ── Two passes, then merge ────────────────────────────────────────────
+    // Chromium draws the header/footer templates on EVERY page including the
+    // first, and nothing in a template can test the page number — so a cover
+    // always got the running header stamped across it. With a white band at the
+    // top of the cover that is plainly a defect, not a subtlety.
+    //
+    // Exporting the cover on its own with the furniture OFF, the body with it
+    // ON, and stitching the two is the only way to get a genuinely clean cover.
+    // Both passes reuse the SAME already-rendered page, so the second export is
+    // cheap — no reload, no second readiness wait.
+    //
+    // This also retires a constraint that had shaped the design: the cover no
+    // longer has to avoid carrying its own brand line.
+    //
+    // The cover is unnumbered either way, which is the normal book convention.
+    // Whether the body's first page then reads "1" or "2" depends on whether
+    // Chromium renumbers within a pageRanges export — both are acceptable, so
+    // this deliberately does not try to force one. Check a render before
+    // asserting which it is.
+    let pdf;
+    if (hasFooter) {
+      const [coverPdf, bodyPdf] = await Promise.all([
+        page.pdf({ ...baseOptions, pageRanges: '1' }),
+        page.pdf({ ...baseOptions, pageRanges: '2-', displayHeaderFooter: true, headerTemplate, footerTemplate }),
+      ]);
+      const merged = await PDFDocument.create();
+      for (const part of [coverPdf, bodyPdf]) {
+        const src = await PDFDocument.load(part);
+        const pages = await merged.copyPages(src, src.getPageIndices());
+        pages.forEach((p) => merged.addPage(p));
+      }
+      pdf = await merged.save();
+    } else {
+      pdf = await page.pdf(baseOptions);
+    }
 
     return res.status(200).json({
       pdfBase64: Buffer.from(pdf).toString('base64'),
