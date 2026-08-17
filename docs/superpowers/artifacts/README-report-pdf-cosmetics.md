@@ -11,13 +11,13 @@ Build plan + execution notes: `docs/superpowers/plans/2026-08-13-report-pdf-pipe
 This is the first thing to do, every time. Two independent fingerprints:
 
 ```bash
-curl -s https://www.cairnly.io/api/render-report      # {"renderVersion":"r7-…"}
+curl -s https://www.cairnly.io/api/render-report      # {"renderVersion":"r8-…"}
 ```
 
 and every render response echoes both back:
 
 ```json
-{ "pdfBase64": "…", "renderVersion": "r7-always-footer", "printBuild": "p4-footer-compare" }
+{ "pdfBase64": "…", "renderVersion": "r8-header-template", "printBuild": "p9-…" }
 ```
 
 - `RENDER_VERSION` lives in `api/render-report.js` — bump on every change to it.
@@ -74,7 +74,7 @@ where token = '<TOKEN>';
 |---|---|---|
 | 1 | Cover doesn't fill the page | **Fixed.** `5790b32` was correct all along; it had simply never deployed. |
 | 2 | Charts spill a third, mostly-empty page | **Fixed.** Split into two deliberate sheets, each with a heading and caption. |
-| 3 | Body text too small | **Fixed.** 10.5px → 12px. |
+| 3 | Body text too small | **Fixed.** 10.5px → 13.3px (9pt was the real problem; now 10pt). |
 | 4 | Cover is sparse | **Fixed.** Contour field, drawn cairn, date moved to the head. |
 | 5 | No page numbers | **Fixed.** See the `displayHeaderFooter` note below. |
 | 6 | Dutch reports unverified | **Partly.** Frame strings are in and the branch was verified by forcing `lang='nl'` locally. Not verifiable against real data: **every report in the DB is `en`** (28 reports, 486 sections, zero `nl`). |
@@ -124,8 +124,8 @@ all four edges with the footer enabled. Measured, not assumed.
 What *is* true: **Chromium draws the footer on page 1 too**, over the cover
 art, and nothing in the template can suppress it — the template has no way to
 test the page number, and `@page :first { margin: 0 }` does not stop the draw.
-The footer is therefore kept to a page number plus an optional partner mark.
-Anything wordier prints the brand twice on the cover.
+The cover therefore no longer draws a brand line of its own — the repeating
+footer already carries one over page 1, and having both printed it twice.
 
 ## Files
 
