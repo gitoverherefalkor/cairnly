@@ -240,6 +240,20 @@ export const PRINT_CSS = `
   }
   .print-flow hr:last-child { display: none; }
 
+  /* Some reports put a --- before EVERY subsection. Once sub-headings carry an
+     icon and 15px of space above them, a rule directly above one is pure
+     noise — one page of a real report had four. Hidden when the next sibling
+     is a sub-heading, kept when it genuinely divides prose.
+
+     :has() is Chromium 105+, well under what @sparticuz/chromium ships. If it
+     ever were unsupported the selector is simply ignored and the rules come
+     back, which is the harmless direction to fail in. */
+  .print-flow hr:has(+ h3),
+  .print-flow hr:has(+ h4),
+  .print-flow hr:has(+ h5) {
+    display: none;
+  }
+
   .print-flow table {
     width: 100%;
     border-collapse: collapse;
