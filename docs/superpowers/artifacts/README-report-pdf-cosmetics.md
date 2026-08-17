@@ -226,6 +226,14 @@ starts printing the LLM line with no change here.
   than downloaded.
 - The cover is still placeholder art pending a design pass. Photography is now
   viable on it (readiness waits for image decode), which it was not before.
+- **Career-map dots overlap and hide each other.** Roles with the same
+  match/AI-exposure coordinates stack, so on Mirko's report dot 3 is completely
+  hidden under dot 2. Numbering the dots made this visible rather than causing
+  it. Fixing it means a small collision offset in `V4CareerMapSVG`, which
+  changes the dashboard chart too, so it has not been done unasked.
+- `move` (the reskilling pill) is absent from older reports — Douwe's has none
+  on any section, Mirko's has it on the top three, runner-ups and dream jobs.
+  The pill is correct; the data predates the field. Not a print bug.
 
 ## One more deploy gotcha
 
