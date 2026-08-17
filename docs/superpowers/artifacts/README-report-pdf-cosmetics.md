@@ -160,7 +160,13 @@ footer already carries one over page 1, and having both printed it twice.
 | `src/components/report-pdf/printSectionMeta.ts` | section → icon + eyebrow |
 | `src/components/report-pdf/PrintPage.tsx` | the one-page sheet wrapper |
 | `src/components/report-pdf/printBuild.ts` | SPA deploy fingerprint |
-| `api/render-report.js` | Chromium options, renderer fingerprint |
+| `src/components/report-pdf/PrintClosing.tsx` | sign-off + toolkit/refund CTAs |
+| `api/render-report.js` | Chromium options, two-pass cover merge, renderer fingerprint |
+
+**Print-sized assets live under `public/report/`.** The dashboard's originals
+embed roughly 12x the pixels the PDF can show (a 3548px wordmark drawn at 25mm,
+600px photos drawn at 44px). The downsized copies take ~900KB off every render;
+the dashboard keeps the full-size files. Regenerate with `sips -Z`.
 
 Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action).
 
@@ -170,13 +176,19 @@ Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action)
 2. What's inside — clickable, links to each section
 3+. Narrative, split by two chapter dividers, each carrying a pull quote
 
-Charts live **inside the narrative**, not in front matter, each placed after the
-prose that earns it: the personality radar follows `approach` (which is where
-its scores come from), the compare radar follows `top_career_3` (once all three
-have been read), and the career map sits just before the first grouped set,
-where it does the work of saying "here is everything, not just the top three".
-An earlier version gave each its own sheet up front, which meant the reader met
-every chart before reading a word of what it described.
+Each chapter OPENS on its own page carrying three things: the divider, the
+chapter's pull quote, and the chapter's headline chart — the personality radar
+for chapter one, the top-three comparison for chapter two. The career map is not
+a chapter chart; it plots every role including the runner-ups, so it stays in the
+flow just ahead of the first grouped set. Every chart carries a line pointing at
+the dashboard, where the same chart is interactive.
+
+The document ends on a **closing page**: the sign-off the coach already delivers
+at the end of the chat, then the toolkit and refund ladder. That list is
+generated from `UNLOCK_LADDER` and `REFERRAL_DISCOUNT_PERCENT` in
+`useReferralStatus`, never typed out — a printed PDF cannot be corrected after
+the fact, so a hardcoded "invite 4 friends for 25% back" would become a false
+promise the day the ladder changes.
 
 Grouped types (runner-ups, outside-the-box, dream jobs) arrive as several rows
 of one `section_type`. Each set gets a `PrintGroupHeader` that owns the type's
@@ -246,28 +258,19 @@ starts printing the LLM line with no change here.
 - Page count is 21–23 for a real report, up from 13. Most of that is the cost
   of readable body type and real paragraph spacing; four pages are the new
   front matter (contents + one sheet per chart).
-- **No closing page.** The document stops after the last section. The wrap-up
-  copy already exists and is good (`getDreamJobsWrapUp` in
-  deliver-section/boilerplate.ts, ending "You know where you stand. Now decide
-  where you're going.") and would close the report properly.
-- **`SalaryPill` exists in dashboardV2Shared and print does not use it.**
-  Careers show match / AI impact / move but not the region-calibrated salary
-  estimate the dashboard shows.
+- **`SalaryPill` is not worth adding.** It exists in dashboardV2Shared, but
+  `metadata.salary` is present on only 2 of 28 top-career rows and 6 of 82
+  runner-ups, and reads null even where the key exists. The pill would render on
+  a handful of reports. Same shape of gap as `move` on older reports: the code
+  would be right and the data absent.
 - **The share modal has no deep link.** The pull quote's "change this line"
   points at `cairnly.io/dashboard` rather than opening the modal. A `?share=1`
   param on the dashboard would fix it.
-- **The PDF is ~3.9MB.** Every raster is embedded at full resolution and drawn
-  far smaller: the wordmark is a 771KB PNG drawn at 25mm, the cover photo 388KB,
-  and the five section JPEGs are drawn at 44px. Downsampled variants would take
-  this back under ~1.5MB. Matters if the report is ever emailed rather than
-  downloaded.
+- The cover's outlined cairn glyph is a **321px PNG drawn at 106mm tall**, so it
+  is soft in print. It came from the hand-off as a raster; as SVG it would be
+  crisp. Everything else on the cover is fine.
 - The cover is still placeholder art pending a design pass. Photography is now
   viable on it (readiness waits for image decode), which it was not before.
-- **Career-map dots overlap and hide each other.** Roles with the same
-  match/AI-exposure coordinates stack, so on Mirko's report dot 3 is completely
-  hidden under dot 2. Numbering the dots made this visible rather than causing
-  it. Fixing it means a small collision offset in `V4CareerMapSVG`, which
-  changes the dashboard chart too, so it has not been done unasked.
 - `move` (the reskilling pill) is absent from older reports — Douwe's has none
   on any section, Mirko's has it on the top three, runner-ups and dream jobs.
   The pill is correct; the data predates the field. Not a print bug.
