@@ -15,7 +15,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { iconForSubsection } from '@/components/chat/subsectionIcons';
-import { iconForSection, eyebrowFor, anchorFor, photoKeyFor, careerSlotFor } from './printSectionMeta';
+import { iconForSection, eyebrowFor, anchorFor, photoKeyFor } from './printSectionMeta';
 import { PrintChip } from './PrintGroupHeader';
 import { introFor, type PrintLang } from './printIntros';
 
@@ -232,10 +232,6 @@ export const PrintSection: React.FC<{
   const Icon = iconForSection(section.section_type);
   const intro = showIntro && !nested ? introFor(section.section_type, lang) : null;
   const photoKey = photoKeyFor(section.section_type);
-  // Career sections have no photograph; they get the dashboard's wayfinder
-  // glyph on a cream chip instead. Nested roles show one too — inside a group
-  // the chip is the only thing marking where one role ends and the next begins.
-  const hasChip = Boolean(photoKey) || Boolean(careerSlotFor(section.section_type));
   // WF4 writes this as a fragment of markup, so it needs the same cleaning the
   // chat sidebar does. It answers "what kind of employer is this?", which the
   // role title never does.
@@ -262,7 +258,7 @@ export const PrintSection: React.FC<{
           INTRO rather than with the title because the two belong together —
           both are the section's "here is what this is about" band, and putting
           a 44px square next to a 21px title left the title looking indented. */}
-      <div className="print-section-head" style={{ marginBottom: intro || hasChip ? '7mm' : 0 }}>
+      <div className="print-section-head" style={{ marginBottom: intro ? '7mm' : '4mm' }}>
         {eyebrow && (
           <div
             style={{
@@ -319,27 +315,31 @@ export const PrintSection: React.FC<{
           </div>
         )}
 
-        {(hasChip || intro) && (
+        {/* Chip and intro are ONE unit, and the chip never appears without it.
+            Nested roles take their intro from the group header, so gating the
+            row on the intro is what stops them printing a lone square with
+            empty space beside it. Repeating the chip there would be pointless
+            anyway: it is derived from section_type, so every role in a group
+            gets the identical glyph the group header already shows. */}
+        {intro && (
           <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <PrintChip visualKey={photoKey} sectionType={section.section_type} />
-            {intro && (
-              <p
-                style={{
-                  flex: '1 1 auto',
-                  minWidth: 0,
-                  fontFamily: FONT_BODY,
-                  fontSize: 12,
-                  lineHeight: 1.55,
-                  color: PALETTE.inkMuted,
-                  margin: 0,
-                  paddingLeft: 10,
-                  borderLeft: `2px solid ${PALETTE.tan}`,
-                  maxWidth: '150mm',
-                }}
-              >
-                {intro}
-              </p>
-            )}
+            <p
+              style={{
+                flex: '1 1 auto',
+                minWidth: 0,
+                fontFamily: FONT_BODY,
+                fontSize: 12,
+                lineHeight: 1.55,
+                color: PALETTE.inkMuted,
+                margin: 0,
+                paddingLeft: 10,
+                borderLeft: `2px solid ${PALETTE.tan}`,
+                maxWidth: '150mm',
+              }}
+            >
+              {intro}
+            </p>
           </div>
         )}
       </div>
