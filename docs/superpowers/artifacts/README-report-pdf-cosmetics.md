@@ -127,14 +127,57 @@ Anything wordier prints the brand twice on the cover.
 | File | What lives there |
 |---|---|
 | `src/components/report-pdf/printStyles.ts` | `@page` rules, pagination model, the whole narrative type system |
-| `src/components/report-pdf/ReportPrintDocument.tsx` | section order, chart sheets, en/nl frame strings |
+| `src/components/report-pdf/ReportPrintDocument.tsx` | section order, sheet layout, en/nl frame strings |
 | `src/components/report-pdf/PrintCover.tsx` | cover art (all drawn, no assets) |
-| `src/components/report-pdf/PrintSection.tsx` | per-section header, pills, ⚠/✓ callouts |
+| `src/components/report-pdf/PrintSection.tsx` | per-section header, pills, icons, ⚠/✓ callouts |
+| `src/components/report-pdf/PrintContents.tsx` | the "What's inside" page |
+| `src/components/report-pdf/PrintChapterDivider.tsx` | the two chapter openers |
+| `src/components/report-pdf/PrintPullQuote.tsx` | share-card quote + where its text comes from |
+| `src/components/report-pdf/printIntros.ts` | section intros, chapter copy, en/nl |
+| `src/components/report-pdf/printSectionMeta.ts` | section → icon + eyebrow |
 | `src/components/report-pdf/PrintPage.tsx` | the one-page sheet wrapper |
 | `src/components/report-pdf/printBuild.ts` | SPA deploy fingerprint |
 | `api/render-report.js` | Chromium options, renderer fingerprint |
 
 Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action).
+
+## Document structure
+
+1. Cover (full bleed)
+2. What's inside
+3–5. One chart per sheet, each in the dashboard's cream `V4ChartBanner`
+6+. Narrative, split by two chapter dividers, each carrying a pull quote
+
+**Reused from elsewhere in the app, not reinvented:**
+
+- Sub-heading icons come from `iconForSubsection` in
+  `components/chat/subsectionIcons.ts`, which already had EN and NL tables. The
+  print pipeline simply never called it, which is why early PDFs had no icons.
+- Section icons are the chat sidebar's `SECTION_ICONS`, re-keyed to
+  `section_type`.
+- Chart cards are the dashboard's `V4ChartBanner` with a `print` flag.
+- The contents page mirrors `ALL_SECTIONS` grouping from `ReportSidebar`.
+- Intros derive from `deliver-section/boilerplate.ts` — **by meaning, not by
+  string**, and `printIntros.ts` explains why at length. Do not "fix" this into
+  a verbatim import.
+
+## Share-quote coverage (worth knowing)
+
+The pull quotes come from the LinkedIn share feature, which has **two different
+mechanisms**:
+
+| | Career quotes | Personality quotes |
+|---|---|---|
+| How | LLM, `generate-share-quotes` | `pickShareSentences()` in-browser |
+| Stored | `report_sections.share_quotes` | never stored |
+| Source of truth | the DB column | `dashboardV2Shared.tsx` |
+
+`ShareCardModal` is the **only** caller of `generate-share-quotes` in the repo,
+so the column is null until someone opens the share modal for that report. As
+of 2026-08-14 that was 1 of 28 reports for `top_career_1`. `PrintPullQuote`
+therefore prefers the stored quote and derives one otherwise — which means it
+**auto-upgrades**: move generation to report completion and every later PDF
+starts printing the LLM line with no change here.
 
 ## Known remaining rough edges
 
@@ -142,8 +185,22 @@ Deploy is push-to-`main` (Vercel auto-deploys; edge functions via GitHub Action)
   `Stability`, `SWEET SPOT`, `AI exposure`…). They live in the shared
   `V4*SVG` dashboard components, so localizing them is a dashboard change, not
   a print change.
+- WF7's **exec-summary subheaders have no Dutch icon keys**. The NL entries in
+  `subsectionIcons.ts` were copied verbatim from the live prompts; WF7's Dutch
+  list has not been pinned the same way, so guessing keys would add lines that
+  never match.
 - The cover carries a faint page number in Chromium's footer band. Unavoidable
   without dropping page numbers entirely; see above.
-- Page count went 13 → 18 for the sample report. Four of those pages are the
-  cost of readable body type and real paragraph spacing; one is the second
-  chart sheet.
+- Page count is 21–23 for a real report, up from 13. Most of that is the cost
+  of readable body type and real paragraph spacing; four pages are the new
+  front matter (contents + one sheet per chart).
+- **The share modal has no deep link.** The pull quote's "change this line"
+  points at `cairnly.io/dashboard` rather than opening the modal. A `?share=1`
+  param on the dashboard would fix it.
+
+## One more deploy gotcha
+
+Mid-deploy, a render can fail with *"Print page never signalled readiness"* —
+the new HTML is being served while its JS chunk is not on the CDN yet, so the
+SPA never boots. It is transient. Retry; it is not a code fault. Seen once in
+about a dozen renders.
