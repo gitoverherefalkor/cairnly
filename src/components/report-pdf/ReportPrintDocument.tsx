@@ -1,9 +1,15 @@
 import React from 'react';
+import { Activity, Map as MapIcon, Scale } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { PrintSheet } from './PrintPage';
 import { PrintSection } from './PrintSection';
 import { PrintCover } from './PrintCover';
-import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
+import { PrintContents } from './PrintContents';
+import { PrintChapterDivider } from './PrintChapterDivider';
+import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
+import { chapterFor, type Chapter, type PrintLang } from './printIntros';
+import { stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
+import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
 import { V4PersonalityRadarSVG } from '@/components/dashboard/v2/V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend } from '@/components/dashboard/v2/V4CareerMapSVG';
 import { V4CompareRadarSVG, V4CompareLegend } from '@/components/dashboard/v2/V4CompareRadarSVG';
@@ -57,36 +63,53 @@ function orderSections(sections: ReportSection[]): ReportSection[] {
 // ─── Document chrome strings ────────────────────────────────────────────────
 // Only the frame is translated. Section titles and body copy are already
 // written in the user's language by WF1–WF7; nothing here touches those.
-// "Powered by Cairnly" stays English in both locales, consistent with the
-// other brand lines kept English in the NL localization batch.
+// Section intros and chapter framing live in printIntros.ts.
+//
+// The chart banners reuse the dashboard's own eyebrow / title / blurb copy
+// (see DashboardV4's V4ChartBanner call sites) so the printed charts read the
+// same as the ones on screen.
 const STRINGS = {
   en: {
     eyebrow: 'Career Report',
     title: (n: string) => (n ? `${n}'s next move` : 'Your next move'),
-    preparedFor: 'A personal read on where your experience, temperament and ambitions actually point, and what to do about it next.',
+    preparedFor:
+      'A personal read on where your experience, temperament and ambitions actually point, and what to do about it next.',
     contents: 'What’s inside',
-    chartsTitle: 'Your profile at a glance',
-    radarCaption: 'How you scored across the five traits that drive career fit.',
-    mapCaption: 'Every role we considered, plotted by how well it matches you and how exposed it is to AI.',
-    compareTitle: 'How your top three compare',
-    compareCaption: 'The same three roles measured against the working conditions you said matter most.',
-    page: 'Page',
+    radarEyebrow: 'Personality radar',
+    radarTitle: 'How you actually work',
+    radarBlurb:
+      'Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach.',
+    radarMeta: (n: number) => `${n} axes`,
+    mapEyebrow: 'Career map',
+    mapTitle: 'Where the matches sit',
+    mapBlurb:
+      'Your roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone.',
+    compareEyebrow: 'Top three compared',
+    compareTitle: 'How your top three stack up',
+    compareBlurb:
+      'The same three roles measured against the working conditions you said matter most.',
   },
   nl: {
     eyebrow: 'Loopbaanrapport',
     title: (n: string) => (n ? `De volgende stap van ${n}` : 'Jouw volgende stap'),
-    preparedFor: 'Een persoonlijke kijk op waar je ervaring, karakter en ambities écht naartoe wijzen, en wat je nu het beste kunt doen.',
+    preparedFor:
+      'Een persoonlijke kijk op waar je ervaring, karakter en ambities écht naartoe wijzen, en wat je nu het beste kunt doen.',
     contents: 'Wat je hier vindt',
-    chartsTitle: 'Jouw profiel in één oogopslag',
-    radarCaption: 'Hoe je scoort op de vijf eigenschappen die bepalen welk werk bij je past.',
-    mapCaption: 'Alle rollen die we hebben bekeken, uitgezet naar hoe goed ze bij je passen en hoe gevoelig ze zijn voor AI.',
-    compareTitle: 'Jouw top drie vergeleken',
-    compareCaption: 'Dezelfde drie rollen, afgezet tegen de werkomstandigheden die jij het belangrijkst vindt.',
-    page: 'Pagina',
+    radarEyebrow: 'Persoonlijkheidsradar',
+    radarTitle: 'Hoe je echt werkt',
+    radarBlurb:
+      'Je werkprofiel op vijf dimensies, opgebouwd uit de vragenlijst en getoetst in het gesprek met je coach.',
+    radarMeta: (n: number) => `${n} assen`,
+    mapEyebrow: 'Loopbaankaart',
+    mapTitle: 'Waar de matches liggen',
+    mapBlurb:
+      'Je rollen uitgezet naar hoe goed ze passen tegenover het risico op AI-impact. De sweet spot is linksboven; rechtsonder is de zone om weg te lopen.',
+    compareEyebrow: 'Top drie vergeleken',
+    compareTitle: 'Hoe je top drie zich verhoudt',
+    compareBlurb:
+      'Dezelfde drie rollen, afgezet tegen de werkomstandigheden die jij het belangrijkst vindt.',
   },
 } as const;
-
-type Lang = keyof typeof STRINGS;
 
 /** The report's language, taken from the sections themselves. Falls back to
  *  English for anything unrecognised — a report in an unexpected language
@@ -98,7 +121,7 @@ type Lang = keyof typeof STRINGS;
  *  whole row shape against the (known-stale) generated Supabase types, which
  *  then fails on an unrelated `score` string/number drift. That drift is worth
  *  fixing on its own; it is not worth dragging into a cosmetics change. */
-function resolveLang(sections: ReportSection[]): Lang {
+function resolveLang(sections: ReportSection[]): PrintLang {
   const found = sections
     .map((s) => (s as { language?: string | null }).language)
     .find((l): l is string => typeof l === 'string' && l.length > 0);
@@ -113,53 +136,22 @@ export interface PartnerBrand {
   powered_by_text: string | null;
 }
 
-/** Heading for a full-page chart sheet. */
-const ChartHeading: React.FC<{ title: string; caption?: string }> = ({ title, caption }) => (
-  <div className="print-nobreak" style={{ marginBottom: '7mm' }}>
-    <h2
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 21,
-        letterSpacing: '-0.02em',
-        color: PALETTE.canvasDeep,
-        margin: 0,
-      }}
-    >
-      {title}
-    </h2>
-    {caption && (
-      <p
-        style={{
-          fontFamily: FONT_BODY,
-          fontSize: 10.5,
-          lineHeight: 1.5,
-          color: PALETTE.inkMuted,
-          margin: '5px 0 0 0',
-          maxWidth: '150mm',
-        }}
-      >
-        {caption}
-      </p>
-    )}
-  </div>
-);
+/** Where the reader goes to change the share line. There is no deep link to the
+ *  share modal yet, so this points at the dashboard that hosts it. */
+const SHARE_URL = 'cairnly.io/dashboard';
 
-/** Caption under an individual chart. */
-const ChartCaption: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p
-    style={{
-      fontFamily: FONT_BODY,
-      fontSize: 9.5,
-      lineHeight: 1.45,
-      color: PALETTE.inkSoft,
-      margin: '6px 0 0 0',
-      textAlign: 'center',
-    }}
-  >
-    {children}
-  </p>
-);
+/** Pick the section a chapter's pull quote should come from.
+ *
+ *  About-you: the exec summary reads as the report's thesis, so it makes the
+ *  strongest single line; strengths is the fallback when WF7 has not run.
+ *  Careers: the top match, which is what anyone would actually share. */
+function quoteSectionFor(chapter: Chapter, sections: ReportSection[]): ReportSection | null {
+  const pick = (types: string[]) =>
+    types.map((t) => sections.find((s) => s.section_type === t)).find(Boolean) ?? null;
+  return chapter === 'about-you'
+    ? pick(['exec_summary', 'strengths', 'approach', 'personality_team'])
+    : pick(['top_career_1', 'top_career_2', 'outside_box']);
+}
 
 export const ReportPrintDocument: React.FC<{
   firstName: string;
@@ -191,7 +183,23 @@ export const ReportPrintDocument: React.FC<{
   // ReportPrint.tsx), which is the only mechanism that repeats on every page of
   // a naturally-paginated flow.
 
-  const hasProfileCharts = radarAxes.length > 0 || mapPoints.length > 0;
+  // Pull quotes, one per chapter, lifted from the LinkedIn share feature.
+  const quoteFor = (chapter: Chapter) => {
+    const src = quoteSectionFor(chapter, sections);
+    if (!src) return null;
+    const quote = shareQuoteFor(src);
+    if (!quote) return null;
+    return { quote, attribution: stripHtml(src.title || '') || null };
+  };
+  const aboutQuote = quoteFor('about-you');
+  const careerQuote = quoteFor('careers');
+
+  // Chapter dividers are emitted inline, ahead of the first section of each
+  // chapter, so they paginate with the flow rather than forcing blank sheets.
+  const seenChapters = new Set<Chapter>();
+  // Intros are per section TYPE; runner-ups and dream jobs arrive as several
+  // rows sharing one type, and repeating the intro above each would be noise.
+  const seenIntroTypes = new Set<string>();
 
   return (
     <>
@@ -206,39 +214,63 @@ export const ReportPrintDocument: React.FC<{
         />
       </PrintSheet>
 
-      {/* ── Charts ────────────────────────────────────────────────
-          Two deliberate sheets, not one overflowing one. Previously all three
-          charts sat in a single PrintSheet that was no longer height-capped,
-          so it spilled a third page holding one chart and 60% white space. */}
-      {hasProfileCharts && (
+      {/* ── What's inside + the charts ────────────────────────────
+          Contents and the two profile charts share one sheet. Charts sit in
+          the dashboard's own cream banner so the printed and on-screen
+          versions read as the same object. */}
+      <PrintSheet>
+        <PrintContents sections={ordered} lang={lang} title={t.contents} />
+
+        {radarAxes.length > 0 && (
+          <div className="print-nobreak" style={{ marginTop: '8mm' }}>
+            <V4ChartBanner
+              print
+              layout="vertical"
+              eyebrow={t.radarEyebrow}
+              icon={<Activity size={12} />}
+              title={t.radarTitle}
+              blurb={t.radarBlurb}
+              meta={t.radarMeta(radarAxes.length)}
+              chart={<V4PersonalityRadarSVG axes={radarAxes} size={300} />}
+            />
+          </div>
+        )}
+      </PrintSheet>
+
+      {mapPoints.length > 0 && (
         <PrintSheet>
-          <ChartHeading title={t.chartsTitle} />
-          {radarAxes.length > 0 && (
-            <div className="print-nobreak" style={{ marginBottom: '9mm', textAlign: 'center' }}>
-              <V4PersonalityRadarSVG axes={radarAxes} size={330} />
-              <ChartCaption>{t.radarCaption}</ChartCaption>
-            </div>
-          )}
-          {mapPoints.length > 0 && (
-            <div className="print-nobreak">
-              <V4CareerMapSVG points={mapPoints} />
-              <V4CareerMapLegend points={mapPoints} print />
-              <ChartCaption>{t.mapCaption}</ChartCaption>
-            </div>
-          )}
+          <div className="print-nobreak">
+            <V4ChartBanner
+              print
+              layout="vertical"
+              eyebrow={t.mapEyebrow}
+              icon={<MapIcon size={12} />}
+              title={t.mapTitle}
+              blurb={t.mapBlurb}
+              chart={<V4CareerMapSVG points={mapPoints} />}
+              legend={<V4CareerMapLegend points={mapPoints} print />}
+            />
+          </div>
         </PrintSheet>
       )}
 
       {compare.length > 0 && (
         <PrintSheet>
-          <ChartHeading title={t.compareTitle} caption={t.compareCaption} />
-          <div className="print-nobreak" style={{ textAlign: 'center' }}>
-            {/* variant="full" — the 460-wide viewBox. "compact" exists for the
-                dashboard's hero flip card and is too small for print. */}
-            <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={440} />
-          </div>
-          <div style={{ marginTop: '6mm' }}>
-            <V4CompareLegend careers={compare} focalRank={1} />
+          <div className="print-nobreak">
+            <V4ChartBanner
+              print
+              layout="vertical"
+              eyebrow={t.compareEyebrow}
+              icon={<Scale size={12} />}
+              title={t.compareTitle}
+              blurb={t.compareBlurb}
+              chart={
+                /* variant="full" — the 460-wide viewBox. "compact" exists for
+                   the dashboard's hero flip card and is too small for print. */
+                <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={400} />
+              }
+              legend={<V4CompareLegend careers={compare} focalRank={1} />}
+            />
           </div>
         </PrintSheet>
       )}
@@ -248,9 +280,39 @@ export const ReportPrintDocument: React.FC<{
           into fixed sheets: measured against a real 20-section report, fixed
           sheets clipped 7 of 12 pages because single sections exceed a page. */}
       <div className="print-flow print-screen-paper">
-        {ordered.map((s, i) => (
-          <PrintSection key={s.id} section={s} first={i === 0} />
-        ))}
+        {ordered.map((s, i) => {
+          const chapter = chapterFor(s.section_type);
+          const opensChapter = !seenChapters.has(chapter);
+          if (opensChapter) seenChapters.add(chapter);
+
+          const showIntro = !seenIntroTypes.has(s.section_type);
+          if (showIntro) seenIntroTypes.add(s.section_type);
+
+          const q = chapter === 'about-you' ? aboutQuote : careerQuote;
+
+          return (
+            <React.Fragment key={s.id}>
+              {opensChapter && (
+                <PrintChapterDivider chapter={chapter} lang={lang}>
+                  {q && (
+                    <PrintPullQuote
+                      quote={q.quote}
+                      attribution={q.attribution}
+                      lang={lang}
+                      shareUrl={SHARE_URL}
+                    />
+                  )}
+                </PrintChapterDivider>
+              )}
+              <PrintSection
+                section={s}
+                lang={lang}
+                first={i === 0 || opensChapter}
+                showIntro={showIntro}
+              />
+            </React.Fragment>
+          );
+        })}
       </div>
     </>
   );

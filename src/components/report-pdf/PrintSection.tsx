@@ -5,6 +5,7 @@ import type { ReportSection } from '@/hooks/useReportSections';
 import {
   PALETTE,
   FONT_DISPLAY,
+  FONT_BODY,
   AIImpactPill,
   MatchPill,
   MovePill,
@@ -13,6 +14,9 @@ import {
   type MoveLevel,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
+import { iconForSubsection } from '@/components/chat/subsectionIcons';
+import { iconForSection, eyebrowFor } from './printSectionMeta';
+import { introFor, type PrintLang } from './printIntros';
 
 /** The AI sometimes emits HTML instead of Markdown. Normalise to Markdown so
  *  the document renders through a single pipeline. Mirrors htmlToMarkdown in
@@ -45,7 +49,7 @@ const CAREER_TYPES = ['top_career_1', 'top_career_2', 'top_career_3', 'outside_b
 // Fixing it by loading a symbol webfont would add a network dependency to
 // every render for four glyphs. Drawing them as inline SVG instead cannot fail,
 // costs nothing, and lets the marks carry brand colour.
-const MARKER_RE = /^\s*([⚠✓])[\s ]*/;
+const MARKER_RE = /^\s*([⚠✓])[\s ]*/;
 
 type Marker = '⚠' | '✓';
 
@@ -118,37 +122,66 @@ const PrintListItem: React.FC<{ children?: React.ReactNode }> = ({ children }) =
   );
 };
 
-const MD_COMPONENTS = { p: PrintParagraph, li: PrintListItem } as const;
+/** Flatten a heading's children to plain text, for the icon lookup. */
+function headingText(children: React.ReactNode): string {
+  return React.Children.toArray(children)
+    .map((c) => {
+      if (typeof c === 'string') return c;
+      if (typeof c === 'number') return String(c);
+      // Bold-wrapped subheaders happen; reach one level in for their text.
+      if (React.isValidElement(c)) return headingText((c.props as { children?: React.ReactNode }).children);
+      return '';
+    })
+    .join('');
+}
 
-// ─── Section framing ────────────────────────────────────────────────────────
-// The eyebrow above each title carries information the title itself cannot:
-// a role name alone does not tell the reader whether they are looking at the
-// #1 match or a runner-up. Ranked labels come from the section type, which is
-// the only place that ordering actually lives.
-const EYEBROW: Record<string, string> = {
-  exec_summary: 'Overview',
-  approach: 'About you',
-  personality_team: 'About you',
-  strengths: 'About you',
-  development: 'About you',
-  values: 'About you',
-  top_career_1: 'Top match · 01',
-  top_career_2: 'Top match · 02',
-  top_career_3: 'Top match · 03',
-  runner_ups: 'Also worth a look',
-  outside_box: 'Outside the box',
-  dream_jobs: 'Your dream jobs',
+/** Sub-heading renderer.
+ *
+ *  Two jobs. First, ICONS: `iconForSubsection` maps the model's exact h5 text
+ *  to a Lucide icon and already carries both the English and Dutch subheader
+ *  tables. The chat has rendered these for a while; the print pipeline simply
+ *  never called it, which is why the PDF had none.
+ *
+ *  Second, SEMANTICS: the model writes its sub-headings as `#####`, so the
+ *  markdown pipeline emitted `<h5>` directly under the section's `<h2>`,
+ *  skipping two levels. Everything the model emits at h3/h4/h5 means the same
+ *  thing — "sub-heading inside a section" — so they all render as a real `h3`,
+ *  giving the document a contiguous h1 → h2 → h3 outline. */
+const PrintSubheading: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  const text = headingText(children);
+  const Icon = iconForSubsection(text);
+  return (
+    <h3 className="print-subhead">
+      {Icon && <Icon size={13} className="print-subhead-icon" aria-hidden="true" />}
+      <span>{children}</span>
+    </h3>
+  );
 };
 
-export const PrintSection: React.FC<{ section: ReportSection; first?: boolean }> = ({
-  section,
-  first = false,
-}) => {
+const MD_COMPONENTS = {
+  p: PrintParagraph,
+  li: PrintListItem,
+  h3: PrintSubheading,
+  h4: PrintSubheading,
+  h5: PrintSubheading,
+  h6: PrintSubheading,
+} as const;
+
+export const PrintSection: React.FC<{
+  section: ReportSection;
+  lang: PrintLang;
+  first?: boolean;
+  /** Intros are per section TYPE, but runner-ups and dream jobs arrive as
+   *  several rows of the same type. Only the first row of a run shows it. */
+  showIntro?: boolean;
+}> = ({ section, lang, first = false, showIntro = true }) => {
   const isCareer = CAREER_TYPES.includes(section.section_type);
   const score = section.score != null ? Number(section.score) : NaN;
   const impact = isCareer ? extractAIImpact(section.content || '') : null;
   const move = section.metadata?.move as MoveLevel | undefined;
-  const eyebrow = EYEBROW[section.section_type];
+  const eyebrow = eyebrowFor(section.section_type, lang);
+  const Icon = iconForSection(section.section_type);
+  const intro = showIntro ? introFor(section.section_type, lang) : null;
 
   return (
     <section
@@ -165,15 +198,20 @@ export const PrintSection: React.FC<{ section: ReportSection; first?: boolean }>
         {eyebrow && (
           <div
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
               fontSize: 7.5,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: PALETTE.gold,
-              margin: '0 0 4px 0',
+              margin: '0 0 5px 0',
             }}
           >
+            {/* Same icon the chat sidebar shows for this section. */}
+            {Icon && <Icon size={12} aria-hidden="true" />}
             {eyebrow}
           </div>
         )}
@@ -198,6 +236,23 @@ export const PrintSection: React.FC<{ section: ReportSection; first?: boolean }>
             {impact && <AIImpactPill label={impact as AIImpactLevel} />}
             {move && <MovePill level={move} />}
           </div>
+        )}
+
+        {intro && (
+          <p
+            style={{
+              fontFamily: FONT_BODY,
+              fontSize: 11,
+              lineHeight: 1.55,
+              color: PALETTE.inkMuted,
+              margin: '0 0 9px 0',
+              paddingLeft: 9,
+              borderLeft: `2px solid ${PALETTE.tan}`,
+              maxWidth: '150mm',
+            }}
+          >
+            {intro}
+          </p>
         )}
       </div>
 

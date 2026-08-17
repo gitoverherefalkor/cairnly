@@ -29,6 +29,10 @@ interface V4ChartBannerProps {
   // text on top and the chart underneath in a single column — used when the
   // banner sits inside a narrow side column next to a report accordion.
   layout?: 'horizontal' | 'vertical';
+  // Print mode for the PDF report. Drops the drop-shadow (which renders as a
+  // grey smear on paper) and steps the type down to the printed document's
+  // scale, where 22px/13.5px would tower over the section headings.
+  print?: boolean;
 }
 
 export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
@@ -42,6 +46,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
   legend,
   chartWidth = '1.25fr',
   layout = 'horizontal',
+  print = false,
 }) => (
   <section
     style={{
@@ -50,8 +55,8 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
         'radial-gradient(circle at 12% 90%, rgba(212,160,36,0.06), transparent 55%),' +
         '#ECE4D2',
       border: '1px solid rgba(201, 182, 144, 0.5)',
-      borderRadius: 22,
-      boxShadow: '0 18px 36px -16px rgba(0,0,0,0.4)',
+      borderRadius: print ? 12 : 22,
+      boxShadow: print ? 'none' : '0 18px 36px -16px rgba(0,0,0,0.4)',
       padding: layout === 'vertical' ? 22 : '22px 26px',
       display: 'grid',
       gridTemplateColumns: layout === 'vertical' ? '1fr' : `minmax(0, 1fr) minmax(0, ${chartWidth})`,
@@ -68,7 +73,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
             gap: 8,
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
-            fontSize: 11,
+            fontSize: print ? 8 : 11,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: PALETTE.tealDeep,
@@ -81,7 +86,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
           <span
             style={{
               fontFamily: FONT_BODY,
-              fontSize: 11,
+              fontSize: print ? 9 : 11,
               fontWeight: 700,
               color: PALETTE.inkSoft,
               letterSpacing: '0.04em',
@@ -95,7 +100,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
         style={{
           fontFamily: FONT_DISPLAY,
           fontWeight: 700,
-          fontSize: 22,
+          fontSize: print ? 17 : 22,
           letterSpacing: '-0.018em',
           color: PALETTE.canvasDeep,
           margin: 0,
@@ -107,7 +112,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
       <p
         style={{
           fontFamily: FONT_BODY,
-          fontSize: 13.5,
+          fontSize: print ? 10.5 : 13.5,
           fontWeight: 500,
           color: PALETTE.inkMuted,
           lineHeight: 1.55,
@@ -134,7 +139,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
               style={{
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
-                fontSize: 30,
+                fontSize: print ? 22 : 30,
                 letterSpacing: '-0.02em',
                 color: stat.color || PALETTE.teal,
                 lineHeight: 1,
@@ -147,7 +152,7 @@ export const V4ChartBanner: React.FC<V4ChartBannerProps> = ({
             style={{
               fontFamily: FONT_BODY,
               // Label gets a touch more weight when it stands alone.
-              fontSize: stat.value ? 12.5 : 14,
+              fontSize: print ? (stat.value ? 10.5 : 11.5) : (stat.value ? 12.5 : 14),
               fontWeight: stat.value ? 600 : 700,
               color: stat.value ? PALETTE.inkMuted : (stat.color || PALETTE.tealDeep),
               lineHeight: 1.45,

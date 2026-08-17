@@ -62,6 +62,17 @@ const ICON_MAP: Record<string, LucideIcon> = {
   // shared closer across all four personality sections
   'key insight': Lightbulb,
 
+  // executive summary (WF7). Reaches the dashboard and the printed report but
+  // not the chat, since WF7 runs after the conversation ends. English only —
+  // the NL entries elsewhere in this map were copied verbatim from the live
+  // prompts, and WF7's Dutch subheader list has not been pinned the same way,
+  // so guessing keys here would just add lines that never match.
+  'professional identity': UserCheck,
+  'key strengths & growth areas': Sparkles,
+  'key strengths and growth areas': Sparkles,
+  'career direction': Signpost,
+  'path forward': Footprints,
+
   // top careers (runner-ups reuse this same subset of subheaders)
   'why this role fits you': Puzzle,
   "what you'll actually do": ListChecks,

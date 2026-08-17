@@ -120,10 +120,11 @@ export const PRINT_CSS = `
   .print-flow p:last-child { margin-bottom: 0; }
 
   /* The AI emits its sub-headings as h5 (and occasionally h3/h4). They all mean
-     the same thing — "sub-heading inside a section" — so they all get the same
-     treatment rather than an accidental hierarchy based on how many hashes the
-     model happened to type. Space above is much larger than space below, so a
-     heading binds visually to the prose it introduces. */
+     the same thing — "sub-heading inside a section" — so PrintSection renders
+     every one of them as a real h3, which also keeps the document's outline
+     contiguous (h1 cover → h2 section → h3 sub-heading) instead of skipping
+     two levels. Space above is much larger than space below, so a heading binds
+     visually to the prose it introduces. */
   .print-flow h3,
   .print-flow h4,
   .print-flow h5,
@@ -137,6 +138,21 @@ export const PRINT_CSS = `
     margin: 15px 0 4px 0;
     page-break-after: avoid;
     break-after: avoid;
+  }
+
+  /* Sub-heading icons come from iconForSubsection (the same map the chat uses).
+     flex-start + a small nudge optically centres a 13px icon against the
+     cap-height of 12.5px Poppins, which vertical-align cannot do reliably
+     across a page break. */
+  .print-flow h3.print-subhead {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .print-flow .print-subhead-icon {
+    flex: 0 0 auto;
+    margin-top: 1.5px;
+    color: ${PALETTE.teal};
   }
 
   /* Never orphan a heading at the foot of a page from the prose it introduces. */
