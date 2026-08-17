@@ -117,6 +117,11 @@ function cleanField(raw: string | null | undefined): string {
 
 const RANK_COLOR: Record<number, string> = { 1: '#d97706', 2: '#6366f1', 3: '#0d9488' };
 
+// One column width for the icon slot and one gap, so the detail line can be
+// indented to sit exactly under the label rather than under the icon.
+const ICON_BOX = 16;
+const ICON_GAP = 9;
+
 const RankBadge: React.FC<{ rank: number }> = ({ rank }) => (
   <span
     style={{
@@ -212,20 +217,31 @@ export const PrintContents: React.FC<{
                   href={`#${anchorFor(row.types[0])}`}
                   className="print-contents-link"
                   style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 9,
+                    display: 'block',
                     padding: '5px 0',
                     borderBottom: `1px solid rgba(236, 228, 210, 0.6)`,
                   }}
                 >
-                  {/* marginTop optically centres the glyph against the label's cap-height.
-                      flex-start keeps it put when the detail line wraps, but at
-                      marginTop 1 the icons sat visibly high. */}
-                  <span style={{ flex: '0 0 auto', marginTop: 3, color: PALETTE.tealDeep, display: 'inline-flex' }}>
-                    {row.rank ? <RankBadge rank={row.rank} /> : Icon ? <Icon size={14} /> : null}
-                  </span>
-                  <span style={{ flex: '1 1 auto', minWidth: 0 }}>
+                  {/* The icon is centred on the LABEL LINE, not on the whole row.
+                      Two attempts at nudging it with marginTop against a
+                      flex-start row both sat high, because the row's height
+                      includes the detail line underneath — so any offset that
+                      looks right on a one-line row is wrong on a two-line one.
+                      Pairing icon and label in their own centred flex row is
+                      exact and needs no magic number; the detail line then sits
+                      below, indented to line up under the label. */}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: ICON_GAP }}>
+                    <span
+                      style={{
+                        flex: '0 0 auto',
+                        width: ICON_BOX,
+                        color: PALETTE.tealDeep,
+                        display: 'inline-flex',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {row.rank ? <RankBadge rank={row.rank} /> : Icon ? <Icon size={14} /> : null}
+                    </span>
                     <span
                       style={{
                         fontFamily: FONT_DISPLAY,
@@ -236,22 +252,23 @@ export const PrintContents: React.FC<{
                     >
                       {row.label}
                     </span>
-                    {detail && (
-                      <span
-                        style={{
-                          display: 'block',
-                          fontFamily: FONT_BODY,
-                          fontSize: 10,
-                          lineHeight: 1.4,
-                          color: PALETTE.inkMuted,
-                          marginTop: 1,
-                        }}
-                      >
-                        {detail}
-                        {size ? ` · ${size}` : ''}
-                      </span>
-                    )}
                   </span>
+                  {detail && (
+                    <span
+                      style={{
+                        display: 'block',
+                        paddingLeft: ICON_BOX + ICON_GAP,
+                        fontFamily: FONT_BODY,
+                        fontSize: 10,
+                        lineHeight: 1.4,
+                        color: PALETTE.inkMuted,
+                        marginTop: 1,
+                      }}
+                    >
+                      {detail}
+                      {size ? ` · ${size}` : ''}
+                    </span>
+                  )}
                 </a>
               );
             })}

@@ -77,7 +77,7 @@ serve(async (req) => {
       .order('order_number', { ascending: true, nullsFirst: false }),
     supabase
       .from('profiles')
-      .select('first_name, country, partner_id')
+      .select('first_name, last_name, country, partner_id')
       .eq('id', burned.user_id)
       .maybeSingle(),
   ]);
@@ -141,7 +141,12 @@ serve(async (req) => {
     JSON.stringify({
       report,
       sections: sections ?? [],
-      profile: { first_name: profile?.first_name ?? '', country: profile?.country ?? null },
+      // last_name is used only by the printed cover's "Prepared for …" line.
+      profile: {
+        first_name: profile?.first_name ?? '',
+        last_name: profile?.last_name ?? null,
+        country: profile?.country ?? null,
+      },
       // null for every user today, so the print page's partner branches never
       // fire and unbranded output is byte-identical to the pre-white-label design.
       partner,

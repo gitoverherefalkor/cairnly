@@ -82,6 +82,35 @@ export function secondaryStartNumber(points: CareerPoint[]): number {
   return points.filter((p) => p.rank).length + 1;
 }
 
+/** Nudge apart points that would land on top of each other.
+ *
+ *  Careers are scored on coarse buckets, so two roles routinely share exactly
+ *  the same match/AI-exposure coordinates and the later dot hides the earlier
+ *  one completely — on one real report the #3 match was invisible under #2.
+ *  Numbering the dots made that visible rather than causing it.
+ *
+ *  Points are walked in order and each one that collides with an already-placed
+ *  dot is pushed around a small circle until it clears. Deterministic (no
+ *  randomness), so the same report always plots identically, and it only moves
+ *  what actually overlaps. */
+function spread(pts: { x: number; y: number }[], minGap: number) {
+  const placed: { x: number; y: number }[] = [];
+  return pts.map((p) => {
+    let { x, y } = p;
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const clash = placed.some((q) => Math.hypot(q.x - x, q.y - y) < minGap);
+      if (!clash) break;
+      // Spiral outward: 60° per attempt, radius growing every six steps.
+      const angle = (attempt % 6) * (Math.PI / 3);
+      const radius = minGap * (1 + Math.floor(attempt / 6) * 0.6);
+      x = p.x + Math.cos(angle) * radius;
+      y = p.y + Math.sin(angle) * radius;
+    }
+    placed.push({ x, y });
+    return { x, y };
+  });
+}
+
 export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) => {
   const xPx = (x: number) => PAD_L + Math.max(0, Math.min(1, x)) * PLOT_W;
   const yPx = (y: number) => PAD_T + Math.max(0, Math.min(1, y)) * PLOT_H;
@@ -92,6 +121,13 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
   // Render order: secondaries first, then top-3 on top.
   const secondaries = points.filter((p) => !p.rank);
   const tops = points.filter((p) => p.rank).sort((a, b) => (b.rank! - a.rank!));
+
+  // De-collide in PIXEL space, tops first so a ranked dot keeps its true
+  // position and the runner-ups are the ones that move.
+  const gap = numbered ? 23 : 19;
+  const order = [...tops, ...secondaries];
+  const spreadPx = spread(order.map((p) => ({ x: xPx(p.x), y: yPx(p.y) })), gap);
+  const posOf = new Map(order.map((p, i) => [p, spreadPx[i]]));
 
   // Hover state — drives an instant SVG tooltip rather than relying on the
   // browser's slow native <title> popup.
@@ -222,8 +258,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
           The numbering continues from the top-3, and V4CareerMapLegend derives
           it the same way — see secondaryStartNumber. */}
       {secondaries.map((p, i) => {
-        const px = xPx(p.x);
-        const py = yPx(p.y);
+        const { x: px, y: py } = posOf.get(p)!;
         const n = secondaryStartNumber(points) + i;
         return (
           <g
@@ -263,8 +298,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
       {/* Top-3 on top — rank numeral inside the bubble; full name in legend
           / hover tooltip. */}
       {tops.map((p) => {
-        const px = xPx(p.x);
-        const py = yPx(p.y);
+        const { x: px, y: py } = posOf.get(p)!;
         const color = RANK_COLOR[p.rank!];
         return (
           <g

@@ -1,7 +1,7 @@
 import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY, SECTION_VISUALS } from '@/components/dashboard/v2/dashboardV2Shared';
 import { CareerSlotIcon } from '@/components/dashboard/CareerSlotIcon';
-import { iconForSection, groupTitleFor, anchorFor, careerSlotFor } from './printSectionMeta';
+import { iconForSection, groupTitleFor, anchorFor, careerSlotFor, printPhotoSrc } from './printSectionMeta';
 import { introFor, type PrintLang } from './printIntros';
 
 // Header for a multi-row group: runner-ups, outside-the-box, dream jobs.
@@ -70,7 +70,7 @@ export const PrintChip: React.FC<{
       }}
     >
       <img
-        src={v.src}
+        src={printPhotoSrc(visualKey!) ?? v.src}
         alt=""
         loading="eager"
         decoding="sync"

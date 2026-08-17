@@ -24,7 +24,12 @@ export const PrintChapterDivider: React.FC<{
         // heads a page rather than landing under the tail of a career section.
         breakBefore: chapter === 'careers' ? 'page' : 'auto',
         pageBreakBefore: chapter === 'careers' ? 'always' : 'auto',
-        margin: chapter === 'careers' ? '0 0 9mm 0' : '0 0 9mm 0',
+        // …and the opener OWNS its page. It carries the divider, the chapter's
+        // pull quote and its headline chart; the first section then starts clean
+        // on the next page rather than crowding in under the chart.
+        breakAfter: 'page',
+        pageBreakAfter: 'always',
+        margin: 0,
       }}
     >
       <div

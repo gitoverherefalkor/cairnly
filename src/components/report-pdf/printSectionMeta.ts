@@ -136,6 +136,25 @@ export function photoKeyFor(sectionType: string): string | null {
   return SECTION_PHOTO_KEY[sectionType] ?? null;
 }
 
+// Print-sized copies of the section photographs, under /report/sections.
+//
+// The dashboard's originals are 600x400 at 27-87KB each and the printed chip
+// draws them at 44px, so every PDF was embedding roughly 12x more pixels than
+// it could show. The 220px variants are still ~5x the drawn size, which is
+// ample for print, and together with the downsized wordmark they take about
+// 900KB off the file. The dashboard keeps the full-size originals.
+const PRINT_PHOTO_SRC: Record<string, string> = {
+  summary: '/report/sections/exec_summ.jpg',
+  approach: '/report/sections/approach_vis.jpg',
+  strengths: '/report/sections/strenghts_you.jpg',
+  development: '/report/sections/development-tilted-stone.jpg',
+  values: '/report/sections/values_vis.jpg',
+};
+
+export function printPhotoSrc(visualKey: string): string | null {
+  return PRINT_PHOTO_SRC[visualKey] ?? null;
+}
+
 // ─── Career slot glyphs ─────────────────────────────────────────────────────
 // Career sections have no photograph — the dashboard gives them one of six
 // "wayfinder" glyphs on a cream chip instead (CareerSlotIcon). Same mapping

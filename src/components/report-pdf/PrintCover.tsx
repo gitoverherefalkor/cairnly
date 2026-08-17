@@ -24,7 +24,10 @@ import type { PartnerBrand } from './ReportPrintDocument';
 //
 // Two of the three assets already existed in the repo byte-for-byte (the
 // wordmark and the photograph), so only the outlined glyph was added.
-const WORDMARK_DARK = '/logos/cairnly_logo_wordmark.png';
+// Print-sized copy. The original is 3548x1774 at 753KB and draws here at 25mm
+// tall, so it was embedding roughly 12x the pixels it could show; 1200px wide is
+// still ~4x the drawn size at 300dpi. Saves ~620KB per PDF.
+const WORDMARK_DARK = '/report/wordmark.png';
 const CAIRN_GLYPH = '/logos/cairn_glyph_outline.png';
 const HORIZON_PHOTO = '/dashboard/cairn_trail_landscape.jpg';
 

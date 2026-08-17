@@ -8,9 +8,10 @@ import { PrintContents } from './PrintContents';
 import { PrintChapterDivider } from './PrintChapterDivider';
 import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
+import { PrintClosing } from './PrintClosing';
 import { isGroupType, breaksPage } from './printSectionMeta';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
-import { stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
+import { stripHtml, PALETTE, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
 import { V4PersonalityRadarSVG } from '@/components/dashboard/v2/V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend } from '@/components/dashboard/v2/V4CareerMapSVG';
@@ -91,6 +92,7 @@ const STRINGS = {
     compareTitle: 'How your top three stack up',
     compareBlurb:
       'The same three roles measured against the working conditions you said matter most.',
+    chartMore: 'For further details regarding this graph, consult your dashboard.',
   },
   nl: {
     coverKicker: 'Loopbaanrapport',
@@ -112,6 +114,7 @@ const STRINGS = {
     compareTitle: 'Hoe je top drie zich verhoudt',
     compareBlurb:
       'Dezelfde drie rollen, afgezet tegen de werkomstandigheden die jij het belangrijkst vindt.',
+    chartMore: 'Bekijk je dashboard voor meer details bij deze grafiek.',
   },
 } as const;
 
@@ -202,45 +205,61 @@ export const ReportPrintDocument: React.FC<{
   const aboutQuote = quoteFor('about-you');
   const careerQuote = quoteFor('careers');
 
-  // ── Charts, placed where the prose earns them ──────────────────────────
-  // Previously each chart had a dedicated front-matter sheet, which meant the
-  // reader met all three before reading a word of what they describe. Each one
-  // now sits directly after the section that gives it meaning:
+  // ── Charts ─────────────────────────────────────────────────────────────
+  // Each chapter OPENS on its own page carrying three things: the divider, the
+  // chapter's pull quote, and the chapter's headline chart. That page is the
+  // chapter's front door — the reader gets the framing, a line worth sharing and
+  // the one picture that summarises what follows, before any prose.
   //
-  //   • the personality radar is built from `approach`'s personality_scores,
-  //     so it follows `approach`;
-  //   • the compare radar measures the top three against each other, so it
-  //     follows top_career_3, once all three have been read;
-  //   • the career map plots every role INCLUDING the runner-ups, so it lands
-  //     last, as the bridge from the top three to everything else.
+  //   • Chapter one: the personality radar, built from `approach`'s scores.
+  //   • Chapter two: the top-three comparison, which is what the whole chapter
+  //     is arguing about.
   //
-  // They stay in the dashboard's cream V4ChartBanner so printed and on-screen
-  // read as the same object, and `print-nobreak` keeps a card off a page seam.
+  // The career map is NOT a chapter chart. It plots every role including the
+  // runner-ups, so it stays down in the flow just ahead of the first grouped
+  // set, where it does the work of saying "here is everything, not just the top
+  // three".
+  //
+  // Charts keep the dashboard's cream V4ChartBanner so printed and on-screen
+  // read as the same object, and each carries a line pointing at the dashboard,
+  // where the same chart is interactive.
   const chartCard = (node: React.ReactNode) => (
-    <div className="print-nobreak" style={{ margin: '0 0 9mm 0' }}>
+    <div className="print-nobreak" style={{ margin: '0 0 4mm 0' }}>
       {node}
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 9,
+          lineHeight: 1.4,
+          color: PALETTE.inkSoft,
+          margin: '5px 0 0 0',
+          textDecoration: 'underline',
+        }}
+      >
+        {t.chartMore}
+      </p>
     </div>
   );
 
-  const CHART_AFTER: Record<string, React.ReactNode> = {};
-  if (radarAxes.length > 0) {
-    CHART_AFTER.approach = chartCard(
-      <V4ChartBanner
-        print
-        layout="vertical"
-        eyebrow={t.radarEyebrow}
-        icon={<Activity size={13} />}
-        title={t.radarTitle}
-        blurb={t.radarBlurb}
-        meta={t.radarMeta(radarAxes.length)}
-        chart={<V4PersonalityRadarSVG axes={radarAxes} size={320} />}
-      />,
-    );
-  }
-  if (compare.length > 0) {
-    CHART_AFTER.top_career_3 = (
-      <>
-        {chartCard(
+  const radarCard =
+    radarAxes.length > 0
+      ? chartCard(
+          <V4ChartBanner
+            print
+            layout="vertical"
+            eyebrow={t.radarEyebrow}
+            icon={<Activity size={13} />}
+            title={t.radarTitle}
+            blurb={t.radarBlurb}
+            meta={t.radarMeta(radarAxes.length)}
+            chart={<V4PersonalityRadarSVG axes={radarAxes} size={300} />}
+          />,
+        )
+      : null;
+
+  const compareCard =
+    compare.length > 0
+      ? chartCard(
           <V4ChartBanner
             print
             layout="vertical"
@@ -251,28 +270,13 @@ export const ReportPrintDocument: React.FC<{
             chart={
               /* variant="full" — the 460-wide viewBox. "compact" exists for the
                  dashboard's hero flip card and is too small for print. */
-              <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={360} />
+              <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={300} />
             }
             legend={<V4CompareLegend careers={compare} focalRank={1} />}
           />,
-        )}
-        {/* The career pull quote lands HERE rather than on the chapter divider.
-            It quotes the top match, and it only means something once the reader
-            has met all three and seen them compared — on the divider it arrived
-            before they had read a single role. */}
-        {careerQuote && (
-          <PrintPullQuote
-            quote={careerQuote.quote}
-            attribution={careerQuote.attribution}
-            lang={lang}
-            shareUrl={SHARE_URL}
-          />
-        )}
-      </>
-    );
-  }
-  // The map goes BEFORE the runner-up group rather than after a section, since
-  // it is what introduces "here is everything, not just the top three".
+        )
+      : null;
+
   const mapCard =
     mapPoints.length > 0
       ? chartCard(
@@ -344,10 +348,9 @@ export const ReportPrintDocument: React.FC<{
           const showIntro = !grouped && !seenIntroTypes.has(s.section_type);
           if (showIntro) seenIntroTypes.add(s.section_type);
 
-          // Only the about-you chapter carries its quote on the divider. The
-          // career quote is emitted after the compare chart instead — see
-          // CHART_AFTER.top_career_3.
-          const q = chapter === 'about-you' ? aboutQuote : null;
+          // Both chapters carry their quote on the opener page, alongside the
+          // chapter's headline chart.
+          const q = chapter === 'about-you' ? aboutQuote : careerQuote;
 
           // Major sections open a fresh page; the four personality sections do
           // not (see breaksPage). A section that already follows a chapter
@@ -372,6 +375,7 @@ export const ReportPrintDocument: React.FC<{
                       shareUrl={SHARE_URL}
                     />
                   )}
+                  {chapter === 'about-you' ? radarCard : compareCard}
                 </PrintChapterDivider>
               )}
 
@@ -398,10 +402,13 @@ export const ReportPrintDocument: React.FC<{
                 breakBefore={startsPage}
               />
 
-              {CHART_AFTER[s.section_type]}
             </React.Fragment>
           );
         })}
+
+        {/* Sign-off and the toolkit CTAs. Generated from UNLOCK_LADDER so the
+            printed promise cannot drift from the live one. */}
+        <PrintClosing lang={lang} />
       </div>
     </>
   );
