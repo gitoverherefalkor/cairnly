@@ -222,7 +222,9 @@ export const PrintSection: React.FC<{
   /** Intros are per section TYPE. Only the first row of a run shows one, and
    *  grouped types show theirs on the group header instead. */
   showIntro?: boolean;
-}> = ({ section, lang, first = false, level = 'top', showIntro = true }) => {
+  /** Start this section on a fresh page. */
+  breakBefore?: boolean;
+}> = ({ section, lang, first = false, level = 'top', showIntro = true, breakBefore = false }) => {
   const nested = level === 'nested';
   const isCareer = CAREER_TYPES.includes(section.section_type);
   const score = section.score != null ? Number(section.score) : NaN;
@@ -237,6 +239,36 @@ export const PrintSection: React.FC<{
   // role title never does.
   const sizeType = cleanField(section.company_size_type);
   const TitleTag = nested ? 'h3' : 'h2';
+  // Career sections lead with the chip and slot framing; everything else leads
+  // with its title. See the note on reading order below.
+  const chipFirst = isCareer && !nested;
+
+  // Chip and intro are ONE unit, and the chip never appears without it. Nested
+  // roles take their intro from the group header, so gating on the intro is what
+  // stops them printing a lone square with empty space beside it. Repeating the
+  // chip there would be pointless anyway: it is derived from section_type, so
+  // every role in a group gets the identical glyph the group header shows.
+  const introBlock = intro ? (
+    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+      <PrintChip visualKey={photoKey} sectionType={section.section_type} />
+      <p
+        style={{
+          flex: '1 1 auto',
+          minWidth: 0,
+          fontFamily: FONT_BODY,
+          fontSize: 12,
+          lineHeight: 1.55,
+          color: PALETTE.inkMuted,
+          margin: 0,
+          paddingLeft: 10,
+          borderLeft: `2px solid ${PALETTE.tan}`,
+          maxWidth: '150mm',
+        }}
+      >
+        {intro}
+      </p>
+    </div>
+  ) : null;
 
   return (
     <section
@@ -248,37 +280,48 @@ export const PrintSection: React.FC<{
         // (unlike a bottom border, which can land alone at the top of a page).
         // Nested roles sit inside a group that already has its own frame, so
         // they get a lighter divider.
-        borderTop: first ? 'none' : `1px solid ${nested ? 'rgba(236,228,210,0.75)' : PALETTE.cream}`,
-        paddingTop: first ? 0 : nested ? '5mm' : '7mm',
+        borderTop:
+          first || breakBefore
+            ? 'none'
+            : `1px solid ${nested ? 'rgba(236,228,210,0.75)' : PALETTE.cream}`,
+        paddingTop: first || breakBefore ? 0 : nested ? '5mm' : '7mm',
+        // A section that opens a page needs no rule above it — the page edge is
+        // already the strongest separator there is.
+        ...(breakBefore ? { breakBefore: 'page', pageBreakBefore: 'always' } : {}),
       }}
     >
-      {/* Reading order, top to bottom: the section's hairline, the eyebrow, the
-          title, then the photograph paired with the intro on one line, then
-          clear space before the first sub-heading. The photo sits with the
-          INTRO rather than with the title because the two belong together —
-          both are the section's "here is what this is about" band, and putting
-          a 44px square next to a 21px title left the title looking indented. */}
+      {/* Reading order differs by section kind, on purpose.
+          ABOUT-YOU: eyebrow, title, then chip + intro. The intro describes the
+          section, so it belongs under the section's own name.
+          CAREER: eyebrow, then chip + intro, THEN the role title, size and
+          pills. A career's intro describes the SLOT ("your third match, and the
+          last of the top three"), not the job, so it belongs with the eyebrow
+          above the specific role name rather than under it. */}
       <div className="print-section-head" style={{ marginBottom: intro ? '7mm' : '4mm' }}>
         {eyebrow && (
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 5,
+              gap: 6,
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
-              fontSize: 8,
-              letterSpacing: '0.22em',
+              // Eyebrows now do the work of a sub-section header, so they carry
+              // a size to match rather than sitting at caption scale.
+              fontSize: 9.5,
+              letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: PALETTE.gold,
-              margin: '0 0 5px 0',
+              margin: '0 0 7px 0',
             }}
           >
             {/* Same icon the chat sidebar shows for this section. */}
-            {Icon && <Icon size={13} aria-hidden="true" />}
+            {Icon && <Icon size={15} aria-hidden="true" />}
             {eyebrow}
           </div>
         )}
+
+        {chipFirst && introBlock}
 
         <TitleTag
           style={{
@@ -288,7 +331,7 @@ export const PrintSection: React.FC<{
             lineHeight: 1.18,
             letterSpacing: '-0.02em',
             color: PALETTE.canvasDeep,
-            margin: sizeType ? '0 0 2px 0' : '0 0 8px 0',
+            margin: chipFirst ? '7mm 0 2px 0' : sizeType ? '0 0 2px 0' : '0 0 8px 0',
           }}
         >
           {stripHtml(section.title || '')}
@@ -308,40 +351,14 @@ export const PrintSection: React.FC<{
         )}
 
         {isCareer && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 9px 0' }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 0 0' }}>
             {Number.isFinite(score) && <MatchPill pct={score} />}
             {impact && <AIImpactPill label={impact as AIImpactLevel} />}
             {move && <MovePill level={move} />}
           </div>
         )}
 
-        {/* Chip and intro are ONE unit, and the chip never appears without it.
-            Nested roles take their intro from the group header, so gating the
-            row on the intro is what stops them printing a lone square with
-            empty space beside it. Repeating the chip there would be pointless
-            anyway: it is derived from section_type, so every role in a group
-            gets the identical glyph the group header already shows. */}
-        {intro && (
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <PrintChip visualKey={photoKey} sectionType={section.section_type} />
-            <p
-              style={{
-                flex: '1 1 auto',
-                minWidth: 0,
-                fontFamily: FONT_BODY,
-                fontSize: 12,
-                lineHeight: 1.55,
-                color: PALETTE.inkMuted,
-                margin: 0,
-                paddingLeft: 10,
-                borderLeft: `2px solid ${PALETTE.tan}`,
-                maxWidth: '150mm',
-              }}
-            >
-              {intro}
-            </p>
-          </div>
-        )}
+        {!chipFirst && introBlock}
       </div>
 
       <ReactMarkdown

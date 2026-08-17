@@ -154,3 +154,23 @@ const CAREER_SLOT: Record<string, CareerSlot> = {
 export function careerSlotFor(sectionType: string): CareerSlot | null {
   return CAREER_SLOT[sectionType] ?? null;
 }
+
+// ─── Page breaks ────────────────────────────────────────────────────────────
+// Major sections open a fresh page. The four personality sections deliberately
+// do NOT: they run one to two pages each, and breaking before every one of them
+// would leave a trail of half-empty pages for no gain.
+//
+// Anything NOT in this set and not a personality section still breaks — that is
+// how the trailing sections a report may carry (chat_highlights today, whatever
+// WF adds tomorrow) get their own page without needing to be listed here.
+const NO_BREAK_TYPES = new Set([
+  'approach',
+  'personality_team',
+  'strengths',
+  'development',
+  'values',
+]);
+
+export function breaksPage(sectionType: string): boolean {
+  return !NO_BREAK_TYPES.has(sectionType);
+}

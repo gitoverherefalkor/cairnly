@@ -8,7 +8,7 @@ import { PrintContents } from './PrintContents';
 import { PrintChapterDivider } from './PrintChapterDivider';
 import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
-import { isGroupType } from './printSectionMeta';
+import { isGroupType, breaksPage } from './printSectionMeta';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
 import { stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
@@ -72,10 +72,11 @@ function orderSections(sections: ReportSection[]): ReportSection[] {
 // same as the ones on screen.
 const STRINGS = {
   en: {
-    eyebrow: 'Career Report',
+    coverKicker: 'Career direction report',
     title: (n: string) => (n ? `${n}'s next move` : 'Your next move'),
-    preparedFor:
-      'A personal read on where your experience, temperament and ambitions actually point, and what to do about it next.',
+    coverSubtitle:
+      'Where your strengths, values and the market meet, and the routes that follow from it.',
+    preparedFor: (n: string) => (n ? `Prepared for ${n}` : 'Prepared for you'),
     contents: 'What’s inside',
     radarEyebrow: 'Personality radar',
     radarTitle: 'How you actually work',
@@ -92,10 +93,11 @@ const STRINGS = {
       'The same three roles measured against the working conditions you said matter most.',
   },
   nl: {
-    eyebrow: 'Loopbaanrapport',
+    coverKicker: 'Loopbaanrapport',
     title: (n: string) => (n ? `De volgende stap van ${n}` : 'Jouw volgende stap'),
-    preparedFor:
-      'Een persoonlijke kijk op waar je ervaring, karakter en ambities écht naartoe wijzen, en wat je nu het beste kunt doen.',
+    coverSubtitle:
+      'Waar je sterke punten, je waarden en de markt samenkomen, en welke routes daaruit volgen.',
+    preparedFor: (n: string) => (n ? `Opgesteld voor ${n}` : 'Voor jou opgesteld'),
     contents: 'Wat je hier vindt',
     radarEyebrow: 'Persoonlijkheidsradar',
     radarTitle: 'Hoe je echt werkt',
@@ -157,10 +159,14 @@ function quoteSectionFor(chapter: Chapter, sections: ReportSection[]): ReportSec
 
 export const ReportPrintDocument: React.FC<{
   firstName: string;
+  /** Optional — report-print-data does not select it yet, so the cover falls
+   *  back to the first name alone. Adding `last_name` to that function's select
+   *  is the only change needed for "Prepared for Mirko van der Velde". */
+  lastName?: string | null;
   sections: ReportSection[];
   generatedAt: string | null;
   partner?: PartnerBrand | null;
-}> = ({ firstName, sections, generatedAt, partner }) => {
+}> = ({ firstName, lastName, sections, generatedAt, partner }) => {
   const ordered = orderSections(sections);
   const radarAxes = buildRadarAxes(sections);
   const mapPoints = buildCareerMapPoints(sections);
@@ -305,9 +311,10 @@ export const ReportPrintDocument: React.FC<{
       <PrintSheet cover>
         <PrintCover
           firstName={firstName}
+          lastName={lastName}
           dateLabel={dateLabel}
           partner={partner}
-          poweredBy={poweredBy}
+          lang={lang}
           strings={t}
         />
       </PrintSheet>
@@ -342,6 +349,17 @@ export const ReportPrintDocument: React.FC<{
           // CHART_AFTER.top_career_3.
           const q = chapter === 'about-you' ? aboutQuote : null;
 
+          // Major sections open a fresh page; the four personality sections do
+          // not (see breaksPage). A section that already follows a chapter
+          // divider is skipped, otherwise the divider and its pull quote would
+          // be stranded alone on a page of their own.
+          const startsPage =
+            !opensChapter && !grouped && i > 0 && breaksPage(s.section_type);
+          const groupStartsPage = opensGroup && !opensChapter;
+          const pageBreak = groupStartsPage
+            ? ({ breakBefore: 'page', pageBreakBefore: 'always' } as React.CSSProperties)
+            : undefined;
+
           return (
             <React.Fragment key={s.id}>
               {opensChapter && (
@@ -362,11 +380,13 @@ export const ReportPrintDocument: React.FC<{
               {opensGroup && !placedMap.done && ((placedMap.done = true), mapCard)}
 
               {opensGroup && (
-                <PrintGroupHeader
-                  sectionType={s.section_type}
-                  lang={lang}
-                  count={groupCounts[s.section_type] ?? 1}
-                />
+                <div style={pageBreak}>
+                  <PrintGroupHeader
+                    sectionType={s.section_type}
+                    lang={lang}
+                    count={groupCounts[s.section_type] ?? 1}
+                  />
+                </div>
               )}
 
               <PrintSection
@@ -375,6 +395,7 @@ export const ReportPrintDocument: React.FC<{
                 first={i === 0 || opensChapter || opensGroup}
                 level={grouped ? 'nested' : 'top'}
                 showIntro={showIntro}
+                breakBefore={startsPage}
               />
 
               {CHART_AFTER[s.section_type]}

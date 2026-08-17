@@ -89,15 +89,21 @@ function buildHeaderHtml(partner: PrintData['partner'], docTitle: string): strin
     </div>`;
 }
 
-/** Repeating page footer: the brand line, and the page number. */
+/** Repeating page footer: the brand line, and the page number.
+ *
+ *  Carries a little brand colour rather than a full tinted band. A teal or green
+ *  strip across the foot of all 25 pages is a lot of ink for a document people
+ *  print at home, and it would fight the cream chips and callouts that already
+ *  do the work of breaking the page up. The wordmark in tealDeep, the tagline in
+ *  grey and a tan rule get the same lift for none of the cost. */
 function buildFooterHtml(): string {
   return `
     <div style="width:100%;font-family:Inter,sans-serif;font-size:8px;font-weight:400;
                 color:${FURNITURE_GREY};padding:0 19mm;box-sizing:border-box;">
       <div style="display:flex;align-items:center;justify-content:space-between;
-                  gap:12px;padding-top:5px;border-top:0.5px solid #DCD3C0;">
-        <span>cairnly.io - career path clarity.</span>
-        <span class="pageNumber" style="font-variant-numeric:tabular-nums"></span>
+                  gap:12px;padding-top:5px;border-top:0.5px solid #C9B690;">
+        <span><span style="color:#1F8282;font-weight:600">cairnly.io</span> - career path clarity.</span>
+        <span class="pageNumber" style="color:#1F8282;font-variant-numeric:tabular-nums"></span>
       </div>
     </div>`;
 }
@@ -105,7 +111,10 @@ function buildFooterHtml(): string {
 interface PrintData {
   report: { id: string; title: string | null; updated_at: string | null; created_at: string };
   sections: ReportSection[];
-  profile: { first_name: string; country: string | null };
+  // `last_name` is NOT selected by report-print-data yet, so it is read
+  // defensively: the cover falls back to the first name alone until that
+  // function's select list gains it.
+  profile: { first_name: string; country: string | null; last_name?: string | null };
   partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null;
 }
 
@@ -218,6 +227,7 @@ const ReportPrint: React.FC = () => {
       <style>{PRINT_CSS}</style>
       <ReportPrintDocument
         firstName={data.profile.first_name}
+        lastName={(data.profile as { last_name?: string | null }).last_name ?? null}
         sections={data.sections}
         generatedAt={data.report.updated_at ?? data.report.created_at}
         partner={data.partner}

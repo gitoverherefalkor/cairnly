@@ -120,17 +120,18 @@ export const PrintGroupHeader: React.FC<{
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 5,
+          gap: 6,
           fontFamily: FONT_DISPLAY,
           fontWeight: 700,
-          fontSize: 8,
-          letterSpacing: '0.22em',
+          // Matches the section eyebrows, which now carry sub-header weight.
+          fontSize: 9.5,
+          letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: PALETTE.gold,
-          margin: '0 0 7px 0',
+          margin: '0 0 8px 0',
         }}
       >
-        {Icon && <Icon size={13} aria-hidden="true" />}
+        {Icon && <Icon size={15} aria-hidden="true" />}
         {title}
         <span style={{ color: PALETTE.inkSoft, letterSpacing: '0.06em' }}>· {countLabel}</span>
       </h2>
