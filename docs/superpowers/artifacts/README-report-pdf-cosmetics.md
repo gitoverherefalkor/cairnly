@@ -98,6 +98,10 @@ document. See the note at the top of `printStyles.ts`.
   stylesheet's `@page { size: A4 }` is the single source of truth.
 - **Partner logos must be `data:` URIs.** The CSP blocks storage URLs in
   `img-src`, and it fails *silently* — broken image, successful PDF.
+- **`maxWidth: 'none'` on any image meant to overflow its box.** Tailwind
+  preflight sets `img { max-width: 100% }`, which silently clamped the cover's
+  deliberately 262mm-wide photograph to the 210mm page and left a strip of bare
+  backdrop under it. Same class of bug as preflight zeroing the margins.
 - **Readiness now waits on `img.decode()` for every image, and must keep doing
   so.** This is what makes images safe at all: before it, a photo that had not
   finished decoding simply missed the snapshot. Two consequences. Any image
@@ -112,6 +116,20 @@ document. See the note at the top of `printStyles.ts`.
   there is no fallback face to borrow them from and they render as tofu boxes.
   The deployed PDF had 27 of them. Every such mark is now drawn as inline SVG.
   If you add a symbol to any component that reaches the PDF, draw it.
+
+### The cover is exported in its own pass
+
+Chromium draws the header and footer templates on EVERY page including the
+first, and nothing in a template can test the page number. The cover is
+therefore exported separately with the furniture off, the body with it on, and
+the two are merged with `pdf-lib`. Both passes reuse the same already-rendered
+page, so the second export costs no reload and no second readiness wait.
+
+Measured: Chromium PRESERVES document page numbers across a `pageRanges`
+export, so the cover is unnumbered and the body starts at 2.
+
+Do not "simplify" this back to one pass — the running header printed straight
+across the cover's white band.
 
 ### `displayHeaderFooter` — corrected
 
@@ -228,13 +246,21 @@ starts printing the LLM line with no change here.
 - Page count is 21–23 for a real report, up from 13. Most of that is the cost
   of readable body type and real paragraph spacing; four pages are the new
   front matter (contents + one sheet per chart).
+- **No closing page.** The document stops after the last section. The wrap-up
+  copy already exists and is good (`getDreamJobsWrapUp` in
+  deliver-section/boilerplate.ts, ending "You know where you stand. Now decide
+  where you're going.") and would close the report properly.
+- **`SalaryPill` exists in dashboardV2Shared and print does not use it.**
+  Careers show match / AI impact / move but not the region-calibrated salary
+  estimate the dashboard shows.
 - **The share modal has no deep link.** The pull quote's "change this line"
   points at `cairnly.io/dashboard` rather than opening the modal. A `?share=1`
   param on the dashboard would fix it.
-- **The PDF is ~3MB with photos**, up from ~1.5MB. The five section JPEGs are
-  embedded at full resolution but drawn at 44px. Downsampling them to ~200px
-  would recover most of that, and matters if the report is ever emailed rather
-  than downloaded.
+- **The PDF is ~3.9MB.** Every raster is embedded at full resolution and drawn
+  far smaller: the wordmark is a 771KB PNG drawn at 25mm, the cover photo 388KB,
+  and the five section JPEGs are drawn at 44px. Downsampled variants would take
+  this back under ~1.5MB. Matters if the report is ever emailed rather than
+  downloaded.
 - The cover is still placeholder art pending a design pass. Photography is now
   viable on it (readiness waits for image decode), which it was not before.
 - **Career-map dots overlap and hide each other.** Roles with the same
