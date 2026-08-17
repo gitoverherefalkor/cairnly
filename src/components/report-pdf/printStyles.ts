@@ -8,8 +8,7 @@
 // version used fixed 297mm sheets and packed N sections per sheet; that was
 // measured against a real 20-section report and clipped 7 of 12 pages, one by
 // 1797px. It cannot be fixed by tuning N, because individual career sections
-// are themselves longer than a page. Only the cover and the chart pages are
-// fixed sheets, because each is designed to occupy exactly one page.
+// are themselves longer than a page. Only the cover is a fixed sheet.
 //
 // `@page :first { margin: 0 }` is what lets the cover bleed to the paper edge
 // while every other page keeps real margins. Chromium supports this.
@@ -26,19 +25,29 @@
 //
 // Everything under `.print-flow` therefore restates its own typography from
 // scratch. Do not assume any browser default survives here; preflight got it.
+//
+// SIZES ARE IN px BUT THE TARGET IS POINTS. 96px/inch and 72pt/inch, so
+// 1pt = 1.333px. The body was 12px = 9pt, which is below what any print
+// designer would set for A4 body copy; it now sits at 10pt. The pt equivalent
+// is noted on each rule because "is 13.3px big enough?" is unanswerable and
+// "is 10pt big enough?" is not.
 
 import { PALETTE } from '@/components/dashboard/v2/dashboardV2Shared';
 
-// One place to change the page geometry. The side margin sets the measure
-// (line length): 210mm paper − 2 × 19mm = 172mm of text. Measured against the
-// real report, the 12px body lands at ~95 characters per line — long for a
-// novel, normal for a business report, and the compromise that keeps a
-// 17-page document from becoming a 25-page one. Narrowing the measure to a
-// textbook 75 characters would need 48mm side margins and would add roughly
-// ten pages of white space.
+// One place to change the page geometry.
+//
+// The side margin sets the measure (line length): 210mm paper − 2 × 19mm =
+// 172mm of text, which at 10pt lands near 86 characters per line. That is
+// inside the range a print designer would accept without the 48mm margins a
+// textbook 75 characters would demand.
+//
+// Top and bottom are asymmetric because Chromium draws the repeating header and
+// footer INTO those margin bands (displayHeaderFooter in the renderer). They
+// need to be deep enough to hold a hairline plus a line of 8pt text without
+// crowding the body.
 const MARGIN_SIDE_MM = 19;
-const MARGIN_TOP_MM = 16;
-const MARGIN_BOTTOM_MM = 16;
+const MARGIN_TOP_MM = 21;
+const MARGIN_BOTTOM_MM = 20;
 
 export const PAGE_MARGINS = {
   side: MARGIN_SIDE_MM,
@@ -65,7 +74,7 @@ export const PRINT_CSS = `
     print-color-adjust: exact;
   }
 
-  /* A block designed to occupy exactly one page (cover, charts). */
+  /* A block designed to occupy exactly one page (the cover). */
   .print-sheet {
     position: relative;
     box-sizing: border-box;
@@ -79,24 +88,6 @@ export const PRINT_CSS = `
     width: 210mm;
     height: 297mm;
     overflow: hidden;
-  }
-
-  /* A sheet holding a single chart card, centred vertically.
-     ONE CHART PER SHEET is deliberate. Measured on a real report: the contents
-     list is 606px and the radar card 442px against a 1002px content box, so
-     packing them together overflows — and tuning them to just fit would break
-     on the next report whose career titles wrap to two lines. A bounded cream
-     card with margin above and below reads as composition; the same card
-     shoved to the top of a page with a hole under it does not.
-
-     min-height is 3mm under the true content box (265mm). Asking for the exact
-     height invites a rounding overflow, and an overflow here costs a whole
-     blank page. */
-  .print-sheet--chart {
-    min-height: 262mm;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
   }
 
   /* Keep an atomic element (chart, pill row, heading) on one page. */
@@ -120,61 +111,58 @@ export const PRINT_CSS = `
 
   .print-flow {
     font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    line-height: 1.6;
+    font-size: 13.3px; /* 10pt */
+    line-height: 1.58;
     color: ${PALETTE.ink};
-    /* Chromium hyphenates nothing by default; on a ~95-char measure with long
+    /* Chromium hyphenates nothing by default; on an 86-char measure with long
        role titles ("Executive Education Facilitator"), justified text would
        open rivers. Left-aligned ragged-right is the safer choice. */
     text-align: left;
   }
 
   .print-flow p {
-    margin: 0 0 7px 0;
+    margin: 0 0 8px 0;
     orphans: 3;
     widows: 3;
   }
 
   .print-flow p:last-child { margin-bottom: 0; }
 
-  /* The AI emits its sub-headings as h5 (and occasionally h3/h4). They all mean
-     the same thing — "sub-heading inside a section" — so PrintSection renders
-     every one of them as a real h3, which also keeps the document's outline
-     contiguous (h1 cover → h2 section → h3 sub-heading) instead of skipping
-     two levels. Space above is much larger than space below, so a heading binds
-     visually to the prose it introduces. */
-  .print-flow h3,
-  .print-flow h4,
-  .print-flow h5,
-  .print-flow h6 {
+  /* Sub-headings.
+     Styled by CLASS, not by tag. The model writes its sub-headings as "#####"
+     and PrintSection re-renders every one of them at the right level for its
+     context — h3 under a top-level section, h4 under a role nested inside a
+     group. A tag-based rule would then also catch the nested role TITLE, which
+     is itself an h3. Space above is much larger than space below, so a heading
+     binds visually to the prose it introduces. */
+  .print-flow .print-subhead {
     font-family: 'Poppins', sans-serif;
-    font-size: 12.5px;
+    font-size: 14px; /* 10.5pt */
     font-weight: 700;
     line-height: 1.35;
     letter-spacing: -0.005em;
     color: ${PALETTE.tealDeep};
-    margin: 15px 0 4px 0;
+    margin: 17px 0 5px 0;
     page-break-after: avoid;
     break-after: avoid;
-  }
-
-  /* Sub-heading icons come from iconForSubsection (the same map the chat uses).
-     flex-start + a small nudge optically centres a 13px icon against the
-     cap-height of 12.5px Poppins, which vertical-align cannot do reliably
-     across a page break. */
-  .print-flow h3.print-subhead {
     display: flex;
     align-items: flex-start;
     gap: 6px;
   }
+
+  /* Sub-heading icons come from iconForSubsection (the same map the chat uses).
+     flex-start + a small nudge optically centres the icon against the
+     cap-height of the text, which vertical-align cannot do reliably across a
+     page break. */
   .print-flow .print-subhead-icon {
     flex: 0 0 auto;
-    margin-top: 1.5px;
+    margin-top: 2px;
     color: ${PALETTE.teal};
   }
 
-  /* Never orphan a heading at the foot of a page from the prose it introduces. */
-  .print-flow h2 {
+  /* Never orphan a section or role heading from what follows it. */
+  .print-flow h2,
+  .print-flow h3 {
     page-break-after: avoid;
     break-after: avoid;
   }
@@ -191,14 +179,14 @@ export const PRINT_CSS = `
      glyph — see the note on missing glyphs in PrintSection.tsx. */
   .print-flow ul,
   .print-flow ol {
-    margin: 0 0 7px 0;
-    padding: 0 0 0 15px;
+    margin: 0 0 8px 0;
+    padding: 0 0 0 17px;
     list-style: none;
   }
 
   .print-flow li {
     position: relative;
-    margin: 0 0 3px 0;
+    margin: 0 0 4px 0;
     orphans: 2;
     widows: 2;
   }
@@ -206,8 +194,8 @@ export const PRINT_CSS = `
   .print-flow ul > li::before {
     content: '';
     position: absolute;
-    left: -11px;
-    top: 6.5px;
+    left: -12px;
+    top: 7.5px;
     width: 3.5px;
     height: 3.5px;
     border-radius: 50%;
@@ -219,31 +207,27 @@ export const PRINT_CSS = `
   .print-flow ol > li::before {
     content: counter(print-ol) '.';
     position: absolute;
-    left: -15px;
+    left: -17px;
     top: 0;
     font-weight: 700;
     color: ${PALETTE.teal};
-    font-size: 10px;
+    font-size: 11px;
   }
 
-  /* Content-level rules. The AI occasionally ends a section with a ---, which
-     then sits directly above the section separator and reads as debris: two
-     rules, 6mm apart, meaning the same thing. Mid-section it is a legitimate
-     break, so it is kept but played down; as a section's last child it is
-     dropped entirely. */
+  /* Content-level rules, played down. */
   .print-flow hr {
     border: 0;
     border-top: 1px solid ${PALETTE.tan};
     width: 40px;
-    margin: 12px auto;
+    margin: 13px auto;
     opacity: 0.6;
   }
   .print-flow hr:last-child { display: none; }
 
   /* Some reports put a --- before EVERY subsection. Once sub-headings carry an
-     icon and 15px of space above them, a rule directly above one is pure
-     noise — one page of a real report had four. Hidden when the next sibling
-     is a sub-heading, kept when it genuinely divides prose.
+     icon and real space above them, a rule directly above one is pure noise —
+     one page of a real report had four. Hidden when the next sibling is a
+     sub-heading, kept when it genuinely divides prose.
 
      :has() is Chromium 105+, well under what @sparticuz/chromium ships. If it
      ever were unsupported the selector is simply ignored and the rules come
@@ -257,13 +241,13 @@ export const PRINT_CSS = `
   .print-flow table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0 0 8px 0;
-    font-size: 10px;
+    margin: 0 0 9px 0;
+    font-size: 11.3px; /* 8.5pt */
   }
   .print-flow th,
   .print-flow td {
     border-bottom: 1px solid ${PALETTE.cream};
-    padding: 4px 6px;
+    padding: 5px 7px;
     text-align: left;
     vertical-align: top;
   }
@@ -274,15 +258,24 @@ export const PRINT_CSS = `
     background: ${PALETTE.creamLight};
   }
 
+  /* Contents-page anchors become real internal links in the PDF (Chromium
+     turns same-document hrefs into GoTo annotations). They must not look like
+     web links on paper. */
+  .print-contents-link,
+  .print-contents-link:visited {
+    text-decoration: none;
+    color: inherit;
+  }
+
   /* ─── Callouts ───────────────────────────────────────────────────────────
      Paragraphs the AI marks with a leading ⚠ or ✓. The marker character is
      stripped and redrawn as SVG — see PrintSection.tsx for why. */
   .print-callout {
     display: flex;
-    gap: 7px;
+    gap: 8px;
     align-items: flex-start;
-    margin: 0 0 5px 0;
-    padding: 5px 8px 5px 7px;
+    margin: 0 0 6px 0;
+    padding: 6px 9px 6px 8px;
     border-radius: 3px;
     border-left: 2px solid;
     page-break-inside: avoid;
@@ -296,12 +289,12 @@ export const PRINT_CSS = `
     border-left-color: ${PALETTE.teal};
     background: rgba(39, 161, 161, 0.07);
   }
-  .print-callout-icon { flex: 0 0 auto; margin-top: 1.5px; }
+  .print-callout-icon { flex: 0 0 auto; margin-top: 2px; }
   .print-callout-body { flex: 1 1 auto; min-width: 0; }
 
   /* A marked list item carries its own icon, so suppress the list bullet and
      the indent that positions it. */
-  .print-flow li.print-li--marked { margin-left: -15px; }
+  .print-flow li.print-li--marked { margin-left: -17px; }
   .print-flow li.print-li--marked::before { display: none; }
 
   /* Belt-and-braces against global app chrome reaching the PDF. App.tsx
@@ -318,15 +311,6 @@ export const PRINT_CSS = `
     body { background: #55606a; }
     .print-sheet--cover {
       margin: 24px auto 0;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
-    }
-    .print-sheet--paper {
-      width: 210mm;
-      min-height: 297mm;
-      margin: 24px auto 0;
-      padding: ${MARGIN_TOP_MM}mm ${MARGIN_SIDE_MM}mm ${MARGIN_BOTTOM_MM}mm;
-      box-sizing: border-box;
-      background: #ffffff;
       box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
     .print-screen-paper {

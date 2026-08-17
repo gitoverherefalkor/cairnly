@@ -15,7 +15,8 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { iconForSubsection } from '@/components/chat/subsectionIcons';
-import { iconForSection, eyebrowFor } from './printSectionMeta';
+import { iconForSection, eyebrowFor, anchorFor, photoKeyFor } from './printSectionMeta';
+import { PrintSectionPhoto } from './PrintGroupHeader';
 import { introFor, type PrintLang } from './printIntros';
 
 /** The AI sometimes emits HTML instead of Markdown. Normalise to Markdown so
@@ -37,7 +38,21 @@ export function htmlToMarkdown(text: string): string {
   return r;
 }
 
-const CAREER_TYPES = ['top_career_1', 'top_career_2', 'top_career_3', 'outside_box'];
+// Sections that carry match / AI-impact / move pills.
+//
+// runner_ups was missing from this list, which was simply wrong: 81 of 82
+// runner-up rows in production carry a score, 61 carry a `move`, and 81 discuss
+// AI impact. They were the only ranked roles in the document rendering without
+// their numbers. dream_jobs has no score (MatchPill self-skips on a non-finite
+// value) but does carry move and AI impact.
+const CAREER_TYPES = [
+  'top_career_1',
+  'top_career_2',
+  'top_career_3',
+  'runner_ups',
+  'outside_box',
+  'dream_jobs',
+];
 
 // ─── Marker glyphs ──────────────────────────────────────────────────────────
 // The AI prefixes its risk and fit bullets with ⚠ (U+26A0) and ✓ (U+2713).
@@ -145,90 +160,128 @@ function headingText(children: React.ReactNode): string {
  *  Second, SEMANTICS: the model writes its sub-headings as `#####`, so the
  *  markdown pipeline emitted `<h5>` directly under the section's `<h2>`,
  *  skipping two levels. Everything the model emits at h3/h4/h5 means the same
- *  thing — "sub-heading inside a section" — so they all render as a real `h3`,
- *  giving the document a contiguous h1 → h2 → h3 outline. */
-const PrintSubheading: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const text = headingText(children);
-  const Icon = iconForSubsection(text);
-  return (
-    <h3 className="print-subhead">
-      {Icon && <Icon size={13} className="print-subhead-icon" aria-hidden="true" />}
-      <span>{children}</span>
-    </h3>
-  );
-};
+ *  thing — "sub-heading inside a section" — so they all render at ONE level,
+ *  chosen by where the section itself sits: h3 under a top-level section, h4
+ *  under a role that is nested inside a group. That keeps the outline honest
+ *  about what contains what.
+ *
+ *  Styling comes from `.print-subhead`, never from the tag, precisely because
+ *  the tag now varies. */
+function makeSubheading(tag: 'h3' | 'h4') {
+  const Subheading: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+    const text = headingText(children);
+    const Icon = iconForSubsection(text);
+    return React.createElement(
+      tag,
+      { className: 'print-subhead' },
+      Icon ? <Icon size={14} className="print-subhead-icon" aria-hidden="true" /> : null,
+      <span key="t">{children}</span>,
+    );
+  };
+  return Subheading;
+}
 
-const MD_COMPONENTS = {
+const SubheadingH3 = makeSubheading('h3');
+const SubheadingH4 = makeSubheading('h4');
+
+const MD_COMPONENTS_TOP = {
   p: PrintParagraph,
   li: PrintListItem,
-  h3: PrintSubheading,
-  h4: PrintSubheading,
-  h5: PrintSubheading,
-  h6: PrintSubheading,
+  h3: SubheadingH3,
+  h4: SubheadingH3,
+  h5: SubheadingH3,
+  h6: SubheadingH3,
+} as const;
+
+const MD_COMPONENTS_NESTED = {
+  p: PrintParagraph,
+  li: PrintListItem,
+  h3: SubheadingH4,
+  h4: SubheadingH4,
+  h5: SubheadingH4,
+  h6: SubheadingH4,
 } as const;
 
 export const PrintSection: React.FC<{
   section: ReportSection;
   lang: PrintLang;
   first?: boolean;
-  /** Intros are per section TYPE, but runner-ups and dream jobs arrive as
-   *  several rows of the same type. Only the first row of a run shows it. */
+  /** 'nested' = a role sitting under a group header (runner-ups, outside-the-box,
+   *  dream jobs). Its title steps down to h3 and its sub-headings to h4, and it
+   *  does not repeat the group's intro. */
+  level?: 'top' | 'nested';
+  /** Intros are per section TYPE. Only the first row of a run shows one, and
+   *  grouped types show theirs on the group header instead. */
   showIntro?: boolean;
-}> = ({ section, lang, first = false, showIntro = true }) => {
+}> = ({ section, lang, first = false, level = 'top', showIntro = true }) => {
+  const nested = level === 'nested';
   const isCareer = CAREER_TYPES.includes(section.section_type);
   const score = section.score != null ? Number(section.score) : NaN;
   const impact = isCareer ? extractAIImpact(section.content || '') : null;
   const move = section.metadata?.move as MoveLevel | undefined;
-  const eyebrow = eyebrowFor(section.section_type, lang);
+  const eyebrow = nested ? null : eyebrowFor(section.section_type, lang);
   const Icon = iconForSection(section.section_type);
-  const intro = showIntro ? introFor(section.section_type, lang) : null;
+  const intro = showIntro && !nested ? introFor(section.section_type, lang) : null;
+  const photoKey = nested ? null : photoKeyFor(section.section_type);
+  const TitleTag = nested ? 'h3' : 'h2';
 
   return (
     <section
+      id={nested ? undefined : anchorFor(section.section_type)}
       style={{
-        marginBottom: '9mm',
+        marginBottom: nested ? '7mm' : '9mm',
         // A hairline above each section is the cheapest possible signal that
         // one topic ended and another began, and it survives page breaks
         // (unlike a bottom border, which can land alone at the top of a page).
-        borderTop: first ? 'none' : `1px solid ${PALETTE.cream}`,
-        paddingTop: first ? 0 : '7mm',
+        // Nested roles sit inside a group that already has its own frame, so
+        // they get a lighter divider.
+        borderTop: first ? 'none' : `1px solid ${nested ? 'rgba(236,228,210,0.75)' : PALETTE.cream}`,
+        paddingTop: first ? 0 : nested ? '5mm' : '7mm',
       }}
     >
       <div className="print-section-head">
-        {eyebrow && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 5,
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: 7.5,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: PALETTE.gold,
-              margin: '0 0 5px 0',
-            }}
-          >
-            {/* Same icon the chat sidebar shows for this section. */}
-            {Icon && <Icon size={12} aria-hidden="true" />}
-            {eyebrow}
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: photoKey ? 12 : 0, alignItems: 'flex-start' }}>
+          {/* The dashboard's own section photograph. Career sections have none —
+              the dashboard uses icon glyphs for those. */}
+          {photoKey && <PrintSectionPhoto visualKey={photoKey} />}
 
-        <h2
-          style={{
-            fontFamily: FONT_DISPLAY,
-            fontWeight: 700,
-            fontSize: 19,
-            lineHeight: 1.18,
-            letterSpacing: '-0.02em',
-            color: PALETTE.canvasDeep,
-            margin: '0 0 7px 0',
-          }}
-        >
-          {stripHtml(section.title || '')}
-        </h2>
+          <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+            {eyebrow && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700,
+                  fontSize: 8,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: PALETTE.gold,
+                  margin: '0 0 5px 0',
+                }}
+              >
+                {/* Same icon the chat sidebar shows for this section. */}
+                {Icon && <Icon size={13} aria-hidden="true" />}
+                {eyebrow}
+              </div>
+            )}
+
+            <TitleTag
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: nested ? 17.5 : 21,
+                lineHeight: 1.18,
+                letterSpacing: '-0.02em',
+                color: PALETTE.canvasDeep,
+                margin: '0 0 7px 0',
+              }}
+            >
+              {stripHtml(section.title || '')}
+            </TitleTag>
+          </div>
+        </div>
 
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 9px 0' }}>
@@ -242,11 +295,11 @@ export const PrintSection: React.FC<{
           <p
             style={{
               fontFamily: FONT_BODY,
-              fontSize: 11,
+              fontSize: 12,
               lineHeight: 1.55,
               color: PALETTE.inkMuted,
               margin: '0 0 9px 0',
-              paddingLeft: 9,
+              paddingLeft: 10,
               borderLeft: `2px solid ${PALETTE.tan}`,
               maxWidth: '150mm',
             }}
@@ -256,7 +309,10 @@ export const PrintSection: React.FC<{
         )}
       </div>
 
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={nested ? MD_COMPONENTS_NESTED : MD_COMPONENTS_TOP}
+      >
         {htmlToMarkdown(section.content || '')}
       </ReactMarkdown>
     </section>

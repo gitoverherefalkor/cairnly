@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
-import { iconForSection } from './printSectionMeta';
+import { iconForSection, anchorFor } from './printSectionMeta';
 import type { PrintLang } from './printIntros';
 
 // "What's inside" — the printed equivalent of the chat's report sidebar.
@@ -202,8 +202,15 @@ export const PrintContents: React.FC<{
               const size = row.rank ? cleanField(matches[0].company_size_type) : null;
 
               return (
-                <div
+                // An <a> with a same-document href becomes a real internal PDF
+                // link: Chromium turns it into a GoTo annotation pointing at the
+                // element with that id. Section ids come from anchorFor(), which
+                // PrintSection and PrintGroupHeader use to stamp them, so the
+                // two sides cannot drift.
+                <a
                   key={row.label}
+                  href={`#${anchorFor(row.types[0])}`}
+                  className="print-contents-link"
                   style={{
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -242,7 +249,7 @@ export const PrintContents: React.FC<{
                       </span>
                     )}
                   </span>
-                </div>
+                </a>
               );
             })}
           </div>

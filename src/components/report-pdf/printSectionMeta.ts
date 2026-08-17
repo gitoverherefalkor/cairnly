@@ -75,3 +75,62 @@ const EYEBROW: Record<PrintLang, Record<string, string>> = {
 export function eyebrowFor(sectionType: string, lang: PrintLang): string | null {
   return EYEBROW[lang][sectionType] ?? null;
 }
+
+// ─── Anchors ────────────────────────────────────────────────────────────────
+// Chromium turns same-document hrefs into real GoTo annotations in the PDF, so
+// the contents page can be clickable. Both sides must derive the id the same
+// way, hence one function rather than two string templates.
+export function anchorFor(sectionType: string): string {
+  return `sec-${sectionType}`;
+}
+
+// ─── Multi-row groups ───────────────────────────────────────────────────────
+// runner_ups, outside_box and dream_jobs arrive as SEVERAL rows sharing one
+// section_type, each row a separate role. They need a group heading that owns
+// the intro, otherwise the intro reads as if it belonged to the first role.
+export const GROUP_TYPES = ['runner_ups', 'outside_box', 'dream_jobs'] as const;
+
+export function isGroupType(sectionType: string): boolean {
+  return (GROUP_TYPES as readonly string[]).includes(sectionType);
+}
+
+/** Heading for a multi-row group. Distinct from the eyebrow: the eyebrow labels
+ *  an individual role, this names the set. */
+const GROUP_TITLE: Record<PrintLang, Record<string, string>> = {
+  en: {
+    runner_ups: 'Runner-up careers',
+    outside_box: 'Outside-the-box careers',
+    dream_jobs: 'Your dream jobs',
+  },
+  nl: {
+    runner_ups: 'Runner-up loopbanen',
+    outside_box: 'Outside-the-box loopbanen',
+    dream_jobs: 'Je droombanen',
+  },
+};
+
+export function groupTitleFor(sectionType: string, lang: PrintLang): string | null {
+  return GROUP_TITLE[lang][sectionType] ?? null;
+}
+
+// ─── Section photography ────────────────────────────────────────────────────
+// The dashboard gives each About-You section an atmospheric photo chip
+// (SECTION_VISUALS in dashboardV2Shared). Career sections have none — the
+// dashboard uses icon glyphs for those — so this map covers the five that do.
+//
+// These are same-origin JPEGs, which the CSP permits. They were left out of the
+// first print pass only because readiness gated on document.fonts.ready and
+// not on image decode, so a photo could silently miss the snapshot. ReportPrint
+// now awaits img.decode() for every image, which closes that hole.
+const SECTION_PHOTO_KEY: Record<string, string> = {
+  exec_summary: 'summary',
+  approach: 'approach',
+  personality_team: 'approach',
+  strengths: 'strengths',
+  development: 'development',
+  values: 'values',
+};
+
+export function photoKeyFor(sectionType: string): string | null {
+  return SECTION_PHOTO_KEY[sectionType] ?? null;
+}

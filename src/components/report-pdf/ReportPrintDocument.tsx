@@ -6,7 +6,9 @@ import { PrintSection } from './PrintSection';
 import { PrintCover } from './PrintCover';
 import { PrintContents } from './PrintContents';
 import { PrintChapterDivider } from './PrintChapterDivider';
+import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
+import { isGroupType } from './printSectionMeta';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
 import { stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
@@ -194,12 +196,92 @@ export const ReportPrintDocument: React.FC<{
   const aboutQuote = quoteFor('about-you');
   const careerQuote = quoteFor('careers');
 
+  // ── Charts, placed where the prose earns them ──────────────────────────
+  // Previously each chart had a dedicated front-matter sheet, which meant the
+  // reader met all three before reading a word of what they describe. Each one
+  // now sits directly after the section that gives it meaning:
+  //
+  //   • the personality radar is built from `approach`'s personality_scores,
+  //     so it follows `approach`;
+  //   • the compare radar measures the top three against each other, so it
+  //     follows top_career_3, once all three have been read;
+  //   • the career map plots every role INCLUDING the runner-ups, so it lands
+  //     last, as the bridge from the top three to everything else.
+  //
+  // They stay in the dashboard's cream V4ChartBanner so printed and on-screen
+  // read as the same object, and `print-nobreak` keeps a card off a page seam.
+  const chartCard = (node: React.ReactNode) => (
+    <div className="print-nobreak" style={{ margin: '0 0 9mm 0' }}>
+      {node}
+    </div>
+  );
+
+  const CHART_AFTER: Record<string, React.ReactNode> = {};
+  if (radarAxes.length > 0) {
+    CHART_AFTER.approach = chartCard(
+      <V4ChartBanner
+        print
+        layout="vertical"
+        eyebrow={t.radarEyebrow}
+        icon={<Activity size={13} />}
+        title={t.radarTitle}
+        blurb={t.radarBlurb}
+        meta={t.radarMeta(radarAxes.length)}
+        chart={<V4PersonalityRadarSVG axes={radarAxes} size={320} />}
+      />,
+    );
+  }
+  if (compare.length > 0) {
+    CHART_AFTER.top_career_3 = chartCard(
+      <V4ChartBanner
+        print
+        layout="vertical"
+        eyebrow={t.compareEyebrow}
+        icon={<Scale size={13} />}
+        title={t.compareTitle}
+        blurb={t.compareBlurb}
+        chart={
+          /* variant="full" — the 460-wide viewBox. "compact" exists for the
+             dashboard's hero flip card and is too small for print. */
+          <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={360} />
+        }
+        legend={<V4CompareLegend careers={compare} focalRank={1} />}
+      />,
+    );
+  }
+  // The map goes BEFORE the runner-up group rather than after a section, since
+  // it is what introduces "here is everything, not just the top three".
+  const mapCard =
+    mapPoints.length > 0
+      ? chartCard(
+          <V4ChartBanner
+            print
+            layout="vertical"
+            eyebrow={t.mapEyebrow}
+            icon={<MapIcon size={13} />}
+            title={t.mapTitle}
+            blurb={t.mapBlurb}
+            chart={<V4CareerMapSVG points={mapPoints} />}
+            legend={<V4CareerMapLegend points={mapPoints} print />}
+          />,
+        )
+      : null;
+
   // Chapter dividers are emitted inline, ahead of the first section of each
   // chapter, so they paginate with the flow rather than forcing blank sheets.
   const seenChapters = new Set<Chapter>();
   // Intros are per section TYPE; runner-ups and dream jobs arrive as several
   // rows sharing one type, and repeating the intro above each would be noise.
   const seenIntroTypes = new Set<string>();
+  const seenGroups = new Set<string>();
+  // How many roles each grouped type holds, for the group header's count.
+  const groupCounts = ordered.reduce<Record<string, number>>((acc, s) => {
+    if (isGroupType(s.section_type)) acc[s.section_type] = (acc[s.section_type] ?? 0) + 1;
+    return acc;
+  }, {});
+  // The map is placed once, ahead of whichever grouped set comes first. A
+  // mutable flag rather than state: this is a single synchronous render pass.
+  const placedMap = { done: false };
 
   return (
     <>
@@ -219,65 +301,6 @@ export const ReportPrintDocument: React.FC<{
         <PrintContents sections={ordered} lang={lang} title={t.contents} />
       </PrintSheet>
 
-      {/* ── Charts ────────────────────────────────────────────────
-          One per sheet, each in the dashboard's own cream banner so the printed
-          and on-screen versions read as the same object. See printStyles.ts
-          (.print-sheet--chart) for why they are not packed together. */}
-      {radarAxes.length > 0 && (
-        <PrintSheet chart>
-          <div className="print-nobreak">
-            <V4ChartBanner
-              print
-              layout="vertical"
-              eyebrow={t.radarEyebrow}
-              icon={<Activity size={12} />}
-              title={t.radarTitle}
-              blurb={t.radarBlurb}
-              meta={t.radarMeta(radarAxes.length)}
-              chart={<V4PersonalityRadarSVG axes={radarAxes} size={360} />}
-            />
-          </div>
-        </PrintSheet>
-      )}
-
-      {mapPoints.length > 0 && (
-        <PrintSheet chart>
-          <div className="print-nobreak">
-            <V4ChartBanner
-              print
-              layout="vertical"
-              eyebrow={t.mapEyebrow}
-              icon={<MapIcon size={12} />}
-              title={t.mapTitle}
-              blurb={t.mapBlurb}
-              chart={<V4CareerMapSVG points={mapPoints} />}
-              legend={<V4CareerMapLegend points={mapPoints} print />}
-            />
-          </div>
-        </PrintSheet>
-      )}
-
-      {compare.length > 0 && (
-        <PrintSheet chart>
-          <div className="print-nobreak">
-            <V4ChartBanner
-              print
-              layout="vertical"
-              eyebrow={t.compareEyebrow}
-              icon={<Scale size={12} />}
-              title={t.compareTitle}
-              blurb={t.compareBlurb}
-              chart={
-                /* variant="full" — the 460-wide viewBox. "compact" exists for
-                   the dashboard's hero flip card and is too small for print. */
-                <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={440} />
-              }
-              legend={<V4CompareLegend careers={compare} focalRank={1} />}
-            />
-          </div>
-        </PrintSheet>
-      )}
-
       {/* ── Narrative ─────────────────────────────────────────
           Flows naturally; Chromium paginates it. Deliberately NOT chunked
           into fixed sheets: measured against a real 20-section report, fixed
@@ -288,7 +311,14 @@ export const ReportPrintDocument: React.FC<{
           const opensChapter = !seenChapters.has(chapter);
           if (opensChapter) seenChapters.add(chapter);
 
-          const showIntro = !seenIntroTypes.has(s.section_type);
+          // Grouped types (runner-ups, outside-the-box, dream jobs) arrive as
+          // several rows of one type. The FIRST row triggers a group header that
+          // owns the type's intro; every row renders as a nested role.
+          const grouped = isGroupType(s.section_type);
+          const opensGroup = grouped && !seenGroups.has(s.section_type);
+          if (opensGroup) seenGroups.add(s.section_type);
+
+          const showIntro = !grouped && !seenIntroTypes.has(s.section_type);
           if (showIntro) seenIntroTypes.add(s.section_type);
 
           const q = chapter === 'about-you' ? aboutQuote : careerQuote;
@@ -307,12 +337,28 @@ export const ReportPrintDocument: React.FC<{
                   )}
                 </PrintChapterDivider>
               )}
+
+              {/* The career map introduces the wider field, so it sits just
+                  ahead of the first grouped set (normally the runner-ups). */}
+              {opensGroup && !placedMap.done && ((placedMap.done = true), mapCard)}
+
+              {opensGroup && (
+                <PrintGroupHeader
+                  sectionType={s.section_type}
+                  lang={lang}
+                  count={groupCounts[s.section_type] ?? 1}
+                />
+              )}
+
               <PrintSection
                 section={s}
                 lang={lang}
-                first={i === 0 || opensChapter}
+                first={i === 0 || opensChapter || opensGroup}
+                level={grouped ? 'nested' : 'top'}
                 showIntro={showIntro}
               />
+
+              {CHART_AFTER[s.section_type]}
             </React.Fragment>
           );
         })}

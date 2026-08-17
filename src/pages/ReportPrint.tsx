@@ -21,10 +21,12 @@ declare global {
     // Which SPA build drew this page. Set at module scope so it is readable the
     // moment the chunk evaluates, long before readiness. See printBuild.ts.
     __PRINT_BUILD__?: string;
-    // Read by the Vercel renderer and handed to page.pdf({ footerTemplate }).
-    // Chromium draws this into the @page bottom margin on EVERY page, which is
-    // the only way to repeat page furniture across a naturally-paginated flow.
+    // Read by the Vercel renderer and handed to page.pdf({ headerTemplate,
+    // footerTemplate }). Chromium draws these into the @page margins on EVERY
+    // page, which is the only way to repeat page furniture across a
+    // naturally-paginated flow.
     __PDF_FOOTER_HTML__?: string;
+    __PDF_HEADER_HTML__?: string;
   }
 }
 
@@ -53,28 +55,50 @@ function escapeHtml(s: string): string {
  *  would otherwise do it, and there are no per-sheet DOM nodes to pin a number
  *  to.
  *
- *  IMPORTANT — the cover is NOT exempt. Chromium draws this template on every
+ *  IMPORTANT — the cover is NOT exempt. Chromium draws these templates on every
  *  page including page 1, on top of page content, and `@page :first
  *  { margin: 0 }` does not stop it: verified on a real render, where the cover
- *  came back with a footer over its artwork. The template has no way to test
- *  the page number, so there is no conditional to write.
+ *  came back with a footer over its artwork. The templates have no way to test
+ *  the page number, so there is no conditional to write. That is why the cover
+ *  no longer draws a footer of its own — the brand line would print twice on
+ *  page 1.
  *
- *  The footer is therefore kept to the bare minimum — a page number, and a
- *  partner mark where one exists. Anything more (a "cairnly.io" wordmark was
- *  the first attempt) collides with the cover's own designed footer and prints
- *  the brand twice on page 1. */
-function buildFooterHtml(partner: PrintData['partner']): string {
+ *  Both bands carry a hairline and span the full text measure (19mm to 191mm)
+ *  so they read as page furniture rather than as stray text near an edge. */
+const FURNITURE_GREY = '#98A6AE';
+
+/** Repeating page header. Holds the partner mark on white-labelled reports and
+ *  the document's own title on the right. Space for the logo is reserved on
+ *  every page whether or not a partner exists, so pagination does not shift
+ *  when white-labelling is switched on. */
+function buildHeaderHtml(partner: PrintData['partner'], docTitle: string): string {
   const left = partner?.logo_data_uri
-    ? `<img src="${partner.logo_data_uri}" style="height:9px;width:auto;opacity:0.85" />`
+    ? `<img src="${partner.logo_data_uri}" style="height:11px;width:auto;opacity:0.9" />`
     : partner
       ? escapeHtml(partner.name)
       : '';
   return `
-    <div style="width:100%;font-family:Inter,sans-serif;font-size:7.5px;color:#9AA8B0;
-                padding:0 19mm;display:flex;align-items:center;
-                justify-content:space-between;">
-      <span>${left}</span>
-      <span class="pageNumber" style="font-variant-numeric:tabular-nums"></span>
+    <div style="width:100%;font-family:Inter,sans-serif;font-size:8px;font-weight:400;
+                color:${FURNITURE_GREY};padding:0 19mm;box-sizing:border-box;">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;
+                  gap:12px;min-height:13px;padding-bottom:4px;
+                  border-bottom:0.5px solid #DCD3C0;">
+        <span>${left}</span>
+        <span>${escapeHtml(docTitle)}</span>
+      </div>
+    </div>`;
+}
+
+/** Repeating page footer: the brand line, and the page number. */
+function buildFooterHtml(): string {
+  return `
+    <div style="width:100%;font-family:Inter,sans-serif;font-size:8px;font-weight:400;
+                color:${FURNITURE_GREY};padding:0 19mm;box-sizing:border-box;">
+      <div style="display:flex;align-items:center;justify-content:space-between;
+                  gap:12px;padding-top:5px;border-top:0.5px solid #DCD3C0;">
+        <span>cairnly.io - career path clarity.</span>
+        <span class="pageNumber" style="font-variant-numeric:tabular-nums"></span>
+      </div>
     </div>`;
 }
 
@@ -149,9 +173,28 @@ const ReportPrint: React.FC = () => {
         // Font loading API unavailable — proceed rather than hang the render.
       }
       if (cancelled) return;
+      // Wait for images too. The section photographs are same-origin and
+      // permitted by the CSP, but readiness previously gated only on fonts, so
+      // a photo that had not finished decoding simply missed the snapshot and
+      // left a hole in the page with a successful 200 from the renderer. That
+      // silent-failure mode is the reason the report avoided images at all.
+      // decode() resolves per image; a failure is swallowed deliberately,
+      // because one broken photo must not cost the whole PDF.
+      await Promise.all(
+        Array.from(document.images).map((img) =>
+          img.complete ? Promise.resolve() : img.decode().catch(() => undefined),
+        ),
+      );
+      if (cancelled) return;
+
       const settle = () => {
         if (cancelled) return;
-        window.__PDF_FOOTER_HTML__ = buildFooterHtml(data.partner);
+        const name = data.profile.first_name?.trim();
+        window.__PDF_HEADER_HTML__ = buildHeaderHtml(
+          data.partner,
+          name ? `${name} · Career Report` : 'Career Report',
+        );
+        window.__PDF_FOOTER_HTML__ = buildFooterHtml();
         window.__REPORT_READY__ = true;
       };
       requestAnimationFrame(() => requestAnimationFrame(settle));

@@ -198,18 +198,25 @@ export const PrintCover: React.FC<{
         </div>
       </div>
 
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontSize: 9.5,
-          letterSpacing: '0.04em',
-          color: 'rgba(255,255,255,0.55)',
-          borderTop: '1px solid rgba(255,255,255,0.14)',
-          paddingTop: 10,
-        }}
-      >
-        {partner ? `${poweredBy}  ·  cairnly.io` : 'cairnly.io'}
-      </div>
+      {/* No brand line here any more. Chromium draws the repeating footer over
+          page 1 as well and nothing in the template can suppress it, so a
+          second line of branding on the cover printed it twice. The partner
+          credit still needs a home, and the cover is the only page that has
+          room for it. */}
+      {partner && (
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 9.5,
+            letterSpacing: '0.04em',
+            color: 'rgba(255,255,255,0.55)',
+            borderTop: '1px solid rgba(255,255,255,0.14)',
+            paddingTop: 10,
+          }}
+        >
+          {poweredBy}
+        </div>
+      )}
     </div>
   </div>
 );

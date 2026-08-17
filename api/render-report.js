@@ -28,7 +28,7 @@ const READY_TIMEOUT_MS = 30_000;
 // src/components/report-pdf/printBuild.ts), because most cosmetic work changes
 // the SPA bundle and not this file. Every POST echoes both back, so the render
 // response itself states which two builds produced the PDF.
-const RENDER_VERSION = 'r7-always-footer';
+const RENDER_VERSION = 'r8-header-template';
 
 export default async function handler(req, res) {
   // Unauthenticated on purpose: a build marker is not a secret, and requiring
@@ -98,12 +98,16 @@ export default async function handler(req, res) {
     // render can never again be judged against code that was not deployed.
     const printBuild = await page.evaluate(() => window.__PRINT_BUILD__ || 'unknown');
 
-    // The page builds its own footer markup (it is the only thing that knows
-    // the partner branding). Chromium repeats it into the @page bottom margin
-    // on every page — the only mechanism that works for a naturally-paginated
-    // flow, where there are no per-sheet DOM nodes to pin a footer to.
+    // The page builds its own header/footer markup (it is the only thing that
+    // knows the partner branding and the reader's name). Chromium repeats them
+    // into the @page margins on every page — the only mechanism that works for
+    // a naturally-paginated flow, where there are no per-sheet DOM nodes to pin
+    // page furniture to.
     const footerTemplate = await page.evaluate(
       () => window.__PDF_FOOTER_HTML__ || '<div></div>',
+    );
+    const headerTemplate = await page.evaluate(
+      () => window.__PDF_HEADER_HTML__ || '<div></div>',
     );
 
     // Every report now gets a footer, because every report wants page numbers.
@@ -134,9 +138,7 @@ export default async function handler(req, res) {
       // what lets `@page :first { margin: 0 }` give the cover a full bleed
       // while every other page keeps its margins.
       preferCSSPageSize: true,
-      ...(hasFooter
-        ? { displayHeaderFooter: true, headerTemplate: '<div></div>', footerTemplate }
-        : {}),
+      ...(hasFooter ? { displayHeaderFooter: true, headerTemplate, footerTemplate } : {}),
     });
 
     return res.status(200).json({
