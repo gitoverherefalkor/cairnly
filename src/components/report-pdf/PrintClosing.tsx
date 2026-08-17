@@ -1,6 +1,6 @@
 import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
-import { CareerSlotIcon } from '@/components/dashboard/CareerSlotIcon';
+import { Search, FileText, Mail } from 'lucide-react';
 import { UNLOCK_LADDER, REFERRAL_DISCOUNT_PERCENT } from '@/hooks/useReferralStatus';
 import type { PrintLang } from './printIntros';
 
@@ -210,14 +210,18 @@ export const PrintClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
               }}
             >
               <StepBadge n={step.requiredReferrals} refund={refund} />
-              {/* Tool steps carry the dashboard's own wayfinder glyph so the
-                  printed list and the dashboard toolkit mark them alike. */}
+              {/* An icon for the TOOL, not a career slot. The wayfinder glyphs
+                  mean "career match 1/2/3" and all three read alike, so on a
+                  list of three different tools they said nothing. */}
               {!refund && (
-                <span style={{ flex: '0 0 auto', marginTop: 2 }}>
-                  <CareerSlotIcon
-                    slot={step.featureKey === 'jobs' ? 'primary' : step.featureKey === 'resume' ? 'second' : 'third'}
-                    size={16}
-                  />
+                <span style={{ flex: '0 0 auto', marginTop: 2, color: PALETTE.tealDeep, display: 'inline-flex' }}>
+                  {step.featureKey === 'jobs' ? (
+                    <Search size={14} />
+                  ) : step.featureKey === 'resume' ? (
+                    <FileText size={14} />
+                  ) : (
+                    <Mail size={14} />
+                  )}
                 </span>
               )}
               <span style={{ flex: '1 1 auto', minWidth: 0 }}>
