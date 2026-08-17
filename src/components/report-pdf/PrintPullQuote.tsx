@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReportSection } from '@/hooks/useReportSections';
-import { PALETTE, FONT_DISPLAY, FONT_BODY, pickShareSentences, stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
+import { PALETTE, FONT_DISPLAY, FONT_BODY, pickSectionShareQuotes, stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
 import { SHARE_PROMPT, type PrintLang } from './printIntros';
 
 // The pull quote is the LinkedIn share-card line, printed.
@@ -16,15 +16,19 @@ import { SHARE_PROMPT, type PrintLang } from './printIntros';
 //     time of writing that is most of them.
 //
 //   • PERSONALITY quotes are never persisted at all. The dashboard derives
-//     them at render time with pickShareSentences(). Calling the same helper
-//     here is not a fallback or an approximation: it is the identical code
-//     path the share card uses, so the printed line matches what the user
-//     would see in the modal.
+//     them at render time with pickSectionShareQuotes(). Calling the same
+//     helper here is not a fallback or an approximation: it is the identical
+//     code path the share card uses, so the printed line matches what the
+//     user would see in the modal.
 //
 // So: prefer a stored LLM quote when one exists, otherwise derive. The
 // consequence worth knowing is that this auto-upgrades — if share-quote
 // generation ever moves earlier (report completion rather than modal open),
 // every subsequent PDF starts printing the LLM line with no change here.
+//
+// The derived path is anchored on each section's punchline subsection ("Key
+// Insight", "Why this role fits you"); see SHARE_QUOTE_ANCHORS for why, and
+// for what happens when a report has no matching heading.
 
 /** Pull the best available share line out of a section. */
 export function shareQuoteFor(section: ReportSection): string | null {
@@ -46,17 +50,15 @@ export function shareQuoteFor(section: ReportSection): string | null {
       // Malformed — fall through to the derived path.
     }
   }
-  const derived = pickShareSentences(section.content || '', stripHtml(section.title || ''), 1);
-  return derived[0] ? tidy(derived[0]) : null;
-}
-
-/** Close up the space that HTML stripping leaves in front of punctuation.
- *  Tag boundaries inside a sentence ("…exist yet<strong>:</strong> not just…")
- *  flatten to "…exist yet : not just…", which reads as a typo when the line is
- *  set at 15px in a pull quote. Only affects the derived path — the stored LLM
- *  quotes are already clean prose. */
-function tidy(s: string): string {
-  return s.replace(/\s+([,;:.!?])/g, '$1').replace(/\s{2,}/g, ' ').trim();
+  // Punctuation tidying now happens inside the shared helper, so the dashboard
+  // share card gets it too rather than only the printed page.
+  const derived = pickSectionShareQuotes(
+    section.section_type,
+    section.content || '',
+    stripHtml(section.title || ''),
+    1,
+  );
+  return derived[0] ?? null;
 }
 
 /** Decorative opening quote mark, drawn.

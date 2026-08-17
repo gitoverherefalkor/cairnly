@@ -521,6 +521,62 @@ export function extractSubsectionContent(
   return body.slice(start, end);
 }
 
+// A sentence that opens with a back-reference ("That's the thread running
+// through your career.", "Not just products, but functions and teams.") reads
+// as broken the moment it is lifted out of the body, because the thing it
+// points at isn't on the share card or in the pull quote. Reject those.
+// Dutch entries are limited to unambiguous connectives — "het" and "ze" are
+// left out because they open perfectly good sentences as often as not.
+const BACKREF_OPENERS =
+  /^(?:that|this|these|those|it|they|such|both|either|neither|but|and|so|yet|nor|because|which|instead|also|still|again|meanwhile|however|moreover|therefore|not just|not only|dat|dit|die|deze|maar|dus|daarom|daardoor|daarnaast|bovendien|toch|niet alleen)\b/i;
+
+// Leading list/quote/rule punctuation left over from the model's markdown
+// ("--- A Director at a mid-size firm leads…"). Strip before judging.
+const LEADING_JUNK = /^[\s\-–—*_>#•]+/;
+
+// The sentence splitter cuts on the first '.', which lands inside quoted
+// survey answers and leaves the quote hanging open ("…calling it "the best 3
+// year project of my career."). An odd number of double quotes means exactly
+// that, so drop the candidate and try the next sentence.
+function hasUnbalancedQuotes(s: string): boolean {
+  return ((s.match(/["“”]/g) || []).length % 2) === 1;
+}
+
+// Report prose occasionally cites the survey question it drew on ("the
+// flexible schedule [2g] and family time [1n] you've said is essential").
+// Fine inline, meaningless on a share card.
+const SURVEY_REF = /\[\d+[a-z]\]/i;
+
+// A negation with no positive half ("Your competitive edge is not your
+// financial expertise.") states what the reader isn't and stops; the payoff is
+// in the next sentence. Detected only when the sentence has no comma, since a
+// comma is what carries the completed form ("…isn't creativity, it's structured
+// empathy" / "You are drawn to construction, not maintenance").
+const DANGLING_NEGATION = /\b(?:is|are|was|were)n['’]?t\b|\b(?:is|are|was|were)\s+not\b|['’](?:s|re)\s+not\b/i;
+
+/** Close up the space HTML stripping leaves in front of punctuation. Tag
+ *  boundaries inside a sentence ("…exist yet<strong>:</strong> not just…")
+ *  flatten to "…exist yet : not just…", which reads as a typo in a pull
+ *  quote. */
+function tidyQuote(s: string): string {
+  return s.replace(/\s+([,;:.!?])/g, '$1').replace(/\s{2,}/g, ' ').trim();
+}
+
+/** Some older bodies carry no HTML headings at all: the subsection header is a
+ *  bare short line followed by a blank line. stripHtml collapses that into the
+ *  first sentence ("Je kernkwaliteiten in kaart Je denkt in grote lijnen."), so
+ *  drop leading header-ish lines before flattening. A line ending in sentence
+ *  punctuation is prose, not a header — stop there. */
+function dropPlainTextHeadings(raw: string): string {
+  let out = raw;
+  for (let i = 0; i < 3; i++) {
+    const m = out.match(/^\s*([^\n<]{1,80}?)[ \t]*\n\s*\n/);
+    if (!m || /[.!?:;]$/.test(m[1].trim())) break;
+    out = out.slice(m[0].length);
+  }
+  return out;
+}
+
 // Pick sentences usable as shareable quotes from a section body. Strips a
 // known section-title prefix from the front when provided (otherwise the
 // first "quote" ends up being literally the section heading bleeding into
@@ -531,10 +587,14 @@ export function pickShareSentences(
   sectionTitleToStrip: string | null = null,
   max = 4,
 ): string[] {
-  // Drop <h5> subheaders first — otherwise stripHtml flattens them into the
+  // Drop subheaders first — otherwise stripHtml flattens them into the
   // following sentence (e.g. "Personality and Interaction Style You think…")
-  // and the subheader bleeds into the shareable quote.
-  let text = stripHtml((body || '').replace(/<h5[^>]*>[\s\S]*?<\/h5>/gi, ' '));
+  // and the subheader bleeds into the shareable quote. All six levels, not
+  // just <h5>: report bodies mostly use <h5> today but the career sections
+  // have carried <h3>/<h4> in the past.
+  let text = stripHtml(
+    dropPlainTextHeadings(body || '').replace(/<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/gi, ' '),
+  );
   if (!text) return [];
   if (sectionTitleToStrip) {
     const title = stripHtml(sectionTitleToStrip).trim();
@@ -544,16 +604,92 @@ export function pickShareSentences(
       text = text.replace(re, '');
     }
   }
-  const parts = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const parts = (text.match(/[^.!?]+[.!?]+/g) || [text]).map((p) =>
+    tidyQuote(p.replace(LEADING_JUNK, '')),
+  );
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const raw of parts) {
-    const s = raw.trim().replace(/\s+/g, ' ');
+  for (let i = 0; i < parts.length; i++) {
+    let s = parts[i];
+    // Pull the completing sentence in when this one only says what isn't true.
+    if (DANGLING_NEGATION.test(s) && !s.includes(',') && parts[i + 1]) {
+      const joined = `${s} ${parts[i + 1]}`;
+      if (joined.length <= 220) {
+        s = joined;
+        i++; // consumed, so it doesn't reappear as its own candidate
+      }
+    }
     if (s.length < 30 || s.length > 220) continue;
+    // Must read as the start of a sentence, and must stand on its own.
+    if (!/^[\p{Lu}"'(]/u.test(s)) continue;
+    if (BACKREF_OPENERS.test(s)) continue;
+    if (hasUnbalancedQuotes(s)) continue;
+    if (SURVEY_REF.test(s)) continue;
     if (seen.has(s)) continue;
     seen.add(s);
     out.push(s);
     if (out.length >= max) break;
   }
+  return out;
+}
+
+// Every report section has one subsection that IS its punchline, and it is
+// never the top of the body. Careers open with a neutral "what this role is"
+// overview (quoting that yields "A Technical Writer turns complex software
+// features into clear guides", a dictionary entry nobody would share), while
+// the personality sections put the payoff under "Key Insight". Anchor the
+// quote hunt on that subsection and the derived line stops being an accident.
+//
+// Heading coverage measured against all 28 live reports: "Key Insight" in
+// 27/28 personality sections, "Why this role fits you" in 28/28 top careers,
+// "Why this might be a fit" in 81/84 outside-the-box. Anything unmatched
+// (including a Dutch report whose headings aren't HTML at all) falls through
+// to the whole body, i.e. the previous behaviour.
+// Each entry is a list of heading groups tried in order, so a section whose
+// best subsection yields nothing usable drops to its next-best rather than
+// straight back to the neutral overview at the top of the body.
+const KEY_INSIGHT = ['key insight', 'kerninzicht', 'belangrijkste inzicht'];
+const WHY_FITS = ['why this role fits you', 'why this fits you', 'waarom deze rol bij je past'];
+const ALIGNMENT = ['alignment with your ambitions', 'aansluiting bij je ambities'];
+
+export const SHARE_QUOTE_ANCHORS: Record<string, string[][]> = {
+  strengths: [KEY_INSIGHT],
+  values: [KEY_INSIGHT],
+  approach: [KEY_INSIGHT],
+  personality_team: [KEY_INSIGHT],
+  development: [KEY_INSIGHT],
+  exec_summary: [['professional identity', 'professionele identiteit']],
+  executive_summary: [['professional identity', 'professionele identiteit']],
+  top_career_1: [WHY_FITS, ALIGNMENT],
+  top_career_2: [WHY_FITS, ALIGNMENT],
+  top_career_3: [WHY_FITS, ALIGNMENT],
+  runner_ups: [WHY_FITS, ALIGNMENT],
+  dream_jobs: [WHY_FITS, ALIGNMENT],
+  outside_box: [['why this might be a fit', 'why this could be a fit', 'why this role fits you'], ALIGNMENT],
+};
+
+/** Share-quote candidates for a section, best first. Works down the section's
+ *  anchor subsections, then tops up from the rest of the body so the share
+ *  card's carousel still has alternatives to cycle through. */
+export function pickSectionShareQuotes(
+  sectionType: string,
+  content: string,
+  sectionTitleToStrip: string | null = null,
+  max = 4,
+): string[] {
+  const out: string[] = [];
+  const add = (candidates: string[]) => {
+    for (const s of candidates) {
+      if (out.length >= max) return;
+      if (!out.includes(s)) out.push(s);
+    }
+  };
+  for (const group of SHARE_QUOTE_ANCHORS[sectionType] ?? []) {
+    if (out.length >= max) break;
+    // No title to strip: the anchored slice starts after its own heading.
+    const anchored = extractSubsectionContent(content, group);
+    if (anchored) add(pickShareSentences(anchored, null, max));
+  }
+  if (out.length < max) add(pickShareSentences(content, sectionTitleToStrip, max * 2));
   return out;
 }

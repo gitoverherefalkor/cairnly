@@ -24,7 +24,7 @@ import {
 } from '@/components/assessment/constants';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import {
-  pickShareSentences,
+  pickSectionShareQuotes,
   stripHtml,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
@@ -376,7 +376,8 @@ const Dashboard = () => {
   // Share-card data — two share types, each with its own pickable items.
   //   personalityShares: one entry per personality section the user has
   //     (strengths/values/approach/development/exec-summary), with 3-4
-  //     candidate sentences pulled from the body.
+  //     candidate sentences taken from the section's "Key Insight" subsection
+  //     first and topped up from the rest of the body.
   //   roleShares: one entry per shareable career (top 1/2/3 + outside-box),
   //     with sentences pulled from the "Why this role fits you" subsection
   //     (or "Why this might be a fit" for outside-box).
@@ -393,7 +394,7 @@ const Dashboard = () => {
         const s = reportSections.find((x) => types.includes(x.section_type));
         if (!s) return null;
         const title = stripHtml(s.title || '') || fallbackTitle;
-        const quotes = pickShareSentences(s.content || '', title, 4);
+        const quotes = pickSectionShareQuotes(s.section_type, s.content || '', title, 4);
         if (quotes.length === 0) return null;
         // First <h5> subsection header, shown under the section title on the card.
         const subMatch = (s.content || '').match(/<h5[^>]*>([\s\S]*?)<\/h5>/i);
