@@ -81,6 +81,24 @@ export const PRINT_CSS = `
     overflow: hidden;
   }
 
+  /* A sheet holding a single chart card, centred vertically.
+     ONE CHART PER SHEET is deliberate. Measured on a real report: the contents
+     list is 606px and the radar card 442px against a 1002px content box, so
+     packing them together overflows — and tuning them to just fit would break
+     on the next report whose career titles wrap to two lines. A bounded cream
+     card with margin above and below reads as composition; the same card
+     shoved to the top of a page with a hole under it does not.
+
+     min-height is 3mm under the true content box (265mm). Asking for the exact
+     height invites a rounding overflow, and an overflow here costs a whole
+     blank page. */
+  .print-sheet--chart {
+    min-height: 262mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   /* Keep an atomic element (chart, pill row, heading) on one page. */
   .print-nobreak {
     page-break-inside: avoid;

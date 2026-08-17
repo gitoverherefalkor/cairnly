@@ -214,15 +214,18 @@ export const ReportPrintDocument: React.FC<{
         />
       </PrintSheet>
 
-      {/* ── What's inside + the charts ────────────────────────────
-          Contents and the two profile charts share one sheet. Charts sit in
-          the dashboard's own cream banner so the printed and on-screen
-          versions read as the same object. */}
+      {/* ── What's inside ─────────────────────────────────────── */}
       <PrintSheet>
         <PrintContents sections={ordered} lang={lang} title={t.contents} />
+      </PrintSheet>
 
-        {radarAxes.length > 0 && (
-          <div className="print-nobreak" style={{ marginTop: '8mm' }}>
+      {/* ── Charts ────────────────────────────────────────────────
+          One per sheet, each in the dashboard's own cream banner so the printed
+          and on-screen versions read as the same object. See printStyles.ts
+          (.print-sheet--chart) for why they are not packed together. */}
+      {radarAxes.length > 0 && (
+        <PrintSheet chart>
+          <div className="print-nobreak">
             <V4ChartBanner
               print
               layout="vertical"
@@ -231,14 +234,14 @@ export const ReportPrintDocument: React.FC<{
               title={t.radarTitle}
               blurb={t.radarBlurb}
               meta={t.radarMeta(radarAxes.length)}
-              chart={<V4PersonalityRadarSVG axes={radarAxes} size={300} />}
+              chart={<V4PersonalityRadarSVG axes={radarAxes} size={360} />}
             />
           </div>
-        )}
-      </PrintSheet>
+        </PrintSheet>
+      )}
 
       {mapPoints.length > 0 && (
-        <PrintSheet>
+        <PrintSheet chart>
           <div className="print-nobreak">
             <V4ChartBanner
               print
@@ -255,7 +258,7 @@ export const ReportPrintDocument: React.FC<{
       )}
 
       {compare.length > 0 && (
-        <PrintSheet>
+        <PrintSheet chart>
           <div className="print-nobreak">
             <V4ChartBanner
               print
@@ -267,7 +270,7 @@ export const ReportPrintDocument: React.FC<{
               chart={
                 /* variant="full" — the 460-wide viewBox. "compact" exists for
                    the dashboard's hero flip card and is too small for print. */
-                <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={400} />
+                <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={440} />
               }
               legend={<V4CompareLegend careers={compare} focalRank={1} />}
             />
