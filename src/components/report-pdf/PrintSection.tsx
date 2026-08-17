@@ -239,49 +239,47 @@ export const PrintSection: React.FC<{
         paddingTop: first ? 0 : nested ? '5mm' : '7mm',
       }}
     >
-      <div className="print-section-head">
-        <div style={{ display: 'flex', gap: photoKey ? 12 : 0, alignItems: 'flex-start' }}>
-          {/* The dashboard's own section photograph. Career sections have none —
-              the dashboard uses icon glyphs for those. */}
-          {photoKey && <PrintSectionPhoto visualKey={photoKey} />}
-
-          <div style={{ flex: '1 1 auto', minWidth: 0 }}>
-            {eyebrow && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: 8,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: PALETTE.gold,
-                  margin: '0 0 5px 0',
-                }}
-              >
-                {/* Same icon the chat sidebar shows for this section. */}
-                {Icon && <Icon size={13} aria-hidden="true" />}
-                {eyebrow}
-              </div>
-            )}
-
-            <TitleTag
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: nested ? 17.5 : 21,
-                lineHeight: 1.18,
-                letterSpacing: '-0.02em',
-                color: PALETTE.canvasDeep,
-                margin: '0 0 7px 0',
-              }}
-            >
-              {stripHtml(section.title || '')}
-            </TitleTag>
+      {/* Reading order, top to bottom: the section's hairline, the eyebrow, the
+          title, then the photograph paired with the intro on one line, then
+          clear space before the first sub-heading. The photo sits with the
+          INTRO rather than with the title because the two belong together —
+          both are the section's "here is what this is about" band, and putting
+          a 44px square next to a 21px title left the title looking indented. */}
+      <div className="print-section-head" style={{ marginBottom: intro || photoKey ? '7mm' : 0 }}>
+        {eyebrow && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              fontFamily: FONT_DISPLAY,
+              fontWeight: 700,
+              fontSize: 8,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: PALETTE.gold,
+              margin: '0 0 5px 0',
+            }}
+          >
+            {/* Same icon the chat sidebar shows for this section. */}
+            {Icon && <Icon size={13} aria-hidden="true" />}
+            {eyebrow}
           </div>
-        </div>
+        )}
+
+        <TitleTag
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: nested ? 17.5 : 21,
+            lineHeight: 1.18,
+            letterSpacing: '-0.02em',
+            color: PALETTE.canvasDeep,
+            margin: '0 0 8px 0',
+          }}
+        >
+          {stripHtml(section.title || '')}
+        </TitleTag>
 
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 9px 0' }}>
@@ -291,21 +289,30 @@ export const PrintSection: React.FC<{
           </div>
         )}
 
-        {intro && (
-          <p
-            style={{
-              fontFamily: FONT_BODY,
-              fontSize: 12,
-              lineHeight: 1.55,
-              color: PALETTE.inkMuted,
-              margin: '0 0 9px 0',
-              paddingLeft: 10,
-              borderLeft: `2px solid ${PALETTE.tan}`,
-              maxWidth: '150mm',
-            }}
-          >
-            {intro}
-          </p>
+        {(photoKey || intro) && (
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            {/* The dashboard's own section photograph. Career sections have none —
+                the dashboard uses icon glyphs for those. */}
+            {photoKey && <PrintSectionPhoto visualKey={photoKey} />}
+            {intro && (
+              <p
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  fontFamily: FONT_BODY,
+                  fontSize: 12,
+                  lineHeight: 1.55,
+                  color: PALETTE.inkMuted,
+                  margin: 0,
+                  paddingLeft: 10,
+                  borderLeft: `2px solid ${PALETTE.tan}`,
+                  maxWidth: '150mm',
+                }}
+              >
+                {intro}
+              </p>
+            )}
+          </div>
         )}
       </div>
 

@@ -261,7 +261,7 @@ export const ReportPrintDocument: React.FC<{
             icon={<MapIcon size={13} />}
             title={t.mapTitle}
             blurb={t.mapBlurb}
-            chart={<V4CareerMapSVG points={mapPoints} />}
+            chart={<V4CareerMapSVG points={mapPoints} numbered />}
             legend={<V4CareerMapLegend points={mapPoints} print />}
           />,
         )

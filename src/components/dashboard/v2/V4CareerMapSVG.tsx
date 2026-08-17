@@ -14,6 +14,9 @@ export interface CareerPoint {
 
 interface Props {
   points: CareerPoint[];
+  /** Number the runner-up dots so a printed legend can name them. The dashboard
+   *  leaves this off because hovering a dot already reveals its name. */
+  numbered?: boolean;
 }
 
 const W = 580;
@@ -71,7 +74,15 @@ const RANK_COLOR: Record<1 | 2 | 3, string> = {
   3: '#0d9488', // teal
 };
 
-export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
+/** First number given to a runner-up dot. Derived from how many ranked points
+ *  exist rather than hardcoded to 4, so a report with only two top matches
+ *  still numbers continuously. The SVG and the legend MUST agree, which is why
+ *  this is one function and not two expressions. */
+export function secondaryStartNumber(points: CareerPoint[]): number {
+  return points.filter((p) => p.rank).length + 1;
+}
+
+export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) => {
   const xPx = (x: number) => PAD_L + Math.max(0, Math.min(1, x)) * PLOT_W;
   const yPx = (y: number) => PAD_T + Math.max(0, Math.min(1, y)) * PLOT_H;
 
@@ -205,10 +216,15 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
 
       {/* Secondaries first. Names live in the legend / hover tooltip since
           most points cluster in the same AI-impact bucket and inline labels
-          would collide. Transparent hit-area circle widens the hover target. */}
+          would collide. Transparent hit-area circle widens the hover target.
+          `numbered` puts an index in each dot so a printed legend can name them:
+          on paper there is no pointer, and an unlabelled grey dot is unreadable.
+          The numbering continues from the top-3, and V4CareerMapLegend derives
+          it the same way — see secondaryStartNumber. */}
       {secondaries.map((p, i) => {
         const px = xPx(p.x);
         const py = yPx(p.y);
+        const n = secondaryStartNumber(points) + i;
         return (
           <g
             key={`sec-${i}`}
@@ -216,7 +232,29 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points }) => {
             onMouseLeave={() => setHovered(null)}
             style={{ cursor: 'help' }}
           >
-            <circle cx={px} cy={py} r={8} fill={PALETTE.tan} stroke={PALETTE.inkMuted} strokeWidth={0.6} opacity={0.65} />
+            <circle
+              cx={px}
+              cy={py}
+              r={numbered ? 9.5 : 8}
+              fill={PALETTE.tan}
+              stroke={PALETTE.inkMuted}
+              strokeWidth={0.6}
+              opacity={numbered ? 0.9 : 0.65}
+            />
+            {numbered && (
+              <text
+                x={px}
+                y={py + 3.6}
+                textAnchor="middle"
+                fontFamily="'Poppins', sans-serif"
+                fontSize={10}
+                fontWeight={700}
+                fill={PALETTE.canvasDeep}
+                pointerEvents="none"
+              >
+                {n}
+              </text>
+            )}
             <circle cx={px} cy={py} r={14} fill="transparent" />
           </g>
         );
@@ -335,38 +373,74 @@ export const V4CareerMapLegend: React.FC<{ points: CareerPoint[]; print?: boolea
           </span>
         </div>
       ))}
-      {secondaries.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
-          <span
-            aria-hidden
-            style={{
-              width: 12,
-              height: 12,
-              borderRadius: 9999,
-              background: PALETTE.tan,
-              flexShrink: 0,
-              marginLeft: 3,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 11.5,
-              fontWeight: 600,
-              color: PALETTE.inkMuted,
-              lineHeight: 1.3,
-            }}
-          >
-            {/* "Hover the dots" is a screen affordance and nonsense on paper,
-                where there is no pointer. Print gets the names instead — the
-                page has room for them and the reader has no other way in. */}
-            +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'}
-            {print
-              ? `: ${secondaries.map((p) => p.label).join(', ')}`
-              : ' (hover the dots for names)'}
-          </span>
-        </div>
-      )}
+      {/* On paper there is no pointer, so "hover the dots for names" is
+          nonsense and a lumped list of names cannot be matched to the grey
+          dots it describes. Print therefore gets ONE ROW PER runner-up, each
+          with the same number that is drawn inside its dot. */}
+      {secondaries.length > 0 &&
+        (print ? (
+          secondaries.map((p, i) => (
+            <div key={`sec-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span
+                aria-hidden
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9999,
+                  background: PALETTE.tan,
+                  border: `0.5px solid ${PALETTE.inkMuted}`,
+                  color: PALETTE.canvasDeep,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: "'Poppins', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 10,
+                  flexShrink: 0,
+                }}
+              >
+                {secondaryStartNumber(points) + i}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: PALETTE.inkMuted,
+                  lineHeight: 1.3,
+                }}
+              >
+                {p.label}
+              </span>
+            </div>
+          ))
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
+            <span
+              aria-hidden
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: 9999,
+                background: PALETTE.tan,
+                flexShrink: 0,
+                marginLeft: 3,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11.5,
+                fontWeight: 600,
+                color: PALETTE.inkMuted,
+                lineHeight: 1.3,
+              }}
+            >
+              +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'} (hover the dots
+              for names)
+            </span>
+          </div>
+        ))}
     </div>
   );
 };
