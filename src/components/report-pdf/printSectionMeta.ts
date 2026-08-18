@@ -184,8 +184,16 @@ export function careerSlotFor(sectionType: string): CareerSlot | null {
 // Sections whose chip is a supplied asset rather than a section photo or a
 // career glyph. chat_highlights uses the dashboard's cream chat icon, so the
 // summarised conversation is marked the same way on paper as on screen.
+//
+// This is a print-sized copy with a space-free name. The dashboard's original is
+// `chat section_icon_cream.png` — 1254px and 906KB for a chip drawn at 44px, and
+// a raw space in an `src` is the kind of thing that works until it does not.
+//
+// These assets are COMPLETE TILES: cream ground and tan border are painted into
+// the image. PrintChip must not wrap them in its own tile, or the border prints
+// twice.
 const CHIP_IMAGE: Record<string, string> = {
-  chat_highlights: '/dashboard/chat section_icon_cream.png',
+  chat_highlights: '/report/chat-chip.png',
 };
 
 export function chipImageFor(sectionType: string): string | null {

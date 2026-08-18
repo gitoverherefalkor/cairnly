@@ -38,32 +38,24 @@ export const PrintChip: React.FC<{
   const supplied = sectionType ? chipImageFor(sectionType) : null;
 
   // A supplied chip asset (chat_highlights uses the dashboard's cream chat
-  // icon). Drawn on the same cream tile as the career glyphs so the whole
-  // column of chips reads as one set.
+  // icon). Rendered BARE: these assets already paint their own cream ground and
+  // tan border, so wrapping them in PrintChip's tile printed the border twice.
   if (!v && supplied) {
     return (
-      <span
+      <img
+        src={supplied}
+        alt=""
+        loading="eager"
+        decoding="sync"
         style={{
           flex: '0 0 auto',
           width: size,
           height: size,
           borderRadius: 8,
-          background: PALETTE.cream,
-          border: `1px solid ${PALETTE.tan}`,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
+          maxWidth: 'none',
+          display: 'block',
         }}
-      >
-        <img
-          src={supplied}
-          alt=""
-          loading="eager"
-          decoding="sync"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', maxWidth: 'none', display: 'block' }}
-        />
-      </span>
+      />
     );
   }
 
