@@ -43,3 +43,6 @@ handoff/*.pdf
 # One-off design drops should never be committed at root
 /*.zip
 *.plugin
+
+# TypeScript incremental build output — never source.
+tsconfig*.tsbuildinfo
