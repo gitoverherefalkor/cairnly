@@ -80,10 +80,10 @@ Wired but never rendered against a real partner, so assume nothing works:
 
 ## Open, unrelated to the variants
 
-- WF3's `Set Outside Box Prompt` has a stray `## How AI will impact this role`
-  directly under `**AI Impact on this role**`, so outside-the-box sections print
-  the heading twice. One-line deletion, needs per-workflow approval. WF4 is
-  fine — it uses `##` as its only convention.
+- WF3's duplicate outside-the-box heading is FIXED (2026-08-18) — the stray
+  `## How AI will impact this role` line is gone from `Set Outside Box Prompt`.
+  Reports generated before that date still carry it; they would need
+  regenerating. WF4 was never affected: it uses `##` as its only convention.
 - The cover's cairn glyph is a 321px PNG drawn at 106mm, so it is soft in print.
   Ask Design for the vector.
 - `SalaryPill` is deliberately not used: `metadata.salary` exists on 2 of 28
