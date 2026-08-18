@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -9,12 +10,13 @@ interface AuthToggleProps {
 }
 
 const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
+  const { t } = useTranslation('auth');
   if (isLogin) {
     // On login page, link to payment flow instead of signup
     return (
       <div className="mt-6 text-center">
         <p className="text-sm" style={{ color: '#4B6373' }}>
-          No account yet?
+          {t('page.noAccountYet')}
         </p>
         <Link to="/payment">
           <Button
@@ -22,7 +24,7 @@ const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
             className="p-0 h-auto font-semibold"
             style={{ color: '#1F8282' }}
           >
-            Get your access code first
+            {t('page.getAccessCodeFirst')}
           </Button>
         </Link>
       </div>
@@ -33,7 +35,7 @@ const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
   return (
     <div className="mt-6 text-center">
       <p className="text-sm" style={{ color: '#4B6373' }}>
-        Already have an account?
+        {t('page.alreadyHaveAccount')}
       </p>
       <Button
         variant="link"
@@ -41,7 +43,7 @@ const AuthToggle = ({ isLogin, onToggle }: AuthToggleProps) => {
         className="p-0 h-auto font-semibold"
         style={{ color: '#1F8282' }}
       >
-        Sign in here
+        {t('page.signInHere')}
       </Button>
     </div>
   );

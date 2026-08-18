@@ -1,4 +1,5 @@
 import React from 'react';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface AuthShellProps {
   /** Gold eyebrow above the title (uppercase, tracked). Optional. */
@@ -31,7 +32,16 @@ const AuthShell: React.FC<AuthShellProps> = ({
   width = 'narrow',
 }) => {
   return (
-    <div className="min-h-screen survey-bg">
+    <div className="min-h-screen survey-bg relative">
+      {/* Language control, above the form rather than below it: someone who
+          lands in the wrong language (a Dutch candidate following their
+          agency's link) has to be able to fix it before reading the form, not
+          after struggling through it. Partner links carry ?lang=nl so this is
+          the fallback, not the main route. */}
+      <div className="absolute top-4 right-4 z-10">
+        <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
+      </div>
+
       <div className="min-h-screen flex flex-col items-center px-6 pt-14 pb-12">
         {/* Cairnly wordmark (inverted for dark bg) */}
         <a href="/" className="inline-flex mb-7">

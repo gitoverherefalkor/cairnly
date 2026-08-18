@@ -34,12 +34,19 @@ i18n
       // fall back to the browser's language ('navigator') — a Dutch-locale
       // browser was silently forcing the whole UI into Dutch even for users
       // (e.g. expats in NL) who want English. Now the language comes only from:
-      //   1. domainDetector — a real .nl/.de site forces that language
+      //   1. querystring (?lang=nl) — an explicit choice baked into a link we
+      //      handed out, e.g. the partner links a Dutch agency sends its
+      //      candidates. First in the order so such a link always opens in the
+      //      language the sender intended, even on a device that once picked
+      //      English. Still an explicit choice, not a guess about the browser.
+      //   2. domainDetector — a real .nl/.de site forces that language
       //      (currently a no-op; we're on cairnly.io, no such domain exists yet)
-      //   2. localStorage — the user's saved flag choice
-      // If neither is set, we fall through to fallbackLng ('en'). So the app is
-      // English by default and Dutch ONLY when someone actively picks the flag.
-      order: ['domainDetector', 'localStorage'],
+      //   3. localStorage — the user's saved flag choice
+      // If none is set, we fall through to fallbackLng ('en'). So the app is
+      // English by default and Dutch ONLY when someone actively picks the flag
+      // or follows a link that names the language.
+      order: ['querystring', 'domainDetector', 'localStorage'],
+      lookupQuerystring: 'lang',
       lookupLocalStorage: 'cairnly_language',
       caches: ['localStorage'],
     },

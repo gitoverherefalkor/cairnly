@@ -6,8 +6,10 @@ import AuthShell from '@/components/auth/AuthShell';
 import AuthForm from '@/components/auth/AuthForm';
 import AuthToggle from '@/components/auth/AuthToggle';
 import AuthNavigation from '@/components/auth/AuthNavigation';
+import { useTranslation } from 'react-i18next';
 
 const Auth = () => {
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
@@ -43,13 +45,9 @@ const Auth = () => {
 
   return (
     <AuthShell
-      eyebrow={isLogin ? 'Welcome back' : 'Almost there'}
-      title={isLogin ? 'Sign in to your account' : 'Create your account'}
-      subtitle={
-        !isLogin
-          ? 'Your personal info stays secure in the survey, and you can easily find your results later.'
-          : undefined
-      }
+      eyebrow={t(isLogin ? 'page.signInEyebrow' : 'page.signUpEyebrow')}
+      title={t(isLogin ? 'page.signInTitle' : 'page.signUpTitle')}
+      subtitle={!isLogin ? t('page.signUpSubtitle') : undefined}
       width={isLogin ? 'narrow' : 'wide'}
       footer={<AuthNavigation />}
     >

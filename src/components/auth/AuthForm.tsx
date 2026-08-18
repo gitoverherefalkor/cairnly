@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import SocialAuthButtons from './SocialAuthButtons';
 import EmailPasswordForm from './EmailPasswordForm';
@@ -30,6 +31,7 @@ const getLastAuthMethod = (): string | null => {
 };
 
 const AuthForm = ({ isLogin }: AuthFormProps) => {
+  const { t } = useTranslation('auth');
   const [error, setError] = useState('');
   const hasPaymentData = useMemo(() => hasPurchaseData(), []);
   const lastAuthMethod = useMemo(() => getLastAuthMethod(), []);
@@ -71,7 +73,7 @@ const AuthForm = ({ isLogin }: AuthFormProps) => {
       >
         <div className="flex-1 h-px" style={{ background: 'rgba(75,99,115,0.18)' }} />
         <span className="px-1 flex items-center gap-1 whitespace-nowrap font-medium">
-          {isLogin ? 'Or sign in with email' : 'Or continue with email'}
+          {t(isLogin ? 'page.orSignInWithEmail' : 'page.orContinueWithEmail')}
           <ChevronDown
             className={`h-3.5 w-3.5 transition-transform duration-200 ${showEmailForm ? 'rotate-180' : ''}`}
           />
