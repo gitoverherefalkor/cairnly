@@ -1564,16 +1564,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         );
                       })()}
                     </div>
-                    <textarea
+                    <SentimentReasonTextarea
                       value={entry.reason}
-                      onChange={(e) => updateHappiness(index, 'reason', e.target.value)}
-                      placeholder="e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
-                      rows={3}
-                      className={`w-full rounded-md border bg-white px-3 py-2 text-sm leading-relaxed placeholder:text-gray-300 resize-y ${
-                        showValidation && (entry.reason || '').trim().length < CAREER_HAPPINESS_MIN_REASON_CHARS
-                          ? 'border-red-300 focus:border-red-400'
-                          : 'border-gray-300'
-                      }`}
+                      onChange={(v) => updateHappiness(index, 'reason', v)}
+                      invalid={
+                        showValidation &&
+                        (entry.reason || '').trim().length < CAREER_HAPPINESS_MIN_REASON_CHARS
+                      }
                     />
                   </div>
                 </div>
@@ -2158,6 +2155,57 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         </div>
       );
   }
+};
+
+// One role's "Why this score?" textarea in the sentiment-log question. Its own
+// component (not inlined in the .map() above) so each row can call the voice
+// hook — same mic pattern as LongTextWithVoice below, sized for this smaller box.
+const SentimentReasonTextarea: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  invalid: boolean;
+}> = ({ value, onChange, invalid }) => {
+  const { isListening, isCleaning, isSupported, toggleListening } = useSpeechRecognition({
+    onTranscript: onChange,
+    existingText: value || '',
+    cleanOnStop: true,
+  });
+
+  return (
+    <div className="relative">
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
+        rows={3}
+        disabled={isCleaning}
+        className={`w-full rounded-md border bg-white px-3 py-2 pr-11 text-sm leading-relaxed placeholder:text-gray-300 resize-y disabled:opacity-70 ${
+          invalid ? 'border-red-300 focus:border-red-400' : 'border-gray-300'
+        }`}
+      />
+      {isSupported && (
+        <button
+          type="button"
+          onClick={toggleListening}
+          disabled={isCleaning}
+          title={isListening ? 'Stop recording' : 'Voice input'}
+          className={`absolute bottom-2 right-2 flex items-center justify-center w-8 h-8 rounded-md transition-colors ${
+            isListening
+              ? 'text-red-500 bg-red-50 animate-mic-pulse'
+              : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
+          } ${isCleaning ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {isCleaning ? <Loader2 size={15} className="animate-spin" /> : <Mic size={15} />}
+        </button>
+      )}
+      {isCleaning && (
+        <p className="text-xs text-atlas-teal mt-1.5 flex items-center gap-1.5">
+          <Loader2 size={12} className="animate-spin" />
+          Tidying up your transcript...
+        </p>
+      )}
+    </div>
+  );
 };
 
 // Separate component for long_text so the voice hook is called unconditionally
