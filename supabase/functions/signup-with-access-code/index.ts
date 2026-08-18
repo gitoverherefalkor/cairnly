@@ -211,6 +211,32 @@ serve(async (req) => {
       });
     }
 
+    // Carry the batch's partner onto the candidate's profile. profiles.partner_id
+    // is what report-print-data and render-report-pdf read to brand the PDF, and
+    // report_pdfs.partner_id caches against it. That schema and both consumers
+    // already exist; this write is the link that was missing between the code a
+    // partner bought and the logo on the report their candidate receives.
+    //
+    // Non-fatal by design: a candidate who is in but unbranded is a far better
+    // outcome than a signup that fails over a logo. The profile row is created
+    // by the handle_new_user trigger, which runs inside admin.createUser, so it
+    // exists by now; the returned row count tells us if that ever stops holding.
+    if (codeRecord.partner_id) {
+      const { data: stamped, error: partnerError } = await supabase
+        .from('profiles')
+        .update({ partner_id: codeRecord.partner_id })
+        .eq('id', newUser.user!.id)
+        .select('id');
+
+      if (partnerError) {
+        console.error('Failed to stamp partner on profile:', partnerError);
+      } else if (!stamped || stamped.length === 0) {
+        console.error('Partner stamp matched no profile row', { userId: newUser.user?.id });
+      } else {
+        console.log('Partner stamped on profile', { partnerId: codeRecord.partner_id });
+      }
+    }
+
     return new Response(JSON.stringify({
       success: true,
       userId: newUser.user?.id
