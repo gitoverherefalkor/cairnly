@@ -92,7 +92,9 @@ const STRINGS = {
     compareTitle: 'How your top three stack up',
     compareBlurb:
       'The same three roles measured against the working conditions you said matter most.',
-    chartMore: 'For further details regarding this graph, consult your dashboard.',
+    chartMoreBefore: 'For further details regarding this graph, consult your ',
+    chartMoreLink: 'dashboard',
+    chartMoreAfter: '.',
   },
   nl: {
     coverKicker: 'Loopbaanrapport',
@@ -114,7 +116,9 @@ const STRINGS = {
     compareTitle: 'Hoe je top drie zich verhoudt',
     compareBlurb:
       'Dezelfde drie rollen, afgezet tegen de werkomstandigheden die jij het belangrijkst vindt.',
-    chartMore: 'Bekijk je dashboard voor meer details bij deze grafiek.',
+    chartMoreBefore: 'Bekijk je ',
+    chartMoreLink: 'dashboard',
+    chartMoreAfter: ' voor meer details bij deze grafiek.',
   },
 } as const;
 
@@ -146,6 +150,9 @@ export interface PartnerBrand {
 /** Where the reader goes to change the share line. There is no deep link to the
  *  share modal yet, so this points at the dashboard that hosts it. */
 const SHARE_URL = 'cairnly.io/dashboard';
+
+/** Real href for every dashboard link in the document. */
+export const DASHBOARD_URL = 'https://www.cairnly.io/dashboard';
 
 /** Pick the section a chapter's pull quote should come from.
  *
@@ -226,6 +233,10 @@ export const ReportPrintDocument: React.FC<{
   const chartCard = (node: React.ReactNode) => (
     <div className="print-nobreak" style={{ margin: '0 0 4mm 0' }}>
       {node}
+      {/* Only the word "dashboard" is the link, and it is a REAL one: an
+          external href becomes a URI action annotation, which unlike the
+          contents page's internal links survives the two-pass merge untouched
+          (no page reference to remap). */}
       <p
         style={{
           fontFamily: FONT_BODY,
@@ -233,10 +244,16 @@ export const ReportPrintDocument: React.FC<{
           lineHeight: 1.4,
           color: PALETTE.inkSoft,
           margin: '5px 0 0 0',
-          textDecoration: 'underline',
         }}
       >
-        {t.chartMore}
+        {t.chartMoreBefore}
+        <a
+          href={DASHBOARD_URL}
+          style={{ color: PALETTE.tealDeep, textDecoration: 'underline', fontWeight: 600 }}
+        >
+          {t.chartMoreLink}
+        </a>
+        {t.chartMoreAfter}
       </p>
     </div>
   );
@@ -356,8 +373,16 @@ export const ReportPrintDocument: React.FC<{
           // not (see breaksPage). A section that already follows a chapter
           // divider is skipped, otherwise the divider and its pull quote would
           // be stranded alone on a page of their own.
+          // Outside-the-box roles run consistently under a page each, so
+          // letting them flow leaves every one of them straddling a page break
+          // for no reason. One role per page is both neater and, for a set whose
+          // whole point is that each idea is unexpected, easier to read as
+          // separate ideas. Runner-ups and dream jobs are longer and less
+          // uniform, so they keep flowing.
+          const perPageRole = grouped && s.section_type === 'outside_box' && !opensGroup;
+
           const startsPage =
-            !opensChapter && !grouped && i > 0 && breaksPage(s.section_type);
+            (!opensChapter && !grouped && i > 0 && breaksPage(s.section_type)) || perPageRole;
           const groupStartsPage = opensGroup && !opensChapter;
           const pageBreak = groupStartsPage
             ? ({ breakBefore: 'page', pageBreakBefore: 'always' } as React.CSSProperties)
@@ -375,7 +400,11 @@ export const ReportPrintDocument: React.FC<{
                       shareUrl={SHARE_URL}
                     />
                   )}
-                  {chapter === 'about-you' ? radarCard : compareCard}
+                  {/* The quote and the chart are separate objects and were
+                      butting together on the opener page. */}
+                  <div style={{ marginTop: '7mm' }}>
+                    {chapter === 'about-you' ? radarCard : compareCard}
+                  </div>
                 </PrintChapterDivider>
               )}
 

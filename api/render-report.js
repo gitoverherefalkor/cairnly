@@ -10,7 +10,7 @@
 
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFDict, PDFArray } from 'pdf-lib';
 
 const READY_TIMEOUT_MS = 30_000;
 
@@ -29,7 +29,83 @@ const READY_TIMEOUT_MS = 30_000;
 // src/components/report-pdf/printBuild.ts), because most cosmetic work changes
 // the SPA bundle and not this file. Every POST echoes both back, so the render
 // response itself states which two builds produced the PDF.
-const RENDER_VERSION = 'r9-clean-cover-merge';
+const RENDER_VERSION = 'r10-relink-dests';
+
+
+/** Repair the contents page's internal links after the two-pass merge.
+ *
+ *  Chromium writes same-document links as NAMED destinations — the annotation
+ *  carries `/Dest /sec-exec_summary` and the catalog carries a `/Names /Dests`
+ *  tree mapping that name to a page. pdf-lib's copyPages copies pages and their
+ *  annotations but NOT the document-level name tree, so after the merge every
+ *  link pointed at a name that no longer resolved. The links were all present
+ *  and all dead: 11 of them, silently.
+ *
+ *  Rather than rebuild the name tree in the merged document, each link is
+ *  rewritten to an EXPLICIT destination — `[pageRef, /XYZ, null, null, null]`
+ *  — which needs no catalog entry and cannot be dropped by a later copy.
+ *
+ *  `offset` is how many pages precede the body in the merged file (the cover).
+ */
+function relinkNamedDests(merged, bodySrc, offset) {
+  if (!bodySrc) return;
+
+  // name -> page index within the body document
+  const nameToIndex = new Map();
+  const srcPageRefs = bodySrc.getPages().map((p) => p.ref.toString());
+
+  const walk = (node) => {
+    if (!node) return;
+    const names = node.lookupMaybe(PDFName.of('Names'), PDFArray);
+    if (names) {
+      for (let i = 0; i + 1 < names.size(); i += 2) {
+        const key = names.lookup(i);
+        const value = names.lookup(i + 1);
+        // A destination is either the array itself or a dict with /D.
+        const arr =
+          value instanceof PDFArray ? value : value?.lookupMaybe?.(PDFName.of('D'), PDFArray);
+        if (!arr || arr.size() === 0) continue;
+        const pageRef = arr.get(0)?.toString();
+        const idx = srcPageRefs.indexOf(pageRef);
+        if (idx !== -1) nameToIndex.set(key.decodeText ? key.decodeText() : String(key), idx);
+      }
+    }
+    const kids = node.lookupMaybe(PDFName.of('Kids'), PDFArray);
+    if (kids) for (let i = 0; i < kids.size(); i++) walk(kids.lookup(i, PDFDict));
+  };
+
+  const catalogNames = bodySrc.catalog.lookupMaybe(PDFName.of('Names'), PDFDict);
+  walk(catalogNames?.lookupMaybe(PDFName.of('Dests'), PDFDict));
+  if (nameToIndex.size === 0) return;
+
+  const mergedPages = merged.getPages();
+  for (const pg of mergedPages) {
+    const annots = pg.node.lookupMaybe(PDFName.of('Annots'), PDFArray);
+    if (!annots) continue;
+    for (let i = 0; i < annots.size(); i++) {
+      const a = annots.lookup(i, PDFDict);
+      if (!a) continue;
+      if (a.get(PDFName.of('Subtype'))?.toString() !== '/Link') continue;
+      const dest = a.get(PDFName.of('Dest'));
+      if (!dest) continue;
+      // Named destinations arrive as /Name or as a (string). Normalise both.
+      const key = dest.decodeText
+        ? dest.decodeText()
+        : dest.asString
+          ? dest.asString().replace(/^\//, '')
+          : null;
+      if (key === null) continue;
+      const idx = nameToIndex.get(key) ?? nameToIndex.get('/' + key);
+      if (idx === undefined) continue;
+      const targetPage = mergedPages[idx + offset];
+      if (!targetPage) continue;
+      a.set(
+        PDFName.of('Dest'),
+        merged.context.obj([targetPage.ref, PDFName.of('XYZ'), null, null, null]),
+      );
+    }
+  }
+}
 
 export default async function handler(req, res) {
   // Unauthenticated on purpose: a build marker is not a secret, and requiring
@@ -167,11 +243,14 @@ export default async function handler(req, res) {
         page.pdf({ ...baseOptions, pageRanges: '2-', displayHeaderFooter: true, headerTemplate, footerTemplate }),
       ]);
       const merged = await PDFDocument.create();
+      let bodySrc = null;
       for (const part of [coverPdf, bodyPdf]) {
         const src = await PDFDocument.load(part);
         const pages = await merged.copyPages(src, src.getPageIndices());
+        if (part === bodyPdf) bodySrc = src;
         pages.forEach((p) => merged.addPage(p));
       }
+      relinkNamedDests(merged, bodySrc, merged.getPageCount() - bodySrc.getPageCount());
       pdf = await merged.save();
     } else {
       pdf = await page.pdf(baseOptions);

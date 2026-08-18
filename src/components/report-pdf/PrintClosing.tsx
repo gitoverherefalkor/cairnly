@@ -2,6 +2,7 @@ import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { Search, FileText, Mail } from 'lucide-react';
 import { UNLOCK_LADDER, REFERRAL_DISCOUNT_PERCENT } from '@/hooks/useReferralStatus';
+import { DASHBOARD_URL } from './ReportPrintDocument';
 import type { PrintLang } from './printIntros';
 
 // Closing page: the report's sign-off, then what else the account can do.
@@ -28,7 +29,8 @@ const STRINGS: Record<
     toolkitHeading: string;
     toolkitBlurb: (pct: number) => string;
     refundNote: string;
-    where: string;
+    whereBefore: string;
+    whereLink: string;
     stepLabel: (n: number) => string;
   }
 > = {
@@ -43,7 +45,8 @@ const STRINGS: Record<
       `Your assessment comes with a toolkit that opens up as you invite people. Every friend who joins gets ${pct}% off, and each one you bring advances you one step:`,
     refundNote:
       'Six friends and the assessment has cost you nothing. Refunds go back to the card you paid with.',
-    where: 'Everything lives on your dashboard at cairnly.io/dashboard',
+    whereBefore: 'Everything lives on your dashboard at ',
+    whereLink: 'cairnly.io/dashboard',
     stepLabel: (n) => `${n} ${n === 1 ? 'friend' : 'friends'}`,
   },
   nl: {
@@ -57,7 +60,8 @@ const STRINGS: Record<
       `Bij je assessment hoort een toolkit die opengaat als je mensen uitnodigt. Elke vriend die meedoet krijgt ${pct}% korting, en elke aanmelding brengt jou een stap verder:`,
     refundNote:
       'Bij zes aanmeldingen heeft het assessment je niets gekost. Terugbetalingen gaan naar de kaart waarmee je hebt betaald.',
-    where: 'Je vindt alles op je dashboard: cairnly.io/dashboard',
+    whereBefore: 'Je vindt alles op je dashboard: ',
+    whereLink: 'cairnly.io/dashboard',
     stepLabel: (n) => `${n} ${n === 1 ? 'aanmelding' : 'aanmeldingen'}`,
   },
 };
@@ -280,11 +284,19 @@ export const PrintClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
             fontFamily: FONT_DISPLAY,
             fontWeight: 700,
             fontSize: 11,
-            color: PALETTE.tealDeep,
+            color: PALETTE.canvasDeep,
             margin: '3mm 0 0 0',
           }}
         >
-          {t.where}
+          {t.whereBefore}
+          {/* A real href — this is the one action the closing page asks for, so
+              it should be clickable rather than a printed address. */}
+          <a
+            href={DASHBOARD_URL}
+            style={{ color: PALETTE.tealDeep, textDecoration: 'underline' }}
+          >
+            {t.whereLink}
+          </a>
         </p>
       </div>
     </div>

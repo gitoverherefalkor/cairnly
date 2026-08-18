@@ -38,7 +38,10 @@ export type PrintSectionType =
   | 'top_career_3'
   | 'runner_ups'
   | 'outside_box'
-  | 'dream_jobs';
+  | 'dream_jobs'
+  // Written by WF6 from the coach conversation. Not in SECTION_ORDER, so it is
+  // appended after the career chapter — which is where it belongs anyway.
+  | 'chat_highlights';
 
 export type PrintLang = 'en' | 'nl';
 
@@ -66,6 +69,8 @@ const EN: Partial<Record<PrintSectionType, string>> = {
     'Sometimes the best paths are not the obvious ones. These roles fit who you are but probably were not on your radar.',
   dream_jobs:
     'You told us your dream job without worrying about constraints, and that was deliberate. Here we put the constraints back in: not to talk you out of it, but to show what getting there would really take, and what a version of it might look like that fits the experience you already have.',
+  chat_highlights:
+    'What came out of talking it through with your coach. These are the points where something shifted: a pattern you named, a correction you made, or a conclusion the two of you reached together. Your own words shaped the report you have just read.',
 };
 
 const NL: Partial<Record<PrintSectionType, string>> = {
@@ -92,6 +97,8 @@ const NL: Partial<Record<PrintSectionType, string>> = {
     'Soms zijn de beste paden niet de meest voor de hand liggende. Deze rollen passen bij wie je bent, maar stonden waarschijnlijk niet op je radar.',
   dream_jobs:
     'Je vertelde ons je droombaan zonder rekening te houden met beperkingen, en dat was bewust. Hier halen we die beperkingen erbij: niet om je iets uit het hoofd te praten, maar om te laten zien wat het echt zou kosten om er te komen, en hoe een versie ervan eruit kan zien die aansluit bij de ervaring die je al hebt.',
+  chat_highlights:
+    'Wat er uit het gesprek met je coach kwam. Dit zijn de momenten waarop er iets verschoof: een patroon dat je benoemde, een correctie die je maakte, of een conclusie die jullie samen trokken. Jouw eigen woorden hebben het rapport gevormd dat je zojuist hebt gelezen.',
 };
 
 const INTROS: Record<PrintLang, Partial<Record<PrintSectionType, string>>> = { en: EN, nl: NL };

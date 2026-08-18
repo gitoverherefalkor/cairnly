@@ -16,6 +16,7 @@ import {
   Award,
   Lightbulb,
   Sparkles,
+  MessageSquareQuote,
   type LucideIcon,
 } from 'lucide-react';
 import type { CareerSlot } from '@/components/dashboard/CareerSlotIcon';
@@ -34,6 +35,9 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
   runner_ups: Award,
   outside_box: Lightbulb,
   dream_jobs: Sparkles,
+  // The coach conversation, summarised. MessageSquareQuote is the closest
+  // match to the cream chat glyph the chip uses.
+  chat_highlights: MessageSquareQuote,
 };
 
 export function iconForSection(sectionType: string): LucideIcon | null {
@@ -56,6 +60,7 @@ const EYEBROW: Record<PrintLang, Record<string, string>> = {
     runner_ups: 'Also worth a look',
     outside_box: 'Outside the box',
     dream_jobs: 'Your dream jobs',
+    chat_highlights: 'From your conversation',
   },
   nl: {
     exec_summary: 'Overzicht',
@@ -70,6 +75,7 @@ const EYEBROW: Record<PrintLang, Record<string, string>> = {
     runner_ups: 'Ook interessant',
     outside_box: 'Outside the box',
     dream_jobs: 'Je droombanen',
+    chat_highlights: 'Uit je gesprek',
   },
 };
 
@@ -172,6 +178,18 @@ const CAREER_SLOT: Record<string, CareerSlot> = {
 
 export function careerSlotFor(sectionType: string): CareerSlot | null {
   return CAREER_SLOT[sectionType] ?? null;
+}
+
+// ─── Standalone chip images ─────────────────────────────────────────────────
+// Sections whose chip is a supplied asset rather than a section photo or a
+// career glyph. chat_highlights uses the dashboard's cream chat icon, so the
+// summarised conversation is marked the same way on paper as on screen.
+const CHIP_IMAGE: Record<string, string> = {
+  chat_highlights: '/dashboard/chat section_icon_cream.png',
+};
+
+export function chipImageFor(sectionType: string): string | null {
+  return CHIP_IMAGE[sectionType] ?? null;
 }
 
 // ─── Page breaks ────────────────────────────────────────────────────────────

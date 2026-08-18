@@ -1,7 +1,14 @@
 import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY, SECTION_VISUALS } from '@/components/dashboard/v2/dashboardV2Shared';
 import { CareerSlotIcon } from '@/components/dashboard/CareerSlotIcon';
-import { iconForSection, groupTitleFor, anchorFor, careerSlotFor, printPhotoSrc } from './printSectionMeta';
+import {
+  iconForSection,
+  groupTitleFor,
+  anchorFor,
+  careerSlotFor,
+  printPhotoSrc,
+  chipImageFor,
+} from './printSectionMeta';
 import { introFor, type PrintLang } from './printIntros';
 
 // Header for a multi-row group: runner-ups, outside-the-box, dream jobs.
@@ -28,6 +35,37 @@ export const PrintChip: React.FC<{
 }> = ({ visualKey, sectionType, size = 44 }) => {
   const slot = sectionType ? careerSlotFor(sectionType) : null;
   const v = visualKey ? SECTION_VISUALS[visualKey] : null;
+  const supplied = sectionType ? chipImageFor(sectionType) : null;
+
+  // A supplied chip asset (chat_highlights uses the dashboard's cream chat
+  // icon). Drawn on the same cream tile as the career glyphs so the whole
+  // column of chips reads as one set.
+  if (!v && supplied) {
+    return (
+      <span
+        style={{
+          flex: '0 0 auto',
+          width: size,
+          height: size,
+          borderRadius: 8,
+          background: PALETTE.cream,
+          border: `1px solid ${PALETTE.tan}`,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <img
+          src={supplied}
+          alt=""
+          loading="eager"
+          decoding="sync"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', maxWidth: 'none', display: 'block' }}
+        />
+      </span>
+    );
+  }
 
   // Career glyph on a cream chip — the dashboard's own treatment for career
   // rows, which have no photograph. Inline SVG, so no loading risk.
