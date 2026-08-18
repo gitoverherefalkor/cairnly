@@ -71,7 +71,7 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
           title: "Access Code Verified!",
           description: "Please create an account to start your assessment.",
         });
-        navigate(`/auth?code=${code.trim().toUpperCase()}`);
+        navigate(`/auth?flow=signup&code=${code.trim().toUpperCase()}`);
       }
 
     } catch (error) {
