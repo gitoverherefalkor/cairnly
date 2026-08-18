@@ -281,3 +281,34 @@ Mid-deploy, a render can fail with *"Print page never signalled readiness"* —
 the new HTML is being served while its JS chunk is not on the CDN yet, so the
 SPA never boots. It is transient. Retry; it is not a code fault. Seen once in
 about a dozen renders.
+
+## Internal links and the two-pass merge
+
+The contents page's links are real PDF GoTo annotations, but they only survive
+because the renderer repairs them. Chromium writes same-document links as NAMED
+destinations, and PDF has two places that catalogue can live:
+
+- `/Root /Dests` — a plain dictionary (PDF 1.1). **This is what Chromium emits.**
+- `/Root /Names /Dests` — a name tree (PDF 1.2+).
+
+pdf-lib's `copyPages` copies pages and their annotations but neither catalogue,
+so the two-pass cover merge left all 11 links pointing at names that no longer
+resolved — present, and silently dead. `relinkNamedDests` in
+`api/render-report.js` reads both forms and rewrites each link to an explicit
+`[pageRef, /XYZ, …]` destination, which needs no catalogue entry.
+
+The first attempt at this fix read only the name tree, found nothing, and
+returned early having changed nothing. That is why the render response now
+reports `linksRepaired` — **0 on a report that has a contents page means the
+destination catalogue moved again.**
+
+External links (`https://…`) were never affected: a URI action is
+self-contained and has no page reference to remap.
+
+## Chip assets
+
+Some chips are COMPLETE TILES — the cream ground and tan border are painted into
+the image (`chat_highlights`). Those render bare; wrapping one in `PrintChip`'s
+own tile prints the border twice. Section photographs and career glyphs do get
+the wrapper. All print copies live in `public/report/` at ~220px with space-free
+names; the originals stay put for the dashboard.
