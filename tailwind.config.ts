@@ -123,6 +123,12 @@ export default {
         'mic-pulse': {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(239, 68, 68, 0.3)' },
           '50%': { boxShadow: '0 0 0 6px rgba(239, 68, 68, 0)' }
+        },
+        // Gentle "try me" ring for voice-input mics no one has used yet — teal
+        // so it reads as an invitation, not the red recording-in-progress cue.
+        'mic-hint-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(39, 161, 161, 0.35)' },
+          '50%': { boxShadow: '0 0 0 7px rgba(39, 161, 161, 0)' }
         }
       },
       animation: {
@@ -131,7 +137,8 @@ export default {
         'fade-in': 'fade-in 0.5s ease-out',
         'bar-pulse': 'bar-pulse 1.2s ease-in-out infinite',
         'text-fade': 'text-fade 3s ease-in-out infinite',
-        'mic-pulse': 'mic-pulse 1.5s ease-in-out infinite'
+        'mic-pulse': 'mic-pulse 1.5s ease-in-out infinite',
+        'mic-hint-pulse': 'mic-hint-pulse 1.8s ease-in-out infinite'
       }
     }
   },

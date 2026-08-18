@@ -13,6 +13,42 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 const CLEAN_ENDPOINT = `${SUPABASE_URL}/functions/v1/clean-transcript`;
 
+// Tracks whether the user has EVER successfully started voice input, anywhere
+// in the app (chat or survey). Drives the one-time "try it" highlight on mic
+// buttons — once someone actually uses voice once, the nudge disappears
+// everywhere, permanently (persisted, not per-session).
+const VOICE_TRIED_KEY = 'atlas_voice_input_tried';
+const VOICE_TRIED_EVENT = 'atlas-voice-input-tried';
+
+function markVoiceInputTried() {
+  try {
+    localStorage.setItem(VOICE_TRIED_KEY, '1');
+  } catch {
+    // Storage unavailable (private mode, etc.) — the hint just won't persist
+    // across reloads; not worth failing the recording over.
+  }
+  window.dispatchEvent(new Event(VOICE_TRIED_EVENT));
+}
+
+/** True once the user has ever started voice input anywhere. Live-updates
+ *  across all mounted mic buttons the instant any one of them is first used. */
+export function useHasTriedVoiceInput(): boolean {
+  const [tried, setTried] = useState(() => {
+    try {
+      return localStorage.getItem(VOICE_TRIED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    if (tried) return;
+    const onTried = () => setTried(true);
+    window.addEventListener(VOICE_TRIED_EVENT, onTried);
+    return () => window.removeEventListener(VOICE_TRIED_EVENT, onTried);
+  }, [tried]);
+  return tried;
+}
+
 // Sends the raw dictated text to the clean-transcript edge function, which adds
 // punctuation and paragraph breaks. Returns the tidied text, or null on any
 // failure (caller keeps the raw text in that case — nothing is lost).
@@ -108,6 +144,9 @@ export function useSpeechRecognition({
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => track.stop());
+      // Permission granted — this is a genuine attempt, not just a click that
+      // got denied. Mark it so the "try it" highlight retires everywhere.
+      markVoiceInputTried();
     } catch {
       return; // User denied mic access
     }

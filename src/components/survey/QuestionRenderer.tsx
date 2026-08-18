@@ -27,7 +27,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useSpeechRecognition, useHasTriedVoiceInput } from '@/hooks/useSpeechRecognition';
 import { CAREER_HAPPINESS_MIN_REASON_CHARS, isQuestionAnswered } from './questionValidation';
 import {
   resolveRoleAchievementTexts,
@@ -1571,6 +1571,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         showValidation &&
                         (entry.reason || '').trim().length < CAREER_HAPPINESS_MIN_REASON_CHARS
                       }
+                      showHint={index === 0}
                     />
                   </div>
                 </div>
@@ -2160,16 +2161,34 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 // One role's "Why this score?" textarea in the sentiment-log question. Its own
 // component (not inlined in the .map() above) so each row can call the voice
 // hook — same mic pattern as LongTextWithVoice below, sized for this smaller box.
+// One-time "try it" callout that points at a mic button no one has used yet.
+// Disappears the instant voice input is used ANYWHERE (useHasTriedVoiceInput
+// is global), or once this field already has typed content (the user chose
+// to type — no need to keep nudging them here).
+const VoiceHintBubble: React.FC<{ className?: string }> = ({ className }) => (
+  <div className={`absolute z-10 animate-fade-in pointer-events-none ${className ?? ''}`}>
+    <div className="relative bg-atlas-teal text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+      Try it — speak your answer
+      <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-atlas-teal" />
+    </div>
+  </div>
+);
+
 const SentimentReasonTextarea: React.FC<{
   value: string;
   onChange: (value: string) => void;
   invalid: boolean;
-}> = ({ value, onChange, invalid }) => {
+  // Only the first role's box shows the "Try it" bubble — three copies of the
+  // same nudge in one question would be noise, not help.
+  showHint: boolean;
+}> = ({ value, onChange, invalid, showHint }) => {
   const { isListening, isCleaning, isSupported, toggleListening } = useSpeechRecognition({
     onTranscript: onChange,
     existingText: value || '',
     cleanOnStop: true,
   });
+  const hasTriedVoice = useHasTriedVoiceInput();
+  const untried = isSupported && !hasTriedVoice && !isListening;
 
   return (
     <div className="relative">
@@ -2192,11 +2211,16 @@ const SentimentReasonTextarea: React.FC<{
           className={`absolute bottom-2 right-2 flex items-center justify-center w-8 h-8 rounded-md transition-colors ${
             isListening
               ? 'text-red-500 bg-red-50 animate-mic-pulse'
-              : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
+              : untried
+                ? 'text-atlas-teal bg-atlas-teal/10 animate-mic-hint-pulse'
+                : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
           } ${isCleaning ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isCleaning ? <Loader2 size={15} className="animate-spin" /> : <Mic size={15} />}
         </button>
+      )}
+      {showHint && untried && !value.trim() && (
+        <VoiceHintBubble className="bottom-11 right-0" />
       )}
       {isCleaning && (
         <p className="text-xs text-atlas-teal mt-1.5 flex items-center gap-1.5">
@@ -2221,6 +2245,8 @@ const LongTextWithVoice: React.FC<{
     existingText: value || '',
     cleanOnStop: true,
   });
+  const hasTriedVoice = useHasTriedVoiceInput();
+  const untried = isSupported && !hasTriedVoice && !isListening;
 
   return (
     <div>
@@ -2248,11 +2274,16 @@ const LongTextWithVoice: React.FC<{
             className={`absolute bottom-3 right-3 flex items-center justify-center w-9 h-9 rounded-md transition-colors ${
               isListening
                 ? 'text-red-500 bg-red-50 animate-mic-pulse'
-                : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
+                : untried
+                  ? 'text-atlas-teal bg-atlas-teal/10 animate-mic-hint-pulse'
+                  : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
             } ${isCleaning ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isCleaning ? <Loader2 size={18} className="animate-spin" /> : <Mic size={18} />}
           </button>
+        )}
+        {untried && !(value || '').trim() && (
+          <VoiceHintBubble className="bottom-14 right-0" />
         )}
       </div>
       {isCleaning && (
