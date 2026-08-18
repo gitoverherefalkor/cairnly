@@ -75,7 +75,7 @@ const mapSignupError = (
 };
 
 const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
-  const { t } = useTranslation('auth');
+  const { t, i18n } = useTranslation('auth');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -192,7 +192,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
               password: formData.password,
               firstName: formData.firstName,
               lastName: formData.lastName,
-              accessCode: accessCode
+              accessCode: accessCode,
+              // The language the candidate is signing up in. Not cosmetic: it
+              // lands in profiles.preferred_language, which WF9 writes the
+              // resume in and which the chat and wrap-up copy read.
+              preferredLanguage: i18n.language
             }
           }
         );

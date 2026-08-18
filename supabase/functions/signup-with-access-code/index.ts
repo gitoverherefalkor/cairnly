@@ -15,7 +15,7 @@ serve(async (req) => {
   if (rateLimited) return rateLimited;
 
   try {
-    const { email, password, firstName, lastName, accessCode } = await req.json();
+    const { email, password, firstName, lastName, accessCode, preferredLanguage } = await req.json();
 
     // --- Input validation ---
 
@@ -130,7 +130,12 @@ serve(async (req) => {
       user_metadata: {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
-        access_code: trimmedCode
+        access_code: trimmedCode,
+        // Read by the handle_new_user trigger into profiles.preferred_language.
+        // Validated here rather than trusted: that column is fed into LLM
+        // prompts downstream (WF9 resume, chat, wrap-up), so it may only ever
+        // hold a language we support.
+        preferred_language: String(preferredLanguage ?? 'en').slice(0, 2).toLowerCase() === 'nl' ? 'nl' : 'en'
       }
     });
 
