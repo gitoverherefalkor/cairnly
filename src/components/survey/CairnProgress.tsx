@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CairnProgress
@@ -47,6 +48,7 @@ export default function CairnProgress({
   assetBase = '/cairn',
   className,
 }: CairnProgressProps) {
+  const { t } = useTranslation('survey');
   const n = Math.max(0, Math.min(LAYERS.length, Math.round(filled)));
   const showCrown = crowned ?? n >= LAYERS.length;
 
@@ -72,7 +74,11 @@ export default function CairnProgress({
       className={className}
       style={{ position: 'relative', width, height: frameH, overflow: 'hidden' }}
       role="img"
-      aria-label={`Cairn progress: ${n} of ${LAYERS.length} stones placed${showCrown ? ', crowned' : ''}`}
+      aria-label={
+        showCrown
+          ? t('cairn.progressCrowned', { placed: n, total: LAYERS.length })
+          : t('cairn.progress', { placed: n, total: LAYERS.length })
+      }
     >
       <div style={plane}>
         {LAYERS.slice(0, n).map((name, i) => (

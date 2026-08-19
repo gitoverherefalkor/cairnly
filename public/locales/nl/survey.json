@@ -17,27 +17,130 @@
   "submitted": {
     "title": "Assessment succesvol ingediend!",
     "description": "Je antwoorden zijn opgeslagen en je rapport wordt gegenereerd.",
-    "continueToDashboard": "Ga naar Dashboard"
+    "continueToDashboard": "Ga naar Dashboard",
+    "savedNextStep": "Je antwoorden zijn opgeslagen. Je gaat door naar de volgende stap..."
   },
   "failed": {
     "title": "Indienen mislukt",
     "description": "Geen zorgen, je antwoorden zijn opgeslagen!",
     "retry": "Opnieuw indienen",
-    "retrying": "Bezig met opnieuw indienen..."
+    "retrying": "Bezig met opnieuw indienen...",
+    "descriptionRetry": "Geen zorgen, je antwoorden zijn opgeslagen. Je kunt het opnieuw proberen."
   },
   "loading": {
     "survey": "Je assessment wordt geladen...",
-    "progress": "Je voortgang wordt geladen..."
+    "progress": "Je voortgang wordt geladen...",
+    "generic": "Laden..."
   },
   "errors": {
     "failedToLoad": "Assessment kon niet worden geladen.",
     "somethingWentWrong": "Er is iets misgegaan.",
-    "noQuestions": "Geen vragen beschikbaar in dit onderdeel."
+    "noQuestions": "Geen vragen beschikbaar in dit onderdeel.",
+    "failedToLoadRetry": "Assessment kon niet worden geladen. Probeer het opnieuw."
   },
-  "welcome": {
-    "title": "Welkom bij je assessment",
-    "accessCodeLabel": "Toegangscode",
-    "verify": "Verifiëren",
-    "needCode": "Heb je een toegangscode nodig?"
+  "assessmentWelcome": {
+    "errors": {
+      "emptyCode": "Vul je toegangscode in",
+      "verifyFailed": "Toegangscode kon niet worden gecontroleerd. Probeer het opnieuw."
+    },
+    "mobileWarning": {
+      "title": "Beste ervaring op een desktop:",
+      "body": "Voor de beste assessment-ervaring, en om daarna goed te kunnen praten met je AI-loopbaancoach, raden we een computer of tablet aan in plaats van een mobiel."
+    },
+    "hero": {
+      "title": "Welkom bij het Cairnly carrière-assessment",
+      "subtitle": "Ontdek waar je sterk in bent, wat je belangrijk vindt en in wat voor werkomgeving je het best tot je recht komt, met ons uitgebreide assessment."
+    },
+    "card": {
+      "badge": "Klaar om te beginnen",
+      "subtitle": "Vul hieronder je toegangscode in om je persoonlijke carrière-assessment te starten"
+    },
+    "accessCode": {
+      "label": "Toegangscode",
+      "placeholder": "XXXX-XXXX-XXXX-XXXX",
+      "hint": "Vul de toegangscode in die je na je aankoop hebt ontvangen"
+    },
+    "actions": {
+      "verifying": "Je code wordt gecontroleerd...",
+      "verify": "Code controleren en assessment starten"
+    },
+    "purchase": {
+      "prompt": "Heb je geen geldige toegangscode?",
+      "cta": "Toegangscode kopen"
+    },
+    "help": {
+      "prefix": "Lukt het niet?",
+      "contactSupport": "neem contact op met support",
+      "or": "of",
+      "returnHome": "ga terug naar de homepage"
+    },
+    "info": {
+      "duration": {
+        "value": "30-60 minuten",
+        "caption": "In je eigen tempo, alles wordt onderweg opgeslagen"
+      },
+      "sections": {
+        "value": "7 onderdelen",
+        "caption": "Uitgebreide analyse"
+      },
+      "personalized": {
+        "value": "Persoonlijk",
+        "caption": "Inzichten op maat"
+      }
+    }
+  },
+  "assessmentGate": {
+    "authRequired": "Je moet ingelogd zijn. Log in om verder te gaan.",
+    "noSurveyFound": "Fout: geen assessment gevonden. Probeer het opnieuw."
+  },
+  "sectionIntro": {
+    "justFinished": "Goed gedaan. Dit heb je afgerond:",
+    "upNext": "Hierna",
+    "sectionLabel": "Onderdeel {{number}}",
+    "continue": "Doorgaan",
+    "fallbackDescription": "We gaan verder met de volgende set vragen."
+  },
+  "cairn": {
+    "progress": "Cairnvoortgang: {{placed}} van {{total}} stenen geplaatst",
+    "progressCrowned": "Cairnvoortgang: {{placed}} van {{total}} stenen geplaatst, met sluitsteen"
+  },
+  "milestones": {
+    "pct25": "Hoe eerlijker je antwoorden, hoe bruikbaarder je resultaten. Ga zo door.",
+    "pct50": "Goed moment om even te strekken of thee te halen. Je voortgang wordt automatisch opgeslagen, dus kom terug wanneer het jou uitkomt.",
+    "pct75": "Juist deze diepgang maakt het uiteindelijke rapport echt bruikbaar. De tijd waard.",
+    "pct90": "Laatste stuk, nog een paar vragen."
+  },
+  "toasts": {
+    "incompleteOnSubmit": {
+      "title": "Er staat nog een vraag open",
+      "description": "We hebben je er weer naartoe gebracht. Vul hem in om te verzenden."
+    }
+  },
+  "questionCard": {
+    "eyebrow": "Onderdeel {{section}} · Vraag {{current}} van {{total}}"
+  },
+  "validation": {
+    "completeRequiredFields": "Vul alle verplichte velden in voordat je verdergaat.",
+    "otherIncomplete": "Maak je antwoord bij \"Anders\" af, of verwijder het.",
+    "otherIncompleteSingle": "Maak je antwoord bij \"Anders\" af om verder te gaan.",
+    "pickAtLeast_one": "Kies minstens {{count}} optie om verder te gaan.",
+    "pickAtLeast_other": "Kies minstens {{count}} opties om verder te gaan.",
+    "pickAtMost_one": "Kies maximaal {{count}} optie om verder te gaan.",
+    "pickAtMost_other": "Kies maximaal {{count}} opties om verder te gaan.",
+    "selectOne": "Kies minstens één optie om verder te gaan.",
+    "rankAll": "Zet alle onderdelen op volgorde om verder te gaan.",
+    "languageNeeded": "Voeg minstens één taal met een niveau toe om verder te gaan.",
+    "happinessRatingAndReason": "Geef elke rol een cijfer voor werkplezier en een korte toelichting om verder te gaan.",
+    "happinessRating": "Geef elke rol een cijfer voor werkplezier om verder te gaan.",
+    "happinessReasonTooShort": "Schrijf iets meer bij elke \"Waarom dit cijfer?\", minstens {{count}} tekens.",
+    "roleNeeded": "Voeg minstens één rol toe (een functietitel) om verder te gaan.",
+    "roleFieldsIncomplete": "Vul de rood omlijnde velden bij je rollen in om verder te gaan.",
+    "answerRequired": "Beantwoord deze vraag om verder te gaan."
+  },
+  "submitToast": {
+    "failedDescription": "Je antwoorden konden niet worden verstuurd. Probeer het opnieuw, je antwoorden zijn opgeslagen.",
+    "successTitle": "Assessment succesvol ingediend",
+    "successDescription": "Je wordt doorgestuurd naar de verwerkingspagina...",
+    "unexpectedErrorDescription": "Er is een onverwachte fout opgetreden. Probeer het opnieuw, je antwoorden zijn opgeslagen."
   }
 }

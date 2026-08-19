@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ClipboardList, Brain, Compass, Briefcase, Users, HeartHandshake, Target, type LucideIcon } from 'lucide-react';
 import CairnProgress from './CairnProgress';
@@ -35,6 +36,7 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
   completedCount = 0,
   justCompletedTitle = null,
 }) => {
+  const { t } = useTranslation('survey');
   const Icon = SECTION_ICONS[sectionNumber - 1];
 
   // Function to format text with emphasis and line breaks
@@ -80,7 +82,7 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
                 className="mx-auto"
               />
               <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-atlas-gold">
-                Great! You finished:
+                {t('sectionIntro.justFinished')}
               </p>
               <h2 className="mt-1 text-2xl font-bold text-atlas-navy">
                 {justCompletedTitle}
@@ -89,7 +91,9 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
           )}
 
           <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
-            {justCompletedTitle ? 'Up next' : `Section ${sectionNumber}`}
+            {justCompletedTitle
+              ? t('sectionIntro.upNext')
+              : t('sectionIntro.sectionLabel', { number: sectionNumber })}
           </p>
           <h3 className="text-2xl font-semibold text-atlas-teal mb-5">
             {sectionTitle}
@@ -107,7 +111,7 @@ export const SectionIntroduction: React.FC<SectionIntroductionProps> = ({
             onClick={onContinue}
             className="self-center bg-atlas-teal hover:bg-atlas-teal/90 px-8 py-3 text-lg"
           >
-            Continue
+            {t('sectionIntro.continue')}
             <ArrowRight className="h-5 w-5 ml-2" />
           </Button>
         </div>

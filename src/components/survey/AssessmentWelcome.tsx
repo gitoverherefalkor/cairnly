@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -40,6 +41,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
   const [supportOpen, setSupportOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { t } = useTranslation('survey');
 
   // Set the prefilled code when component mounts or prefilledCode changes
   useEffect(() => {
@@ -52,7 +54,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
 
   const handleVerify = async () => {
     if (!code.trim()) {
-      setError('Please enter your access code');
+      setError(t('assessmentWelcome.errors.emptyCode'));
       return;
     }
 
@@ -67,7 +69,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
 
       if (apiError) {
         console.error('API error:', apiError);
-        setError('Failed to verify access code. Please try again.');
+        setError(t('assessmentWelcome.errors.verifyFailed'));
         return;
       }
 
@@ -81,7 +83,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
       }
     } catch (error) {
       console.error('Error verifying access code:', error);
-      setError('Failed to verify access code. Please try again.');
+      setError(t('assessmentWelcome.errors.verifyFailed'));
     } finally {
       setIsVerifying(false);
     }
@@ -115,7 +117,8 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
           <Alert className="mb-6 border-amber-200 bg-amber-50">
             <Smartphone className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800">
-              <strong>Best Experience on Desktop:</strong> For the optimal assessment experience and to fully engage with our career AI coach afterward, we recommend using a computer or tablet rather than a mobile device.
+              <strong>{t('assessmentWelcome.mobileWarning.title')}</strong>{' '}
+              {t('assessmentWelcome.mobileWarning.body')}
             </AlertDescription>
           </Alert>
         )}
@@ -124,12 +127,12 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
             teal-navy canvas, so dark `text-atlas-navy` would be illegible. */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-[#F5F5F5] mb-4">
-            Welcome to the Cairnly Career Assessment
+            {t('assessmentWelcome.hero.title')}
           </h1>
           {/* Copy is flavor-neutral: this screen renders before the access code
               is verified, so we can't know yet if it's a pro or starter user. */}
           <p className="text-xl text-[#F5F5F5]/80 max-w-lg mx-auto">
-            Discover your unique career strengths, values, and ideal work environment through our comprehensive assessment.
+            {t('assessmentWelcome.hero.subtitle')}
           </p>
         </div>
 
@@ -138,10 +141,10 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
           <CardHeader className="text-center pb-4">
             <div className="flex items-center justify-center gap-2 mb-4">
               <CheckCircle2 className="h-6 w-6 text-atlas-teal" />
-              <span className="text-lg font-semibold text-atlas-navy">Ready to Begin</span>
+              <span className="text-lg font-semibold text-atlas-navy">{t('assessmentWelcome.card.badge')}</span>
             </div>
             <p className="text-gray-600">
-              Enter your access code below to start your personalized career assessment
+              {t('assessmentWelcome.card.subtitle')}
             </p>
           </CardHeader>
           
@@ -149,12 +152,12 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
             {/* Access Code Input */}
             <div className="space-y-2">
               <label htmlFor="access-code" className="text-sm font-medium text-gray-700">
-                Access Code
+                {t('assessmentWelcome.accessCode.label')}
               </label>
               <Input
                 id="access-code"
                 type="text"
-                placeholder="XXXX-XXXX-XXXX-XXXX"
+                placeholder={t('assessmentWelcome.accessCode.placeholder')}
                 value={code}
                 onChange={handleCodeChange}
                 onKeyPress={handleKeyPress}
@@ -162,7 +165,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
                 maxLength={50}
               />
               <p className="text-xs text-gray-500 text-center">
-                Enter the access code you received after your purchase
+                {t('assessmentWelcome.accessCode.hint')}
               </p>
             </div>
 
@@ -183,11 +186,11 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
               {isVerifying ? (
                 <>
                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Verifying your code...
+                  {t('assessmentWelcome.actions.verifying')}
                 </>
               ) : (
                 <>
-                  Verify Code & Start Assessment
+                  {t('assessmentWelcome.actions.verify')}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </>
               )}
@@ -197,7 +200,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
             {needsPurchase && (
               <div className="text-center pt-4 border-t">
                 <p className="text-sm text-gray-600 mb-3">
-                  Don't have a valid access code?
+                  {t('assessmentWelcome.purchase.prompt')}
                 </p>
                 <Button 
                   variant="outline" 
@@ -205,7 +208,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
                   className="w-full"
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  Purchase Access Code
+                  {t('assessmentWelcome.purchase.cta')}
                 </Button>
               </div>
             )}
@@ -213,19 +216,19 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
             {/* Help Section */}
             <div className="text-center pt-4 border-t">
               <p className="text-xs text-gray-500">
-                Having trouble?{' '}
+                {t('assessmentWelcome.help.prefix')}{' '}
                 <button
                   onClick={() => setSupportOpen(true)}
                   className="text-atlas-blue hover:underline font-medium"
                 >
-                  Contact support
+                  {t('assessmentWelcome.help.contactSupport')}
                 </button>{' '}
-                or{' '}
+                {t('assessmentWelcome.help.or')}{' '}
                 <button
                   onClick={() => navigate('/')}
                   className="text-atlas-blue hover:underline font-medium"
                 >
-                  return to homepage
+                  {t('assessmentWelcome.help.returnHome')}
                 </button>
               </p>
             </div>
@@ -247,18 +250,18 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
                 is a pleasant surprise, running double the promise is not. */}
             <div className="bg-white/10 rounded-lg p-4">
               <div className="text-2xl font-bold text-atlas-teal mb-1">⏱️</div>
-              <div className="text-sm font-medium text-[#F5F5F5]">30-60 minutes</div>
-              <div className="text-xs text-[#F5F5F5]/60">At your own pace, saved as you go</div>
+              <div className="text-sm font-medium text-[#F5F5F5]">{t('assessmentWelcome.info.duration.value')}</div>
+              <div className="text-xs text-[#F5F5F5]/60">{t('assessmentWelcome.info.duration.caption')}</div>
             </div>
             <div className="bg-white/10 rounded-lg p-4">
               <div className="text-2xl font-bold text-atlas-teal mb-1">📊</div>
-              <div className="text-sm font-medium text-[#F5F5F5]">7 sections</div>
-              <div className="text-xs text-[#F5F5F5]/60">Comprehensive analysis</div>
+              <div className="text-sm font-medium text-[#F5F5F5]">{t('assessmentWelcome.info.sections.value')}</div>
+              <div className="text-xs text-[#F5F5F5]/60">{t('assessmentWelcome.info.sections.caption')}</div>
             </div>
             <div className="bg-white/10 rounded-lg p-4">
               <div className="text-2xl font-bold text-atlas-teal mb-1">🎯</div>
-              <div className="text-sm font-medium text-[#F5F5F5]">Personalized</div>
-              <div className="text-xs text-[#F5F5F5]/60">Custom insights</div>
+              <div className="text-sm font-medium text-[#F5F5F5]">{t('assessmentWelcome.info.personalized.value')}</div>
+              <div className="text-xs text-[#F5F5F5]/60">{t('assessmentWelcome.info.personalized.caption')}</div>
             </div>
           </div>
         </div>

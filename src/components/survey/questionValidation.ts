@@ -120,8 +120,13 @@ export function isQuestionAnswered(question: any, response: any): boolean {
 }
 
 /**
- * A specific, human-readable reason a required question isn't satisfied — or
- * null when it's complete.
+ * A specific reason a required question isn't satisfied — or null when it's
+ * complete.
+ *
+ * Returns a translation descriptor rather than a sentence: this module is a
+ * pure validator shared by several call sites, and pulling `t` in here would
+ * make it depend on React. The caller renders `t(key, params)`; the keys live
+ * under `validation.*` in public/locales/{lng}/survey.json.
  *
  * The survey's blocked-Continue hint used to say "missing fields are outlined
  * in red" for every question type, but a red border is only ever drawn on
@@ -131,7 +136,14 @@ export function isQuestionAnswered(question: any, response: any): boolean {
  * message that names the actual problem so the hint never points at a red field
  * that isn't there. The branches mirror isQuestionAnswered exactly.
  */
-export function getIncompleteReason(question: any, response: any): string | null {
+export interface IncompleteReason {
+  /** Key in the `survey` namespace, without the `validation.` prefix stripped. */
+  key: string;
+  /** Interpolation values, e.g. `{ count: 3 }` for the plural forms. */
+  params?: Record<string, unknown>;
+}
+
+export function getIncompleteReason(question: any, response: any): IncompleteReason | null {
   if (isQuestionAnswered(question, response)) return null;
 
   if (question.type === 'multiple_choice' && question.allow_multiple) {
@@ -140,48 +152,51 @@ export function getIncompleteReason(question: any, response: any): string | null
     const count = Array.isArray(response) ? response.length : response ? 1 : 0;
 
     if (Array.isArray(response) && response.some((v) => !isOtherValueComplete(v))) {
-      return 'Finish typing your "Other" answer, or remove it.';
+      return { key: 'validation.otherIncomplete' };
     }
     if (min && count < min) {
-      return `Pick at least ${min} option${min === 1 ? '' : 's'} to continue.`;
+      return { key: 'validation.pickAtLeast', params: { count: min } };
     }
     if (max && count > max) {
-      return `Pick at most ${max} option${max === 1 ? '' : 's'} to continue.`;
+      return { key: 'validation.pickAtMost', params: { count: max } };
     }
-    return 'Select at least one option to continue.';
+    return { key: 'validation.selectOne' };
   }
 
   if (question.type === 'ranking') {
-    return 'Please rank all the items to continue.';
+    return { key: 'validation.rankAll' };
   }
 
   if (question.type === 'skills_achievements') {
-    return 'Add at least one language with a proficiency level to continue.';
+    return { key: 'validation.languageNeeded' };
   }
 
   if (question.type === 'career_happiness') {
     if (!Array.isArray(response) || response.length === 0) {
-      return 'Give each role a happiness rating and a short reason to continue.';
+      return { key: 'validation.happinessRatingAndReason' };
     }
     for (const entry of response) {
       if (typeof entry?.happiness !== 'number' || entry.happiness < 1) {
-        return 'Give every role a happiness rating to continue.';
+        return { key: 'validation.happinessRating' };
       }
     }
-    return `Add a bit more detail to each "Why this score?" — at least ${CAREER_HAPPINESS_MIN_REASON_CHARS} characters.`;
+    return {
+      key: 'validation.happinessReasonTooShort',
+      params: { count: CAREER_HAPPINESS_MIN_REASON_CHARS },
+    };
   }
 
   if (question.type === 'career_history') {
     if (!Array.isArray(response) || !response.slice(0, 5).some((e: any) => e?.title && e.title.trim())) {
-      return 'Add at least one role (a job title) to continue.';
+      return { key: 'validation.roleNeeded' };
     }
-    return 'Complete the fields outlined in red on your roles to continue.';
+    return { key: 'validation.roleFieldsIncomplete' };
   }
 
   // Single-select "Other" that hasn't been typed out.
   if (!isOtherValueComplete(response)) {
-    return 'Finish typing your "Other" answer to continue.';
+    return { key: 'validation.otherIncompleteSingle' };
   }
 
-  return 'Please answer this question to continue.';
+  return { key: 'validation.answerRequired' };
 }

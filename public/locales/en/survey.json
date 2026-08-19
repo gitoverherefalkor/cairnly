@@ -17,27 +17,130 @@
   "submitted": {
     "title": "Assessment Submitted Successfully!",
     "description": "Your responses are saved and your report is being generated.",
-    "continueToDashboard": "Continue to Dashboard"
+    "continueToDashboard": "Continue to Dashboard",
+    "savedNextStep": "Your responses are saved. Taking you to the next step..."
   },
   "failed": {
     "title": "Submission Failed",
     "description": "Don't worry — your answers are saved!",
     "retry": "Retry Submission",
-    "retrying": "Retrying..."
+    "retrying": "Retrying...",
+    "descriptionRetry": "Don't worry - your answers are saved! You can try submitting again."
   },
   "loading": {
     "survey": "Loading your assessment...",
-    "progress": "Loading your progress..."
+    "progress": "Loading your progress...",
+    "generic": "Loading..."
   },
   "errors": {
     "failedToLoad": "Failed to load survey.",
     "somethingWentWrong": "Something went wrong.",
-    "noQuestions": "No questions available in this section."
+    "noQuestions": "No questions available in this section.",
+    "failedToLoadRetry": "Failed to load survey. Please try again."
   },
-  "welcome": {
-    "title": "Welcome to Your Assessment",
-    "accessCodeLabel": "Access Code",
-    "verify": "Verify",
-    "needCode": "Need an access code?"
+  "assessmentWelcome": {
+    "errors": {
+      "emptyCode": "Please enter your access code",
+      "verifyFailed": "Failed to verify access code. Please try again."
+    },
+    "mobileWarning": {
+      "title": "Best Experience on Desktop:",
+      "body": "For the optimal assessment experience and to fully engage with our career AI coach afterward, we recommend using a computer or tablet rather than a mobile device."
+    },
+    "hero": {
+      "title": "Welcome to the Cairnly Career Assessment",
+      "subtitle": "Discover your unique career strengths, values, and ideal work environment through our comprehensive assessment."
+    },
+    "card": {
+      "badge": "Ready to Begin",
+      "subtitle": "Enter your access code below to start your personalized career assessment"
+    },
+    "accessCode": {
+      "label": "Access Code",
+      "placeholder": "XXXX-XXXX-XXXX-XXXX",
+      "hint": "Enter the access code you received after your purchase"
+    },
+    "actions": {
+      "verifying": "Verifying your code...",
+      "verify": "Verify Code & Start Assessment"
+    },
+    "purchase": {
+      "prompt": "Don't have a valid access code?",
+      "cta": "Purchase Access Code"
+    },
+    "help": {
+      "prefix": "Having trouble?",
+      "contactSupport": "Contact support",
+      "or": "or",
+      "returnHome": "return to homepage"
+    },
+    "info": {
+      "duration": {
+        "value": "30-60 minutes",
+        "caption": "At your own pace, saved as you go"
+      },
+      "sections": {
+        "value": "7 sections",
+        "caption": "Comprehensive analysis"
+      },
+      "personalized": {
+        "value": "Personalized",
+        "caption": "Custom insights"
+      }
+    }
+  },
+  "assessmentGate": {
+    "authRequired": "Authentication required. Please sign in.",
+    "noSurveyFound": "Error: No survey found. Please try again."
+  },
+  "sectionIntro": {
+    "justFinished": "Great! You finished:",
+    "upNext": "Up next",
+    "sectionLabel": "Section {{number}}",
+    "continue": "Continue",
+    "fallbackDescription": "Let's continue with the next set of questions."
+  },
+  "cairn": {
+    "progress": "Cairn progress: {{placed}} of {{total}} stones placed",
+    "progressCrowned": "Cairn progress: {{placed}} of {{total}} stones placed, crowned"
+  },
+  "milestones": {
+    "pct25": "The more honest your answers, the more useful your results will be. Keep going.",
+    "pct50": "Good moment for a stretch or a cup of tea. Your progress is automatically saved — come back whenever you're ready.",
+    "pct75": "This level of depth is exactly what makes the final report genuinely useful. Worth the time.",
+    "pct90": "Final stretch — just a few more questions."
+  },
+  "toasts": {
+    "incompleteOnSubmit": {
+      "title": "A question still needs an answer",
+      "description": "We've taken you back to it. Fill it in to submit."
+    }
+  },
+  "questionCard": {
+    "eyebrow": "Section {{section}} · Question {{current}} of {{total}}"
+  },
+  "validation": {
+    "completeRequiredFields": "Please complete all required fields before continuing.",
+    "otherIncomplete": "Finish typing your \"Other\" answer, or remove it.",
+    "otherIncompleteSingle": "Finish typing your \"Other\" answer to continue.",
+    "pickAtLeast_one": "Pick at least {{count}} option to continue.",
+    "pickAtLeast_other": "Pick at least {{count}} options to continue.",
+    "pickAtMost_one": "Pick at most {{count}} option to continue.",
+    "pickAtMost_other": "Pick at most {{count}} options to continue.",
+    "selectOne": "Select at least one option to continue.",
+    "rankAll": "Please rank all the items to continue.",
+    "languageNeeded": "Add at least one language with a proficiency level to continue.",
+    "happinessRatingAndReason": "Give each role a happiness rating and a short reason to continue.",
+    "happinessRating": "Give every role a happiness rating to continue.",
+    "happinessReasonTooShort": "Add a bit more detail to each \"Why this score?\" — at least {{count}} characters.",
+    "roleNeeded": "Add at least one role (a job title) to continue.",
+    "roleFieldsIncomplete": "Complete the fields outlined in red on your roles to continue.",
+    "answerRequired": "Please answer this question to continue."
+  },
+  "submitToast": {
+    "failedDescription": "Failed to submit your responses. Please try again - your answers are saved.",
+    "successTitle": "Survey Submitted Successfully",
+    "successDescription": "Redirecting to processing page...",
+    "unexpectedErrorDescription": "An unexpected error occurred. Please try again - your answers are saved."
   }
 }

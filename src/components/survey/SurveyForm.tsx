@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QuestionRenderer } from './QuestionRenderer';
 import { SectionIntroduction } from './SectionIntroduction';
 import { SurveyNavigation, MobileStepIndicator } from './SurveyNavigation';
@@ -16,7 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { isQuestionAnswered, getIncompleteReason } from './questionValidation';
 import { computeSurveyProgress } from '@/lib/surveyProgress';
 
-class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; message: string },
+  { hasError: boolean }
+> {
   constructor(props: any) {
     super(props);
     this.state = { hasError: false };
@@ -29,34 +33,20 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
   render() {
     if (this.state.hasError) {
-      return <div className="text-center py-8 text-red-600">Something went wrong. Please refresh or contact support.</div>;
+      return <div className="text-center py-8 text-red-600">{this.props.message}</div>;
     }
     return this.props.children;
   }
 }
 
-// Milestone messages shown at key completion thresholds (fired once per session)
-const MILESTONES: { pct: number; message: string; duration: number }[] = [
-  {
-    pct: 25,
-    message: "The more honest your answers, the more useful your results will be. Keep going.",
-    duration: 4000,
-  },
-  {
-    pct: 50,
-    message: "Good moment for a stretch or a cup of tea. Your progress is automatically saved — come back whenever you're ready.",
-    duration: 6000,
-  },
-  {
-    pct: 75,
-    message: "This level of depth is exactly what makes the final report genuinely useful. Worth the time.",
-    duration: 4000,
-  },
-  {
-    pct: 90,
-    message: "Final stretch — just a few more questions.",
-    duration: 4000,
-  },
+// Milestone messages shown at key completion thresholds (fired once per
+// session). Copy lives under `milestones.*` in survey.json; only the threshold
+// and the display duration stay here.
+const MILESTONES: { pct: number; messageKey: string; duration: number }[] = [
+  { pct: 25, messageKey: 'milestones.pct25', duration: 4000 },
+  { pct: 50, messageKey: 'milestones.pct50', duration: 6000 },
+  { pct: 75, messageKey: 'milestones.pct75', duration: 4000 },
+  { pct: 90, messageKey: 'milestones.pct90', duration: 4000 },
 ];
 
 interface SurveyFormProps {
@@ -73,6 +63,9 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerSave } = useAssessmentSession();
+  // `common` is loaded alongside for the shared Back / Continue / Submit labels
+  // and the error-boundary message.
+  const { t } = useTranslation(['survey', 'common']);
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL LOGIC
   // Custom hooks for state management
@@ -101,8 +94,10 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     clearSession
   } = surveyState;
 
-  // Milestone state
-  const [activeMilestone, setActiveMilestone] = useState<string | null>(null);
+  // Milestone state — holds the translation KEY, resolved at render time so a
+  // language switch while the banner is up swaps the copy instead of freezing
+  // whichever language it was raised in.
+  const [activeMilestoneKey, setActiveMilestoneKey] = useState<string | null>(null);
   const firedMilestonesRef = useRef<Set<number>>(new Set());
   const milestoneInitRef = useRef(false);
 
@@ -192,8 +187,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     for (const m of MILESTONES) {
       if (pct >= m.pct && !firedMilestonesRef.current.has(m.pct)) {
         firedMilestonesRef.current.add(m.pct);
-        setActiveMilestone(m.message);
-        timerId = setTimeout(() => setActiveMilestone(null), m.duration);
+        setActiveMilestoneKey(m.messageKey);
+        timerId = setTimeout(() => setActiveMilestoneKey(null), m.duration);
         break; // Only one at a time
       }
     }
@@ -218,13 +213,13 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
 
   // Wrap navigation handlers to flash the "auto-saved" indicator
   const handleNext = useCallback(() => {
-    setActiveMilestone(null);
+    setActiveMilestoneKey(null);
     triggerSave();
     rawHandleNext();
   }, [rawHandleNext, triggerSave]);
 
   const handleBack = useCallback(() => {
-    setActiveMilestone(null);
+    setActiveMilestoneKey(null);
     triggerSave();
     rawHandleBack();
   }, [rawHandleBack, triggerSave]);
@@ -253,8 +248,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
             setCurrentQuestionIndex(q);
             setShowSectionIntro(false);
             toast({
-              title: 'A question still needs an answer',
-              description: "We've taken you back to it. Fill it in to submit.",
+              title: t('toasts.incompleteOnSubmit.title'),
+              description: t('toasts.incompleteOnSubmit.description'),
               variant: 'destructive',
             });
             return;
@@ -264,7 +259,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     }
     triggerSave();
     return rawHandleSubmit();
-  }, [survey, getFilteredQuestions, responses, setCurrentSectionIndex, setCurrentQuestionIndex, setShowSectionIntro, toast, rawHandleSubmit, triggerSave]);
+  }, [survey, getFilteredQuestions, responses, setCurrentSectionIndex, setCurrentQuestionIndex, setShowSectionIntro, toast, rawHandleSubmit, triggerSave, t]);
 
   // Whether a question is satisfied — delegates to the shared validator so the
   // Continue gate, resume cursor and submit check all agree on "answered".
@@ -274,7 +269,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   );
 
   const handleSectionIntroContinue = useCallback(() => {
-    setActiveMilestone(null);
+    setActiveMilestoneKey(null);
     triggerSave();
     setShowSectionIntro(false);
   }, [setShowSectionIntro, triggerSave]);
@@ -353,7 +348,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   if (error || !survey) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Failed to load survey. Please try again.</p>
+        <p className="text-red-600">{t('errors.failedToLoadRetry')}</p>
       </div>
     );
   }
@@ -363,7 +358,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading your progress...</span>
+        <span className="ml-2">{t('loading.progress')}</span>
       </div>
     );
   }
@@ -431,6 +426,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
 
   // Milestone message banner — mobile only (desktop shows it in the sidebar,
   // replacing the autosave block). Mustard pill with a white mountain icon.
+  const activeMilestone = activeMilestoneKey ? t(activeMilestoneKey) : null;
   const MilestoneBanner = activeMilestone ? (
     <div className="md:hidden fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 pointer-events-none px-4 w-full max-w-md">
       <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex items-center gap-2.5 bg-atlas-gold rounded-full px-5 py-3 shadow-lg">
@@ -458,7 +454,9 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     if (!completedSections.includes(currentSectionIndex)) {
       setCompletedSections(prev => prev.includes(currentSectionIndex) ? prev : [...prev, currentSectionIndex]);
     }
-    const sectionDescription = currentSection.description || "Let's continue with the next set of questions.";
+    // currentSection.description comes from survey_sections and is already in
+    // the user's language; only the fallback needs translating.
+    const sectionDescription = currentSection.description || t('sectionIntro.fallbackDescription');
     return (
       <div className="min-h-screen pt-10 pb-6 sm:pt-20 sm:pb-12">
         {GlobalProgressBar}
@@ -500,13 +498,20 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   if (!currentQuestion) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">No questions available in this section.</p>
+        <p className="text-red-600">{t('errors.noQuestions')}</p>
       </div>
     );
   }
 
+  // getIncompleteReason returns a { key, params } descriptor rather than a
+  // sentence, so the copy lives in survey.json and this module stays pure.
+  const incompleteReason = getIncompleteReason(currentQuestion, responses[currentQuestion?.id]);
+  const incompleteReasonText = incompleteReason
+    ? t(incompleteReason.key, incompleteReason.params)
+    : t('validation.completeRequiredFields');
+
   return (
-    <ErrorBoundary>
+    <ErrorBoundary message={t('common:errors.somethingWentWrong')}>
     <div className="min-h-screen pt-10 pb-6 sm:pt-20 sm:pb-12">
       {GlobalProgressBar}
       {MilestoneBanner}
@@ -540,8 +545,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-green-800 font-medium text-sm sm:text-base">Assessment Submitted Successfully!</p>
-                    <p className="text-green-700 text-xs sm:text-sm">Your responses are saved. Taking you to the next step...</p>
+                    <p className="text-green-800 font-medium text-sm sm:text-base">{t('submitted.title')}</p>
+                    <p className="text-green-700 text-xs sm:text-sm">{t('submitted.savedNextStep')}</p>
                   </div>
                   <Button
                     onClick={handleClearSession}
@@ -549,7 +554,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     size="sm"
                     className="border-green-300 text-green-700 hover:bg-green-100 w-full sm:w-auto"
                   >
-                    Continue to Dashboard
+                    {t('submitted.continueToDashboard')}
                   </Button>
                 </div>
               </CardContent>
@@ -562,8 +567,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <RefreshCw className="h-5 w-5 text-red-600 flex-shrink-0" />
                   <div className="flex-1">
-                    <p className="text-red-800 font-medium text-sm sm:text-base">Submission Failed</p>
-                    <p className="text-red-700 text-xs sm:text-sm">Don't worry - your answers are saved! You can try submitting again.</p>
+                    <p className="text-red-800 font-medium text-sm sm:text-base">{t('failed.title')}</p>
+                    <p className="text-red-700 text-xs sm:text-sm">{t('failed.descriptionRetry')}</p>
                   </div>
                   <Button
                     onClick={handleRetrySubmission}
@@ -575,10 +580,10 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     {isSubmitting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Retrying...
+                        {t('failed.retrying')}
                       </>
                     ) : (
-                      'Retry Submission'
+                      t('failed.retry')
                     )}
                   </Button>
                 </div>
@@ -625,7 +630,11 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     fontWeight: 700,
                   }}
                 >
-                  Section {currentSectionIndex + 1} · Question {currentQuestionInSection} of {totalQuestionsInSection}
+                  {t('questionCard.eyebrow', {
+                    section: currentSectionIndex + 1,
+                    current: currentQuestionInSection,
+                    total: totalQuestionsInSection,
+                  })}
                 </div>
                 <div ref={questionCardRef} className="text-base sm:text-lg font-light text-gray-900">
                   <QuestionRenderer
@@ -653,10 +662,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
                   >
                     <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>
-                      {getIncompleteReason(currentQuestion, responses[currentQuestion?.id]) ??
-                        'Please complete all required fields before continuing.'}
-                    </span>
+                    <span>{incompleteReasonText}</span>
                   </div>
                 )}
 
@@ -672,7 +678,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     className={`px-0 hover:bg-transparent ${isFirstQuestion() ? "text-muted-foreground" : "text-atlas-teal hover:text-atlas-teal"}`}
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
+                    {t('common:buttons.back')}
                   </Button>
                   <Button
                     onClick={handleAdvance}
@@ -687,12 +693,12 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : isLastQuestion() ? (
                       <>
-                        Submit
+                        {t('common:buttons.submit')}
                         <Send className="h-4 w-4 ml-2" />
                       </>
                     ) : (
                       <>
-                        Continue
+                        {t('common:buttons.continue')}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </>
                     )}
