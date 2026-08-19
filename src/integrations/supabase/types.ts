@@ -961,6 +961,7 @@ export type Database = {
         Row: {
           age_range: string | null
           auth_provider: string | null
+          comp_tool_unlocks: number
           country: string | null
           created_at: string
           email: string
@@ -985,6 +986,7 @@ export type Database = {
         Insert: {
           age_range?: string | null
           auth_provider?: string | null
+          comp_tool_unlocks?: number
           country?: string | null
           created_at?: string
           email: string
@@ -1009,6 +1011,7 @@ export type Database = {
         Update: {
           age_range?: string | null
           auth_provider?: string | null
+          comp_tool_unlocks?: number
           country?: string | null
           created_at?: string
           email?: string
