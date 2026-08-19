@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,12 +24,13 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation('dashboard');
 
   const handleVerify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
     if (!code.trim()) {
-      setError('Please enter an access code');
+      setError(t('accessCodeVerifier.errors.emptyCode'));
       return;
     }
 
@@ -46,7 +48,7 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
       }
 
       if (!data?.valid) {
-        setError(data?.error || 'Invalid access code');
+        setError(data?.error || t('accessCodeVerifier.errors.invalidCode'));
         return;
       }
 
@@ -60,27 +62,27 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
       if (user) {
         // User is logged in - go directly to assessment
         toast({
-          title: "Access Code Verified!",
-          description: "Your access code is valid. Redirecting to assessment...",
+          title: t('accessCodeVerifier.toast.verifiedTitle'),
+          description: t('accessCodeVerifier.toast.verifiedDescriptionAssessment'),
         });
         navigate('/assessment');
       } else {
         // User is NOT logged in - send to auth page to create account
         // Pass the access code in URL so it's available after signup
         toast({
-          title: "Access Code Verified!",
-          description: "Please create an account to start your assessment.",
+          title: t('accessCodeVerifier.toast.verifiedTitle'),
+          description: t('accessCodeVerifier.toast.verifiedDescriptionSignup'),
         });
         navigate(`/auth?flow=signup&code=${code.trim().toUpperCase()}`);
       }
 
     } catch (error) {
       console.error('Access code verification failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to verify access code';
+      const errorMessage = t('accessCodeVerifier.errors.verifyFailed');
       setError(errorMessage);
-      
+
       toast({
-        title: "Verification Failed",
+        title: t('accessCodeVerifier.toast.failedTitle'),
         description: errorMessage,
         variant: "destructive",
       });
@@ -98,9 +100,11 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
               <CheckCircle className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-green-900">Access Code Verified!</h3>
+              <h3 className="font-semibold text-green-900">{t('accessCodeVerifier.verified.title')}</h3>
               <p className="text-sm text-green-700">
-                {user ? 'Redirecting you to the assessment...' : 'Redirecting you to create an account...'}
+                {user
+                  ? t('accessCodeVerifier.verified.redirectAssessment')
+                  : t('accessCodeVerifier.verified.redirectSignup')}
               </p>
             </div>
           </div>
@@ -114,14 +118,14 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Key className="h-5 w-5" />
-          Enter Access Code
+          {t('accessCodeVerifier.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleVerify} className="space-y-4">
           <div>
             <label htmlFor="code" className="block text-sm font-medium mb-1">
-              Access Code
+              {t('accessCodeVerifier.codeLabel')}
             </label>
             <Input
               id="code"
@@ -147,10 +151,10 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Verifying...
+                {t('accessCodeVerifier.verifying')}
               </>
             ) : (
-              'Verify Access Code'
+              t('accessCodeVerifier.verify')
             )}
           </Button>
         </form>

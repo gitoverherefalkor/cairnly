@@ -6,7 +6,9 @@
 //  - 'failed'     → answers submitted but report generation failed; offer a retry
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, CheckCircle2, RefreshCw, Loader2 } from 'lucide-react';
+import { tArray } from '@/lib/i18nArray';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -43,80 +45,10 @@ interface DashboardEntryStateProps {
   flavor?: EntryFlavor;
 }
 
-// Section lists mirror the survey_sections table in DB order. Update both
-// together when sections change in Supabase.
-const FLAVOR_SECTIONS: Record<EntryFlavor, string[]> = {
-  pro: [
-    'Intake questions',
-    'Personality & decision-making',
-    'Values & motivations',
-    'Professional interests & skills',
-    'Work environment & team preferences',
-    'Emotional intelligence',
-    'Career goals & development',
-  ],
-  // Starter survey sections (survey 00000000-...-0002), DB order.
-  starter: [
-    'Getting to know you',
-    'How you operate',
-    'What drives you',
-    'Interests and strengths',
-    'Where you work best',
-    'Practical reality',
-    'Looking ahead',
-  ],
-  // Encore survey sections (survey 00000000-...-0003), DB order.
-  encore: [
-    'Getting to know you',
-    'The career you had',
-    'How you operate now',
-    'What matters now',
-    'Where you thrive',
-    'Practical reality',
-    'Looking ahead',
-  ],
-};
-
-// Per-flavor entry copy: 'empty' mode intro, timing eyebrow, and the ghosted
-// "when you finish" preview cards.
-const FLAVOR_COPY: Record<
-  EntryFlavor,
-  { emptySub: string; emptyEyebrow: string; ghostCards: Array<{ title: string; sub: string }> }
-> = {
-  pro: {
-    emptySub:
-      "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.",
-    emptyEyebrow: 'NEXT STEP · 25 MINUTES',
-    ghostCards: [
-      { title: 'Personality profile', sub: 'How you think, lead, and operate' },
-      { title: 'Top career matches', sub: '3 roles tailored to you, AI-impact rated' },
-      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
-      { title: 'Dream-job reality check', sub: 'An honest feasibility check' },
-    ],
-  },
-  starter: {
-    emptySub:
-      'In the assessment we cover how you operate, what you enjoy, and where you want to go. No work experience needed: side jobs, school, and projects all count as real evidence. Best in one sitting, and your answers are auto-saved. After this, your AI coach walks you through a personalised report and refines it with you.',
-    emptyEyebrow: 'NEXT STEP · 20 MINUTES',
-    ghostCards: [
-      { title: 'Personality profile', sub: 'How you operate, decide, and learn' },
-      { title: 'Career directions', sub: '3 directions that fit you, AI-aware' },
-      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
-      { title: 'Entry game plan', sub: 'How to get in without experience' },
-    ],
-  },
-  encore: {
-    emptySub:
-      'In the assessment we take proper stock of the career you had, how you operate now, and what matters at this stage of life. Take your time, breaks are fine: your answers are saved automatically. After this, your AI coach walks you through a personalised report and refines it with you.',
-    emptyEyebrow: 'NEXT STEP · 25 MINUTES',
-    ghostCards: [
-      { title: 'Personality profile', sub: 'How you operate now, honestly' },
-      { title: 'Encore directions', sub: '3 directions that fit this stage, paid or not' },
-      { title: 'Alternative paths', sub: 'Runner-ups + outside-the-box' },
-      { title: 'The way in', sub: 'How to step in at your seniority' },
-    ],
-  },
-};
+// Section lists and per-flavor entry copy live in public/locales/{lng}/dashboard.json
+// under `entry.sections.<flavor>` and `entry.flavors.<flavor>`. They mirror the
+// survey_sections table in DB order — update the locale files together with
+// Supabase when sections change.
 
 export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   mode,
@@ -129,14 +61,23 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
   isRetrying = false,
   flavor = 'pro',
 }) => {
-  const name = firstName || 'there';
+  const { t } = useTranslation('dashboard');
+  const name = firstName;
+  // "Welcome, there." only reads as English idiom. Dutch has no one-word
+  // equivalent, so a missing first name selects a name-less headline variant
+  // (`*_noName`) via i18next context rather than translating a filler word.
+  const nameContext = firstName ? undefined : 'noName';
   const isResume = mode === 'resume';
   const isChat = mode === 'chat';
   const isProcessing = mode === 'processing';
   const isFailed = mode === 'failed';
 
-  const sections = FLAVOR_SECTIONS[flavor];
-  const flavorCopy = FLAVOR_COPY[flavor];
+  // tArray guards the first render, before the namespace JSON has loaded.
+  const sections = tArray<string>(t, `entry.sections.${flavor}`);
+  const ghostCards = tArray<{ title: string; sub: string }>(
+    t,
+    `entry.flavors.${flavor}.ghostCards`,
+  );
 
   const complete = resumeProgress?.sectionsComplete ?? 0;
   const total = resumeProgress?.totalSections ?? sections.length;
@@ -152,47 +93,47 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
         : 0;
 
   const headline: React.ReactNode = isFailed
-    ? `We hit a snag, ${name}.`
+    ? t('entry.headline.failed', { name, context: nameContext })
     : isProcessing
-      ? `Building your profile, ${name}.`
+      ? t('entry.headline.processing', { name, context: nameContext })
       : isChat
-        ? `Your coach is ready, ${name}.`
+        ? t('entry.headline.chat', { name, context: nameContext })
         : isResume
-          ? `Pick up where you left off, ${name}.`
+          ? t('entry.headline.resume', { name, context: nameContext })
           : (
               <>
-                Welcome, {name}.
+                {t('entry.headline.emptyLine1', { name, context: nameContext })}
                 <br />
-                Let's start.
+                {t('entry.headline.emptyLine2')}
               </>
             );
 
   const sub = isFailed
-    ? 'Your answers are saved, so nothing is lost. We could not finish generating your report this time. You can start it again right now.'
+    ? t('entry.sub.failed')
     : isProcessing
-      ? "We're building your personality profile and career matches — this usually takes about 5 minutes. We'll email you the moment it's ready."
+      ? t('entry.sub.processing')
       : isChat
-        ? 'Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.'
+        ? t('entry.sub.chat')
         : isResume
-          ? 'You are partway through. A few sections left, then your coach walks you through the report.'
-          : flavorCopy.emptySub;
+          ? t('entry.sub.resume')
+          : t(`entry.flavors.${flavor}.emptySub`);
 
   const ctaLabel = isProcessing
-    ? 'Check progress'
+    ? t('entry.cta.processing')
     : isChat
-      ? 'Continue with your coach'
+      ? t('entry.cta.chat')
       : isResume
-        ? 'Resume assessment'
-        : 'Start your assessment';
+        ? t('entry.cta.resume')
+        : t('entry.cta.empty');
   const ctaEyebrow = isFailed
-    ? 'REPORT · ACTION NEEDED'
+    ? t('entry.eyebrow.failed')
     : isProcessing
-      ? 'IN PROGRESS · BUILDING YOUR REPORT'
+      ? t('entry.eyebrow.processing')
       : isChat
-        ? 'NEXT STEP · YOUR COACH'
+        ? t('entry.eyebrow.chat')
         : isResume
-          ? `PROGRESS · ${pct}% COMPLETE`
-          : flavorCopy.emptyEyebrow;
+          ? t('entry.eyebrow.resume', { pct })
+          : t(`entry.flavors.${flavor}.emptyEyebrow`);
 
   return (
     <LakeBackground intensity="heavy">
@@ -275,12 +216,12 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               >
                 {complete >= total ? (
                   <span style={{ width: '100%', textAlign: 'center' }}>
-                    All {total} sections done — submit to finish
+                    {t('entry.progress.allDone', { total })}
                   </span>
                 ) : (
                   <>
-                    <span>Section {complete + 1} of {total} in progress</span>
-                    <span>{complete} / {total} sections complete</span>
+                    <span>{t('entry.progress.currentSection', { current: complete + 1, total })}</span>
+                    <span>{t('entry.progress.sectionsComplete', { complete, total })}</span>
                   </>
                 )}
               </div>
@@ -312,11 +253,11 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               {isFailed ? (
                 isRetrying ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" /> Trying again...
+                    <Loader2 size={18} className="animate-spin" /> {t('entry.cta.retrying')}
                   </>
                 ) : (
                   <>
-                    Try again <RefreshCw size={18} />
+                    {t('entry.cta.retry')} <RefreshCw size={18} />
                   </>
                 )
               ) : (
@@ -352,7 +293,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                 color: 'rgba(212,160,36,0.7)',
               }}
             >
-              WHEN YOU FINISH · UNLOCKED
+              {t('entry.unlockedEyebrow')}
             </span>
           </div>
 
@@ -368,8 +309,8 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
               filter: 'saturate(0.6)',
             }}
           >
-            {flavorCopy.ghostCards.map((card) => (
-              <GhostCard key={card.title} title={card.title} sub={card.sub} />
+            {ghostCards.map((card, i) => (
+              <GhostCard key={i} title={card.title} sub={card.sub} />
             ))}
           </div>
 
@@ -407,7 +348,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                   color: 'rgba(255,255,255,0.72)',
                 }}
               >
-                The assessment covers, among other things:
+                {t('entry.coversLabel')}
               </div>
               <div
                 className="justify-start sm:justify-center"
@@ -421,7 +362,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
                   const done = isResume && i < complete;
                   const current = isResume && i === complete;
                   return (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       {done ? (
                         <CheckCircle2 size={15} color={PALETTE.goldBright} />
                       ) : (
@@ -463,7 +404,7 @@ export const DashboardEntryState: React.FC<DashboardEntryStateProps> = ({
             color: 'rgba(255,255,255,0.5)',
           }}
         >
-          Progress auto-saved · Safe to close and return later
+          {t('entry.autoSaveNote')}
         </div>
       </div>
     </LakeBackground>

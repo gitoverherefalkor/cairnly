@@ -4,6 +4,7 @@
 // § Removed from prior dashboard).
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, LogOut, User } from 'lucide-react';
 import { PALETTE, FONT_BODY, LOGO_WORDMARK_URL } from './dashboardV2Shared';
 
@@ -20,12 +21,22 @@ interface DashboardAppNavProps {
 
 export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
   firstName,
-  pageLabel = 'Dashboard',
+  pageLabel,
   onProfile,
   onSignOut,
   onBack,
-  backLabel = 'Back',
-}) => (
+  backLabel,
+}) => {
+  // `dashboard` for the nav's own copy, `common` for the shared Back button.
+  const { t } = useTranslation(['dashboard', 'common']);
+  // Defaults live here rather than in the parameter list: they need `t`, and a
+  // hook cannot run in a default argument. Note that most callers pass their
+  // own English label, so localizing this file alone does not localize every
+  // sub-page nav — see the caller list in the localization handoff.
+  const resolvedPageLabel = pageLabel ?? t('title');
+  const resolvedBackLabel = backLabel ?? t('common:buttons.back');
+
+  return (
   <header
     className="px-4 sm:px-8"
     style={{
@@ -46,7 +57,7 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
         <button
           type="button"
           onClick={onBack}
-          aria-label={backLabel}
+          aria-label={resolvedBackLabel}
           style={{
             background: 'transparent',
             border: 'none',
@@ -64,7 +75,7 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
         >
           <ArrowLeft size={16} />
           {/* Label hidden on mobile to keep the nav on one line; arrow remains. */}
-          <span className="hidden sm:inline">{backLabel}</span>
+          <span className="hidden sm:inline">{resolvedBackLabel}</span>
         </button>
       )}
       <img
@@ -79,7 +90,7 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
         className="hidden sm:inline"
         style={{ fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, color: PALETTE.inkMuted }}
       >
-        {pageLabel}
+        {resolvedPageLabel}
       </span>
     </div>
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -101,12 +112,12 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
           cursor: 'pointer',
         }}
       >
-        <User size={14} /> {firstName || 'Profile'}
+        <User size={14} /> {firstName || t('appNav.profile')}
       </button>
       <button
         type="button"
         onClick={onSignOut}
-        aria-label="Sign out"
+        aria-label={t('signOut')}
         style={{
           background: 'transparent',
           color: PALETTE.inkMuted,
@@ -122,4 +133,5 @@ export const DashboardAppNav: React.FC<DashboardAppNavProps> = ({
       </button>
     </div>
   </header>
-);
+  );
+};

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -22,10 +23,11 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
   const [error, setError] = useState('');
   const [supportOpen, setSupportOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
 
   const handleVerify = async () => {
     if (!code.trim()) {
-      setError('Please enter your access code');
+      setError(t('accessCodeModal.errors.emptyCode'));
       return;
     }
 
@@ -39,7 +41,7 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
 
       if (apiError) {
         console.error('API error:', apiError);
-        setError('Failed to verify access code. Please try again.');
+        setError(t('accessCodeModal.errors.verifyFailed'));
         return;
       }
 
@@ -56,11 +58,11 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
         localStorage.setItem('assessment_session', JSON.stringify(session));
         navigate('/assessment');
       } else {
-        setError(data.error || 'Invalid access code');
+        setError(data.error || t('accessCodeModal.errors.invalidCode'));
       }
     } catch (error) {
       console.error('Error verifying access code:', error);
-      setError('Failed to verify access code. Please try again.');
+      setError(t('accessCodeModal.errors.verifyFailed'));
     } finally {
       setIsVerifying(false);
     }
@@ -95,6 +97,7 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
       <Card className="relative z-10 w-full max-w-lg mx-4 shadow-2xl">
         <button
           onClick={onClose}
+          aria-label={t('accessCodeModal.close')}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
         >
           <X className="h-5 w-5" />
@@ -103,10 +106,10 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
         <CardHeader className="text-center pb-4 pt-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <CheckCircle2 className="h-6 w-6 text-atlas-teal" />
-            <span className="text-lg font-semibold text-atlas-navy">Ready to Begin</span>
+            <span className="text-lg font-semibold text-atlas-navy">{t('accessCodeModal.title')}</span>
           </div>
           <p className="text-gray-600">
-            Your access code has been verified. Click below to start your personalized career assessment.
+            {t('accessCodeModal.description')}
           </p>
         </CardHeader>
 
@@ -131,11 +134,11 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
             {isVerifying ? (
               <>
                 <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Starting...
+                {t('accessCodeModal.starting')}
               </>
             ) : (
               <>
-                Start Assessment
+                {t('accessCodeModal.startAssessment')}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </>
             )}
@@ -144,12 +147,12 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
           {/* Help Section */}
           <div className="text-center pt-4 border-t">
             <p className="text-xs text-gray-500">
-              Having trouble?{' '}
+              {t('accessCodeModal.help.prefix')}{' '}
               <button
                 onClick={() => setSupportOpen(true)}
                 className="text-atlas-blue hover:underline font-medium"
               >
-                Contact support
+                {t('accessCodeModal.help.contactSupport')}
               </button>
             </p>
           </div>
