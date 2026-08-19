@@ -41,7 +41,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
   const [supportOpen, setSupportOpen] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { t } = useTranslation('survey');
+  const { t, i18n } = useTranslation('survey');
 
   // Set the prefilled code when component mounts or prefilledCode changes
   useEffect(() => {
@@ -64,7 +64,9 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
 
     try {
       const { data, error: apiError } = await supabase.functions.invoke('verify-access-code', {
-        body: { code: code.trim() }
+        // See AccessCodeModal: the function localizes its own error copy but
+        // defaults to English when `lang` is absent.
+        body: { code: code.trim(), lang: i18n.language }
       });
 
       if (apiError) {

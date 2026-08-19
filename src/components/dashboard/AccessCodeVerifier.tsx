@@ -24,7 +24,7 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
 
   const handleVerify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -39,7 +39,9 @@ const AccessCodeVerifier = ({ prefilledCode, onVerified }: AccessCodeVerifierPro
 
     try {
       const { data, error: verifyError } = await supabase.functions.invoke('verify-access-code', {
-        body: { code: code.trim().toUpperCase() }
+        // See AccessCodeModal: the function localizes its own error copy but
+        // defaults to English when `lang` is absent.
+        body: { code: code.trim().toUpperCase(), lang: i18n.language }
       });
 
       if (verifyError) {

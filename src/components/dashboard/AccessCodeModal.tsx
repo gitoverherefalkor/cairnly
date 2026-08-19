@@ -23,7 +23,7 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
   const [error, setError] = useState('');
   const [supportOpen, setSupportOpen] = useState(false);
   const navigate = useNavigate();
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
 
   const handleVerify = async () => {
     if (!code.trim()) {
@@ -36,7 +36,11 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
 
     try {
       const { data, error: apiError } = await supabase.functions.invoke('verify-access-code', {
-        body: { code: code.trim() }
+        // verify-access-code returns its error copy already translated, and its
+        // `lang` is optional and defaults to English — so without this a Dutch
+        // candidate reads an English "code has expired" no matter what the
+        // frontend does. data.error always wins over the fallback below.
+        body: { code: code.trim(), lang: i18n.language }
       });
 
       if (apiError) {
