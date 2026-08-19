@@ -36,7 +36,8 @@
     "failedToLoad": "Failed to load survey.",
     "somethingWentWrong": "Something went wrong.",
     "noQuestions": "No questions available in this section.",
-    "failedToLoadRetry": "Failed to load survey. Please try again."
+    "failedToLoadRetry": "Failed to load survey. Please try again.",
+    "unsupportedQuestionType": "Unsupported question type: {{type}}"
   },
   "assessmentWelcome": {
     "errors": {
@@ -142,5 +143,179 @@
     "successTitle": "Survey Submitted Successfully",
     "successDescription": "Redirecting to processing page...",
     "unexpectedErrorDescription": "An unexpected error occurred. Please try again - your answers are saved."
+  },
+  "companySize": {
+    "micro": "Micro (1-10 employees)",
+    "small": "Small (11-50 employees)",
+    "medium": "Medium (51-200 employees)",
+    "large": "Large (201-1000 employees)",
+    "enterprise": "Enterprise (1000-5000 employees)",
+    "multiNational": "Multi National (5000+ employees)",
+    "ownCompany": "Own Company",
+    "ownCompanyDescription": "Freelance, consulting, or own business"
+  },
+  "companyCulture": {
+    "startup": "Startup / Scale-up",
+    "startupDescription": "Investor backed, focus on growth, evolving structure",
+    "corporate": "Corporate",
+    "corporateDescription": "Established, structured hierarchy, stable",
+    "midMarket": "Mid-Market",
+    "midMarketDescription": "Balanced growth, professionalized, cross-functional",
+    "agency": "Agency / Consultancy",
+    "agencyDescription": "Client-centric, project-based, high variety",
+    "boutique": "Boutique / Niche",
+    "boutiqueDescription": "Specialized firm, small team, direct impact",
+    "nonprofit": "Nonprofit / Social Impact",
+    "nonprofitDescription": "Mission-driven, purpose-focused, collaborative",
+    "publicSector": "Public Sector / Gov",
+    "publicSectorDescription": "Formal procedures, regulatory, public service",
+    "solo": "Solo / Freelance",
+    "soloDescription": "Working independently, serving clients, no co-workers",
+    "smallBusinessOwner": "Small Business Owner (up to 5 FTE)",
+    "smallBusinessOwnerDescription": "Running my own company with employees or contractors"
+  },
+  "ranking": {
+    "dragToReorder": "Drag to reorder",
+    "removeFromRanking": "Remove from ranking",
+    "removeTitle": "Remove",
+    "instructionsBold": "Tap items in your order of importance.",
+    "instructionsRest": "Drag the grip handle to reorder, tap the × to remove.",
+    "yourRanking": "Your ranking",
+    "progress": "{{ranked}} of {{total}} ranked",
+    "emptyState": "Tap an item below to add it as #1",
+    "tapToAdd": "Tap to add"
+  },
+  "selectionLimit": {
+    "exact": "Select {{count}}",
+    "between": "Select between {{min}} and {{max}}",
+    "atLeastOne": "Select at least one",
+    "atLeast": "Select at least {{count}}",
+    "upTo": "Select up to {{count}}",
+    "selectedCount": "· {{count}} selected",
+    "reassurance": "No wrong answers here. It's one of several signals we use."
+  },
+  "inputs": {
+    "responsePlaceholder": "Enter your response...",
+    "numberPlaceholder": "Enter a number...",
+    "selectOptionPlaceholder": "Select an option...",
+    "otherLabel": "Other",
+    "otherPlaceholder": "Please specify...",
+    "characterCount": "{{count}} / {{max}} characters"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "careerHistory": {
+    "duration": {
+      "lessThanMonth": "Less than a month",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years",
+      "yearsAndMonths": "{{years}} years, {{months}} months"
+    },
+    "roleNotIncluded": "{{title}} — not included",
+    "roleLabel": "Role {{number}}",
+    "roleLabelCurrent": "Role {{number}} (Current)",
+    "roleLabelMostRecent": "Role 1 (Most Recent)",
+    "addRole": "Add a role",
+    "addRoleMax": "(5 max)",
+    "addRoleCount": "({{count}}/5)",
+    "moveUpToInclude": "Move up to include",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "e.g., Director of Marketing",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "e.g., Acme Legal AI",
+    "companySize": "Company Size",
+    "companySizePlaceholder": "Select size...",
+    "companyCulture": "Company Culture",
+    "companyCulturePlaceholder": "Select culture...",
+    "sector": "Industry / Sector / Focus",
+    "sectorPlaceholder": "e.g., Legal Tech, FinTech, Healthcare",
+    "start": "Start",
+    "monthPlaceholder": "Mon",
+    "yearPlaceholder": "Year",
+    "end": "End",
+    "presentPlaceholder": "Present",
+    "currentlyWorkHere": "I currently work here",
+    "footerNote": "Up to 5 roles are included in your assessment. Use the arrows to reorder.",
+    "presentYear": "Present"
+  },
+  "careerHappiness": {
+    "noHistoryWarning": "Please fill in your career history in the previous question first.",
+    "reasonCallout": "What you write here matters as much as the score. We read it closely to learn what actually makes work good or bad for you, so a specific line about what you liked and what wore you down really helps.",
+    "roleLabelMostRecent": "Role 1 (most recent): ",
+    "roleLabel": "Role {{number}}: ",
+    "atCompany": " at {{company}}",
+    "happinessLabel": "Happiness (1-10)",
+    "scaleLow": "1 (unhappy)",
+    "scaleHigh": "10 (very happy)",
+    "whyThisScore": "Why this score?",
+    "charsRemaining_one": "{{count}} more character",
+    "charsRemaining_other": "{{count}} more characters",
+    "reasonPlaceholder": "e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
+  },
+  "skills": {
+    "sectionTitle": "Top Skills & Certifications",
+    "topThreeLabel": "Your Top 3 Skills",
+    "topThreeHint": "Skills below are pulled from your CV. Tag your top three by clicking 1, 2, and 3.",
+    "placeholder1": "e.g., Strategic Planning",
+    "placeholder2": "e.g., Stakeholder Management",
+    "placeholder3": "e.g., Budget Administration",
+    "placeholderAdditional": "Additional skill",
+    "rankGroupAria": "Rank skill {{number}}",
+    "removeRankTitle": "Remove rank #{{rank}}",
+    "setRankTitle": "Set as #{{rank}}",
+    "certificationsLabel": "Certifications (optional)",
+    "certPlaceholder1": "e.g., Six Sigma Green Belt",
+    "certPlaceholder2": "e.g., Salesforce Certified"
+  },
+  "achievements": {
+    "sectionTitle": "Achievements",
+    "sectionHint": "Highlight key wins like revenue growth, cost savings, or successful team expansions.",
+    "noCareersTip": "Tip: fill in your career history first to get separate achievement fields per company.",
+    "generalPlaceholder": "Describe your key achievements...",
+    "rolePlaceholder": "Key achievements at {{company}}...",
+    "otherLabel": "Other Achievements (optional)",
+    "otherPlaceholder": "Any other achievements not tied to a specific company..."
+  },
+  "languages": {
+    "sectionTitle": "Languages",
+    "sectionHint": "Which languages do you speak, and how well? Select at least one.",
+    "proficiencyPlaceholder": "Proficiency...",
+    "otherLabel": "Another language (optional)",
+    "clear": "Clear",
+    "choosePlaceholder": "Choose a language...",
+    "proficiency": {
+      "native": "Native",
+      "fluent": "Fluent",
+      "conversational": "Conversational",
+      "basic": "Basic"
+    }
+  },
+  "interests": {
+    "placeholder1": "e.g., Gardening",
+    "placeholder2": "e.g., Creative writing",
+    "placeholder3": "e.g., Lego"
+  },
+  "voice": {
+    "tryItHint": "Try it — speak your answer",
+    "stopRecording": "Stop recording",
+    "voiceInput": "Voice input",
+    "tidyingTranscript": "Tidying up your transcript..."
   }
 }

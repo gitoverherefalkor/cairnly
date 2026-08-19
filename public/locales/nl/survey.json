@@ -36,7 +36,8 @@
     "failedToLoad": "Assessment kon niet worden geladen.",
     "somethingWentWrong": "Er is iets misgegaan.",
     "noQuestions": "Geen vragen beschikbaar in dit onderdeel.",
-    "failedToLoadRetry": "Assessment kon niet worden geladen. Probeer het opnieuw."
+    "failedToLoadRetry": "Assessment kon niet worden geladen. Probeer het opnieuw.",
+    "unsupportedQuestionType": "Niet-ondersteund vraagtype: {{type}}"
   },
   "assessmentWelcome": {
     "errors": {
@@ -142,5 +143,179 @@
     "successTitle": "Assessment succesvol ingediend",
     "successDescription": "Je wordt doorgestuurd naar de verwerkingspagina...",
     "unexpectedErrorDescription": "Er is een onverwachte fout opgetreden. Probeer het opnieuw, je antwoorden zijn opgeslagen."
+  },
+  "companySize": {
+    "micro": "Micro (1-10 medewerkers)",
+    "small": "Klein (11-50 medewerkers)",
+    "medium": "Middelgroot (51-200 medewerkers)",
+    "large": "Groot (201-1000 medewerkers)",
+    "enterprise": "Enterprise (1000-5000 medewerkers)",
+    "multiNational": "Multinational (5000+ medewerkers)",
+    "ownCompany": "Eigen bedrijf",
+    "ownCompanyDescription": "Freelance, consultancy of een eigen zaak"
+  },
+  "companyCulture": {
+    "startup": "Start-up / scale-up",
+    "startupDescription": "Met investeerders, gericht op groei, structuur nog in ontwikkeling",
+    "corporate": "Corporate",
+    "corporateDescription": "Gevestigd, duidelijke hiërarchie, stabiel",
+    "midMarket": "Middenmarkt",
+    "midMarketDescription": "Gebalanceerde groei, geprofessionaliseerd, multidisciplinair",
+    "agency": "Bureau / consultancy",
+    "agencyDescription": "Klantgericht, projectmatig, veel afwisseling",
+    "boutique": "Boutique / niche",
+    "boutiqueDescription": "Gespecialiseerd bedrijf, klein team, directe impact",
+    "nonprofit": "Non-profit / maatschappelijke impact",
+    "nonprofitDescription": "Missiegedreven, gericht op betekenis, samenwerkend",
+    "publicSector": "Publieke sector / overheid",
+    "publicSectorDescription": "Formele procedures, regelgeving, publieke dienstverlening",
+    "solo": "Solo / freelance",
+    "soloDescription": "Zelfstandig werken, klanten bedienen, geen collega's",
+    "smallBusinessOwner": "Eigenaar klein bedrijf (tot 5 fte)",
+    "smallBusinessOwnerDescription": "Ik run mijn eigen bedrijf met medewerkers of freelancers"
+  },
+  "ranking": {
+    "dragToReorder": "Sleep om de volgorde te wijzigen",
+    "removeFromRanking": "Verwijderen uit de volgorde",
+    "removeTitle": "Verwijderen",
+    "instructionsBold": "Tik items aan in volgorde van belangrijkheid.",
+    "instructionsRest": "Sleep aan het handvat om de volgorde te wijzigen, tik op de × om te verwijderen.",
+    "yourRanking": "Jouw volgorde",
+    "progress": "{{ranked}} van {{total}} gerangschikt",
+    "emptyState": "Tik hieronder op een item om het als #1 toe te voegen",
+    "tapToAdd": "Tik om toe te voegen"
+  },
+  "selectionLimit": {
+    "exact": "Kies er {{count}}",
+    "between": "Kies er tussen {{min}} en {{max}}",
+    "atLeastOne": "Kies er minstens één",
+    "atLeast": "Kies er minstens {{count}}",
+    "upTo": "Kies er maximaal {{count}}",
+    "selectedCount": "· {{count}} gekozen",
+    "reassurance": "Er zijn hier geen foute antwoorden. Dit is een van de signalen die we gebruiken."
+  },
+  "inputs": {
+    "responsePlaceholder": "Typ je antwoord...",
+    "numberPlaceholder": "Vul een getal in...",
+    "selectOptionPlaceholder": "Kies een optie...",
+    "otherLabel": "Anders",
+    "otherPlaceholder": "Namelijk...",
+    "characterCount": "{{count}} / {{max}} tekens"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mrt",
+    "apr": "Apr",
+    "may": "Mei",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Okt",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "careerHistory": {
+    "duration": {
+      "lessThanMonth": "Minder dan een maand",
+      "months_one": "{{count}} maand",
+      "months_other": "{{count}} maanden",
+      "years_one": "{{count}} jaar",
+      "years_other": "{{count}} jaar",
+      "yearsAndMonths": "{{years}} jaar, {{months}} maanden"
+    },
+    "roleNotIncluded": "{{title}}, niet meegenomen",
+    "roleLabel": "Rol {{number}}",
+    "roleLabelCurrent": "Rol {{number}} (huidig)",
+    "roleLabelMostRecent": "Rol 1 (meest recent)",
+    "addRole": "Voeg een rol toe",
+    "addRoleMax": "(max. 5)",
+    "addRoleCount": "({{count}}/5)",
+    "moveUpToInclude": "Verplaats omhoog om mee te nemen",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "remove": "Verwijderen",
+    "jobTitle": "Functietitel",
+    "jobTitlePlaceholder": "bijv. Directeur Marketing",
+    "companyName": "Bedrijfsnaam",
+    "companyNamePlaceholder": "bijv. Acme Legal AI",
+    "companySize": "Bedrijfsgrootte",
+    "companySizePlaceholder": "Kies grootte...",
+    "companyCulture": "Bedrijfscultuur",
+    "companyCulturePlaceholder": "Kies cultuur...",
+    "sector": "Branche / sector / focus",
+    "sectorPlaceholder": "bijv. legal tech, fintech, zorg",
+    "start": "Start",
+    "monthPlaceholder": "Mnd",
+    "yearPlaceholder": "Jaar",
+    "end": "Einde",
+    "presentPlaceholder": "Heden",
+    "currentlyWorkHere": "Ik werk hier nu",
+    "footerNote": "Er worden maximaal 5 rollen meegenomen in je assessment. Gebruik de pijlen om de volgorde te wijzigen.",
+    "presentYear": "Heden"
+  },
+  "careerHappiness": {
+    "noHistoryWarning": "Vul eerst je loopbaan in bij de vorige vraag.",
+    "reasonCallout": "Wat je hier schrijft telt net zo zwaar als het cijfer. We lezen het aandachtig om te leren wat werk voor jou goed of slecht maakt, dus een concrete zin over wat je leuk vond en wat je energie kostte helpt echt.",
+    "roleLabelMostRecent": "Rol 1 (meest recent): ",
+    "roleLabel": "Rol {{number}}: ",
+    "atCompany": " bij {{company}}",
+    "happinessLabel": "Tevredenheid (1-10)",
+    "scaleLow": "1 (ongelukkig)",
+    "scaleHigh": "10 (heel gelukkig)",
+    "whyThisScore": "Waarom dit cijfer?",
+    "charsRemaining_one": "nog {{count}} teken",
+    "charsRemaining_other": "nog {{count}} tekens",
+    "reasonPlaceholder": "bijv. Ik hield van de vrijheid en het klantcontact; de eindeloze rapportages en lange dagen sloopten me."
+  },
+  "skills": {
+    "sectionTitle": "Topvaardigheden en certificeringen",
+    "topThreeLabel": "Je top 3 vaardigheden",
+    "topThreeHint": "De vaardigheden hieronder komen uit je cv. Markeer je top drie door op 1, 2 en 3 te klikken.",
+    "placeholder1": "bijv. strategische planning",
+    "placeholder2": "bijv. stakeholdermanagement",
+    "placeholder3": "bijv. budgetbeheer",
+    "placeholderAdditional": "Extra vaardigheid",
+    "rankGroupAria": "Rangschik vaardigheid {{number}}",
+    "removeRankTitle": "Rang #{{rank}} verwijderen",
+    "setRankTitle": "Instellen als #{{rank}}",
+    "certificationsLabel": "Certificeringen (optioneel)",
+    "certPlaceholder1": "bijv. Six Sigma Green Belt",
+    "certPlaceholder2": "bijv. Salesforce Certified"
+  },
+  "achievements": {
+    "sectionTitle": "Prestaties",
+    "sectionHint": "Noem je belangrijkste resultaten, zoals omzetgroei, kostenbesparing of een team dat succesvol groeide.",
+    "noCareersTip": "Tip: vul eerst je loopbaan in, dan krijg je per bedrijf een apart veld voor prestaties.",
+    "generalPlaceholder": "Beschrijf je belangrijkste prestaties...",
+    "rolePlaceholder": "Belangrijkste prestaties bij {{company}}...",
+    "otherLabel": "Overige prestaties (optioneel)",
+    "otherPlaceholder": "Andere prestaties die niet bij een specifiek bedrijf horen..."
+  },
+  "languages": {
+    "sectionTitle": "Talen",
+    "sectionHint": "Welke talen spreek je, en hoe goed? Kies er minstens één.",
+    "proficiencyPlaceholder": "Niveau...",
+    "otherLabel": "Nog een taal (optioneel)",
+    "clear": "Wissen",
+    "choosePlaceholder": "Kies een taal...",
+    "proficiency": {
+      "native": "Moedertaal",
+      "fluent": "Vloeiend",
+      "conversational": "Gesprekniveau",
+      "basic": "Basis"
+    }
+  },
+  "interests": {
+    "placeholder1": "bijv. tuinieren",
+    "placeholder2": "bijv. creatief schrijven",
+    "placeholder3": "bijv. Lego"
+  },
+  "voice": {
+    "tryItHint": "Probeer het, spreek je antwoord in",
+    "stopRecording": "Stoppen met opnemen",
+    "voiceInput": "Spraakinvoer",
+    "tidyingTranscript": "Je transcript wordt opgeschoond..."
   }
 }
