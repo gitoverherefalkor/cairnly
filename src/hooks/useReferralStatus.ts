@@ -107,7 +107,8 @@ export function useReferralStatus() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // The user's referral code — minted on demand if missing.
+  // The user's referral code — minted on demand if missing. The same read also
+  // picks up any comped tool unlocks (see compQuery below).
   const codeQuery = useQuery({
     queryKey: ['referral-code', user?.id],
     queryFn: async (): Promise<string | null> => {
@@ -152,20 +153,48 @@ export function useReferralStatus() {
     enabled: !!user?.id,
   });
 
+  // Manually granted tool unlocks (profiles.comp_tool_unlocks, 0–3), for when
+  // we comp someone the tools directly instead of them earning the referrals.
+  const compQuery = useQuery({
+    queryKey: ['comp-tool-unlocks', user?.id],
+    queryFn: async (): Promise<number> => {
+      if (!user?.id) return 0;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('comp_tool_unlocks')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (error) {
+        console.error('comp unlock lookup failed:', error);
+        return 0;
+      }
+      return data?.comp_tool_unlocks ?? 0;
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const referralCount = countQuery.data ?? 0;
   const referralCode = codeQuery.data ?? null;
+  const compUnlocks = compQuery.data ?? 0;
 
-  // Tool gating (Jobs page, teaser cards) — unchanged, still keyed off the
-  // three tool features.
+  // Tools open on whichever is higher: referrals actually earned, or unlocks
+  // we comped. Refunds deliberately do NOT read this — see ladder below.
+  const toolCount = Math.max(referralCount, compUnlocks);
+
+  // Tool gating (Jobs page, teaser cards) — keyed off the three tool features.
   const features: ResolvedFeature[] = REFERRAL_FEATURES.map((f) => ({
     ...f,
-    unlocked: referralCount >= f.requiredReferrals,
+    unlocked: toolCount >= f.requiredReferrals,
   }));
 
   // The full 6-step ladder for the dashboard toolkit (3 tools + 3 refunds).
+  // Refund steps stay on the REAL referral count: a comp grants tools, never
+  // money. Mixing them would let a comp queue a Stripe refund the user never
+  // earned, since payment-success sizes payouts off the referrals table.
   const ladder: ResolvedUnlockStep[] = UNLOCK_LADDER.map((step) => ({
     step,
-    unlocked: referralCount >= step.requiredReferrals,
+    unlocked: (step.kind === 'tool' ? toolCount : referralCount) >= step.requiredReferrals,
   }));
 
   const referralLink = referralCode ? `${PRODUCTION_ORIGIN}/?ref=${referralCode}` : null;
@@ -176,7 +205,7 @@ export function useReferralStatus() {
     referralCount,
     features,
     ladder,
-    isLoading: codeQuery.isLoading || countQuery.isLoading,
+    isLoading: codeQuery.isLoading || countQuery.isLoading || compQuery.isLoading,
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: ['referral-count', user?.id] });
     },
