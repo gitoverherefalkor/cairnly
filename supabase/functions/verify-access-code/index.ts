@@ -3,6 +3,53 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
 
+// ─── Localized copy ─────────────────────────────────────────────────────────
+// These strings are shown to the user verbatim: the client renders `data.error`
+// and its own translated fallback only fires when this function sends nothing.
+// So the message has to arrive already in the user's language, the same
+// inline-COPY pattern payment-success and send-confirmation-email use.
+//
+// `lang` is optional and defaults to English, so a caller that does not send it
+// behaves exactly as before.
+//
+// Wording note: three of these used to end in "purchase a new one". That is
+// wrong for a partner candidate, who never bought anything, their agency did.
+// Telling them to buy would push them at the EUR 59 checkout for a seat that is
+// already paid for. The copy now points at whoever issued the code instead,
+// which is true for a direct buyer (it is in their receipt email) and for an
+// agency candidate alike.
+type Lang = "en" | "nl";
+
+const pickLang = (v: unknown): Lang =>
+  String(v ?? "en").slice(0, 2).toLowerCase() === "nl" ? "nl" : "en";
+
+const COPY = {
+  en: {
+    required: "Please enter your access code.",
+    notFound:
+      "We can't find that access code. Check it for typos, or look it up in the email you received.",
+    deactivated: "This access code has been deactivated. Please contact support.",
+    expired:
+      "This access code has expired. Ask whoever issued it for a new one, or contact support.",
+    // Says the rule out loud: one code is one person, enforced by
+    // signup-with-access-code binding user_id to the first account to redeem it.
+    alreadyUsed:
+      "This access code has already been used. Each code works for one person.",
+    failed: "We couldn't check your access code. Please try again.",
+  },
+  nl: {
+    required: "Vul je toegangscode in.",
+    notFound:
+      "We kunnen deze toegangscode niet vinden. Controleer 'm op typefouten, of zoek 'm op in de e-mail die je hebt ontvangen.",
+    deactivated: "Deze toegangscode is gedeactiveerd. Neem contact op met support.",
+    expired:
+      "Deze toegangscode is verlopen. Vraag een nieuwe aan bij degene die 'm heeft verstrekt, of neem contact op met support.",
+    alreadyUsed:
+      "Deze toegangscode is al gebruikt. Elke code werkt voor één persoon.",
+    failed: "We konden je toegangscode niet controleren. Probeer het opnieuw.",
+  },
+} as const;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   const preflight = handleCorsPreFlight(req);
@@ -14,13 +61,19 @@ serve(async (req) => {
   const rateLimited = checkRateLimit(req, 10, corsHeaders);
   if (rateLimited) return rateLimited;
 
+  // Outside the try so the catch below can still answer in the right language.
+  let lang: Lang = "en";
+
   try {
-    const { code } = await req.json();
+    const body = await req.json();
+    const { code } = body;
+    lang = pickLang(body?.lang);
+    const t = COPY[lang];
 
     if (!code) {
       return new Response(JSON.stringify({
         valid: false,
-        error: 'Access code is required'
+        error: t.required
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -46,7 +99,7 @@ serve(async (req) => {
     if (error || !accessCode) {
       return new Response(JSON.stringify({
         valid: false,
-        error: 'Access code not found. Please check your code or purchase a new one.',
+        error: t.notFound,
         needsPurchase: true
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -57,7 +110,7 @@ serve(async (req) => {
     if (accessCode.is_active === false) {
       return new Response(JSON.stringify({
         valid: false,
-        error: 'This access code has been deactivated. Please contact support.',
+        error: t.deactivated,
         needsPurchase: false
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -68,7 +121,7 @@ serve(async (req) => {
     if (accessCode.expires_at && new Date(accessCode.expires_at) < new Date()) {
       return new Response(JSON.stringify({
         valid: false,
-        error: 'Access code has expired. Please purchase a new one.',
+        error: t.expired,
         needsPurchase: true
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -79,7 +132,7 @@ serve(async (req) => {
     if (accessCode.usage_count >= accessCode.max_usage) {
       return new Response(JSON.stringify({
         valid: false,
-        error: 'Access code has already been used. Please purchase a new one.',
+        error: t.alreadyUsed,
         needsPurchase: true
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -122,7 +175,7 @@ serve(async (req) => {
     console.error('Error verifying access code:', error);
     return new Response(JSON.stringify({
       valid: false,
-      error: 'Failed to verify access code. Please try again.'
+      error: COPY[lang].failed
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
