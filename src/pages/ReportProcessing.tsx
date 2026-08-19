@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -10,12 +11,17 @@ import CairnProgress from '@/components/survey/CairnProgress';
 
 // Stepper stages — timed to feel like real progress through the n8n pipeline
 // (WF1 personality → WF2 research → WF3 scoring → WF4 career narratives).
+// The delays are structure, so STEPS stays at module level (useTranslation
+// cannot run there) and carries a stable id plus a labelKey instead of an
+// English label. The id is what the React key uses: keying on the label would
+// change it on a language switch, remounting every row and replaying the
+// fade-in animation.
 const STEPS = [
-  { label: 'Reading your responses', delay: 0 },
-  { label: 'Building your personality profile', delay: 10 },
-  { label: 'Researching career paths', delay: 60 },
-  { label: 'Scoring your career matches', delay: 150 },
-  { label: 'Preparing your AI career coach', delay: 240 },
+  { id: 'reading', labelKey: 'reportProcessing.steps.reading', delay: 0 },
+  { id: 'personality', labelKey: 'reportProcessing.steps.personality', delay: 10 },
+  { id: 'research', labelKey: 'reportProcessing.steps.research', delay: 60 },
+  { id: 'scoring', labelKey: 'reportProcessing.steps.scoring', delay: 150 },
+  { id: 'coach', labelKey: 'reportProcessing.steps.coach', delay: 240 },
 ];
 
 // Timeout thresholds (seconds)
@@ -31,6 +37,7 @@ const ReportProcessing = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('survey');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const redirectedRef = useRef(false);
@@ -48,11 +55,11 @@ const ReportProcessing = () => {
     redirectedRef.current = true;
     setPhase('redirecting');
     toast({
-      title: "Your coach is ready!",
-      description: "Connecting you now...",
+      title: t('reportProcessing.redirecting.title'),
+      description: t('reportProcessing.redirecting.toastBody'),
     });
     setTimeout(() => navigate('/chat'), 1500);
-  }, [navigate, toast]);
+  }, [navigate, toast, t]);
 
   const checkReportStatus = useCallback(async () => {
     if (!user) return;
@@ -175,6 +182,7 @@ function NormalState({
   phase: Phase;
   onDashboard: () => void;
 }) {
+  const { t } = useTranslation('survey');
   return (
     <div className="space-y-6">
       {/* Completed cairn — the payoff for finishing all seven sections. Full
@@ -184,15 +192,15 @@ function NormalState({
       {/* Header */}
       <div className="text-center space-y-1.5">
         <p className="text-xs font-semibold uppercase tracking-widest text-atlas-gold">
-          All seven sections done
+          {t('reportProcessing.header.eyebrow')}
         </p>
         <h1 className="text-xl font-bold text-atlas-navy">
-          Building Your Profile
+          {t('reportProcessing.header.title')}
         </h1>
         <p className="text-sm text-gray-500">
           {phase === 'soft-warning'
-            ? 'Almost there, just finishing up.'
-            : 'This usually takes about 5 minutes.'}
+            ? t('reportProcessing.header.subtitleSoftWarning')
+            : t('reportProcessing.header.subtitle')}
         </p>
       </div>
 
@@ -208,7 +216,7 @@ function NormalState({
 
           return (
             <div
-              key={step.label}
+              key={step.id}
               className="flex items-start gap-3 py-3 animate-in fade-in slide-in-from-bottom-2 duration-500"
             >
               {/* Icon */}
@@ -223,7 +231,7 @@ function NormalState({
               </div>
               {/* Label */}
               <span className={`text-sm ${isActive ? 'text-atlas-navy font-medium' : 'text-gray-500'}`}>
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </div>
           );
@@ -245,11 +253,11 @@ function NormalState({
         <div className="flex items-start gap-2.5">
           <Mail className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-gray-500">
-            You can safely leave this page. We'll email you when your coach is ready.
+            {t('reportProcessing.leaveNote')}
           </p>
         </div>
         <Button variant="outline" onClick={onDashboard} className="w-full">
-          Go to Dashboard
+          {t('reportProcessing.goToDashboard')}
         </Button>
       </div>
     </div>
@@ -258,13 +266,14 @@ function NormalState({
 
 // ─── Redirecting state ───────────────────────────────────────────────
 function RedirectingState() {
+  const { t } = useTranslation('survey');
   return (
     <div className="text-center space-y-4 py-4">
       <CheckCircle2 className="h-12 w-12 text-atlas-teal mx-auto" />
       <div className="space-y-1">
-        <h2 className="text-xl font-bold text-atlas-navy">Your coach is ready!</h2>
+        <h2 className="text-xl font-bold text-atlas-navy">{t('reportProcessing.redirecting.title')}</h2>
         <p className="text-sm text-gray-500 flex items-center justify-center gap-1">
-          Connecting you now <ArrowRight className="h-3.5 w-3.5" />
+          {t('reportProcessing.redirecting.body')} <ArrowRight className="h-3.5 w-3.5" />
         </p>
       </div>
     </div>
@@ -273,26 +282,27 @@ function RedirectingState() {
 
 // ─── End state (5+ min) ──────────────────────────────────────────────
 function EndState({ onDashboard }: { onDashboard: () => void }) {
+  const { t } = useTranslation('survey');
   return (
     <div className="space-y-5">
       <div className="text-center space-y-3">
         <AlertCircle className="h-10 w-10 text-amber-500 mx-auto" />
         <div className="space-y-1">
           <h2 className="text-lg font-bold text-atlas-navy">
-            Taking longer than expected
+            {t('reportProcessing.endState.title')}
           </h2>
           <p className="text-sm text-gray-600">
-            Our support team has been notified and will follow up shortly.
+            {t('reportProcessing.endState.body')}
           </p>
         </div>
       </div>
 
       <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
         <p className="text-sm text-blue-800 font-medium">
-          Your data is safe — nothing has been lost.
+          {t('reportProcessing.endState.safeTitle')}
         </p>
         <p className="text-xs text-blue-600 mt-1">
-          We'll email you as soon as your career coach is ready.
+          {t('reportProcessing.endState.safeBody')}
         </p>
       </div>
 
@@ -300,7 +310,7 @@ function EndState({ onDashboard }: { onDashboard: () => void }) {
         onClick={onDashboard}
         className="w-full bg-atlas-teal hover:bg-atlas-teal/90 text-white"
       >
-        Go to Dashboard
+        {t('reportProcessing.goToDashboard')}
       </Button>
     </div>
   );
@@ -308,26 +318,27 @@ function EndState({ onDashboard }: { onDashboard: () => void }) {
 
 // ─── Failed state ───────────────────────────────────────────────────
 function FailedState({ onDashboard }: { onDashboard: () => void }) {
+  const { t } = useTranslation('survey');
   return (
     <div className="space-y-5">
       <div className="text-center space-y-3">
         <AlertCircle className="h-10 w-10 text-red-500 mx-auto" />
         <div className="space-y-1">
           <h2 className="text-lg font-bold text-atlas-navy">
-            Something went wrong
+            {t('reportProcessing.failed.title')}
           </h2>
           <p className="text-sm text-gray-600">
-            We hit a snag generating your report. Our team has been notified.
+            {t('reportProcessing.failed.body')}
           </p>
         </div>
       </div>
 
       <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
         <p className="text-sm text-blue-800 font-medium">
-          Your survey data is safe — nothing has been lost.
+          {t('reportProcessing.failed.safeTitle')}
         </p>
         <p className="text-xs text-blue-600 mt-1">
-          We'll email you as soon as your report is ready.
+          {t('reportProcessing.failed.safeBody')}
         </p>
       </div>
 
@@ -335,7 +346,7 @@ function FailedState({ onDashboard }: { onDashboard: () => void }) {
         onClick={onDashboard}
         className="w-full bg-atlas-teal hover:bg-atlas-teal/90 text-white"
       >
-        Go to Dashboard
+        {t('reportProcessing.goToDashboard')}
       </Button>
     </div>
   );

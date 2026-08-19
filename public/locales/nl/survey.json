@@ -317,5 +317,39 @@
     "stopRecording": "Stoppen met opnemen",
     "voiceInput": "Spraakinvoer",
     "tidyingTranscript": "Je transcript wordt opgeschoond..."
+  },
+  "reportProcessing": {
+    "steps": {
+      "reading": "Je antwoorden worden gelezen",
+      "personality": "Je persoonlijkheidsprofiel wordt opgebouwd",
+      "research": "Carrièrepaden worden onderzocht",
+      "scoring": "Je carrièrematches worden gescoord",
+      "coach": "Je AI-carrièrecoach wordt voorbereid"
+    },
+    "redirecting": {
+      "title": "Je coach staat klaar",
+      "toastBody": "Je wordt nu doorverbonden...",
+      "body": "Je wordt nu doorverbonden"
+    },
+    "header": {
+      "eyebrow": "Alle zeven onderdelen afgerond",
+      "title": "Je profiel wordt opgebouwd",
+      "subtitleSoftWarning": "Bijna klaar, we ronden het laatste af.",
+      "subtitle": "Dit duurt meestal ongeveer 5 minuten."
+    },
+    "leaveNote": "Je kunt deze pagina rustig sluiten. We mailen je zodra je coach klaarstaat.",
+    "goToDashboard": "Naar dashboard",
+    "endState": {
+      "title": "Dit duurt langer dan verwacht",
+      "body": "Ons supportteam heeft een melding gekregen en neemt snel contact met je op.",
+      "safeTitle": "Je gegevens zijn veilig, er is niets verloren gegaan.",
+      "safeBody": "We mailen je zodra je carrièrecoach klaarstaat."
+    },
+    "failed": {
+      "title": "Er is iets misgegaan",
+      "body": "Er ging iets mis bij het maken van je rapport. Ons team heeft een melding gekregen.",
+      "safeTitle": "Je antwoorden zijn veilig, er is niets verloren gegaan.",
+      "safeBody": "We mailen je zodra je rapport klaar is."
+    }
   }
 }

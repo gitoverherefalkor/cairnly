@@ -317,5 +317,39 @@
     "stopRecording": "Stop recording",
     "voiceInput": "Voice input",
     "tidyingTranscript": "Tidying up your transcript..."
+  },
+  "reportProcessing": {
+    "steps": {
+      "reading": "Reading your responses",
+      "personality": "Building your personality profile",
+      "research": "Researching career paths",
+      "scoring": "Scoring your career matches",
+      "coach": "Preparing your AI career coach"
+    },
+    "redirecting": {
+      "title": "Your coach is ready!",
+      "toastBody": "Connecting you now...",
+      "body": "Connecting you now"
+    },
+    "header": {
+      "eyebrow": "All seven sections done",
+      "title": "Building Your Profile",
+      "subtitleSoftWarning": "Almost there, just finishing up.",
+      "subtitle": "This usually takes about 5 minutes."
+    },
+    "leaveNote": "You can safely leave this page. We'll email you when your coach is ready.",
+    "goToDashboard": "Go to Dashboard",
+    "endState": {
+      "title": "Taking longer than expected",
+      "body": "Our support team has been notified and will follow up shortly.",
+      "safeTitle": "Your data is safe — nothing has been lost.",
+      "safeBody": "We'll email you as soon as your career coach is ready."
+    },
+    "failed": {
+      "title": "Something went wrong",
+      "body": "We hit a snag generating your report. Our team has been notified.",
+      "safeTitle": "Your survey data is safe — nothing has been lost.",
+      "safeBody": "We'll email you as soon as your report is ready."
+    }
   }
 }
