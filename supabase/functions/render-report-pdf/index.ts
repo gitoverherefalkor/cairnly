@@ -19,7 +19,28 @@ import {
   checkRateLimit,
 } from '../_shared/cors.ts';
 
-const LAYOUT_VERSION = 1;
+/** Filename the browser saves the PDF as.
+ *
+ *  Passed to createSignedUrl as `download`, which makes Storage serve the file
+ *  with `Content-Disposition: attachment`. That is what lets the dashboard just
+ *  navigate to the URL: the browser downloads it and STAYS on the page, so
+ *  there is no popup to be blocked and no tab to lose the dashboard in.
+ *  Without it the URL serves inline and the user gets navigated into a PDF
+ *  viewer. Stripped to ASCII word characters — a signed URL is not the place to
+ *  discover how a browser handles a diacritic in a header. */
+function downloadName(firstName: string | null | undefined): string {
+  const who = (firstName ?? '').replace(/[^A-Za-z0-9]+/g, '');
+  return who ? `Cairnly-career-report-${who}.pdf` : 'Cairnly-career-report.pdf';
+}
+
+// Cache key for a stored PDF. A render is reused only while this matches, so
+// BUMP IT WHENEVER THE PRINTED LAYOUT CHANGES — otherwise every user who has
+// already downloaded keeps being served the old design forever, and no amount
+// of front-end work will show through. Same discipline as PRINT_BUILD in the
+// SPA; this one is the one that decides what a *user* gets.
+//   1 -> the original layout
+//   2 -> the 2026-08 redesign (new cover, chapter openers, closing page)
+const LAYOUT_VERSION = 2;
 
 // 5 minutes. A Supabase signed URL is an UNREVOCABLE bearer credential (an HMAC
 // over path + expiry) — once issued there is no way to invalidate it short of
@@ -88,7 +109,7 @@ serve(async (req) => {
   // PDF was generated must not keep receiving the unbranded cached copy.
   const { data: ownerProfile } = await supabase
     .from('profiles')
-    .select('partner_id')
+    .select('partner_id, first_name')
     .eq('id', report.user_id)
     .maybeSingle();
   const currentPartnerId = ownerProfile?.partner_id ?? null;
@@ -109,7 +130,9 @@ serve(async (req) => {
   ) {
     const { data: signed } = await supabase.storage
       .from('report-pdfs')
-      .createSignedUrl(existing.storage_path, SIGNED_URL_TTL_SECONDS);
+      .createSignedUrl(existing.storage_path, SIGNED_URL_TTL_SECONDS, {
+        download: downloadName(ownerProfile?.first_name),
+      });
     return new Response(
       JSON.stringify({
         storage_path: existing.storage_path,
@@ -204,7 +227,9 @@ serve(async (req) => {
 
   const { data: signed } = await supabase.storage
     .from('report-pdfs')
-    .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS);
+    .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS, {
+      download: downloadName(ownerProfile?.first_name),
+    });
 
   return new Response(
     JSON.stringify({

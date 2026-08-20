@@ -30,7 +30,6 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { type MoveLevel } from '@/lib/moveScale';
-import { isAdminEmail } from '@/lib/admins';
 
 // Helper to get assessment session from localStorage.
 // Live survey progress is written by useSurveyState/useSurveySession under
@@ -499,7 +498,13 @@ const Dashboard = () => {
         body: { report_id: latestReport.id },
       });
       if (error) throw error;
-      if (data?.signed_url) window.open(data.signed_url, '_blank', 'noopener,noreferrer');
+      // Navigate, do NOT window.open. The render can take ~30s, and a popup
+      // opened that long after the click is outside the user-gesture stack, so
+      // Safari and most blockers kill it silently. The signed URL now carries
+      // `Content-Disposition: attachment` (see downloadName in
+      // render-report-pdf), which means assigning location downloads the file
+      // and leaves the dashboard exactly where it is.
+      if (data?.signed_url) window.location.href = data.signed_url;
     } catch (err) {
       console.error('[Dashboard] PDF render failed:', err);
       toast({
@@ -551,38 +556,10 @@ const Dashboard = () => {
           onSignOut={handleSignOut}
           onInvite={handleInvite}
           onOpenShareCard={() => setShowShareCard(true)}
+          onDownloadPdf={handleDownloadPdf}
+          pdfLoading={pdfLoading}
         />
 
-        {/* TEMPORARY test harness for the PDF pipeline. Deliberately a floating
-            button rather than a DashboardV4 prop, because the eventual entry
-            point (share gate or partner flow) replaces it entirely.
-            Admin-only: the renderer needs RENDER_SHARED_SECRET and SITE_URL to
-            be set, so until those exist this 500s — no reason to show it to
-            real users. Widen or remove the gate when the feature ships. */}
-        {isAdminEmail(user?.email) && (
-        <button
-          type="button"
-          onClick={handleDownloadPdf}
-          disabled={pdfLoading}
-          style={{
-            position: 'fixed',
-            left: 16,
-            bottom: 16,
-            zIndex: 60,
-            padding: '10px 16px',
-            borderRadius: 9999,
-            border: '1px solid rgba(255,255,255,0.25)',
-            background: '#122E3B',
-            color: '#fff',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: pdfLoading ? 'wait' : 'pointer',
-            opacity: pdfLoading ? 0.7 : 1,
-          }}
-        >
-          {pdfLoading ? t('pdfButton.generating') : t('pdfButton.download')}
-        </button>
-        )}
 
         {showShareCard && (
           <ShareCardModal

@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
-import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
@@ -97,7 +97,61 @@ interface DashboardV4Props {
   onSignOut: () => void;
   onInvite: () => void;
   onOpenShareCard: () => void;
+  /** Renders and downloads the full report as a PDF. Deliberately ungated —
+   *  it is the document the user already paid for, not a referral unlock. */
+  onDownloadPdf?: () => void;
+  pdfLoading?: boolean;
 }
+
+/** Download-the-PDF action, sitting beside the full-report header.
+ *
+ *  The first click costs a real Chromium render (~30s); every click after that
+ *  returns a cached file instantly. The sub-label says so, because a bare
+ *  spinner for half a minute reads as "broken" rather than "working".
+ *
+ *  Ghost-on-dark rather than a filled button: this is a utility next to the
+ *  reference material, and it should not out-shout the career cards above it.
+ */
+const DownloadReportButton: React.FC<{ onClick: () => void; loading: boolean }> = ({
+  onClick,
+  loading,
+}) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 9,
+        padding: '11px 18px',
+        borderRadius: 9999,
+        border: `1px solid ${loading ? 'rgba(255,255,255,0.18)' : 'rgba(212,160,36,0.55)'}`,
+        background: loading ? 'rgba(255,255,255,0.06)' : 'rgba(212,160,36,0.14)',
+        color: loading ? 'rgba(255,255,255,0.65)' : PALETTE.goldBright,
+        fontFamily: FONT_DISPLAY,
+        fontWeight: 700,
+        fontSize: 13.5,
+        letterSpacing: '-0.01em',
+        cursor: loading ? 'wait' : 'pointer',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+      {loading ? 'Building your PDF…' : 'Download report PDF'}
+    </button>
+    <span
+      style={{
+        fontFamily: FONT_BODY,
+        fontSize: 11.5,
+        color: 'rgba(255,255,255,0.45)',
+      }}
+    >
+      {loading ? 'About half a minute the first time.' : 'A4, ready to print or share.'}
+    </span>
+  </div>
+);
 
 // ── Career extraction ─────────────────────────────────────────
 // Pull the AI salary estimate WF4 writes into metadata. Tolerates a plain
@@ -230,6 +284,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   onSignOut,
   onInvite,
   onOpenShareCard,
+  onDownloadPdf,
+  pdfLoading = false,
 }) => {
   const { i18n } = useTranslation();
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -641,7 +697,17 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
         {/* ─── Full report header ─── */}
         {(aboutRows.length > 0 || careerRows.length > 0) && (
-          <div style={{ marginBottom: 20 }}>
+          <div
+            style={{
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: 20,
+              flexWrap: 'wrap',
+            }}
+          >
+          <div>
             <Eyebrow>YOUR FULL REPORT · REFERENCE</Eyebrow>
             <h3
               style={{
@@ -667,6 +733,14 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             >
               Closed by default. You've already been here, so open any section to revisit.
             </p>
+          </div>
+
+          {/* The PDF lives HERE, next to the full report, because this is the
+              only block on the page that stands for the whole document —
+              everything above it is one slice (a match, a share card, the
+              summary). The copy beside it already says "revisit"; this is the
+              take-it-with-you version of the same idea. */}
+          {onDownloadPdf && <DownloadReportButton onClick={onDownloadPdf} loading={pdfLoading} />}
           </div>
         )}
 
