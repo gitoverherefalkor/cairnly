@@ -707,7 +707,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               flexWrap: 'wrap',
             }}
           >
-          <div>
+          {/* Explicit basis so the row wraps predictably: below ~320px of
+              room for the copy, the button drops to its own line instead of
+              crushing the heading. */}
+          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
             <Eyebrow>YOUR FULL REPORT · REFERENCE</Eyebrow>
             <h3
               style={{
