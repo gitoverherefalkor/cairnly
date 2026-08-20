@@ -351,5 +351,70 @@
       "safeTitle": "Your survey data is safe — nothing has been lost.",
       "safeBody": "We'll email you as soon as your report is ready."
     }
+  },
+  "preSurveyUpload": {
+    "eyebrow": "Step 1 of your assessment",
+    "title": "Save Time with a Resume Upload",
+    "subtitle": "Upload your resume or CV to pre-fill work history, education, and skills",
+    "illustration": {
+      "upload": "Upload",
+      "aiReads": "AI reads",
+      "autoFilled": "Auto-filled",
+      "jobTitles": "Job titles",
+      "skills": "Skills",
+      "achievements": "Achievements"
+    },
+    "editableNotice": "Any pre-filled information can be edited or overwritten during the assessment.",
+    "dropzone": {
+      "idle": "Drag & drop your resume or CV",
+      "dragging": "Drop your file here",
+      "hint": "or click to browse · PDF only, up to 10MB"
+    },
+    "status": {
+      "processed": "Resume processed successfully",
+      "extracted": "Extracted {{count}} fields from your resume",
+      "readError": "We couldn't read that file. Please make sure it's a PDF and try again.",
+      "tryAnother": "Try a different file"
+    },
+    "skipConfirm": {
+      "title": "Are you sure?",
+      "bodyBefore": "Uploading your resume saves you",
+      "bodyMinutes": "10-12 minutes",
+      "bodyAfter": "of typing and improves the accuracy of your career recommendations.",
+      "upload": "Upload Resume",
+      "confirm": "Yes, skip anyway"
+    },
+    "linkedIn": {
+      "toggle": "No resume handy? Use your LinkedIn profile export instead",
+      "step1": "Go to your LinkedIn profile",
+      "step2": "Click the \"More\" (•••) button near your name, then \"Save to PDF\"",
+      "step3": "Upload the downloaded PDF here",
+      "imageAlt": "LinkedIn profile More menu showing the Save to PDF option",
+      "note": "On some profiles this sits under a \"Resources\" button instead. A LinkedIn export usually has your most up-to-date work history.",
+      "apology": "We'd love a one-click LinkedIn import. LinkedIn's platform doesn't allow it, so this export step is the only way."
+    },
+    "skip": "Skip this step",
+    "cta": {
+      "processing": "Processing...",
+      "continue": "Continue to Assessment",
+      "upload": "Upload Resume to Continue"
+    },
+    "toast": {
+      "completeTitle": "Processing Complete",
+      "completeExtracted": "Extracted {{count}} fields from your resume.",
+      "completeReady": "Your information is ready to pre-fill the assessment.",
+      "failedTitle": "Processing failed",
+      "failedBody": "Failed to process your file. You can continue manually.",
+      "pdfOnlyTitle": "PDF files only",
+      "pdfOnlyBody": "Please upload your resume as a PDF. Tip: in Word, use \"Save As\" and choose PDF.",
+      "tooLargeTitle": "File too large",
+      "tooLargeBody": "Please upload a file smaller than 10MB."
+    }
+  },
+  "assessmentCompletion": {
+    "title": "Assessment Complete!",
+    "body": "Thank you for completing the Cairnly Career Assessment. Your personalized report is being generated and you'll receive an email notification when it's ready.",
+    "viewDashboard": "View Dashboard",
+    "returnHome": "Return to Home"
   }
 }

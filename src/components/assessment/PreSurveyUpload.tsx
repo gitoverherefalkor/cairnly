@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
@@ -21,7 +22,9 @@ interface PreSurveyUploadProps {
 
 // Animated illustration showing resume → auto-fill value proposition.
 // Lives on a dark-glass strip above the cream card so the dark bg shows through.
-const ResumeAutoFillAnimation = () => (
+const ResumeAutoFillAnimation = () => {
+  const { t } = useTranslation('survey');
+  return (
   <div className="w-full max-w-xl mt-6">
     <div
       className="flex items-center justify-center gap-3 sm:gap-5 rounded-2xl border border-white/10 backdrop-blur-[14px] px-5 sm:px-7 py-4 sm:py-5"
@@ -41,7 +44,7 @@ const ResumeAutoFillAnimation = () => (
             <Upload className="h-2.5 w-2.5 text-white" />
           </div>
         </div>
-        <span className="text-[11px] font-semibold text-white/70">Upload</span>
+        <span className="text-[11px] font-semibold text-white/70">{t('preSurveyUpload.illustration.upload')}</span>
       </div>
 
       <ArrowRight className="h-4 w-4 text-white/40" />
@@ -58,7 +61,7 @@ const ResumeAutoFillAnimation = () => (
         >
           <Sparkles className="h-5 w-5 animate-pulse" style={{ color: '#2ABFBF' }} />
         </div>
-        <span className="text-[11px] font-semibold text-white/70">AI reads</span>
+        <span className="text-[11px] font-semibold text-white/70">{t('preSurveyUpload.illustration.aiReads')}</span>
       </div>
 
       <ArrowRight className="h-4 w-4 text-white/40" />
@@ -67,9 +70,9 @@ const ResumeAutoFillAnimation = () => (
       <div className="flex flex-col items-center gap-1.5">
         <div className="flex flex-col gap-2 w-[140px]">
           {[
-            { pct: 70, label: 'Job titles' },
-            { pct: 55, label: 'Skills' },
-            { pct: 40, label: 'Achievements' },
+            { pct: 70, label: t('preSurveyUpload.illustration.jobTitles') },
+            { pct: 55, label: t('preSurveyUpload.illustration.skills') },
+            { pct: 40, label: t('preSurveyUpload.illustration.achievements') },
           ].map(({ pct, label }, i) => (
             <div key={label} className="flex items-center gap-2">
               <div
@@ -103,9 +106,11 @@ const ResumeAutoFillAnimation = () => (
       }
     `}</style>
   </div>
-);
+  );
+};
 
 export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) => {
+  const { t } = useTranslation('survey');
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasUploadedResume, setHasUploadedResume] = React.useState(false);
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
@@ -131,8 +136,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         localStorage.setItem('resume_parsed_timestamp', new Date().toISOString());
         setHasUploadedResume(true);
         toast({
-          title: 'Processing Complete',
-          description: `Extracted ${data.fieldsExtracted} fields from your resume.`,
+          title: t('preSurveyUpload.toast.completeTitle'),
+          description: t('preSurveyUpload.toast.completeExtracted', { count: data.fieldsExtracted }),
         });
       } else if (data && data.aiParsedData) {
         sessionStorage.setItem('resume_parsed_data', JSON.stringify(data.aiParsedData));
@@ -140,16 +145,16 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
         localStorage.setItem('resume_parsed_timestamp', new Date().toISOString());
         setHasUploadedResume(true);
         toast({
-          title: 'Processing Complete',
-          description: 'Your information is ready to pre-fill the assessment.',
+          title: t('preSurveyUpload.toast.completeTitle'),
+          description: t('preSurveyUpload.toast.completeReady'),
         });
       }
       setIsProcessing(false);
     },
     onError: (error) => {
       toast({
-        title: 'Processing failed',
-        description: error || 'Failed to process your file. You can continue manually.',
+        title: t('preSurveyUpload.toast.failedTitle'),
+        description: error || t('preSurveyUpload.toast.failedBody'),
         variant: 'destructive',
       });
       setIsProcessing(false);
@@ -164,8 +169,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
 
     if (!isPdf) {
       toast({
-        title: 'PDF files only',
-        description: 'Please upload your resume as a PDF. Tip: in Word, use "Save As" and choose PDF.',
+        title: t('preSurveyUpload.toast.pdfOnlyTitle'),
+        description: t('preSurveyUpload.toast.pdfOnlyBody'),
         variant: 'destructive',
       });
       return false;
@@ -173,8 +178,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
 
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: 'File too large',
-        description: 'Please upload a file smaller than 10MB.',
+        title: t('preSurveyUpload.toast.tooLargeTitle'),
+        description: t('preSurveyUpload.toast.tooLargeBody'),
         variant: 'destructive',
       });
       return false;
@@ -237,7 +242,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
           className="font-heading uppercase text-[11px] mb-3"
           style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
         >
-          Step 1 of your assessment
+          {t('preSurveyUpload.eyebrow')}
         </span>
 
         {/* Big white headline */}
@@ -250,7 +255,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
             textWrap: 'pretty' as any,
           }}
         >
-          Save Time with a Resume Upload
+          {t('preSurveyUpload.title')}
         </h1>
 
         <p
@@ -262,7 +267,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
             textWrap: 'pretty' as any,
           }}
         >
-          Upload your resume or CV to pre-fill work history, education, and skills
+          {t('preSurveyUpload.subtitle')}
         </p>
 
         {/* Animated illustration on dark-glass strip */}
@@ -308,7 +313,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                 className="text-[13px] font-medium leading-snug"
                 style={{ color: '#1F2937' }}
               >
-                Any pre-filled information can be edited or overwritten during the assessment.
+                {t('preSurveyUpload.editableNotice')}
               </span>
             </div>
 
@@ -437,8 +442,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                       <span className="flex items-center gap-2">
                         <CheckCircle className="h-3.5 w-3.5" style={{ color: '#16A34A' }} />
                         {processingResult?.fieldsExtracted
-                          ? `Extracted ${processingResult.fieldsExtracted} fields from your resume`
-                          : 'Resume processed successfully'}
+                          ? t('preSurveyUpload.status.extracted', { count: processingResult.fieldsExtracted })
+                          : t('preSurveyUpload.status.processed')}
                       </span>
                     ) : error && !isProcessing ? (
                       <div className="flex flex-col gap-2.5">
@@ -447,7 +452,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                             className="h-3.5 w-3.5 mt-0.5 flex-shrink-0"
                             style={{ color: '#DC2626' }}
                           />
-                          We couldn't read that file. Please make sure it's a PDF and try again.
+                          {t('preSurveyUpload.status.readError')}
                         </span>
                         <div>
                           <Button
@@ -456,7 +461,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                             className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
                           >
                             <Upload className="h-3.5 w-3.5 mr-1.5" />
-                            Try a different file
+                            {t('preSurveyUpload.status.tryAnother')}
                           </Button>
                         </div>
                       </div>
@@ -486,7 +491,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                     className="text-[15px] font-bold mt-3"
                     style={{ color: '#122E3B' }}
                   >
-                    {isDragOver ? 'Drop your file here' : 'Drag & drop your resume or CV'}
+                    {isDragOver ? t('preSurveyUpload.dropzone.dragging') : t('preSurveyUpload.dropzone.idle')}
                   </p>
                   <p
                     className="text-[13px] font-medium mt-1.5"
@@ -494,7 +499,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   >
                     {isDragOver
                       ? ''
-                      : 'or click to browse · PDF only, up to 10MB'}
+                      : t('preSurveyUpload.dropzone.hint')}
                   </p>
                   <input
                     ref={fileInputRef}
@@ -526,14 +531,15 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                       className="text-[14.5px] font-bold m-0"
                       style={{ color: '#92400E' }}
                     >
-                      Are you sure?
+                      {t('preSurveyUpload.skipConfirm.title')}
                     </p>
                     <p
                       className="text-[13.5px] font-medium mt-1.5 mb-3.5 leading-snug"
                       style={{ color: '#92400E' }}
                     >
-                      Uploading your resume saves you <strong>10-12 minutes</strong> of
-                      typing and improves the accuracy of your career recommendations.
+                      {t('preSurveyUpload.skipConfirm.bodyBefore')}{' '}
+                      <strong>{t('preSurveyUpload.skipConfirm.bodyMinutes')}</strong>{' '}
+                      {t('preSurveyUpload.skipConfirm.bodyAfter')}
                     </p>
                     <div className="flex gap-2.5">
                       <Button
@@ -544,7 +550,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         }}
                         className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
                       >
-                        Upload Resume
+                        {t('preSurveyUpload.skipConfirm.upload')}
                       </Button>
                       <Button
                         variant="ghost"
@@ -553,7 +559,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         className="rounded-full font-semibold text-[13px] hover:bg-transparent"
                         style={{ color: '#92400E' }}
                       >
-                        Yes, skip anyway
+                        {t('preSurveyUpload.skipConfirm.confirm')}
                       </Button>
                     </div>
                   </div>
@@ -579,7 +585,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                     className="text-[13.5px] font-semibold"
                     style={{ color: '#122E3B' }}
                   >
-                    No resume handy? Use your LinkedIn profile export instead
+                    {t('preSurveyUpload.linkedIn.toggle')}
                   </span>
                   <ChevronDown
                     className={`h-3.5 w-3.5 transition-transform ${
@@ -599,19 +605,19 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         <span className="font-bold" style={{ color: '#122E3B' }}>
                           1.
                         </span>{' '}
-                        Go to your LinkedIn profile
+                        {t('preSurveyUpload.linkedIn.step1')}
                       </div>
                       <div>
                         <span className="font-bold" style={{ color: '#122E3B' }}>
                           2.
                         </span>{' '}
-                        Click the "More" (•••) button near your name, then "Save to PDF"
+                        {t('preSurveyUpload.linkedIn.step2')}
                       </div>
                       <div>
                         <span className="font-bold" style={{ color: '#122E3B' }}>
                           3.
                         </span>{' '}
-                        Upload the downloaded PDF here
+                        {t('preSurveyUpload.linkedIn.step3')}
                       </div>
                     </div>
                     <div
@@ -620,14 +626,14 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                     >
                       <img
                         src="/uploads/linkedin-save-to-pdf-more-menu.png"
-                        alt="LinkedIn profile More menu showing the Save to PDF option"
+                        alt={t('preSurveyUpload.linkedIn.imageAlt')}
                         className="w-48 mx-auto rounded shadow-sm"
                       />
                       <p
                         className="text-[12px] mt-3 text-center italic"
                         style={{ color: '#6B7F8B' }}
                       >
-                        On some profiles this sits under a "Resources" button instead. A LinkedIn export usually has your most up-to-date work history.
+                        {t('preSurveyUpload.linkedIn.note')}
                       </p>
                     </div>
                     {/* We'd love a one-click "Import from LinkedIn" — LinkedIn's
@@ -637,8 +643,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                       className="text-[12px] mt-3 text-center"
                       style={{ color: '#27A1A1' }}
                     >
-                      We'd love a one-click LinkedIn import — LinkedIn's platform
-                      doesn't allow it, so this export step is the only way.
+                      {t('preSurveyUpload.linkedIn.apology')}
                     </p>
                   </div>
                 )}
@@ -661,7 +666,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   className="font-semibold text-[13px] hover:bg-transparent"
                   style={{ color: '#6B7F8B' }}
                 >
-                  Skip this step
+                  {t('preSurveyUpload.skip')}
                 </Button>
               )}
               <Button
@@ -677,16 +682,16 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                 {isBusy ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
+                    {t('preSurveyUpload.cta.processing')}
                   </>
                 ) : hasUploadedResume ? (
                   <>
-                    Continue to Assessment
+                    {t('preSurveyUpload.cta.continue')}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </>
                 ) : (
                   <>
-                    Upload Resume to Continue
+                    {t('preSurveyUpload.cta.upload')}
                     <Upload className="h-4 w-4 ml-2" />
                   </>
                 )}

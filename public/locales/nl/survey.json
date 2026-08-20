@@ -351,5 +351,70 @@
       "safeTitle": "Je antwoorden zijn veilig, er is niets verloren gegaan.",
       "safeBody": "We mailen je zodra je rapport klaar is."
     }
+  },
+  "preSurveyUpload": {
+    "eyebrow": "Stap 1 van je assessment",
+    "title": "Bespaar tijd met je cv",
+    "subtitle": "Upload je cv om je werkervaring, opleiding en vaardigheden alvast in te vullen",
+    "illustration": {
+      "upload": "Uploaden",
+      "aiReads": "AI leest",
+      "autoFilled": "Automatisch ingevuld",
+      "jobTitles": "Functietitels",
+      "skills": "Vaardigheden",
+      "achievements": "Prestaties"
+    },
+    "editableNotice": "Alles wat vooraf is ingevuld kun je tijdens het assessment aanpassen of overschrijven.",
+    "dropzone": {
+      "idle": "Sleep je cv hierheen",
+      "dragging": "Laat je bestand hier los",
+      "hint": "of klik om te bladeren · alleen PDF, tot 10MB"
+    },
+    "status": {
+      "processed": "Cv succesvol verwerkt",
+      "extracted": "{{count}} velden uit je cv gehaald",
+      "readError": "We konden dat bestand niet lezen. Controleer of het een PDF is en probeer het opnieuw.",
+      "tryAnother": "Probeer een ander bestand"
+    },
+    "skipConfirm": {
+      "title": "Weet je het zeker?",
+      "bodyBefore": "Je cv uploaden scheelt je",
+      "bodyMinutes": "10 tot 12 minuten",
+      "bodyAfter": "typen, en het maakt je loopbaanadvies nauwkeuriger.",
+      "upload": "Cv uploaden",
+      "confirm": "Ja, sla toch over"
+    },
+    "linkedIn": {
+      "toggle": "Geen cv bij de hand? Gebruik dan een export van je LinkedIn-profiel",
+      "step1": "Ga naar je LinkedIn-profiel",
+      "step2": "Klik op de knop \"Meer\" (•••) naast je naam en daarna op \"Opslaan als PDF\"",
+      "step3": "Upload de gedownloade PDF hier",
+      "imageAlt": "LinkedIn-profielmenu met de optie Opslaan als PDF",
+      "note": "Op sommige profielen zit dit onder een knop \"Bronnen\". Een LinkedIn-export bevat meestal je meest actuele werkervaring.",
+      "apology": "We zouden graag een LinkedIn-import met één klik aanbieden. Het platform van LinkedIn staat dat niet toe, dus deze exportstap is de enige manier."
+    },
+    "skip": "Sla deze stap over",
+    "cta": {
+      "processing": "Bezig met verwerken...",
+      "continue": "Doorgaan naar het assessment",
+      "upload": "Upload je cv om door te gaan"
+    },
+    "toast": {
+      "completeTitle": "Verwerking voltooid",
+      "completeExtracted": "{{count}} velden uit je cv gehaald.",
+      "completeReady": "Je gegevens staan klaar om het assessment vooraf in te vullen.",
+      "failedTitle": "Verwerken mislukt",
+      "failedBody": "We konden je bestand niet verwerken. Je kunt handmatig verder.",
+      "pdfOnlyTitle": "Alleen PDF-bestanden",
+      "pdfOnlyBody": "Upload je cv als PDF. Tip: gebruik in Word \"Opslaan als\" en kies PDF.",
+      "tooLargeTitle": "Bestand te groot",
+      "tooLargeBody": "Upload een bestand kleiner dan 10MB."
+    }
+  },
+  "assessmentCompletion": {
+    "title": "Assessment afgerond",
+    "body": "Bedankt voor het invullen van het Cairnly-loopbaanassessment. Je persoonlijke rapport wordt nu gemaakt, en je krijgt een e-mail zodra het klaarstaat.",
+    "viewDashboard": "Naar je dashboard",
+    "returnHome": "Terug naar de homepage"
   }
 }
