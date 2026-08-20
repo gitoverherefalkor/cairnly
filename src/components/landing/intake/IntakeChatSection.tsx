@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { ArrowRight, Check, ChevronDown, Pencil } from 'lucide-react';
 import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
+import CompareLink from '../CompareLink';
+import { getProPricing } from '@/lib/pricing';
+import { formatCurrency } from '@/lib/format';
 
 /**
  * Renders the agent's light markdown for chat bubbles: `**bold**` emphasis
@@ -59,7 +62,7 @@ const ASSISTANT_BUBBLE: React.CSSProperties = {
  */
 const IntakeChatPanel: React.FC = () => {
   const chat = useIntakeChat();
-  const { t } = useTranslation('landing');
+  const { t, i18n } = useTranslation('landing');
   const navigate = useNavigate();
 
   const [draft, setDraft] = useState('');
@@ -139,6 +142,11 @@ const IntakeChatPanel: React.FC = () => {
   };
 
   const showChips = chat.started && chat.stage === 'chat' && !chat.sending && !!chat.chips?.options.length;
+
+  // Same source as the deliverables card beside it, so the two prices
+  // never disagree and both flip on their own when the intro price ends.
+  const { core, currency } = getProPricing();
+  const price = formatCurrency(core, i18n.language, currency);
 
   return (
     <div id={INTAKE_SECTION_ID} ref={panelRef} className="relative z-10">
@@ -229,6 +237,23 @@ const IntakeChatPanel: React.FC = () => {
 
                 </div>
               ),
+            )}
+
+            {/* The pitch is the highest-engagement moment on the page: they
+                answered five questions and just read a personalized read of
+                their situation. One line of price context here catches the
+                "could I get this free somewhere?" hesitation before they
+                scroll past, rather than leaving it to the hero. */}
+            {pitchedView && (
+              <div className="max-w-[92%] pt-1">
+                <p className="text-[13px] font-medium leading-[1.6]" style={{ color: 'rgba(255,255,255,0.62)' }}>
+                  <span className="font-bold" style={{ color: '#D4A024' }}>
+                    {t('intake.compare.lead', { price })}
+                  </span>{' '}
+                  {t('intake.compare.body')}
+                </p>
+                <CompareLink label={t('intake.compare.link')} className="mt-3" />
+              </div>
             )}
 
             {chat.sending && (

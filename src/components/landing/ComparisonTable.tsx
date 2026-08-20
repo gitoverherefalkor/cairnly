@@ -45,8 +45,10 @@ const ComparisonTable: React.FC = () => {
   const cairnlyItems = tArray<string>(t, 'comparison.mobile.cairnlyItems', { price });
   const others = tArray<MobileOther>(t, 'comparison.mobile.others');
 
+  // #comparison: the hero's price line and the intake pitch both link down
+  // here, so the heading has to clear the sticky nav on arrival (scroll-mt).
   return (
-    <section className="bg-[#ECE4D2] py-24 md:py-32">
+    <section id="comparison" className="bg-[#ECE4D2] py-24 md:py-32 scroll-mt-32">
       <div className="lp-container">
         <Reveal className="max-w-3xl mb-14">
           <div className="lp-eyebrow text-[#1F8282] mb-5">{t('comparison.eyebrow')}</div>

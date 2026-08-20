@@ -9,6 +9,7 @@
     "ctaPrimary": "Get Started",
     "ctaSecondary": "See how it works",
     "reassurance": "Done in one sitting. No subscription. No account left dangling.",
+    "compareLink": "How this compares to free tests and coaches",
     "screenshotMeta": "5 : 4 · AI coach session",
     "screenshotAlt": "Cairnly AI coaching session"
   },
@@ -557,6 +558,11 @@
       "match": "Suitability score",
       "move": "Pivot level",
       "ai": "AI risk"
+    },
+    "compare": {
+      "lead": "{{price}}, once.",
+      "body": "A career coach charges €80 to €150 per session. A free quiz hands you a four-letter label and leaves the rest to you.",
+      "link": "See the full side-by-side"
     }
   }
 }

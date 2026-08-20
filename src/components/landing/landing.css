@@ -486,3 +486,29 @@ button.lp-screenshot-slot {
   outline: 2px solid #D4A024;
   outline-offset: 3px;
 }
+
+/* Quiet route down to the side-by-side, for the visitor still hoping a free
+   test will do. Sits under the hero's price deadline and under the intake
+   pitch, both on the navy hero, so it has to read as a link without competing
+   with the chat beside it: muted text on a hairline, no fill, no button. */
+.lp-compare-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.22);
+  padding-bottom: 2px;
+  transition: color 200ms ease, border-color 200ms ease;
+  cursor: pointer;
+}
+.lp-compare-link:hover {
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.6);
+}
+.lp-compare-link:focus-visible {
+  outline: 2px solid #D4A024;
+  outline-offset: 4px;
+}
+.lp-compare-link svg { transition: transform 200ms ease; }
+.lp-compare-link:hover svg { transform: translateX(2px); }

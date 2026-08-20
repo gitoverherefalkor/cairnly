@@ -7,6 +7,7 @@ import IntentChips from './IntentChips';
 import { useIntentCopy } from './useIntentCopy';
 import IntakeChatPanel from './intake/IntakeChatSection';
 import PriceCountdown from './PriceCountdown';
+import CompareLink from './CompareLink';
 import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
 import { useIntakeChatOptional } from './intake/IntakeChatContext';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
@@ -156,7 +157,17 @@ const Hero: React.FC = () => {
               // deadline above it until the visitor starts talking. Flex gap so
               // the spacing closes by itself when the countdown steps aside.
               <div className="mt-8 flex flex-col items-center gap-3">
-                {!chatStarted && <PriceCountdown tone="gold" leadWithPrice href="#pricing" />}
+                {!chatStarted && (
+                  <>
+                    <PriceCountdown tone="gold" leadWithPrice href="#pricing" />
+                    {/* Straight under the price, because that is the exact
+                        moment "is there a free version of this?" fires. Quiz
+                        traffic gets a route to the side-by-side instead of a
+                        bounce. Steps aside once the chat starts: mid
+                        conversation, nothing should pull them out of it. */}
+                    <CompareLink label={t('hero.compareLink')} />
+                  </>
+                )}
                 <p className="text-sm text-white/45 font-medium text-center">
                   {t('hero.reassurance')}
                 </p>

@@ -9,6 +9,7 @@
     "ctaPrimary": "Aan de slag",
     "ctaSecondary": "Bekijk hoe het werkt",
     "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
+    "compareLink": "Hoe dit zich verhoudt tot gratis tests en coaches",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
     "screenshotAlt": "Cairnly AI-coachsessie"
   },
@@ -557,6 +558,11 @@
       "match": "Geschiktheidsscore",
       "move": "Overstapniveau",
       "ai": "AI-risico"
+    },
+    "compare": {
+      "lead": "{{price}}, eenmalig.",
+      "body": "Een loopbaancoach rekent €80 tot €150 per sessie. Een gratis test geeft je een vierletterig label en laat de rest aan jou.",
+      "link": "Bekijk de volledige vergelijking"
     }
   }
 }
