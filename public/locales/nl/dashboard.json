@@ -8,8 +8,7 @@
     "continueChat": "Chat voortzetten",
     "startChat": "Chat starten",
     "downloadPdf": "PDF downloaden",
-    "noReport": "Nog geen rapport beschikbaar.",
-    "startAssessment": "Assessment starten"
+    "noReport": "Nog geen rapport beschikbaar."
   },
   "assessment": {
     "title": "Assessment",
@@ -17,5 +16,230 @@
     "startNew": "Nieuwe assessment starten"
   },
   "signOut": "Uitloggen",
-  "settings": "Instellingen"
+  "settings": "Instellingen",
+  "entry": {
+    "headline": {
+      "failed": "Er ging iets mis, {{name}}.",
+      "failed_noName": "Er ging iets mis.",
+      "processing": "Je profiel wordt opgebouwd, {{name}}.",
+      "processing_noName": "We bouwen je profiel op.",
+      "chat": "Je coach staat klaar, {{name}}.",
+      "chat_noName": "Je coach staat klaar.",
+      "resume": "Ga verder waar je gebleven was, {{name}}.",
+      "resume_noName": "Ga verder waar je gebleven was.",
+      "emptyLine1": "Welkom, {{name}}.",
+      "emptyLine1_noName": "Welkom.",
+      "emptyLine2": "Laten we beginnen."
+    },
+    "sub": {
+      "failed": "Je antwoorden zijn opgeslagen, dus er is niets verloren. Het is deze keer niet gelukt om je rapport af te maken. Je kunt het nu meteen opnieuw starten.",
+      "processing": "We bouwen je persoonlijkheidsprofiel en carrièrematches. Dat duurt meestal zo'n 5 minuten. Je krijgt een mail zodra het klaar is.",
+      "chat": "Je assessment is binnen. Rond het gesprek met je AI-coach af om je volledige rapport en carrièrematches vrij te spelen.",
+      "resume": "Je bent al een eind op weg. Nog een paar onderdelen, daarna neemt je coach je mee door het rapport."
+    },
+    "cta": {
+      "processing": "Voortgang bekijken",
+      "chat": "Verder met je coach",
+      "resume": "Assessment hervatten",
+      "empty": "Start je assessment",
+      "retry": "Probeer opnieuw",
+      "retrying": "Opnieuw proberen..."
+    },
+    "eyebrow": {
+      "failed": "RAPPORT · ACTIE NODIG",
+      "processing": "BEZIG · JE RAPPORT WORDT GEBOUWD",
+      "chat": "VOLGENDE STAP · JE COACH",
+      "resume": "VOORTGANG · {{pct}}% VOLTOOID"
+    },
+    "progress": {
+      "allDone": "Alle {{total}} onderdelen klaar, dien in om af te ronden",
+      "currentSection": "Onderdeel {{current}} van {{total}} bezig",
+      "sectionsComplete": "{{complete}} / {{total}} onderdelen klaar"
+    },
+    "unlockedEyebrow": "ALS JE KLAAR BENT · VRIJGESPEELD",
+    "coversLabel": "Het assessment gaat onder andere over:",
+    "autoSaveNote": "Voortgang automatisch opgeslagen · Je kunt veilig sluiten en later terugkomen",
+    "sections": {
+      "pro": [
+        "Intakevragen",
+        "Persoonlijkheid en besluitvorming",
+        "Waarden en motivatie",
+        "Vakinhoudelijke interesses en vaardigheden",
+        "Werkomgeving en teamvoorkeuren",
+        "Emotionele intelligentie",
+        "Loopbaandoelen en ontwikkeling"
+      ],
+      "starter": [
+        "Even kennismaken",
+        "Hoe je werkt",
+        "Wat je drijft",
+        "Interesses en sterke kanten",
+        "Waar je het best werkt",
+        "De praktische kant",
+        "Vooruitkijken"
+      ],
+      "encore": [
+        "Even kennismaken",
+        "De loopbaan die je had",
+        "Hoe je nu werkt",
+        "Wat nu telt",
+        "Waar je opbloeit",
+        "De praktische kant",
+        "Vooruitkijken"
+      ]
+    },
+    "flavors": {
+      "pro": {
+        "emptySub": "In het assessment kijken we naar hoe je werkt, wat je hebt gedaan en waar je naartoe wilt. Het werkt het best in één keer, maar wil je even pauzeren, dan is dat prima: je antwoorden worden automatisch opgeslagen. Daarna neemt je AI-coach je mee door een persoonlijk rapport en scherpt het samen met je aan.",
+        "emptyEyebrow": "VOLGENDE STAP · 25 MINUTEN",
+        "ghostCards": [
+          {
+            "title": "Persoonlijkheidsprofiel",
+            "sub": "Hoe je denkt, leidt en werkt"
+          },
+          {
+            "title": "Beste carrièrematches",
+            "sub": "3 rollen op maat, met AI-impactscore"
+          },
+          {
+            "title": "Alternatieve routes",
+            "sub": "Runner-ups en out-of-the-box"
+          },
+          {
+            "title": "Droombaan-realitycheck",
+            "sub": "Een eerlijke haalbaarheidscheck"
+          }
+        ]
+      },
+      "starter": {
+        "emptySub": "In het assessment kijken we naar hoe je werkt, wat je leuk vindt en waar je naartoe wilt. Werkervaring is niet nodig: bijbanen, school en projecten tellen allemaal mee als echt bewijs. Het werkt het best in één keer, en je antwoorden worden automatisch opgeslagen. Daarna neemt je AI-coach je mee door een persoonlijk rapport en scherpt het samen met je aan.",
+        "emptyEyebrow": "VOLGENDE STAP · 20 MINUTEN",
+        "ghostCards": [
+          {
+            "title": "Persoonlijkheidsprofiel",
+            "sub": "Hoe je werkt, kiest en leert"
+          },
+          {
+            "title": "Carrièrerichtingen",
+            "sub": "3 richtingen die bij je passen, met oog voor AI"
+          },
+          {
+            "title": "Alternatieve routes",
+            "sub": "Runner-ups en out-of-the-box"
+          },
+          {
+            "title": "Plan om binnen te komen",
+            "sub": "Hoe je binnenkomt zonder ervaring"
+          }
+        ]
+      },
+      "encore": {
+        "emptySub": "In het assessment maken we de balans op van de loopbaan die je had, hoe je nu werkt en wat in deze levensfase telt. Neem er rustig de tijd voor, pauzeren mag: je antwoorden worden automatisch opgeslagen. Daarna neemt je AI-coach je mee door een persoonlijk rapport en scherpt het samen met je aan.",
+        "emptyEyebrow": "VOLGENDE STAP · 25 MINUTEN",
+        "ghostCards": [
+          {
+            "title": "Persoonlijkheidsprofiel",
+            "sub": "Hoe je nu werkt, eerlijk bekeken"
+          },
+          {
+            "title": "Encore-richtingen",
+            "sub": "3 richtingen die bij deze fase passen, betaald of niet"
+          },
+          {
+            "title": "Alternatieve routes",
+            "sub": "Runner-ups en out-of-the-box"
+          },
+          {
+            "title": "De weg naar binnen",
+            "sub": "Hoe je instapt op jouw niveau"
+          }
+        ]
+      }
+    }
+  },
+  "accessCodeModal": {
+    "errors": {
+      "emptyCode": "Vul je toegangscode in",
+      "verifyFailed": "We konden je toegangscode niet verifiëren. Probeer het opnieuw.",
+      "invalidCode": "Ongeldige toegangscode"
+    },
+    "title": "Klaar om te beginnen",
+    "description": "Je toegangscode is geverifieerd. Klik hieronder om je persoonlijke carrière-assessment te starten.",
+    "close": "Sluiten",
+    "starting": "Bezig met starten...",
+    "startAssessment": "Assessment starten",
+    "help": {
+      "prefix": "Lukt het niet?",
+      "contactSupport": "Neem contact op met support"
+    }
+  },
+  "accessCodeVerifier": {
+    "errors": {
+      "emptyCode": "Vul een toegangscode in",
+      "invalidCode": "Ongeldige toegangscode",
+      "verifyFailed": "We konden je toegangscode niet verifiëren"
+    },
+    "toast": {
+      "verifiedTitle": "Toegangscode geverifieerd",
+      "verifiedDescriptionAssessment": "Je toegangscode is geldig. Je gaat nu door naar het assessment...",
+      "verifiedDescriptionSignup": "Maak een account aan om je assessment te starten.",
+      "failedTitle": "Verifiëren mislukt"
+    },
+    "verified": {
+      "title": "Toegangscode geverifieerd",
+      "redirectAssessment": "Je gaat nu door naar het assessment...",
+      "redirectSignup": "Je gaat nu door naar het aanmaken van je account..."
+    },
+    "title": "Voer je toegangscode in",
+    "codeLabel": "Toegangscode",
+    "verifying": "Bezig met verifiëren...",
+    "verify": "Toegangscode verifiëren"
+  },
+  "appNav": {
+    "profile": "Profiel"
+  },
+  "toast": {
+    "signOutError": {
+      "title": "Er ging iets mis",
+      "description": "Uitloggen is niet gelukt. Probeer het opnieuw."
+    },
+    "signedOut": {
+      "title": "Uitgelogd",
+      "description": "Je bent uitgelogd."
+    },
+    "inviteLinkPending": {
+      "title": "Momentje",
+      "description": "Je uitnodigingslink wordt nog klaargezet. Probeer het zo nog een keer."
+    },
+    "inviteLinkCopied": {
+      "title": "Uitnodigingslink gekopieerd",
+      "description": "Deel hem met iemand om je volgende tool te ontgrendelen."
+    },
+    "inviteLinkFallback": {
+      "title": "Je uitnodigingslink"
+    },
+    "pdfFailed": {
+      "title": "We konden je PDF niet maken",
+      "description": "Er ging iets mis bij het maken van het bestand. Probeer het zo nog een keer."
+    },
+    "retryFailed": {
+      "title": "Het lukt nog steeds niet",
+      "description": "We konden je rapport nu niet opnieuw starten. Probeer het zo nog een keer."
+    }
+  },
+  "shareCard": {
+    "fallbackTitle": {
+      "strengths": "Sterke punten",
+      "values": "Loopbaanwaarden",
+      "approach": "Aanpak",
+      "development": "Ontwikkelpunten",
+      "execSummary": "Samenvatting",
+      "bestFitCareer": "Best passende carrière",
+      "outsideBoxCareer": "Verrassende carrière"
+    }
+  },
+  "pdfButton": {
+    "generating": "Bezig met maken…",
+    "download": "Rapport-PDF downloaden"
+  }
 }

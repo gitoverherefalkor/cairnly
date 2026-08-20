@@ -28,7 +28,11 @@
 - [x] `LanguageSwitcher.tsx` component exists (Dutch enabled 2026-05-28)
 - [x] Dutch JSONs translated and key-sync'd with English (all 7 namespaces)
 - [x] Stripe checkout passes `locale: nl` + `currency: eur`
-- [x] Partial component i18n: `Dashboard.tsx` (15 t() calls), `SurveyForm.tsx` (17), `QuickReplies.tsx` (4)
+- [x] Partial component i18n: `QuickReplies.tsx`
+  - ⚠️ This line used to claim `Dashboard.tsx` (15 t() calls) and `SurveyForm.tsx` (17) were partly
+    translated. Neither was: `git log -S "useTranslation"` on both files returned zero commits until
+    2026-08-19. The wrong claim is probably why the whole post-signup surface went unnoticed for so
+    long. Both are fully wired now — see the candidate-path localization in `docs/handoff/`.
 - [x] **Phase 0 — Foundation** (2026-05-28): migrations applied (`add_language_to_report_sections`, `add_translations_jsonb`); types regenerated; `scripts/i18n-glossary.json` + `scripts/i18n-sync.ts` created; `npm run i18n:sync` wired; dry-run confirms all 7 namespaces in sync.
 
 ### Pending ❌

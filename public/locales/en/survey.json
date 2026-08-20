@@ -17,27 +17,339 @@
   "submitted": {
     "title": "Assessment Submitted Successfully!",
     "description": "Your responses are saved and your report is being generated.",
-    "continueToDashboard": "Continue to Dashboard"
+    "continueToDashboard": "Continue to Dashboard",
+    "savedNextStep": "Your responses are saved. Taking you to the next step..."
   },
   "failed": {
     "title": "Submission Failed",
     "description": "Don't worry — your answers are saved!",
     "retry": "Retry Submission",
-    "retrying": "Retrying..."
+    "retrying": "Retrying...",
+    "descriptionRetry": "Don't worry - your answers are saved! You can try submitting again."
   },
   "loading": {
     "survey": "Loading your assessment...",
-    "progress": "Loading your progress..."
+    "progress": "Loading your progress...",
+    "generic": "Loading..."
   },
   "errors": {
     "failedToLoad": "Failed to load survey.",
     "somethingWentWrong": "Something went wrong.",
-    "noQuestions": "No questions available in this section."
+    "noQuestions": "No questions available in this section.",
+    "failedToLoadRetry": "Failed to load survey. Please try again.",
+    "unsupportedQuestionType": "Unsupported question type: {{type}}"
   },
-  "welcome": {
-    "title": "Welcome to Your Assessment",
-    "accessCodeLabel": "Access Code",
-    "verify": "Verify",
-    "needCode": "Need an access code?"
+  "assessmentWelcome": {
+    "errors": {
+      "emptyCode": "Please enter your access code",
+      "verifyFailed": "Failed to verify access code. Please try again."
+    },
+    "mobileWarning": {
+      "title": "Best Experience on Desktop:",
+      "body": "For the optimal assessment experience and to fully engage with our career AI coach afterward, we recommend using a computer or tablet rather than a mobile device."
+    },
+    "hero": {
+      "title": "Welcome to the Cairnly Career Assessment",
+      "subtitle": "Discover your unique career strengths, values, and ideal work environment through our comprehensive assessment."
+    },
+    "card": {
+      "badge": "Ready to Begin",
+      "subtitle": "Enter your access code below to start your personalized career assessment"
+    },
+    "accessCode": {
+      "label": "Access Code",
+      "placeholder": "XXXX-XXXX-XXXX-XXXX",
+      "hint": "Enter the access code you received after your purchase"
+    },
+    "actions": {
+      "verifying": "Verifying your code...",
+      "verify": "Verify Code & Start Assessment"
+    },
+    "purchase": {
+      "prompt": "Don't have a valid access code?",
+      "cta": "Purchase Access Code"
+    },
+    "help": {
+      "prefix": "Having trouble?",
+      "contactSupport": "Contact support",
+      "or": "or",
+      "returnHome": "return to homepage"
+    },
+    "info": {
+      "duration": {
+        "value": "30-60 minutes",
+        "caption": "At your own pace, saved as you go"
+      },
+      "sections": {
+        "value": "7 sections",
+        "caption": "Comprehensive analysis"
+      },
+      "personalized": {
+        "value": "Personalized",
+        "caption": "Custom insights"
+      }
+    }
+  },
+  "assessmentGate": {
+    "authRequired": "Authentication required. Please sign in.",
+    "noSurveyFound": "Error: No survey found. Please try again."
+  },
+  "sectionIntro": {
+    "justFinished": "Great! You finished:",
+    "upNext": "Up next",
+    "sectionLabel": "Section {{number}}",
+    "continue": "Continue",
+    "fallbackDescription": "Let's continue with the next set of questions."
+  },
+  "cairn": {
+    "progress": "Cairn progress: {{placed}} of {{total}} stones placed",
+    "progressCrowned": "Cairn progress: {{placed}} of {{total}} stones placed, crowned"
+  },
+  "milestones": {
+    "pct25": "The more honest your answers, the more useful your results will be. Keep going.",
+    "pct50": "Good moment for a stretch or a cup of tea. Your progress is automatically saved — come back whenever you're ready.",
+    "pct75": "This level of depth is exactly what makes the final report genuinely useful. Worth the time.",
+    "pct90": "Final stretch — just a few more questions."
+  },
+  "toasts": {
+    "incompleteOnSubmit": {
+      "title": "A question still needs an answer",
+      "description": "We've taken you back to it. Fill it in to submit."
+    }
+  },
+  "questionCard": {
+    "eyebrow": "Section {{section}} · Question {{current}} of {{total}}"
+  },
+  "validation": {
+    "completeRequiredFields": "Please complete all required fields before continuing.",
+    "otherIncomplete": "Finish typing your \"Other\" answer, or remove it.",
+    "otherIncompleteSingle": "Finish typing your \"Other\" answer to continue.",
+    "pickAtLeast_one": "Pick at least {{count}} option to continue.",
+    "pickAtLeast_other": "Pick at least {{count}} options to continue.",
+    "pickAtMost_one": "Pick at most {{count}} option to continue.",
+    "pickAtMost_other": "Pick at most {{count}} options to continue.",
+    "selectOne": "Select at least one option to continue.",
+    "rankAll": "Please rank all the items to continue.",
+    "languageNeeded": "Add at least one language with a proficiency level to continue.",
+    "happinessRatingAndReason": "Give each role a happiness rating and a short reason to continue.",
+    "happinessRating": "Give every role a happiness rating to continue.",
+    "happinessReasonTooShort": "Add a bit more detail to each \"Why this score?\" — at least {{count}} characters.",
+    "roleNeeded": "Add at least one role (a job title) to continue.",
+    "roleFieldsIncomplete": "Complete the fields outlined in red on your roles to continue.",
+    "answerRequired": "Please answer this question to continue."
+  },
+  "submitToast": {
+    "failedDescription": "Failed to submit your responses. Please try again - your answers are saved.",
+    "successTitle": "Survey Submitted Successfully",
+    "successDescription": "Redirecting to processing page...",
+    "unexpectedErrorDescription": "An unexpected error occurred. Please try again - your answers are saved."
+  },
+  "companySize": {
+    "micro": "Micro (1-10 employees)",
+    "small": "Small (11-50 employees)",
+    "medium": "Medium (51-200 employees)",
+    "large": "Large (201-1000 employees)",
+    "enterprise": "Enterprise (1000-5000 employees)",
+    "multiNational": "Multi National (5000+ employees)",
+    "ownCompany": "Own Company",
+    "ownCompanyDescription": "Freelance, consulting, or own business"
+  },
+  "companyCulture": {
+    "startup": "Startup / Scale-up",
+    "startupDescription": "Investor backed, focus on growth, evolving structure",
+    "corporate": "Corporate",
+    "corporateDescription": "Established, structured hierarchy, stable",
+    "midMarket": "Mid-Market",
+    "midMarketDescription": "Balanced growth, professionalized, cross-functional",
+    "agency": "Agency / Consultancy",
+    "agencyDescription": "Client-centric, project-based, high variety",
+    "boutique": "Boutique / Niche",
+    "boutiqueDescription": "Specialized firm, small team, direct impact",
+    "nonprofit": "Nonprofit / Social Impact",
+    "nonprofitDescription": "Mission-driven, purpose-focused, collaborative",
+    "publicSector": "Public Sector / Gov",
+    "publicSectorDescription": "Formal procedures, regulatory, public service",
+    "solo": "Solo / Freelance",
+    "soloDescription": "Working independently, serving clients, no co-workers",
+    "smallBusinessOwner": "Small Business Owner (up to 5 FTE)",
+    "smallBusinessOwnerDescription": "Running my own company with employees or contractors"
+  },
+  "ranking": {
+    "dragToReorder": "Drag to reorder",
+    "removeFromRanking": "Remove from ranking",
+    "removeTitle": "Remove",
+    "instructionsBold": "Tap items in your order of importance.",
+    "instructionsRest": "Drag the grip handle to reorder, tap the × to remove.",
+    "yourRanking": "Your ranking",
+    "progress": "{{ranked}} of {{total}} ranked",
+    "emptyState": "Tap an item below to add it as #1",
+    "tapToAdd": "Tap to add"
+  },
+  "selectionLimit": {
+    "exact": "Select {{count}}",
+    "between": "Select between {{min}} and {{max}}",
+    "atLeastOne": "Select at least one",
+    "atLeast": "Select at least {{count}}",
+    "upTo": "Select up to {{count}}",
+    "selectedCount": "· {{count}} selected",
+    "reassurance": "No wrong answers here. It's one of several signals we use."
+  },
+  "inputs": {
+    "responsePlaceholder": "Enter your response...",
+    "numberPlaceholder": "Enter a number...",
+    "selectOptionPlaceholder": "Select an option...",
+    "otherLabel": "Other",
+    "otherPlaceholder": "Please specify...",
+    "characterCount": "{{count}} / {{max}} characters"
+  },
+  "months": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "careerHistory": {
+    "duration": {
+      "lessThanMonth": "Less than a month",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years",
+      "yearsAndMonths": "{{years}} years, {{months}} months"
+    },
+    "roleNotIncluded": "{{title}} — not included",
+    "roleLabel": "Role {{number}}",
+    "roleLabelCurrent": "Role {{number}} (Current)",
+    "roleLabelMostRecent": "Role 1 (Most Recent)",
+    "addRole": "Add a role",
+    "addRoleMax": "(5 max)",
+    "addRoleCount": "({{count}}/5)",
+    "moveUpToInclude": "Move up to include",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "e.g., Director of Marketing",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "e.g., Acme Legal AI",
+    "companySize": "Company Size",
+    "companySizePlaceholder": "Select size...",
+    "companyCulture": "Company Culture",
+    "companyCulturePlaceholder": "Select culture...",
+    "sector": "Industry / Sector / Focus",
+    "sectorPlaceholder": "e.g., Legal Tech, FinTech, Healthcare",
+    "start": "Start",
+    "monthPlaceholder": "Mon",
+    "yearPlaceholder": "Year",
+    "end": "End",
+    "presentPlaceholder": "Present",
+    "currentlyWorkHere": "I currently work here",
+    "footerNote": "Up to 5 roles are included in your assessment. Use the arrows to reorder.",
+    "presentYear": "Present"
+  },
+  "careerHappiness": {
+    "noHistoryWarning": "Please fill in your career history in the previous question first.",
+    "reasonCallout": "What you write here matters as much as the score. We read it closely to learn what actually makes work good or bad for you, so a specific line about what you liked and what wore you down really helps.",
+    "roleLabelMostRecent": "Role 1 (most recent): ",
+    "roleLabel": "Role {{number}}: ",
+    "atCompany": " at {{company}}",
+    "happinessLabel": "Happiness (1-10)",
+    "scaleLow": "1 (unhappy)",
+    "scaleHigh": "10 (very happy)",
+    "whyThisScore": "Why this score?",
+    "charsRemaining_one": "{{count}} more character",
+    "charsRemaining_other": "{{count}} more characters",
+    "reasonPlaceholder": "e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
+  },
+  "skills": {
+    "sectionTitle": "Top Skills & Certifications",
+    "topThreeLabel": "Your Top 3 Skills",
+    "topThreeHint": "Skills below are pulled from your CV. Tag your top three by clicking 1, 2, and 3.",
+    "placeholder1": "e.g., Strategic Planning",
+    "placeholder2": "e.g., Stakeholder Management",
+    "placeholder3": "e.g., Budget Administration",
+    "placeholderAdditional": "Additional skill",
+    "rankGroupAria": "Rank skill {{number}}",
+    "removeRankTitle": "Remove rank #{{rank}}",
+    "setRankTitle": "Set as #{{rank}}",
+    "certificationsLabel": "Certifications (optional)",
+    "certPlaceholder1": "e.g., Six Sigma Green Belt",
+    "certPlaceholder2": "e.g., Salesforce Certified"
+  },
+  "achievements": {
+    "sectionTitle": "Achievements",
+    "sectionHint": "Highlight key wins like revenue growth, cost savings, or successful team expansions.",
+    "noCareersTip": "Tip: fill in your career history first to get separate achievement fields per company.",
+    "generalPlaceholder": "Describe your key achievements...",
+    "rolePlaceholder": "Key achievements at {{company}}...",
+    "otherLabel": "Other Achievements (optional)",
+    "otherPlaceholder": "Any other achievements not tied to a specific company..."
+  },
+  "languages": {
+    "sectionTitle": "Languages",
+    "sectionHint": "Which languages do you speak, and how well? Select at least one.",
+    "proficiencyPlaceholder": "Proficiency...",
+    "otherLabel": "Another language (optional)",
+    "clear": "Clear",
+    "choosePlaceholder": "Choose a language...",
+    "proficiency": {
+      "native": "Native",
+      "fluent": "Fluent",
+      "conversational": "Conversational",
+      "basic": "Basic"
+    }
+  },
+  "interests": {
+    "placeholder1": "e.g., Gardening",
+    "placeholder2": "e.g., Creative writing",
+    "placeholder3": "e.g., Lego"
+  },
+  "voice": {
+    "tryItHint": "Try it — speak your answer",
+    "stopRecording": "Stop recording",
+    "voiceInput": "Voice input",
+    "tidyingTranscript": "Tidying up your transcript..."
+  },
+  "reportProcessing": {
+    "steps": {
+      "reading": "Reading your responses",
+      "personality": "Building your personality profile",
+      "research": "Researching career paths",
+      "scoring": "Scoring your career matches",
+      "coach": "Preparing your AI career coach"
+    },
+    "redirecting": {
+      "title": "Your coach is ready!",
+      "toastBody": "Connecting you now...",
+      "body": "Connecting you now"
+    },
+    "header": {
+      "eyebrow": "All seven sections done",
+      "title": "Building Your Profile",
+      "subtitleSoftWarning": "Almost there, just finishing up.",
+      "subtitle": "This usually takes about 5 minutes."
+    },
+    "leaveNote": "You can safely leave this page. We'll email you when your coach is ready.",
+    "goToDashboard": "Go to Dashboard",
+    "endState": {
+      "title": "Taking longer than expected",
+      "body": "Our support team has been notified and will follow up shortly.",
+      "safeTitle": "Your data is safe — nothing has been lost.",
+      "safeBody": "We'll email you as soon as your career coach is ready."
+    },
+    "failed": {
+      "title": "Something went wrong",
+      "body": "We hit a snag generating your report. Our team has been notified.",
+      "safeTitle": "Your survey data is safe — nothing has been lost.",
+      "safeBody": "We'll email you as soon as your report is ready."
+    }
   }
 }

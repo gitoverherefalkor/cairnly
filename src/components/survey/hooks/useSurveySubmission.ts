@@ -1,6 +1,7 @@
 
 import { useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,6 +27,7 @@ export const useSurveySubmission = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation('survey');
   const { trackSurveyComplete } = useEngagementTracking();
   const isSubmittingRef = useRef(false);
 
@@ -111,8 +113,8 @@ export const useSurveySubmission = ({
         setSubmissionStatus('failed');
         isSubmittingRef.current = false; // Allow retry on failure
         toast({
-          title: "Submission Failed",
-          description: "Failed to submit your responses. Please try again - your answers are saved.",
+          title: t('failed.title'),
+          description: t('submitToast.failedDescription'),
           variant: "destructive",
         });
         return;
@@ -149,8 +151,8 @@ export const useSurveySubmission = ({
       trackSurveyComplete();
 
       toast({
-        title: "Survey Submitted Successfully",
-        description: "Redirecting to processing page...",
+        title: t('submitToast.successTitle'),
+        description: t('submitToast.successDescription'),
       });
 
       // Call completion handler (but don't clear session yet)
@@ -165,14 +167,14 @@ export const useSurveySubmission = ({
       setSubmissionStatus('failed');
       isSubmittingRef.current = false; // Allow retry on failure
       toast({
-        title: "Submission Failed",
-        description: "An unexpected error occurred. Please try again - your answers are saved.",
+        title: t('failed.title'),
+        description: t('submitToast.unexpectedErrorDescription'),
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
-  }, [surveyId, responses, accessCodeData, user, setIsSubmitting, setSubmissionStatus, onComplete, toast, markAccessCodeAsUsed]);
+  }, [surveyId, responses, accessCodeData, user, setIsSubmitting, setSubmissionStatus, onComplete, toast, markAccessCodeAsUsed, t]);
 
   const handleRetrySubmission = () => {
     isSubmittingRef.current = false;

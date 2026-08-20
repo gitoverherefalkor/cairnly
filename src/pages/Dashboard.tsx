@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -122,6 +123,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  // Declared with the other hooks, above BOTH early returns (the loading
+  // spinner and the completed-report branch) — see the pdfLoading note above.
+  const { t } = useTranslation('dashboard');
 
   // If user explicitly navigated here (e.g. from chat), don't auto-redirect back.
   const cameFromChat = location.state?.fromChat === true;
@@ -321,9 +325,16 @@ const Dashboard = () => {
       // Local-scope signout — global logout has been 403-ing on this project.
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
-        toast({ title: 'Error', description: 'Failed to sign out. Please try again.', variant: 'destructive' });
+        toast({
+          title: t('toast.signOutError.title'),
+          description: t('toast.signOutError.description'),
+          variant: 'destructive',
+        });
       } else {
-        toast({ title: 'Signed out', description: "You've been signed out successfully." });
+        toast({
+          title: t('toast.signedOut.title'),
+          description: t('toast.signedOut.description'),
+        });
         navigate('/');
       }
     } catch (error) {
@@ -383,11 +394,11 @@ const Dashboard = () => {
   //     (or "Why this might be a fit" for outside-box).
   const personalityShares = useMemo(() => {
     const order: { types: string[]; fallbackTitle: string }[] = [
-      { types: ['strengths'], fallbackTitle: 'Core strengths' },
-      { types: ['values'], fallbackTitle: 'Core values' },
-      { types: ['approach', 'personality_team'], fallbackTitle: 'Approach' },
-      { types: ['development'], fallbackTitle: 'Development' },
-      { types: ['exec_summary', 'executive_summary'], fallbackTitle: 'Executive summary' },
+      { types: ['strengths'], fallbackTitle: t('shareCard.fallbackTitle.strengths') },
+      { types: ['values'], fallbackTitle: t('shareCard.fallbackTitle.values') },
+      { types: ['approach', 'personality_team'], fallbackTitle: t('shareCard.fallbackTitle.approach') },
+      { types: ['development'], fallbackTitle: t('shareCard.fallbackTitle.development') },
+      { types: ['exec_summary', 'executive_summary'], fallbackTitle: t('shareCard.fallbackTitle.execSummary') },
     ];
     return order
       .map(({ types, fallbackTitle }) => {
@@ -402,7 +413,7 @@ const Dashboard = () => {
         return { sectionType: s.section_type, title, subheader, quotes };
       })
       .filter(Boolean) as { sectionType: string; title: string; subheader: string | null; quotes: string[] }[];
-  }, [reportSections]);
+  }, [reportSections, t]);
 
   // Role shares — Top 1/2/3 + every outside-the-box career. Quotes come from
   // the cached `share_quotes` jsonb column on report_sections, which is
@@ -426,7 +437,7 @@ const Dashboard = () => {
     for (const type of ['top_career_1', 'top_career_2', 'top_career_3']) {
       const s = reportSections.find((x) => x.section_type === type);
       if (!s) continue;
-      const title = cleanTitle(s.title) || 'Best-fit career';
+      const title = cleanTitle(s.title) || t('shareCard.fallbackTitle.bestFitCareer');
       const matchPct = s.score != null ? Math.round(Number(s.score)) || 0 : null;
       out.push({
         sectionId: s.id,
@@ -442,7 +453,7 @@ const Dashboard = () => {
 
     const outsideBox = reportSections.filter((x) => x.section_type === 'outside_box');
     for (const s of outsideBox) {
-      const title = cleanTitle(s.title) || 'Outside-the-box career';
+      const title = cleanTitle(s.title) || t('shareCard.fallbackTitle.outsideBoxCareer');
       out.push({
         sectionId: s.id,
         sectionType: 'outside_box',
@@ -455,20 +466,26 @@ const Dashboard = () => {
       });
     }
     return out;
-  }, [reportSections]);
+  }, [reportSections, t]);
 
   // Copy the personal invite link to the clipboard.
   const handleInvite = async () => {
     const link = referralStatus.referralLink;
     if (!link) {
-      toast({ title: 'One moment', description: 'Your invite link is still being prepared. Try again shortly.' });
+      toast({
+        title: t('toast.inviteLinkPending.title'),
+        description: t('toast.inviteLinkPending.description'),
+      });
       return;
     }
     try {
       await navigator.clipboard.writeText(link);
-      toast({ title: 'Invite link copied', description: 'Share it with a friend to unlock your next tool.' });
+      toast({
+        title: t('toast.inviteLinkCopied.title'),
+        description: t('toast.inviteLinkCopied.description'),
+      });
     } catch {
-      toast({ title: 'Your invite link', description: link });
+      toast({ title: t('toast.inviteLinkFallback.title'), description: link });
     }
   };
 
@@ -486,8 +503,8 @@ const Dashboard = () => {
     } catch (err) {
       console.error('[Dashboard] PDF render failed:', err);
       toast({
-        title: 'Could not build your PDF',
-        description: 'Something went wrong generating the file. Try again in a moment.',
+        title: t('toast.pdfFailed.title'),
+        description: t('toast.pdfFailed.description'),
         variant: 'destructive',
       });
     } finally {
@@ -563,7 +580,7 @@ const Dashboard = () => {
             opacity: pdfLoading ? 0.7 : 1,
           }}
         >
-          {pdfLoading ? 'Generating…' : 'Download report PDF'}
+          {pdfLoading ? t('pdfButton.generating') : t('pdfButton.download')}
         </button>
         )}
 
@@ -677,8 +694,8 @@ const Dashboard = () => {
       console.error('Error retrying report generation:', err);
       setIsRetrying(false);
       toast({
-        title: 'Still having trouble',
-        description: "We couldn't restart your report just now. Please try again in a moment.",
+        title: t('toast.retryFailed.title'),
+        description: t('toast.retryFailed.description'),
         variant: 'destructive',
       });
     }

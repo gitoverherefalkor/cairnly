@@ -35,7 +35,7 @@ There is **one** set of React components. Every language renders through the exa
 | File / area | Responsibility |
 |---|---|
 | `src/i18n.ts` | i18next init. `supportedLngs` whitelist, namespace list, `.nl`/`.de` domain detection, localStorage key `cairnly_language`, `react: { useSuspense: false }`, HttpBackend loads `/locales/{{lng}}/{{ns}}.json`. |
-| `public/locales/<lang>/*.json` | All UI strings. 7 namespaces: `common, auth, landing, survey, chat, report, dashboard`. **English is the source of truth.** |
+| `public/locales/<lang>/*.json` | All UI strings. 12 namespaces: `common, auth, landing, survey, chat, report, dashboard, payment, support, resume, starter, encore` — the list in `src/i18n.ts` is authoritative. **English is the source of truth.** |
 | `src/components/LanguageSwitcher.tsx` | The `languages` array (code/label/flag/`disabled`). One array → rendered in both `LandingNav` and `Navbar`. Auto-hides on `/chat`. |
 | `src/components/landing/LandingNav.tsx` | Landing-page nav. Mounts `<LanguageSwitcher>` (desktop + mobile). |
 | `src/components/Navbar.tsx` | App nav. Also mounts `<LanguageSwitcher>`. |
@@ -76,7 +76,7 @@ Example: German (`de`). Substitute the code for other languages.
 - `ANTHROPIC_API_KEY` present in `.env` (the sync script needs it; it loads dotenv with `override: true` so an empty shell var won't shadow it).
 - Confirm `scripts/i18n-glossary.json` has a `rules.<lang>` block. For `de` it exists. For a new code, add one (je/Sie-form, number format, date format, "no em-dashes", etc.). Optionally add a `preferred["en-><lang>"]` term map.
 
-### Step 1 — UI strings (all 7 namespaces, incl. landing)
+### Step 1 — UI strings (every namespace in `src/i18n.ts`, incl. landing)
 ```bash
 npm run i18n:sync de            # translates every missing key en → de
 ```

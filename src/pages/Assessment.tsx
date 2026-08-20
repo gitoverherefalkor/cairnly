@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SurveyForm } from '@/components/survey/SurveyForm';
 import { AssessmentWelcome } from '@/components/survey/AssessmentWelcome';
 import { AssessmentLayout } from '@/components/assessment/AssessmentLayout';
@@ -11,6 +12,7 @@ import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSes
 import { useProfile } from '@/hooks/useProfile';
 
 const AssessmentPage = () => {
+  const { t } = useTranslation('survey');
   const {
     isCompleted,
     isVerified,
@@ -49,7 +51,7 @@ const AssessmentPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-atlas-blue mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('loading.generic')}</p>
         </div>
       </div>
     );
@@ -60,7 +62,7 @@ const AssessmentPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Authentication required. Please sign in.</p>
+          <p className="text-gray-600">{t('assessmentGate.authRequired')}</p>
         </div>
       </div>
     );
@@ -101,7 +103,7 @@ const AssessmentPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Error: No survey found. Please try again.</p>
+          <p className="text-red-600">{t('assessmentGate.noSurveyFound')}</p>
         </div>
       </div>
     );

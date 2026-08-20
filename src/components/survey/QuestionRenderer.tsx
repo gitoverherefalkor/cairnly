@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { Question } from '@/hooks/useSurvey';
 import { Input } from '@/components/ui/input';
@@ -115,26 +116,29 @@ interface LanguagesEntry {
 }
 
 // Company size and culture options
+// `value` is the SUBMITTED answer: it is written into the career_history
+// entry and forwarded to n8n, so it stays English in every language. Only
+// labelKey / descriptionKey are display copy, resolved at the render site.
 const COMPANY_SIZE_OPTIONS = [
-  { value: 'Micro (1-10)', label: 'Micro (1-10 employees)', description: '' },
-  { value: 'Small (11-50)', label: 'Small (11-50 employees)', description: '' },
-  { value: 'Medium (51-200)', label: 'Medium (51-200 employees)', description: '' },
-  { value: 'Large (201-1000)', label: 'Large (201-1000 employees)', description: '' },
-  { value: 'Enterprise (1000-5000)', label: 'Enterprise (1000-5000 employees)', description: '' },
-  { value: 'Multi National (5000+)', label: 'Multi National (5000+ employees)', description: '' },
-  { value: 'Own Company', label: 'Own Company', description: 'Freelance, consulting, or own business' },
+  { value: 'Micro (1-10)', labelKey: 'companySize.micro', descriptionKey: '' },
+  { value: 'Small (11-50)', labelKey: 'companySize.small', descriptionKey: '' },
+  { value: 'Medium (51-200)', labelKey: 'companySize.medium', descriptionKey: '' },
+  { value: 'Large (201-1000)', labelKey: 'companySize.large', descriptionKey: '' },
+  { value: 'Enterprise (1000-5000)', labelKey: 'companySize.enterprise', descriptionKey: '' },
+  { value: 'Multi National (5000+)', labelKey: 'companySize.multiNational', descriptionKey: '' },
+  { value: 'Own Company', labelKey: 'companySize.ownCompany', descriptionKey: 'companySize.ownCompanyDescription' },
 ];
 
 const COMPANY_CULTURE_OPTIONS = [
-  { value: 'Startup / Scale-up', label: 'Startup / Scale-up', description: 'Investor backed, focus on growth, evolving structure' },
-  { value: 'Corporate', label: 'Corporate', description: 'Established, structured hierarchy, stable' },
-  { value: 'Mid-Market', label: 'Mid-Market', description: 'Balanced growth, professionalized, cross-functional' },
-  { value: 'Agency / Consultancy', label: 'Agency / Consultancy', description: 'Client-centric, project-based, high variety' },
-  { value: 'Boutique / Niche', label: 'Boutique / Niche', description: 'Specialized firm, small team, direct impact' },
-  { value: 'Nonprofit / Social Impact', label: 'Nonprofit / Social Impact', description: 'Mission-driven, purpose-focused, collaborative' },
-  { value: 'Public Sector / Gov', label: 'Public Sector / Gov', description: 'Formal procedures, regulatory, public service' },
-  { value: 'Solo / Freelance', label: 'Solo / Freelance', description: 'Working independently, serving clients, no co-workers' },
-  { value: 'Small Business Owner (up to 5 FTE)', label: 'Small Business Owner (up to 5 FTE)', description: 'Running my own company with employees or contractors' },
+  { value: 'Startup / Scale-up', labelKey: 'companyCulture.startup', descriptionKey: 'companyCulture.startupDescription' },
+  { value: 'Corporate', labelKey: 'companyCulture.corporate', descriptionKey: 'companyCulture.corporateDescription' },
+  { value: 'Mid-Market', labelKey: 'companyCulture.midMarket', descriptionKey: 'companyCulture.midMarketDescription' },
+  { value: 'Agency / Consultancy', labelKey: 'companyCulture.agency', descriptionKey: 'companyCulture.agencyDescription' },
+  { value: 'Boutique / Niche', labelKey: 'companyCulture.boutique', descriptionKey: 'companyCulture.boutiqueDescription' },
+  { value: 'Nonprofit / Social Impact', labelKey: 'companyCulture.nonprofit', descriptionKey: 'companyCulture.nonprofitDescription' },
+  { value: 'Public Sector / Gov', labelKey: 'companyCulture.publicSector', descriptionKey: 'companyCulture.publicSectorDescription' },
+  { value: 'Solo / Freelance', labelKey: 'companyCulture.solo', descriptionKey: 'companyCulture.soloDescription' },
+  { value: 'Small Business Owner (up to 5 FTE)', labelKey: 'companyCulture.smallBusinessOwner', descriptionKey: 'companyCulture.smallBusinessOwnerDescription' },
 ];
 
 // Textarea that grows with its content (no inner scrollbar). Used for free-text
@@ -181,6 +185,7 @@ const SortableRankItem: React.FC<{
   label: React.ReactNode;
   onRemove: () => void;
 }> = ({ id, index, label, onRemove }) => {
+  const { t } = useTranslation('survey');
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style: React.CSSProperties = {
@@ -207,7 +212,7 @@ const SortableRankItem: React.FC<{
           instead of scrolling the page. */}
       <button
         type="button"
-        aria-label="Drag to reorder"
+        aria-label={t('ranking.dragToReorder')}
         className="flex items-center mr-3 text-gray-400 hover:text-gray-600 transition-colors cursor-grab active:cursor-grabbing touch-none"
         {...attributes}
         {...listeners}
@@ -222,8 +227,8 @@ const SortableRankItem: React.FC<{
       <button
         type="button"
         onClick={onRemove}
-        aria-label="Remove from ranking"
-        title="Remove"
+        aria-label={t('ranking.removeFromRanking')}
+        title={t('ranking.removeTitle')}
         className="ml-3 flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors"
       >
         <X className="h-5 w-5" />
@@ -239,6 +244,7 @@ const ResponsiveRanking: React.FC<{
   formatTextWithEmphasis: (text: string) => { __html: string };
   renderChoiceLabel: (choice: string) => React.ReactNode;
 }> = ({ question, value, onChange, renderChoiceLabel }) => {
+  const { t } = useTranslation('survey');
   const choices: string[] = question.config?.choices || [];
 
   // The value is the ordered list of ranked items (grows as the user taps).
@@ -271,20 +277,22 @@ const ResponsiveRanking: React.FC<{
       {/* Instructions */}
       <div className="flex items-center gap-2 text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">
         <span>
-          <strong>Tap items in your order of importance.</strong> Drag the grip handle to reorder, tap the × to remove.
+          <strong>{t('ranking.instructionsBold')}</strong> {t('ranking.instructionsRest')}
         </span>
       </div>
 
       {/* Your ranking */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Your ranking</span>
-          <span className="text-xs text-gray-500">{ranked.length} of {choices.length} ranked</span>
+          <span className="text-sm font-medium text-gray-700">{t('ranking.yourRanking')}</span>
+          <span className="text-xs text-gray-500">
+            {t('ranking.progress', { ranked: ranked.length, total: choices.length })}
+          </span>
         </div>
 
         {ranked.length === 0 ? (
           <div className="p-4 rounded-lg border-2 border-dashed border-gray-300 text-sm text-gray-400 text-center">
-            Tap an item below to add it as #1
+            {t('ranking.emptyState')}
           </div>
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -308,7 +316,7 @@ const ResponsiveRanking: React.FC<{
       {/* Tap to add */}
       {unranked.length > 0 && (
         <div>
-          <div className="text-sm font-medium text-gray-700 mb-2">Tap to add</div>
+          <div className="text-sm font-medium text-gray-700 mb-2">{t('ranking.tapToAdd')}</div>
           <div className="space-y-2">
             {unranked.map((item) => (
               <button
@@ -339,6 +347,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   onNonNegotiableChange,
   onElsewhereLocationChange,
 }) => {
+  const { t } = useTranslation('survey');
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
 
@@ -482,12 +491,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
     let requirement: string;
     if (minSelections && maxSelections) {
       requirement = minSelections === maxSelections
-        ? `Select ${minSelections}`
-        : `Select between ${minSelections} and ${maxSelections}`;
+        ? t('selectionLimit.exact', { count: minSelections })
+        : t('selectionLimit.between', { min: minSelections, max: maxSelections });
     } else if (minSelections) {
-      requirement = minSelections === 1 ? 'Select at least one' : `Select at least ${minSelections}`;
+      requirement = minSelections === 1
+        ? t('selectionLimit.atLeastOne')
+        : t('selectionLimit.atLeast', { count: minSelections });
     } else {
-      requirement = `Select up to ${maxSelections}`;
+      requirement = t('selectionLimit.upTo', { count: maxSelections });
     }
 
     const met =
@@ -499,7 +510,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         <p className="text-sm text-gray-600">
           {requirement}
           {currentSelections > 0 && (
-            <span className={met ? 'text-atlas-teal' : 'text-gray-400'}> · {currentSelections} selected</span>
+            <span className={met ? 'text-atlas-teal' : 'text-gray-400'}>
+              {' '}
+              {t('selectionLimit.selectedCount', { count: currentSelections })}
+            </span>
           )}
         </p>
         {/* Reassurance for the "narrow it down" questions (those with a max):
@@ -508,7 +522,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             many, so say so at the moment the pressure shows up. */}
         {maxSelections && (
           <p className="text-xs text-gray-400 mt-1">
-            No wrong answers here. It's one of several signals we use.
+            {t('selectionLimit.reassurance')}
           </p>
         )}
       </div>
@@ -541,7 +555,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           <textarea
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="Enter your response..."
+            placeholder={t('inputs.responsePlaceholder')}
             className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-base leading-relaxed resize-y min-h-[120px]"
             rows={5}
           />
@@ -571,7 +585,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             type="number"
             value={value || ''}
             onChange={(e) => onChange(e.target.value ? parseInt(e.target.value) : '')}
-            placeholder="Enter a number..."
+            placeholder={t('inputs.numberPlaceholder')}
             className="w-full"
           />
         </div>
@@ -601,7 +615,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           ) : (
             <Select value={value || ''} onValueChange={onChange}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an option..." />
+                <SelectValue placeholder={t('inputs.selectOptionPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {question.config?.choices?.map((choice) => (
@@ -709,7 +723,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       ${isOtherActive ? 'text-atlas-navy font-medium' : 'text-gray-700 group-hover:text-gray-900'}
                     `}
                   >
-                    Other
+                    {t('inputs.otherLabel')}
                   </Label>
                   {isOtherActive && (
                     <div className="absolute right-4 text-atlas-teal">
@@ -730,7 +744,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     setOtherValue(newValue);
                     onChange(newValue ? `Other: ${newValue}` : 'other');
                   }}
-                  placeholder="Please specify..."
+                  placeholder={t('inputs.otherPlaceholder')}
                   className="w-full bg-gray-50 border-0 focus:ring-0 focus:outline-none px-4 py-3 rounded-md mt-2"
                   autoFocus
                 />
@@ -907,7 +921,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         }
                       `}
                     >
-                      Other
+                      {t('inputs.otherLabel')}
                     </Label>
                   </div>
                   {(showOther || currentValues.some((v: string) => v.startsWith('Other: '))) && (
@@ -915,7 +929,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       <Input
                         value={otherValue}
                         onChange={(e) => handleOtherChange(e.target.value)}
-                        placeholder="Please specify..."
+                        placeholder={t('inputs.otherPlaceholder')}
                         className="w-full bg-gray-50 border-0 focus:ring-0 focus:outline-none px-4 py-3 rounded-md"
                         autoFocus
                       />
@@ -1000,20 +1014,22 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         isCurrent: false
       };
 
-      // Month options
+      // Month options. `value` is the SUBMITTED month AND the lookup key for
+      // monthToNum / monthToNumber below, so it stays English; only the label
+      // the user reads is translated.
       const MONTHS = [
-        { value: 'Jan', label: 'Jan' },
-        { value: 'Feb', label: 'Feb' },
-        { value: 'Mar', label: 'Mar' },
-        { value: 'Apr', label: 'Apr' },
-        { value: 'May', label: 'May' },
-        { value: 'Jun', label: 'Jun' },
-        { value: 'Jul', label: 'Jul' },
-        { value: 'Aug', label: 'Aug' },
-        { value: 'Sep', label: 'Sep' },
-        { value: 'Oct', label: 'Oct' },
-        { value: 'Nov', label: 'Nov' },
-        { value: 'Dec', label: 'Dec' },
+        { value: 'Jan', label: t('months.jan') },
+        { value: 'Feb', label: t('months.feb') },
+        { value: 'Mar', label: t('months.mar') },
+        { value: 'Apr', label: t('months.apr') },
+        { value: 'May', label: t('months.may') },
+        { value: 'Jun', label: t('months.jun') },
+        { value: 'Jul', label: t('months.jul') },
+        { value: 'Aug', label: t('months.aug') },
+        { value: 'Sep', label: t('months.sep') },
+        { value: 'Oct', label: t('months.oct') },
+        { value: 'Nov', label: t('months.nov') },
+        { value: 'Dec', label: t('months.dec') },
       ];
 
       // Calculate duration between dates
@@ -1044,10 +1060,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         const years = Math.floor(totalMonths / 12);
         const months = totalMonths % 12;
 
-        if (years === 0 && months === 0) return 'Less than a month';
-        if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
-        if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
-        return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+        if (years === 0 && months === 0) return t('careerHistory.duration.lessThanMonth');
+        if (years === 0) return t('careerHistory.duration.months', { count: months });
+        if (months === 0) return t('careerHistory.duration.years', { count: years });
+        return t('careerHistory.duration.yearsAndMonths', { years, months });
       };
 
       // Parse value — keep all entries including empty ones the user just added
@@ -1143,10 +1159,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
       const getRoleLabel = (index: number, entry: CareerHistoryEntry) => {
         const isOverflow = index >= MAX_ACTIVE_ROLES;
-        if (isOverflow) return `${entry.title || `Role ${index + 1}`} — not included`;
-        if (entry.isCurrent) return `Role ${index + 1} (Current)`;
-        if (index === 0) return 'Role 1 (Most Recent)';
-        return `Role ${index + 1}`;
+        if (isOverflow) {
+          const title = entry.title || t('careerHistory.roleLabel', { number: index + 1 });
+          return t('careerHistory.roleNotIncluded', { title });
+        }
+        if (entry.isCurrent) return t('careerHistory.roleLabelCurrent', { number: index + 1 });
+        if (index === 0) return t('careerHistory.roleLabelMostRecent');
+        return t('careerHistory.roleLabel', { number: index + 1 });
       };
 
       // Generate year options (current year back to 50 years ago)
@@ -1170,7 +1189,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add a role {activeFilledCount >= MAX_ACTIVE_ROLES ? '(5 max)' : `(${activeFilledCount}/5)`}
+          {t('careerHistory.addRole')}{' '}
+          {activeFilledCount >= MAX_ACTIVE_ROLES
+            ? t('careerHistory.addRoleMax')
+            : t('careerHistory.addRoleCount', { count: activeFilledCount })}
         </button>
       );
 
@@ -1197,7 +1219,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 {showDividerBefore && (
                   <div className="flex items-center gap-3 pt-2">
                     <div className="flex-1 border-t border-gray-300" />
-                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Move up to include</span>
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">{t('careerHistory.moveUpToInclude')}</span>
                     <div className="flex-1 border-t border-gray-300" />
                   </div>
                 )}
@@ -1220,7 +1242,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           onClick={() => moveCareerRow(index, 'up')}
                           disabled={index === 0}
                           className="p-0.5 text-gray-400 hover:text-atlas-teal disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                          title="Move up"
+                          title={t('careerHistory.moveUp')}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -1231,7 +1253,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           onClick={() => moveCareerRow(index, 'down')}
                           disabled={index === careerHistoryValue.length - 1}
                           className="p-0.5 text-gray-400 hover:text-atlas-teal disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
-                          title="Move down"
+                          title={t('careerHistory.moveDown')}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -1254,27 +1276,27 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       onClick={() => removeCareerRow(index)}
                       className="text-sm text-gray-400 hover:text-red-500 font-medium transition-colors"
                     >
-                      Remove
+                      {t('careerHistory.remove')}
                     </button>
                   </div>
 
                 {/* Row 1: Job Title + Company Name */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Job Title</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.jobTitle')}</label>
                     <Input
                       value={entry.title}
                       onChange={(e) => updateCareerHistory(index, 'title', e.target.value)}
-                      placeholder="e.g., Director of Marketing"
+                      placeholder={t('careerHistory.jobTitlePlaceholder')}
                       className={`w-full ${!isActive ? 'placeholder:text-gray-300' : ''} ${isActive && !entry.title?.trim() ? 'border-red-300 focus:border-red-400' : ''}`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Company Name</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.companyName')}</label>
                     <Input
                       value={entry.companyName}
                       onChange={(e) => updateCareerHistory(index, 'companyName', e.target.value)}
-                      placeholder="e.g., Acme Legal AI"
+                      placeholder={t('careerHistory.companyNamePlaceholder')}
                       className={`w-full ${!isActive ? 'placeholder:text-gray-300' : ''} ${isActive && !entry.companyName?.trim() ? 'border-red-300 focus:border-red-400' : ''}`}
                     />
                   </div>
@@ -1283,21 +1305,23 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 {/* Row 2: Company Size + Company Culture */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Company Size</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.companySize')}</label>
                     <Select
                       value={entry.companySize || ''}
                       onValueChange={(val) => updateCareerHistory(index, 'companySize', val)}
                       required
                     >
                       <SelectTrigger className={`w-full ${!isActive ? 'text-gray-400' : ''} ${isActive && !entry.companySize ? 'border-red-300 focus:border-red-400' : ''}`}>
-                        <SelectValue placeholder="Select size..." />
+                        <SelectValue placeholder={t('careerHistory.companySizePlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         {COMPANY_SIZE_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} textValue={opt.label}>
+                          <SelectItem key={opt.value} value={opt.value} textValue={t(opt.labelKey)}>
                             <div className="flex flex-col text-left">
-                              <span>{opt.label}</span>
-                              {opt.description && <span className="text-xs text-gray-500">{opt.description}</span>}
+                              <span>{t(opt.labelKey)}</span>
+                              {opt.descriptionKey && (
+                                <span className="text-xs text-gray-500">{t(opt.descriptionKey)}</span>
+                              )}
                             </div>
                           </SelectItem>
                         ))}
@@ -1305,21 +1329,21 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     </Select>
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Company Culture</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.companyCulture')}</label>
                     <Select
                       value={entry.companyCulture || ''}
                       onValueChange={(val) => updateCareerHistory(index, 'companyCulture', val)}
                       required
                     >
                       <SelectTrigger className={`w-full ${!isActive ? 'text-gray-400' : ''} ${isActive && !entry.companyCulture ? 'border-red-300 focus:border-red-400' : ''}`}>
-                        <SelectValue placeholder="Select culture..." />
+                        <SelectValue placeholder={t('careerHistory.companyCulturePlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         {COMPANY_CULTURE_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} textValue={opt.label}>
+                          <SelectItem key={opt.value} value={opt.value} textValue={t(opt.labelKey)}>
                             <div className="flex flex-col text-left">
-                              <span>{opt.label}</span>
-                              <span className="text-xs text-gray-500">{opt.description}</span>
+                              <span>{t(opt.labelKey)}</span>
+                              <span className="text-xs text-gray-500">{t(opt.descriptionKey)}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -1330,11 +1354,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
                 {/* Row 3: Sector */}
                 <div className="mb-4">
-                  <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Industry / Sector / Focus</label>
+                  <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.sector')}</label>
                   <Input
                     value={entry.sector}
                     onChange={(e) => updateCareerHistory(index, 'sector', e.target.value)}
-                    placeholder="e.g., Legal Tech, FinTech, Healthcare"
+                    placeholder={t('careerHistory.sectorPlaceholder')}
                     className={`w-full ${!isActive ? 'placeholder:text-gray-300' : ''} ${isActive && !entry.sector?.trim() ? 'border-red-300 focus:border-red-400' : ''}`}
                   />
                 </div>
@@ -1342,14 +1366,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 {/* Row 4: Start (Month + Year) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>Start</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.start')}</label>
                     <div className="flex gap-2">
                       <Select
                         value={entry.startMonth || ''}
                         onValueChange={(val) => updateCareerHistory(index, 'startMonth', val)}
                       >
                         <SelectTrigger className={`w-full sm:w-24 ${!isActive ? 'text-gray-400' : ''}`}>
-                          <SelectValue placeholder="Mon" />
+                          <SelectValue placeholder={t('careerHistory.monthPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {MONTHS.map((month) => (
@@ -1364,7 +1388,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         onValueChange={(val) => updateCareerHistory(index, 'startYear', val ? parseInt(val) : '')}
                       >
                         <SelectTrigger className={`flex-1 ${!isActive ? 'text-gray-400' : ''} ${isActive && !entry.startYear ? 'border-red-300 focus:border-red-400' : ''}`}>
-                          <SelectValue placeholder="Year" />
+                          <SelectValue placeholder={t('careerHistory.yearPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {yearOptions.map((year) => (
@@ -1377,7 +1401,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     </div>
                   </div>
                   <div>
-                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>End</label>
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.end')}</label>
                     <div className="flex gap-2">
                       <Select
                         value={entry.endMonth || ''}
@@ -1385,7 +1409,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         disabled={entry.isCurrent}
                       >
                         <SelectTrigger className={`w-full sm:w-24 ${entry.isCurrent ? 'opacity-50' : ''} ${!isActive ? 'text-gray-400' : ''}`}>
-                          <SelectValue placeholder={entry.isCurrent ? 'Present' : 'Mon'} />
+                          <SelectValue
+                            placeholder={
+                              entry.isCurrent
+                                ? t('careerHistory.presentPlaceholder')
+                                : t('careerHistory.monthPlaceholder')
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {MONTHS.map((month) => (
@@ -1401,7 +1431,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         disabled={entry.isCurrent}
                       >
                         <SelectTrigger className={`flex-1 ${entry.isCurrent ? 'opacity-50' : ''} ${!isActive ? 'text-gray-400' : ''}`}>
-                          <SelectValue placeholder={entry.isCurrent ? '' : 'Year'} />
+                          <SelectValue placeholder={entry.isCurrent ? '' : t('careerHistory.yearPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {yearOptions.map((year) => (
@@ -1428,7 +1458,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       htmlFor={`current-role-${index}`}
                       className={`text-sm font-medium cursor-pointer ${isActive ? 'text-gray-700' : 'text-gray-400'}`}
                     >
-                      I currently work here
+                      {t('careerHistory.currentlyWorkHere')}
                     </Label>
                   </div>
                   {calculateDuration(entry) && (
@@ -1445,7 +1475,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             <AddRoleButton position="bottom" />
 
             <p className="text-xs text-gray-500 mt-2 text-center">
-              Up to 5 roles are included in your assessment. Use the arrows to reorder.
+              {t('careerHistory.footerNote')}
             </p>
           </div>
         </div>
@@ -1493,7 +1523,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             />
             {renderDescription()}
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
-              Please fill in your career history in the previous question first.
+              {t('careerHappiness.noHistoryWarning')}
             </div>
           </div>
         );
@@ -1512,7 +1542,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               the score alone. Nudge for substance. */}
           <div className="mb-5 rounded-lg border border-atlas-teal/20 bg-atlas-teal/5 p-3">
             <p className="text-sm text-[#4B6373]">
-              What you write here matters as much as the score. We read it closely to learn what actually makes work good or bad for you, so a specific line about what you liked and what wore you down really helps.
+              {t('careerHappiness.reasonCallout')}
             </p>
           </div>
 
@@ -1521,17 +1551,20 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               <div key={index} className="p-4 border rounded-lg bg-gray-50">
                 <div className="mb-3">
                   <span className="text-sm font-medium text-gray-700">
-                    {index === 0 ? 'Role 1 (most recent): ' : `Role ${index + 1}: `}
+                    {index === 0
+                      ? t('careerHappiness.roleLabelMostRecent')
+                      : t('careerHappiness.roleLabel', { number: index + 1 })}
                   </span>
                   <span className="text-sm text-atlas-navy font-semibold">
-                    {entry.title}{entry.companyName ? ` at ${entry.companyName}` : ''}
+                    {entry.title}
+                    {entry.companyName ? t('careerHappiness.atCompany', { company: entry.companyName }) : ''}
                   </span>
                 </div>
 
                 <div className="space-y-3">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs text-gray-500">Happiness (1-10)</label>
+                      <label className="text-xs text-gray-500">{t('careerHappiness.happinessLabel')}</label>
                       <span className="text-lg font-semibold text-atlas-navy">{entry.happiness}</span>
                     </div>
                     <Slider
@@ -1543,15 +1576,15 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       className="w-full"
                     />
                     <div className="flex justify-between text-xs text-gray-400 mt-1">
-                      <span>1 (unhappy)</span>
-                      <span>10 (very happy)</span>
+                      <span>{t('careerHappiness.scaleLow')}</span>
+                      <span>{t('careerHappiness.scaleHigh')}</span>
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-xs text-atlas-navy font-medium">
-                        Why this score? <span className="text-red-500">*</span>
+                        {t('careerHappiness.whyThisScore')} <span className="text-red-500">*</span>
                       </label>
                       {(() => {
                         const reasonLen = (entry.reason || '').trim().length;
@@ -1559,7 +1592,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         const under = remaining > 0;
                         return (
                           <span className={`text-xs ${under ? 'text-amber-600' : 'text-green-600'}`}>
-                            {under ? `${remaining} more character${remaining === 1 ? '' : 's'}` : '✓'}
+                            {under ? t('careerHappiness.charsRemaining', { count: remaining }) : '✓'}
                           </span>
                         );
                       })()}
@@ -1687,6 +1720,9 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         : { ...emptySkillsAchievements, languages: parsedLanguages };
 
       // Languages config (defaults guard against missing config so UI still renders).
+      // `label` is BOTH the English fallback and the lookup key into the
+      // DB-supplied question.langLabels.proficiency map, so it stays English.
+      // proficiencyLabel() below adds the translated layer.
       const DEFAULT_LANG_PROFICIENCY: Array<{ value: string; label: string }> = [
         { value: 'native', label: 'Native' },
         { value: 'fluent', label: 'Fluent' },
@@ -1707,6 +1743,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         question.config.languages_proficiency_levels.length > 0
           ? question.config.languages_proficiency_levels
           : DEFAULT_LANG_PROFICIENCY;
+
+      // Proficiency label resolution, in order: the DB translation (keyed by
+      // the English label), then our own languages.proficiency.<value> key for
+      // the default set, then the English label itself for anything a DB config
+      // introduces that we have no key for.
+      const proficiencyLabel = (pLevel: { value: string; label: string }) =>
+        question.langLabels?.proficiency?.[pLevel.label] ??
+        t(`languages.proficiency.${pLevel.value}`, { defaultValue: pLevel.label });
 
       const languagesValue: LanguagesEntry = skillsValue.languages || { presets: {}, other: null };
 
@@ -1784,12 +1828,19 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       // per role. Each box is bound to its role by (company, occurrence-index) so
       // two roles at the SAME company stay independent — editing one no longer
       // rewrites the other. See utils/roleAchievements.ts.
+      // SUBMITTED form: this string goes into roleSlots and is serialized into
+      // the CompanyAchievement[] answer, so "Present" stays English in every
+      // language. careerYearRangeDisplay below is what the user actually reads.
       const careerYearRange = (career: CareerHistoryEntry): string => {
         if (!career.startYear) return '';
         if (career.isCurrent) return `${career.startYear}–Present`;
         if (career.endYear) return `${career.startYear}–${career.endYear}`;
         return `${career.startYear}`;
       };
+      const careerYearRangeDisplay = (career: CareerHistoryEntry): string =>
+        career.startYear && career.isCurrent
+          ? `${career.startYear}–${t('careerHistory.presentYear')}`
+          : careerYearRange(career);
       const updateRoleAchievement = (roleSlots: RoleSlot[], roleIndex: number, newText: string) => {
         onChange({
           ...skillsValue,
@@ -1814,14 +1865,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           <div className="space-y-8">
             {/* Top Skills & Certifications Section */}
             <div className="p-5 border-2 rounded-xl bg-white shadow-sm">
-              <h3 className="text-base font-semibold text-atlas-navy mb-4">Top Skills & Certifications</h3>
+              <h3 className="text-base font-semibold text-atlas-navy mb-4">{t('skills.sectionTitle')}</h3>
 
               {/* Flat list of all skills pulled from the CV. The user tags any three
                   as #1/#2/#3 — no reordering, no overflow distinction. */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Your Top 3 Skills</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('skills.topThreeLabel')}</label>
                 <p className="text-xs text-gray-500 mb-3">
-                  Skills below are pulled from your CV. Tag your top three by clicking 1, 2, and 3.
+                  {t('skills.topThreeHint')}
                 </p>
                 <div className="space-y-2">
                   {Array.from({ length: MAX_TOTAL_SKILLS }).map((_, index) => {
@@ -1829,12 +1880,12 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     const currentRank = skillsValue.topSkillRanks?.[index] || 0;
                     const isRanked = currentRank > 0;
                     const placeholder = index === 0
-                      ? 'e.g., Strategic Planning'
+                      ? t('skills.placeholder1')
                       : index === 1
-                        ? 'e.g., Stakeholder Management'
+                        ? t('skills.placeholder2')
                         : index === 2
-                          ? 'e.g., Budget Administration'
-                          : 'Additional skill';
+                          ? t('skills.placeholder3')
+                          : t('skills.placeholderAdditional');
 
                     return (
                       <div
@@ -1845,7 +1896,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             : 'border border-transparent p-1.5'
                         }`}
                       >
-                        <div className="flex items-center gap-1 flex-shrink-0" role="group" aria-label={`Rank skill ${index + 1}`}>
+                        <div className="flex items-center gap-1 flex-shrink-0" role="group" aria-label={t('skills.rankGroupAria', { number: index + 1 })}>
                           {[1, 2, 3].map((rank) => {
                             const isActive = currentRank === rank;
                             return (
@@ -1855,7 +1906,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                                 onClick={() => toggleSkillRank(index, rank as 1 | 2 | 3)}
                                 disabled={!skillText.trim() && !isActive}
                                 aria-pressed={isActive}
-                                title={isActive ? `Remove rank #${rank}` : `Set as #${rank}`}
+                                title={
+                                  isActive
+                                    ? t('skills.removeRankTitle', { rank })
+                                    : t('skills.setRankTitle', { rank })
+                                }
                                 className={`w-8 h-8 rounded-full text-xs font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
                                   isActive
                                     ? 'bg-atlas-teal text-white ring-2 ring-atlas-teal/30'
@@ -1881,14 +1936,20 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
               {/* Certifications - 3 fixed fields */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Certifications (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('skills.certificationsLabel')}</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[0, 1, 2].map((index) => (
                     <Input
                       key={`cert-${index}`}
                       value={skillsValue.certifications[index] || ''}
                       onChange={(e) => updateSkillsField('certifications', index, e.target.value)}
-                      placeholder={index === 0 ? 'e.g., Six Sigma Green Belt' : index === 1 ? 'e.g., Salesforce Certified' : ''}
+                      placeholder={
+                        index === 0
+                          ? t('skills.certPlaceholder1')
+                          : index === 1
+                            ? t('skills.certPlaceholder2')
+                            : ''
+                      }
                       className="w-full"
                     />
                   ))}
@@ -1898,9 +1959,9 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
             {/* Achievements Section — per-company textareas from career history */}
             <div className="p-5 border-2 rounded-xl bg-white shadow-sm">
-              <h3 className="text-base font-semibold text-atlas-navy mb-2">Achievements</h3>
+              <h3 className="text-base font-semibold text-atlas-navy mb-2">{t('achievements.sectionTitle')}</h3>
               <p className="text-sm text-gray-600 mb-4">
-                Highlight key wins like revenue growth, cost savings, or successful team expansions.
+                {t('achievements.sectionHint')}
               </p>
 
               {(() => {
@@ -1924,14 +1985,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   return (
                     <div>
                       <p className="text-xs text-gray-400 italic mb-3">
-                        Tip: fill in your career history first to get separate achievement fields per company.
+                        {t('achievements.noCareersTip')}
                       </p>
                       <textarea
                         value={otherText}
                         onChange={(e) => updateOtherAchievement(roleSlots, e.target.value)}
                         className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[120px]"
                         rows={4}
-                        placeholder="Describe your key achievements..."
+                        placeholder={t('achievements.generalPlaceholder')}
                       />
                     </div>
                   );
@@ -1941,7 +2002,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 return (
                   <div className="space-y-4">
                     {filledCareers.map((career, idx) => {
-                      const yearRange = roleSlots[idx].yearRange;
+                      const yearRange = careerYearRangeDisplay(career);
                       const label = yearRange
                         ? `${career.companyName} (${yearRange})`
                         : career.companyName;
@@ -1957,7 +2018,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                             onChange={(e) => updateRoleAchievement(roleSlots, idx, e.target.value)}
                             className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed resize-y min-h-[80px]"
                             rows={3}
-                            placeholder={`Key achievements at ${career.companyName}...`}
+                            placeholder={t('achievements.rolePlaceholder', { company: career.companyName })}
                           />
                         </div>
                       );
@@ -1967,14 +2028,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     <div>
                       <div className="flex items-center gap-2 mb-1.5">
                         <div className="w-1 h-4 bg-gray-300 rounded-full" />
-                        <label className="text-sm font-medium text-gray-500">Other Achievements (optional)</label>
+                        <label className="text-sm font-medium text-gray-500">{t('achievements.otherLabel')}</label>
                       </div>
                       <AutoResizeTextarea
                         value={otherText}
                         onChange={(e) => updateOtherAchievement(roleSlots, e.target.value)}
                         className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 text-sm leading-relaxed"
                         minHeightPx={60}
-                        placeholder="Any other achievements not tied to a specific company..."
+                        placeholder={t('achievements.otherPlaceholder')}
                       />
                     </div>
                   </div>
@@ -1985,10 +2046,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             {/* Languages Section — required, at least one language with proficiency */}
             <div className={`p-5 border-2 rounded-xl bg-white shadow-sm ${showInvalid ? 'border-red-300' : ''}`}>
               <h3 className="text-base font-semibold text-atlas-navy mb-1">
-                Languages <span className="text-red-500">*</span>
+                {t('languages.sectionTitle')} <span className="text-red-500">*</span>
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Which languages do you speak, and how well? Select at least one.
+                {t('languages.sectionHint')}
               </p>
 
               <div className="space-y-3">
@@ -2017,12 +2078,12 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           onValueChange={(v) => setPresetProficiency(lang, v)}
                         >
                           <SelectTrigger className="w-full sm:w-48">
-                            <SelectValue placeholder="Proficiency..." />
+                            <SelectValue placeholder={t('languages.proficiencyPlaceholder')} />
                           </SelectTrigger>
                           <SelectContent>
                             {langProficiencyLevels.map((p) => (
                               <SelectItem key={p.value} value={p.value}>
-                                {question.langLabels?.proficiency?.[p.label] ?? p.label}
+                                {proficiencyLabel(p)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -2036,7 +2097,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 <div className="p-3 rounded-lg border border-dashed border-gray-300 bg-white">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-medium text-gray-700">
-                      Another language (optional)
+                      {t('languages.otherLabel')}
                     </label>
                     {languagesValue.other &&
                       (languagesValue.other.language || languagesValue.other.proficiency) && (
@@ -2045,7 +2106,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           onClick={clearOther}
                           className="text-xs text-gray-500 hover:text-red-500"
                         >
-                          Clear
+                          {t('languages.clear')}
                         </button>
                       )}
                   </div>
@@ -2055,7 +2116,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       onValueChange={setOtherLanguage}
                     >
                       <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Choose a language..." />
+                        <SelectValue placeholder={t('languages.choosePlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         {langOtherChoices.map((lang) => (
@@ -2071,12 +2132,12 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                         onValueChange={setOtherProficiency}
                       >
                         <SelectTrigger className="w-full sm:w-48">
-                          <SelectValue placeholder="Proficiency..." />
+                          <SelectValue placeholder={t('languages.proficiencyPlaceholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {langProficiencyLevels.map((p) => (
                             <SelectItem key={p.value} value={p.value}>
-                              {question.langLabels?.proficiency?.[p.label] ?? p.label}
+                              {proficiencyLabel(p)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -2131,7 +2192,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 <Input
                   value={interestsValue.interests[index] || ''}
                   onChange={(e) => updateInterest(index, e.target.value)}
-                  placeholder={index === 0 ? 'e.g., Gardening' : index === 1 ? 'e.g., Creative writing' : 'e.g., Lego'}
+                  placeholder={
+                    index === 0
+                      ? t('interests.placeholder1')
+                      : index === 1
+                        ? t('interests.placeholder2')
+                        : t('interests.placeholder3')
+                  }
                   maxLength={50}
                   className="w-full"
                 />
@@ -2152,7 +2219,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
           />
           {renderDescription()}
-          <p className="text-red-500">Unsupported question type: {question.type}</p>
+          <p className="text-red-500">{t('errors.unsupportedQuestionType', { type: question.type })}</p>
         </div>
       );
   }
@@ -2165,14 +2232,17 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 // Disappears the instant voice input is used ANYWHERE (useHasTriedVoiceInput
 // is global), or once this field already has typed content (the user chose
 // to type — no need to keep nudging them here).
-const VoiceHintBubble: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={`absolute z-10 animate-fade-in pointer-events-none ${className ?? ''}`}>
-    <div className="relative bg-atlas-teal text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
-      Try it — speak your answer
-      <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-atlas-teal" />
+const VoiceHintBubble: React.FC<{ className?: string }> = ({ className }) => {
+  const { t } = useTranslation('survey');
+  return (
+    <div className={`absolute z-10 animate-fade-in pointer-events-none ${className ?? ''}`}>
+      <div className="relative bg-atlas-teal text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+        {t('voice.tryItHint')}
+        <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-atlas-teal" />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SentimentReasonTextarea: React.FC<{
   value: string;
@@ -2182,6 +2252,7 @@ const SentimentReasonTextarea: React.FC<{
   // same nudge in one question would be noise, not help.
   showHint: boolean;
 }> = ({ value, onChange, invalid, showHint }) => {
+  const { t } = useTranslation('survey');
   const { isListening, isCleaning, isSupported, toggleListening } = useSpeechRecognition({
     onTranscript: onChange,
     existingText: value || '',
@@ -2195,7 +2266,7 @@ const SentimentReasonTextarea: React.FC<{
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="e.g., Loved the autonomy and client contact; the endless reporting and long hours wore me down."
+        placeholder={t('careerHappiness.reasonPlaceholder')}
         rows={3}
         disabled={isCleaning}
         className={`w-full rounded-md border bg-white px-3 py-2 pr-11 text-sm leading-relaxed placeholder:text-gray-300 resize-y disabled:opacity-70 ${
@@ -2207,7 +2278,7 @@ const SentimentReasonTextarea: React.FC<{
           type="button"
           onClick={toggleListening}
           disabled={isCleaning}
-          title={isListening ? 'Stop recording' : 'Voice input'}
+          title={isListening ? t('voice.stopRecording') : t('voice.voiceInput')}
           className={`absolute bottom-2 right-2 flex items-center justify-center w-8 h-8 rounded-md transition-colors ${
             isListening
               ? 'text-red-500 bg-red-50 animate-mic-pulse'
@@ -2225,7 +2296,7 @@ const SentimentReasonTextarea: React.FC<{
       {isCleaning && (
         <p className="text-xs text-atlas-teal mt-1.5 flex items-center gap-1.5">
           <Loader2 size={12} className="animate-spin" />
-          Tidying up your transcript...
+          {t('voice.tidyingTranscript')}
         </p>
       )}
     </div>
@@ -2240,6 +2311,7 @@ const LongTextWithVoice: React.FC<{
   formatTextWithEmphasis: (text: string) => { __html: string };
   renderDescription: () => React.ReactNode;
 }> = ({ question, value, onChange, formatTextWithEmphasis, renderDescription }) => {
+  const { t } = useTranslation('survey');
   const { isListening, isCleaning, isSupported, toggleListening } = useSpeechRecognition({
     onTranscript: onChange,
     existingText: value || '',
@@ -2259,7 +2331,7 @@ const LongTextWithVoice: React.FC<{
         <textarea
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter your response..."
+          placeholder={t('inputs.responsePlaceholder')}
           disabled={isCleaning}
           className="w-full rounded-md border border-gray-300 bg-[#ffffff] text-[#111827] px-3 py-2 pr-12 text-base leading-relaxed resize-y min-h-[350px] disabled:opacity-70"
           rows={10}
@@ -2270,7 +2342,7 @@ const LongTextWithVoice: React.FC<{
             type="button"
             onClick={toggleListening}
             disabled={isCleaning}
-            title={isListening ? 'Stop recording' : 'Voice input'}
+            title={isListening ? t('voice.stopRecording') : t('voice.voiceInput')}
             className={`absolute bottom-3 right-3 flex items-center justify-center w-9 h-9 rounded-md transition-colors ${
               isListening
                 ? 'text-red-500 bg-red-50 animate-mic-pulse'
@@ -2289,12 +2361,12 @@ const LongTextWithVoice: React.FC<{
       {isCleaning && (
         <p className="text-sm text-atlas-teal mt-2 flex items-center gap-1.5">
           <Loader2 size={14} className="animate-spin" />
-          Tidying up your transcript...
+          {t('voice.tidyingTranscript')}
         </p>
       )}
       {question.config?.max_length && (
         <p className="text-sm text-gray-500 mt-2">
-          {(value || '').length} / {question.config.max_length} characters
+          {t('inputs.characterCount', { count: (value || '').length, max: question.config.max_length })}
         </p>
       )}
     </div>

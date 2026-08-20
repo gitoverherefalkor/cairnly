@@ -8,14 +8,238 @@
     "continueChat": "Continue Chat",
     "startChat": "Start Chat",
     "downloadPdf": "Download PDF",
-    "noReport": "No report available yet.",
-    "startAssessment": "Start Assessment"
+    "noReport": "No report available yet."
   },
   "assessment": {
     "title": "Assessment",
     "resumeProgress": "Resume Progress",
     "startNew": "Start New Assessment"
   },
-  "signOut": "Sign Out",
-  "settings": "Settings"
+  "signOut": "Sign out",
+  "settings": "Settings",
+  "entry": {
+    "headline": {
+      "failed": "We hit a snag, {{name}}.",
+      "failed_noName": "We hit a snag.",
+      "processing": "Building your profile, {{name}}.",
+      "processing_noName": "Building your profile.",
+      "chat": "Your coach is ready, {{name}}.",
+      "chat_noName": "Your coach is ready.",
+      "resume": "Pick up where you left off, {{name}}.",
+      "resume_noName": "Pick up where you left off.",
+      "emptyLine1": "Welcome, {{name}}.",
+      "emptyLine1_noName": "Welcome.",
+      "emptyLine2": "Let's start."
+    },
+    "sub": {
+      "failed": "Your answers are saved, so nothing is lost. We could not finish generating your report this time. You can start it again right now.",
+      "processing": "We're building your personality profile and career matches — this usually takes about 5 minutes. We'll email you the moment it's ready.",
+      "chat": "Your assessment is in. Finish the conversation with your AI coach to unlock your full report and career matches.",
+      "resume": "You are partway through. A few sections left, then your coach walks you through the report."
+    },
+    "cta": {
+      "processing": "Check progress",
+      "chat": "Continue with your coach",
+      "resume": "Resume assessment",
+      "empty": "Start your assessment",
+      "retry": "Try again",
+      "retrying": "Trying again..."
+    },
+    "eyebrow": {
+      "failed": "REPORT · ACTION NEEDED",
+      "processing": "IN PROGRESS · BUILDING YOUR REPORT",
+      "chat": "NEXT STEP · YOUR COACH",
+      "resume": "PROGRESS · {{pct}}% COMPLETE"
+    },
+    "progress": {
+      "allDone": "All {{total}} sections done — submit to finish",
+      "currentSection": "Section {{current}} of {{total}} in progress",
+      "sectionsComplete": "{{complete}} / {{total}} sections complete"
+    },
+    "unlockedEyebrow": "WHEN YOU FINISH · UNLOCKED",
+    "coversLabel": "The assessment covers, among other things:",
+    "autoSaveNote": "Progress auto-saved · Safe to close and return later",
+    "sections": {
+      "pro": [
+        "Intake questions",
+        "Personality & decision-making",
+        "Values & motivations",
+        "Professional interests & skills",
+        "Work environment & team preferences",
+        "Emotional intelligence",
+        "Career goals & development"
+      ],
+      "starter": [
+        "Getting to know you",
+        "How you operate",
+        "What drives you",
+        "Interests and strengths",
+        "Where you work best",
+        "Practical reality",
+        "Looking ahead"
+      ],
+      "encore": [
+        "Getting to know you",
+        "The career you had",
+        "How you operate now",
+        "What matters now",
+        "Where you thrive",
+        "Practical reality",
+        "Looking ahead"
+      ]
+    },
+    "flavors": {
+      "pro": {
+        "emptySub": "In the assessment we cover how you work, what you've done, and where you want to go. Best in one sitting, but if you want to take a break, rest assured that your answers are auto-saved for you. After this, your AI coach walks you through a personalised report and refines it with you.",
+        "emptyEyebrow": "NEXT STEP · 25 MINUTES",
+        "ghostCards": [
+          {
+            "title": "Personality profile",
+            "sub": "How you think, lead, and operate"
+          },
+          {
+            "title": "Top career matches",
+            "sub": "3 roles tailored to you, AI-impact rated"
+          },
+          {
+            "title": "Alternative paths",
+            "sub": "Runner-ups + outside-the-box"
+          },
+          {
+            "title": "Dream-job reality check",
+            "sub": "An honest feasibility check"
+          }
+        ]
+      },
+      "starter": {
+        "emptySub": "In the assessment we cover how you operate, what you enjoy, and where you want to go. No work experience needed: side jobs, school, and projects all count as real evidence. Best in one sitting, and your answers are auto-saved. After this, your AI coach walks you through a personalised report and refines it with you.",
+        "emptyEyebrow": "NEXT STEP · 20 MINUTES",
+        "ghostCards": [
+          {
+            "title": "Personality profile",
+            "sub": "How you operate, decide, and learn"
+          },
+          {
+            "title": "Career directions",
+            "sub": "3 directions that fit you, AI-aware"
+          },
+          {
+            "title": "Alternative paths",
+            "sub": "Runner-ups + outside-the-box"
+          },
+          {
+            "title": "Entry game plan",
+            "sub": "How to get in without experience"
+          }
+        ]
+      },
+      "encore": {
+        "emptySub": "In the assessment we take proper stock of the career you had, how you operate now, and what matters at this stage of life. Take your time, breaks are fine: your answers are saved automatically. After this, your AI coach walks you through a personalised report and refines it with you.",
+        "emptyEyebrow": "NEXT STEP · 25 MINUTES",
+        "ghostCards": [
+          {
+            "title": "Personality profile",
+            "sub": "How you operate now, honestly"
+          },
+          {
+            "title": "Encore directions",
+            "sub": "3 directions that fit this stage, paid or not"
+          },
+          {
+            "title": "Alternative paths",
+            "sub": "Runner-ups + outside-the-box"
+          },
+          {
+            "title": "The way in",
+            "sub": "How to step in at your seniority"
+          }
+        ]
+      }
+    }
+  },
+  "accessCodeModal": {
+    "errors": {
+      "emptyCode": "Please enter your access code",
+      "verifyFailed": "Failed to verify access code. Please try again.",
+      "invalidCode": "Invalid access code"
+    },
+    "title": "Ready to Begin",
+    "description": "Your access code has been verified. Click below to start your personalized career assessment.",
+    "close": "Close",
+    "starting": "Starting...",
+    "startAssessment": "Start Assessment",
+    "help": {
+      "prefix": "Having trouble?",
+      "contactSupport": "Contact support"
+    }
+  },
+  "accessCodeVerifier": {
+    "errors": {
+      "emptyCode": "Please enter an access code",
+      "invalidCode": "Invalid access code",
+      "verifyFailed": "Failed to verify access code"
+    },
+    "toast": {
+      "verifiedTitle": "Access Code Verified!",
+      "verifiedDescriptionAssessment": "Your access code is valid. Redirecting to assessment...",
+      "verifiedDescriptionSignup": "Please create an account to start your assessment.",
+      "failedTitle": "Verification Failed"
+    },
+    "verified": {
+      "title": "Access Code Verified!",
+      "redirectAssessment": "Redirecting you to the assessment...",
+      "redirectSignup": "Redirecting you to create an account..."
+    },
+    "title": "Enter Access Code",
+    "codeLabel": "Access Code",
+    "verifying": "Verifying...",
+    "verify": "Verify Access Code"
+  },
+  "appNav": {
+    "profile": "Profile"
+  },
+  "toast": {
+    "signOutError": {
+      "title": "Error",
+      "description": "Failed to sign out. Please try again."
+    },
+    "signedOut": {
+      "title": "Signed out",
+      "description": "You've been signed out successfully."
+    },
+    "inviteLinkPending": {
+      "title": "One moment",
+      "description": "Your invite link is still being prepared. Try again shortly."
+    },
+    "inviteLinkCopied": {
+      "title": "Invite link copied",
+      "description": "Share it with a friend to unlock your next tool."
+    },
+    "inviteLinkFallback": {
+      "title": "Your invite link"
+    },
+    "pdfFailed": {
+      "title": "Could not build your PDF",
+      "description": "Something went wrong generating the file. Try again in a moment."
+    },
+    "retryFailed": {
+      "title": "Still having trouble",
+      "description": "We couldn't restart your report just now. Please try again in a moment."
+    }
+  },
+  "shareCard": {
+    "fallbackTitle": {
+      "strengths": "Core strengths",
+      "values": "Core values",
+      "approach": "Approach",
+      "development": "Development",
+      "execSummary": "Executive summary",
+      "bestFitCareer": "Best-fit career",
+      "outsideBoxCareer": "Outside-the-box career"
+    }
+  },
+  "pdfButton": {
+    "generating": "Generating…",
+    "download": "Download report PDF"
+  }
 }
