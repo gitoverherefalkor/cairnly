@@ -20,8 +20,7 @@ import {
   errorResponse,
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
-
-const ADMIN_EMAILS = new Set(['sjoerd@cairnly.io', 'sjoerd@falkoratlas.com']);
+import { isAdminEmail } from '../_shared/admins.ts';
 
 const SENTIMENTS = new Set(['positive', 'mixed', 'critical', 'quiet']);
 const GUT_READS = new Set(['win', 'neutral', 'miss']);
@@ -81,7 +80,7 @@ serve(async (req) => {
 
   const authed = await getAuthenticatedUser(req, corsHeaders);
   if (authed instanceof Response) return authed;
-  if (!ADMIN_EMAILS.has(authed.email ?? '')) {
+  if (!isAdminEmail(authed.email)) {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 

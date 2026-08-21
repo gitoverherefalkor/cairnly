@@ -18,16 +18,7 @@ import {
   errorResponse,
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
-
-// Mirrors src/lib/admins.ts. That file gates UI only; THIS is the security
-// boundary. bethehitl.com is included here deliberately: the frontend list has
-// carried it since the falkoratlas migration, and ops-feed / ops-marketing do
-// NOT, so signing in with it renders Ops and then 403s on every call.
-const ADMIN_EMAILS = new Set([
-  'sjoerd@bethehitl.com',
-  'sjoerd@cairnly.io',
-  'sjoerd@falkoratlas.com',
-]);
+import { isAdminEmail } from '../_shared/admins.ts';
 
 const BUCKET = 'partner-logos';
 const MAX_LOGO_BYTES = 256 * 1024;
@@ -70,7 +61,7 @@ serve(async (req) => {
 
   const authed = await getAuthenticatedUser(req, corsHeaders);
   if (authed instanceof Response) return authed;
-  if (!ADMIN_EMAILS.has((authed.email ?? '').trim().toLowerCase())) {
+  if (!isAdminEmail(authed.email)) {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 

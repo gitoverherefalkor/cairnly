@@ -12,10 +12,9 @@ import {
   errorResponse,
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
+import { isAdminEmail } from '../_shared/admins.ts';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
-
-const ADMIN_EMAILS = new Set(['sjoerd@cairnly.io', 'sjoerd@falkoratlas.com']);
 
 // Re-analyze cached items older than this
 const CACHE_TTL_MS = 4 * 60 * 60 * 1000;
@@ -576,7 +575,7 @@ serve(async (req) => {
 
   const authed = await getAuthenticatedUser(req, corsHeaders);
   if (authed instanceof Response) return authed;
-  if (!ADMIN_EMAILS.has(authed.email ?? '')) {
+  if (!isAdminEmail(authed.email)) {
     return errorResponse('Forbidden', 403, corsHeaders);
   }
 
