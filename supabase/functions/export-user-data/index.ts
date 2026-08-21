@@ -93,6 +93,10 @@ serve(async (req) => {
         section_type: s.section_type,
         title: s.title,
         content: s.content,
+        // Stored translations of the canonical English content, when any —
+        // the user may have read the report in another language, so the
+        // export carries both (GDPR completeness).
+        content_i18n: s.content_i18n ?? {},
         order_number: s.order_number,
       })),
       chat_messages: (chatResult.data || []).map(m => ({

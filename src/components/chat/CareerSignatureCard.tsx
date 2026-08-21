@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Share2 } from 'lucide-react';
 import { useReportSections, type ReportSection } from '@/hooks/useReportSections';
 import { useProfile } from '@/hooks/useProfile';
 import { extractAIImpact } from './CareerScoreCard';
+import { sectionTitle } from '@/lib/sectionText';
 
 // Career Signature Card — closing artifact shown at the end of the chat
 // session and persisted on the dashboard. Designed to be screenshot-able
@@ -34,7 +36,12 @@ function stripHtml(raw: string): string {
   return raw.replace(/<[^>]+>/g, '').replace(/\*\*/g, '').trim();
 }
 
-function getCareer(sections: ReportSection[], type: string, rank: 1 | 2 | 3): SignatureCareer | null {
+function getCareer(
+  sections: ReportSection[],
+  type: string,
+  rank: 1 | 2 | 3,
+  lang: string,
+): SignatureCareer | null {
   const s = sections.find((x) => x.section_type === type);
   if (!s) return null;
   const score = s.score != null ? Number(s.score) : NaN;
@@ -42,7 +49,7 @@ function getCareer(sections: ReportSection[], type: string, rank: 1 | 2 | 3): Si
   const rawContext = s.company_size_type ? stripHtml(s.company_size_type) : '';
   return {
     rank,
-    title: stripHtml(s.title || 'Untitled'),
+    title: stripHtml(sectionTitle(s, lang) || 'Untitled'),
     score,
     aiImpact: extractAIImpact(s.content || ''),
     context: rawContext || null,
@@ -114,12 +121,13 @@ export const CareerSignatureCard: React.FC<CareerSignatureCardProps> = ({
   const isCompact = variant === 'compact';
   const { sections } = useReportSections(reportId);
   const { profile } = useProfile();
+  const { i18n } = useTranslation();
 
   const { hero, second, third, totalScored } = useMemo(() => {
     const list = sections || [];
-    const hero = getCareer(list, 'top_career_1', 1);
-    const second = getCareer(list, 'top_career_2', 2);
-    const third = getCareer(list, 'top_career_3', 3);
+    const hero = getCareer(list, 'top_career_1', 1, i18n.language);
+    const second = getCareer(list, 'top_career_2', 2, i18n.language);
+    const third = getCareer(list, 'top_career_3', 3, i18n.language);
     const totalScored = list.filter((s) =>
       ['top_career_1', 'top_career_2', 'top_career_3', 'runner_ups', 'outside_box'].includes(s.section_type)
         && s.score != null,

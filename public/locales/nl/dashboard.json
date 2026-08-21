@@ -241,5 +241,30 @@
   "pdfButton": {
     "generating": "Bezig met maken…",
     "download": "Rapport-PDF downloaden"
+  },
+  "v4": {
+    "oneLiner": {
+      "summary": "Wie je professioneel bent en wat je loopbaan drijft.",
+      "approach": "Hoe je werkt, leiding geeft en met uitdagingen omgaat.",
+      "strengths": "Wat jou onderscheidt en hoe je dat strategisch inzet.",
+      "development": "Groeikansen die je helpen je doelen te bereiken.",
+      "values": "Wat voor jou het belangrijkst is en hoe dat de juiste fit bepaalt.",
+      "top-1": "Je sterkste match.",
+      "top-2": "Loopbaan #2, een goede tweede.",
+      "top-3": "Loopbaan #3, ook een sterke fit.",
+      "runners": "Sterke alternatieven die een tweede blik waard zijn.",
+      "outside": "Onverwachte paden die aansluiten bij je interesses.",
+      "dream": "Een eerlijke realiteitscheck van je ideale loopbaan."
+    },
+    "fallbackTitle": {
+      "summary": "Samenvatting",
+      "approach": "Jouw aanpak",
+      "strengths": "Je sterke punten",
+      "development": "Ontwikkelpunten",
+      "values": "Je loopbaanwaarden",
+      "runners": "Runner-up loopbanen",
+      "outside": "Outside-the-box loopbanen",
+      "dream": "Droombaananalyse"
+    }
   }
 }

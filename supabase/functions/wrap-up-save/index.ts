@@ -113,11 +113,13 @@ serve(async (req) => {
   const wrapUpLabels =
     langRow?.preferred_language === 'nl'
       ? {
+          title: '<h3>Gespreksinzichten</h3>',
           savedResponses: 'Bewaarde antwoorden',
           savedResponse: 'Bewaard antwoord',
           alsoFlagged: 'Ook door jou aangemerkt',
         }
       : {
+          title: '<h3>Discussion Highlights</h3>',
           savedResponses: 'Saved Responses',
           savedResponse: 'Saved response',
           alsoFlagged: 'Also flagged by you',
@@ -170,10 +172,13 @@ serve(async (req) => {
     return errorResponse('Failed to clear previous highlights', 500, corsHeaders);
   }
 
+  // chat_highlights is natively in the user's language (their own chat), so
+  // the title follows wrapUpLabels rather than the translate-at-the-boundary
+  // path — this section type is on translate-section's exempt list.
   const { error: insErr } = await supabase.from('report_sections').insert({
     report_id,
     section_type: 'chat_highlights',
-    title: '<h3>Discussion Highlights</h3>',
+    title: wrapUpLabels.title,
     content,
     fb_status: true,
   });

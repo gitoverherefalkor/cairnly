@@ -97,29 +97,29 @@ const ICON_MAP: Record<string, LucideIcon> = {
   'steps for pursuing this role': Footprints,
 
   // ── Dutch subheaders ────────────────────────────────────────────────
-  // Copied verbatim from the EXACT Dutch subheader tables in the live n8n
-  // prompts, so these only match what the model is actually told to emit:
-  //   WF1 `prompt_perso_prof1`      → the four personality sections
-  //   WF3 `Set Outside Box Prompt`  → outside-the-box
-  //   WF4 `Dream Job Feasibility`   → dream jobs
-  // Purely additive: English lookups are untouched.
-  //
-  // NOT covered: top-3 and runner-up careers. Their prompts only say "the
-  // subheader TEXT itself in Dutch" without prescribing a list, so there is
-  // no fixed string to match. Those subheaders need pinning in the prompt
-  // before an icon map can cover them.
+  // These mirror the pinned heading translations in
+  // supabase/functions/_shared/headingPins.ts, which translate-section
+  // enforces on every Dutch report — so an exact-match dictionary stays
+  // reliable. The original entries were copied verbatim from the old live
+  // n8n prompt tables; the pins reuse those exact strings and complete the
+  // set (top-3/runner-up careers, exec summary) the old prompts never
+  // pinned. A vitest drift test (src/lib/headingPins.test.ts) keeps this
+  // map and the pins in sync. Purely additive: English lookups untouched.
 
   // approach → Jouw aanpak begrijpen
   'persoonlijkheid en interactiestijl': Users,
+  'je conflictstijl': Swords,
   'impact in verschillende omgevingen': Layers,
 
   // strengths → Sterke punten en hoe je ze ontwikkelt
   'je kernkwaliteiten in kaart': Sparkles,
+  'hoe je denkt': Brain,
   'je sterke punten benutten in je loopbaan': TrendingUp,
 
   // development → Ontwikkelpunten
   'inzicht in je groeigebieden': Sprout,
   'wat dit betekent voor je groei': ArrowUpRight,
+  'je volgende groeistap': Mountain,
 
   // values → Aansluiten bij je waarden
   'je kernwaarden in kaart': Compass,
@@ -127,6 +127,21 @@ const ICON_MAP: Record<string, LucideIcon> = {
 
   // shared closer across all four personality sections
   'belangrijkste inzicht': Lightbulb,
+
+  // executive summary (WF7)
+  'professionele identiteit': UserCheck,
+  'sterke punten & groeigebieden': Sparkles,
+  loopbaanrichting: Signpost,
+  'de weg vooruit': Footprints,
+
+  // top careers (runner-ups reuse this same subset of subheaders)
+  'waarom deze rol bij je past': Puzzle,
+  'wat je daadwerkelijk gaat doen': ListChecks,
+  'wat voor jou werkt': ThumbsUp,
+  'de realiteitscheck': AlertTriangle,
+  'de praktische kant': Briefcase,
+  'toekomstbestendige vaardigheden': ShieldCheck,
+  'aansluiting bij je ambities': Target,
 
   // outside-the-box careers
   overzicht: Eye,

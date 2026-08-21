@@ -478,7 +478,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       let mostRecentWrapUpIdx = -1;
       for (let i = messages.length - 1; i >= 0; i--) {
         const m = messages[i];
-        if (m.sender === 'user' && /wrap up/i.test(m.content)) {
+        if (m.sender === 'user' && /wrap up|sessie afronden/i.test(m.content)) {
           mostRecentWrapUpIdx = i;
           break;
         }
@@ -546,6 +546,18 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       { phrase: 'everyone has an idea of their ideal job', sectionIndex: 10 },
       { phrase: "that's your dream job analysis", sectionIndex: 10 },
       { phrase: 'your dream job assessment', sectionIndex: 10 },
+      // Dutch boilerplate — exact substrings of the NL intro/outro strings in
+      // supabase/functions/deliver-section/boilerplate.ts. Keep in sync.
+      { phrase: 'laten we eens in je persoonlijkheidsprofiel duiken', sectionIndex: 1 },
+      { phrase: 'laten we het hebben over je sterke punten', sectionIndex: 2 },
+      { phrase: 'nu de groeikansen', sectionIndex: 3 },
+      { phrase: 'tot slot kijken we naar je kernwaarden', sectionIndex: 4 },
+      { phrase: 'een van de meest geschikte banen voor jou', sectionIndex: 5 },
+      { phrase: 'dat was je tweede match', sectionIndex: 6 },
+      { phrase: 'dat was je derde topmatch', sectionIndex: 7 },
+      { phrase: 'runner-up matches', sectionIndex: 8 },
+      { phrase: 'outside-the-box loopbaanopties', sectionIndex: 9 },
+      { phrase: 'we vroegen naar je droombaan', sectionIndex: 10 },
     ];
 
     // Scan bot message content for section headings and boilerplate phrases

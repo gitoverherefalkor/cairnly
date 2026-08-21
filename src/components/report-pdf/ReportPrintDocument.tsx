@@ -1,6 +1,7 @@
 import React from 'react';
 import { Activity, Map as MapIcon, Scale } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { hasTranslation, sectionTitle } from '@/lib/sectionText';
 import { PrintSheet } from './PrintPage';
 import { PrintSection } from './PrintSection';
 import { PrintCover } from './PrintCover';
@@ -122,21 +123,24 @@ const STRINGS = {
   },
 } as const;
 
-/** The report's language, taken from the sections themselves. Falls back to
- *  English for anything unrecognised — a report in an unexpected language
- *  should still render with a sane frame rather than blank labels.
- *
- *  `language` is read through a local narrowing rather than being added to the
- *  shared ReportSection interface. The column is real and every `select('*')`
- *  returns it, but widening that interface makes TypeScript re-check the hook's
- *  whole row shape against the (known-stale) generated Supabase types, which
- *  then fails on an unrelated `score` string/number drift. That drift is worth
- *  fixing on its own; it is not worth dragging into a cosmetics change. */
-function resolveLang(sections: ReportSection[]): PrintLang {
-  const found = sections
-    .map((s) => (s as { language?: string | null }).language)
-    .find((l): l is string => typeof l === 'string' && l.length > 0);
-  return found?.toLowerCase().startsWith('nl') ? 'nl' : 'en';
+/** The printed document's language, under the language contract: the user's
+ *  preferred_language, honoured only when EVERY translatable section carries
+ *  that translation — all-or-nothing, so chrome and prose always agree and a
+ *  PDF is never mixed-language. Anything else renders fully in English (the
+ *  canonical content, always present). chat_highlights is natively in the
+ *  user's language and never translated, so it is excluded from the check. */
+function resolveLang(sections: ReportSection[], preferred: string | null | undefined): PrintLang {
+  const lang = String(preferred ?? 'en').slice(0, 2).toLowerCase();
+  if (lang !== 'nl') return 'en'; // PrintLang currently supports en | nl
+  const translatable = sections.filter(
+    (s) =>
+      !isInternalSection(s.section_type) &&
+      s.section_type !== 'chat_highlights' &&
+      (s.content ?? '').length > 0,
+  );
+  const complete =
+    translatable.length > 0 && translatable.every((s) => hasTranslation(s, lang));
+  return complete ? 'nl' : 'en';
 }
 
 /** Minimal partner white-label payload. Scope is deliberately narrow: a logo on
@@ -176,12 +180,14 @@ export const ReportPrintDocument: React.FC<{
   sections: ReportSection[];
   generatedAt: string | null;
   partner?: PartnerBrand | null;
-}> = ({ firstName, lastName, sections, generatedAt, partner }) => {
+  /** profiles.preferred_language, shipped by report-print-data. */
+  preferredLanguage?: string | null;
+}> = ({ firstName, lastName, sections, generatedAt, partner, preferredLanguage }) => {
   const ordered = orderSections(sections);
+  const lang = resolveLang(sections, preferredLanguage);
   const radarAxes = buildRadarAxes(sections);
-  const mapPoints = buildCareerMapPoints(sections);
-  const compare = buildCompareCareers(sections);
-  const lang = resolveLang(sections);
+  const mapPoints = buildCareerMapPoints(sections, lang);
+  const compare = buildCompareCareers(sections, lang);
   const t = STRINGS[lang];
 
   const dateLabel = generatedAt
@@ -205,9 +211,9 @@ export const ReportPrintDocument: React.FC<{
   const quoteFor = (chapter: Chapter) => {
     const src = quoteSectionFor(chapter, sections);
     if (!src) return null;
-    const quote = shareQuoteFor(src);
+    const quote = shareQuoteFor(src, lang);
     if (!quote) return null;
-    return { quote, attribution: stripHtml(src.title || '') || null };
+    return { quote, attribution: stripHtml(sectionTitle(src, lang) || '') || null };
   };
   const aboutQuote = quoteFor('about-you');
   const careerQuote = quoteFor('careers');

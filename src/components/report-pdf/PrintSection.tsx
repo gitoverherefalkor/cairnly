@@ -2,6 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { sectionText, sectionTitle } from '@/lib/sectionText';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -334,7 +335,7 @@ export const PrintSection: React.FC<{
             margin: chipFirst ? '7mm 0 2px 0' : sizeType ? '0 0 2px 0' : '0 0 8px 0',
           }}
         >
-          {stripHtml(section.title || '')}
+          {stripHtml(sectionTitle(section, lang) || '')}
         </TitleTag>
 
         {sizeType && (
@@ -353,8 +354,8 @@ export const PrintSection: React.FC<{
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 0 0' }}>
             {Number.isFinite(score) && <MatchPill pct={score} />}
-            {impact && <AIImpactPill label={impact as AIImpactLevel} />}
-            {move && <MovePill level={move} />}
+            {impact && <AIImpactPill label={impact as AIImpactLevel} lang={lang} />}
+            {move && <MovePill level={move} lang={lang} />}
           </div>
         )}
 
@@ -365,7 +366,7 @@ export const PrintSection: React.FC<{
         remarkPlugins={[remarkGfm]}
         components={nested ? MD_COMPONENTS_NESTED : MD_COMPONENTS_TOP}
       >
-        {htmlToMarkdown(section.content || '')}
+        {htmlToMarkdown(sectionText(section, lang))}
       </ReactMarkdown>
     </section>
   );

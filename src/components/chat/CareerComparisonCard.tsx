@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MessageCircle, GitCompare } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
+import { sectionI18n, sectionTitle } from '@/lib/sectionText';
 
 interface CareerComparisonCardProps {
   // All report sections (from useReportSections) — used to read the
@@ -34,6 +36,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
   focalSectionType,
   onExplain,
 }) => {
+  const { i18n } = useTranslation();
   const [explained, setExplained] = useState(false);
 
   const focal = sections.find((s) => s.section_type === focalSectionType);
@@ -51,7 +54,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
     if (!section || !scores) continue;
     const isFocal = type === focalSectionType;
     careers.push({
-      label: stripHtml(section.title) || `Career ${i + 1}`,
+      label: stripHtml(sectionTitle(section, i18n.language) || '') || `Career ${i + 1}`,
       scores,
       color: isFocal ? FOCAL_COLOR : NON_FOCAL_COLORS[type] ?? '#64748b',
       focal: isFocal,
@@ -61,11 +64,20 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
   // Need at least the focal career + one other to be a comparison.
   if (careers.length < 2) return null;
 
-  const { headline, explanation } = focal.metadata.comparison;
+  // Comparison prose is WF4-generated English; prefer its stored translation
+  // (written by translate-section into content_i18n[lang].comparison).
+  const cmpI18n = sectionI18n(focal, i18n.language)?.comparison;
+  const headline = cmpI18n?.headline || focal.metadata.comparison.headline;
+  const explanation = cmpI18n?.explanation || focal.metadata.comparison.explanation;
+  const nl = i18n.language?.toLowerCase().startsWith('nl');
   const heading =
     careers.length === 2
-      ? 'How it differs from your other top role'
-      : 'How it differs from your other top roles';
+      ? nl
+        ? 'Hoe deze verschilt van je andere toprol'
+        : 'How it differs from your other top role'
+      : nl
+        ? 'Hoe deze verschilt van je andere toprollen'
+        : 'How it differs from your other top roles';
 
   const handleExplain = () => {
     if (explained) return;

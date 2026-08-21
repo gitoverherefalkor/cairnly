@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -124,7 +125,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   // Declared with the other hooks, above BOTH early returns (the loading
   // spinner and the completed-report branch) — see the pdfLoading note above.
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
 
   // If user explicitly navigated here (e.g. from chat), don't auto-redirect back.
   const cameFromChat = location.state?.fromChat === true;
@@ -403,11 +404,14 @@ const Dashboard = () => {
       .map(({ types, fallbackTitle }) => {
         const s = reportSections.find((x) => types.includes(x.section_type));
         if (!s) return null;
-        const title = stripHtml(s.title || '') || fallbackTitle;
-        const quotes = pickSectionShareQuotes(s.section_type, s.content || '', title, 4);
+        const title = stripHtml(sectionTitle(s, i18n.language) || '') || fallbackTitle;
+        // Quotes are shown to the user — pick them from the translated body
+        // (falls back to canonical English when no translation exists).
+        const body = sectionText(s, i18n.language);
+        const quotes = pickSectionShareQuotes(s.section_type, body, title, 4);
         if (quotes.length === 0) return null;
         // First <h5> subsection header, shown under the section title on the card.
-        const subMatch = (s.content || '').match(/<h5[^>]*>([\s\S]*?)<\/h5>/i);
+        const subMatch = body.match(/<h5[^>]*>([\s\S]*?)<\/h5>/i);
         const subheader = subMatch ? stripHtml(subMatch[1]).trim() || null : null;
         return { sectionType: s.section_type, title, subheader, quotes };
       })
@@ -436,7 +440,7 @@ const Dashboard = () => {
     for (const type of ['top_career_1', 'top_career_2', 'top_career_3']) {
       const s = reportSections.find((x) => x.section_type === type);
       if (!s) continue;
-      const title = cleanTitle(s.title) || t('shareCard.fallbackTitle.bestFitCareer');
+      const title = cleanTitle(sectionTitle(s, i18n.language)) || t('shareCard.fallbackTitle.bestFitCareer');
       const matchPct = s.score != null ? Math.round(Number(s.score)) || 0 : null;
       out.push({
         sectionId: s.id,
@@ -452,7 +456,7 @@ const Dashboard = () => {
 
     const outsideBox = reportSections.filter((x) => x.section_type === 'outside_box');
     for (const s of outsideBox) {
-      const title = cleanTitle(s.title) || t('shareCard.fallbackTitle.outsideBoxCareer');
+      const title = cleanTitle(sectionTitle(s, i18n.language)) || t('shareCard.fallbackTitle.outsideBoxCareer');
       out.push({
         sectionId: s.id,
         sectionType: 'outside_box',
@@ -588,7 +592,7 @@ const Dashboard = () => {
 
         {showExecSummaryModal && execSummarySection && (
           <ExecSummaryModal
-            content={execSummarySection.content}
+            content={sectionText(execSummarySection, i18n.language)}
             onClose={handleDismissExecSummary}
             onViewReport={handleExploreReport}
           />

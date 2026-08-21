@@ -77,7 +77,7 @@ serve(async (req) => {
       .order('order_number', { ascending: true, nullsFirst: false }),
     supabase
       .from('profiles')
-      .select('first_name, last_name, country, partner_id')
+      .select('first_name, last_name, country, partner_id, preferred_language')
       .eq('id', burned.user_id)
       .maybeSingle(),
   ]);
@@ -146,6 +146,10 @@ serve(async (req) => {
         first_name: profile?.first_name ?? '',
         last_name: profile?.last_name ?? null,
         country: profile?.country ?? null,
+        // Drives the printed document's language: the PDF renders in this
+        // language when every translatable section carries the translation
+        // (all-or-nothing, so chrome and prose always agree), else English.
+        preferred_language: profile?.preferred_language ?? 'en',
       },
       // null for every user today, so the print page's partner branches never
       // fire and unbranded output is byte-identical to the pre-white-label design.

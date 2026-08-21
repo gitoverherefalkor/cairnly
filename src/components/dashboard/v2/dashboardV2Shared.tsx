@@ -4,7 +4,9 @@
 
 import React from 'react';
 import { Bot, Route, Gauge, Coins } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
+import { aiImpactLabel, aiImpactMeaning, moveLabel } from '@/lib/enumLabels';
 
 // ---------- Brand palette ----------
 // Mirrors the --cairnly-* tokens in src/index.css. Kept as a local constant
@@ -73,6 +75,10 @@ export type { MoveLevel } from '@/lib/moveScale';
 export interface CareerMatch {
   rank: number;
   title: string;
+  // Canonical English title — the machine key for job search / CV tailoring
+  // flows, which match against the English `report_sections.title` column.
+  // `title` above is the display title (translated when available).
+  canonicalTitle: string;
   shape: string | null;
   matchPct: number;
   aiImpact: AIImpactLevel | null;
@@ -162,11 +168,15 @@ export const Eyebrow: React.FC<{
 );
 
 // ---------- AIImpactPill ----------
-export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
+// `lang` prop: print/PDF passes the document language explicitly; dashboard
+// omits it and the pill follows the UI language.
+export const AIImpactPill: React.FC<{ label: AIImpactLevel; lang?: string }> = ({ label, lang }) => {
+  const { i18n } = useTranslation();
+  const l = lang ?? i18n.language;
   const color = AI_IMPACT_COLOR[label];
   return (
     <span
-      title={AI_IMPACT_MEANING[label]}
+      title={aiImpactMeaning(label, AI_IMPACT_MEANING[label], l)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -184,7 +194,7 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel }> = ({ label }) => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Bot size={11} color={color} /> AI · {label}
+      <Bot size={11} color={color} /> AI · {aiImpactLabel(label, l)}
     </span>
   );
 };
@@ -221,11 +231,13 @@ export const MatchPill: React.FC<{ pct: number }> = ({ pct }) => {
 
 // ---------- MovePill ----------
 // Reskilling-effort pill shown beside the AI impact pill on top-3 career cards.
-export const MovePill: React.FC<{ level: MoveLevel }> = ({ level }) => {
+export const MovePill: React.FC<{ level: MoveLevel; lang?: string }> = ({ level, lang }) => {
+  const { i18n } = useTranslation();
+  const l = lang ?? i18n.language;
   const color = MOVE_COLOR[level];
   return (
     <span
-      title={moveLegend(level)}
+      title={moveLegend(level, l)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -243,7 +255,7 @@ export const MovePill: React.FC<{ level: MoveLevel }> = ({ level }) => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Route size={11} color={color} /> {level}
+      <Route size={11} color={color} /> {moveLabel(level, l)}
     </span>
   );
 };
@@ -665,7 +677,10 @@ export const SHARE_QUOTE_ANCHORS: Record<string, string[][]> = {
   top_career_3: [WHY_FITS, ALIGNMENT],
   runner_ups: [WHY_FITS, ALIGNMENT],
   dream_jobs: [WHY_FITS, ALIGNMENT],
-  outside_box: [['why this might be a fit', 'why this could be a fit', 'why this role fits you'], ALIGNMENT],
+  outside_box: [
+    ['why this might be a fit', 'why this could be a fit', 'why this role fits you', 'waarom dit bij je past'],
+    ALIGNMENT,
+  ],
 };
 
 /** Share-quote candidates for a section, best first. Works down the section's

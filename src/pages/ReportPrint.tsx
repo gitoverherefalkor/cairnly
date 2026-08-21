@@ -114,7 +114,13 @@ interface PrintData {
   // `last_name` is NOT selected by report-print-data yet, so it is read
   // defensively: the cover falls back to the first name alone until that
   // function's select list gains it.
-  profile: { first_name: string; country: string | null; last_name?: string | null };
+  profile: {
+    first_name: string;
+    country: string | null;
+    last_name?: string | null;
+    // Drives the printed document's language (language contract).
+    preferred_language?: string | null;
+  };
   partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null;
 }
 
@@ -231,6 +237,7 @@ const ReportPrint: React.FC = () => {
         sections={data.sections}
         generatedAt={data.report.updated_at ?? data.report.created_at}
         partner={data.partner}
+        preferredLanguage={data.profile.preferred_language ?? null}
       />
     </>
   );

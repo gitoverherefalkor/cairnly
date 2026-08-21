@@ -57,6 +57,21 @@ export interface ReportSection {
   // here. Null until first generation. Only populated on top_career_1/2/3
   // and outside_box sections.
   share_quotes: string[] | null;
+  // Language contract (docs/LANGUAGE_CONTRACT_PLAN.md): `content`/`title` are
+  // always canonical ENGLISH; translations live here, keyed by language code,
+  // written only by the translate-section edge function. Render through
+  // sectionText()/sectionTitle() from @/lib/sectionText — never read this
+  // column directly.
+  content_i18n: Record<
+    string,
+    {
+      title?: string | null;
+      content?: string;
+      comparison?: { headline?: string; explanation?: string } | null;
+      translated_at?: string;
+      model?: string;
+    }
+  > | null;
   created_at: string;
   updated_at: string;
 }

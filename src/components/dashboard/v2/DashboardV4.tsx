@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
+import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
@@ -170,39 +171,40 @@ function getMatch(
   type: string,
   rank: number,
   withDetail: boolean,
+  lang: string,
 ): CareerMatch | null {
   const s = sections.find((x) => x.section_type === type);
   if (!s) return null;
   const score = s.score != null ? Number(s.score) : NaN;
   if (!Number.isFinite(score)) return null;
+  // Display prose comes from the user's language (translated body, falling
+  // back to canonical English); the extraction patterns cover both languages.
+  // The Dutch heading strings are pinned by the translate-section prompt, so
+  // they are stable to match against.
+  const body = sectionText(s, lang);
   // Prefer the dedicated "Overview" subsection (one to two plain-English
   // sentences defining the role). Legacy reports without an Overview block
-  // fall back to the opening sentences of the body. "Overzicht" is the exact
-  // Dutch subheader pinned by WF3/WF4; the patterns are OR-ed, so English
-  // matching is unchanged.
-  const overviewHtml = extractSubsectionContent(s.content || '', [
-    'Overview',
-    'Overzicht',
-  ]);
-  const teaser = overviewHtml
-    ? firstSentences(overviewHtml, 2)
-    : firstSentences(s.content || '', 2);
+  // fall back to the opening sentences of the body.
+  const overviewHtml = extractSubsectionContent(body, ['Overview', 'Overzicht']);
+  const teaser = overviewHtml ? firstSentences(overviewHtml, 2) : firstSentences(body, 2);
   // Hero card supporting copy: first two sentences of the "Alignment with
   // your ambitions" section. Prose, not bullets — fits compactly under the
   // Overview without restating it.
-  // English-only on purpose: this is a top-3 subheader, and WF4's top-3 prompt
-  // does not pin Dutch subheader wording (it only says "the subheader TEXT
-  // itself in Dutch"), so there is no stable Dutch string to match yet. A
-  // Dutch report simply falls back to no alignment copy.
   const alignmentHtml = withDetail
-    ? extractSubsectionContent(s.content || '', ['Alignment with your ambitions'])
+    ? extractSubsectionContent(body, [
+        'Alignment with your ambitions',
+        'Aansluiting bij je ambities',
+      ])
     : null;
   const alignment = alignmentHtml ? firstSentences(alignmentHtml, 2) : undefined;
   return {
     rank,
-    title: stripHtml(s.title || 'Career match'),
+    title: stripHtml(sectionTitle(s, lang) || 'Career match'),
+    canonicalTitle: stripHtml(s.title || 'Career match'),
     shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
     matchPct: Math.round(score),
+    // Machine metadata is ALWAYS parsed from the canonical English content —
+    // that is what keeps this regex reliable (language contract).
     aiImpact: extractAIImpact(s.content || ''),
     move: (s.metadata?.move as MoveLevel | undefined) ?? null,
     salary: readSalary(s.metadata),
@@ -287,7 +289,15 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   onDownloadPdf,
   pdfLoading = false,
 }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('dashboard');
+  // Language for report prose/titles: after login this converges with
+  // profiles.preferred_language (useLanguage hook). sectionText falls back to
+  // canonical English when no translation exists.
+  const lang = i18n.language;
+  // Row labels: English literals are the defaultValue, so EN is byte-identical
+  // and other languages only need keys in public/locales/<lang>/dashboard.json.
+  const oneLinerFor = (id: string) => t(`v4.oneLiner.${id}`, ONE_LINERS[id] ?? '');
+  const fallbackTitleFor = (id: string) => t(`v4.fallbackTitle.${id}`, FALLBACK_TITLES[id] ?? '');
   const [openSection, setOpenSection] = useState<string | null>(null);
   const accordionRowRefs = useRef<Record<string, HTMLDivElement | null>>({});
   // Deep-link target for the Unlock Toolkit (invite hub). Locked-tool popups
@@ -317,11 +327,11 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   };
 
   const { hero, secondary } = useMemo(() => {
-    const hero = getMatch(sections, 'top_career_1', 1, true);
-    const second = getMatch(sections, 'top_career_2', 2, false);
-    const third = getMatch(sections, 'top_career_3', 3, false);
+    const hero = getMatch(sections, 'top_career_1', 1, true, lang);
+    const second = getMatch(sections, 'top_career_2', 2, false, lang);
+    const third = getMatch(sections, 'top_career_3', 3, false, lang);
     return { hero, secondary: [second, third].filter(Boolean) as CareerMatch[] };
-  }, [sections]);
+  }, [sections, lang]);
 
   // "More paths" — one tile per group. Each section_type repeats in the DB
   // (one row per career, split by WF4), so we collect ALL matching rows and
@@ -333,9 +343,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       const matches = sections.filter((x) => x.section_type === type);
       if (matches.length === 0) return null;
       return {
-        title: FALLBACK_TITLES[fallbackId],
-        descriptor: ONE_LINERS[fallbackId],
-        careers: matches.map((s) => stripHtml(s.title || 'Career')),
+        title: fallbackTitleFor(fallbackId),
+        descriptor: oneLinerFor(fallbackId),
+        careers: matches.map((s) => stripHtml(sectionTitle(s, lang) || 'Career')),
       };
     };
     return {
@@ -343,7 +353,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       outside: build('outside_box', 'outside'),
       dream: build('dream_jobs', 'dream'),
     };
-  }, [sections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections, lang, t]);
 
   // Report accordion rows — only rows backed by real sections are shown.
   // /report is gone, so the accordion is the user's report: expanded rows
@@ -362,13 +373,14 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         if (!s) return null;
         return {
           id,
-          title: stripHtml(s.title || FALLBACK_TITLES[id]),
-          oneLiner: ONE_LINERS[id],
-          content: s.content || '',
+          title: stripHtml(sectionTitle(s, lang) || fallbackTitleFor(id)),
+          oneLiner: oneLinerFor(id),
+          content: sectionText(s, lang),
         };
       })
       .filter(Boolean) as ReportRow[];
-  }, [sections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections, lang, t]);
 
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
@@ -412,22 +424,27 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           if (!peer || !peerFit) continue;
           const isFocal = peerType === type;
           careersForRadar.push({
-            label: stripHtml(peer.title || `Career ${i + 1}`),
+            label: stripHtml(sectionTitle(peer, lang) || `Career ${i + 1}`),
             scores: peerFit,
             color: isFocal ? RADAR_FOCAL_COLOR : RADAR_NON_FOCAL[peerType] ?? '#64748b',
             focal: isFocal,
           });
         }
         if (careersForRadar.length >= 2) {
-          comparison = { headline: cmp.headline, careers: careersForRadar };
+          // Comparison headline is WF4 prose — prefer its stored translation.
+          const cmpI18n = s.content_i18n?.[lang.slice(0, 2)]?.comparison;
+          comparison = {
+            headline: cmpI18n?.headline || cmp.headline,
+            careers: careersForRadar,
+          };
         }
       }
 
       rows.push({
         id,
-        title: stripHtml(s.title || 'Career match'),
-        oneLiner: ONE_LINERS[id],
-        content: s.content || '',
+        title: stripHtml(sectionTitle(s, lang) || 'Career match'),
+        oneLiner: oneLinerFor(id),
+        content: sectionText(s, lang),
         careerSlot: slot,
         comparison,
       });
@@ -447,25 +464,26 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       if (matches.length === 0) continue;
       rows.push({
         id,
-        title: FALLBACK_TITLES[id],
-        oneLiner: ONE_LINERS[id],
+        title: fallbackTitleFor(id),
+        oneLiner: oneLinerFor(id),
         careers: matches.map((s) => ({
-          title: stripHtml(s.title || 'Career'),
-          content: s.content || '',
+          title: stripHtml(sectionTitle(s, lang) || 'Career'),
+          content: sectionText(s, lang),
         })),
         careerSlot: slot,
       });
     }
     return rows;
-  }, [sections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sections, lang, t]);
 
   // ── Chart data builders ──────────────────────────────────────
   // Derivations live in reportChartData.ts so the print/PDF document
   // builds identical payloads from the same sections.
   const radarAxes = useMemo(() => buildRadarAxes(sections), [sections]);
-  const careerMapPoints = useMemo(() => buildCareerMapPoints(sections), [sections]);
-  const compareCareers = useMemo(() => buildCompareCareers(sections), [sections]);
-  const compareCareersRich = useMemo(() => buildCompareCareersRich(sections), [sections]);
+  const careerMapPoints = useMemo(() => buildCareerMapPoints(sections, lang), [sections, lang]);
+  const compareCareers = useMemo(() => buildCompareCareers(sections, lang), [sections, lang]);
+  const compareCareersRich = useMemo(() => buildCompareCareersRich(sections, lang), [sections, lang]);
 
   // Personality stat — names only, no numeric value. With a 1–10 integer
   // scale across 5 axes the digits tie too often to be meaningful; the
@@ -1087,7 +1105,7 @@ const HeroMatch: React.FC<{
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                     <button
                       type="button"
-                      onClick={() => onFindRoles(match.title)}
+                      onClick={() => onFindRoles(match.canonicalTitle)}
                       style={{
                         background: 'transparent',
                         color: '#fff',
@@ -1108,7 +1126,7 @@ const HeroMatch: React.FC<{
                     </button>
                     <button
                       type="button"
-                      onClick={() => onTailorCV(match.title)}
+                      onClick={() => onTailorCV(match.canonicalTitle)}
                       style={{
                         background: 'transparent',
                         color: '#fff',
@@ -1340,7 +1358,7 @@ const SecondaryMatch: React.FC<{
       </button>
       <button
         type="button"
-        onClick={() => onFindRoles(match.title)}
+        onClick={() => onFindRoles(match.canonicalTitle)}
         style={{
           flex: 1,
           background: 'transparent',

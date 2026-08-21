@@ -163,7 +163,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
 
     // Detect if the user has already sent a wrap-up message
     const hasWrappedUp = messages.some(
-      (msg) => msg.sender === 'user' && msg.content.toLowerCase().includes('wrap up')
+      (msg) => msg.sender === 'user' && /wrap up|sessie afronden/i.test(msg.content)
     );
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -322,7 +322,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
             // bullet; the current prompt example uses plain bullets, so
             // chips silently stopped rendering.)
             const bulletCount = (msg.content.match(/^\s*-\s+/gm) || []).length;
-            const hasEscapeHatch = /something else|let me know|on your mind/i.test(msg.content);
+            const hasEscapeHatch = /something else|let me know|on your mind|iets anders|wat je bezighoudt/i.test(msg.content);
             const isFollowUp =
               isLastBotMessage &&
               msg.sender === 'bot' &&

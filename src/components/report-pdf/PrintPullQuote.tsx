@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { PALETTE, FONT_DISPLAY, FONT_BODY, pickSectionShareQuotes, stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
 import { SHARE_PROMPT, type PrintLang } from './printIntros';
 
@@ -30,8 +31,9 @@ import { SHARE_PROMPT, type PrintLang } from './printIntros';
 // Insight", "Why this role fits you"); see SHARE_QUOTE_ANCHORS for why, and
 // for what happens when a report has no matching heading.
 
-/** Pull the best available share line out of a section. */
-export function shareQuoteFor(section: ReportSection): string | null {
+/** Pull the best available share line out of a section. Derived quotes come
+ *  from the language-resolved body so a Dutch PDF gets Dutch pull quotes. */
+export function shareQuoteFor(section: ReportSection, lang: string = 'en'): string | null {
   const stored = (section as { share_quotes?: unknown }).share_quotes;
   if (Array.isArray(stored)) {
     const first = stored.find((q) => typeof q === 'string' && q.trim().length > 0);
@@ -54,8 +56,8 @@ export function shareQuoteFor(section: ReportSection): string | null {
   // share card gets it too rather than only the printed page.
   const derived = pickSectionShareQuotes(
     section.section_type,
-    section.content || '',
-    stripHtml(section.title || ''),
+    sectionText(section, lang),
+    stripHtml(sectionTitle(section, lang) || ''),
     1,
   );
   return derived[0] ?? null;

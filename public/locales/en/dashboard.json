@@ -241,5 +241,30 @@
   "pdfButton": {
     "generating": "Generating…",
     "download": "Download report PDF"
+  },
+  "v4": {
+    "oneLiner": {
+      "summary": "Who you are professionally and what drives your career.",
+      "approach": "How you work, lead, and navigate challenges.",
+      "strengths": "What sets you apart and how to use it strategically.",
+      "development": "Growth opportunities that will help you reach your goals.",
+      "values": "What matters most to you and how it shapes the right fit.",
+      "top-1": "Your strongest match.",
+      "top-2": "Career #2 — a close second.",
+      "top-3": "Career #3 — also a strong fit.",
+      "runners": "Strong alternatives worth a second look.",
+      "outside": "Unconventional paths aligned with your interests.",
+      "dream": "An honest reality check on your ideal career."
+    },
+    "fallbackTitle": {
+      "summary": "Executive Summary",
+      "approach": "Your Approach",
+      "strengths": "Your Strengths",
+      "development": "Development Areas",
+      "values": "Your (Career) Values",
+      "runners": "Runner-up Careers",
+      "outside": "Outside-the-Box Careers",
+      "dream": "Dream Job Analysis"
+    }
   }
 }

@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 import { ChevronDown, MessageCircle, Pencil, RotateCw, Route, MousePointerClick } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { sectionTitleCandidates } from '@/lib/sectionText';
 import {
   CareerScoreCard,
   extractAIImpact,
@@ -124,7 +125,7 @@ function detectFollowUpOptions(markdown: string): {
         title = plain.replace(/[!?.]+$/, '');
         display = plain;
       }
-      const isFreeText = /something else|let me know|on your mind/i.test(display);
+      const isFreeText = /something else|let me know|on your mind|iets anders|wat je bezighoudt/i.test(display);
       options.push({ display, message: title, isFreeText });
     } else if (!seenBullet && line.trim()) {
       introLines.push(line);
@@ -143,7 +144,7 @@ function detectFollowUpOptions(markdown: string): {
   // generic one.
   if (!options.some((o) => o.isFreeText)) {
     const trailingFreeText = trailingLines.find((l) =>
-      /something else|let me know|on your mind/i.test(l),
+      /something else|let me know|on your mind|iets anders|wat je bezighoudt/i.test(l),
     );
     const display = (trailingFreeText ?? 'Something else, type below')
       .replace(/^\s*-\s*/, '')
@@ -155,13 +156,17 @@ function detectFollowUpOptions(markdown: string): {
   return { intro: introLines.join('\n').trim(), options };
 }
 
-// Section types that have a meaningful score column we want to surface.
+// Section types findSectionByTitle may match. Most carry a meaningful score;
+// dream_jobs has no score but is included so its card can parse Feasibility
+// from the CANONICAL English content instead of the (possibly translated)
+// delivered markdown. Score stays hidden for it (score column is null).
 const SCORED_SECTION_TYPES = new Set([
   'top_career_1',
   'top_career_2',
   'top_career_3',
   'runner_ups',
   'outside_box',
+  'dream_jobs',
 ]);
 
 // Map report_sections.section_type -> position in ALL_SECTIONS. Used as a
@@ -193,6 +198,9 @@ function normalizeTitle(raw: string): string {
 // Match a chat heading text against the report_sections.title field.
 // Heading shape: "Chief People Officer". DB title shape:
 // "<h3><strong>Chief People Officer</strong></h3>". We compare normalized forms.
+// The delivered heading follows the user's language (deliver-section renders
+// the translated title when one exists), so we match against the canonical
+// English title AND every stored translation (language contract).
 function findSectionByTitle(
   sections: ReportSection[] | undefined,
   headingText: string
@@ -203,11 +211,12 @@ function findSectionByTitle(
 
   for (const s of sections) {
     if (!SCORED_SECTION_TYPES.has(s.section_type)) continue;
-    if (!s.title) continue;
-    const sectionTitle = normalizeTitle(s.title);
-    if (!sectionTitle) continue;
-    if (sectionTitle === norm) return s;
-    if (norm.includes(sectionTitle) || sectionTitle.includes(norm)) return s;
+    for (const candidate of sectionTitleCandidates(s)) {
+      const candNorm = normalizeTitle(candidate);
+      if (!candNorm) continue;
+      if (candNorm === norm) return s;
+      if (norm.includes(candNorm) || candNorm.includes(norm)) return s;
+    }
   }
   return null;
 }
@@ -635,8 +644,12 @@ const SequentialSubsections: React.FC<{
           .trim();
         const section = findSectionByTitle(sections, headingText);
         const score = section?.score != null ? Number(section.score) : null;
-        const aiImpact = extractAIImpact(fullBody || preamble);
-        const feasibility = extractFeasibility(fullBody || preamble);
+        const aiImpact =
+          (section && extractAIImpact(section.content || '')) ||
+          extractAIImpact(fullBody || preamble);
+        const feasibility =
+          (section && extractFeasibility(section.content || '')) ||
+          extractFeasibility(fullBody || preamble);
         return (
           <>
             <h3
@@ -923,8 +936,13 @@ const CollapsibleCareerBlocks: React.FC<{
             // not AI impact — WF4 only emits an AI-impact line incidentally, so
             // suppress the AI pill here to keep those cards uniform.
             const aiImpact =
-              section?.section_type === 'dream_jobs' ? null : extractAIImpact(block.body || '');
-            const feasibility = extractFeasibility(block.body || '');
+              section?.section_type === 'dream_jobs'
+                ? null
+                : (section && extractAIImpact(section.content || '')) ||
+                  extractAIImpact(block.body || '');
+            const feasibility =
+              (section && extractFeasibility(section.content || '')) ||
+              extractFeasibility(block.body || '');
             const mvc = normalizeMove(section?.metadata?.move ?? null);
             const mvColor = mvc ? MOVE_COLOR[mvc] : null;
             const hasCard =
@@ -1237,8 +1255,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         // Look for an AI Impact rating anywhere in the message body — except on
         // dream-job cards, which are Feasibility-only (see multi-card path).
         const aiImpact =
-          section?.section_type === 'dream_jobs' ? null : extractAIImpact(sanitized);
-        const feasibility = extractFeasibility(sanitized);
+          section?.section_type === 'dream_jobs'
+            ? null
+            : (section && extractAIImpact(section.content || '')) || extractAIImpact(sanitized);
+        const feasibility =
+          (section && extractFeasibility(section.content || '')) || extractFeasibility(sanitized);
         return (
           <>
             <h3

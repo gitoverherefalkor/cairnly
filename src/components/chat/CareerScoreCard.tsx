@@ -1,6 +1,8 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { MOVE_LEVELS, type MoveLevel, normalizeMove, moveLegend } from '@/lib/moveScale';
+import { aiImpactLabel, feasibilityLabel, moveLabel, pillTag } from '@/lib/enumLabels';
 
 // AI Impact rating scale, ordered low → high (impact / disruption).
 // Current prompt produces a clinical 5-level scale, SHOWN to the user:
@@ -194,6 +196,7 @@ const ScoreGauge: React.FC<{ score: number }> = ({ score }) => {
 // shifts so the pill instantly reads as "fine" vs "watch out". The dot row
 // maps over AI_IMPACT_LEVELS, so it auto-adapts to the 5-segment scale.
 export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => {
+  const { i18n } = useTranslation();
   const idx = AI_IMPACT_LEVELS.indexOf(level);
   if (idx < 0) return null;
   const style = AI_IMPACT_STYLES[level];
@@ -203,9 +206,9 @@ export const AIImpactBadge: React.FC<{ level: AIImpactLevel }> = ({ level }) => 
       className={`inline-flex items-center gap-2.5 rounded-full border ${style.ring} ${style.tint} px-3 py-1.5 shadow-sm`}
     >
       <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
-        AI Impact
+        {pillTag('AI Impact', i18n.language)}
       </span>
-      <span className={`text-xs font-semibold ${style.text}`}>{level}</span>
+      <span className={`text-xs font-semibold ${style.text}`}>{aiImpactLabel(level, i18n.language)}</span>
       <div className="flex items-center gap-0.5" aria-hidden="true">
         {AI_IMPACT_LEVELS.map((_, i) => (
           <div
@@ -231,19 +234,20 @@ const MOVE_STYLES: Record<MoveLevel, { dot: string; text: string; ring: string; 
 // Reskilling-effort badge — mirrors AIImpactBadge: label + level + dot scale.
 // Hover shows the full legend with this role's level marked.
 export const MoveBadge: React.FC<{ level: string }> = ({ level }) => {
+  const { i18n } = useTranslation();
   const lvl = normalizeMove(level);
   if (!lvl) return null;
   const idx = MOVE_LEVELS.indexOf(lvl);
   const style = MOVE_STYLES[lvl];
   return (
     <div
-      title={moveLegend(lvl)}
+      title={moveLegend(lvl, i18n.language)}
       className={`inline-flex items-center gap-2.5 rounded-full border ${style.ring} ${style.tint} px-3 py-1.5 shadow-sm`}
     >
       <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
-        Move
+        {pillTag('Move', i18n.language)}
       </span>
-      <span className={`text-xs font-semibold ${style.text}`}>{lvl}</span>
+      <span className={`text-xs font-semibold ${style.text}`}>{moveLabel(lvl, i18n.language)}</span>
       <div className="flex items-center gap-0.5" aria-hidden="true">
         {MOVE_LEVELS.map((_, i) => (
           <div
@@ -324,6 +328,7 @@ export function extractFeasibility(body: string): FeasibilityLevel | null {
 // 5-step badge mirroring AIImpactBadge — the active level's dot carries its
 // colour, the rest stay neutral; the label colour shifts with feasibility.
 export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level }) => {
+  const { i18n } = useTranslation();
   const idx = FEASIBILITY_LEVELS.indexOf(level);
   if (idx < 0) return null;
   const style = FEASIBILITY_STYLES[level];
@@ -333,9 +338,9 @@ export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level 
       className={`inline-flex items-center gap-2.5 rounded-full border ${style.ring} ${style.tint} px-3 py-1.5 shadow-sm`}
     >
       <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">
-        Feasibility
+        {pillTag('Feasibility', i18n.language)}
       </span>
-      <span className={`text-xs font-semibold ${style.text}`}>{level}</span>
+      <span className={`text-xs font-semibold ${style.text}`}>{feasibilityLabel(level, i18n.language)}</span>
       <div className="flex items-center gap-0.5" aria-hidden="true">
         {FEASIBILITY_LEVELS.map((_, i) => (
           <div

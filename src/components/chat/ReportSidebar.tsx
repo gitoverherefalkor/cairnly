@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { sectionTitle } from '@/lib/sectionText';
 import { ChevronLeft, ChevronRight, FileText, Check, Circle, Lock, PartyPopper, X, ListOrdered, ClipboardList, Compass, Zap, TrendingUp, Heart, Trophy, Award, Lightbulb, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { ReportSection } from '@/hooks/useReportSections';
@@ -29,17 +30,17 @@ const SECTION_I18N_KEY: Record<string, string> = {
 // the list to preserve indices; it's filtered out of the sidebar UI via
 // HIDDEN_SECTION_IDS below.
 export const ALL_SECTIONS = [
-  { id: 'executive-summary', title: 'Executive Summary', altTitles: ['executive summary'], chapter: 'about-you' },
-  { id: 'personality-team', title: 'Your Approach', altTitles: ['your approach', 'understanding your approach', 'personality', 'team dynamics'], chapter: 'about-you' },
-  { id: 'strengths', title: 'Your Strengths', altTitles: ['your strengths', 'your core strengths', 'core strengths', 'strengths'], chapter: 'about-you' },
-  { id: 'growth', title: 'Development Areas', altTitles: ['development areas', 'areas for development', 'areas of development', 'growth', 'growth opportunities'], chapter: 'about-you' },
-  { id: 'values', title: 'Career Values', altTitles: ['career values', 'your core values', 'core values', 'values', 'your values'], chapter: 'about-you' },
+  { id: 'executive-summary', title: 'Executive Summary', altTitles: ['executive summary', 'samenvatting'], chapter: 'about-you' },
+  { id: 'personality-team', title: 'Your Approach', altTitles: ['your approach', 'understanding your approach', 'personality', 'team dynamics', 'jouw aanpak begrijpen', 'jouw aanpak', 'je aanpak'], chapter: 'about-you' },
+  { id: 'strengths', title: 'Your Strengths', altTitles: ['your strengths', 'your core strengths', 'core strengths', 'strengths', 'sterke punten en hoe je ze ontwikkelt', 'sterke punten'], chapter: 'about-you' },
+  { id: 'growth', title: 'Development Areas', altTitles: ['development areas', 'areas for development', 'areas of development', 'growth', 'growth opportunities', 'ontwikkelpunten', 'ontwikkelgebieden'], chapter: 'about-you' },
+  { id: 'values', title: 'Career Values', altTitles: ['career values', 'your core values', 'core values', 'values', 'your values', 'aansluiten bij je waarden', 'loopbaanwaarden'], chapter: 'about-you' },
   { id: 'first-career', title: 'Primary Career Match', altTitles: ['primary career', 'first career', 'career match', 'career 1:', 'career 1', '#1 career'], chapter: 'career-suggestions' },
   { id: 'second-career', title: 'Second Career Match', altTitles: ['second career', 'secondary career', 'career 2:', 'career 2', '#2 career'], chapter: 'career-suggestions' },
   { id: 'third-career', title: 'Third Career Match', altTitles: ['third career', 'career 3:', 'career 3', '#3 career'], chapter: 'career-suggestions' },
-  { id: 'runner-up', title: 'Runner-up Careers', altTitles: ['runner-up', 'runner up', 'runners-up', 'runners up', 'honorable mention', 'honorable mentions', 'career 4:', 'career 4', '#4 career'], chapter: 'career-suggestions' },
+  { id: 'runner-up', title: 'Runner-up Careers', altTitles: ['runner-up', 'runner up', 'runners-up', 'runners up', 'honorable mention', 'honorable mentions', 'career 4:', 'career 4', '#4 career', 'runner-up loopbanen'], chapter: 'career-suggestions' },
   { id: 'outside-box', title: 'Outside the Box', altTitles: ['outside the box', 'outside-the-box', 'unconventional', 'wildcard', 'career 5:', 'career 5', '#5 career'], chapter: 'career-suggestions' },
-  { id: 'dream-jobs', title: 'Dream Job Assessment', altTitles: ['dream job', 'dream jobs', 'dream career', 'dream role', 'career 6:', 'career 6', '#6 career'], chapter: 'career-suggestions' },
+  { id: 'dream-jobs', title: 'Dream Job Assessment', altTitles: ['dream job', 'dream jobs', 'dream career', 'dream role', 'career 6:', 'career 6', '#6 career', 'droombaan', 'droombanen'], chapter: 'career-suggestions' },
 ] as const;
 
 export type SectionId = typeof ALL_SECTIONS[number]['id'];
@@ -147,7 +148,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
   isSessionCompleted = false,
   reportSections,
 }) => {
-  const { t } = useTranslation(['report', 'chat']);
+  const { t, i18n } = useTranslation(['report', 'chat']);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Translate a section title using the report namespace, falling back to the English static title
@@ -220,7 +221,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                 const multi = MULTI_ROW_SIDEBAR_SECTIONS[section.id];
                 if (topType) {
                   const row = reportSections?.find((r) => r.section_type === topType);
-                  const title = cleanField(row?.title);
+                  const title = cleanField(row ? sectionTitle(row, i18n.language) : null);
                   const size = cleanField(row?.company_size_type) || null;
                   if (title) careerInfo = { title, size };
                 } else if (multi) {

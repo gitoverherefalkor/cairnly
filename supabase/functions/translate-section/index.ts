@@ -34,6 +34,7 @@ import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-
 import { verifySharedSecret, errorResponse } from '../_shared/cors.ts';
 import { resolveLang, type Lang } from '../_shared/language.ts';
 import { DO_NOT_TRANSLATE, PREFERRED, RULES, LANG_NAMES } from '../_shared/glossary.ts';
+import { HEADING_PINS } from '../_shared/headingPins.ts';
 import { runGate, canonicalLooksEnglish } from '../_shared/translationGate.ts';
 
 const serverHeaders = { 'Content-Type': 'application/json' };
@@ -72,6 +73,9 @@ function buildSystemPrompt(target: Lang): string {
     .map(([en, tr]) => `- "${en}" -> "${tr}"`)
     .join('\n');
   const doNotTranslate = DO_NOT_TRANSLATE.map((t) => `- ${t}`).join('\n');
+  const headingPins = Object.entries(HEADING_PINS[target] ?? {})
+    .map(([en, tr]) => `- "${en}" -> "${tr}"`)
+    .join('\n');
 
   return `You translate career-guidance report sections for Cairnly, from English to ${langName}.
 
@@ -87,6 +91,9 @@ ${glossaryPairs || '(none)'}
 NEVER TRANSLATE these brand terms and tokens (reproduce verbatim):
 ${doNotTranslate}
 Job/role titles: keep widely-used English job titles in English when that is how the role is named in the ${langName} job market (e.g. "Product Manager", "COO"); translate descriptive role phrases naturally.
+
+PINNED HEADINGS AND TITLES — when a heading, subheading or section title matches one of these English strings (ignoring case and surrounding tags), use EXACTLY the pinned translation, never a variant:
+${headingPins || '(none)'}
 
 STRUCTURAL CONTRACT — hard constraints, checked mechanically after you answer:
 - Reproduce every HTML tag exactly: same tags, same nesting, same count, same order. Never add or remove one. Translate only the human-readable text inside them.

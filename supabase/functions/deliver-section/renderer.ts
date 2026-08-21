@@ -21,11 +21,16 @@ export interface ReportSectionRow {
   content: string | null;
   score: number | null;
   /**
-   * The language the section CONTENT was generated in, written by the n8n
-   * workflow that produced it. Optional so existing callers that don't select
-   * the column keep type-checking.
+   * Language of the CANONICAL content — always 'en' for generated prose under
+   * the language contract. Optional so existing callers that don't select the
+   * column keep type-checking.
    */
   language?: string | null;
+  /**
+   * Stored translations, keyed by language code (language contract). The
+   * caller resolves rows through sectionText/sectionTitle before rendering.
+   */
+  content_i18n?: Record<string, unknown> | null;
 }
 
 const PERSONALITY: ReadonlySet<SectionType> = new Set([
@@ -87,7 +92,7 @@ function htmlToMarkdown(input: string | null | undefined): string {
   // Variants seen:
   //   "More details about this role can be viewed in your dashboard after this chat."
   //   "**More details in your dashboard.**"
-  s = s.replace(/\s*\*?\*?More details[^\n]*$/i, '');
+  s = s.replace(/\s*\*?\*?(?:More details|Meer details)[^\n]*$/i, '');
 
   return s.trim();
 }

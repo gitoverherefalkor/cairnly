@@ -18,6 +18,8 @@ import {
   getAuthenticatedUser,
   checkRateLimit,
 } from '../_shared/cors.ts';
+import { resolveLang } from '../_shared/language.ts';
+import { sectionI18n } from '../_shared/sectionText.ts';
 
 /** Filename the browser saves the PDF as.
  *
@@ -93,32 +95,45 @@ serve(async (req) => {
     return errorResponse('Report is not finished yet', 409, corsHeaders);
   }
 
-  // The report's language is stamped on its sections by WF1 (one language per
-  // report). NOTE this means "the language the report is stamped as", not "the
-  // language of the prose" — WF3/WF4 narrative content is currently hard-forced
-  // to English even when sections say 'nl'.
-  const { data: langRow } = await supabase
-    .from('report_sections')
-    .select('language')
-    .eq('report_id', reportId)
-    .limit(1)
-    .maybeSingle();
-  const reportLanguage = langRow?.language ?? 'en';
-
-  // Current partner, resolved fresh. A user assigned to a partner after their
-  // PDF was generated must not keep receiving the unbranded cached copy.
+  // Current partner + language, resolved fresh. A user assigned to a partner
+  // after their PDF was generated must not keep receiving the unbranded
+  // cached copy — and the same goes for language.
   const { data: ownerProfile } = await supabase
     .from('profiles')
-    .select('partner_id, first_name')
+    .select('partner_id, first_name, preferred_language')
     .eq('id', report.user_id)
     .maybeSingle();
   const currentPartnerId = ownerProfile?.partner_id ?? null;
 
-  // Reuse an existing PDF unless the layout changed, the branding changed, or
-  // force was passed.
+  // The PDF's language, mirroring ReportPrintDocument.resolveLang (language
+  // contract): the owner's preferred_language, honoured only when EVERY
+  // translatable section carries that translation — otherwise English (the
+  // canonical content). This MUST match what the print page will actually
+  // render, because it is part of the cache-reuse decision below.
+  const preferred = resolveLang(ownerProfile?.preferred_language);
+  let reportLanguage = 'en';
+  if (preferred !== 'en') {
+    const { data: sectionRows } = await supabase
+      .from('report_sections')
+      .select('section_type, content, content_i18n')
+      .eq('report_id', reportId);
+    const translatable = (sectionRows ?? []).filter(
+      (s) =>
+        s.section_type !== 'init_summary' &&
+        s.section_type !== 'chat_highlights' &&
+        !/_feedback$/.test(s.section_type) &&
+        (s.content ?? '').length > 0,
+    );
+    if (translatable.length > 0 && translatable.every((s) => sectionI18n(s, preferred) !== null)) {
+      reportLanguage = preferred;
+    }
+  }
+
+  // Reuse an existing PDF unless the layout changed, the branding changed,
+  // the language changed, or force was passed.
   const { data: existing } = await supabase
     .from('report_pdfs')
-    .select('storage_path, layout_version, partner_id')
+    .select('storage_path, layout_version, partner_id, language')
     .eq('report_id', reportId)
     .maybeSingle();
 
@@ -126,6 +141,7 @@ serve(async (req) => {
     existing &&
     existing.layout_version === LAYOUT_VERSION &&
     (existing.partner_id ?? null) === currentPartnerId &&
+    (existing.language ?? 'en') === reportLanguage &&
     !force
   ) {
     const { data: signed } = await supabase.storage

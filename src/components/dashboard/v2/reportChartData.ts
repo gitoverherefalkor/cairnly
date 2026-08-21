@@ -3,6 +3,7 @@
 // previously these lived as useMemo blocks inside DashboardV4.
 
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
+import { sectionTitle } from '@/lib/sectionText';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { RadarAxis } from './V4PersonalityRadarSVG';
 import type { CareerPoint } from './V4CareerMapSVG';
@@ -67,7 +68,7 @@ function xForImpact(impact: AIImpactLevel | null): number {
 
 /** Career map — top 3 as ranked bubbles, runner-ups as unranked secondaries.
  *  y = 1 - match/100 so the strongest match sits at the top of the chart. */
-export function buildCareerMapPoints(sections: ReportSection[]): CareerPoint[] {
+export function buildCareerMapPoints(sections: ReportSection[], lang = 'en'): CareerPoint[] {
   const points: CareerPoint[] = [];
 
   for (const { type, rank } of TOPS) {
@@ -78,7 +79,7 @@ export function buildCareerMapPoints(sections: ReportSection[]): CareerPoint[] {
     points.push({
       x: xForImpact(extractAIImpact(s.content || '')),
       y: 1 - score / 100,
-      label: stripHtml(s.title || `Career ${rank}`),
+      label: stripHtml(sectionTitle(s, lang) || `Career ${rank}`),
       rank,
     });
   }
@@ -89,7 +90,7 @@ export function buildCareerMapPoints(sections: ReportSection[]): CareerPoint[] {
     points.push({
       x: xForImpact(extractAIImpact(s.content || '')),
       y: 1 - score / 100,
-      label: stripHtml(s.title || 'Runner-up'),
+      label: stripHtml(sectionTitle(s, lang) || 'Runner-up'),
     });
   }
 
@@ -98,7 +99,7 @@ export function buildCareerMapPoints(sections: ReportSection[]): CareerPoint[] {
 
 /** Tuple form for the compact front-face V4CompareRadarSVG.
  *  Axis order is fixed: autonomy, stability, schedule, pace, social. */
-export function buildCompareCareers(sections: ReportSection[]): CompareCareer[] {
+export function buildCompareCareers(sections: ReportSection[], lang = 'en'): CompareCareer[] {
   const out: CompareCareer[] = [];
   const norm = (n: number) => Math.max(0, Math.min(1, n / 5));
   for (const { type, rank } of TOPS) {
@@ -107,7 +108,7 @@ export function buildCompareCareers(sections: ReportSection[]): CompareCareer[] 
     if (!s || !f) continue;
     out.push({
       rank,
-      label: stripHtml(s.title || `Career ${rank}`),
+      label: stripHtml(sectionTitle(s, lang) || `Career ${rank}`),
       scores: [norm(f.autonomy), norm(f.stability), norm(f.schedule), norm(f.pace), norm(f.social)],
     });
   }
@@ -115,14 +116,14 @@ export function buildCompareCareers(sections: ReportSection[]): CompareCareer[] 
 }
 
 /** Object form for the larger CareerComparisonRadar detail view. */
-export function buildCompareCareersRich(sections: ReportSection[]): RadarCareer[] {
+export function buildCompareCareersRich(sections: ReportSection[], lang = 'en'): RadarCareer[] {
   const out: RadarCareer[] = [];
   for (const { type, rank } of TOPS) {
     const s = sections.find((x) => x.section_type === type);
     const f = s?.metadata?.fit_scores;
     if (!s || !f) continue;
     out.push({
-      label: stripHtml(s.title || `Career ${rank}`),
+      label: stripHtml(sectionTitle(s, lang) || `Career ${rank}`),
       scores: f,
       color: RADAR_COLORS[rank],
       focal: rank === 1,

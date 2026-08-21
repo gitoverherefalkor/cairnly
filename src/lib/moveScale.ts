@@ -1,3 +1,5 @@
+import { moveBlurb, moveLabel } from '@/lib/enumLabels';
+
 // Move = reskilling effort to get into a role. 4-level scale, AI-adjusted,
 // set by WF4 per career (report_sections.metadata.move). Single source of
 // truth for the chat badge, dashboard pill, and share card so the levels,
@@ -27,10 +29,15 @@ export function normalizeMove(raw: string | null | undefined): MoveLevel | null 
 }
 
 // Multiline legend for a native title tooltip; the current level is marked.
-export function moveLegend(current?: MoveLevel | null): string {
-  const head = 'Move (reskilling effort to get into this role):';
+// Labels/blurbs localize via enumLabels; the stored level tokens stay English
+// (language contract — machine tokens in the DB are always English).
+export function moveLegend(current?: MoveLevel | null, lang?: string | null): string {
+  const nl = String(lang ?? 'en').toLowerCase().startsWith('nl');
+  const head = nl
+    ? 'Stap (omscholingsinspanning om in deze rol te komen):'
+    : 'Move (reskilling effort to get into this role):';
   const lines = MOVE_LEVELS.map(
-    (l) => `${l === current ? '▶ ' : '   '}${l}: ${MOVE_BLURB[l]}`,
+    (l) => `${l === current ? '▶ ' : '   '}${moveLabel(l, lang)}: ${moveBlurb(l, MOVE_BLURB[l], lang)}`,
   );
   return [head, ...lines].join('\n');
 }
