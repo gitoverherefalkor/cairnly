@@ -9,6 +9,7 @@ import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
+import PartnersTab from '@/components/ops/PartnersTab';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1233,6 +1234,9 @@ export default function Ops() {
               <TabsTrigger value="marketing" className="data-[state=active]:bg-white/10 text-xs">
                 📣 Marketing
               </TabsTrigger>
+              <TabsTrigger value="partners" className="data-[state=active]:bg-white/10 text-xs">
+                🤝 Partners
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4">
@@ -1292,6 +1296,13 @@ export default function Ops() {
               </div>
               <Feed items={misses} onDismiss={dismissItem} />
             </TabsContent>
+            <TabsContent value="partners" className="mt-4">
+              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
+                Onboard a white-label partner end to end: save their name and logo, mint a batch of codes, and copy the signup links straight into an email. One code is one person. Everything runs through the admin-gated ops-partners function, so nothing here touches Supabase directly.
+              </div>
+              <PartnersTab />
+            </TabsContent>
+
             <TabsContent value="marketing" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Log every LinkedIn post (verbatim), enter reach as it climbs (snapshots, not overwrites), and read the uptick against the site traffic already tracked here. Numbers are hand-entered — LinkedIn has no personal-profile API.
