@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { verifySharedSecret, errorResponse } from "../_shared/cors.ts";
+import { resolveLang } from "../_shared/language.ts";
 import {
   renderEmail,
   bodyRow,
@@ -38,29 +39,75 @@ serve(async (req) => {
       Deno.env.get('NEW_N8N_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Update report status to pending_review (ready for user chat)
-    const { data: updated, error: updateError } = await supabase
+    // Look up the report + owner language BEFORE flipping the status. The
+    // status flip is the "your report is ready" signal, so for non-English
+    // users translation must complete first — otherwise their first look at
+    // the report is the English fallback (the readiness gate of the language
+    // contract, docs/LANGUAGE_CONTRACT_PLAN.md).
+    const { data: report, error: reportError } = await supabase
       .from('reports')
-      .update({ status: 'pending_review' })
-      .eq('id', reportId)
       .select('id, user_id, title')
+      .eq('id', reportId)
       .single();
 
-    if (updateError) {
-      console.error('Failed to update report status:', updateError);
-      return errorResponse('Failed to update report status', 500, serverHeaders);
+    if (reportError || !report) {
+      console.error('Failed to fetch report:', reportError);
+      return errorResponse('Failed to fetch report', 500, serverHeaders);
     }
 
     // Fetch user email + language
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('email, first_name, preferred_language')
-      .eq('id', updated.user_id)
+      .eq('id', report.user_id)
       .single();
 
     if (profileError || !profile?.email) {
       console.error('Failed to fetch profile/email:', profileError);
       return errorResponse('Failed to fetch recipient email', 500, serverHeaders);
+    }
+
+    const targetLang = resolveLang(profile.preferred_language);
+    if (targetLang !== 'en') {
+      // Translate every section into the user's language before the report is
+      // announced. Failure NEVER blocks the report: a failed or timed-out
+      // translation falls back to English display (readable, alerted on) —
+      // blocking would mean the user gets nothing at all.
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 150_000);
+        const resp = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/translate-section`,
+          {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+              'Content-Type': 'application/json',
+              'x-shared-secret': Deno.env.get('N8N_SHARED_SECRET') ?? '',
+            },
+            body: JSON.stringify({ report_id: reportId, target_language: targetLang }),
+          },
+        );
+        clearTimeout(timer);
+        const result = await resp.json().catch(() => ({}));
+        console.log(
+          `[analysis-completed] translate-section for ${reportId} (${targetLang}):`,
+          JSON.stringify(result),
+        );
+      } catch (e) {
+        console.error('[analysis-completed] translation failed, proceeding with English fallback:', e);
+      }
+    }
+
+    // Update report status to pending_review (ready for user chat)
+    const { error: updateError } = await supabase
+      .from('reports')
+      .update({ status: 'pending_review' })
+      .eq('id', reportId);
+
+    if (updateError) {
+      console.error('Failed to update report status:', updateError);
+      return errorResponse('Failed to update report status', 500, serverHeaders);
     }
 
     // Send report-ready email via Resend

@@ -45,6 +45,10 @@ verify_jwt = true
 [functions.analysis-completed]
 verify_jwt = false
 
+# Server-to-server only (n8n shared secret auth), like analysis-completed.
+[functions.translate-section]
+verify_jwt = false
+
 [functions.parse-resume-ai]
 verify_jwt = false
 

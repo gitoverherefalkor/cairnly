@@ -14,96 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _backup_natasha_answer_e3811cc8: {
-        Row: {
-          access_code_id: string | null
-          id: string | null
-          payload: Json | null
-          status: string | null
-          submitted_at: string | null
-          survey_id: string | null
-        }
-        Insert: {
-          access_code_id?: string | null
-          id?: string | null
-          payload?: Json | null
-          status?: string | null
-          submitted_at?: string | null
-          survey_id?: string | null
-        }
-        Update: {
-          access_code_id?: string | null
-          id?: string | null
-          payload?: Json | null
-          status?: string | null
-          submitted_at?: string | null
-          survey_id?: string | null
-        }
-        Relationships: []
-      }
-      _backup_prins_bf86828c_20260629: {
-        Row: {
-          alternate_titles: string | null
-          company_size_type: string | null
-          content: string | null
-          created_at: string | null
-          explore: string | null
-          fb_status: boolean | null
-          feedback: string | null
-          feedback_category: number | null
-          id: string | null
-          language: string | null
-          metadata: Json | null
-          order_number: number | null
-          report_id: string | null
-          score: number | null
-          section_type: string | null
-          share_quotes: Json | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          alternate_titles?: string | null
-          company_size_type?: string | null
-          content?: string | null
-          created_at?: string | null
-          explore?: string | null
-          fb_status?: boolean | null
-          feedback?: string | null
-          feedback_category?: number | null
-          id?: string | null
-          language?: string | null
-          metadata?: Json | null
-          order_number?: number | null
-          report_id?: string | null
-          score?: number | null
-          section_type?: string | null
-          share_quotes?: Json | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          alternate_titles?: string | null
-          company_size_type?: string | null
-          content?: string | null
-          created_at?: string | null
-          explore?: string | null
-          fb_status?: boolean | null
-          feedback?: string | null
-          feedback_category?: number | null
-          id?: string | null
-          language?: string | null
-          metadata?: Json | null
-          order_number?: number | null
-          report_id?: string | null
-          score?: number | null
-          section_type?: string | null
-          share_quotes?: Json | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       aa_dead_letter_log: {
         Row: {
           created_at: string
@@ -143,6 +53,7 @@ export type Database = {
           is_active: boolean | null
           is_used: boolean | null
           max_usage: number | null
+          partner_id: string | null
           price_paid: number | null
           survey_type: string | null
           usage_count: number | null
@@ -160,6 +71,7 @@ export type Database = {
           is_active?: boolean | null
           is_used?: boolean | null
           max_usage?: number | null
+          partner_id?: string | null
           price_paid?: number | null
           survey_type?: string | null
           usage_count?: number | null
@@ -177,13 +89,29 @@ export type Database = {
           is_active?: boolean | null
           is_used?: boolean | null
           max_usage?: number | null
+          partner_id?: string | null
           price_paid?: number | null
           survey_type?: string | null
           usage_count?: number | null
           used_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "access_codes_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_code_status"
+            referencedColumns: ["partner_id"]
+          },
+          {
+            foreignKeyName: "access_codes_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_research: {
         Row: {
@@ -664,6 +592,57 @@ export type Database = {
         }
         Relationships: []
       }
+      intake_sessions: {
+        Row: {
+          created_at: string
+          email: string | null
+          extraction: Json | null
+          id: string
+          intent: string
+          language: string
+          messages: Json
+          pitch: string | null
+          resume_token: string
+          source: string
+          status: string
+          total_tokens: number
+          updated_at: string
+          user_turns: number
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          extraction?: Json | null
+          id?: string
+          intent?: string
+          language?: string
+          messages?: Json
+          pitch?: string | null
+          resume_token?: string
+          source?: string
+          status?: string
+          total_tokens?: number
+          updated_at?: string
+          user_turns?: number
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          extraction?: Json | null
+          id?: string
+          intent?: string
+          language?: string
+          messages?: Json
+          pitch?: string | null
+          resume_token?: string
+          source?: string
+          status?: string
+          total_tokens?: number
+          updated_at?: string
+          user_turns?: number
+        }
+        Relationships: []
+      }
       intent_picks: {
         Row: {
           created_at: string
@@ -957,6 +936,39 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          logo_mime: string | null
+          logo_path: string | null
+          name: string
+          powered_by_text: string | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_mime?: string | null
+          logo_path?: string | null
+          name: string
+          powered_by_text?: string | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          logo_mime?: string | null
+          logo_path?: string | null
+          name?: string
+          powered_by_text?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_range: string | null
@@ -969,6 +981,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          partner_id: string | null
           preferred_language: string
           privacy_consent_at: string | null
           pronouns: string | null
@@ -994,6 +1007,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          partner_id?: string | null
           preferred_language?: string
           privacy_consent_at?: string | null
           pronouns?: string | null
@@ -1019,6 +1033,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          partner_id?: string | null
           preferred_language?: string
           privacy_consent_at?: string | null
           pronouns?: string | null
@@ -1033,7 +1048,22 @@ export type Database = {
           terms_consent_at?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_code_status"
+            referencedColumns: ["partner_id"]
+          },
+          {
+            foreignKeyName: "profiles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       purchases: {
         Row: {
@@ -1233,11 +1263,105 @@ export type Database = {
         }
         Relationships: []
       }
+      report_pdfs: {
+        Row: {
+          byte_size: number | null
+          generated_at: string
+          id: string
+          language: string
+          layout_version: number
+          partner_id: string | null
+          report_id: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          byte_size?: number | null
+          generated_at?: string
+          id?: string
+          language?: string
+          layout_version?: number
+          partner_id?: string | null
+          report_id: string
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          byte_size?: number | null
+          generated_at?: string
+          id?: string
+          language?: string
+          layout_version?: number
+          partner_id?: string | null
+          report_id?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_pdfs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_code_status"
+            referencedColumns: ["partner_id"]
+          },
+          {
+            foreignKeyName: "report_pdfs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_pdfs_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      report_render_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          report_id: string
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          report_id: string
+          token?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          report_id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_render_tokens_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_sections: {
         Row: {
           alternate_titles: string | null
           company_size_type: string | null
           content: string
+          content_i18n: Json
           created_at: string
           explore: string | null
           fb_status: boolean | null
@@ -1258,6 +1382,7 @@ export type Database = {
           alternate_titles?: string | null
           company_size_type?: string | null
           content: string
+          content_i18n?: Json
           created_at?: string
           explore?: string | null
           fb_status?: boolean | null
@@ -1278,6 +1403,7 @@ export type Database = {
           alternate_titles?: string | null
           company_size_type?: string | null
           content?: string
+          content_i18n?: Json
           created_at?: string
           explore?: string | null
           fb_status?: boolean | null
@@ -1751,6 +1877,20 @@ export type Database = {
       }
     }
     Views: {
+      partner_code_status: {
+        Row: {
+          codes_claimed: number | null
+          codes_issued: number | null
+          expired_unused: number | null
+          is_active: boolean | null
+          name: string | null
+          partner_id: string | null
+          reports_completed: number | null
+          slug: string | null
+          surveys_started: number | null
+        }
+        Relationships: []
+      }
       report_sections_with_user: {
         Row: {
           alternate_titles: string | null
@@ -1942,6 +2082,7 @@ export type Database = {
               salary: Json
             }[]
           }
+      is_ops_admin: { Args: { p_email: string }; Returns: boolean }
       link_and_check_entitlement: { Args: never; Returns: Json }
       match_documents: {
         Args: { filter?: Json; match_count?: number; query_embedding: string }
@@ -1950,6 +2091,17 @@ export type Database = {
           id: string
           metadata: Json
           similarity: number
+        }[]
+      }
+      mint_partner_codes: {
+        Args: {
+          p_count: number
+          p_expires_at?: string
+          p_partner_slug: string
+          p_survey_type?: string
+        }
+        Returns: {
+          code: string
         }[]
       }
       ops_traffic_series: { Args: { p_days?: number }; Returns: Json }
@@ -2105,4 +2257,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
