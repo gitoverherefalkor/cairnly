@@ -24,17 +24,26 @@ function stripHtml(s: string | null | undefined): string {
 
 type Lang = "en" | "nl";
 
-// All 11 chat sections in order (mirrors ReportSidebar.tsx). Section names are
-// display-only in the reminder email, so the Dutch list is purely cosmetic.
-const ALL_SECTIONS: Record<Lang, string[]> = {
+// The 10 sections the coach actually walks the user through, in chat order
+// (mirrors ReportSidebar.tsx minus the hidden "Executive Summary"). The
+// executive summary is generated AFTER the chat for the dashboard, so it must
+// never show up in this email as something still "to explore".
+//
+// NOTE on indexing: `chat_last_section_index` counts against the FULL sidebar
+// list where index 0 is the executive summary and index 1 is the first chat
+// section. So `chat_last_section_index` == number of chat sections completed
+// (0 or -1 both mean "nothing delivered yet"). See CHAT_SECTION_INDEX_OFFSET.
+const CHAT_SECTION_INDEX_OFFSET = 1;
+
+const CHAT_SECTIONS: Record<Lang, string[]> = {
   en: [
-    "Executive Summary", "Your Approach", "Your Strengths", "Development Areas",
-    "Career Values", "Primary Career Match", "Second Career Match", "Third Career Match",
+    "Your Approach", "Your Strengths", "Development Areas", "Career Values",
+    "Primary Career Match", "Second Career Match", "Third Career Match",
     "Runner-up Careers", "Outside the Box", "Dream Job Assessment",
   ],
   nl: [
-    "Samenvatting", "Jouw werkaanpak", "Jouw sterke punten", "Ontwikkelpunten",
-    "Loopbaanwaarden", "Eerste loopbaanmatch", "Tweede loopbaanmatch", "Derde loopbaanmatch",
+    "Jouw aanpak", "Jouw sterke punten", "Ontwikkelpunten", "Loopbaanwaarden",
+    "Eerste loopbaanmatch", "Tweede loopbaanmatch", "Derde loopbaanmatch",
     "Runner-up loopbanen", "Outside-the-box", "Droombaan-analyse",
   ],
 };
@@ -80,9 +89,14 @@ const COPY = {
       title: "Your career insights are waiting",
       preheader: "Your AI career coach has more to share with you.",
       h1: (done: number, total: number) => `You've unlocked ${done} of ${total} career insights`,
+      // Zero-state: the user never started the chat, so "you've explored some
+      // great insights" would be plainly wrong.
+      h1Zero: (total: number) => `${total} career insights are waiting for you`,
       greeting: (n: string) => `Hi ${n},`,
       p1: "Your AI career coach has more to share with you. You've explored some great insights so far, but there's still more waiting, including personalized career matches and your dream job analysis.",
+      p1Zero: "Your AI career coach is ready to walk you through your results, step by step. You'll start with how you work and what you're good at, and end with your personalized career matches and dream job analysis.",
       calloutTitle: "Insights you haven't explored yet",
+      calloutTitleZero: "What your coach will walk you through",
       more: (c: number) => `...and ${c} more insight${c > 1 ? "s" : ""}`,
       cta: "Continue Your Session",
       footnote: "Your conversation is saved, your coach remembers where you left off.",
@@ -196,9 +210,12 @@ const COPY = {
       title: "Je loopbaaninzichten staan klaar",
       preheader: "Je AI-loopbaancoach heeft nog meer voor je.",
       h1: (done: number, total: number) => `Je hebt ${done} van de ${total} loopbaaninzichten ontgrendeld`,
+      h1Zero: (total: number) => `${total} loopbaaninzichten staan voor je klaar`,
       greeting: (n: string) => `Hoi ${n},`,
       p1: "Je AI-loopbaancoach heeft nog meer voor je. Je hebt al mooie inzichten verkend, maar er wacht nog meer, waaronder persoonlijke loopbaanmatches en je droombaan-analyse.",
+      p1Zero: "Je AI-loopbaancoach loopt stap voor stap met je door je resultaten. Je begint bij hoe je werkt en waar je goed in bent, en eindigt met je persoonlijke loopbaanmatches en je droombaan-analyse.",
       calloutTitle: "Inzichten die je nog niet hebt verkend",
+      calloutTitleZero: "Dit loop je samen met je coach door",
       more: (c: number) => `...en nog ${c} inzicht${c > 1 ? "en" : ""}`,
       cta: "Ga verder met je sessie",
       footnote: "Je gesprek is opgeslagen, je coach weet nog waar je gebleven was.",
@@ -370,8 +387,13 @@ function chatNotCompletedEmail(
   lang: Lang,
 ): { subject: string; html: string } {
   const c = COPY[lang].chatNotCompleted;
-  const sections = ALL_SECTIONS[lang];
-  const sectionsCompleted = Math.max(0, lastSectionIndex + 1);
+  const sections = CHAT_SECTIONS[lang];
+  // lastSectionIndex is against the full sidebar list (0 = executive summary),
+  // so subtracting the offset from `index + 1` gives the chat sections done.
+  const sectionsCompleted = Math.min(
+    sections.length,
+    Math.max(0, lastSectionIndex + 1 - CHAT_SECTION_INDEX_OFFSET),
+  );
   const totalSections = sections.length;
   const remainingSections = sections.slice(sectionsCompleted);
 
@@ -387,8 +409,10 @@ function chatNotCompletedEmail(
       ? `<tr><td style="padding:5px 0;color:#6B7480;font-size:14.5px;line-height:1.55;font-style:italic;font-family:'Inter',Arial,sans-serif;">${c.more(moreCount)}</td></tr>`
       : '';
 
+  const isZeroState = sectionsCompleted === 0;
+
   const remainingBlock = remainingSections.length > 0
-    ? callout(c.calloutTitle, `
+    ? callout(isZeroState ? c.calloutTitleZero : c.calloutTitle, `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           ${sectionListHtml}
           ${moreHtml}
@@ -398,9 +422,9 @@ function chatNotCompletedEmail(
 
   const bodyHtml =
     bodyRow(
-      h1(c.h1(sectionsCompleted, totalSections)) +
+      h1(isZeroState ? c.h1Zero(totalSections) : c.h1(sectionsCompleted, totalSections)) +
       paragraph(c.greeting(firstName)) +
-      paragraph(c.p1) +
+      paragraph(isZeroState ? c.p1Zero : c.p1) +
       remainingBlock
     ) +
     ctaRow(c.cta, `${BASE_URL}/chat`) +
