@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { PALETTE } from './dashboardV2Shared';
+import { personalityAxisLabel, type ChartLang } from './chartLabels';
 
 export interface RadarAxis {
   label: string;
@@ -16,6 +17,8 @@ export interface RadarAxis {
 }
 
 interface Props {
+  /** Axis-label language. Print passes the document's language. */
+  lang?: ChartLang;
   axes: RadarAxis[];
   size?: number;
 }
@@ -28,7 +31,7 @@ const LABEL_OFFSET = 28; // distance past the outer ring for axis labels
 // Stable gradient id per mount so multiple instances don't collide.
 let gradId = 0;
 
-export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size }) => {
+export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size, lang }) => {
   const n = axes.length;
   if (n < 3) return null;
 
@@ -133,7 +136,9 @@ export const V4PersonalityRadarSVG: React.FC<Props> = ({ axes, size }) => {
         const cos = Math.cos((angle * Math.PI) / 180);
         const anchor: 'start' | 'middle' | 'end' =
           Math.abs(cos) < 0.3 ? 'middle' : cos > 0 ? 'start' : 'end';
-        const lines = ax.short.split('\n');
+        // Localised first, THEN split: the Dutch strings carry their own line
+        // breaks, since the terms differ in length from the English ones.
+        const lines = personalityAxisLabel(ax.short, lang).split('\n');
         return (
           <g key={`label-${i}`}>
             {lines.map((line, li) => (

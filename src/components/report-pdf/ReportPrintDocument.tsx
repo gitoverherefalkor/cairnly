@@ -275,7 +275,7 @@ export const ReportPrintDocument: React.FC<{
             title={t.radarTitle}
             blurb={t.radarBlurb}
             meta={t.radarMeta(radarAxes.length)}
-            chart={<V4PersonalityRadarSVG axes={radarAxes} size={300} />}
+            chart={<V4PersonalityRadarSVG axes={radarAxes} size={300} lang={lang} />}
           />,
         )
       : null;
@@ -293,7 +293,7 @@ export const ReportPrintDocument: React.FC<{
             chart={
               /* variant="full" — the 460-wide viewBox. "compact" exists for the
                  dashboard's hero flip card and is too small for print. */
-              <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={300} />
+              <V4CompareRadarSVG careers={compare} focalRank={1} variant="full" maxHeight={300} lang={lang} />
             }
             legend={<V4CompareLegend careers={compare} focalRank={1} />}
           />,
@@ -310,7 +310,7 @@ export const ReportPrintDocument: React.FC<{
             icon={<MapIcon size={13} />}
             title={t.mapTitle}
             blurb={t.mapBlurb}
-            chart={<V4CareerMapSVG points={mapPoints} numbered />}
+            chart={<V4CareerMapSVG points={mapPoints} numbered lang={lang} />}
             legend={<V4CareerMapLegend points={mapPoints} print />}
           />,
         )

@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { PALETTE } from './dashboardV2Shared';
+import { mapLabel, type ChartLang } from './chartLabels';
 
 export interface CareerPoint {
   x: number; // 0–1, AI exposure (0 = safe, 1 = at risk)
@@ -17,6 +18,8 @@ interface Props {
   /** Number the runner-up dots so a printed legend can name them. The dashboard
    *  leaves this off because hovering a dot already reveals its name. */
   numbered?: boolean;
+  /** Axis / quadrant label language. Print passes the document's language. */
+  lang?: ChartLang;
 }
 
 const W = 580;
@@ -111,7 +114,7 @@ function spread(pts: { x: number; y: number }[], minGap: number) {
   });
 }
 
-export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) => {
+export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang }) => {
   const xPx = (x: number) => PAD_L + Math.max(0, Math.min(1, x)) * PLOT_W;
   const yPx = (y: number) => PAD_T + Math.max(0, Math.min(1, y)) * PLOT_H;
 
@@ -171,7 +174,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
         fill={PALETTE.tealDeep}
         opacity={0.85}
       >
-        SWEET SPOT
+        {mapLabel('SWEET SPOT', lang)}
       </text>
 
       {/* At-risk wash — bottom-right quadrant (high AI exposure × weak match) */}
@@ -194,7 +197,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
         fill="#A53636"
         opacity={0.85}
       >
-        WALK AWAY
+        {mapLabel('WALK AWAY', lang)}
       </text>
 
       {/* Quadrant gridlines */}
@@ -203,9 +206,9 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
 
       {/* X axis labels */}
       {([
-        { x: PAD_L + 8, label: 'SAFE', color: PALETTE.canvasDeep, anchor: 'start' },
-        { x: cx, label: 'AUGMENTED', color: PALETTE.canvasDeep, anchor: 'middle' },
-        { x: PAD_L + PLOT_W - 8, label: 'AT RISK', color: PALETTE.canvasDeep, anchor: 'end' },
+        { x: PAD_L + 8, label: mapLabel('SAFE', lang), color: PALETTE.canvasDeep, anchor: 'start' },
+        { x: cx, label: mapLabel('AUGMENTED', lang), color: PALETTE.canvasDeep, anchor: 'middle' },
+        { x: PAD_L + PLOT_W - 8, label: mapLabel('AT RISK', lang), color: PALETTE.canvasDeep, anchor: 'end' },
       ] as const).map((t) => (
         <text
           key={t.label}
@@ -221,7 +224,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
           {t.label}
         </text>
       ))}
-      <AxisSpan cx={cx} cy={H - 12} label="AI exposure" />
+      <AxisSpan cx={cx} cy={H - 12} label={mapLabel('AI exposure', lang)} />
 
       {/* Y axis labels — pushed further left now that PAD_L gives more room. */}
       <text
@@ -234,7 +237,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
         letterSpacing="0.16em"
         fill={PALETTE.canvasDeep}
       >
-        STRONG
+        {mapLabel('STRONG', lang)}
       </text>
       <text
         x={PAD_L - 12}
@@ -246,9 +249,9 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false }) =>
         letterSpacing="0.16em"
         fill={PALETTE.inkMuted}
       >
-        WEAKER
+        {mapLabel('WEAKER', lang)}
       </text>
-      <AxisSpan cx={26} cy={cy} label="match strength" rotate={-90} />
+      <AxisSpan cx={26} cy={cy} label={mapLabel('match strength', lang)} rotate={-90} />
 
       {/* Secondaries first. Names live in the legend / hover tooltip since
           most points cluster in the same AI-impact bucket and inline labels

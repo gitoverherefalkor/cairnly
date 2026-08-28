@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { PALETTE } from './dashboardV2Shared';
+import { compareAxisLabel, type ChartLang } from './chartLabels';
 
 export interface CompareCareer {
   rank: 1 | 2 | 3;
@@ -38,6 +39,9 @@ interface RadarProps {
   // the printed report gives this chart a whole A4 page and the card-sized
   // default left half of it empty.
   maxHeight?: number;
+  /** Axis-label language. The printed report passes the DOCUMENT's language;
+   *  the dashboard omits it and keeps English. */
+  lang?: ChartLang;
 }
 
 export const V4CompareRadarSVG: React.FC<RadarProps> = ({
@@ -45,6 +49,7 @@ export const V4CompareRadarSVG: React.FC<RadarProps> = ({
   focalRank = 1,
   variant = 'compact',
   maxHeight,
+  lang,
 }) => {
   const compact = variant === 'compact';
   const VB_W = compact ? 380 : 460;
@@ -167,7 +172,7 @@ export const V4CompareRadarSVG: React.FC<RadarProps> = ({
             fontWeight={700}
             fill={PALETTE.canvasDeep}
           >
-            {a.label}
+            {compareAxisLabel(a.label, lang)}
           </text>
         );
       })}
