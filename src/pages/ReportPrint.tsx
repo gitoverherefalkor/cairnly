@@ -10,7 +10,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { ReportSection } from '@/hooks/useReportSections';
-import { ReportPrintDocument } from '@/components/report-pdf/ReportPrintDocument';
+import {
+  ReportPrintDocument,
+  resolveLang,
+  documentHeaderLabel,
+} from '@/components/report-pdf/ReportPrintDocument';
 import { PRINT_CSS } from '@/components/report-pdf/printStyles';
 import { PRINT_BUILD } from '@/components/report-pdf/printBuild';
 
@@ -205,9 +209,15 @@ const ReportPrint: React.FC = () => {
       const settle = () => {
         if (cancelled) return;
         const name = data.profile.first_name?.trim();
+        // Same resolver the document uses, so the header cannot disagree with
+        // the body about what language this PDF is in.
+        const docLang = resolveLang(
+          data.sections,
+          (data.profile as { preferred_language?: string | null }).preferred_language,
+        );
         window.__PDF_HEADER_HTML__ = buildHeaderHtml(
           data.partner,
-          name ? `${name} · Career Report` : 'Career Report',
+          documentHeaderLabel(docLang, name ?? ''),
         );
         window.__PDF_FOOTER_HTML__ = buildFooterHtml();
         window.__REPORT_READY__ = true;

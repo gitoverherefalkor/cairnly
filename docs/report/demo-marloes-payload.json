@@ -1,0 +1,211 @@
+{
+  "survey_id": "00000000-0000-0000-0000-000000000001",
+  "surveyType": "Office / Business Pro - 2025 v1 EN",
+  "accessCode": "DEMO-NL-MARLOES",
+  "completedAt": "2026-08-28T13:19:22.186Z",
+  "responses": {
+    "11111111-1111-1111-1111-11111111111a": "Marloes de Vries",
+    "11111111-1111-1111-1111-11111111111b": "She / Her",
+    "11111111-1111-1111-1111-111111111113": 41,
+    "11111111-1111-1111-1111-111111111114": "Northern and Western Europe",
+    "11111111-1111-1111-1111-111111111115": [
+      "Finding a **new career path** that better suits my skills and interests",
+      "Assessing my work preferences and values for a **better work-life balance**"
+    ],
+    "11111111-1111-1111-1111-111111111116": "Bachelor's degree",
+    "11111111-1111-1111-1111-111111111117": "Bedrijfskunde (HBO), met een uitstroomprofiel dienstverlening en klantprocessen.",
+    "11111111-1111-1111-1111-111111111118": 18,
+    "11111111-1111-1111-1111-111111111119": "**Senior managerial role** (Managing 5 or more direct reports, involved in strategic decision-making and broader team oversight)",
+    "11111111-1111-1111-1111-111111111110": [
+      {
+        "title": "Teamleider Klantenservice",
+        "companyName": "Regionale verzekeraar",
+        "sector": "Verzekeringen",
+        "companySize": "Large (201-1000)",
+        "companyCulture": "Corporate",
+        "startMonth": 3,
+        "startYear": 2019,
+        "endMonth": null,
+        "endYear": null,
+        "isCurrent": true
+      },
+      {
+        "title": "Senior Medewerker Klantcontact",
+        "companyName": "Regionale verzekeraar",
+        "sector": "Verzekeringen",
+        "companySize": "Large (201-1000)",
+        "companyCulture": "Corporate",
+        "startMonth": 1,
+        "startYear": 2015,
+        "endMonth": 2,
+        "endYear": 2019,
+        "isCurrent": false
+      },
+      {
+        "title": "Medewerker Klantenservice",
+        "companyName": "Energieleverancier",
+        "sector": "Energie",
+        "companySize": "Enterprise (1000-5000)",
+        "companyCulture": "Corporate",
+        "startMonth": 9,
+        "startYear": 2011,
+        "endMonth": 12,
+        "endYear": 2014,
+        "isCurrent": false
+      },
+      {
+        "title": "Administratief Medewerker",
+        "companyName": "Accountantskantoor",
+        "sector": "Zakelijke dienstverlening",
+        "companySize": "Small (11-50)",
+        "companyCulture": "Small Business Owner (up to 5 FTE)",
+        "startMonth": 8,
+        "startYear": 2007,
+        "endMonth": 8,
+        "endYear": 2011,
+        "isCurrent": false
+      }
+    ],
+    "11111111-1111-1111-1111-11111111111d": [
+      {
+        "title": "Teamleider Klantenservice",
+        "companyName": "Regionale verzekeraar",
+        "happiness": "6",
+        "reason": "Ik doe het werk graag en mijn team draait goed, maar ik zit klem tussen wat het management wil en wat mijn mensen aankunnen. Er gaat te veel tijd op aan rapportages en overleg."
+      },
+      {
+        "title": "Senior Medewerker Klantcontact",
+        "companyName": "Regionale verzekeraar",
+        "happiness": "8",
+        "reason": "Veel direct klantcontact en ik was degene die de lastige gevallen oploste. Ik kwam thuis met het gevoel dat ik iets had betekend."
+      },
+      {
+        "title": "Medewerker Klantenservice",
+        "companyName": "Energieleverancier",
+        "happiness": "4",
+        "reason": "Strak op gespreksduur gestuurd. Weinig ruimte om een klant echt te helpen, alleen om het gesprek af te ronden."
+      },
+      {
+        "title": "Administratief Medewerker",
+        "companyName": "Accountantskantoor",
+        "happiness": "5",
+        "reason": "Prettige collega’s en ik leerde er nauwkeurig werken, maar het werk zelf was voorspelbaar en eenzaam."
+      }
+    ],
+    "11111111-1111-1111-1111-11111111111f": {
+      "topSkills": [
+        "Coachen van medewerkers",
+        "De-escaleren bij klachten",
+        "Werkprocessen verbeteren",
+        "Roosters en bezetting plannen",
+        "Schriftelijke communicatie"
+      ],
+      "topSkillRanks": [
+        "Coachen van medewerkers",
+        "De-escaleren bij klachten",
+        "Werkprocessen verbeteren"
+      ],
+      "achievements": "Klanttevredenheid van mijn team in twee jaar van 7,1 naar 8,0 gebracht. Het inwerkprogramma voor nieuwe medewerkers herschreven, waardoor de inwerktijd van tien naar zes weken ging. Twee medewerkers begeleid naar een senior rol.",
+      "certifications": "Praktijkopleider (Kenniscentrum), basistraining Coachend Leidinggeven",
+      "languages": "Nederlands (moedertaal), Engels (goed), Duits (basis)"
+    },
+    "11111111-1111-1111-1111-111111111120": {
+      "interests": [
+        "Vrijwilligerswerk bij de lokale voedselbank",
+        "Hardlopen",
+        "Volkstuin",
+        "Koken voor grote groepen",
+        "Podcasts over psychologie"
+      ]
+    },
+    "11111111-1111-1111-1111-111111111121": "Ik werk nu 36 uur en wil terug naar 32, mijn kinderen zijn 8 en 11. Ik wil niet per se weg bij mijn werkgever, maar ik merk dat ik leegloop op het aantal overleggen en de rapportagedruk. Wat ik het liefste doe is mensen beter maken in hun werk. Een dagelijkse reis van meer dan 45 minuten is voor mij niet haalbaar.",
+    "22222222-2222-2222-2222-222222222221": "**Somewhat Energized** (I enjoy it, but have a limit)",
+    "22222222-2222-2222-2222-222222222222": "My gut feeling and how it affects others emotionally",
+    "22222222-2222-2222-2222-222222222223": "**Leaning Deliberative** (Explore options, but can decide when needed)",
+    "22222222-2222-2222-2222-222222222224": "Adapt my style based on the audience",
+    "22222222-2222-2222-2222-222222222225": "**Leaning Structure** (I handle ambiguity well, but appreciate some structure)",
+    "22222222-2222-2222-2222-222222222226": "I seek compromise to maintain harmony, even if I have to concede",
+    "22222222-2222-2222-2222-222222222227": "**Somewhat Structured** (I prefer a process but not rigid rules)",
+    "22222222-2222-2222-2222-222222222228": "Uncomfortable",
+    "22222222-2222-2222-2222-222222222229": "**Leaning Action** (Tend to act quickly, with a brief pause)",
+    "22222222-2222-2222-2222-22222222222a": [
+      "Taking on too much responsibility",
+      "Avoiding confrontation",
+      "Difficulty delegating tasks"
+    ],
+    "33333333-3333-3333-3333-333333333331": [
+      "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)",
+      "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)",
+      "**Autonomy** (e.g., having independence in work, making decisions)"
+    ],
+    "33333333-3333-3333-3333-333333333332": "Very",
+    "33333333-3333-3333-3333-333333333333": "Essential",
+    "33333333-3333-3333-3333-333333333334": "Part-time work",
+    "33333333-3333-3333-3333-333333333335": "Moderately important: I value salary but also consider other factors",
+    "33333333-3333-3333-3333-333333333336": "50,000–75,000",
+    "33333333-3333-3333-3333-333333333337": "Work-life balance perks",
+    "33333333-3333-3333-3333-333333333338": [
+      "**High-pressure or fast-paced environments** \n\n(e.g., strict deadlines, constant urgency, unpredictable workloads)",
+      "**Frequent decision-making responsibilities** \n(e.g., autonomy in critical decisions, strategic planning, high accountability)"
+    ],
+    "44444444-4444-4444-4444-444444444441": [
+      "Human Resources & People Operations",
+      "Education & Learning"
+    ],
+    "44444444-4444-4444-4444-444444444442": [
+      "**The Adapter** (comfortable with change, flexible, quick to adjust)",
+      "**The Leader** (motivates teams, sets direction, takes initiative)"
+    ],
+    "44444444-4444-4444-4444-444444444443": "Collaborative and team-oriented",
+    "44444444-4444-4444-4444-444444444444": "Hoe je een klantenserviceteam draaiende houdt zonder dat mensen opbranden. Ik weet precies waar in een klantproces de irritatie ontstaat en hoe je dat eruit haalt.",
+    "44444444-4444-4444-4444-444444444445": "Somewhat familiar. I have a basic understanding",
+    "44444444-4444-4444-4444-444444444446": [
+      "**Project Management and Leadership** (e.g., effective team leadership, managing large-scale projects)"
+    ],
+    "44444444-4444-4444-4444-444444444447": "Collega’s komen bij mij als ze vastlopen met een lastige klant, of als ze twijfelen of dit werk nog bij ze past. Ik krijg vaak te horen dat ik goed kan luisteren zonder meteen met een oplossing te komen.",
+    "44444444-4444-4444-4444-444444444448": "Iets doen met het opleiden en begeleiden van mensen. Loopbaanbegeleider of trainer lijkt me mooi, maar ik weet niet of ik daar de papieren voor heb.",
+    "55555555-5555-5555-5555-555555555551": "Ensure execution by keeping tasks organized and on track.",
+    "55555555-5555-5555-5555-555555555552": "Achieving common goals",
+    "55555555-5555-5555-5555-555555555553": "Medium (6-10 people)",
+    "55555555-5555-5555-5555-555555555554": "Seek a compromise to maintain harmony",
+    "55555555-5555-5555-5555-555555555555": [
+      "Challenges with delegation",
+      "Managing different work styles"
+    ],
+    "55555555-5555-5555-5555-555555555556": "**Steady Planner** (I plan well ahead and work consistently to avoid last-minute pressure)",
+    "55555555-5555-5555-5555-555555555557": "Coaching style where I focuss on personal/professional growth",
+    "55555555-5555-5555-5555-555555555558": "Approach them privately to share your point of view",
+    "66666666-6666-6666-6666-666666666661": "I actively seek it and use it to improve",
+    "66666666-6666-6666-6666-666666666662": "Try to be encouraging but are careful not to offend.",
+    "66666666-6666-6666-6666-666666666663": "Offer support and listen empathetically",
+    "66666666-6666-6666-6666-666666666664": "Remain calm and control your emotions effectively",
+    "66666666-6666-6666-6666-666666666665": "Talk to colleagues or friends for support",
+    "66666666-6666-6666-6666-666666666666": "Keep it mostly work-focused but join social events occasionally.",
+    "66666666-6666-6666-6666-666666666667": [
+      "Handling conflict constructively",
+      "Managing stress effectively"
+    ],
+    "77777777-7777-7777-7777-777777777771": [
+      "Improve work-life balance",
+      "Gain experience in a different role or industry"
+    ],
+    "77777777-7777-7777-7777-777777777772": [
+      "Make a significant contribution to society or a cause",
+      "Establish expertise and recognition in my field"
+    ],
+    "77777777-7777-7777-7777-777777777773": [
+      "Uncertainty about my next career step",
+      "Gaps in skills or professional development",
+      "Work-life balance constraints or family commitments"
+    ],
+    "77777777-7777-7777-7777-777777777774": "Yes, if relevant to my career",
+    "77777777-7777-7777-7777-777777777775": [
+      "People & Culture (HR)",
+      "Communication & Public Speaking"
+    ],
+    "77777777-7777-7777-7777-777777777776": "Not for me",
+    "__non_negotiables": {
+      "33333333-3333-3333-3333-333333333334": true
+    }
+  }
+}

@@ -129,7 +129,7 @@ const STRINGS = {
  *  PDF is never mixed-language. Anything else renders fully in English (the
  *  canonical content, always present). chat_highlights is natively in the
  *  user's language and never translated, so it is excluded from the check. */
-function resolveLang(sections: ReportSection[], preferred: string | null | undefined): PrintLang {
+export function resolveLang(sections: ReportSection[], preferred: string | null | undefined): PrintLang {
   const lang = String(preferred ?? 'en').slice(0, 2).toLowerCase();
   if (lang !== 'nl') return 'en'; // PrintLang currently supports en | nl
   const translatable = sections.filter(
@@ -141,6 +141,15 @@ function resolveLang(sections: ReportSection[], preferred: string | null | undef
   const complete =
     translatable.length > 0 && translatable.every((s) => hasTranslation(s, lang));
   return complete ? 'nl' : 'en';
+}
+
+/** Running-header text, in the DOCUMENT's language. Exported because the header
+ *  is built in ReportPrint.tsx (Chromium needs it as a template string before
+ *  the document renders), and it must not be the one bit of English left on a
+ *  Dutch report. */
+export function documentHeaderLabel(lang: PrintLang, firstName: string): string {
+  const doc = lang === 'nl' ? 'Loopbaanrapport' : 'Career Report';
+  return firstName ? `${firstName} · ${doc}` : doc;
 }
 
 /** Minimal partner white-label payload. Scope is deliberately narrow: a logo on
