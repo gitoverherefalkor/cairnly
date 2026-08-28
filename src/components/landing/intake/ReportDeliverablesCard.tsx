@@ -13,6 +13,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import PriceCountdown from '@/components/landing/PriceCountdown';
 import { getProPricing } from '@/lib/pricing';
+import { trackCtaClick } from '@/lib/analytics';
 import { formatCurrency } from '@/lib/format';
 
 /**
@@ -195,7 +196,7 @@ const ReportDeliverablesCard: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => navigate('/payment')}
+              onClick={() => { trackCtaClick('hero'); navigate('/payment'); }}
               className="lp-btn-primary mt-4 w-full justify-center whitespace-nowrap"
               style={{ fontSize: 14, padding: '14px 12px' }}
             >

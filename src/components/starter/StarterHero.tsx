@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useStarterGetStarted } from './useStarterGetStarted';
+import { trackCtaClick } from '@/lib/analytics';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 const StarterHero: React.FC = () => {
@@ -52,7 +53,7 @@ const StarterHero: React.FC = () => {
 
           <Reveal as="div" className="mt-10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <button onClick={getStarted} className="lp-btn-primary">
+              <button onClick={() => { trackCtaClick('hero'); getStarted(); }} className="lp-btn-primary">
                 {t('hero.ctaPrimary')}
                 <ArrowRight size={18} strokeWidth={2.4} />
               </button>

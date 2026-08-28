@@ -1,27 +1,14 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getSessionId, getCountry } from '@/lib/analytics';
 
 // First-party page-view tracking. Fires a fire-and-forget beacon to the
 // track-view edge function on every route change. Privacy-light: a random
 // per-tab session id (sessionStorage, cleared when the tab closes), no cookies,
 // no PII. Analytics must NEVER break the app, so every failure is swallowed.
 
-const SESSION_KEY = 'cairnly_analytics_session';
 const FIRST_KEY = 'cairnly_analytics_first_done';
-
-function getSessionId(): string {
-  try {
-    let id = sessionStorage.getItem(SESSION_KEY);
-    if (!id) {
-      id = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      sessionStorage.setItem(SESSION_KEY, id);
-    }
-    return id;
-  } catch {
-    return 'no-storage';
-  }
-}
 
 export function usePageViewTracking() {
   const location = useLocation();
@@ -43,13 +30,15 @@ export function usePageViewTracking() {
       /* ignore */
     }
 
-    supabase.functions
-      .invoke('track-view', {
-        body: { path: location.pathname, session_id: sessionId, referrer },
-      })
-      .catch(() => {
-        /* analytics must never surface an error to the visitor */
-      });
+    getCountry().then((country) => {
+      supabase.functions
+        .invoke('track-view', {
+          body: { path: location.pathname, session_id: sessionId, referrer, country },
+        })
+        .catch(() => {
+          /* analytics must never surface an error to the visitor */
+        });
+    });
 
     // Engaged-session signal: if the visitor is still on this page after 10s,
     // mark the session engaged so it no longer counts as a bounce. The cleanup

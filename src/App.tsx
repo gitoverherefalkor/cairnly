@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
+import { useScrollDepthTracking } from "@/hooks/useScrollDepthTracking";
 import { captureReferralFromUrl } from "@/lib/referral";
 import { Loader2 } from "lucide-react";
 import Seo from "@/components/Seo";
@@ -90,6 +91,7 @@ const ThemeScopeGuard = () => {
 // the Router so it has access to useLocation.
 const PageViewTracker = () => {
   usePageViewTracking();
+  useScrollDepthTracking();
   return null;
 };
 

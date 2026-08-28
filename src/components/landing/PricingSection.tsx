@@ -8,6 +8,7 @@ import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/das
 import PriceCountdown from './PriceCountdown';
 import { getProPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
+import { trackCtaClick } from '@/lib/analytics';
 
 const PricingSection: React.FC = () => {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ const PricingSection: React.FC = () => {
             </p>
 
             <button
-              onClick={() => navigate('/payment')}
+              onClick={() => { trackCtaClick('pricing'); navigate('/payment'); }}
               className="lp-btn-primary w-full justify-center"
               style={{ fontSize: 18, padding: '18px 28px' }}
             >

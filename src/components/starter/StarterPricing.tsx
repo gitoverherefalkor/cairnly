@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useStarterGetStarted } from './useStarterGetStarted';
+import { trackCtaClick } from '@/lib/analytics';
 import { getStarterPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 
@@ -53,7 +54,7 @@ const StarterPricing: React.FC = () => {
           </div>
 
           <button
-            onClick={getStarted}
+            onClick={() => { trackCtaClick('pricing'); getStarted(); }}
             className="lp-btn-primary justify-center"
             style={{ fontSize: 18, padding: '18px 34px' }}
           >

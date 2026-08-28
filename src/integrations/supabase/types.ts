@@ -149,6 +149,39 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          country: string | null
+          created_at: string
+          cta_id: string | null
+          event_type: string
+          id: string
+          milestone: number | null
+          path: string
+          session_id: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          cta_id?: string | null
+          event_type: string
+          id?: string
+          milestone?: number | null
+          path: string
+          session_id: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          cta_id?: string | null
+          event_type?: string
+          id?: string
+          milestone?: number | null
+          path?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
       answers: {
         Row: {
           access_code_id: string | null
@@ -911,6 +944,7 @@ export type Database = {
       }
       page_views: {
         Row: {
+          country: string | null
           created_at: string
           engaged: boolean
           id: string
@@ -919,6 +953,7 @@ export type Database = {
           session_id: string
         }
         Insert: {
+          country?: string | null
           created_at?: string
           engaged?: boolean
           id?: string
@@ -927,6 +962,7 @@ export type Database = {
           session_id: string
         }
         Update: {
+          country?: string | null
           created_at?: string
           engaged?: boolean
           id?: string

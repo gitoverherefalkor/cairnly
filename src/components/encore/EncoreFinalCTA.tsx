@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { useEncoreGetStarted } from './useEncoreGetStarted';
+import { trackCtaClick } from '@/lib/analytics';
 
 const EncoreFinalCTA: React.FC = () => {
   const getStarted = useEncoreGetStarted();
@@ -25,7 +26,7 @@ const EncoreFinalCTA: React.FC = () => {
           {t('finalCta.body')}
         </p>
         <div className="mt-10 inline-flex flex-col items-center gap-5">
-          <button onClick={getStarted} className="lp-btn-primary" style={{ fontSize: 18, padding: '18px 30px' }}>
+          <button onClick={() => { trackCtaClick('footer'); getStarted(); }} className="lp-btn-primary" style={{ fontSize: 18, padding: '18px 30px' }}>
             {t('finalCta.cta')}
             <ArrowRight size={18} strokeWidth={2.4} />
           </button>
