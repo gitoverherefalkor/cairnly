@@ -75,6 +75,7 @@ function orderSections(sections: ReportSection[]): ReportSection[] {
 const STRINGS = {
   en: {
     coverKicker: 'Career direction report',
+    coverKickerSample: 'Sample report',
     title: (n: string) => (n ? `${n}'s next move` : 'Your next move'),
     coverSubtitle:
       'Where your strengths, values and the market meet, and the routes that follow from it.',
@@ -99,6 +100,7 @@ const STRINGS = {
   },
   nl: {
     coverKicker: 'Loopbaanrapport',
+    coverKickerSample: 'Voorbeeldrapport',
     title: (n: string) => (n ? `De volgende stap van ${n}` : 'Jouw volgende stap'),
     coverSubtitle:
       'Waar je sterke punten, je waarden en de markt samenkomen, en welke routes daaruit volgen.',
@@ -182,6 +184,10 @@ function quoteSectionFor(chapter: Chapter, sections: ReportSection[]): ReportSec
 
 export const ReportPrintDocument: React.FC<{
   firstName: string;
+  /** Marks the cover as a specimen. Set from `?sample=1` on the print URL, not
+   *  from data: it is a property of THIS RENDER, not of the report. A demo sent
+   *  to prospects must not be mistakable for a real client's document. */
+  sample?: boolean;
   /** Optional — report-print-data does not select it yet, so the cover falls
    *  back to the first name alone. Adding `last_name` to that function's select
    *  is the only change needed for "Prepared for Mirko van der Velde". */
@@ -191,7 +197,7 @@ export const ReportPrintDocument: React.FC<{
   partner?: PartnerBrand | null;
   /** profiles.preferred_language, shipped by report-print-data. */
   preferredLanguage?: string | null;
-}> = ({ firstName, lastName, sections, generatedAt, partner, preferredLanguage }) => {
+}> = ({ firstName, lastName, sections, generatedAt, partner, preferredLanguage, sample = false }) => {
   const ordered = orderSections(sections);
   const lang = resolveLang(sections, preferredLanguage);
   const radarAxes = buildRadarAxes(sections);
@@ -352,6 +358,7 @@ export const ReportPrintDocument: React.FC<{
           partner={partner}
           lang={lang}
           strings={t}
+          sample={sample}
         />
       </PrintSheet>
 

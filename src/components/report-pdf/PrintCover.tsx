@@ -36,6 +36,8 @@ const NAVY = '#122E3B';
 export interface CoverStrings {
   /** Small tracked line above the title, e.g. "Career direction report". */
   coverKicker: string;
+  /** Replaces coverKicker when this render is a specimen. */
+  coverKickerSample: string;
   title: (name: string) => string;
   coverSubtitle: string;
   preparedFor: (name: string) => string;
@@ -48,7 +50,8 @@ export const PrintCover: React.FC<{
   partner?: PartnerBrand | null;
   lang: 'en' | 'nl';
   strings: CoverStrings;
-}> = ({ firstName, lastName, dateLabel, partner, lang, strings }) => {
+  sample?: boolean;
+}> = ({ firstName, lastName, dateLabel, partner, lang, strings, sample = false }) => {
   const fullName = [firstName, lastName].filter(Boolean).join(' ').trim() || firstName;
 
   return (
@@ -112,7 +115,7 @@ export const PrintCover: React.FC<{
             margin: '0 0 8mm 0',
           }}
         >
-          {strings.coverKicker}&nbsp; /&nbsp; {lang.toUpperCase()}
+          {sample ? strings.coverKickerSample : strings.coverKicker}&nbsp; /&nbsp; {lang.toUpperCase()}
         </p>
         <h1
           style={{

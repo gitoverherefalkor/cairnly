@@ -133,6 +133,8 @@ const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/report-
 const ReportPrint: React.FC = () => {
   const [params] = useSearchParams();
   const token = params.get('rt');
+  // Render-time flag, deliberately not stored on the report.
+  const sample = params.get('sample') === '1';
   const [data, setData] = useState<PrintData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -246,6 +248,7 @@ const ReportPrint: React.FC = () => {
         lastName={(data.profile as { last_name?: string | null }).last_name ?? null}
         sections={data.sections}
         generatedAt={data.report.updated_at ?? data.report.created_at}
+        sample={sample}
         partner={data.partner}
         preferredLanguage={data.profile.preferred_language ?? null}
       />
