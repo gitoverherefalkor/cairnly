@@ -222,7 +222,11 @@ export const ReportPrintDocument: React.FC<{
   // ReportPrint.tsx), which is the only mechanism that repeats on every page of
   // a naturally-paginated flow.
 
-  // Pull quotes, one per chapter, lifted from the LinkedIn share feature.
+  // Pull quotes, one per chapter, lifted from the LinkedIn share feature. The
+  // quote is kept on white-labelled reports; only its "make a share card"
+  // footer is dropped, because that footer sells a Cairnly-branded LinkedIn
+  // asset to someone the bureau is handing a document to. Same reasoning as the
+  // partner closing page in PrintClosing.
   const quoteFor = (chapter: Chapter) => {
     const src = quoteSectionFor(chapter, sections);
     if (!src) return null;
@@ -420,6 +424,7 @@ export const ReportPrintDocument: React.FC<{
                       attribution={q.attribution}
                       lang={lang}
                       shareUrl={SHARE_URL}
+                      showShareCta={!partner}
                     />
                   )}
                   {/* The quote and the chart are separate objects and were
@@ -459,7 +464,7 @@ export const ReportPrintDocument: React.FC<{
 
         {/* Sign-off and the toolkit CTAs. Generated from UNLOCK_LADDER so the
             printed promise cannot drift from the live one. */}
-        <PrintClosing lang={lang} />
+        <PrintClosing lang={lang} partnerName={partner?.name ?? null} />
       </div>
     </>
   );

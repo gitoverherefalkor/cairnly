@@ -135,6 +135,19 @@ const ReportPrint: React.FC = () => {
   const token = params.get('rt');
   // Render-time flag, deliberately not stored on the report.
   const sample = params.get('sample') === '1';
+  // Render-time partner-name override, same class of thing as ?sample=1: a
+  // property of THIS RENDER, never of the data.
+  //
+  // It exists for partner outreach. A bureau evaluating Cairnly wants to see the
+  // document with its own name in it, and a blank template (`?pn=[partnernaam]`)
+  // shows where that name lands. Neither should cost a row in `partners` or a
+  // pipeline run — the alternative was seeding a throwaway partner per prospect.
+  //
+  // The logo is deliberately dropped rather than inherited: another bureau's
+  // wordmark above this bureau's name would be worse than no mark at all. So the
+  // cover shows only the Cairnly wordmark and the running header prints the
+  // overridden name as text, which is exactly what an unlogo'd partner gets.
+  const partnerNameOverride = (params.get('pn') ?? '').trim();
   const [data, setData] = useState<PrintData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -218,7 +231,9 @@ const ReportPrint: React.FC = () => {
           (data.profile as { preferred_language?: string | null }).preferred_language,
         );
         window.__PDF_HEADER_HTML__ = buildHeaderHtml(
-          data.partner,
+          partnerNameOverride
+            ? { name: partnerNameOverride, logo_data_uri: null, powered_by_text: null }
+            : data.partner,
           documentHeaderLabel(docLang, name ?? ''),
         );
         window.__PDF_FOOTER_HTML__ = buildFooterHtml();
@@ -231,7 +246,7 @@ const ReportPrint: React.FC = () => {
       cancelled = true;
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [data]);
+  }, [data, partnerNameOverride]);
 
   if (error) {
     return <div style={{ padding: 40, fontFamily: 'sans-serif' }}>Render error: {error}</div>;
@@ -249,7 +264,11 @@ const ReportPrint: React.FC = () => {
         sections={data.sections}
         generatedAt={data.report.updated_at ?? data.report.created_at}
         sample={sample}
-        partner={data.partner}
+        partner={
+          partnerNameOverride
+            ? { name: partnerNameOverride, logo_data_uri: null, powered_by_text: null }
+            : data.partner
+        }
         preferredLanguage={data.profile.preferred_language ?? null}
       />
     </>

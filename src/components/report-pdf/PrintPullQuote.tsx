@@ -83,7 +83,13 @@ export const PrintPullQuote: React.FC<{
   attribution?: string | null;
   lang: PrintLang;
   shareUrl: string;
-}> = ({ quote, attribution, lang, shareUrl }) => {
+  /** Whether to print the "pick another line and make a share card" footer.
+   *  Off on partner white-label reports: the share card is a Cairnly-branded
+   *  LinkedIn asset, and a bureau handing this document to its own client is
+   *  not running our social loop. The quote itself stays — it is the chapter's
+   *  headline, not an advert. */
+  showShareCta?: boolean;
+}> = ({ quote, attribution, lang, shareUrl, showShareCta = true }) => {
   const t = SHARE_PROMPT[lang];
   return (
     <div
@@ -139,20 +145,22 @@ export const PrintPullQuote: React.FC<{
         </div>
       )}
 
-      <div
-        style={{
-          fontFamily: FONT_BODY,
-          fontSize: 8.5,
-          lineHeight: 1.5,
-          color: PALETTE.inkSoft,
-          marginTop: 10,
-          paddingTop: 8,
-          borderTop: '1px solid rgba(201, 182, 144, 0.5)',
-        }}
-      >
-        {t.cta}{' '}
-        <span style={{ color: PALETTE.tealDeep, fontWeight: 600 }}>{shareUrl}</span>
-      </div>
+      {showShareCta && (
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 8.5,
+            lineHeight: 1.5,
+            color: PALETTE.inkSoft,
+            marginTop: 10,
+            paddingTop: 8,
+            borderTop: '1px solid rgba(201, 182, 144, 0.5)',
+          }}
+        >
+          {t.cta}{' '}
+          <span style={{ color: PALETTE.tealDeep, fontWeight: 600 }}>{shareUrl}</span>
+        </div>
+      )}
     </div>
   );
 };
