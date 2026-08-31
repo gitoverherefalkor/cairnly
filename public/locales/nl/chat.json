@@ -89,5 +89,39 @@
     "keep": "Bewaren",
     "kept": "Bewaard",
     "coachingSession": "AI-coachgesprek"
+  },
+  "chapterFeedback": {
+    "kicker": "Hoofdstuk 1 afgerond",
+    "headingNamed": "Goed gedaan, {{name}}.",
+    "heading": "Goed gedaan.",
+    "intro": "Je hebt net je persoonlijkheidsprofiel doorgenomen. Voordat we naar je loopbaansuggesties gaan: laat even weten hoe dit deel binnenkwam. Zo beantwoord, en voor ons goud waard.",
+    "landQ": "Hoe kwam dit deel binnen?",
+    "pickAny": "kies wat past",
+    "lengthQ": "De lengte voelde:",
+    "strongestQ": "Sterkste onderdeel?",
+    "weakestQ": "Zwakste onderdeel?",
+    "optional": "optioneel",
+    "freeQ": "Nog iets dat we in dit deel beter kunnen doen?",
+    "freePlaceholder": "Een of twee zinnen is genoeg…",
+    "thanks": "Dank je. We gaan verder.",
+    "needOne": "Kies minstens één optie om verder te gaan.",
+    "submit": "Door naar loopbanen →",
+    "submitting": "Bezig met versturen…",
+    "opt": {
+      "insightful": "Inzichtelijk",
+      "encouraging": "Bemoedigend",
+      "tooObvious": "Te voor de hand liggend",
+      "offTheMark": "Slaat de plank mis",
+      "other": "Anders",
+      "tooLong": "Te lang",
+      "justRight": "Precies goed",
+      "tooShort": "Te kort"
+    },
+    "sub": {
+      "approach": "Jouw aanpak",
+      "strengths": "Jouw sterke punten",
+      "development": "Ontwikkelpunten",
+      "values": "Jouw loopbaanwaarden"
+    }
   }
 }

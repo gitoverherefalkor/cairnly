@@ -89,5 +89,39 @@
     "keep": "Keep",
     "kept": "Kept",
     "coachingSession": "AI Coaching Session"
+  },
+  "chapterFeedback": {
+    "kicker": "Chapter 1 complete",
+    "headingNamed": "Nice work, {{name}}.",
+    "heading": "Nice work.",
+    "intro": "You just covered your personality profile. Before we move into your career suggestions, take a moment to tell us how this part landed. Quick to answer, gold for us.",
+    "landQ": "How did this section land?",
+    "pickAny": "pick any",
+    "lengthQ": "Length felt:",
+    "strongestQ": "Strongest subsection?",
+    "weakestQ": "Weakest subsection?",
+    "optional": "optional",
+    "freeQ": "Anything else we could do better in this section?",
+    "freePlaceholder": "A line or two is plenty…",
+    "thanks": "Thanks. Let's continue.",
+    "needOne": "Pick at least one option to continue.",
+    "submit": "Continue to careers →",
+    "submitting": "Submitting…",
+    "opt": {
+      "insightful": "Insightful",
+      "encouraging": "Encouraging",
+      "tooObvious": "Too obvious",
+      "offTheMark": "Off the mark",
+      "other": "Other",
+      "tooLong": "Too long",
+      "justRight": "Just right",
+      "tooShort": "Too short"
+    },
+    "sub": {
+      "approach": "Your Approach",
+      "strengths": "Your Strengths",
+      "development": "Development Areas",
+      "values": "Career Values"
+    }
   }
 }

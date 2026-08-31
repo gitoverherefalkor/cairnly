@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useRef, useState, type ComponentType } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {
@@ -49,7 +50,7 @@ interface ChapterFeedbackModalProps {
 // each chip has its own personality when chosen but a calm look at rest.
 interface QualityOption {
   value: ChapterFeedbackQuality;
-  label: string;
+  labelKey: string;
   Icon: ComponentType<{ size?: number; className?: string }>;
   selectedClasses: string;
   selectedIconClasses: string;
@@ -58,35 +59,35 @@ interface QualityOption {
 const QUALITY_OPTIONS: QualityOption[] = [
   {
     value: 'insightful',
-    label: 'Insightful',
+    labelKey: 'insightful',
     Icon: Lightbulb,
     selectedClasses: 'bg-amber-50 border-amber-400 text-amber-800 shadow-sm',
     selectedIconClasses: 'text-amber-500',
   },
   {
     value: 'encouraging',
-    label: 'Encouraging',
+    labelKey: 'encouraging',
     Icon: HandHeart,
     selectedClasses: 'bg-emerald-50 border-emerald-400 text-emerald-800 shadow-sm',
     selectedIconClasses: 'text-emerald-500',
   },
   {
     value: 'too_obvious',
-    label: 'Too obvious',
+    labelKey: 'tooObvious',
     Icon: Meh,
     selectedClasses: 'bg-slate-100 border-slate-400 text-slate-700 shadow-sm',
     selectedIconClasses: 'text-slate-500',
   },
   {
     value: 'off_the_mark',
-    label: 'Off the mark',
+    labelKey: 'offTheMark',
     Icon: Frown,
     selectedClasses: 'bg-rose-50 border-rose-400 text-rose-800 shadow-sm',
     selectedIconClasses: 'text-rose-500',
   },
   {
     value: 'other',
-    label: 'Other',
+    labelKey: 'other',
     Icon: MessageCircle,
     selectedClasses: 'bg-indigo-50 border-indigo-400 text-indigo-800 shadow-sm',
     selectedIconClasses: 'text-indigo-500',
@@ -95,7 +96,7 @@ const QUALITY_OPTIONS: QualityOption[] = [
 
 interface LengthOption {
   value: ChapterFeedbackLength;
-  label: string;
+  labelKey: string;
   Icon: ComponentType<{ size?: number; className?: string }>;
   // Selected styling per option — "too long" reads as negative feedback,
   // so it gets a rose treatment instead of the positive teal fill.
@@ -106,21 +107,21 @@ interface LengthOption {
 const LENGTH_OPTIONS: LengthOption[] = [
   {
     value: 'too_long',
-    label: 'Too long',
+    labelKey: 'tooLong',
     Icon: ScrollText,
     selectedClasses: 'border-rose-400 bg-rose-50 text-rose-800 shadow-sm',
     selectedIconClasses: 'text-rose-500',
   },
   {
     value: 'just_right',
-    label: 'Just right',
+    labelKey: 'justRight',
     Icon: Check,
     selectedClasses: 'border-atlas-teal bg-atlas-teal text-white shadow-md',
     selectedIconClasses: 'text-white',
   },
   {
     value: 'too_short',
-    label: 'Too short',
+    labelKey: 'tooShort',
     Icon: Zap,
     selectedClasses: 'border-atlas-teal bg-atlas-teal text-white shadow-md',
     selectedIconClasses: 'text-white',
@@ -129,14 +130,14 @@ const LENGTH_OPTIONS: LengthOption[] = [
 
 interface SubsectionOption {
   value: ChapterFeedbackSubsection;
-  label: string;
+  labelKey: string;
 }
 
 const SUBSECTION_OPTIONS: SubsectionOption[] = [
-  { value: 'approach', label: 'Your Approach' },
-  { value: 'strengths', label: 'Your Strengths' },
-  { value: 'development', label: 'Development Areas' },
-  { value: 'values', label: 'Career Values' },
+  { value: 'approach', labelKey: 'approach' },
+  { value: 'strengths', labelKey: 'strengths' },
+  { value: 'development', labelKey: 'development' },
+  { value: 'values', labelKey: 'values' },
 ];
 
 export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
@@ -145,6 +146,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { t } = useTranslation('chat');
   const [quality, setQuality] = useState<ChapterFeedbackQuality[]>([]);
   const [length, setLength] = useState<ChapterFeedbackLength | null>(null);
   const [strongest, setStrongest] = useState<ChapterFeedbackSubsection | null>(null);
@@ -230,16 +232,14 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             <div className="flex items-center gap-2 mb-1.5">
               <Sparkles size={16} className="text-atlas-teal" />
               <span className="text-xs font-semibold text-atlas-teal uppercase tracking-wider">
-                Chapter 1 complete
+                {t('chapterFeedback.kicker')}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-atlas-navy mb-1.5">
-              {firstName ? `Nice work, ${firstName}.` : 'Nice work.'}
+              {firstName ? t('chapterFeedback.headingNamed', { name: firstName }) : t('chapterFeedback.heading')}
             </h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              You just covered your personality profile. Before we move into your
-              career suggestions, take a moment to tell us how this part landed.
-              Quick to answer, gold for us.
+              {t('chapterFeedback.intro')}
             </p>
           </div>
 
@@ -248,9 +248,9 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             {/* 1. Quality grid (multi-select) — icon chips with per-option color theme */}
             <div>
               <label className="block text-sm font-semibold text-atlas-navy mb-2.5">
-                How did this section land?
+                {t('chapterFeedback.landQ')}
                 <span className="ml-1.5 text-xs font-normal text-gray-500">
-                  pick any
+                  {t('chapterFeedback.pickAny')}
                 </span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -275,7 +275,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                         }`}
                       />
                       <span className="text-xs sm:text-[13px] font-semibold leading-tight">
-                        {opt.label}
+                        {t(`chapterFeedback.opt.${opt.labelKey}`)}
                       </span>
                     </button>
                   );
@@ -291,7 +291,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             {/* 2. Length (single-select) — pills with icons */}
             <div>
               <label className="block text-sm font-semibold text-atlas-navy mb-2.5">
-                Length felt:
+                {t('chapterFeedback.lengthQ')}
               </label>
               <div className="flex gap-2 flex-wrap">
                 {LENGTH_OPTIONS.map((opt) => {
@@ -309,7 +309,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                       }`}
                     >
                       <Icon size={14} className={selected ? opt.selectedIconClasses : 'text-atlas-teal'} />
-                      {opt.label}
+                      {t(`chapterFeedback.opt.${opt.labelKey}`)}
                     </button>
                   );
                 })}
@@ -320,9 +320,9 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             <div>
               <label className="block text-sm font-semibold text-atlas-navy mb-2.5 inline-flex items-center gap-1.5">
                 <Star size={14} className="text-emerald-500 fill-emerald-500" />
-                Strongest subsection?
+                {t('chapterFeedback.strongestQ')}
                 <span className="ml-1 text-xs font-normal text-gray-500">
-                  optional
+                  {t('chapterFeedback.optional')}
                 </span>
               </label>
               <div className="flex flex-wrap gap-2">
@@ -339,7 +339,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                           : 'border-gray-200 bg-white text-gray-700 hover:border-emerald-300 hover:bg-emerald-50/40'
                       }`}
                     >
-                      {opt.label}
+                      {t(`chapterFeedback.sub.${opt.labelKey}`)}
                     </button>
                   );
                 })}
@@ -350,9 +350,9 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             <div>
               <label className="block text-sm font-semibold text-atlas-navy mb-2.5 inline-flex items-center gap-1.5">
                 <Sprout size={14} className="text-rose-400" />
-                Weakest subsection?
+                {t('chapterFeedback.weakestQ')}
                 <span className="ml-1 text-xs font-normal text-gray-500">
-                  optional
+                  {t('chapterFeedback.optional')}
                 </span>
               </label>
               <div className="flex flex-wrap gap-2">
@@ -369,7 +369,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                           : 'border-gray-200 bg-white text-gray-700 hover:border-rose-300 hover:bg-rose-50/40'
                       }`}
                     >
-                      {opt.label}
+                      {t(`chapterFeedback.sub.${opt.labelKey}`)}
                     </button>
                   );
                 })}
@@ -379,9 +379,9 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
             {/* 5. Free text (optional) */}
             <div>
               <label className="block text-sm font-semibold text-atlas-navy mb-2.5">
-                Anything else we could do better in this section?
+                {t('chapterFeedback.freeQ')}
                 <span className="ml-1.5 text-xs font-normal text-gray-500">
-                  optional
+                  {t('chapterFeedback.optional')}
                 </span>
               </label>
               <textarea
@@ -390,7 +390,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
                 onChange={(e) => setFreeText(e.target.value)}
                 rows={3}
                 maxLength={2000}
-                placeholder="A line or two is plenty…"
+                placeholder={t('chapterFeedback.freePlaceholder')}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/20 resize-none"
               />
             </div>
@@ -400,8 +400,8 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
           <div className="bg-gray-50 px-6 sm:px-8 py-4 border-t border-gray-100 flex items-center justify-between gap-3">
             <p className="text-xs text-gray-500">
               {canSubmit
-                ? "Thanks. Let's continue."
-                : 'Pick at least one option to continue.'}
+                ? t('chapterFeedback.thanks')
+                : t('chapterFeedback.needOne')}
             </p>
             <button
               type="button"
@@ -409,7 +409,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
               disabled={!canSubmit || submitting}
               className="bg-atlas-teal text-white rounded-full px-5 py-2.5 text-sm font-semibold hover:bg-atlas-teal/90 active:bg-atlas-teal/80 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
-              {submitting ? 'Submitting…' : 'Continue to careers →'}
+              {submitting ? t('chapterFeedback.submitting') : t('chapterFeedback.submit')}
             </button>
           </div>
         </Dialog.Content>
