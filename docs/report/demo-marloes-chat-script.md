@@ -36,12 +36,18 @@ fault. Wait for the workflows to finish and download again.
 ## Her voice
 
 41, HBO, teamleider klantenservice at an insurer. Practical, warm, a little
-self-deprecating. Types short. Does not talk like a consultant. She is firm
-about exactly two things: her Wednesday at home, and not wanting to manage a
-team again.
+self-deprecating. Firm about exactly two things: her Wednesday at home, and not
+wanting to manage a team again.
+
+**She types like someone answering between meetings.** Lower-case sentence
+starts, commas where a full stop belongs, the odd typo she does not go back to
+fix, a trailing thought without a final period. Occasionally she dictates, which
+shows up as longer run-on sentences with almost no typos. Do not clean these up
+when you paste them — the imperfection is the point, and a report generated from
+suspiciously well-formed input is not a fair test of the coach.
 
 Vary the replies. Real users agree more than they push back, so several plain
-"klopt, ga verder" are realistic and welcome. The substantive ones are marked
+"klopt, ga verder" are realistic. The substantive ones are marked
 **[substantive]** — those are the ones WF6 has something to work with.
 
 ---
@@ -52,10 +58,10 @@ The report's best insight: her 8/10 and her 6/10 were the same employer, same
 team, and the difference was distance from the actual work.
 
 **[substantive]**
-> Dit klopt meer dan me lief is. Ik heb het nooit zo scherp gehad, maar het is
-> precies dat. Als teamleider ben ik de hele dag bezig met roosters, escalaties
-> en overleggen over overleggen, en de momenten dat ik er echt zin in heb zijn
-> de keren dat ik zelf even een lastige klant bel. Dat zegt eigenlijk alles.
+> dit klopt meer dan me lief is. ik heb het nooit zo scherp gehad maar het is
+> precies dat. als teamleider ben ik de hele dag bezig met roosters, escalaties
+> en overleggen over overlegen, en de momenten dat ik er echt zin in heb zijn de
+> keren dat ik zelf even een lastige klant bel. dat zegt eigenlijk wel genoeg
 
 ## 2. Jouw sterke punten (Strengths)
 
@@ -63,84 +69,85 @@ Report cites: satisfaction up, onboarding time nearly halved, two people coached
 into senior roles.
 
 **[substantive]** — adds something the survey could not know:
-> Klopt, al wil ik er wel bij zeggen dat die onboarding niemand gevraagd had.
-> Ik ergerde me er gewoon aan dat nieuwe mensen zes weken lang niks konden en
-> ben het in de avonduren gaan herschrijven. Dat is wel een patroon bij mij:
-> als iets rammelt ga ik het maken, of het nou mijn taak is of niet.
+> Klopt. al wil ik er wel bij zeggen dat die onboarding niemand gevraagd had,
+> ik ergerde me gewoon aan dat nieuwe mensen zes weken lang niks konden en ben
+> het in de avonduren gaan herschrijven. dat is wel een patroon bij mij, als
+> iets rammelt ga ik het maken of het nou mijn taak is of niet
 
 ## 3. Ontwikkelpunten (Areas for Development)
 
 Report frames three behaviours as one loop: absorbing rather than delegating,
 and avoiding confrontation.
 
-**[substantive]** — the classic real reaction, pushes back on one word:
-> Het delegeren en te veel oppakken herken ik helemaal. Maar "confrontaties
-> vermijden" vind ik te zwart-wit. Ik ga het gesprek wel aan, alleen kies ik
-> mijn momenten en ik wil niet dat het escaleert. Misschien is dat ook gewoon
-> een vorm van uitstellen, dat kan. Maar het voelt niet als bang zijn.
+**[substantive]** — pushes back on one word, which is what real people do:
+> het delegeren en te veel oppakken herken ik helemaal. maar "confrontaties
+> vermijden" vind ik te zwart wit. ik ga het gesprek wel aan alleen kies ik mijn
+> momenten, en ik wil niet dat het escaleert. misschien is dat ook gewoon een
+> vorm van uitstellen dat kan. maar het voelt niet als bang zijn
 
-## 4. Jouw loopbaanwaarden (Career Values)
+## 4. Jouw loopbaanwaarden (Career Values) — you are here
 
 Report: work-life balance first, autonomy only third, uncomfortable with
 high-stakes decisions.
 
 **[substantive]** — makes an abstraction concrete, and sets a hard boundary:
-> Werk-privé balans klinkt zo vaag als je het zo opschrijft. Voor mij is het
-> heel concreet: ik ben op woensdag thuis en dat blijft zo tot de jongste naar
-> de middelbare gaat. Dat is geen voorkeur, dat is een voorwaarde. En dat stuk
-> over zware beslissingen klopt, ik hoef niet degene te zijn die knopen
-> doorhakt over budgetten of reorganisaties. Daar word ik niet blij van.
+> werk prive balans klinkt zo vaag als je het zo opschrijft. voor mij is het
+> heel concreet, ik ben op woensdag thuis en dat blijft zo tot de jongste naar
+> de middelbare gaat. dat is geen voorkeur dat is een voorwaarde. en dat stuk
+> over zware beslissingen klopt wel, ik hoef niet degene te zijn die knopen
+> doorhakt over budgetten of reorganisaties, daar word ik niet blij van
 
 ## 5. Customer Service Trainer — Top match, 94%
 
 **[substantive]** — positive, with a real reservation:
-> Hier werd ik wel enthousiast van. Dit is het leukste deel van mijn werk,
-> alleen dan de hele dag. Mijn twijfel zit hem in de sector: blijf ik hiermee
-> niet gewoon in verzekeringen hangen? Ik doe dit al achttien jaar en ik weet
-> niet of ik over vijf jaar nog steeds over polissen wil uitleggen.
+> hier werd ik wel enthousiast van, dit is het leukste deel van mijn werk alleen
+> dan de hele dag. mijn twijfel zit em in de sector. blijf ik hiermee niet
+> gewoon in verzekeringen hangen? ik doe dit al 18 jaar en ik weet niet of ik
+> over vijf jaar nog steeds over polissen wil uitleggen
 
 ## 6. Praktijkopleider — Second match, 93%
 
 The one she had not thought of. This is where the report earns its money.
+Reads more like dictation: longer, cleaner, but one run-on.
 
 **[substantive]**
-> Deze kende ik niet als functie en die moest ik even opzoeken. Maar dit is
-> eigenlijk precies wat ik nu al doe met stagiairs, alleen dan officieel en
-> niet ernaast. Ik zie mezelf dit echt doen. Wel een praktische vraag: heb ik
-> hier een papiertje voor nodig? Ik heb HBO Bedrijfskunde en verder niks in de
-> onderwijshoek.
+> Deze kende ik niet als functie en die moest ik even opzoeken, maar dit is
+> eigenlijk precies wat ik nu al doe met stagiairs alleen dan officieel en niet
+> ernaast, dus ik zie mezelf dit echt doen. Wel een praktische vraag, heb ik
+> hier een papiertje voor nodig? ik heb HBO bedrijfskunde en verder niks in de
+> onderwijshoek
 
 ## 7. Onboarding Specialist — Third match, 89%
 
 Deliberately lukewarm, so the top three do not all read as wins:
-> Deze spreekt me minder aan. Als ik het goed lees is dit vooral regelen dat
-> laptops op tijd klaarstaan en checklists afvinken. Dat is meer projectwerk
-> dan mensenwerk, en het mensenwerk is nou juist waar ik het voor doe.
+> deze spreekt me minder aan. als ik het goed lees is dit vooral regelen dat
+> laptops op tijd klaarstaan en checklists afvinken, dat is meer projectwerk dan
+> mensenwerk. en het mensenwerk is nou juist waar ik het voor doe
 
 ## 8. Runner-ups
 
 Short, and dismisses one for a reason:
-> Learning and Development Specialist vind ik interessant. Die Customer
-> Experience Quality Specialist niet: dat is voor mijn gevoel weer terug naar
-> rapportages en dashboards, en daar kom ik juist vandaan.
+> learning and development specialist vind ik interessant. die customer
+> experience quality specialist niet, dat is voor mijn gevoel weer terug naar
+> rapportages en dashboards en daar kom ik juist vandaan
 
 ## 9. Outside the box
 
 The emotional pull and the practical brake, together:
-> Wijkcoach raakt wel iets. Dat is het soort werk waarvan ik denk dat het er
-> echt toe doet. Tegelijk lees ik wat het betaalt en dat gaat gewoon niet
-> passen met onze hypotheek. Bedrijfsmaatschappelijk werk vind ik eerlijk
-> gezegd het interessantst van deze drie, dat zit dichter bij waar ik nu zit
-> dan ik had verwacht.
+> wijkcoach raakt wel iets, dat is het soort werk waarvan ik denk dat het er
+> echt toe doet. tegelijk lees ik wat het betaalt en dat gaat gewoon niet passen
+> met onze hypotheek. bedrijfsmaatschappelijk werk vind ik eerlijk gezegd het
+> interessantst van deze drie, dat zit dichter bij waar ik nu zit dan ik had
+> verwacht
 
 ## 10. Droombaan — Loopbaanbegeleider
 
-The honest one:
-> Fijn dat jullie er niet omheen draaien. Ik wist al half dat iedereen zich
-> loopbaancoach mag noemen en dat het er vol zit. Wat ik hier vooral uit haal
-> is dat ik het niet in één keer hoef te doen. Als ik eerst praktijkopleider
-> word en dat begeleidende stuk daar opbouw, kom ik er misschien vanzelf. Een
-> jaar zonder inkomen een praktijk opbouwen kan ik niet, dat is gewoon zo.
+The honest one. Dictated, so it runs long:
+> Fijn dat jullie er niet omheen draaien, ik wist al half dat iedereen zich
+> loopbaancoach mag noemen en dat het er vol zit. Wat ik hier vooral uit haal is
+> dat ik het niet in een keer hoef te doen, als ik eerst praktijkopleider word
+> en dat begeleidende stuk daar opbouw kom ik er misschien vanzelf. een jaar
+> zonder inkomen een praktijk opbouwen kan ik niet, dat is gewoon zo
 
 ---
 
@@ -148,11 +155,11 @@ The honest one:
 
 Use these where you want to move on. Real conversations have plenty of these.
 
-- `Klopt, ga verder.`
-- `Ja, hier herken ik me wel in.`
-- `Dit had ik zelf ook al bedacht, maar goed om bevestigd te zien.`
-- `Prima, volgende.`
-- `Interessant, daar moet ik even over nadenken. Ga maar door.`
+- `klopt, ga verder`
+- `ja hier herken ik me wel in`
+- `dit had ik zelf ook al bedacht maar goed om bevestigd te zien`
+- `prima, volgende`
+- `interessant, daar moet ik even over nadenken. ga maar door`
 
 ## What to watch while you run it
 
