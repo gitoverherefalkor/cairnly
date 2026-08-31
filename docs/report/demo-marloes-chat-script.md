@@ -43,21 +43,33 @@ wanting to manage a team again.
 starts, commas where a full stop belongs, the odd typo she does not go back to
 fix, a trailing thought without a final period. Occasionally she dictates, which
 shows up as longer run-on sentences with almost no typos. Do not clean these up
-when you paste them — the imperfection is the point, and a report generated from
-suspiciously well-formed input is not a fair test of the coach.
+when you paste them — a report generated from suspiciously well-formed input is
+not a fair test of the coach.
 
-Vary the replies. Real users agree more than they push back, so several plain
-"klopt, ga verder" are realistic. The substantive ones are marked
-**[substantive]** — those are the ones WF6 has something to work with.
+## Use the buttons, not just the box
+
+A real user does not type a paragraph at every turn. They click. Mixing the two
+is what makes a recorded session look real rather than staged, and it is the
+difference between a demo that reads like a transcript and one that reads like a
+script.
+
+The four you will use, with their Dutch labels:
+
+| Button | Dutch label | What it does |
+|---|---|---|
+| `continue` | Door naar de volgende sectie | Moves on. No typing. |
+| `explore` | Hier wil ik dieper op ingaan | Sends "Hier wil ik wat dieper op ingaan", then the coach digs in |
+| `differently` | Dit zie ik anders | Opens the box with "Vertel hoe jij het ziet…" — then you type |
+| `somethingElse` | Iets anders | Opens the box for anything off-script |
+
+Each section below says which to use. **[TYPE]** means paste the text.
+**[CLICK]** means press the button and type nothing.
 
 ---
 
 ## 1. Jouw aanpak (Understanding Your Approach)
 
-The report's best insight: her 8/10 and her 6/10 were the same employer, same
-team, and the difference was distance from the actual work.
-
-**[substantive]**
+**[TYPE]** — the report's best insight deserves a real answer:
 > dit klopt meer dan me lief is. ik heb het nooit zo scherp gehad maar het is
 > precies dat. als teamleider ben ik de hele dag bezig met roosters, escalaties
 > en overleggen over overlegen, en de momenten dat ik er echt zin in heb zijn de
@@ -65,10 +77,7 @@ team, and the difference was distance from the actual work.
 
 ## 2. Jouw sterke punten (Strengths)
 
-Report cites: satisfaction up, onboarding time nearly halved, two people coached
-into senior roles.
-
-**[substantive]** — adds something the survey could not know:
+**[TYPE]** — adds something the survey could not know:
 > Klopt. al wil ik er wel bij zeggen dat die onboarding niemand gevraagd had,
 > ik ergerde me gewoon aan dat nieuwe mensen zes weken lang niks konden en ben
 > het in de avonduren gaan herschrijven. dat is wel een patroon bij mij, als
@@ -76,84 +85,103 @@ into senior roles.
 
 ## 3. Ontwikkelpunten (Areas for Development)
 
-Report frames three behaviours as one loop: absorbing rather than delegating,
-and avoiding confrontation.
-
-**[substantive]** — pushes back on one word, which is what real people do:
+**[CLICK] Dit zie ik anders**, then **[TYPE]** into the box that opens:
 > het delegeren en te veel oppakken herken ik helemaal. maar "confrontaties
 > vermijden" vind ik te zwart wit. ik ga het gesprek wel aan alleen kies ik mijn
 > momenten, en ik wil niet dat het escaleert. misschien is dat ook gewoon een
 > vorm van uitstellen dat kan. maar het voelt niet als bang zijn
 
-## 4. Jouw loopbaanwaarden (Career Values) — you are here
+## 4. Jouw loopbaanwaarden (Career Values)
 
-Report: work-life balance first, autonomy only third, uncomfortable with
-high-stakes decisions.
-
-**[substantive]** — makes an abstraction concrete, and sets a hard boundary:
+**[TYPE]** — makes an abstraction concrete, and sets a hard boundary:
 > werk prive balans klinkt zo vaag als je het zo opschrijft. voor mij is het
 > heel concreet, ik ben op woensdag thuis en dat blijft zo tot de jongste naar
 > de middelbare gaat. dat is geen voorkeur dat is een voorwaarde. en dat stuk
 > over zware beslissingen klopt wel, ik hoef niet degene te zijn die knopen
 > doorhakt over budgetten of reorganisaties, daar word ik niet blij van
 
+---
+
 ## 5. Customer Service Trainer — Top match, 94%
 
-**[substantive]** — positive, with a real reservation:
+**[CLICK] Hier wil ik dieper op ingaan**, then when the coach opens it up,
+**[TYPE]**:
 > hier werd ik wel enthousiast van, dit is het leukste deel van mijn werk alleen
-> dan de hele dag. mijn twijfel zit em in de sector. blijf ik hiermee niet
-> gewoon in verzekeringen hangen? ik doe dit al 18 jaar en ik weet niet of ik
-> over vijf jaar nog steeds over polissen wil uitleggen
+> dan de hele dag. mijn twijfel zit em in de sector. blijf ik hiermee niet gewoon
+> in verzekeringen hangen? ik doe dit al 18 jaar en ik weet niet of ik over vijf
+> jaar nog steeds over polissen wil uitleggen
 
 ## 6. Praktijkopleider — Second match, 93%
 
-The one she had not thought of. This is where the report earns its money.
-Reads more like dictation: longer, cleaner, but one run-on.
+The one she had not heard of, so exploring it is the natural move and the best
+thing in the whole demo.
 
-**[substantive]**
+**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
 > Deze kende ik niet als functie en die moest ik even opzoeken, maar dit is
 > eigenlijk precies wat ik nu al doe met stagiairs alleen dan officieel en niet
-> ernaast, dus ik zie mezelf dit echt doen. Wel een praktische vraag, heb ik
-> hier een papiertje voor nodig? ik heb HBO bedrijfskunde en verder niks in de
+> ernaast, dus ik zie mezelf dit echt doen. Wel een praktische vraag, heb ik hier
+> een papiertje voor nodig? ik heb HBO bedrijfskunde en verder niks in de
 > onderwijshoek
+
+Follow up once more if the answer is good — a partner watching should see the
+coach handle a second, harder question:
+> en hoe kom ik daar dan aan? ik zie ze niet vaak voorbijkomen op indeed
 
 ## 7. Onboarding Specialist — Third match, 89%
 
-Deliberately lukewarm, so the top three do not all read as wins:
+**[TYPE]** — deliberately lukewarm, so the top three do not all read as wins:
 > deze spreekt me minder aan. als ik het goed lees is dit vooral regelen dat
 > laptops op tijd klaarstaan en checklists afvinken, dat is meer projectwerk dan
 > mensenwerk. en het mensenwerk is nou juist waar ik het voor doe
 
 ## 8. Runner-ups
 
-Short, and dismisses one for a reason:
+**[CLICK] Door naar de volgende sectie.**
+
+One clean skip is realistic and gives the recording some pace. If you would
+rather she reacts, this is short enough to stay quick:
 > learning and development specialist vind ik interessant. die customer
 > experience quality specialist niet, dat is voor mijn gevoel weer terug naar
 > rapportages en dashboards en daar kom ik juist vandaan
 
 ## 9. Outside the box
 
-The emotional pull and the practical brake, together:
-> wijkcoach raakt wel iets, dat is het soort werk waarvan ik denk dat het er
-> echt toe doet. tegelijk lees ik wat het betaalt en dat gaat gewoon niet passen
-> met onze hypotheek. bedrijfsmaatschappelijk werk vind ik eerlijk gezegd het
+**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
+> wijkcoach raakt wel iets, dat is het soort werk waarvan ik denk dat het er echt
+> toe doet. tegelijk lees ik wat het betaalt en dat gaat gewoon niet passen met
+> onze hypotheek. bedrijfsmaatschappelijk werk vind ik eerlijk gezegd het
 > interessantst van deze drie, dat zit dichter bij waar ik nu zit dan ik had
 > verwacht
 
 ## 10. Droombaan — Loopbaanbegeleider
 
-The honest one. Dictated, so it runs long:
+**[TYPE]** — dictated, so it runs long:
 > Fijn dat jullie er niet omheen draaien, ik wist al half dat iedereen zich
 > loopbaancoach mag noemen en dat het er vol zit. Wat ik hier vooral uit haal is
-> dat ik het niet in een keer hoef te doen, als ik eerst praktijkopleider word
-> en dat begeleidende stuk daar opbouw kom ik er misschien vanzelf. een jaar
-> zonder inkomen een praktijk opbouwen kan ik niet, dat is gewoon zo
+> dat ik het niet in een keer hoef te doen, als ik eerst praktijkopleider word en
+> dat begeleidende stuk daar opbouw kom ik er misschien vanzelf. een jaar zonder
+> inkomen een praktijk opbouwen kan ik niet, dat is gewoon zo
 
 ---
 
+## Pacing for a demo recording
+
+If this session is going to be watched by a partner, the rhythm matters as much
+as the content. Roughly:
+
+- **Two or three `Door naar de volgende sectie` clicks** across the whole run.
+  Silence is realistic; a user who writes an essay every turn is not.
+- **Three `Hier wil ik dieper op ingaan`**, on the two top careers and outside
+  the box. This is the button that shows the product doing something a static
+  report cannot.
+- **One `Dit zie ik anders`**, on the development section. One disagreement is
+  plausible; three looks like a person arguing with a document.
+- Keep the two dictated answers (Praktijkopleider, droombaan) long. The contrast
+  with the short clicks is what makes the rest read as genuine.
+
 ## Filler replies
 
-Use these where you want to move on. Real conversations have plenty of these.
+For turns where you want to move on but a click is not offered.
 
 - `klopt, ga verder`
 - `ja hier herken ik me wel in`
