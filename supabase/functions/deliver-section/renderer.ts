@@ -125,31 +125,44 @@ function renderPersonality(row: ReportSectionRow): string {
 }
 
 
-/** Swap the label embedded in `alternate_titles`, and ONLY the label.
- *
- *  WF4 writes the column with its own English caption baked in:
- *  `<strong>Alternate titles:</strong> CX Trainer, Training Lead, …`. So this is
- *  neither a heading in `content` (the translator never sees it) nor a UI string
- *  (no i18n key can reach it) — all 177 rows in production carry the English
- *  caption inside the data.
+/** The metadata columns come in two shapes. Legacy rows (WF4/WF3 up to
+ *  2026-08-31) carry presentation baked into the data:
+ *    alternate_titles:  `<strong>Alternate titles:</strong> CX Trainer, …`
+ *    company_size_type: `<h4><strong>Medium (51-200) / Agency</strong></h4>`
+ *  Newer rows carry the bare values. The renderer owns the heading level and
+ *  the caption for BOTH shapes: any stored markup/caption is stripped first,
+ *  then re-emitted here — so legacy rows render byte-identically to before,
+ *  and the caption is translatable without touching the data.
  *
  *  The job titles themselves stay English on purpose. "CX Trainer" and
  *  "Customer Operations Coach" are the titles Dutch vacancies actually use;
- *  translating them would make them unrecognisable and unsearchable, and the
- *  same column feeds job matching, which reads canonical English.
- *
- *  Upstream fix: have WF4 write the titles without a caption and let the
- *  renderer own it. Until then this is a display-boundary swap, and it only
- *  affects sections delivered from now on — already-delivered chat messages
- *  keep the caption they were written with. */
+ *  translating them would make them unrecognisable and unsearchable. */
 const ALT_TITLES_LABEL: Record<string, string> = {
+  en: 'Alternate titles:',
   nl: 'Alternatieve functietitels:',
 };
 
-function localiseAltTitles(value: string, language: string): string {
-  const label = ALT_TITLES_LABEL[String(language ?? 'en').slice(0, 2).toLowerCase()];
-  if (!label) return value;
-  return value.replace(/Alternate titles\s*:/i, label);
+function altTitlesLabel(language: string): string {
+  const key = String(language ?? 'en').slice(0, 2).toLowerCase();
+  return ALT_TITLES_LABEL[key] ?? ALT_TITLES_LABEL.en;
+}
+
+/** Company size/type line: `#### Medium (51-200) / Agency` from either shape. */
+function renderSizeLine(raw: string | null): string {
+  const text = htmlToMarkdown(raw)
+    .replace(/^#+\s*/, '')
+    .replace(/\*\*/g, '')
+    .trim();
+  return text ? `#### ${text}` : '';
+}
+
+/** Alternate-titles line: `**<label>** A, B` from either shape. */
+function renderAltTitlesLine(raw: string | null, language: string): string {
+  const text = htmlToMarkdown(raw)
+    .replace(/\*\*/g, '')
+    .replace(/^(Alternate titles|Alternatieve functietitels)\s*:\s*/i, '')
+    .trim();
+  return text ? `**${altTitlesLabel(language)}** ${text}` : '';
 }
 
 /**
@@ -169,9 +182,9 @@ function renderCareerCard(row: ReportSectionRow, language: string = 'en'): strin
   const parts: string[] = [];
   const title = htmlToMarkdown(row.title);
   if (title) parts.push(title);
-  const size = htmlToMarkdown(row.company_size_type);
+  const size = renderSizeLine(row.company_size_type);
   if (size) parts.push(size);
-  const alts = localiseAltTitles(htmlToMarkdown(row.alternate_titles), language);
+  const alts = renderAltTitlesLine(row.alternate_titles, language);
   if (alts) parts.push(alts);
 
   const header = parts.join('\n\n');

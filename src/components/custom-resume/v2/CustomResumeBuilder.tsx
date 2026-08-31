@@ -306,7 +306,15 @@ const CareerCard: React.FC<{
 }> = ({ section, selected, disabled, onToggle, savedResumes, onViewSaved }) => {
   const tier = TIER_FOR_TYPE[section.section_type] ?? TIER_FOR_TYPE.runner_ups;
   const title = stripHtml(section.title) || 'Untitled career';
-  const altTitles = stripHtml(section.alternate_titles);
+  // `alternate_titles` comes in two shapes: legacy rows carry the caption baked
+  // into the data ("<strong>Alternate titles:</strong> A, B"), newer rows carry
+  // the bare titles. Strip any stored caption and re-add our own so both
+  // shapes render identically.
+  const altTitlesText = stripHtml(section.alternate_titles).replace(
+    /^(Alternate titles|Alternatieve functietitels)\s*:\s*/i,
+    '',
+  );
+  const altTitles = altTitlesText ? `Alternate titles: ${altTitlesText}` : '';
   const score = section.score != null ? Math.round(Number(section.score)) : null;
   const savedCount = savedResumes?.length ?? 0;
   const hasSaved = savedCount > 0;

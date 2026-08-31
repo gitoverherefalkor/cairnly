@@ -40,13 +40,39 @@ function htmlToMarkdown(input) {
   return s.trim();
 }
 
-function renderCareerCard(row) {
+const ALT_TITLES_LABEL = {
+  en: 'Alternate titles:',
+  nl: 'Alternatieve functietitels:',
+};
+
+function altTitlesLabel(language) {
+  const key = String(language ?? 'en').slice(0, 2).toLowerCase();
+  return ALT_TITLES_LABEL[key] ?? ALT_TITLES_LABEL.en;
+}
+
+function renderSizeLine(raw) {
+  const text = htmlToMarkdown(raw)
+    .replace(/^#+\s*/, '')
+    .replace(/\*\*/g, '')
+    .trim();
+  return text ? `#### ${text}` : '';
+}
+
+function renderAltTitlesLine(raw, language) {
+  const text = htmlToMarkdown(raw)
+    .replace(/\*\*/g, '')
+    .replace(/^(Alternate titles|Alternatieve functietitels)\s*:\s*/i, '')
+    .trim();
+  return text ? `**${altTitlesLabel(language)}** ${text}` : '';
+}
+
+function renderCareerCard(row, language = 'en') {
   const parts = [];
   const title = htmlToMarkdown(row.title);
   if (title) parts.push(title);
-  const size = htmlToMarkdown(row.company_size_type);
+  const size = renderSizeLine(row.company_size_type);
   if (size) parts.push(size);
-  const alts = htmlToMarkdown(row.alternate_titles);
+  const alts = renderAltTitlesLine(row.alternate_titles, language);
   if (alts) parts.push(alts);
   const header = parts.join('\n\n');
   const body = htmlToMarkdown(row.content);
@@ -131,4 +157,32 @@ console.log('\n=== top_career_1 (id 495) ===');
   const renderedNoIntro = rendered.slice(rendered.indexOf('---'));
   console.log('\n— with chapter intro stripped from renderer:');
   lineDiff(renderedNoIntro, TOP1_AGENT_OUTPUT, 'top_career_1 — content-only');
+}
+
+// --- Shape tolerance: a row with BARE metadata (post-caption-removal WF4)
+// must render byte-identically to the legacy captioned/markup shape. ---
+
+const TOP1_ROW_CLEAN = {
+  ...TOP1_ROW,
+  alternate_titles: 'Non-Executive Director (NED), Independent Board Advisor, Board Governor',
+  company_size_type: 'Medium (51–200) / Scale-up',
+};
+
+console.log('\n=== shape tolerance (legacy vs clean metadata) ===');
+{
+  const legacy = renderCareerCard(TOP1_ROW, 'en');
+  const clean = renderCareerCard(TOP1_ROW_CLEAN, 'en');
+  lineDiff(clean, legacy, 'clean vs legacy — en');
+
+  const legacyNl = renderCareerCard(TOP1_ROW, 'nl');
+  const cleanNl = renderCareerCard(TOP1_ROW_CLEAN, 'nl');
+  lineDiff(cleanNl, legacyNl, 'clean vs legacy — nl');
+
+  const nlHasLabel = legacyNl.includes('**Alternatieve functietitels:** Non-Executive Director');
+  const nlNoEnglish = !legacyNl.includes('Alternate titles:');
+  console.log(`nl caption swapped: ${nlHasLabel && nlNoEnglish ? 'OK ✓' : 'FAILED ✗'}`);
+
+  const enHasLabel = clean.includes('**Alternate titles:** Non-Executive Director');
+  const enHasHeading = clean.includes('#### Medium (51–200) / Scale-up');
+  console.log(`en caption + heading on clean row: ${enHasLabel && enHasHeading ? 'OK ✓' : 'FAILED ✗'}`);
 }
