@@ -24,7 +24,7 @@ structure only.
 | — | Outside-the-box careers | Group header, then **one role per page** — they run consistently under a page. |
 | — | Your dream jobs | Group header, then roles, flowing. |
 | — | Discussion Highlights | From the coach conversation. Own page. |
-| last | **Closing** | Sign-off, then the toolkit + refund ladder, generated from `UNLOCK_LADDER`. |
+| last | **Closing** | Two variants. Direct customer: sign-off, then the toolkit + refund ladder, generated from `UNLOCK_LADDER`. White-label: sign-off pointing at the bureau's advisor, then three things to bring to that conversation, the toolkit as a footnote, and a credit line. Selected by the partner being present. |
 
 Anything WF adds that this file does not list is appended after the career
 chapter and gets its own page automatically — see `breaksPage`.
@@ -106,14 +106,25 @@ Everything is already keyed by `resolveLang(sections)` and every string has an
   English brand name.
 
 ### Partner (white-label)
-Wired but never rendered against a real partner:
+Rendered end to end against a real partner row on 2026-08-31 (Loopbaanbureau
+Voorbeeld, on the Marloes demo). See `partners/README.md`.
 - Cover: partner logo in the white band, left of the Cairnly wordmark.
 - Every page: partner mark in the running header; the space is reserved whether
-  or not a partner exists, so pagination does not shift.
-- `powered_by_text` currently has no home since the cover footer became
-  "Prepared for …". Needs a decision.
+  or not a partner exists, so pagination does not shift. With no logo the header
+  falls back to the partner's NAME as text.
+- The document does not sell Cairnly to a partner's client. Two things change,
+  both keyed off the partner being present:
+  - the chapter pull quotes drop their "make a LinkedIn share card" footer (the
+    quote itself stays);
+  - the closing page swaps the referral/refund ladder for a page that hands the
+    reader to their advisor. See `PrintClosing.tsx`.
+- `powered_by_text` still has no home since the cover footer became "Prepared
+  for …". The closing page's credit line is hardcoded copy, NOT that column.
 - Logos MUST be `data:` URIs — the CSP blocks storage URLs in `img-src`, and it
   fails silently.
+- `?pn=<name>` overrides the partner name for one render and suppresses the
+  logo. Render-time only, like `?sample=1`; nothing is written to `partners`.
+  `?pn=[partnernaam]` renders the blank outreach template.
 
 ## The Dutch demo report (partner outreach)
 
