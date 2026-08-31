@@ -190,7 +190,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
             className="flex items-center gap-1.5 px-2 py-1 rounded-md text-gray-400 cursor-default select-none"
           >
             <BookmarkCheck size={13} />
-            <span className="font-medium">In report</span>
+            <span className="font-medium">{t('ui.inReport')}</span>
           </span>
         ) : (
           bookmarkable &&

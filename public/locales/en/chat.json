@@ -88,7 +88,8 @@
     "phOpenCards": "Open each card above to continue…",
     "keep": "Keep",
     "kept": "Kept",
-    "coachingSession": "AI Coaching Session"
+    "coachingSession": "AI Coaching Session",
+    "inReport": "In report"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",
@@ -118,10 +119,10 @@
       "tooShort": "Too short"
     },
     "sub": {
-      "approach": "Your Approach",
-      "strengths": "Your Strengths",
-      "development": "Development Areas",
-      "values": "Career Values"
+      "approach": "Approach",
+      "strengths": "Strengths",
+      "development": "Development",
+      "values": "Career values"
     }
   }
 }

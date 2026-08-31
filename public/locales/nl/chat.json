@@ -88,7 +88,8 @@
     "phOpenCards": "Open elke kaart hierboven om verder te gaan…",
     "keep": "Bewaren",
     "kept": "Bewaard",
-    "coachingSession": "AI-coachgesprek"
+    "coachingSession": "AI-coachgesprek",
+    "inReport": "In rapport"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",
@@ -118,10 +119,10 @@
       "tooShort": "Te kort"
     },
     "sub": {
-      "approach": "Jouw aanpak",
-      "strengths": "Jouw sterke punten",
+      "approach": "Aanpak",
+      "strengths": "Sterke punten",
       "development": "Ontwikkelpunten",
-      "values": "Jouw loopbaanwaarden"
+      "values": "Loopbaanwaarden"
     }
   }
 }

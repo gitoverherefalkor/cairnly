@@ -1,4 +1,5 @@
 import React from 'react';
+import { companyContext } from '@/lib/companyContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ReportSection } from '@/hooks/useReportSections';
@@ -238,7 +239,7 @@ export const PrintSection: React.FC<{
   // WF4 writes this as a fragment of markup, so it needs the same cleaning the
   // chat sidebar does. It answers "what kind of employer is this?", which the
   // role title never does.
-  const sizeType = cleanField(section.company_size_type);
+  const sizeType = companyContext(cleanField(section.company_size_type), lang);
   const TitleTag = nested ? 'h3' : 'h2';
   // Career sections lead with the chip and slot framing; everything else leads
   // with its title. See the note on reading order below.

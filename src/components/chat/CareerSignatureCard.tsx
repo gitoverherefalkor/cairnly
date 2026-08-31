@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { companyContext } from '@/lib/companyContext';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Share2 } from 'lucide-react';
 import { useReportSections, type ReportSection } from '@/hooks/useReportSections';
@@ -46,7 +47,7 @@ function getCareer(
   if (!s) return null;
   const score = s.score != null ? Number(s.score) : NaN;
   if (!Number.isFinite(score)) return null;
-  const rawContext = s.company_size_type ? stripHtml(s.company_size_type) : '';
+  const rawContext = s.company_size_type ? companyContext(stripHtml(s.company_size_type), lang) : '';
   return {
     rank,
     title: stripHtml(sectionTitle(s, lang) || 'Untitled'),
