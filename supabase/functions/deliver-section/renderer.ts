@@ -124,6 +124,34 @@ function renderPersonality(row: ReportSectionRow): string {
   return `### ${title}\n\n${content}`.trim();
 }
 
+
+/** Swap the label embedded in `alternate_titles`, and ONLY the label.
+ *
+ *  WF4 writes the column with its own English caption baked in:
+ *  `<strong>Alternate titles:</strong> CX Trainer, Training Lead, …`. So this is
+ *  neither a heading in `content` (the translator never sees it) nor a UI string
+ *  (no i18n key can reach it) — all 177 rows in production carry the English
+ *  caption inside the data.
+ *
+ *  The job titles themselves stay English on purpose. "CX Trainer" and
+ *  "Customer Operations Coach" are the titles Dutch vacancies actually use;
+ *  translating them would make them unrecognisable and unsearchable, and the
+ *  same column feeds job matching, which reads canonical English.
+ *
+ *  Upstream fix: have WF4 write the titles without a caption and let the
+ *  renderer own it. Until then this is a display-boundary swap, and it only
+ *  affects sections delivered from now on — already-delivered chat messages
+ *  keep the caption they were written with. */
+const ALT_TITLES_LABEL: Record<string, string> = {
+  nl: 'Alternatieve functietitels:',
+};
+
+function localiseAltTitles(value: string, language: string): string {
+  const label = ALT_TITLES_LABEL[String(language ?? 'en').slice(0, 2).toLowerCase()];
+  if (!label) return value;
+  return value.replace(/Alternate titles\s*:/i, label);
+}
+
 /**
  * Render a single career card body — used for top_career_1/2/3 directly,
  * and as the per-row helper for runner_ups / outside_box.
@@ -137,13 +165,13 @@ function renderPersonality(row: ReportSectionRow): string {
  *
  * Skips any of the metadata lines that are NULL.
  */
-function renderCareerCard(row: ReportSectionRow): string {
+function renderCareerCard(row: ReportSectionRow, language: string = 'en'): string {
   const parts: string[] = [];
   const title = htmlToMarkdown(row.title);
   if (title) parts.push(title);
   const size = htmlToMarkdown(row.company_size_type);
   if (size) parts.push(size);
-  const alts = htmlToMarkdown(row.alternate_titles);
+  const alts = localiseAltTitles(htmlToMarkdown(row.alternate_titles), language);
   if (alts) parts.push(alts);
 
   const header = parts.join('\n\n');
@@ -200,7 +228,7 @@ export function renderSection(
   }
 
   if (CAREER_SINGLE.has(sectionType)) {
-    return wrap(boilerplate.intro, renderCareerCard(rows[0]), boilerplate.outro);
+    return wrap(boilerplate.intro, renderCareerCard(rows[0], language), boilerplate.outro);
   }
 
   if (CAREER_MULTI.has(sectionType)) {
@@ -210,7 +238,7 @@ export function renderSection(
 
     const isDream = sectionType === 'dream_jobs';
     const cards = sorted
-      .map((r) => (isDream ? renderDreamCard(r) : renderCareerCard(r)))
+      .map((r) => (isDream ? renderDreamCard(r) : renderCareerCard(r, language)))
       .join('\n\n---\n\n');
 
     return wrap(boilerplate.intro, cards, boilerplate.outro);
