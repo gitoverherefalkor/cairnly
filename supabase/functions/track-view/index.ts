@@ -25,10 +25,19 @@ type Body = {
   referrer?: string;
   engaged?: boolean;
   country?: string;
-  event_type?: 'scroll_depth' | 'cta_click';
+  event_type?: 'scroll_depth' | 'cta_click' | 'sample_view';
   milestone?: number;
   cta_id?: string;
+  prospect?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
 };
+
+// Attribution tags (?p= and utm_*) are visitor-controlled strings off the URL.
+// The frontend already squeezes them to a slug charset; this is the backstop.
+const tag = (value: unknown): string | null =>
+  typeof value === 'string' && value.trim() ? value.trim().slice(0, 64) : null;
 
 const VALID_MILESTONES = new Set([25, 50, 75, 100]);
 
@@ -121,6 +130,34 @@ serve(async (req) => {
     });
     if (error) {
       console.error('[track-view] cta_click insert error:', error);
+      return errorResponse('Failed to record event', 500, corsHeaders);
+    }
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Sample-report view — the partner-channel specimen at
+  // /partners/voorbeeldrapport, opened from a per-prospect link (?p=<slug>)
+  // and sometimes a campaign (utm_*). page_views can't carry this: it records
+  // the pathname only and drops the query string.
+  if (body.event_type === 'sample_view') {
+    const samplePath = typeof body.path === 'string' ? body.path.slice(0, 300) : '';
+    if (!samplePath) {
+      return errorResponse('path required', 400, corsHeaders);
+    }
+    const { error } = await supabase.from('analytics_events').insert({
+      session_id: sessionId,
+      event_type: 'sample_view',
+      path: samplePath,
+      prospect: tag(body.prospect),
+      utm_source: tag(body.utm_source),
+      utm_medium: tag(body.utm_medium),
+      utm_campaign: tag(body.utm_campaign),
+      country,
+    });
+    if (error) {
+      console.error('[track-view] sample_view insert error:', error);
       return errorResponse('Failed to record event', 500, corsHeaders);
     }
     return new Response(JSON.stringify({ ok: true }), {

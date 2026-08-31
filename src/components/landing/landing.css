@@ -124,6 +124,19 @@ button.lp-screenshot-slot {
 }
 .lp-btn-primary:active { transform: scale(0.97); }
 
+/* Gold variant of the pill button. Used by the partner-channel pilot CTA,
+   where the primary teal already belongs to the sample-report link above it.
+   Declared after .lp-btn-primary so it wins on equal specificity, hover
+   included — an inline style override would have killed the hover state. */
+.lp-btn-gold {
+  background: #D4A024;
+  box-shadow: 0 12px 30px -10px rgba(212,160,36,0.55);
+}
+.lp-btn-gold:hover {
+  background: #C08F1B;
+  box-shadow: 0 18px 36px -10px rgba(212,160,36,0.7);
+}
+
 .lp-btn-secondary-text {
   color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px;
   text-decoration: none;

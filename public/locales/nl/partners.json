@@ -1,0 +1,84 @@
+{
+  "seo": {
+    "title": "Cairnly voor loopbaanprofessionals | loopbaanassessment voor re-integratie en outplacement",
+    "description": "Zet Cairnly in als voorwerk in je traject: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten."
+  },
+  "hero": {
+    "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
+    "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
+    "sampleCta": "Bekijk een voorbeeldrapport (2 minuten)",
+    "radarAlt": "Radargrafiek uit het Cairnly voorbeeldrapport",
+    "radarMeta": "Voorbeeldrapport",
+    "radarPendingLabel": "Radargrafiek volgt",
+    "radarPendingDesc": "De afbeelding uit het voorbeeldrapport staat nog niet in de assets-map."
+  },
+  "whoFor": {
+    "body": "Voor re-integratiebureaus (spoor 2), outplacementbureaus en zelfstandige loopbaancoaches. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
+  },
+  "whatYouGet": {
+    "items": [
+      "Een top 3 aan passende beroepen met matchscore, plus alternatieven en een aantal minder voor de hand liggende richtingen die wel kloppen met het profiel.",
+      "Per beroep: waarom het past bij deze persoon, salarisranges en een AI-impactscore van minimaal tot kritiek. Welke richting groeit en welke krimpt, onmisbaar bij een omscholingsvraag.",
+      "Een AI-coach waarmee de kandidaat het rapport bespreekt en bijstelt waar het niet klopt. Het rapport is geen statische uitslag.",
+      "Een pdf-rapport met jouw logo en naam erop, dat de kandidaat meeneemt naar het gesprek met jou."
+    ]
+  },
+  "pricing": {
+    "intro": "Eén credit is één volledig assessment inclusief rapport en AI-coach. Credits verlopen nooit. Geen instapkosten, geen certificering, geen contract, geen minimum. Bij aanmelding krijg je 3 gratis credits om zelf te ervaren wat je kandidaat krijgt.",
+    "colCredits": "Credits",
+    "colPrice": "Prijs per stuk (ex btw)",
+    "rows": [
+      { "credits": "1 t/m 9", "price": "44 euro" },
+      { "credits": "10 t/m 24", "price": "38 euro" },
+      { "credits": "25 t/m 49", "price": "33 euro" },
+      { "credits": "50 t/m 99", "price": "29 euro" },
+      { "credits": "100 t/m 249", "price": "24 euro" },
+      { "credits": "250 en meer", "price": "20 euro" }
+    ],
+    "note": "Ter vergelijking: consumenten betalen 59 euro per assessment. Jij bepaalt zelf of je credits doorberekent of opneemt in je traject."
+  },
+  "pilot": {
+    "title": "Eerst zien of het werkt? Logisch.",
+    "bodyBeforeEmail": "We zoeken een handvol bureaus voor een gratis pilot: 20 kandidaten, geen voorwaarden. Wat wij terugvragen is een eerlijke mening van je adviseurs. Mail naar ",
+    "bodyAfterEmail": " of plan direct 20 minuten in.",
+    "cta": "Plan 20 minuten",
+    "mailSubject": "Cairnly pilot voor ons bureau"
+  },
+  "faq": {
+    "items": [
+      {
+        "q": "Is Cairnly een psychometrisch instrument?",
+        "a": "Nee, en dat claimen we ook niet. Cairnly is arbeidsmarktorientatie: het vertaalt iemands ervaring, waarden en voorkeuren naar concrete beroepsrichtingen. Het staat naast je gevalideerde (COTAN-)instrumenten, niet in plaats daarvan."
+      },
+      {
+        "q": "Hoe zit het met privacy en de AVG?",
+        "a": "De kandidaat doorloopt het assessment zelf en is eigenaar van het eigen rapport. Betalingen lopen via Stripe op EU-servers. Cairnly is een zelfgestuurd orientatie-instrument dat de kandidaat over zichzelf invult, geen selectie-instrument, en we leveren geen beoordelingen aan werkgevers."
+      },
+      {
+        "q": "Kan het rapport onder mijn eigen naam?",
+        "a": "Je logo en naam staan op het rapport en op de pagina waar jouw kandidaten het assessment starten. Volledige white-label (eigen domein, eigen betaalomgeving) bieden we nu niet aan."
+      },
+      {
+        "q": "Wat kost het mijn kandidaat?",
+        "a": "Niets. Jij koopt credits, de kandidaat verzilvert een code. Er staat geen prijs of betaalmuur tussen jouw kandidaat en het rapport."
+      },
+      {
+        "q": "In welke talen?",
+        "a": "Nederlands en Engels."
+      }
+    ]
+  },
+  "closing": {
+    "body": "Cairnly is een product van Human in the Loop B.V., Utrecht. Wie tot en met 15 oktober instapt als partner, rekent het eerste creditpack af tegen het huidige betatarief."
+  },
+  "sample": {
+    "seoTitle": "Voorbeeldrapport | Cairnly voor loopbaanprofessionals",
+    "seoDescription": "Een volledig Cairnly-voorbeeldrapport van een fictieve kandidaat, zoals jouw kandidaat het krijgt, met jouw logo erop.",
+    "backLead": "Meer weten over samenwerken?",
+    "backLink": "Terug naar de partnerpagina.",
+    "intro": "Dit is een volledig voorbeeldrapport van een fictieve kandidaat. Alles wat je hier ziet krijgt jouw kandidaat ook, met jouw logo erop.",
+    "download": "Download de pdf",
+    "openInTab": "Open het rapport in een nieuw tabblad",
+    "viewerTitle": "Cairnly voorbeeldrapport"
+  }
+}

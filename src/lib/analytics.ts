@@ -96,3 +96,36 @@ export async function trackCtaClick(id: string, path: string = window.location.p
     country,
   });
 }
+
+// Sample-report view. Fired once on mount by /partners/voorbeeldrapport so we
+// can tell which prospect opened the specimen: `?p=<slug>` is the per-prospect
+// tag baked into the link we send, and any utm_* params riding along are kept
+// so an outreach campaign can be told apart from a direct share.
+//
+// Values come straight off the URL, so they're visitor-controlled. They get
+// squeezed to a conservative slug charset here and sliced again server-side.
+const TAG_MAX = 64;
+
+function sanitizeTag(value: string | null): string | null {
+  if (!value) return null;
+  const cleaned = value.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '-').slice(0, TAG_MAX);
+  return cleaned || null;
+}
+
+export async function trackSampleView(
+  path: string,
+  search: string,
+): Promise<void> {
+  const params = new URLSearchParams(search);
+  const country = await getCountry();
+  sendBeacon({
+    session_id: getSessionId(),
+    event_type: 'sample_view',
+    path,
+    prospect: sanitizeTag(params.get('p')),
+    utm_source: sanitizeTag(params.get('utm_source')),
+    utm_medium: sanitizeTag(params.get('utm_medium')),
+    utm_campaign: sanitizeTag(params.get('utm_campaign')),
+    country,
+  });
+}

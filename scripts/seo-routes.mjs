@@ -76,6 +76,27 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.8',
   },
+  // Partner channel. Dutch-first: this page is aimed at NL re-integratie and
+  // outplacement bureaus, so the static shell a non-JS crawler sees carries
+  // the Dutch title/description, matching public/locales/nl/partners.json
+  // (and en/partners.json, which is still a copy of it pending translation).
+  {
+    path: '/partners',
+    title:
+      'Cairnly voor loopbaanprofessionals | loopbaanassessment voor re-integratie en outplacement',
+    description:
+      'Zet Cairnly in als voorwerk in je traject: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten.',
+    changefreq: 'monthly',
+    priority: '0.8',
+  },
+  {
+    path: '/partners/voorbeeldrapport',
+    title: 'Voorbeeldrapport | Cairnly voor loopbaanprofessionals',
+    description:
+      'Een volledig Cairnly-voorbeeldrapport van een fictieve kandidaat, zoals jouw kandidaat het krijgt, met jouw logo erop.',
+    changefreq: 'monthly',
+    priority: '0.5',
+  },
   // Legal/support pages keep the site-default title+description (matching
   // their runtime DefaultSeo fallback) so static and rendered heads agree.
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },

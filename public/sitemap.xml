@@ -21,6 +21,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.cairnly.io/partners</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.cairnly.io/partners/voorbeeldrapport</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://www.cairnly.io/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

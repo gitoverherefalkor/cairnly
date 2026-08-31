@@ -39,6 +39,10 @@ exec_*.json
 handoff/**/*.pdf
 handoff/*.pdf
 *.pdf
+# ...except the specimen served on /partners/voorbeeldrapport. It is a
+# fabricated persona, holds no user data, and has to ship in the build or the
+# page 404s. Keep this negation narrow: one directory, nothing else.
+!public/partners/*.pdf
 
 # One-off design drops should never be committed at root
 /*.zip

@@ -58,6 +58,11 @@ const StarterPayment = lazyWithRetry(() => import("./pages/starter/StarterPaymen
 // Encore flavor (pensioners / pre-retirees) — parallel funnel at /encore
 const EncoreIndex = lazyWithRetry(() => import("./pages/encore/EncoreIndex"));
 const EncorePayment = lazyWithRetry(() => import("./pages/encore/EncorePayment"));
+// Partner channel (re-integratie / outplacement / loopbaancoaches) — plain
+// public marketing routes inside the existing site, deliberately NOT a
+// starter/encore-style fork.
+const PartnersIndex = lazyWithRetry(() => import("./pages/partners/PartnersIndex"));
+const PartnerSampleReport = lazyWithRetry(() => import("./pages/partners/PartnerSampleReport"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -182,6 +187,8 @@ const App = () => {
               <Route path="/starter/payment" element={<StarterPayment />} />
               <Route path="/encore" element={<EncoreIndex />} />
               <Route path="/encore/payment" element={<EncorePayment />} />
+              <Route path="/partners" element={<PartnersIndex />} />
+              <Route path="/partners/voorbeeldrapport" element={<PartnerSampleReport />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
