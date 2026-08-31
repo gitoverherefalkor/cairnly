@@ -16,6 +16,12 @@ interface ScreenshotSlotProps {
    * lands as an inline style.
    */
   aspectRatio?: number;
+  /**
+   * 'contain' letterboxes instead of cropping. For slots that show more than
+   * one image, or a chart rather than a screenshot: cropping a product shot
+   * loses chrome, cropping a chart loses axis labels.
+   */
+  fit?: 'cover' | 'contain';
   /** Use the dark-surface frame variant (for slots placed on the teal canvas). */
   onDark?: boolean;
 }
@@ -24,7 +30,7 @@ interface ScreenshotSlotProps {
  * A framed product screenshot. Clicking it opens a full-screen lightbox where
  * the image can be toggled to native-resolution zoom (with pan via scroll).
  */
-const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect, aspectRatio, onDark }) => {
+const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect, aspectRatio, fit, onDark }) => {
   const [open, setOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
 
@@ -55,7 +61,12 @@ const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect,
         style={aspectRatio ? { aspectRatio: String(aspectRatio) } : undefined}
       >
         <div className="lp-screenshot-slot__meta">{meta}</div>
-        <img className="lp-screenshot-slot__img" src={src} alt={alt} />
+        <img
+          className="lp-screenshot-slot__img"
+          src={src}
+          alt={alt}
+          style={fit ? { objectFit: fit, objectPosition: 'center' } : undefined}
+        />
         <span className="lp-screenshot-slot__zoom" aria-hidden="true">
           <ZoomIn size={16} strokeWidth={2.2} />
         </span>

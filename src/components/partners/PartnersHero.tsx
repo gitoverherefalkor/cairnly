@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
-import PartnerRadarSlot from './PartnerRadarSlot';
+import PartnerCarousel from './PartnerCarousel';
 import { SAMPLE_ROUTE } from './constants';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
@@ -44,7 +44,7 @@ const PartnersHero: React.FC = () => {
         </Reveal>
 
         <Reveal as="div" className="mt-12 max-w-3xl">
-          <PartnerRadarSlot />
+          <PartnerCarousel />
         </Reveal>
 
         <Reveal as="div" className="mt-8">

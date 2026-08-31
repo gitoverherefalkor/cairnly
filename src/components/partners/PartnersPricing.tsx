@@ -22,6 +22,12 @@ const PartnersPricing: React.FC = () => {
     <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
       <div className="lp-container">
         <Reveal className="max-w-3xl">
+          <h2
+            className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-8"
+            style={{ fontSize: 'clamp(24px, 2.8vw, 38px)', letterSpacing: '-0.012em' }}
+          >
+            {t('pricing.title')}
+          </h2>
           <p className="text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.7]">
             {t('pricing.intro')}
           </p>

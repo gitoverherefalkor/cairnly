@@ -7,15 +7,28 @@
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
     "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
     "sampleCta": "Bekijk een voorbeeldrapport (2 minuten)",
-    "radarAlt": "Radargrafiek uit het Cairnly voorbeeldrapport",
-    "radarMeta": "Voorbeeldrapport",
-    "radarPendingLabel": "Radargrafiek volgt",
-    "radarPendingDesc": "De afbeelding uit het voorbeeldrapport staat nog niet in de assets-map."
+    "radarPendingLabel": "Beelden volgen",
+    "radarPendingDesc": "De schermafbeeldingen uit het voorbeeldrapport staan nog niet in de assets-map.",
+    "slides": {
+      "radar": {
+        "alt": "Pagina uit het Cairnly voorbeeldrapport met de radargrafiek die de top drie beroepen vergelijkt",
+        "meta": "Uit het rapport"
+      },
+      "dashboard": {
+        "alt": "Het dashboard waarin de kandidaat de beroepen uit het rapport bekijkt",
+        "meta": "Dashboard"
+      }
+    },
+    "prevSlide": "Vorige",
+    "nextSlide": "Volgende",
+    "goToSlide": "Ga naar beeld {{n}}"
   },
   "whoFor": {
+    "title": "Voor wie",
     "body": "Voor re-integratiebureaus (spoor 2), outplacementbureaus en zelfstandige loopbaancoaches. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
   },
   "whatYouGet": {
+    "title": "Wat je kandidaat krijgt",
     "items": [
       "Een top 3 aan passende beroepen met matchscore, plus alternatieven en een aantal minder voor de hand liggende richtingen die wel kloppen met het profiel.",
       "Per beroep: waarom het past bij deze persoon, salarisranges en een AI-impactscore van minimaal tot kritiek. Welke richting groeit en welke krimpt, onmisbaar bij een omscholingsvraag.",
@@ -24,16 +37,35 @@
     ]
   },
   "pricing": {
+    "title": "Prijzen",
     "intro": "Eén credit is één volledig assessment inclusief rapport en AI-coach. Credits verlopen nooit. Geen instapkosten, geen certificering, geen contract, geen minimum. Bij aanmelding krijg je 3 gratis credits om zelf te ervaren wat je kandidaat krijgt.",
     "colCredits": "Credits",
     "colPrice": "Prijs per stuk (ex btw)",
     "rows": [
-      { "credits": "1 t/m 9", "price": "44 euro" },
-      { "credits": "10 t/m 24", "price": "38 euro" },
-      { "credits": "25 t/m 49", "price": "33 euro" },
-      { "credits": "50 t/m 99", "price": "29 euro" },
-      { "credits": "100 t/m 249", "price": "24 euro" },
-      { "credits": "250 en meer", "price": "20 euro" }
+      {
+        "credits": "1 t/m 9",
+        "price": "44 euro"
+      },
+      {
+        "credits": "10 t/m 24",
+        "price": "38 euro"
+      },
+      {
+        "credits": "25 t/m 49",
+        "price": "33 euro"
+      },
+      {
+        "credits": "50 t/m 99",
+        "price": "29 euro"
+      },
+      {
+        "credits": "100 t/m 249",
+        "price": "24 euro"
+      },
+      {
+        "credits": "250 en meer",
+        "price": "20 euro"
+      }
     ],
     "note": "Ter vergelijking: consumenten betalen straks 59 euro per assessment. Jij bepaalt zelf of je credits doorberekent of opneemt in je traject."
   },
@@ -45,6 +77,7 @@
     "mailSubject": "Cairnly pilot voor ons bureau"
   },
   "faq": {
+    "title": "Veelgestelde vragen",
     "items": [
       {
         "q": "Is Cairnly een psychometrisch instrument?",

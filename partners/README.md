@@ -8,7 +8,7 @@ another one.
 |---|---|
 | `Cairnly-voorbeeldrapport-NL-Marloes_partner.pdf` | The white-label report as a bureau's client receives it. Partner is **Loopbaanbureau Voorbeeld**, logo on the cover and in every running header. This is the one published on the website. |
 | `Cairnly-voorbeeldrapport-NL-template.pdf` | The same document with `[partnernaam]` where the bureau's name goes and no logo, so a prospect can see where their branding lands. |
-| `radargrafiek.png` | Raw screen capture of the "Hoe je top drie zich verhoudt" chart. Includes the PDF viewer's thumbnail strip and a trailing dashboard link; both are cropped out of the published copy. |
+| `radargrafiek.png` | Screen capture of the "Hoe je top drie zich verhoudt" chart, **published as-is**. The PDF viewer's page rail down the right edge is deliberate: it is what tells a prospect they are looking into a real report rather than at a marketing graphic. |
 
 Both PDFs are print build `p21-partner-closing`, rendered 2026-08-31.
 
@@ -23,11 +23,21 @@ cp partners/Cairnly-voorbeeldrapport-NL-Marloes_partner.pdf \
    public/partners/cairnly-voorbeeldrapport-nl.pdf
 ```
 
-The radar image is `public/partners/partner-radar-voorbeeld.png`, cropped from
-`radargrafiek.png` to the card only (box `8,8,770,619`). The hero frame reads the
-file's real dimensions at runtime, so a replacement of any shape fits without being
-cropped; if the file is missing the hero falls back to a dashed placeholder rather
-than breaking.
+The hero runs a small carousel of these captures, currently
+`public/partners/partner-radar-voorbeeld.png` (a straight copy of
+`radargrafiek.png`). Adding another, a shot of the dashboard for instance, is
+three steps:
+
+1. drop the file in `public/partners/`;
+2. add a line to `PARTNER_SLIDES` in `src/components/partners/constants.ts`;
+3. add `hero.slides.<key>.alt` and `.meta` to **both** partners locale files.
+
+Order in `PARTNER_SLIDES` is the order on screen. A slide whose file is missing is
+dropped at runtime, so an entry can be committed before the screenshot exists, and
+if none of them load the hero shows a dashed placeholder instead of breaking. The
+frame takes its shape from the first slide that loads and contains the rest, so
+mixing a 3:2 report page with a 16:9 dashboard shot will not make the hero jump
+height. Arrows and dots appear only once there are two or more slides.
 
 ## How a partner report differs from a direct customer's
 

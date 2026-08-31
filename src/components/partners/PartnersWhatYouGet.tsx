@@ -6,7 +6,6 @@ import { tArray } from '@/lib/i18nArray';
 
 /**
  * "Wat de kandidaat krijgt" — the four deliverables as cards on cream.
- * Headless by design: the approved copy supplies no heading for this block.
  */
 const PartnersWhatYouGet: React.FC = () => {
   const { t } = useTranslation('partners');
@@ -15,6 +14,15 @@ const PartnersWhatYouGet: React.FC = () => {
   return (
     <section className="bg-[#ECE4D2] pb-20 md:pb-28">
       <div className="lp-container">
+        <Reveal className="max-w-3xl">
+          <h2
+            className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-8"
+            style={{ fontSize: 'clamp(24px, 2.8vw, 38px)', letterSpacing: '-0.012em' }}
+          >
+            {t('whatYouGet.title')}
+          </h2>
+        </Reveal>
+
         <Reveal className="grid gap-5 md:grid-cols-2 max-w-5xl">
           {items.map((item, i) => (
             <div

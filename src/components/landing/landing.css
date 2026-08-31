@@ -256,6 +256,22 @@ button.lp-screenshot-slot {
     #FBF6E8;
 }
 
+/* Scroll-snap gallery (partner hero). Native snap instead of a carousel
+   library: the scroll position is the state, so the dots can never disagree
+   with what is on screen. Scrollbar hidden because the dots are the affordance. */
+.lp-snap-track {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.lp-snap-track::-webkit-scrollbar { display: none; }
+.lp-snap-slide { scroll-snap-align: start; scroll-snap-stop: always; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-snap-track { scroll-behavior: auto; }
+}
+
 /* Scroll-reveal — default visible so the page never paints blank */
 .lp-reveal {
   opacity: 1; transform: translateY(0);

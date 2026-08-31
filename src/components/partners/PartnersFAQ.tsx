@@ -11,8 +11,7 @@ interface FaqItem {
 
 /**
  * Partner FAQ. Native <details> accordions on the shared .lp-faq styling,
- * same as the homepage FAQ. Headless by design: the approved copy supplies no
- * heading for this block.
+ * same as the homepage FAQ.
  */
 const PartnersFAQ: React.FC = () => {
   const { t } = useTranslation('partners');
@@ -22,6 +21,12 @@ const PartnersFAQ: React.FC = () => {
     <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
         <Reveal className="max-w-3xl">
+          <h2
+            className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-8"
+            style={{ fontSize: 'clamp(24px, 2.8vw, 38px)', letterSpacing: '-0.012em' }}
+          >
+            {t('faq.title')}
+          </h2>
           {items.map((item, i) => (
             <details key={i} className="lp-faq" open={i === 0}>
               <summary>
