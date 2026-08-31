@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Volume2, Square, Settings2, Loader2, Bookmark, BookmarkCheck, ThumbsUp } from 'lucide-react';
 import { useTTS, PLAYBACK_RATES } from '@/contexts/TTSContext';
 
@@ -33,6 +34,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
   liked = false,
   onLikeToggle,
 }) => {
+  const { t } = useTranslation('chat');
   const {
     isSupported,
     speakingId,
@@ -82,7 +84,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
       <button
         type="button"
         onClick={handleToggle}
-        title={isActive ? 'Stop' : 'Read aloud'}
+        title={isActive ? t('ui.stop') : t('ui.readAloud')}
         className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
           isActive
             ? 'bg-atlas-teal/10 text-atlas-teal'
@@ -97,7 +99,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           <Volume2 size={14} />
         )}
         <span className="font-medium">
-          {isThisLoading ? 'Loading…' : isThisSpeaking ? 'Stop' : 'Read aloud'}
+          {isThisLoading ? t('ui.loading') : isThisSpeaking ? t('ui.stop') : t('ui.readAloud')}
         </span>
       </button>
 
@@ -109,7 +111,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           className="flex items-center gap-1 px-2 py-1 rounded-md text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5 transition-colors"
         >
           <Settings2 size={13} />
-          <span>Settings</span>
+          <span>{t('ui.voiceSettings')}</span>
         </button>
 
         {menuOpen && (

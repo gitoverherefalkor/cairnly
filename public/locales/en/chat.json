@@ -63,5 +63,20 @@
       "label": "Exit to Dashboard",
       "mobile": "Exit to Dashboard"
     }
+  },
+  "ui": {
+    "inputPlaceholder": "Type here",
+    "readAloud": "Read aloud",
+    "stop": "Stop",
+    "loading": "Loading…",
+    "voiceSettings": "Settings",
+    "savedTitle": "Saved",
+    "thinking": [
+      "I'm thinking",
+      "Reading the conversation",
+      "Composing your reply"
+    ],
+    "thinkingLate": "Still thinking, this one's taking a moment",
+    "savedBody": "Your discussion highlights are now part of your report."
   }
 }

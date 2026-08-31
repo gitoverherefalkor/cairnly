@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -64,6 +65,7 @@ const markdownComponents = {
 };
 
 export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, savedResponses = [] }) => {
+  const { t } = useTranslation('chat');
   const { extractHighlights, saveHighlights } = useWrapUp();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -134,8 +136,8 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
       );
       setPhase('saved');
       toast({
-        title: 'Saved',
-        description: 'Your discussion highlights are now part of your report.',
+        title: t('ui.savedTitle'),
+        description: t('ui.savedBody'),
       });
       // Send the user straight to the dashboard. They already clicked
       // Save & Close — making them click another "Open Dashboard" pill is

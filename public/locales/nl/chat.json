@@ -63,5 +63,20 @@
       "label": "Naar het dashboard",
       "mobile": "Naar dashboard"
     }
+  },
+  "ui": {
+    "inputPlaceholder": "Typ hier",
+    "readAloud": "Voorlezen",
+    "stop": "Stoppen",
+    "loading": "Laden…",
+    "voiceSettings": "Instellingen",
+    "savedTitle": "Opgeslagen",
+    "thinking": [
+      "Ik denk even na",
+      "Ik lees het gesprek terug",
+      "Ik stel je antwoord op"
+    ],
+    "thinkingLate": "Nog even geduld, deze kost wat meer tijd",
+    "savedBody": "Je gespreksinzichten staan nu in je rapport."
   }
 }

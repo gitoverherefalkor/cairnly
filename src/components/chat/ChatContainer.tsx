@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from 'react';
 import { FolderOpen } from 'lucide-react';
 import { ChatMessages, ChatMessagesHandle } from './ChatMessages';
@@ -185,6 +186,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     },
     ref
   ) => {
+    const { t } = useTranslation('chat');
     const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
     // 'delivery' for fast-path section loads (just a Supabase SELECT + render,
     // ~200ms), 'agent' for LLM replies. Drives the typing indicator's copy
@@ -850,7 +852,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           // but don't surface (rare, and the discussion itself is still
           // preserved in chat history).
           toast({
-            title: 'Saved',
+            title: t('ui.savedTitle'),
             // Refers to the section discussion (which IS summarised into the
             // report), not the Cairnly product-feedback modal that can fire
             // just before this on the values→career transition. The old

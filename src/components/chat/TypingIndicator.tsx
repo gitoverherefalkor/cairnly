@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef } from 'react';
 
 // Two waiting modes with honest copy:
@@ -10,13 +11,14 @@ import React, { useState, useEffect, useRef } from 'react';
 //   putting them together" line until the content lands.
 type LoadingMode = 'delivery' | 'agent' | 'preparing';
 
-const AGENT_MESSAGES = [
+// Copy lives in the `chat` locale files (ui.thinking / ui.thinkingLate). The
+// rotation length is derived from the translated array, so a language may carry
+// a different number of lines without touching this file.
+const AGENT_MESSAGES_FALLBACK = [
   "I'm thinking",
   'Reading the conversation',
   'Composing your reply',
 ] as const;
-
-const AGENT_LATE_MESSAGE = "Still thinking, this one's taking a moment";
 
 interface TypingIndicatorProps {
   isVisible: boolean;
@@ -29,6 +31,11 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   isVisible,
   mode = 'agent',
 }) => {
+  const { t } = useTranslation('chat');
+  const agentMessages = (() => {
+    const v = t('ui.thinking', { returnObjects: true });
+    return Array.isArray(v) && v.length > 0 ? (v as string[]) : [...AGENT_MESSAGES_FALLBACK];
+  })();
   const [messageIndex, setMessageIndex] = useState(0);
   const [isLate, setIsLate] = useState(false);
   const startedAtRef = useRef<number | null>(null);
@@ -53,7 +60,7 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
     startedAtRef.current = Date.now();
 
     const rotateInterval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % AGENT_MESSAGES.length);
+      setMessageIndex((prev) => (prev + 1) % agentMessages.length);
     }, 3000);
 
     const lateTimeout = setTimeout(() => setIsLate(true), 6000);
@@ -72,8 +79,8 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
       : mode === 'preparing'
         ? 'Putting together your career matches — this can take a moment'
         : isLate
-          ? AGENT_LATE_MESSAGE
-          : AGENT_MESSAGES[messageIndex];
+          ? t('ui.thinkingLate')
+          : agentMessages[messageIndex % agentMessages.length];
 
   return (
     <div className="flex items-center gap-2.5 py-2 px-1 max-w-[320px]">
