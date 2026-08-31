@@ -12,21 +12,26 @@ Switch the interface to Dutch before starting, or the chrome will be English.
 
 ## Before you start
 
-1. **Back up her sections.** WF6 rewrites `content` on the sections she gives
-   feedback on. If the Dutch output disappoints, you want the current, good
-   version back.
-   ```sql
-   create table demo_marloes_backup as
-   select * from public.report_sections
-   where report_id = 'ff7a062b-bb97-4644-9c49-0dda5b54d2c0';
-   ```
-2. **Expect the PDF to flip to English afterwards.** The staleness trigger wipes
-   `content_i18n` on any section whose `content` changes, and the language
-   contract is all-or-nothing, so one rewritten section takes the whole document
-   back to English until it is re-translated.
-3. **Re-translation needs `N8N_SHARED_SECRET`**, which is not in `.env.local`.
-   Get that in place *before* the chat, or the Dutch PDF stays English until you
-   do.
+**Nothing to configure. Just run it.**
+
+1. **Your sections are already backed up** in `public.demo_marloes_backup_20260828`
+   (17 rows, 15 carrying Dutch). WF6 rewrites `content` on the sections she gives
+   feedback on, so if the Dutch output disappoints, restore from there and drop
+   the table when you no longer need it.
+2. **`N8N_SHARED_SECRET` needs no action.** An earlier draft of this file called
+   it a blocker; that was wrong. It is absent from the local `.env.local`, but it
+   is set server-side — probed live, `translate-section` answers 401
+   (Unauthorized) rather than 503 (secret not set). The local copy only matters
+   if you want to invoke the translator from a terminal.
+3. **Re-translation is automatic.** WF6 and WF7 both call `translate-section`
+   themselves, so a rewritten section is re-translated without you doing
+   anything.
+
+The one thing worth knowing: the staleness trigger wipes `content_i18n` the
+moment `content` changes, and the printed report is all-or-nothing per document.
+So between WF6 rewriting a section and the translator catching up, a downloaded
+PDF will come out **entirely in English**. That is the contract working, not a
+fault. Wait for the workflows to finish and download again.
 
 ## Her voice
 
