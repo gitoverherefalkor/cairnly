@@ -8,6 +8,14 @@ interface ScreenshotSlotProps {
   meta: string;
   /** Tailwind aspect-ratio class, e.g. 'aspect-[4/3]'. */
   aspect: string;
+  /**
+   * Exact width/height ratio, overriding `aspect`. For slots whose image is
+   * dropped in later and whose shape isn't known at build time: the frame
+   * follows the file instead of cropping it to a guessed class. Tailwind's
+   * JIT can't generate an arbitrary class from a runtime number, so this
+   * lands as an inline style.
+   */
+  aspectRatio?: number;
   /** Use the dark-surface frame variant (for slots placed on the teal canvas). */
   onDark?: boolean;
 }
@@ -16,7 +24,7 @@ interface ScreenshotSlotProps {
  * A framed product screenshot. Clicking it opens a full-screen lightbox where
  * the image can be toggled to native-resolution zoom (with pan via scroll).
  */
-const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect, onDark }) => {
+const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect, aspectRatio, onDark }) => {
   const [open, setOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
 
@@ -43,7 +51,8 @@ const ScreenshotSlot: React.FC<ScreenshotSlotProps> = ({ src, alt, meta, aspect,
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Enlarge screenshot: ${alt}`}
-        className={`lp-screenshot-slot ${onDark ? 'lp-on-dark' : ''} ${aspect} w-full block`}
+        className={`lp-screenshot-slot ${onDark ? 'lp-on-dark' : ''} ${aspectRatio ? '' : aspect} w-full block`}
+        style={aspectRatio ? { aspectRatio: String(aspectRatio) } : undefined}
       >
         <div className="lp-screenshot-slot__meta">{meta}</div>
         <img className="lp-screenshot-slot__img" src={src} alt={alt} />

@@ -1,16 +1,33 @@
 # Partner outreach samples
 
-Specimen PDFs for pitching Cairnly to career bureaus (loopbaanbureaus). The PDFs
-themselves are gitignored (`*.pdf`); this file records what they are and how to
-make another one.
+Source specimens for pitching Cairnly to career bureaus (loopbaanbureaus). The PDFs
+here are gitignored (`*.pdf`); this file records what they are and how to make
+another one.
 
 | File | What it is |
 |---|---|
-| `Cairnly-voorbeeldrapport-NL-Marloes.pdf` | The white-label report as a bureau's client receives it. Partner is **Loopbaanbureau Voorbeeld**, logo on the cover and in every running header. |
+| `Cairnly-voorbeeldrapport-NL-Marloes_partner.pdf` | The white-label report as a bureau's client receives it. Partner is **Loopbaanbureau Voorbeeld**, logo on the cover and in every running header. This is the one published on the website. |
 | `Cairnly-voorbeeldrapport-NL-template.pdf` | The same document with `[partnernaam]` where the bureau's name goes and no logo, so a prospect can see where their branding lands. |
-| `Cairnly-voorbeeldrapport-NL_lbb.pdf` | **Superseded** (built 2026-08-28, print build p20). Still ends on the referral ladder and still carries the LinkedIn share footer. Delete it once nothing points at it. |
+| `radargrafiek.png` | Raw screen capture of the "Hoe je top drie zich verhoudt" chart. Includes the PDF viewer's thumbnail strip and a trailing dashboard link; both are cropped out of the published copy. |
 
-Both current files are print build `p21-partner-closing`, rendered 2026-08-31.
+Both PDFs are print build `p21-partner-closing`, rendered 2026-08-31.
+
+## Publishing these to /partners
+
+This folder is the source. The website serves its own copies under `public/partners/`,
+which unlike these are committed, via the one `!public/partners/*.pdf` exception to the
+global `*.pdf` ignore. Refreshing the published report is a copy plus a commit:
+
+```
+cp partners/Cairnly-voorbeeldrapport-NL-Marloes_partner.pdf \
+   public/partners/cairnly-voorbeeldrapport-nl.pdf
+```
+
+The radar image is `public/partners/partner-radar-voorbeeld.png`, cropped from
+`radargrafiek.png` to the card only (box `8,8,770,619`). The hero frame reads the
+file's real dimensions at runtime, so a replacement of any shape fits without being
+cropped; if the file is missing the hero falls back to a dashed placeholder rather
+than breaking.
 
 ## How a partner report differs from a direct customer's
 

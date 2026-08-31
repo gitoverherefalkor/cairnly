@@ -16,10 +16,19 @@ import { RADAR_IMAGE_PATH } from './constants';
 const PartnerRadarSlot: React.FC = () => {
   const { t } = useTranslation('partners');
   const [status, setStatus] = useState<'probing' | 'ready' | 'missing'>('probing');
+  // The frame takes its shape from the file itself. A chart is not croppable
+  // the way a product screenshot is: trimming the sides to fit a guessed
+  // aspect would cut the axis labels off the radar.
+  const [ratio, setRatio] = useState<number | undefined>();
 
   useEffect(() => {
     const img = new Image();
-    img.onload = () => setStatus('ready');
+    img.onload = () => {
+      if (img.naturalWidth && img.naturalHeight) {
+        setRatio(img.naturalWidth / img.naturalHeight);
+      }
+      setStatus('ready');
+    };
     img.onerror = () => setStatus('missing');
     img.src = RADAR_IMAGE_PATH;
     return () => {
@@ -35,6 +44,7 @@ const PartnerRadarSlot: React.FC = () => {
         alt={t('hero.radarAlt')}
         meta={t('hero.radarMeta')}
         aspect="aspect-[16/10]"
+        aspectRatio={ratio}
         onDark
       />
     );
