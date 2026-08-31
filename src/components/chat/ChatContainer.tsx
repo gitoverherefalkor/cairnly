@@ -1208,20 +1208,20 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           }
           placeholder={
             isSessionCompleted
-              ? 'Session completed - your report is ready above'
+              ? t('ui.phSessionCompleted')
               : wrapUpState === 'pending'
-                ? 'Wrapping up — finish your highlights above to close out'
+                ? t('ui.phWrappingUp')
                 : wrapUpState === 'completed'
-                  ? 'Session closed - click Exit to Dashboard above'
+                  ? t('ui.phSessionClosed')
                   : messages.length === 0
-                    ? "Click 'I'm Ready!' above to begin"
+                    ? t('ui.phNotStarted')
                     : askAboutRole
-                      ? 'Type your question…'
+                      ? t('ui.phAskQuestion')
                       : latestUnrevealedCount > 0
-                      ? `Click to reveal the next ${latestUnrevealedCount} section${latestUnrevealedCount === 1 ? '' : 's'}…`
+                      ? t('ui.phRevealNext', { count: latestUnrevealedCount })
                       : multiCardLocked
-                        ? 'Open each card above to continue…'
-                        : (inputPlaceholderOverride ?? 'Type here')
+                        ? t('ui.phOpenCards')
+                        : (inputPlaceholderOverride ?? t('ui.inputPlaceholder'))
           }
           isSidebarCollapsed={isSidebarCollapsed}
         />

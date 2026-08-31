@@ -77,6 +77,17 @@
       "Composing your reply"
     ],
     "thinkingLate": "Still thinking, this one's taking a moment",
-    "savedBody": "Your discussion highlights are now part of your report."
+    "savedBody": "Your discussion highlights are now part of your report.",
+    "phSessionCompleted": "Session completed - your report is ready above",
+    "phWrappingUp": "Wrapping up - finish your highlights above to close out",
+    "phSessionClosed": "Session closed - click Exit to Dashboard above",
+    "phNotStarted": "Click 'I'm Ready!' above to begin",
+    "phAskQuestion": "Type your question…",
+    "phRevealNext_one": "Click to reveal the next section…",
+    "phRevealNext_other": "Click to reveal the next {{count}} sections…",
+    "phOpenCards": "Open each card above to continue…",
+    "keep": "Keep",
+    "kept": "Kept",
+    "coachingSession": "AI Coaching Session"
   }
 }

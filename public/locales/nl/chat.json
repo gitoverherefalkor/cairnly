@@ -77,6 +77,17 @@
       "Ik stel je antwoord op"
     ],
     "thinkingLate": "Nog even geduld, deze kost wat meer tijd",
-    "savedBody": "Je gespreksinzichten staan nu in je rapport."
+    "savedBody": "Je gespreksinzichten staan nu in je rapport.",
+    "phSessionCompleted": "Gesprek afgerond - je rapport staat hierboven",
+    "phWrappingUp": "We ronden af - maak je inzichten hierboven af om af te sluiten",
+    "phSessionClosed": "Gesprek gesloten - klik hierboven op Naar dashboard",
+    "phNotStarted": "Klik hierboven op 'Ik ben er klaar voor' om te beginnen",
+    "phAskQuestion": "Typ je vraag…",
+    "phRevealNext_one": "Klik om het volgende onderdeel te openen…",
+    "phRevealNext_other": "Klik om de volgende {{count}} onderdelen te openen…",
+    "phOpenCards": "Open elke kaart hierboven om verder te gaan…",
+    "keep": "Bewaren",
+    "kept": "Bewaard",
+    "coachingSession": "AI-coachgesprek"
   }
 }

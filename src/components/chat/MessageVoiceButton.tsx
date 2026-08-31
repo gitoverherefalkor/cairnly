@@ -211,7 +211,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
               }`}
             >
               <Bookmark size={13} fill={bookmarked ? 'currentColor' : 'none'} />
-              <span className="font-medium">{bookmarked ? 'Kept' : 'Keep'}</span>
+              <span className="font-medium">{bookmarked ? t('ui.kept') : t('ui.keep')}</span>
             </button>
           )
         )}
