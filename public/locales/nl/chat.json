@@ -124,5 +124,10 @@
       "development": "Ontwikkelpunten",
       "values": "Loopbaanwaarden"
     }
+  },
+  "careerPills": {
+    "askAboutRole": "Vraag iets over deze rol",
+    "move": "Stap: {{level}} · ontdek waarom",
+    "moveFallback": "Is deze overstap haalbaar?"
   }
 }

@@ -124,5 +124,10 @@
       "development": "Development",
       "values": "Career values"
     }
+  },
+  "careerPills": {
+    "askAboutRole": "Ask about this role",
+    "move": "Move: {{level}} · explore why",
+    "moveFallback": "Can I get there from here?"
   }
 }

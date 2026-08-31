@@ -12,6 +12,8 @@ import {
   extractFeasibility,
 } from './CareerScoreCard';
 import { MOVE_COLOR, normalizeMove } from '@/lib/moveScale';
+import { moveLabel } from '@/lib/enumLabels';
+import { useTranslation } from 'react-i18next';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
 import { CareerComparisonCard } from './CareerComparisonCard';
@@ -589,6 +591,7 @@ const SequentialSubsections: React.FC<{
   // has been revealed.
   comparisonSlot?: React.ReactNode;
 }> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole, onAskFeasibility, comparisonSlot }) => {
+  const { t, i18n } = useTranslation('chat');
   // revealedCount = number of sub-sections currently visible. Starts at 1
   // so the user sees the preamble + first h2 + first body on first render.
   const [revealedCount, setRevealedCount] = useState(1);
@@ -779,7 +782,7 @@ const SequentialSubsections: React.FC<{
               className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
             >
               <MessageCircle size={14} />
-              Ask about this role
+              {t('careerPills.askAboutRole')}
             </button>
             {onAskFeasibility && (
               <button
@@ -789,7 +792,9 @@ const SequentialSubsections: React.FC<{
                 style={mc ? ({ ['--move-c']: moveColor } as React.CSSProperties) : undefined}
               >
                 <Route size={14} />
-                {mc ? `Move: ${mc} · explore why` : 'Can I get there from here?'}
+                {mc
+                  ? t('careerPills.move', { level: moveLabel(mc, i18n.language) })
+                  : t('careerPills.moveFallback')}
               </button>
             )}
           </div>
@@ -850,6 +855,7 @@ const CollapsibleCareerBlocks: React.FC<{
   onAskAboutRole,
   onAskFeasibility,
 }) => {
+  const { t, i18n } = useTranslation('chat');
   // All blocks are uniform collapsible cards, all closed by default. User
   // gets a clean scannable list of options (title + size + score + AI
   // impact pills) and expands any card to read its body. The previous
@@ -1018,7 +1024,7 @@ const CollapsibleCareerBlocks: React.FC<{
                           className="ask-pill inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-atlas-teal text-atlas-teal text-sm font-medium shadow-md transition-colors"
                         >
                           <MessageCircle size={14} />
-                          Ask about this role
+                          {t('careerPills.askAboutRole')}
                         </button>
                         {onAskFeasibility && (
                           <button
@@ -1028,7 +1034,9 @@ const CollapsibleCareerBlocks: React.FC<{
                             style={mvc ? ({ ['--move-c']: mvColor } as React.CSSProperties) : undefined}
                           >
                             <Route size={14} />
-                            {mvc ? `Move: ${mvc} · explore why` : 'Can I get there from here?'}
+                            {mvc
+                              ? t('careerPills.move', { level: moveLabel(mvc, i18n.language) })
+                              : t('careerPills.moveFallback')}
                           </button>
                         )}
                       </div>
