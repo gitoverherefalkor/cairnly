@@ -3,10 +3,17 @@ import { useTranslation } from 'react-i18next';
 import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
 
 const LandingFooter: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
+
+  // The partner page is Dutch-only for now (en/partners.json is still a copy
+  // of the Dutch), and the channel itself is aimed at NL bureaus, so the link
+  // only appears for Dutch visitors. It stays in sitemap.xml either way, so
+  // dropping it here costs nothing in discoverability for search.
+  const isDutch = i18n.language?.startsWith('nl');
 
   const LINKS = [
     { label: t('footer.journal'), href: '/journal' },
+    ...(isDutch ? [{ label: t('footer.partners'), href: '/partners' }] : []),
     { label: t('footer.privacy'), href: '/privacy-policy' },
     { label: t('footer.terms'), href: '/terms-conditions' },
     { label: t('footer.support'), href: '/support' },

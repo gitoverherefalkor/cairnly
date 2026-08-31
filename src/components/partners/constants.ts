@@ -5,7 +5,7 @@
  */
 
 /** Booking link on the pilot CTA. Swap the slug here if the event changes. */
-export const CALENDLY_URL = 'https://calendly.com/sjoerd-bethehitl/30min';
+export const CALENDLY_URL = 'https://calendly.com/sjoerd-bethehitl/new-meeting';
 
 /** Public contact address used in the pilot paragraph. */
 export const CONTACT_EMAIL = 'info@cairnly.io';
