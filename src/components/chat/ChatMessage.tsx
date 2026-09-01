@@ -93,7 +93,7 @@ interface ChipOption {
 // (Claude-style multiple choice) instead of a plain bullet list, so the
 // user can click to drill in (or use the 'Something else' chip / type
 // freely) without facing the same generic Quick Replies again.
-function detectFollowUpOptions(markdown: string): {
+function detectFollowUpOptions(markdown: string, freeTextFallback: string): {
   intro: string;
   options: ChipOption[];
 } | null {
@@ -149,7 +149,7 @@ function detectFollowUpOptions(markdown: string): {
     const trailingFreeText = trailingLines.find((l) =>
       /something else|let me know|on your mind|iets anders|wat je bezighoudt/i.test(l),
     );
-    const display = (trailingFreeText ?? 'Something else, type below')
+    const display = (trailingFreeText ?? freeTextFallback)
       .replace(/^\s*-\s*/, '')
       .replace(/\*\*/g, '')
       .trim();
@@ -1101,7 +1101,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   onLikeToggle,
   onComparisonExplain,
 }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('chat');
   const messageRef = useRef<HTMLDivElement>(null);
   const tts = useTTS();
   // Auto-read this message when readAll is on AND it's the latest bot message.
@@ -1228,7 +1228,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   // through historical chips wouldn't make sense conversationally.
   const followUpOptions =
     isLatestBotMessage && !hasMultipleBlocks && !useSequentialReveal
-      ? detectFollowUpOptions(sanitized)
+      ? detectFollowUpOptions(
+          sanitized,
+          t('ui.somethingElseChip', { defaultValue: 'Something else, type below' }),
+        )
       : null;
 
   // If this single message is a Career 2 or Career 3 section, resolve its
@@ -1399,7 +1402,11 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                     type="button"
                     onClick={() => {
                       if (isFreeText) {
-                        onChipFocusInput?.("Let me know what's on your mind…");
+                        onChipFocusInput?.(
+                          t('quickReplies.somethingElse.placeholder', {
+                            defaultValue: "Let me know what's on your mind…",
+                          }),
+                        );
                       } else {
                         onChipSend?.(opt.message);
                       }
