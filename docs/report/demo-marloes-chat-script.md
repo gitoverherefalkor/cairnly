@@ -7,7 +7,7 @@ the chat produces a real `chat_highlights`, and the report reaches `completed`.
 Right now both of those sections are **hand-authored placeholders**. A real run
 replaces them.
 
-Account: `demo.marloes@cairnly.io` · report `ff7a062b-bb97-4644-9c49-0dda5b54d2c0`
+Account: `demo.marloes@cairnly.io` · report `9144c1e6-9859-4289-9182-5421d2492b41`
 Switch the interface to Dutch before starting, or the chrome will be English.
 
 ## Before you start
@@ -67,127 +67,128 @@ Each section below says which to use. **[TYPE]** means paste the text.
 
 ---
 
-## 1. Jouw aanpak (Understanding Your Approach)
+## Sections 1-2 are done
 
-**[TYPE]** — the report's best insight deserves a real answer:
-> dit klopt meer dan me lief is. ik heb het nooit zo scherp gehad maar het is
-> precies dat. als teamleider ben ik de hele dag bezig met roosters, escalaties
-> en overleggen over overlegen, en de momenten dat ik er echt zin in heb zijn de
-> keren dat ik zelf even een lastige klant bel. dat zegt eigenlijk wel genoeg
+You have already covered Jouw aanpak and Jouw sterke punten. This script picks
+up at **Ontwikkelpunten**.
 
-## 2. Jouw sterke punten (Strengths)
-
-**[TYPE]** — adds something the survey could not know:
-> Klopt. al wil ik er wel bij zeggen dat die onboarding niemand gevraagd had,
-> ik ergerde me gewoon aan dat nieuwe mensen zes weken lang niks konden en ben
-> het in de avonduren gaan herschrijven. dat is wel een patroon bij mij, als
-> iets rammelt ga ik het maken of het nou mijn taak is of niet
-
-## 3. Ontwikkelpunten (Areas for Development)
-
-**[CLICK] Dit zie ik anders**, then **[TYPE]** into the box that opens:
-> het delegeren en te veel oppakken herken ik helemaal. maar "confrontaties
-> vermijden" vind ik te zwart wit. ik ga het gesprek wel aan alleen kies ik mijn
-> momenten, en ik wil niet dat het escaleert. misschien is dat ook gewoon een
-> vorm van uitstellen dat kan. maar het voelt niet als bang zijn
-
-## 4. Jouw loopbaanwaarden (Career Values)
-
-**[TYPE]** — makes an abstraction concrete, and sets a hard boundary:
-> werk prive balans klinkt zo vaag als je het zo opschrijft. voor mij is het
-> heel concreet, ik ben op woensdag thuis en dat blijft zo tot de jongste naar
-> de middelbare gaat. dat is geen voorkeur dat is een voorwaarde. en dat stuk
-> over zware beslissingen klopt wel, ik hoef niet degene te zijn die knopen
-> doorhakt over budgetten of reorganisaties, daar word ik niet blij van
+Report `9144c1e6-9859-4289-9182-5421d2492b41` (the 2026-09-01 re-run). The
+content below is written against THAT run, not the earlier one — the top three
+changed completely.
 
 ---
 
-## 5. Customer Service Trainer — Top match, 94%
+## 3. Ontwikkelpunten — you are here
 
-**[CLICK] Hier wil ik dieper op ingaan**, then when the coach opens it up,
+The report frames it as one habit rather than three faults: she protects harmony
+by absorbing work and friction herself. And it ties that directly to her hours:
+"expensive right now specifically because you're trying to reduce your hours."
+
+**[CLICK] Dit zie ik anders**, then **[TYPE]**:
+> het klopt dat ik dingen naar me toe trek, dat weet ik van mezelf. maar
+> "confrontaties vermijden" vind ik te zwart wit. ik ga het gesprek wel aan
+> alleen kies ik mijn momenten. wat me wel raakt is dat stuk dat het me juist
+> uren kost, daar had ik het verband nooit zo gelegd. ik dacht altijd dat ik
+> minder uren wilde, niet dat ik anders moest werken
+
+## 4. Jouw loopbaanwaarden
+
+The report picks up her own word, *leegloop*, and argues she is refusing to
+trade meaning for hours rather than looking for an easy job.
+
 **[TYPE]**:
-> hier werd ik wel enthousiast van, dit is het leukste deel van mijn werk alleen
-> dan de hele dag. mijn twijfel zit em in de sector. blijf ik hiermee niet gewoon
-> in verzekeringen hangen? ik doe dit al 18 jaar en ik weet niet of ik over vijf
-> jaar nog steeds over polissen wil uitleggen
+> ja. en fijn dat je leegloop overneemt want zo voelt het echt. voor mij is die
+> balans trouwens heel concreet, ik ben op woensdag thuis en dat blijft zo tot
+> de jongste naar de middelbare gaat. dat is geen voorkeur dat is een
+> voorwaarde. minder uren in dezelfde rol heb ik al geprobeerd en dat hielp
+> niks, dus dat klopt wel wat er staat
 
-## 6. Praktijkopleider — Second match, 93%
+---
 
-The one she had not heard of, so exploring it is the natural move and the best
-thing in the whole demo.
+## 5. Learning and Development Specialist — Top match, 92%
+
+*Large (201-1000) / Corporate.* The report leans on her own sentence: "Wat ik
+het liefste doe is mensen beter maken in hun werk."
 
 **[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
-> Deze kende ik niet als functie en die moest ik even opzoeken, maar dit is
-> eigenlijk precies wat ik nu al doe met stagiairs alleen dan officieel en niet
-> ernaast, dus ik zie mezelf dit echt doen. Wel een praktische vraag, heb ik hier
-> een papiertje voor nodig? ik heb HBO bedrijfskunde en verder niks in de
-> onderwijshoek
+> dat zinnetje van mij staat er nu wel heel groot, maar het klopt gewoon. wat
+> me een beetje tegenhoudt is dat large corporate. ik zit nu bij een
+> verzekeraar en juist die lagen en die afstand zijn waar ik vanaf wil. wordt
+> dit dan niet weer een trainingsfabriek waar ik e-learnings zit te maken die
+> niemand doet?
 
-Follow up once more if the answer is good — a partner watching should see the
-coach handle a second, harder question:
-> en hoe kom ik daar dan aan? ik zie ze niet vaak voorbijkomen op indeed
+## 6. Quality Coach Customer Contact — Second match, 88%
 
-## 7. Onboarding Specialist — Third match, 89%
+The most realistic of the three: her current world, minus the managing.
 
-**[TYPE]** — deliberately lukewarm, so the top three do not all read as wins:
-> deze spreekt me minder aan. als ik het goed lees is dit vooral regelen dat
-> laptops op tijd klaarstaan en checklists afvinken, dat is meer projectwerk dan
-> mensenwerk. en het mensenwerk is nou juist waar ik het voor doe
+**[TYPE]**:
+> deze zou ik morgen kunnen. dat is meteen ook mijn twijfel, is dit niet gewoon
+> een stap terug? ik was hiervoor senior klantcontact en dan ga ik nu coachen op
+> gesprekken van anderen. aan de andere kant, die 8 die ik gaf was wel precies
+> die periode dus misschien is terug hier niet het goede woord
+
+## 7. Career Counselor — Third match, 81%
+
+The emotional peak of the run. Her literal dream job, ranked, with her own
+"papieren" doubt quoted back at her and answered.
+
+**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
+> oke hier moest ik even van slikken. dit is letterlijk wat ik heb opgeschreven
+> bij die droombaan vraag en ik had niet verwacht dat het gewoon in de top 3 zou
+> staan. ik ging er eigenlijk vanuit dat jullie zouden zeggen dat het niet
+> realistisch was
+
+Then push once more, because this is the question she actually has:
+> en die papieren dan? ik heb hbo bedrijfskunde en verder niks. moet ik dan
+> eerst een opleiding doen voor iemand me serieus neemt, of kan dat naast een
+> baan
 
 ## 8. Runner-ups
 
-**[CLICK] Door naar de volgende sectie.**
+MBO Teacher Business Services (81), Onboarding Program Manager (80),
+Reintegration Coach (78).
 
-One clean skip is realistic and gives the recording some pace. If you would
-rather she reacts, this is short enough to stay quick:
-> learning and development specialist vind ik interessant. die customer
-> experience quality specialist niet, dat is voor mijn gevoel weer terug naar
-> rapportages en dashboards en daar kom ik juist vandaan
+**[TYPE]** — short, and picks a side:
+> mbo docent had ik zelf nooit bedacht maar dat spreekt me aan, opleiden en
+> begeleiden tegelijk. onboarding program manager minder, dat voelt weer als
+> regelen en plannen. reintegratiecoach vind ik interessant maar ook zwaar, dat
+> zijn wel mensen op hun slechtste moment
 
 ## 9. Outside the box
 
+Community Health Worker, Athlete Wellbeing Advisor, and a Recipe Developer /
+community cooking lead — the last one is genuinely odd, which is the point.
+
 **[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
-> wijkcoach raakt wel iets, dat is het soort werk waarvan ik denk dat het er echt
-> toe doet. tegelijk lees ik wat het betaalt en dat gaat gewoon niet passen met
-> onze hypotheek. bedrijfsmaatschappelijk werk vind ik eerlijk gezegd het
-> interessantst van deze drie, dat zit dichter bij waar ik nu zit dan ik had
-> verwacht
+> die kookprogramma's, daar moest ik om lachen. maar eerlijk gezegd raakt het
+> wel iets, ik kook veel en ik snap wel dat je mensen daarmee bij elkaar krijgt.
+> alleen ga ik daar de hypotheek niet mee betalen. die wijkgerichte zorg vind ik
+> van deze drie het meest realistisch, al vraag ik me af of ik dat emotioneel
+> aankan op de lange termijn
 
-## 10. Droombaan — Loopbaanbegeleider
+## 10. Droombanen — Loopbaanbegeleider en Trainer
 
-**[TYPE]** — dictated, so it runs long:
-> Fijn dat jullie er niet omheen draaien, ik wist al half dat iedereen zich
-> loopbaancoach mag noemen en dat het er vol zit. Wat ik hier vooral uit haal is
-> dat ik het niet in een keer hoef te doen, als ik eerst praktijkopleider word en
-> dat begeleidende stuk daar opbouw kom ik er misschien vanzelf. een jaar zonder
-> inkomen een praktijk opbouwen kan ik niet, dat is gewoon zo
+Both dreams, and the report has already ranked one of them.
+
+**[TYPE]** — dictated, so it runs long and stays clean:
+> Wat me hier opvalt is dat allebei mijn droombanen ook gewoon terugkomen in de
+> lijst hierboven, dus blijkbaar is het niet zo'n gek idee als ik zelf dacht. Ik
+> zat er eigenlijk op te wachten dat er zou staan dat het te vol zit of dat
+> iedereen zich coach mag noemen, dat hoor ik namelijk vaak. Wat ik hieruit
+> meeneem is dat ik het niet in een keer hoef om te gooien, als ik ergens begin
+> waar ik al mensen begeleid dan bouw ik dat vanzelf op. Een jaar zonder inkomen
+> een praktijk opbouwen gaat niet, dat is gewoon de realiteit met twee kinderen
 
 ---
 
-## Pacing for a demo recording
+## Pacing
 
-If this session is going to be watched by a partner, the rhythm matters as much
-as the content. Roughly:
-
-- **Two or three `Door naar de volgende sectie` clicks** across the whole run.
-  Silence is realistic; a user who writes an essay every turn is not.
-- **Three `Hier wil ik dieper op ingaan`**, on the two top careers and outside
-  the box. This is the button that shows the product doing something a static
-  report cannot.
-- **One `Dit zie ik anders`**, on the development section. One disagreement is
-  plausible; three looks like a person arguing with a document.
-- Keep the two dictated answers (Praktijkopleider, droombaan) long. The contrast
-  with the short clicks is what makes the rest read as genuine.
-
-## Filler replies
-
-For turns where you want to move on but a click is not offered.
-
-- `klopt, ga verder`
-- `ja hier herken ik me wel in`
-- `dit had ik zelf ook al bedacht maar goed om bevestigd te zien`
-- `prima, volgende`
-- `interessant, daar moet ik even over nadenken. ga maar door`
+- **Three `Hier wil ik dieper op ingaan`** — L&D, Career Counselor, outside the
+  box. The Career Counselor one is the moment to let run: her dream job came
+  back ranked, and she asks the practical follow-up. That exchange is the single
+  best thing in the recording.
+- **One `Dit zie ik anders`** — ontwikkelpunten.
+- **One or two `Door naar de volgende sectie`** wherever you want pace.
 
 ## What to watch while you run it
 
