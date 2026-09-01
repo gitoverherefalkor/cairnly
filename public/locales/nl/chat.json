@@ -142,5 +142,16 @@
   },
   "prompts": {
     "aboutPrefix": "[Over {{role}}]"
+  },
+  "resume": {
+    "autoMessage": "Hoi, ik ben er weer! Laten we verdergaan waar we gebleven waren.",
+    "banner": "Sessie hersteld - je coach weet nog waar jullie gebleven waren",
+    "wbTitle": "Welkom terug",
+    "wbIntro": "Het is even geleden dat we elkaar spraken. Ik sta klaar om ons gesprek over je loopbaanrapport voort te zetten!",
+    "wbReviewed": "Vorige keer bespraken we:",
+    "wbSafeTitle": "Je voortgang is veilig",
+    "wbSafeBody": "Ons eerdere gesprek is hier niet meer zichtbaar, maar al je feedback en rapportinhoud is opgeslagen en verwerkt. Je eindrapport bevat alles wat we hebben besproken.",
+    "wbReady": "Klaar om verder te gaan waar we gebleven waren? Stel gerust vragen over elk onderdeel van je rapport, vraag om verduidelijking of verken nieuwe loopbaanrichtingen.",
+    "wbContinue": "Gesprek voortzetten"
   }
 }

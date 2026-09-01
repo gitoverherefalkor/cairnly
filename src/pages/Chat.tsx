@@ -192,7 +192,11 @@ const Chat = () => {
 
     // Set auto-resume in case Supabase messages are empty (migration gap)
     // ChatContainer will only send it if there are no loaded messages.
-    setAutoResumeMessage("Hi, I'm back! Let's continue where we left off.");
+    // defaultValue guard: this string gets SENT as the user's turn, so it
+    // must never render as a raw i18n key (see QuickReplies pitfall P2).
+    setAutoResumeMessage(
+      t('resume.autoMessage', { defaultValue: "Hi, I'm back! Let's continue where we left off." }),
+    );
 
     // Go straight to chat (skip welcome)
     setShowWelcome(false);
@@ -386,7 +390,9 @@ const Chat = () => {
     const engaged =
       localStorage.getItem(`chat_engaged_${reportData.id}`) === '1';
     if (isNewSession && isReturningUser && engaged) {
-      setAutoResumeMessage("Hi, I'm back! Let's continue where we left off.");
+      setAutoResumeMessage(
+        t('resume.autoMessage', { defaultValue: "Hi, I'm back! Let's continue where we left off." }),
+      );
     }
 
     setSessionId(sid);
@@ -531,7 +537,7 @@ const Chat = () => {
             {showSessionBanner && (
               <div className="bg-atlas-teal/10 border-b border-atlas-teal/20 px-4 py-2 flex items-center justify-center gap-2 text-sm text-atlas-navy">
                 <RefreshCw className="h-4 w-4 text-atlas-teal" />
-                <span>Session restored - your coach remembers the conversation</span>
+                <span>{t('resume.banner', { defaultValue: 'Session restored - your coach remembers the conversation' })}</span>
                 <button
                   onClick={() => setShowSessionBanner(false)}
                   className="ml-2 text-gray-400 hover:text-gray-600"

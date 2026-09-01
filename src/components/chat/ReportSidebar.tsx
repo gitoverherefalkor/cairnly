@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import type { ReportSection } from '@/hooks/useReportSections';
 
 // Map section IDs to translation keys in report.json
-const SECTION_I18N_KEY: Record<string, string> = {
+// Exported so WelcomeBackCard can localise its "last time we reviewed" list.
+export const SECTION_I18N_KEY: Record<string, string> = {
   'executive-summary': 'sections.executiveSummary.title',
   'personality-team': 'sections.personalityTeam.title',
   'strengths': 'sections.strengths.title',

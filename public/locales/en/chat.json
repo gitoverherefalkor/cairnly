@@ -142,5 +142,16 @@
   },
   "prompts": {
     "aboutPrefix": "[About {{role}}]"
+  },
+  "resume": {
+    "autoMessage": "Hi, I'm back! Let's continue where we left off.",
+    "banner": "Session restored - your coach remembers the conversation",
+    "wbTitle": "Welcome Back",
+    "wbIntro": "It's been a while since we last spoke. I'm ready to continue our conversation about your career assessment!",
+    "wbReviewed": "Last time we reviewed:",
+    "wbSafeTitle": "Your progress is safe",
+    "wbSafeBody": "While our previous conversation history isn't visible anymore, all your feedback and report content has been saved and processed. Your final report reflects everything we discussed.",
+    "wbReady": "Ready to pick up where we left off? Feel free to ask about any section of your assessment, request clarifications, or explore new career paths.",
+    "wbContinue": "Continue Session"
   }
 }
