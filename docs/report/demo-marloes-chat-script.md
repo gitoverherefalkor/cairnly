@@ -31,9 +31,13 @@ starting, or the chrome will be English.
    - Browser localStorage (`chat_engaged_<reportId>`,
      `chat_section_index_<reportId>`, `n8n-chat/sessionId`) — incognito
      covers only this one.
-   All three server-side layers were wiped 2026-09-01 (late afternoon,
-   after the incognito test); a fresh private window now starts at the
-   WelcomeCard. Re-wipe all three together after any test chat.
+   One command wipes all three server-side layers:
+   `node scripts/demo-reset-chat.mjs demo.marloes@cairnly.io`
+   Run it after any test chat, right before recording. Then close ALL
+   private windows and open a fresh one (incognito keeps its storage as
+   long as any private window stays open — reusing an open one is why a
+   "fresh" test can still resume). A truly fresh window starts at the
+   WelcomeCard.
 1. **All sections are Dutch (verified 2026-09-01).** The Career Counselor
    runner-up card initially missed its translation; it was re-run via the
    n8n utility **"OPS - Retranslate report (manual)"** (inactive, manual
