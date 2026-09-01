@@ -91,7 +91,10 @@
     "coachingSession": "AI Coaching Session",
     "inReport": "In report",
     "loadingSection": "Loading your section",
-    "preparingMatches": "Putting together your career matches — this can take a moment"
+    "preparingMatches": "Putting together your career matches — this can take a moment",
+    "askingAbout": "Asking about:",
+    "tapCardsHint": "Tap a card below to open it. Once you've opened all of them, you can continue.",
+    "savedSectionBody": "Your discussion of this section will be reflected in your final report."
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",
@@ -135,5 +138,8 @@
   "comparison": {
     "explain": "Explain this comparison",
     "explained": "Explanation added below"
+  },
+  "prompts": {
+    "aboutPrefix": "[About {{role}}]"
   }
 }

@@ -11,6 +11,7 @@
 // dream_jobs is "career-multi-lite" (no size/alt-titles, no <strong> on title).
 
 import { getBoilerplate, type SectionType } from './boilerplate.ts';
+import { companyContext } from './companyContext.ts';
 
 export interface ReportSectionRow {
   section_type: string;
@@ -147,13 +148,15 @@ function altTitlesLabel(language: string): string {
   return ALT_TITLES_LABEL[key] ?? ALT_TITLES_LABEL.en;
 }
 
-/** Company size/type line: `#### Medium (51-200) / Agency` from either shape. */
-function renderSizeLine(raw: string | null): string {
+/** Company size/type line: `#### Medium (51-200) / Agency` from either shape.
+ *  Translated at the display boundary (companyContext), like every other
+ *  place this field is shown. */
+function renderSizeLine(raw: string | null, language: string): string {
   const text = htmlToMarkdown(raw)
     .replace(/^#+\s*/, '')
     .replace(/\*\*/g, '')
     .trim();
-  return text ? `#### ${text}` : '';
+  return text ? `#### ${companyContext(text, language)}` : '';
 }
 
 /** Alternate-titles line: `**<label>** A, B` from either shape. */
@@ -182,7 +185,7 @@ function renderCareerCard(row: ReportSectionRow, language: string = 'en'): strin
   const parts: string[] = [];
   const title = htmlToMarkdown(row.title);
   if (title) parts.push(title);
-  const size = renderSizeLine(row.company_size_type);
+  const size = renderSizeLine(row.company_size_type, language);
   if (size) parts.push(size);
   const alts = renderAltTitlesLine(row.alternate_titles, language);
   if (alts) parts.push(alts);

@@ -91,7 +91,10 @@
     "coachingSession": "AI-coachgesprek",
     "inReport": "In rapport",
     "loadingSection": "Je sectie wordt geladen",
-    "preparingMatches": "We stellen je carrièrematches samen, dit kan even duren"
+    "preparingMatches": "We stellen je carrièrematches samen, dit kan even duren",
+    "askingAbout": "Vraag over:",
+    "tapCardsHint": "Tik op een kaart hieronder om deze te openen. Heb je ze allemaal geopend, dan kun je verder.",
+    "savedSectionBody": "Je bespreking van deze sectie wordt verwerkt in je eindrapport."
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",
@@ -135,5 +138,8 @@
   "comparison": {
     "explain": "Leg deze vergelijking uit",
     "explained": "Uitleg hieronder toegevoegd"
+  },
+  "prompts": {
+    "aboutPrefix": "[Over {{role}}]"
   }
 }

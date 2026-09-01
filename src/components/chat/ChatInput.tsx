@@ -111,7 +111,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                 <div className="inline-flex items-center gap-2 max-w-full rounded-full border border-atlas-teal/40 bg-white shadow-md pl-3 pr-2 py-1.5 text-sm">
                   <MessageCircle size={14} className="shrink-0 text-atlas-teal" />
                   <span className="text-atlas-navy min-w-0 truncate">
-                    Asking about: <span className="font-semibold text-atlas-teal">{askAboutRole}</span>
+                    {t('ui.askingAbout')} <span className="font-semibold text-atlas-teal">{askAboutRole}</span>
                   </span>
                   <button
                     type="button"

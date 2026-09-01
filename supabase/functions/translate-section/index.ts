@@ -58,6 +58,24 @@ interface SectionRow {
   title: string | null;
   content: string | null;
   content_i18n: Record<string, unknown> | null;
+  // Carries the WF4-written comparison prose ({ headline, explanation }) on
+  // top_career_2/3 rows — user-facing English that must translate too.
+  metadata: Record<string, unknown> | null;
+}
+
+/** The pre-written career comparison on top_career_2/3 rows (headline above
+ *  the radar + the "Explain this comparison" chat message). Lives in
+ *  metadata.comparison, so the title/content pass never sees it. */
+function comparisonOf(row: SectionRow): { headline: string; explanation: string } | null {
+  const cmp = row.metadata?.comparison as { headline?: unknown; explanation?: unknown } | undefined;
+  if (!cmp || typeof cmp.headline !== 'string' || typeof cmp.explanation !== 'string') return null;
+  if (!cmp.headline.trim() || !cmp.explanation.trim()) return null;
+  return { headline: cmp.headline, explanation: cmp.explanation };
+}
+
+function hasComparisonTranslation(row: SectionRow, target: Lang): boolean {
+  const entry = row.content_i18n?.[target] as { comparison?: unknown } | undefined;
+  return !!entry?.comparison;
 }
 
 interface FailureEntry {
@@ -152,14 +170,98 @@ async function callClaude(
   }
 }
 
+// Separator used to translate headline + explanation in one call. It's an
+// HTML comment, which the structural contract already forces the model to
+// reproduce verbatim — so the gate guarantees we can split the answer back.
+const CMP_SPLIT = '<!--CMP-SPLIT-->';
+
+/** Translate the comparison prose. Returns the translated pair, or a
+ *  failure reason string. Best-effort sibling of the main pass. */
+async function translateComparison(
+  cmp: { headline: string; explanation: string },
+  target: Lang,
+): Promise<{ headline: string; explanation: string } | { failure: string }> {
+  const canonical = `${cmp.headline}\n\n${CMP_SPLIT}\n\n${cmp.explanation}`;
+  if (!canonicalLooksEnglish(canonical)) {
+    return { failure: 'comparison: canonical-not-english' };
+  }
+  const system = buildSystemPrompt(target);
+  const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
+    { role: 'user', content: buildUserMessage(null, canonical) },
+  ];
+  let lastFailures = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let raw: string;
+    try {
+      raw = await callClaude(system, messages);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt === 0) continue;
+      return { failure: `comparison api-error: ${msg}` };
+    }
+    const parsed = parseModelAnswer(raw);
+    if (!parsed) {
+      lastFailures = 'answer did not use the <<<TITLE>>>/<<<CONTENT>>>/<<<END>>> markers';
+    } else {
+      const gate = runGate(canonical, parsed.content, target);
+      const parts = parsed.content.split(CMP_SPLIT);
+      const failures = [...gate.failures];
+      if (parts.length !== 2) failures.push('comparison: split marker missing from answer');
+      if (failures.length === 0) {
+        return { headline: parts[0].trim(), explanation: parts[1].trim() };
+      }
+      lastFailures = failures.join(' | ');
+    }
+    messages.push({ role: 'assistant', content: raw });
+    messages.push({
+      role: 'user',
+      content: `Your translation failed these mechanical checks:\n${lastFailures}\n\nProduce the corrected translation. Same marker format, full document.`,
+    });
+  }
+  return { failure: `comparison gate-failed: ${lastFailures}` };
+}
+
 /** Translate one section. Returns null on success, or a failure reason. */
 async function translateOne(
   supabase: SupabaseClient,
   row: SectionRow,
   target: Lang,
+  force: boolean,
 ): Promise<string | null> {
   const canonicalContent = row.content ?? '';
   if (canonicalContent.trim().length === 0) return null; // nothing to translate
+
+  const existingEntry =
+    row.content_i18n && typeof row.content_i18n === 'object' && target in row.content_i18n
+      ? (row.content_i18n as Record<string, unknown>)[target]
+      : null;
+  const needsMain = force || !existingEntry;
+  const cmp = comparisonOf(row);
+  const needsComparison = cmp !== null && (force || !hasComparisonTranslation(row, target));
+
+  // Backfill path: main translation already exists, only the comparison is
+  // missing (rows translated before comparison support, or a prior
+  // comparison failure). Translate just the pair and merge it in.
+  if (!needsMain) {
+    if (!needsComparison) return null;
+    const translated = await translateComparison(cmp!, target);
+    if ('failure' in translated) return translated.failure;
+    const { data: fresh } = await supabase
+      .from('report_sections')
+      .select('content_i18n')
+      .eq('id', row.id)
+      .single();
+    const freshI18n = (fresh?.content_i18n as Record<string, unknown>) ?? {};
+    const freshEntry = (freshI18n[target] as Record<string, unknown>) ?? {};
+    const merged = { ...freshI18n, [target]: { ...freshEntry, comparison: translated } };
+    const { error } = await supabase
+      .from('report_sections')
+      .update({ content_i18n: merged })
+      .eq('id', row.id)
+      .eq('content', canonicalContent);
+    if (error) return `db-write-error: ${error.message}`;
+    return null;
+  }
 
   if (!canonicalLooksEnglish(canonicalContent)) {
     // Generator regression: canonical content is not English. Do NOT translate
@@ -198,6 +300,17 @@ async function translateOne(
       const failures = [...contentGate.failures, ...(titleGate.ok ? [] : titleGate.failures)];
 
       if (failures.length === 0) {
+        // The comparison prose rides along with the main entry when present.
+        // Its failure never blocks the main write — the section text is the
+        // primary deliverable; a failed comparison is reported and backfilled
+        // on the next run (the eligibility check sees it missing).
+        let comparisonFailure: string | null = null;
+        let comparisonEntry: { headline: string; explanation: string } | null = null;
+        if (needsComparison) {
+          const translatedCmp = await translateComparison(cmp!, target);
+          if ('failure' in translatedCmp) comparisonFailure = translatedCmp.failure;
+          else comparisonEntry = translatedCmp;
+        }
         // Write, guarded on the content we translated: if the section was
         // rewritten mid-flight, this update matches 0 rows and we skip.
         const entry = {
@@ -205,6 +318,7 @@ async function translateOne(
           content: parsed.content,
           translated_at: new Date().toISOString(),
           model: MODEL,
+          ...(comparisonEntry ? { comparison: comparisonEntry } : {}),
         };
         const { data: fresh } = await supabase
           .from('report_sections')
@@ -222,7 +336,7 @@ async function translateOne(
         if (!updated || updated.length === 0) {
           console.warn(`[translate-section] ${row.section_type} ${row.id}: content changed mid-translation, skipping write`);
         }
-        return null;
+        return comparisonFailure;
       }
       lastFailures = failures.join(' | ');
     }
@@ -281,7 +395,7 @@ serve(async (req) => {
     // Load the target sections.
     let query = supabase
       .from('report_sections')
-      .select('id, report_id, section_type, title, content, content_i18n');
+      .select('id, report_id, section_type, title, content, content_i18n, metadata');
     query = sectionId ? query.eq('id', sectionId) : query.eq('report_id', reportId!);
     const { data: rows, error: rowsError } = await query;
     if (rowsError || !rows || rows.length === 0) {
@@ -315,11 +429,15 @@ serve(async (req) => {
       );
     }
 
-    const eligible = sections.filter(
-      (s) =>
-        !EXEMPT_TYPES.has(s.section_type) &&
-        (force || !(s.content_i18n && typeof s.content_i18n === 'object' && target in s.content_i18n)),
-    );
+    const eligible = sections.filter((s) => {
+      if (EXEMPT_TYPES.has(s.section_type)) return false;
+      if (force) return true;
+      const hasMain = s.content_i18n && typeof s.content_i18n === 'object' && target in s.content_i18n;
+      // A section whose text is translated can still owe its comparison
+      // (rows translated before comparison support) — backfill those.
+      const owesComparison = comparisonOf(s) !== null && !hasComparisonTranslation(s, target);
+      return !hasMain || owesComparison;
+    });
 
     const failures: FailureEntry[] = [];
     let translated = 0;
@@ -329,7 +447,7 @@ serve(async (req) => {
     const workers = Array.from({ length: Math.min(CONCURRENCY, eligible.length) }, async () => {
       while (cursor < eligible.length) {
         const row = eligible[cursor++];
-        const failure = await translateOne(supabase, row, target);
+        const failure = await translateOne(supabase, row, target, force);
         if (failure) {
           failures.push({ section_id: row.id, section_type: row.section_type, reason: failure });
         } else {

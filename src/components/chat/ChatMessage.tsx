@@ -13,6 +13,7 @@ import {
 } from './CareerScoreCard';
 import { MOVE_COLOR, normalizeMove } from '@/lib/moveScale';
 import { moveLabel } from '@/lib/enumLabels';
+import { companyContext } from '@/lib/companyContext';
 import { useTranslation } from 'react-i18next';
 import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
@@ -537,14 +538,26 @@ const markdownComponents = {
 // prefix (that prefix is only applied to free-text turns, not chip sends),
 // and explicitly asks for the transition/reskilling angle so the reply
 // covers feasibility of the jump, not just the role itself.
-export function buildFeasibilityQuestion(roleTitle: string, moveLevel?: string | null): string {
-  const base = `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
+// Written in the viewer's language: the user reads it as their own message,
+// and the agent mirrors the language of the question in its reply.
+export function buildFeasibilityQuestion(
+  roleTitle: string,
+  moveLevel?: string | null,
+  lang?: string | null,
+): string {
+  const nl = String(lang ?? 'en').slice(0, 2).toLowerCase() === 'nl';
+  const base = nl
+    ? `Hoe realistisch is de overstap naar ${roleTitle} vanaf waar ik nu sta, en wat zou ik moeten leren of bijleren om daar te komen?`
+    : `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
   // When the report has a Move rating for this role, name it so the agent ties
   // its answer to the pill and justifies the label (rather than answering blind).
+  // The level is quoted with the label the user sees on the pill (localised).
   // (Answer legibility / short paragraphs is handled by the WF5 system prompt.)
-  return moveLevel
-    ? `${base} My report rates the reskilling effort for this move as "${moveLevel}". Explain why it is rated that, and whether it holds up.`
-    : base;
+  if (!moveLevel) return base;
+  const shownLevel = moveLabel(moveLevel, lang);
+  return nl
+    ? `${base} Mijn rapport beoordeelt de benodigde stap voor deze overstap als "${shownLevel}". Leg uit waarom die beoordeling zo is, en of die klopt.`
+    : `${base} My report rates the reskilling effort for this move as "${shownLevel}". Explain why it is rated that, and whether it holds up.`;
 }
 
 // Renders a section-reveal message with sequential sub-section disclosure.
@@ -916,9 +929,7 @@ const CollapsibleCareerBlocks: React.FC<{
       {showOpenCardsHint && (
         <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
           <MousePointerClick className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
-          <span>
-            Tap a card below to open it. Once you've opened all of them, you can continue.
-          </span>
+          <span>{t('ui.tapCardsHint')}</span>
         </div>
       )}
 
@@ -974,10 +985,12 @@ const CollapsibleCareerBlocks: React.FC<{
                       <h3 className="text-base font-bold text-atlas-navy font-heading m-0 leading-snug">
                         {block.title}
                       </h3>
-                      {/* Company size — small subhead under the title */}
+                      {/* Company size — small subhead under the title,
+                          translated at the display boundary like everywhere
+                          else this field is shown. */}
                       {size && (
                         <div className="text-xs text-atlas-teal font-medium leading-tight">
-                          {size}
+                          {companyContext(size, i18n.language)}
                         </div>
                       )}
                     </div>
@@ -1088,6 +1101,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   onLikeToggle,
   onComparisonExplain,
 }) => {
+  const { i18n } = useTranslation();
   const messageRef = useRef<HTMLDivElement>(null);
   const tts = useTTS();
   // Auto-read this message when readAll is on AND it's the latest bot message.
@@ -1338,7 +1352,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             onAskAboutRole={onAskAboutRole}
             onAskFeasibility={
               onChipSend
-                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel))
+                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel, i18n.language))
                 : undefined
             }
           />
@@ -1359,7 +1373,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             onAskAboutRole={onAskAboutRole}
             onAskFeasibility={
               onChipSend
-                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel))
+                ? (role, moveLevel) => onChipSend(buildFeasibilityQuestion(role, moveLevel, i18n.language))
                 : undefined
             }
             comparisonSlot={comparisonCard}

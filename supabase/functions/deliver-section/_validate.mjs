@@ -50,7 +50,11 @@ function altTitlesLabel(language) {
   return ALT_TITLES_LABEL[key] ?? ALT_TITLES_LABEL.en;
 }
 
-function renderSizeLine(raw) {
+// NOTE: the deployed renderer also passes the text through companyContext()
+// for Dutch. That map is TS-only, so this mirror covers the English path;
+// the NL size translation is asserted against the REAL renderer via
+// `deno eval` (see repo history / run it with deno if you touch renderSizeLine).
+function renderSizeLine(raw, _language) {
   const text = htmlToMarkdown(raw)
     .replace(/^#+\s*/, '')
     .replace(/\*\*/g, '')
@@ -70,7 +74,7 @@ function renderCareerCard(row, language = 'en') {
   const parts = [];
   const title = htmlToMarkdown(row.title);
   if (title) parts.push(title);
-  const size = renderSizeLine(row.company_size_type);
+  const size = renderSizeLine(row.company_size_type, language);
   if (size) parts.push(size);
   const alts = renderAltTitlesLine(row.alternate_titles, language);
   if (alts) parts.push(alts);
