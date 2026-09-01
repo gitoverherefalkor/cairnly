@@ -17,15 +17,23 @@ starting, or the chrome will be English.
 
 ## Before you start
 
-0. **Record in a private/incognito window.** Sjoerd's normal browser holds
-   localStorage flags from testing (`chat_engaged_<reportId>`,
-   `chat_section_index_<reportId>`, `n8n-chat/sessionId`); with those set,
-   opening the chat auto-fires the resume message and skips the welcome
-   card. A private window starts at the WelcomeCard like a real first
-   session. A full chat reset lives in three places: `chat_messages`
-   (transcript), `n8n_chat_histories` keyed by report_id (the coach's own
-   memory — forget this one and the coach "remembers" deleted turns), and
-   the browser's localStorage. The first two are clean as of 2026-09-01.
+0. **Record in a private/incognito window — AND know that alone is not
+   enough.** "Returning user" state lives in FOUR places, and only one is
+   in the browser:
+   - `chat_messages` (transcript) — any row at all marks the user engaged
+     server-side, which re-arms the auto-resume: the resume then writes new
+     rows, so the state re-creates itself after every partial reset.
+   - `n8n_chat_histories` keyed by report_id — the coach's own memory;
+     forget this one and the coach "remembers" deleted turns.
+   - `user_engagement_tracking` keyed by USER id — `chat_started_at` +
+     `chat_last_section_index`; this is why incognito still showed the
+     resume flow. NULL both fields to reset.
+   - Browser localStorage (`chat_engaged_<reportId>`,
+     `chat_section_index_<reportId>`, `n8n-chat/sessionId`) — incognito
+     covers only this one.
+   All three server-side layers were wiped 2026-09-01 (late afternoon,
+   after the incognito test); a fresh private window now starts at the
+   WelcomeCard. Re-wipe all three together after any test chat.
 1. **All sections are Dutch (verified 2026-09-01).** The Career Counselor
    runner-up card initially missed its translation; it was re-run via the
    n8n utility **"OPS - Retranslate report (manual)"** (inactive, manual
