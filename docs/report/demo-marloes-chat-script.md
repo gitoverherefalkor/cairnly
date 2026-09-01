@@ -17,9 +17,11 @@ starting, or the chrome will be English.
 
 ## Before you start
 
-1. **Check the last translation caught up.** At time of writing, the Career
-   Counselor runner-up card was still English (the translator was mid-run;
-   it needs no action). Verify before recording:
+1. **All sections are Dutch (verified 2026-09-01).** The Career Counselor
+   runner-up card initially missed its translation; it was re-run via the
+   n8n utility **"OPS - Retranslate report (manual)"** (inactive, manual
+   trigger, reuses the shared-secret credential — edit the report_id in its
+   HTTP node to reuse for any report). Re-verify anytime:
    `SELECT section_type FROM report_sections WHERE report_id = '10646823-1920-4889-9dc0-f780b4215fca' AND section_type <> 'init_summary' AND content_i18n->'nl' IS NULL;`
    — an empty result means everything is Dutch.
 2. **The old backup table `public.demo_marloes_backup_20260828` is now stale.**
@@ -88,6 +90,23 @@ Special moves (each appears once, so the recording covers them all):
 **[TAP]** = open the subsection cards. **[KEEP]** = press Bewaren on the
 coach's message.
 
+### Explore-clicks are a live collaboration
+
+After **Hier wil ik dieper op ingaan**, the coach generates 2-3 numbered
+chips on the spot (since the 2026-09-01 WF5 update: in Dutch, phrased in
+Marloes's first person, closing with "Iets anders, zeg het maar!"). Those
+chips can't be scripted in advance. The flow during recording:
+
+1. Click the explore pill and wait for the chips.
+2. **Click one of the numbered chips on camera** at least once in the
+   session: it posts as Marloes's own message, and that Claude-style
+   multiple choice is itself a capability worth showing.
+3. For the typed follow-up after the coach's deep-dive, paste the chips
+   and the coach's answer to Claude in the working session; you get a
+   reply in Marloes's voice within a minute. The [TYPE] texts under 2 and
+   9 below are fallbacks written blind, use them only if you don't want
+   to wait.
+
 ---
 
 ## 0. Welcome
@@ -120,11 +139,13 @@ exact point where a process breaks a person. Key insight: colleagues already
 come to her to ask whether their work still suits them, so she is *already*
 doing informal career coaching without calling it that.
 
-**[CLICK] Hier wil ik dieper op ingaan** — the coach digs in. Then **[TYPE]**:
-> dat jullie dat er zo uitlichten, collega's die komen vragen of dit werk nog
-> wel bij ze past. daar heb ik nooit een naam aan gegeven, het voelde gewoon
-> als je werk goed doen. hoe maak ik daar iets zichtbaars van zonder dat het
-> meteen een andere functie hoeft te zijn
+**[CLICK] Hier wil ik dieper op ingaan** — chips appear. **Click the chip
+about the informal coaching** (this is the on-camera multiple-choice beat).
+After the coach's deep-dive, paste the exchange to Claude for her follow-up,
+or use this blind fallback **[TYPE]**:
+> daar heb ik nooit een naam aan gegeven, het voelde gewoon als je werk goed
+> doen. hoe maak ik daar iets zichtbaars van zonder dat het meteen een andere
+> functie hoeft te zijn
 
 After the answer: **[CLICK] Door naar de volgende sectie.**
 
@@ -233,7 +254,10 @@ Manager, Facilitator Restorative Practices. The last one is the clever one: it
 takes her *development area* (absorbing tension) and reframes it as the core
 skill of a mediation profession.
 
-**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
+**[CLICK] Hier wil ik dieper op ingaan** — chips appear; here you can skip
+them and type directly (one chip-click earlier in the session is enough).
+Paste the chips to Claude if you want a tailored reply, or use this blind
+fallback **[TYPE]**:
 > dat jullie de voedselbank erbij pakken had ik niet zien aankomen, dat heb ik
 > alleen bij hobbys ingevuld. leuk bedacht maar dat salaris wordt niks, dat
 > weet ik van dichtbij. die mediation vind ik eigenlijk het interessantst, dat
