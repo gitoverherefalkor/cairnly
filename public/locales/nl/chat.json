@@ -89,7 +89,9 @@
     "keep": "Bewaren",
     "kept": "Bewaard",
     "coachingSession": "AI-coachgesprek",
-    "inReport": "In rapport"
+    "inReport": "In rapport",
+    "loadingSection": "Je sectie wordt geladen",
+    "preparingMatches": "We stellen je carrièrematches samen, dit kan even duren"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",
@@ -129,5 +131,9 @@
     "askAboutRole": "Vraag iets over deze rol",
     "move": "Stap: {{level}} · ontdek waarom",
     "moveFallback": "Is deze overstap haalbaar?"
+  },
+  "comparison": {
+    "explain": "Leg deze vergelijking uit",
+    "explained": "Uitleg hieronder toegevoegd"
   }
 }

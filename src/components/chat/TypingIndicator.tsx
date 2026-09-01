@@ -75,9 +75,9 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({
 
   const text =
     mode === 'delivery'
-      ? 'Loading your section'
+      ? t('ui.loadingSection')
       : mode === 'preparing'
-        ? 'Putting together your career matches — this can take a moment'
+        ? t('ui.preparingMatches')
         : isLate
           ? t('ui.thinkingLate')
           : agentMessages[messageIndex % agentMessages.length];

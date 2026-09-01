@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { FitScores } from '@/hooks/useReportSections';
+import { compareAxisLabel, isNl, type ChartLang } from '@/components/dashboard/v2/chartLabels';
 
 export interface RadarCareer {
   label: string;
@@ -11,40 +12,55 @@ export interface RadarCareer {
 interface CareerComparisonRadarProps {
   careers: RadarCareer[];
   size?: number; // rendered px width; SVG scales down on narrow screens
+  // Display language for axis labels + hover tooltips. Defaults to English;
+  // labels resolve through chartLabels.compareAxisLabel like the print radar.
+  lang?: ChartLang;
 }
 
 // The five comparison axes, clockwise from the top. `key` matches FitScores
-// fields; `tipLines` is the hover tooltip copy, pre-wrapped to short lines.
-const AXES: { key: keyof FitScores; label: string; angle: number; tipLines: string[] }[] = [
+// fields; `tipLines` is the hover tooltip copy, pre-wrapped to short lines
+// (the tooltip box is sized off the longest line, so keep them balanced).
+const AXES: {
+  key: keyof FitScores;
+  label: string;
+  angle: number;
+  tipLines: string[];
+  tipLinesNl: string[];
+}[] = [
   {
     key: 'autonomy',
     label: 'Autonomy',
     angle: -90,
     tipLines: ["How well the role's independence matches", 'your need to make your own decisions.'],
+    tipLinesNl: ['Hoe goed de zelfstandigheid in de rol past', 'bij je behoefte om zelf te beslissen.'],
   },
   {
     key: 'stability',
     label: 'Stability',
     angle: -18,
     tipLines: ['How well the income and path stability', 'matches your need for security.'],
+    tipLinesNl: ['Hoe goed de inkomens- en loopbaanstabiliteit', 'past bij je behoefte aan zekerheid.'],
   },
   {
     key: 'schedule',
     label: 'Schedule',
     angle: 54,
     tipLines: ['How well the working schedule matches', 'your work-life-balance needs.'],
+    tipLinesNl: ['Hoe goed de werktijden passen bij je', 'behoefte aan werk-privébalans.'],
   },
   {
     key: 'pace',
     label: 'Pace & pressure',
     angle: 126,
     tipLines: ["How well the role's intensity and pressure", 'matches your stress tolerance.'],
+    tipLinesNl: ['Hoe goed de intensiteit en druk van de rol', 'passen bij je stressbestendigheid.'],
   },
   {
     key: 'social',
     label: 'Social load',
     angle: 198,
     tipLines: ['How well the people and interaction', 'demands fit your social energy.'],
+    tipLinesNl: ['Hoe goed de sociale interactie in de rol', 'past bij je sociale energie.'],
   },
 ];
 
@@ -70,6 +86,7 @@ function polygonPoints(scores: FitScores): string {
 export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
   careers,
   size = 320,
+  lang,
 }) => {
   // Custom hover tooltip — instant, unlike the browser's native <title> delay.
   const [hovered, setHovered] = useState<keyof FitScores | null>(null);
@@ -88,7 +105,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
       width={size}
       style={{ maxWidth: '100%', height: 'auto' }}
       role="img"
-      aria-label="Career comparison radar"
+      aria-label={isNl(lang) ? 'Radar carrièrevergelijking' : 'Career comparison radar'}
     >
       {rings.map((r, i) => (
         <circle
@@ -130,13 +147,14 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
         )}
 
       {AXES.map((a) => {
+        const label = compareAxisLabel(a.label, lang);
         const rad = (a.angle * Math.PI) / 180;
         const x = CX + LABEL_R * Math.cos(rad);
         const y = CY + LABEL_R * Math.sin(rad);
         const cos = Math.cos(rad);
         const anchor = Math.abs(cos) < 0.3 ? 'middle' : cos > 0 ? 'start' : 'end';
         // Generous transparent hit area so the label is easy to hover.
-        const w = a.label.length * 8 + 8;
+        const w = label.length * 8 + 8;
         const hx = anchor === 'middle' ? x - w / 2 : anchor === 'start' ? x - 4 : x - w + 4;
         return (
           <g
@@ -154,7 +172,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
               fontWeight={700}
               fill="#1e293b"
             >
-              {a.label}
+              {label}
             </text>
           </g>
         );
@@ -162,14 +180,15 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
 
       {hoveredAxis &&
         (() => {
+          const tipLines = isNl(lang) ? hoveredAxis.tipLinesNl : hoveredAxis.tipLines;
           const rad = (hoveredAxis.angle * Math.PI) / 180;
           const lx = CX + LABEL_R * Math.cos(rad);
           const ly = CY + LABEL_R * Math.sin(rad);
           const lineH = 15;
           const pad = 9;
-          const maxChars = Math.max(...hoveredAxis.tipLines.map((l) => l.length));
+          const maxChars = Math.max(...tipLines.map((l) => l.length));
           const bw = maxChars * 6 + pad * 2;
-          const bh = hoveredAxis.tipLines.length * lineH + pad * 2 - 3;
+          const bh = tipLines.length * lineH + pad * 2 - 3;
           let bx = lx - bw / 2;
           bx = Math.max(-46, Math.min(bx, 366 - bw));
           let by = ly < CY ? ly + 14 : ly - bh - 14;
@@ -178,7 +197,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
             <g pointerEvents="none">
               <rect x={bx} y={by} width={bw} height={bh} rx={7} fill="#1e293b" />
               <text x={bx + pad} y={by + pad + 9} fontSize={11} fill="#ffffff">
-                {hoveredAxis.tipLines.map((line, i) => (
+                {tipLines.map((line, i) => (
                   <tspan key={i} x={bx + pad} dy={i === 0 ? 0 : lineH}>
                     {line}
                   </tspan>

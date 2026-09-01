@@ -89,7 +89,9 @@
     "keep": "Keep",
     "kept": "Kept",
     "coachingSession": "AI Coaching Session",
-    "inReport": "In report"
+    "inReport": "In report",
+    "loadingSection": "Loading your section",
+    "preparingMatches": "Putting together your career matches — this can take a moment"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",
@@ -129,5 +131,9 @@
     "askAboutRole": "Ask about this role",
     "move": "Move: {{level}} · explore why",
     "moveFallback": "Can I get there from here?"
+  },
+  "comparison": {
+    "explain": "Explain this comparison",
+    "explained": "Explanation added below"
   }
 }

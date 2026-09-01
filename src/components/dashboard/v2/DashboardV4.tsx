@@ -1247,7 +1247,7 @@ const HeroMatch: React.FC<{
                 minHeight: 320,
               }}
             >
-              <CareerComparisonRadar careers={compareCareersRich} size={520} />
+              <CareerComparisonRadar careers={compareCareersRich} size={520} lang={lang} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {compareCareersRich.map((c, i) => (
@@ -2465,10 +2465,16 @@ const ReportAccordionRow: React.FC<{
 const CareerComparisonPanel: React.FC<{
   comparison: NonNullable<ReportRow['comparison']>;
 }> = ({ comparison }) => {
+  const { i18n } = useTranslation();
+  const nl = i18n.language?.toLowerCase().startsWith('nl');
   const heading =
     comparison.careers.length === 2
-      ? 'How it differs from your other top role'
-      : 'How it differs from your other top roles';
+      ? nl
+        ? 'Hoe deze verschilt van je andere toprol'
+        : 'How it differs from your other top role'
+      : nl
+        ? 'Hoe deze verschilt van je andere toprollen'
+        : 'How it differs from your other top roles';
   return (
     <div
       style={{
@@ -2506,7 +2512,7 @@ const CareerComparisonPanel: React.FC<{
         {comparison.headline}
       </p>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-        <CareerComparisonRadar careers={comparison.careers} size={380} />
+        <CareerComparisonRadar careers={comparison.careers} size={380} lang={i18n.language} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {comparison.careers.map((c, i) => (

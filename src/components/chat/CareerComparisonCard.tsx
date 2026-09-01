@@ -36,7 +36,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
   focalSectionType,
   onExplain,
 }) => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('chat');
   const [explained, setExplained] = useState(false);
 
   const focal = sections.find((s) => s.section_type === focalSectionType);
@@ -96,7 +96,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
       <p className="text-[0.9375rem] text-gray-700 leading-relaxed mb-4">{headline}</p>
 
       <div className="flex justify-center mb-3">
-        <CareerComparisonRadar careers={careers} size={380} />
+        <CareerComparisonRadar careers={careers} size={380} lang={i18n.language} />
       </div>
 
       {/* Legend — career rank + title in the career's colour, no dots. */}
@@ -119,7 +119,7 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
         }`}
       >
         <MessageCircle size={15} />
-        {explained ? 'Explanation added below' : 'Explain this comparison'}
+        {explained ? t('comparison.explained') : t('comparison.explain')}
       </button>
     </div>
   );
