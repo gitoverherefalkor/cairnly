@@ -17,6 +17,15 @@ starting, or the chrome will be English.
 
 ## Before you start
 
+0. **Record in a private/incognito window.** Sjoerd's normal browser holds
+   localStorage flags from testing (`chat_engaged_<reportId>`,
+   `chat_section_index_<reportId>`, `n8n-chat/sessionId`); with those set,
+   opening the chat auto-fires the resume message and skips the welcome
+   card. A private window starts at the WelcomeCard like a real first
+   session. A full chat reset lives in three places: `chat_messages`
+   (transcript), `n8n_chat_histories` keyed by report_id (the coach's own
+   memory — forget this one and the coach "remembers" deleted turns), and
+   the browser's localStorage. The first two are clean as of 2026-09-01.
 1. **All sections are Dutch (verified 2026-09-01).** The Career Counselor
    runner-up card initially missed its translation; it was re-run via the
    n8n utility **"OPS - Retranslate report (manual)"** (inactive, manual
