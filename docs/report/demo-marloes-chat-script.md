@@ -1,202 +1,305 @@
-# Marloes — chat script for the Dutch coach flow
+# Marloes — chat script for the Dutch coach flow (run of 2026-09-01, afternoon)
 
-Suggested replies for running the demo persona through the AI chat, so the
-report finishes the way a real one does: WF7 writes a genuine `exec_summary`,
-the chat produces a real `chat_highlights`, and the report reaches `completed`.
+Demo script for running the persona through the AI chat, written against report
+`10646823-1920-4889-9dc0-f780b4215fca` (the post-rubric-fix re-run). The chat on
+this report is untouched: zero messages, so the recording starts from the
+welcome card.
 
-Right now both of those sections are **hand-authored placeholders**. A real run
-replaces them.
+Besides producing a real `exec_summary` and `chat_highlights`, this version is
+built to **showcase every interaction the product has**: all four quick pills,
+the wrap-up pill, the Keep button, read-aloud, the chapter-1 feedback card, the
+career-card pills (Vraag iets over deze rol + the Move pill), the comparison
+radar with its explain button, and one question the report cannot answer, so the
+coach visibly knows things beyond the database.
 
-Account: `demo.marloes@cairnly.io` · report `9144c1e6-9859-4289-9182-5421d2492b41`
-Switch the interface to Dutch before starting, or the chrome will be English.
+Account: `demo.marloes@cairnly.io` · switch the interface to Dutch before
+starting, or the chrome will be English.
 
 ## Before you start
 
-**Nothing to configure. Just run it.**
+1. **Check the last translation caught up.** At time of writing, the Career
+   Counselor runner-up card was still English (the translator was mid-run;
+   it needs no action). Verify before recording:
+   `SELECT section_type FROM report_sections WHERE report_id = '10646823-1920-4889-9dc0-f780b4215fca' AND section_type <> 'init_summary' AND content_i18n->'nl' IS NULL;`
+   — an empty result means everything is Dutch.
+2. **The old backup table `public.demo_marloes_backup_20260828` is now stale.**
+   It holds sections of a report that no longer exists. Don't restore from it;
+   drop it whenever convenient.
+3. **PDF timing note still applies.** WF6 rewrites trigger re-translation; a
+   PDF downloaded in that window comes out entirely English. Wait, then
+   download again.
 
-1. **Your sections are already backed up** in `public.demo_marloes_backup_20260828`
-   (17 rows, 15 carrying Dutch). WF6 rewrites `content` on the sections she gives
-   feedback on, so if the Dutch output disappoints, restore from there and drop
-   the table when you no longer need it.
-2. **`N8N_SHARED_SECRET` needs no action.** An earlier draft of this file called
-   it a blocker; that was wrong. It is absent from the local `.env.local`, but it
-   is set server-side — probed live, `translate-section` answers 401
-   (Unauthorized) rather than 503 (secret not set). The local copy only matters
-   if you want to invoke the translator from a terminal.
-3. **Re-translation is automatic.** WF6 and WF7 both call `translate-section`
-   themselves, so a rewritten section is re-translated without you doing
-   anything.
+## What this run says (one-paragraph refresher)
 
-The one thing worth knowing: the staleness trigger wipes `content_i18n` the
-moment `content` changes, and the printed report is all-or-nothing per document.
-So between WF6 rewriting a section and the translator catching up, a downloaded
-PDF will come out **entirely in English**. That is the contract working, not a
-fault. Wait for the workflows to finish and download again.
+Top 3: **Customer Service Trainer 94** (Ready now), **HR Advisor L&D 92**
+(Upskill: a 2-3 month instructional-design course), **Onboarding Specialist
+90** (Ready now, but "laagste plafond van de drie"). Runner-ups: L&D Specialist
+89, Training Coordinator 82, **Career Counselor 80** — her literal dream job,
+ranked with honest reasons why it is not top 3. Outside the box: Food Service
+Program Manager (it found her voedselbank volunteering), Athlete Wellbeing
+Manager (her running), and Facilitator Restorative Practices (her
+tension-absorbing habit reframed as a profession). Dream jobs: Trainer =
+**"kun je volgend kwartaal al"** because she already holds the Praktijkopleider
+certificate, Career Counselor = Upskill via a post-HBO certificate (6-12
+months part-time, NOLOC), explicitly *not* a full retrain. The emotional peak
+of this run is the dream-jobs section: both dreams come back ranked and
+answered, one of them marked Ready now.
 
 ## Her voice
 
-41, HBO, teamleider klantenservice at an insurer. Practical, warm, a little
-self-deprecating. Firm about exactly two things: her Wednesday at home, and not
-wanting to manage a team again.
+41, HBO Bedrijfskunde, teamleider klantenservice at an insurer. Practical,
+warm, a little self-deprecating. Firm about exactly two things: her Wednesday
+at home, and not wanting to manage a team again.
 
 **She types like someone answering between meetings.** Lower-case sentence
-starts, commas where a full stop belongs, the odd typo she does not go back to
-fix, a trailing thought without a final period. Occasionally she dictates, which
-shows up as longer run-on sentences with almost no typos. Do not clean these up
-when you paste them — a report generated from suspiciously well-formed input is
-not a fair test of the coach.
+starts, commas where a full stop belongs, the odd typo she does not fix, often
+no final period. Keep typed replies short: two to four sentences. **Once in
+the session she dictates instead** (marked [DICTEER]): that one runs long,
+reads like narration, full sentences, clean punctuation, no typos. Do not
+clean up the typed ones and do not shorten the dictated one; the contrast is
+what makes it feel real.
 
-## Use the buttons, not just the box
+## The controls, and where this script uses them
 
-A real user does not type a paragraph at every turn. They click. Mixing the two
-is what makes a recorded session look real rather than staged, and it is the
-difference between a demo that reads like a transcript and one that reads like a
-script.
+Quick pills (below the coach's message):
 
-The four you will use, with their Dutch labels:
-
-| Button | Dutch label | What it does |
+| Pill | Dutch label | Used at |
 |---|---|---|
-| `continue` | Door naar de volgende sectie | Moves on. No typing. |
-| `explore` | Hier wil ik dieper op ingaan | Sends "Hier wil ik wat dieper op ingaan", then the coach digs in |
-| `differently` | Dit zie ik anders | Opens the box with "Vertel hoe jij het ziet…" — then you type |
-| `somethingElse` | Iets anders | Opens the box for anything off-script |
+| continue | Door naar de volgende sectie | after deep-dives in 2 and 7 |
+| explore | Hier wil ik dieper op ingaan | 2, 9 |
+| differently | Dit zie ik anders | 3 |
+| somethingElse | Iets anders | 10 |
+| wrap up | Klaar, sessie afronden | end |
 
-Each section below says which to use. **[TYPE]** means paste the text.
-**[CLICK]** means press the button and type nothing.
+Special moves (each appears once, so the recording covers them all):
+
+| Feature | Where it is | Used at |
+|---|---|---|
+| Keep button (Bewaren) | on any coach message | 1, 9 |
+| Voorlezen (read-aloud) | on any coach message | 1 |
+| Tap-to-open subsection cards | every career section | 5 (called out once) |
+| Move pill ("Stap: Ready now · ontdek waarom") | career card | 5 |
+| Comparison radar + "Leg deze vergelijking uit" | careers 2 and 3 | 6 |
+| "Vraag iets over deze rol" (input gets "[Over …]" context) | career card | 7 |
+| Chapter-1 feedback card ("Door naar loopbanen →") | after section 4 | 4 |
+| Non-database question (coach's own knowledge) | anywhere | 10 |
+
+**[CLICK]** = press the pill, type nothing. **[TYPE]** = paste the text.
+**[TAP]** = open the subsection cards. **[KEEP]** = press Bewaren on the
+coach's message.
 
 ---
 
-## Sections 1-2 are done
+## 0. Welcome
 
-You have already covered Jouw aanpak and Jouw sterke punten. This script picks
-up at **Ontwikkelpunten**.
+**[CLICK] Ik ben er klaar voor!** — the platform delivers section 1 directly.
 
-Report `9144c1e6-9859-4289-9182-5421d2492b41` (the 2026-09-01 re-run). The
-content below is written against THAT run, not the earlier one — the top three
-changed completely.
+## 1. Jouw aanpak
 
----
+The section lands on one idea: her satisfaction tracks the *distance to the
+person she is trying to help*, not title or seniority. It also gently notes
+that her self-picked "The Leader" archetype sits oddly next to how she
+actually leads (influence and closeness, not authority).
 
-## 3. Ontwikkelpunten — you are here
+First, two demo beats on the coach's message itself: **press Voorlezen** for a
+few seconds of read-aloud, then **[KEEP]** the message with the
+afstand-tot-de-persoon insight.
 
-The report frames it as one habit rather than three faults: she protects harmony
-by absorbing work and friction herself. And it ties that directly to her hours:
-"expensive right now specifically because you're trying to reduce your hours."
+**[TYPE]**:
+> die zin over de afstand tot de persoon die je probeert te helpen, die komt
+> wel even binnen. iedereen vond het gek dat ik senior klantcontact leuker
+> vond dan teamleider, dit is de eerste keer dat iemand uitlegt waarom
 
-**[CLICK] Dit zie ik anders**, then **[TYPE]**:
-> het klopt dat ik dingen naar me toe trek, dat weet ik van mezelf. maar
-> "confrontaties vermijden" vind ik te zwart wit. ik ga het gesprek wel aan
-> alleen kies ik mijn momenten. wat me wel raakt is dat stuk dat het me juist
-> uren kost, daar had ik het verband nooit zo gelegd. ik dacht altijd dat ik
-> minder uren wilde, niet dat ik anders moest werken
+The coach replies; the pills reappear. **[CLICK] Door naar de volgende
+sectie.**
+
+## 2. Jouw sterke punten
+
+Core claim: across four very different jobs her real skill is spotting the
+exact point where a process breaks a person. Key insight: colleagues already
+come to her to ask whether their work still suits them, so she is *already*
+doing informal career coaching without calling it that.
+
+**[CLICK] Hier wil ik dieper op ingaan** — the coach digs in. Then **[TYPE]**:
+> dat jullie dat er zo uitlichten, collega's die komen vragen of dit werk nog
+> wel bij ze past. daar heb ik nooit een naam aan gegeven, het voelde gewoon
+> als je werk goed doen. hoe maak ik daar iets zichtbaars van zonder dat het
+> meteen een andere functie hoeft te zijn
+
+After the answer: **[CLICK] Door naar de volgende sectie.**
+
+## 3. Ontwikkelpunten
+
+The report folds her three survey answers into one habit: absorbing tension so
+others don't have to feel it, and argues part-time won't protect her energy as
+long as she can't say no. The disagreement beat of the session.
+
+**[CLICK] Dit zie ik anders** (input opens with "Vertel hoe jij het ziet…"),
+then **[TYPE]**:
+> dat ik spanning absorbeer klopt, dat weet ik van mezelf. maar confrontatie
+> vermijden vind ik te groot klinken, ik ga het gesprek echt wel aan alleen
+> kies ik mijn momenten. waar ik wel stil van werd is dat parttime me niet
+> gaat redden zolang ik geen nee zeg. ik dacht altijd dat minder uren het
+> probleem was, niet hoe ik werk
 
 ## 4. Jouw loopbaanwaarden
 
-The report picks up her own word, *leegloop*, and argues she is refusing to
-trade meaning for hours rather than looking for an easy job.
+The section reconciles an apparent contradiction: she doesn't want less
+responsibility for people, she wants less exposure to high-stakes decisions
+under pressure. And it redefines erkenning as "dat mensen bij jou
+terechtkunnen", not a title.
 
-**[TYPE]**:
-> ja. en fijn dat je leegloop overneemt want zo voelt het echt. voor mij is die
-> balans trouwens heel concreet, ik ben op woensdag thuis en dat blijft zo tot
-> de jongste naar de middelbare gaat. dat is geen voorkeur dat is een
-> voorwaarde. minder uren in dezelfde rol heb ik al geprobeerd en dat hielp
-> niks, dus dat klopt wel wat er staat
+**[TYPE]** — she volunteers a constraint that is NOT in her survey, which the
+coach should carry into every later section:
+> klopt helemaal dat het niet om minder verantwoordelijkheid gaat. voor de
+> duidelijkheid, mijn woensdag thuis is heilig zolang de kinderen op de
+> basisschool zitten, dat is geen voorkeur dat is een voorwaarde. en die zin
+> over erkenning, dat mensen bij je terechtkunnen, dat is em precies
+
+Then the **chapter-1 feedback card** appears. Fill it on camera, it takes ten
+seconds and shows the product asks for feedback mid-flow:
+- Hoe kwam dit deel binnen? → **Inzichtelijk**
+- De lengte voelde: → **Precies goed**
+- Sterkste onderdeel? → **Sterke punten**
+- Free text: `ontwikkelpunten was scherp maar wel eerlijk`
+- **[CLICK] Door naar loopbanen →**
 
 ---
 
-## 5. Learning and Development Specialist — Top match, 92%
+## 5. Customer Service Trainer — Top match, 94%
 
-*Large (201-1000) / Corporate.* The report leans on her own sentence: "Wat ik
-het liefste doe is mensen beter maken in hun werk."
+*Large (201-1000) / Corporate, Move: Ready now.* Built on her 8/10 period, her
+10→6 weeks onboarding rewrite, and her Praktijkopleider certificate. The
+report is honest that 32 hours lands at €35-49k, under her stated range.
 
-**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
-> dat zinnetje van mij staat er nu wel heel groot, maar het klopt gewoon. wat
-> me een beetje tegenhoudt is dat large corporate. ik zit nu bij een
-> verzekeraar en juist die lagen en die afstand zijn waar ik vanaf wil. wordt
-> dit dan niet weer een trainingsfabriek waar ik e-learnings zit te maken die
-> niemand doet?
+**[TAP]** the subsection cards open one by one (say on camera: the report
+reveals per block, you're not dumped into a wall of text). Then **[CLICK] the
+Move pill** — "Stap: Ready now · ontdek waarom" — and let the coach explain
+why there's no retraining gap.
 
-## 6. Quality Coach Customer Contact — Second match, 88%
+Then **[TYPE]**:
+> ready now staat er makkelijk he. maar die realiteitscheck is raak, iemand
+> aanspreken die het na zes weken nog niet kan, dat vind ik nu al lastig bij
+> mijn eigen mensen. en dat salaris bij 32 uur is even slikken, al is het
+> netjes dat dat er gewoon eerlijk bij staat
 
-The most realistic of the three: her current world, minus the managing.
+## 6. HR Advisor, Learning and Development — Second match, 92%
+
+*Move: Upskill.* Formalizes her informal coaching into an advisory role; the
+reality check is budget fights and influencing without authority.
+
+Once the cards are open, the **comparison radar** appears (this role plotted
+against nr. 1 on pace, social, autonomy, schedule, stability). **[CLICK] Leg
+deze vergelijking uit** — a prewritten explanation posts into the chat:
+"reikwijdte versus nabijheid".
 
 **[TYPE]**:
-> deze zou ik morgen kunnen. dat is meteen ook mijn twijfel, is dit niet gewoon
-> een stap terug? ik was hiervoor senior klantcontact en dan ga ik nu coachen op
-> gesprekken van anderen. aan de andere kant, die 8 die ik gaf was wel precies
-> die periode dus misschien is terug hier niet het goede woord
+> fijn om ze zo naast elkaar te zien, reikwijdte versus nabijheid is precies
+> mijn twijfel. en eerlijk, dat budgetgevecht schrikt me meer af dan die
+> cursus. een cursus kan ik inplannen, opboksen tegen afdelingshoofden niet
 
-## 7. Career Counselor — Third match, 81%
+## 7. Onboarding Specialist — Third match, 90%
 
-The emotional peak of the run. Her literal dream job, ranked, with her own
-"papieren" doubt quoted back at her and answered.
+*Move: Ready now.* The most literal match with her proven work, and the report
+says out loud it has the lowest ceiling of the three.
 
-**[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
-> oke hier moest ik even van slikken. dit is letterlijk wat ik heb opgeschreven
-> bij die droombaan vraag en ik had niet verwacht dat het gewoon in de top 3 zou
-> staan. ik ging er eigenlijk vanuit dat jullie zouden zeggen dat het niet
-> realistisch was
+**[CLICK] Vraag iets over deze rol** — the input shows "Vraag over: Onboarding
+Specialist" and her message gets the [Over …] context. Then **[TYPE]**:
+> is dit niet gewoon mijn oude inwerkproject als fulltime baan? dat heb ik al
+> een keer gedaan. ben ik hier niet binnen een jaar op uitgekeken
 
-Then push once more, because this is the question she actually has:
-> en die papieren dan? ik heb hbo bedrijfskunde en verder niks. moet ik dan
-> eerst een opleiding doen voor iemand me serieus neemt, of kan dat naast een
-> baan
+The honest answer is *yes, partly* — the report itself calls it a two-year
+platform, not a destination. If the coach hedges instead of conceding, that's
+worth knowing. **[CLICK] Door naar de volgende sectie.**
 
 ## 8. Runner-ups
 
-MBO Teacher Business Services (81), Onboarding Program Manager (80),
-Reintegration Coach (78).
+L&D Specialist (89), Training Coordinator (82), Career Counselor (80). Her
+dream job shows up here, ranked, with honest reasons why it is not top 3.
 
-**[TYPE]** — short, and picks a side:
-> mbo docent had ik zelf nooit bedacht maar dat spreekt me aan, opleiden en
-> begeleiden tegelijk. onboarding program manager minder, dat voelt weer als
-> regelen en plannen. reintegratiecoach vind ik interessant maar ook zwaar, dat
-> zijn wel mensen op hun slechtste moment
+**[TYPE]** — short, picks sides, and asks the question a real user would ask:
+> mooi dat loopbaanbegeleider er gewoon tussen staat, met redenen die ik ook
+> nog snap. die training coordinator hoeft van mij niet, dat is precies het
+> geregel waar ik vanaf wil. en is die l&d specialist niet gewoon nummer 2 met
+> een andere naam? dat wil ik wel snappen
+
+(The distinction is real: the runner-up is hands-on program ownership at a
+mid-market company, nr. 2 is org-wide advisory. Good test of the coach.)
 
 ## 9. Outside the box
 
-Community Health Worker, Athlete Wellbeing Advisor, and a Recipe Developer /
-community cooking lead — the last one is genuinely odd, which is the point.
+Food Service Program Manager (voedselbank operations), Athlete Wellbeing
+Manager, Facilitator Restorative Practices. The last one is the clever one: it
+takes her *development area* (absorbing tension) and reframes it as the core
+skill of a mediation profession.
 
 **[CLICK] Hier wil ik dieper op ingaan**, then **[TYPE]**:
-> die kookprogramma's, daar moest ik om lachen. maar eerlijk gezegd raakt het
-> wel iets, ik kook veel en ik snap wel dat je mensen daarmee bij elkaar krijgt.
-> alleen ga ik daar de hypotheek niet mee betalen. die wijkgerichte zorg vind ik
-> van deze drie het meest realistisch, al vraag ik me af of ik dat emotioneel
-> aankan op de lange termijn
+> dat jullie de voedselbank erbij pakken had ik niet zien aankomen, dat heb ik
+> alleen bij hobbys ingevuld. leuk bedacht maar dat salaris wordt niks, dat
+> weet ik van dichtbij. die mediation vind ik eigenlijk het interessantst, dat
+> je van spanning opvangen je vak kan maken, daar moet ik even op kauwen
+
+**[KEEP]** the coach's reply about the restorative-practices reframe. Second
+Keep of the session, showing saved insights build up.
 
 ## 10. Droombanen — Loopbaanbegeleider en Trainer
 
-Both dreams, and the report has already ranked one of them.
+The peak of this run. Trainer: feasibility **Hoog**, "de droombaan die je
+eigenlijk al volgend kwartaal kunt starten", because the Praktijkopleider
+certificate she almost forgot about is exactly the paper Dutch employers want.
+Career Counselor: feasibility Gemiddeld, with the precise gap named — a
+post-HBO certificate, 6-12 months part-time, NOLOC — "geen volledige
+omscholing".
 
-**[TYPE]** — dictated, so it runs long and stays clean:
-> Wat me hier opvalt is dat allebei mijn droombanen ook gewoon terugkomen in de
-> lijst hierboven, dus blijkbaar is het niet zo'n gek idee als ik zelf dacht. Ik
-> zat er eigenlijk op te wachten dat er zou staan dat het te vol zit of dat
-> iedereen zich coach mag noemen, dat hoor ik namelijk vaak. Wat ik hieruit
-> meeneem is dat ik het niet in een keer hoef om te gooien, als ik ergens begin
-> waar ik al mensen begeleid dan bouw ik dat vanzelf op. Een jaar zonder inkomen
-> een praktijk opbouwen gaat niet, dat is gewoon de realiteit met twee kinderen
+**[DICTEER]** — her one dictated message. Long, clean, narration:
+> Wat hier staat had ik echt niet verwacht. Ik heb die droombaanvraag een
+> beetje schuldig ingevuld, alsof het iets voor later was, en nu staat er dat
+> trainer helemaal geen droom is maar iets wat ik volgend kwartaal al kan doen
+> omdat ik die papieren blijkbaar al heb. Dat praktijkopleider certificaat was
+> ik zelf eerlijk gezegd bijna vergeten, dat voelde altijd als iets interns
+> van de zaak. En bij loopbaanbegeleider staat nu eindelijk eens concreet wat
+> er dan nog mist, een post-hbo certificaat van een maand of zes naast mijn
+> werk, dat is te overzien. Ik ging ervan uit dat jullie zouden zeggen dat het
+> niet realistisch was, en er staat precies het tegenovergestelde.
+
+Then the non-database beat. **[CLICK] Iets anders** ("Laat weten wat je
+bezighoudt…"), then **[TYPE]**:
+> weet je ook wat zo'n noloc erkende opleiding ongeveer kost en of dat in de
+> avond kan? en is dat iets waar ik mijn opleidingsbudget van de zaak voor kan
+> gebruiken, of vinden werkgevers dat gek als je er misschien mee vertrekt
+
+None of that is in the report. The coach has to answer from its own knowledge
+(realistic range, evening/part-time formats exist, how to frame a training
+request). This is the moment that shows the coach is a coach, not a
+text-reader.
+
+## Wrap-up
+
+**[CLICK] Klaar, sessie afronden.** The wrap-up card appears, WF6/WF7 fold the
+session into the report (her Wednesday line and the dream-job exchange should
+surface in the highlights), then **[CLICK] Naar het dashboard** and end the
+recording on the finished report.
 
 ---
 
-## Pacing
+## Pacing recap
 
-- **Three `Hier wil ik dieper op ingaan`** — L&D, Career Counselor, outside the
-  box. The Career Counselor one is the moment to let run: her dream job came
-  back ranked, and she asks the practical follow-up. That exchange is the single
-  best thing in the recording.
-- **One `Dit zie ik anders`** — ontwikkelpunten.
-- **One or two `Door naar de volgende sectie`** wherever you want pace.
+- Two **Hier wil ik dieper op ingaan** (2, 9), one **Dit zie ik anders** (3),
+  one **Iets anders** (10), continues wherever pace is needed.
+- One special move per career section: Move pill (5), comparison explain (6),
+  ask-about-role (7). Don't stack them in one section; spreading them is what
+  makes the demo read as capability breadth.
+- The single dictated message is 10. Everything else stays short.
 
 ## What to watch while you run it
 
-- Does the coach reply in **Dutch**? WF5's Dutch path has never run.
-- Does it pick up the Wednesday and the "no managing again" boundary, and carry
-  them into later sections?
-- The **Praktijkopleider qualification question** is a genuine question. If the
-  coach fumbles it, that is worth knowing before a bureau reads this.
-- At wrap-up: does WF7 write a Dutch or English `exec_summary`? Under the
-  language contract it should be **English canonical**, then translated. If it
-  comes out Dutch, stage 3 missed a node.
+- Does the coach stay in **Dutch** the whole way, including after the
+  comparison explanation (prewritten) and the non-database answer (live)?
+- Does it **carry the Wednesday condition** from section 4 into the career
+  discussions without being reminded?
+- Section 7: does it **concede honestly** that Onboarding Specialist is a
+  step-back risk, like its own report says?
+- Section 10: does the NOLOC cost answer stay sensible and hedged (ranges, not
+  invented prices)? This is the highest-risk moment of the demo.
+- At wrap-up: `exec_summary` should be English canonical, then translated. If
+  it lands in Dutch directly, a language-contract node regressed.
