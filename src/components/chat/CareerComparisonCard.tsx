@@ -38,6 +38,8 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
 }) => {
   const { t, i18n } = useTranslation('chat');
   const [explained, setExplained] = useState(false);
+  // Legend hover/tap → highlight that career's polygon in the radar.
+  const [highlighted, setHighlighted] = useState<string | null>(null);
 
   const focal = sections.find((s) => s.section_type === focalSectionType);
   if (!focal || !focal.metadata?.fit_scores || !focal.metadata?.comparison) {
@@ -96,13 +98,28 @@ export const CareerComparisonCard: React.FC<CareerComparisonCardProps> = ({
       <p className="text-[0.9375rem] text-gray-700 leading-relaxed mb-4">{headline}</p>
 
       <div className="flex justify-center mb-3">
-        <CareerComparisonRadar careers={careers} size={380} lang={i18n.language} />
+        <CareerComparisonRadar
+          careers={careers}
+          size={380}
+          lang={i18n.language}
+          highlightedLabel={highlighted}
+        />
       </div>
 
-      {/* Legend — career rank + title in the career's colour, no dots. */}
+      {/* Legend — career rank + title in the career's colour, no dots.
+          Hovering (or tapping, on touch) an entry highlights that career's
+          polygon in the radar and fades the others, so overlapping lines
+          can be told apart. */}
       <div className="flex flex-col gap-1 mb-4">
         {careers.map((c, idx) => (
-          <span key={c.label} className="text-sm font-semibold" style={{ color: c.color }}>
+          <span
+            key={c.label}
+            className="text-sm font-semibold cursor-pointer select-none w-fit"
+            style={{ color: c.color, opacity: highlighted && highlighted !== c.label ? 0.45 : 1 }}
+            onMouseEnter={() => setHighlighted(c.label)}
+            onMouseLeave={() => setHighlighted(null)}
+            onClick={() => setHighlighted((prev) => (prev === c.label ? null : c.label))}
+          >
             {idx + 1}. {c.label}
           </span>
         ))}

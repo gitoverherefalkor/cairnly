@@ -15,6 +15,9 @@ interface CareerComparisonRadarProps {
   // Display language for axis labels + hover tooltips. Defaults to English;
   // labels resolve through chartLabels.compareAxisLabel like the print radar.
   lang?: ChartLang;
+  // When set (hovering a legend entry), that career's polygon stays at full
+  // strength and the others fade back, so overlapping lines can be told apart.
+  highlightedLabel?: string | null;
 }
 
 // The five comparison axes, clockwise from the top. `key` matches FitScores
@@ -87,6 +90,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
   careers,
   size = 320,
   lang,
+  highlightedLabel = null,
 }) => {
   // Custom hover tooltip — instant, unlike the browser's native <title> delay.
   const [hovered, setHovered] = useState<keyof FitScores | null>(null);
@@ -108,7 +112,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
 
   return (
     <svg
-      viewBox="-50 0 420 305"
+      viewBox="-90 0 500 305"
       width={size}
       style={{ maxWidth: '100%', height: 'auto' }}
       role="img"
@@ -143,6 +147,8 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
           strokeWidth={c.focal ? 2.5 : 2}
           strokeDasharray={c.focal ? undefined : '6 5'}
           strokeDashoffset={c.focal ? undefined : (i - 1) * 5.5}
+          opacity={highlightedLabel && c.label !== highlightedLabel ? 0.15 : 1}
+          style={{ transition: 'opacity 150ms ease' }}
         />
       ))}
 
@@ -151,7 +157,17 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
         .map((c) =>
           AXES.map((a) => {
             const p = pointAt(a.angle, c.scores[a.key]);
-            return <circle key={`${c.label}-${a.key}`} cx={p.x} cy={p.y} r={3.5} fill={c.color} />;
+            return (
+              <circle
+                key={`${c.label}-${a.key}`}
+                cx={p.x}
+                cy={p.y}
+                r={3.5}
+                fill={c.color}
+                opacity={highlightedLabel && c.label !== highlightedLabel ? 0.15 : 1}
+                style={{ transition: 'opacity 150ms ease' }}
+              />
+            );
           }),
         )}
 

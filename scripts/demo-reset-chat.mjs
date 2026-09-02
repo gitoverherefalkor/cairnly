@@ -67,6 +67,7 @@ console.log(`reports for ${email}: ${reportIds.join(', ') || '(none)'}`);
 
 let msgCount = 0;
 let memCount = 0;
+let chapterCount = 0;
 if (reportIds.length > 0) {
   const { data: delMsgs, error: msgErr } = await admin
     .from('chat_messages')
@@ -83,6 +84,18 @@ if (reportIds.length > 0) {
     .select('id');
   if (memErr) throw memErr;
   memCount = delMem?.length ?? 0;
+
+  // Chapter-1 feedback row: while it exists, the chapter feedback card is
+  // skipped for this report — a test click-through would hide that beat
+  // from the real demo run.
+  const { data: delChap, error: chapErr } = await admin
+    .from('report_sections')
+    .delete()
+    .in('report_id', reportIds)
+    .eq('section_type', 'chapter_1_feedback')
+    .select('id');
+  if (chapErr) throw chapErr;
+  chapterCount = delChap?.length ?? 0;
 }
 
 const { data: eng, error: engErr } = await admin
@@ -94,5 +107,6 @@ if (engErr) throw engErr;
 
 console.log(`chat_messages deleted:        ${msgCount}`);
 console.log(`n8n_chat_histories deleted:   ${memCount}`);
+console.log(`chapter_1_feedback deleted:   ${chapterCount}`);
 console.log(`engagement rows cleared:      ${eng?.length ?? 0}`);
 console.log('Server-side chat state is pristine. Now close ALL private windows and open a fresh one.');
