@@ -110,6 +110,11 @@ export function useSpeechRecognition({
   cleanOnStop = false,
 }: UseSpeechRecognitionOptions) {
   const [isListening, setIsListening] = useState(false);
+  // True between the start click and the engine ACTUALLY capturing audio
+  // (recognition.start() connects async; words spoken before onaudiostart are
+  // dropped). The UI shows a distinct "starting" state so the user waits for
+  // the real recording cue before talking.
+  const [isStarting, setIsStarting] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
   const isListeningRef = useRef(false);
   const recognitionRef = useRef<any>(null);
@@ -153,6 +158,7 @@ export function useSpeechRecognition({
     if (opts?.skipClean) skipCleanOnceRef.current = true;
     recognitionRef.current?.stop();
     setIsListening(false);
+    setIsStarting(false);
     isListeningRef.current = false;
   }, []);
 
@@ -163,21 +169,47 @@ export function useSpeechRecognition({
       return;
     }
 
-    // Request mic permission via getUserMedia (reliably triggers browser prompt)
+    setIsStarting(true);
+
+    // Mic permission. When it was granted before, skip the getUserMedia
+    // round-trip entirely — it costs real time on every start, and words
+    // spoken during it are lost. getUserMedia stays as the reliable way to
+    // trigger the browser prompt on first use (or where the Permissions API
+    // doesn't know about microphones, e.g. some Safari versions).
+    let alreadyGranted = false;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
-      // Permission granted — this is a genuine attempt, not just a click that
-      // got denied. Mark it so the "try it" highlight retires everywhere.
-      markVoiceInputTried();
+      const status = await (navigator.permissions as any)?.query?.({ name: 'microphone' });
+      alreadyGranted = status?.state === 'granted';
     } catch {
-      return; // User denied mic access
+      // Permissions API unavailable for mic — fall through to getUserMedia.
+    }
+    if (alreadyGranted) {
+      markVoiceInputTried();
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+        // Permission granted — this is a genuine attempt, not just a click that
+        // got denied. Mark it so the "try it" highlight retires everywhere.
+        markVoiceInputTried();
+      } catch {
+        setIsStarting(false);
+        return; // User denied mic access
+      }
     }
 
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = speechLocale();
+
+    // The engine is only really capturing once audio starts flowing — flip
+    // the UI to "recording" at that moment, not at the start() call.
+    recognition.onaudiostart = () => {
+      if (unmountedRef.current) return;
+      setIsStarting(false);
+      if (isListeningRef.current) setIsListening(true);
+    };
 
     finalTranscriptRef.current = existingText ? existingText + ' ' : '';
 
@@ -216,30 +248,34 @@ export function useSpeechRecognition({
     recognition.onerror = (event: any) => {
       if (event.error === 'not-allowed' || event.error === 'aborted') {
         setIsListening(false);
+        setIsStarting(false);
         isListeningRef.current = false;
       }
     };
 
     recognitionRef.current = recognition;
-    setIsListening(true);
+    // Intent flag goes on now (drives auto-restart and toggle semantics);
+    // the visible "recording" state waits for onaudiostart above.
     isListeningRef.current = true;
 
     try {
       recognition.start();
     } catch {
       setIsListening(false);
+      setIsStarting(false);
       isListeningRef.current = false;
     }
   }, [existingText, stopListening, runCleanup]);
 
-  // Toggle convenience
+  // Toggle convenience — "starting" counts as active, so a second click
+  // while the engine is still connecting cancels instead of double-starting.
   const toggleListening = useCallback(async () => {
-    if (isListening) {
+    if (isListening || isStarting) {
       stopListening();
     } else {
       await startListening();
     }
-  }, [isListening, startListening, stopListening]);
+  }, [isListening, isStarting, startListening, stopListening]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -252,6 +288,7 @@ export function useSpeechRecognition({
 
   return {
     isListening,
+    isStarting,
     isCleaning,
     isSupported: !!SpeechRecognitionAPI,
     toggleListening,

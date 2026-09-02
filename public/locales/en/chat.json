@@ -101,7 +101,8 @@
     "cardsLeft_other": "{{count}} cards left, tap to expand",
     "inputPlaceholderVoice": "Type here or dictate…",
     "micTitle": "Dictate (tip: space starts and stops)",
-    "micTitleStop": "Stop dictation (space)"
+    "micTitleStop": "Stop dictation (space)",
+    "micStarting": "Mic is starting, one moment…"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",

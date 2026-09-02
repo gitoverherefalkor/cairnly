@@ -101,7 +101,8 @@
     "cardsLeft_other": "Nog {{count}} kaarten, tik om te openen",
     "inputPlaceholderVoice": "Typ hier of dicteer…",
     "micTitle": "Dicteren (tip: spatie start en stopt)",
-    "micTitleStop": "Stop dicteren (spatie)"
+    "micTitleStop": "Stop dicteren (spatie)",
+    "micStarting": "Microfoon start, momentje…"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",

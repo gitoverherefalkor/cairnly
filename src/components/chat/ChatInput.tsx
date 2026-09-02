@@ -48,18 +48,18 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
   // Voice input via shared hook. cleanOnStop: when the user stops dictating,
   // the raw transcript is tidied (punctuation, capitals) by clean-transcript;
   // isCleaning drives a brief spinner and blocks send until the tidy text is in.
-  const { isListening, isCleaning, isSupported: hasSpeechRecognition, toggleListening, stopListening } =
+  const { isListening, isStarting, isCleaning, isSupported: hasSpeechRecognition, toggleListening, stopListening } =
     useSpeechRecognition({
       onTranscript: setText,
       existingText: text,
       cleanOnStop: true,
     });
 
-  // Space bar controls dictation: while listening, ANY space press stops it
-  // (the user isn't typing during dictation). Document-level so it works
-  // regardless of where focus ended up.
+  // Space bar controls dictation: while listening (or still connecting), ANY
+  // space press stops it (the user isn't typing during dictation).
+  // Document-level so it works regardless of where focus ended up.
   useEffect(() => {
-    if (!isListening) return;
+    if (!isListening && !isStarting) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.code === 'Space') {
         e.preventDefault();
@@ -68,7 +68,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isListening, stopListening]);
+  }, [isListening, isStarting, stopListening]);
 
   // Expose focus method so quick replies can focus the input
   useImperativeHandle(ref, () => ({
@@ -127,6 +127,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
       text.length === 0 &&
       hasSpeechRecognition &&
       !isListening &&
+      !isStarting &&
       !isCleaning &&
       !disabled
     ) {
@@ -222,16 +223,22 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                   title={
                     isListening
                       ? t('ui.micTitleStop', { defaultValue: 'Stop dictation (space)' })
-                      : t('ui.micTitle', { defaultValue: 'Dictate (tip: space starts and stops)' })
+                      : isStarting
+                        ? t('ui.micStarting', { defaultValue: 'Mic is starting, one moment…' })
+                        : t('ui.micTitle', { defaultValue: 'Dictate (tip: space starts and stops)' })
                   }
                   className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-md transition-colors ${
                     isListening
                       ? 'text-red-500 bg-red-50 animate-mic-pulse'
-                      : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
+                      : isStarting
+                        ? 'text-amber-500 bg-amber-50'
+                        : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isCleaning ? (
                     <Loader2 size={20} className="animate-spin text-atlas-teal" />
+                  ) : isStarting ? (
+                    <Loader2 size={20} className="animate-spin" />
                   ) : (
                     <>
                       <Mic size={18} className="sm:hidden" />
