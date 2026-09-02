@@ -146,5 +146,3 @@ If you have any questions about this Privacy Policy or wish to exercise your rig
 Email: privacy@cairnly.io
 
 Address: Cairnly, a trading name of Human in the Loop B.V., Utrecht, the Netherlands
-
-Data Protection Officer: dpo@cairnly.io

@@ -59,8 +59,8 @@ const Security = () => {
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Questions or concerns?</h2>
                 <p>
                   Email us at{' '}
-                  <a href="mailto:hello@cairnly.io" className="text-[#27A1A1] underline hover:text-[#27A1A1]/80">
-                    hello@cairnly.io
+                  <a href="mailto:info@cairnly.io" className="text-[#27A1A1] underline hover:text-[#27A1A1]/80">
+                    info@cairnly.io
                   </a>
                   . A real person will reply.
                 </p>

@@ -146,5 +146,3 @@ Heb je vragen over deze Privacyverklaring of wil je een van jouw rechten uitoefe
 E-mail: privacy@cairnly.io
 
 Adres: Cairnly, een handelsnaam van Human in the Loop B.V., Utrecht, Nederland
-
-Functionaris voor Gegevensbescherming (FG): dpo@cairnly.io
