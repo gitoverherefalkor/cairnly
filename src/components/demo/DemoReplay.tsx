@@ -11,16 +11,23 @@ interface DemoReplayProps {
   annotations: ResolvedAnnotation[];
   // message id → canonical section index, for the chapter scroll-spy.
   sectionIndexByMessage: Record<string, number>;
-  // Highlight ring on one message (page-owned, shared with the legend and
-  // the welcome card's jump).
+  // Highlight ring on one message (page-owned, shared with the header chips,
+  // the sidebar and the welcome card's jump).
   flashId: string | null;
   onFlash: (messageId: string) => void;
 }
 
-/** DOM id of a message wrapper; chapter nav, legend and explain-scroll target it. */
+/** DOM id of a message wrapper; sidebar, header chips and jumps target it. */
 export const messageDomId = (id: string) => `demo-msg-${id}`;
 
-const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+
+// The two career-card pills write recognisable user turns. "Ask about this
+// role" prefixes the typed question with "[Over <role>]" / "[About <role>]";
+// the Move pill auto-sends buildFeasibilityQuestion(), which opens with a
+// fixed sentence in either language.
+const SCOPED_TURN = /^\[(over|about)\s+(.+?)\]/i;
+const FEASIBILITY_TURN = /^(hoe realistisch is de overstap|how realistic is the move)/i;
 
 /**
  * The thin replay container: maps a frozen transcript onto the real
@@ -28,15 +35,16 @@ const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
  * to live sessions, n8n and the input box). Per-message props mirror
  * ChatMessages.tsx so the replay keeps the beats that make the product feel
  * alive: the "via <pill>" tag on typed turns, the answered choice card, the
- * Keep badges, the score pills, and the comparison radar.
+ * Keep badges, the score pills, the career-card pills and the comparison
+ * radar.
  *
  * What is different from a live chat, on purpose:
  *  - every section is fully revealed (no chevron pacing gating the scroll);
  *  - multi-card sections stay collapsed-but-clickable;
- *  - no send handlers, so nothing can reach n8n;
- *  - "Explain this comparison" scrolls to the explanation the coach already
- *    gave in the session, or drops it in locally when the persona never
- *    asked for it.
+ *  - nothing can reach n8n: the career-card pills ("Ask about this role",
+ *    the Move pill) and "Explain this comparison" jump to the turn where
+ *    the persona actually used that control, so a click shows what the
+ *    control does instead of doing nothing.
  */
 export const DemoReplay: React.FC<DemoReplayProps> = ({
   messages,
@@ -73,6 +81,35 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
     }
     return out;
   }, [messages, inserted]);
+
+  const userTurns = useMemo(() => messages.filter((m) => m.sender === 'user'), [messages]);
+
+  // "Ask about this role" → the [Over <role>] turn for that role if the
+  // persona asked one, otherwise the first scoped turn in the session.
+  const handleAskAboutRole = useCallback(
+    (roleTitle: string) => {
+      const wanted = norm(roleTitle);
+      const scoped = userTurns.filter((m) => SCOPED_TURN.test(m.content));
+      const exact = scoped.find((m) => norm(m.content.match(SCOPED_TURN)?.[2] ?? '') === wanted);
+      const target = exact ?? scoped[0];
+      if (target) onFlash(target.id);
+    },
+    [userTurns, onFlash],
+  );
+
+  // Chip sends only reach us from the Move pill in the replay (follow-up
+  // option chips are never interactive here). Prefer the persona's own
+  // feasibility question for this role, else any feasibility question.
+  const handleChipSend = useCallback(
+    (message: string) => {
+      const wanted = norm(message);
+      const feasibility = userTurns.filter((m) => FEASIBILITY_TURN.test(m.content));
+      const exact = feasibility.find((m) => norm(m.content) === wanted);
+      const target = exact ?? feasibility[0];
+      if (target) onFlash(target.id);
+    },
+    [userTurns, onFlash],
+  );
 
   const handleExplain = useCallback(
     (fromId: string, content: string) => {
@@ -140,6 +177,8 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
               sections={sections}
               isLatestBotMessage={false}
               forceFullReveal
+              onAskAboutRole={isBot ? handleAskAboutRole : undefined}
+              onChipSend={isBot ? handleChipSend : undefined}
               onComparisonExplain={isBot ? (content) => handleExplain(msg.id, content) : undefined}
               bookmarkable={isBot && !isSectionReveal && savedSet.has(msg.id)}
               bookmarked={kept.has(msg.id)}

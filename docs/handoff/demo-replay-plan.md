@@ -80,6 +80,17 @@ below a header taller than /chat's). The annotated moments moved to
 numbered chips in the sticky header (`DemoMomentsBar`); the sidebar starts
 collapsed below 1360px so the transcript keeps its width.
 
+Round 4 (same day): the career-card pills ("Vraag iets over deze rol", the
+Move pill) render in their real place on every card. A click jumps to the
+turn where Marloes used that pill (the Move pill → her auto-generated
+feasibility question on career 1; ask-about-role → her `[Over …]` question
+on the Facilitator card), so no control is dead. Two notes mark those turns
+(seven moments now; legends shortened so all chips fit from 1360px). The
+"Chat-generated · not scored" badge on the Facilitator card is real product
+UI: that card carries `metadata.origin = chat_replacement` (only the
+coach's replace-a-career flow writes that) and no `move`; the badge text
+is now localised (`careerPills.chatGenerated`).
+
 ## Goal
 
 A public, scrollable replay of a real coaching session, on the website, to

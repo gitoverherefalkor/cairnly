@@ -141,7 +141,9 @@
   "careerPills": {
     "askAboutRole": "Ask about this role",
     "move": "Move: {{level}} · explore why",
-    "moveFallback": "Can I get there from here?"
+    "moveFallback": "Can I get there from here?",
+    "chatGenerated": "Chat-generated · not scored",
+    "chatGeneratedCaveat": "This suggestion was generated from your report and our conversation, not the scored matching that ranked your other cards. Treat it as a lead to explore, not a ranked match."
   },
   "comparison": {
     "explain": "Explain this comparison",

@@ -141,7 +141,9 @@
   "careerPills": {
     "askAboutRole": "Vraag iets over deze rol",
     "move": "Stap: {{level}} · ontdek waarom",
-    "moveFallback": "Is deze overstap haalbaar?"
+    "moveFallback": "Is deze overstap haalbaar?",
+    "chatGenerated": "Uit de chat · niet gescoord",
+    "chatGeneratedCaveat": "Deze suggestie komt uit je rapport en ons gesprek, niet uit de gescoorde matching die je andere kaarten rangschikte. Zie het als een spoor om te verkennen, niet als een gerangschikte match."
   },
   "comparison": {
     "explain": "Leg deze vergelijking uit",

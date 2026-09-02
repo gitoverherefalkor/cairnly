@@ -59,6 +59,16 @@ describe('demo fixture (Marloes, nl)', () => {
     }
   });
 
+  it('has the turns the career-card pills jump to (Move pill, Ask about this role)', () => {
+    // DemoReplay routes a Move-pill click to the persona's own feasibility
+    // question and an "Ask about this role" click to her [Over …] turn. If a
+    // re-exported walkthrough lacks them, those pills would click into
+    // nothing; better to know here than on the live page.
+    const users = fixture.messages.filter((m) => m.sender === 'user');
+    expect(users.some((m) => /^(hoe realistisch is de overstap|how realistic is the move)/i.test(m.content))).toBe(true);
+    expect(users.some((m) => /^\[(over|about)\s+.+?\]/i.test(m.content))).toBe(true);
+  });
+
   it('every annotation key has eyebrow, title, body and legend in nl and en', () => {
     const nl = localeAnnotations('nl');
     const en = localeAnnotations('en');

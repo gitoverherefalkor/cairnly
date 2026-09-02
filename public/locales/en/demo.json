@@ -20,7 +20,7 @@
     "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
     "watchLead": "Watch for these moments along the way:",
     "legendAside": "The numbered moments sit in the bar at the top; click a number to jump there. On the left you see the report sections, exactly as in a real session.",
-    "howTo": "Click the cards to open them, hover over the radar. You cannot type here: this is a replay."
+    "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what Marloes did with them. You cannot type here: this is a replay."
   },
   "welcome": {
     "caption": "Every session starts like this: the coach introduces itself, you click the button and the first chapter arrives. Go ahead and click, it jumps to the start of the conversation.",
@@ -38,13 +38,13 @@
       "eyebrow": "Look here",
       "title": "She disagrees",
       "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words.",
-      "legend": "She pushes back"
+      "legend": "Pushback"
     },
     "kept": {
       "eyebrow": "This changes the report",
       "title": "The coach takes it on board, and she keeps it",
       "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
-      "legend": "She keeps an answer"
+      "legend": "Kept in the report"
     },
     "pillTag": {
       "eyebrow": "Small print",
@@ -52,17 +52,29 @@
       "body": "It shows which button Marloes pressed before she started typing, here 'Something else'. So the conversation shows how she steered, not just what she said.",
       "legend": "The button label"
     },
+    "movePill": {
+      "eyebrow": "The Move button",
+      "title": "One click, and the coach backs up its rating",
+      "body": "Under every career sits a button with the step the report expects, here 'Ready now'. Marloes clicked it: the question above was written for her automatically and the coach explains why no retraining is needed. Click that button on any career card and you jump here.",
+      "legend": "The Move button"
+    },
     "radar": {
       "eyebrow": "Made for her",
       "title": "Three careers, five axes, no template",
       "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her.",
-      "legend": "The radar, made for her"
+      "legend": "The radar"
+    },
+    "askRole": {
+      "eyebrow": "Ask about this role",
+      "title": "She aims her question at one career",
+      "body": "Every career card has 'Ask about this role'. Marloes used it on Facilitator Restorative Practices: her message gets the [About …] label and the coach answers about that career only. Click that button on any card and you jump here.",
+      "legend": "Ask about this role"
     },
     "dictated": {
       "eyebrow": "Spoken",
       "title": "She did not type this, she said it",
       "body": "Marloes dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
-      "legend": "Dictated, tidied by AI"
+      "legend": "Dictated"
     }
   },
   "highlights": {

@@ -362,15 +362,22 @@ export const FeasibilityBadge: React.FC<{ level: FeasibilityLevel }> = ({ level 
 export const CHAT_REPLACEMENT_CAVEAT =
   'This suggestion was generated from your report and our conversation, not the scored matching that ranked your other cards. Treat it as a lead to explore, not a ranked match.';
 
-export const ChatGeneratedBadge: React.FC = () => (
-  <div
-    title={CHAT_REPLACEMENT_CAVEAT}
-    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-3 py-1.5 shadow-sm"
-  >
-    <MessageCircle className="h-3 w-3 text-slate-500 shrink-0" aria-hidden="true" />
-    <span className="text-[11px] font-semibold text-slate-600">Chat-generated · not scored</span>
-  </div>
-);
+export const ChatGeneratedBadge: React.FC = () => {
+  // Label + hover caveat follow the UI language (chat.json careerPills.*);
+  // the English constants above stay the fallback and the dashboard's copy.
+  const { t } = useTranslation('chat');
+  return (
+    <div
+      title={t('careerPills.chatGeneratedCaveat', { defaultValue: CHAT_REPLACEMENT_CAVEAT })}
+      className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-50 px-3 py-1.5 shadow-sm"
+    >
+      <MessageCircle className="h-3 w-3 text-slate-500 shrink-0" aria-hidden="true" />
+      <span className="text-[11px] font-semibold text-slate-600">
+        {t('careerPills.chatGenerated', { defaultValue: 'Chat-generated · not scored' })}
+      </span>
+    </div>
+  );
+};
 
 interface CareerScoreCardProps {
   score?: number | null;

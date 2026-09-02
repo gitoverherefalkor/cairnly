@@ -18,9 +18,19 @@
       "placement": "top"
     },
     {
+      "key": "movePill",
+      "messageId": "4fd9d022-72c6-4e84-816a-f1154f3d7c4c",
+      "placement": "top"
+    },
+    {
       "key": "radar",
       "messageId": "6e7d5598-8627-4fc7-bd53-5b663801f8f2",
       "placement": "bottom"
+    },
+    {
+      "key": "askRole",
+      "messageId": "35d9ab51-8a0b-4fa3-abb5-6e698f102cc6",
+      "placement": "top"
     },
     {
       "key": "dictated",
