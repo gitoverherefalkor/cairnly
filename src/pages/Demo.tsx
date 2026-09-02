@@ -100,10 +100,10 @@ const Demo: React.FC = () => {
         messageId: a.messageId,
         placement: a.placement ?? 'top',
         index: i + 1,
-        eyebrow: t(`annotations.${a.key}.eyebrow`),
-        title: t(`annotations.${a.key}.title`),
-        body: t(`annotations.${a.key}.body`),
-        legend: t(`annotations.${a.key}.legend`),
+        eyebrow: t(`annotations.${choice.personaId}.${a.key}.eyebrow`),
+        title: t(`annotations.${choice.personaId}.${a.key}.title`),
+        body: t(`annotations.${choice.personaId}.${a.key}.body`),
+        legend: t(`annotations.${choice.personaId}.${a.key}.legend`),
       }));
   }, [fixture, choice, t]);
 
@@ -251,7 +251,7 @@ const Demo: React.FC = () => {
               <p className="mt-3 text-[15px] sm:text-base text-[#122E3B] font-semibold leading-relaxed">
                 {t(`personas.${choice.personaId}.tagline`)}
               </p>
-              <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{t('intro.body')}</p>
+              <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{t('intro.body', { name: choice.firstName })}</p>
 
               {/* Below 1360px the header chips are numbers only, so the
                   moments are listed in full here. From 1360px the sentence
@@ -283,13 +283,13 @@ const Demo: React.FC = () => {
               <p className="hidden min-[1360px]:block mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">
                 {t('intro.legendAside')}
               </p>
-              <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('intro.howTo')}</p>
+              <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('intro.howTo', { name: choice.firstName })}</p>
               {choice.isFallback && (
                 <p
                   className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"
                   style={{ background: 'rgba(212,160,36,0.12)', color: '#122E3B' }}
                 >
-                  {t('fallback.dutchOnly')}
+                  {t('fallback.otherLanguage')}
                 </p>
               )}
             </section>
@@ -321,7 +321,12 @@ const Demo: React.FC = () => {
                   title={t('highlights.title')}
                   body={t('highlights.body')}
                 />
-                <DemoFooter audience={audience} />
+                <DemoFooter
+                  audience={audience}
+                  personaId={choice.personaId}
+                  language={choice.language}
+                  firstName={choice.firstName}
+                />
               </>
             ) : (
               <div className="flex items-center justify-center py-24 text-blue-100/70">

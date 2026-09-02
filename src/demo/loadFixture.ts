@@ -1,14 +1,19 @@
 // Which frozen session /demo shows, and the hand-written overlay on top.
 import type { DemoCuration, DemoFixture } from './types';
 import marloesCuration from './fixtures/marloes.nl.curation.json';
+import emmaCuration from './fixtures/emma.en.curation.json';
 
-export type DemoPersonaId = 'marloes';
+export type DemoPersonaId = 'marloes' | 'emma';
 
 export interface DemoFixtureChoice {
   personaId: DemoPersonaId;
   // Language of the conversation in the fixture.
   language: string;
-  // True when the visitor's language has no persona of its own yet and gets
+  // The persona's first name, for the sentences around the transcript
+  // ("This is the conversation as Emma had it"). Known before the lazy
+  // fixture chunk arrives, so the intro never renders with a blank.
+  firstName: string;
+  // True when the visitor's language has no persona of its own and gets
   // another language's session with a note.
   isFallback: boolean;
   // The transcript is ~180 KB, so it is a lazy chunk of its own: only the
@@ -17,23 +22,53 @@ export interface DemoFixtureChoice {
   curation: DemoCuration;
 }
 
+interface PersonaEntry {
+  language: string;
+  firstName: string;
+  load: () => Promise<DemoFixture>;
+  curation: DemoCuration;
+}
+
 /**
- * Phase 1: one persona, Marloes (Dutch). English visitors see her session
- * with a "this demo is in Dutch" note until the English persona (phase 2 in
- * docs/handoff/demo-replay-plan.md) exists. Adding a persona = a new fixture
- * pair (json + curation.json) and a branch here.
+ * One persona per site language (docs/handoff/demo-replay-plan.md):
+ * Marloes for Dutch visitors, Emma for English ones. Adding a persona = a
+ * new fixture pair (json + curation.json), an entry here, and its strings
+ * under `personas.<id>` and `annotations.<id>` in both demo locale files.
  */
+const PERSONAS: Record<DemoPersonaId, PersonaEntry> = {
+  marloes: {
+    language: 'nl',
+    firstName: 'Marloes',
+    load: () =>
+      import('./fixtures/marloes.nl.json').then((m) => m.default as unknown as DemoFixture),
+    curation: marloesCuration as DemoCuration,
+  },
+  emma: {
+    language: 'en',
+    firstName: 'Emma',
+    load: () => import('./fixtures/emma.en.json').then((m) => m.default as unknown as DemoFixture),
+    curation: emmaCuration as DemoCuration,
+  },
+};
+
+/** The persona whose session was held in this language, else the English one. */
+export function personaForLanguage(lang: string | undefined): DemoPersonaId {
+  const short = (lang || 'en').slice(0, 2).toLowerCase();
+  const hit = (Object.keys(PERSONAS) as DemoPersonaId[]).find((id) => PERSONAS[id].language === short);
+  return hit ?? 'emma';
+}
+
 export function chooseFixture(lang: string | undefined): DemoFixtureChoice {
   const short = (lang || 'en').slice(0, 2).toLowerCase();
+  const personaId = personaForLanguage(short);
+  const persona = PERSONAS[personaId];
   return {
-    personaId: 'marloes',
-    language: 'nl',
-    isFallback: short !== 'nl',
-    load: () =>
-      import('./fixtures/marloes.nl.json').then(
-        (m) => m.default as unknown as DemoFixture,
-      ),
-    curation: marloesCuration as DemoCuration,
+    personaId,
+    language: persona.language,
+    firstName: persona.firstName,
+    isFallback: short !== persona.language,
+    load: persona.load,
+    curation: persona.curation,
   };
 }
 

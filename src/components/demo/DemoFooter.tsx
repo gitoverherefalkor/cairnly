@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, Download, ShieldCheck } from 'lucide-react';
-import { DEMO_PDF_PATH, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
+import { demoPdfPath, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
+import type { DemoPersonaId } from '@/demo/loadFixture';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { trackCtaClick } from '@/lib/analytics';
 
@@ -10,6 +11,10 @@ interface DemoFooterProps {
   // 'partner' when the visitor arrived through a partner link (?p=…):
   // the primary CTA becomes the pilot call instead of the checkout.
   audience: 'customer' | 'partner';
+  // Whose session this is: picks the PDF and names her in the honest label.
+  personaId: DemoPersonaId;
+  language: string;
+  firstName: string;
 }
 
 /**
@@ -17,7 +22,7 @@ interface DemoFooterProps {
  * (the transcript made the argument, the document is the proof), and one
  * call to action per audience.
  */
-export const DemoFooter: React.FC<DemoFooterProps> = ({ audience }) => {
+export const DemoFooter: React.FC<DemoFooterProps> = ({ audience, personaId, language, firstName }) => {
   const { t } = useTranslation('demo');
   const partner = audience === 'partner';
 
@@ -48,15 +53,16 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({ audience }) => {
         {t('footer.title')}
       </h2>
       <p className="text-[15px] sm:text-base text-[#4B6373] font-medium leading-[1.65] max-w-2xl">
-        {t('footer.body')}
+        {t('footer.body', { name: firstName })}
       </p>
 
       <div className="mt-7 grid gap-4 sm:grid-cols-2">
         <div>
-          {/* Customers get her plain report; partners get the same report as
-              the white-label template ([partnernaam], no logo). */}
+          {/* Customers get her plain report; partners get the Dutch report as
+              the white-label template ([partnernaam], no logo): the partner
+              audience is Dutch bureaus, whichever persona is on screen. */}
           <a
-            href={partner ? DEMO_PARTNER_TEMPLATE_PDF_PATH : DEMO_PDF_PATH}
+            href={partner ? DEMO_PARTNER_TEMPLATE_PDF_PATH : demoPdfPath(personaId, language)}
             download
             onClick={() => trackCtaClick(partner ? 'demo_pdf_partner_template' : 'demo_pdf')}
             className="lp-btn-primary !text-[15px] !py-3 !px-6"

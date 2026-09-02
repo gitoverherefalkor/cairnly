@@ -12,15 +12,18 @@
   "personas": {
     "marloes": {
       "tagline": "Marloes, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people she helps."
+    },
+    "emma": {
+      "tagline": "Emma, 38, senior marketing manager at a London fintech. Can do the job with her eyes closed, and that is exactly the problem."
     }
   },
   "intro": {
     "eyebrow": "Demo",
     "title": "A real coaching session, start to finish",
-    "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
+    "body": "This is the conversation as {{name}} had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
     "watchLead": "Watch for these moments along the way:",
     "legendAside": "The numbered moments sit in the bar at the top; click a number to jump there. On the left you see the report sections, exactly as in a real session.",
-    "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what Marloes did with them. You cannot type here: this is a replay."
+    "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what {{name}} did with them. You cannot type here: this is a replay."
   },
   "welcome": {
     "caption": "Every session starts like this: the coach introduces itself, you click the button and the first chapter arrives. Go ahead and click, it jumps to the start of the conversation.",
@@ -31,50 +34,96 @@
     "hint": "Click to jump there."
   },
   "fallback": {
-    "dutchOnly": "This demo is in Dutch: Marloes is a Dutch candidate. An English session is coming. The buttons and labels follow your language, the conversation stays Dutch."
+    "otherLanguage": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English."
   },
   "annotations": {
-    "pushback": {
-      "eyebrow": "Look here",
-      "title": "She disagrees",
-      "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words.",
-      "legend": "Pushback"
+    "marloes": {
+      "pushback": {
+        "eyebrow": "Look here",
+        "title": "She disagrees",
+        "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words.",
+        "legend": "Pushback"
+      },
+      "kept": {
+        "eyebrow": "This changes the report",
+        "title": "The coach takes it on board, and she keeps it",
+        "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
+        "legend": "Kept in the report"
+      },
+      "pillTag": {
+        "eyebrow": "Small print",
+        "title": "The little label above the text",
+        "body": "It shows which button Marloes pressed before she started typing, here 'Something else'. So the conversation shows how she steered, not just what she said.",
+        "legend": "The button label"
+      },
+      "movePill": {
+        "eyebrow": "The Move button",
+        "title": "One click, and the coach backs up its rating",
+        "body": "Under every career sits a button with the step the report expects, here 'Ready now'. Marloes clicked it: the question above was written for her automatically and the coach explains why no retraining is needed. Click that button on any career card and you jump here.",
+        "legend": "The Move button"
+      },
+      "radar": {
+        "eyebrow": "Made for her",
+        "title": "Three careers, five axes, no template",
+        "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her.",
+        "legend": "The radar"
+      },
+      "askRole": {
+        "eyebrow": "Ask about this role",
+        "title": "She aims her question at one career",
+        "body": "Every career card has 'Ask about this role'. Marloes used it on Facilitator Restorative Practices: her message gets the [About …] label and the coach answers about that career only. Click that button on any card and you jump here.",
+        "legend": "Ask about this role"
+      },
+      "dictated": {
+        "eyebrow": "Spoken",
+        "title": "She did not type this, she said it",
+        "body": "Marloes dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
+        "legend": "Dictated"
+      }
     },
-    "kept": {
-      "eyebrow": "This changes the report",
-      "title": "The coach takes it on board, and she keeps it",
-      "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
-      "legend": "Kept in the report"
-    },
-    "pillTag": {
-      "eyebrow": "Small print",
-      "title": "The little label above the text",
-      "body": "It shows which button Marloes pressed before she started typing, here 'Something else'. So the conversation shows how she steered, not just what she said.",
-      "legend": "The button label"
-    },
-    "movePill": {
-      "eyebrow": "The Move button",
-      "title": "One click, and the coach backs up its rating",
-      "body": "Under every career sits a button with the step the report expects, here 'Ready now'. Marloes clicked it: the question above was written for her automatically and the coach explains why no retraining is needed. Click that button on any career card and you jump here.",
-      "legend": "The Move button"
-    },
-    "radar": {
-      "eyebrow": "Made for her",
-      "title": "Three careers, five axes, no template",
-      "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her.",
-      "legend": "The radar"
-    },
-    "askRole": {
-      "eyebrow": "Ask about this role",
-      "title": "She aims her question at one career",
-      "body": "Every career card has 'Ask about this role'. Marloes used it on Facilitator Restorative Practices: her message gets the [About …] label and the coach answers about that career only. Click that button on any card and you jump here.",
-      "legend": "Ask about this role"
-    },
-    "dictated": {
-      "eyebrow": "Spoken",
-      "title": "She did not type this, she said it",
-      "body": "Marloes dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
-      "legend": "Dictated"
+    "emma": {
+      "pushback": {
+        "eyebrow": "Look here",
+        "title": "She disagrees",
+        "body": "Emma clicks 'I see this differently' and draws the line herself: the loop is fair, the 'late scramble' is not her. No form, no star rating: pushback in her own words, and the coach rewrites its reading on the spot.",
+        "legend": "Pushback"
+      },
+      "kept": {
+        "eyebrow": "This changes the report",
+        "title": "She keeps it, and it lands in her report",
+        "body": "The coach reframes her fintech years as more scope, less proximity to the story. Emma presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
+        "legend": "Kept in the report"
+      },
+      "pillTag": {
+        "eyebrow": "Small print",
+        "title": "The little label above the text",
+        "body": "It shows which button Emma pressed before she started typing, here 'Something else'. She brings in two things the survey never asked about: a promotion decision due this quarter and her partner's shift rota. Watch the coach carry both into the career chapter.",
+        "legend": "The button label"
+      },
+      "movePill": {
+        "eyebrow": "The Move button",
+        "title": "One click, and the coach defends its rating",
+        "body": "Under every career sits a button with the step the report expects, here 'Upskill'. Emma clicked it: the question above was written for her automatically and the coach explains why this is not 'Reframe' and not 'Retrain' either. Click that button on any career card and you jump here.",
+        "legend": "The Move button"
+      },
+      "radar": {
+        "eyebrow": "Made for her",
+        "title": "Three careers, five axes, no template",
+        "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her. Emma read it and told the coach the radar was being kind to number two.",
+        "legend": "The radar"
+      },
+      "askRole": {
+        "eyebrow": "Ask about this role",
+        "title": "She aims her question at one career",
+        "body": "Every career card has 'Ask about this role'. Emma used it on Design Sprint Facilitator, the only card rated 'Ready now': her message gets the [About …] label, the coach answers about that career only, and concedes that it is a business, not a job. Click that button on any card and you jump here.",
+        "legend": "Ask about this role"
+      },
+      "dictated": {
+        "eyebrow": "Spoken",
+        "title": "She did not type this, she said it",
+        "body": "Emma dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
+        "legend": "Dictated"
+      }
     }
   },
   "highlights": {
@@ -85,7 +134,7 @@
   "footer": {
     "eyebrow": "Demo with a fictional persona, real AI output",
     "title": "What you just read",
-    "body": "Marloes does not exist. Her survey answers were written by us. Everything the coach says and everything in her report is real, unedited Cairnly output.",
+    "body": "{{name}} does not exist. Her survey answers were written by us. Everything the coach says and everything in her report is real, unedited Cairnly output.",
     "pdf": "Download her report as a PDF",
     "pdfNote": "The report as it stands after this conversation, with her feedback folded in.",
     "ctaCustomer": "Take the assessment yourself",

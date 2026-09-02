@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import fixtureJson from './fixtures/marloes.nl.json';
+import marloesJson from './fixtures/marloes.nl.json';
+import emmaJson from './fixtures/emma.en.json';
 import { buildChapters, chapterOfSection, detectSectionIndex, sectionIndexByMessage } from './chapters';
 import type { DemoFixture } from './types';
 
-const fixture = fixtureJson as unknown as DemoFixture;
+const FIXTURES = [
+  { name: 'Marloes (nl)', lang: 'nl', fixture: marloesJson as unknown as DemoFixture, noHeading: 'Geen kop hier' },
+  { name: 'Emma (en)', lang: 'en', fixture: emmaJson as unknown as DemoFixture, noHeading: 'No heading here' },
+];
 
-describe('demo chapter detection (against the frozen Marloes session)', () => {
+describe.each(FIXTURES)('demo chapter detection (against the frozen $name session)', ({ lang, fixture, noHeading }) => {
   it('finds every delivered section exactly once, in report order', () => {
     const byMessage = sectionIndexByMessage(fixture.messages, fixture.sections);
     const inTranscriptOrder = fixture.messages
@@ -28,9 +32,9 @@ describe('demo chapter detection (against the frozen Marloes session)', () => {
 
   it('resolves a career heading through the report sections', () => {
     const career1 = fixture.sections.find((s) => s.section_type === 'top_career_1')!;
-    const nlTitle = career1.content_i18n?.nl?.title ?? career1.title!;
-    expect(detectSectionIndex(`### ${nlTitle}\n\nbody`, fixture.sections)).toBe(5);
-    expect(detectSectionIndex('Geen kop hier', fixture.sections)).toBe(-1);
+    const title = career1.content_i18n?.[lang]?.title ?? career1.title!;
+    expect(detectSectionIndex(`### ${title}\n\nbody`, fixture.sections)).toBe(5);
+    expect(detectSectionIndex(noHeading, fixture.sections)).toBe(-1);
   });
 
   it('builds three chapters that each start at a real message', () => {
@@ -44,7 +48,9 @@ describe('demo chapter detection (against the frozen Marloes session)', () => {
     expect(chapters[1].sectionIndexes).toEqual([5, 6, 7, 8, 9]);
     expect(chapters[2].sectionIndexes).toEqual([10]);
   });
+});
 
+describe('chapterOfSection', () => {
   it('maps section indexes to chapters', () => {
     expect(chapterOfSection(0)).toBeNull();
     expect(chapterOfSection(1)).toBe('personality');

@@ -2,12 +2,15 @@
 export const DEMO_ROUTE = '/demo';
 
 /**
- * The persona's finished report as a PDF, rendered from the same report the
+ * A persona's finished report as a PDF, rendered from the same report the
  * transcript was frozen from (feedback from the session already folded in).
- * `.gitignore` blocks `*.pdf` globally; `!public/demo/*.pdf` carves out this
- * one directory so the file reaches the build.
+ * `scripts/demo-render-pdf.mjs` writes `cairnly-demo-<persona>-<lang>.pdf`
+ * into public/demo/; `.gitignore` blocks `*.pdf` globally and
+ * `!public/demo/*.pdf` carves out this one directory so the files reach the
+ * build.
  */
-export const DEMO_PDF_PATH = '/demo/cairnly-demo-marloes-nl.pdf';
+export const demoPdfPath = (personaId: string, language: string) =>
+  `/demo/cairnly-demo-${personaId}-${language}.pdf`;
 
 /**
  * The same report as the white-label TEMPLATE for the partner audience

@@ -1,0 +1,41 @@
+{
+  "_comment": "Overlay on emma.en.json. Message ids are the exported chat_messages ids and change with every re-export: after running demo-export-fixture.mjs again, re-anchor the annotations here (src/demo/loadFixture.test.ts fails loudly if an id no longer exists). Annotation text lives in public/locales/<lang>/demo.json under annotations.emma.<key> (eyebrow, title, body, legend). Numbering in the UI follows transcript order, not the order here.",
+  "hiddenMessageIds": [],
+  "annotations": [
+    {
+      "key": "kept",
+      "messageId": "71ded558-beb7-478a-844f-3aaeba31934b",
+      "placement": "bottom"
+    },
+    {
+      "key": "pushback",
+      "messageId": "f8bfe9bd-d830-45c1-96e1-36896a495736",
+      "placement": "top"
+    },
+    {
+      "key": "pillTag",
+      "messageId": "c892f31c-aeeb-45ff-93b5-7df903bda624",
+      "placement": "top"
+    },
+    {
+      "key": "movePill",
+      "messageId": "3cf6f062-c372-4f67-83fe-807fb7977cb9",
+      "placement": "top"
+    },
+    {
+      "key": "radar",
+      "messageId": "ee538b14-a4c9-419f-9c34-c04769f8f3f4",
+      "placement": "bottom"
+    },
+    {
+      "key": "askRole",
+      "messageId": "25e6e364-0a62-4ba6-9646-db6934c6346f",
+      "placement": "top"
+    },
+    {
+      "key": "dictated",
+      "messageId": "5ce6dac0-21b1-4591-a294-f750ba4186cc",
+      "placement": "top"
+    }
+  ]
+}

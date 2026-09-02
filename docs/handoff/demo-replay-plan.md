@@ -5,6 +5,42 @@ later the same day after the walkthrough was completed and several chat
 features shipped. This document is self-contained — execute from here, no need
 for the original conversation.**
 
+## Status (2026-09-02, evening): Phase 2 (Emma, EN) is built
+
+`/demo` now follows the site language: Dutch visitors get Marloes, English
+visitors get Emma. What phase 2 added:
+
+| Piece | Where |
+|---|---|
+| Emma's account | `demo.emma@cairnly.io`, user id `b5ed7c5b-833a-470b-b14c-733976e4bdc8`, `preferred_language='en'`, country United Kingdom, no partner link. Password in `.env.local` as `DEMO_DEMO_EMMA_PASSWORD` (bottom entry wins) |
+| Her survey | `scripts/demo-emma-payload.mjs` → `docs/report/demo-emma-payload.json` (same substring-resolution mechanism as Marloes's script; London fintech senior marketing manager, 38, MA, "hollowed out", AI-uncertain, flexible hours non-negotiable) |
+| Account tooling | `scripts/demo-create-account.mjs <email> --first --last --lang --country` (auth user + profile fields); `demo-rerun-report.mjs` gained `--payload=<file>` for a persona's FIRST run |
+| The walkthrough | `scripts/demo-chat-step.mjs <email> <command>`: drives the chat one click or turn at a time with the SAME calls the UI makes (deliver-section, chat-proxy, save-chat-response, wrap-up-extract/save, chat_messages metadata for the pill labels). Commands: status, last, ready, continue, say [--pill=][--about=], explore, chip, move, keep, explain, wrapup. Emma's replies were written live in reaction to the coach, one step per command |
+| Fixture + curation | `src/demo/fixtures/emma.en.json` (report `dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1`, 52 messages, 17 sections, 2 Keeps) + `emma.en.curation.json` (seven annotations, same keys as Marloes's) |
+| PDF | `public/demo/cairnly-demo-emma-en.pdf` (rendered with `demo-render-pdf.mjs demo.emma@cairnly.io`; her profile has no partner link, so nothing to clear) |
+| Code | `chooseFixture()` picks the persona by language (`personaForLanguage`); `demoPdfPath(persona, lang)` replaced the single PDF constant; `DemoFooter` takes the persona; the intro/footer sentences take `{{name}}`; annotation strings moved to `annotations.<persona>.<key>` in both locale files; tests run over both fixtures |
+
+Beats in Emma's session, for the annotations and for anyone re-running it:
+pushback on the development section (the "late scramble" is not her), Keep on
+the "more scope, less proximity to the story" reply, a `Something else` turn
+that adds a promotion decision and her partner's shift rota (neither in the
+survey; the coach carries both into the career chapter), the Move pill on
+Service Designer (Upskill, defended), the comparison explanation on career 2,
+"Ask about this role" on Design Sprint Facilitator (the coach concedes it is a
+business, not a job, and prices year one at £15-30k), a second Keep in outside
+the box, the dictated dream-jobs turn, and a non-database question (UK service
+design certification cost, evening formats, asking the employer to fund it).
+
+Known blemishes in the frozen output, deliberately left as generated (the page
+promises unedited AI output): the outside-the-box card for Editorial Director
+says "her named dream job" (third person slip in WF3's prose), and the kept
+outside-the-box reply contains a stray Chinese character ("one层 removed").
+If Sjoerd wants those gone, the honest route is a fresh walkthrough, not an
+edit of the fixture.
+
+Partner visitors (`?p=…`) still get the DUTCH white-label template PDF
+whichever persona is on screen: the partner audience is Dutch bureaus.
+
 ## Status (2026-09-02, end of day): Phase 1 is LIVE on `/demo`
 
 Built and shipped to `main` in one session. What exists now:
@@ -22,9 +58,11 @@ Built and shipped to `main` in one session. What exists now:
 
 Decisions taken at build time (Sjoerd's calls that the plan left open):
 
-- **EN before phase 2:** English visitors get Marloes with an "in Dutch" note
-  (`fallback.dutchOnly`), instead of holding the EN link. `chooseFixture()` in
-  `src/demo/loadFixture.ts` is the one place to add Emma.
+- **EN before phase 2:** English visitors got Marloes with an "in Dutch" note
+  until Emma existed (superseded the same evening; the note survives as
+  `fallback.otherLanguage` for a language with no session of its own).
+  `chooseFixture()` in `src/demo/loadFixture.ts` is the one place personas
+  are registered.
 - **`?p=<anything>` = partner audience:** CTAs become the Calendly pilot call +
   "back to the partner page"; the visit fires the existing `sample_view`
   beacon with the `p` slug, so outreach links can be tagged per bureau.
@@ -303,8 +341,8 @@ links on landing + /partners → build, tests, verify in browser, ship to main.
 Acceptance: a logged-out visitor can scroll the full NL session on production,
 open career cards, hover the radar, and reach the PDF + CTA.
 
-**Phase 2 — Emma (EN):**
-New demo account `demo.emma@cairnly.io` (create via normal auth +
+**Phase 2 — Emma (EN): DONE 2026-09-02 (see the status block at the top).**
+Original brief: new demo account `demo.emma@cairnly.io` (create via normal auth +
 `demo-set-password.mjs`), `preferred_language='en'`. Persona: ~38, senior
 marketing manager or strategy consultant, college-educated, stuck on
 meaning/AI-uncertainty — aspirational for the paying audience. Write her

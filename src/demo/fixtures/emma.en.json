@@ -1,0 +1,825 @@
+{
+  "persona": {
+    "firstName": "Emma",
+    "language": "en",
+    "exportedAt": "2026-09-02T17:15:16.621Z",
+    "reportId": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+    "reportStatus": "completed"
+  },
+  "messages": [
+    {
+      "id": "22e08e46-d36c-4897-8c9d-7b2cd803de56",
+      "sender": "user",
+      "content": "I'm ready, let's begin!",
+      "created_at": "2026-09-02T17:05:06.858587+00:00",
+      "metadata": null
+    },
+    {
+      "id": "2a197cb6-4465-4c34-be7f-af22452c4a18",
+      "sender": "bot",
+      "content": "Hi there. Let's dive into your personality profile. We'll start with your work approach - how you navigate challenges, lead teams, and engage with others.\n\n---\n\n### Understanding Your Approach\n\n##### Personality and Interaction Style\n\nEmma, you gravitate toward rooms where ideas get tested out loud: workshops, strategy decks, customer interviews. But your conflict style splits down the middle. With peers you say you address disagreements directly, yet your instinct in negotiation is to concede for harmony. That's not indecision, it's a hierarchy: you'll push hard on ideas but soften fast on relationships, which explains why you're the one people bring a messy deck to and trust it back.\n\n##### Impact in Different Environments\n\nThe pattern pays off wherever the work is generative and social: your agency years, your happiest by far, were built on new problems every few weeks and rooms you could read and move. It costs you in environments built around defending numbers rather than shaping direction, which is exactly what's eroding your current role.\n\n##### Key Insight\n\nYour happiness scores rise and fall with proximity to the story, not with title or budget size. The fintech job gave you the broadest scope of your career and your second-lowest score, because scope without storytelling authority isn't the thing you actually want.\n\n---\n\n---\n\n**Does this feel like an accurate reflection of your work style?** Let me know if anything stands out or if you'd like to refine any part.",
+      "created_at": "2026-09-02T17:05:06.858587+00:00",
+      "metadata": null
+    },
+    {
+      "id": "798a012b-30d4-4757-9107-03855e9f8771",
+      "sender": "user",
+      "content": "The scope-without-storytelling-authority line is uncomfortably accurate. I took the fintech job because it was the biggest remit anyone had offered me, and I've spent three years quietly wondering why it feels smaller than the agency did. Nobody has ever put it as proximity to the story before, and I think that's it.",
+      "created_at": "2026-09-02T17:05:30.866481+00:00",
+      "metadata": null
+    },
+    {
+      "id": "71ded558-beb7-478a-844f-3aaeba31934b",
+      "sender": "bot",
+      "content": "That's a real thing to have named, and it's worth sitting with for a second rather than rushing past it.\n\nThe agency years worked because you were close enough to the story to shape it in real time: pitching it, testing it, watching a room's reaction and adjusting on the spot. Fintech gave you the remit but moved you further from that loop, into a structure where the story gets shaped by committee, timeline, and compliance before it ever reaches you. More scope, less proximity. That's why it read as smaller even though every external marker said bigger.\n\nIt also explains the split in your conflict style. You push hard on ideas when you're close enough to the story to feel it's yours to defend. You concede faster on relationship friction because the story isn't the thing at stake there. Same person, different stakes.\n\nWorth flagging for later: this is likely going to be a real filter for you when we get into career options, proximity to narrative and pace of iteration matters more to your satisfaction than title or budget. Something to keep in mind as we go.\n\nReady to move on to strengths, or anything else you want to dig into here first?",
+      "created_at": "2026-09-02T17:05:37.847931+00:00",
+      "metadata": null
+    },
+    {
+      "id": "28251d06-d9ce-408f-8cc3-2ed5a71b1963",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:05:42.790951+00:00",
+      "metadata": null
+    },
+    {
+      "id": "153d820f-9206-48e1-ae64-b190857bf5a0",
+      "sender": "bot",
+      "content": "Let's talk about your strengths - what sets you apart professionally and drives your success.\n\n---\n\n### Strengths and How to Grow Them\n\n##### Identifying Your Core Strengths\n\nUnderneath the skills list sits one capability: you find the sentence that makes a messy situation legible to other people, whether that's a product, a decision, or a friend's dilemma. The repositioning work, the insight programme the product team now leans on, the friends who come to you before a big decision: all the same move, applied to different material.\n\n##### Leveraging Strengths in Your Career\n\nThis is diagnostic work disguised as marketing work. Given your pull toward impact and away from research-heavy, spreadsheet-driven tasks, the version of this skill worth building isn't deeper marketing specialization, it's applying that same sense-making to bigger, messier human questions, wherever they sit.\n\n##### Key Insight\n\nYou've spent fifteen years being hired for marketing titles while your actual value has been translation: turning what people do into a story an organization can act on. That's a harder thing to replace than a marketing function, AI-assisted or not, because it depends on judgment about people, not on producing the copy itself.\n\n---\n\n---\n\n**Do these insights align with how you see yourself professionally?** If there's anything you'd like to adjust or highlight further, let me know.",
+      "created_at": "2026-09-02T17:05:42.790951+00:00",
+      "metadata": null
+    },
+    {
+      "id": "ed9be6da-0921-4e9f-8c8f-eac1662b83e6",
+      "sender": "user",
+      "content": "I'd like to explore this section a bit more",
+      "created_at": "2026-09-02T17:06:06.266901+00:00",
+      "metadata": null
+    },
+    {
+      "id": "56af2687-cd4e-4ee1-aab4-28fb6468f14c",
+      "sender": "bot",
+      "content": "Happy to dig deeper. What are you most curious about?\n\n- How this \"translation\" skill compares to a formal marketing career vs. something less title-bound\n- Why AI is less of a threat to this than to marketing execution work\n- How the sense-making pattern connects to what you said about proximity to the story in the last section\n\nSomething else, just let me know!",
+      "created_at": "2026-09-02T17:06:09.828826+00:00",
+      "metadata": null
+    },
+    {
+      "id": "00027b75-fb80-43e8-9cb7-69af0748c20b",
+      "sender": "user",
+      "content": "Why AI is less of a threat to this than to marketing execution work",
+      "created_at": "2026-09-02T17:06:16.955253+00:00",
+      "metadata": null
+    },
+    {
+      "id": "fb528006-79a4-4323-a056-4b52c9d73d4b",
+      "sender": "bot",
+      "content": "Marketing execution has a lot of legible, pattern-based output: copy variants, campaign briefs, deck templates, performance summaries. AI is already fast at producing first drafts of that because the input and output are both fairly structured. That's the part of marketing jobs shrinking first.\n\nWhat you do sits upstream of that. Before anyone can write the copy or build the campaign, someone has to look at a messy pile of behavior, research, and internal disagreement and decide what it actually means and which story is worth telling. That's judgment about ambiguous, half-contradictory human signals, not pattern completion on existing text. AI can summarize inputs for you faster, which might even speed up your part of the process, but it can't yet decide which messy situation matters or whose version of events an organization should act on. That call still needs someone people trust.\n\nThe risk to you isn't AI directly, it's if you let your role get defined by the execution layer (the deck, the copy, the deliverable) rather than the diagnostic layer underneath it. The insight programme you built is a good example: the artifact is a report, but the value was you deciding what was worth reporting. That's the part to keep visible and keep naming explicitly in how you talk about your work.\n\nReady to move on, or anything else you want to dig into here?",
+      "created_at": "2026-09-02T17:06:25.461939+00:00",
+      "metadata": null
+    },
+    {
+      "id": "abfbc04f-320f-4876-9d6f-22b62802e54b",
+      "sender": "user",
+      "content": "That's the distinction I couldn't articulate. The tools write a perfectly serviceable launch email now, and I'd started to read that as the job being over. What they don't do is sit in the room and notice that sales and product are describing two different customers. So the question is how I make the diagnostic layer visible on paper, because right now my title says execution.",
+      "created_at": "2026-09-02T17:06:43.032615+00:00",
+      "metadata": null
+    },
+    {
+      "id": "03daec86-1c7d-4853-8bb9-245552897455",
+      "sender": "bot",
+      "content": "Practical answer: three places to put it on paper.\n\nYour CV and LinkedIn headline is the first fix. \"Senior Marketing Manager\" tells nobody what you actually do. A line under it like \"I turn conflicting customer signals into a story an organization can act on\" does more work than any bullet point. Your own achievement about the insight programme is proof: frame it as \"identified that product and sales were serving different customer models, built the interview programme that surfaced it\" rather than \"ran 30+ customer interviews annually.\" Same fact, different layer.\n\nSecond, the repositioning work. Right now it probably reads as \"led messaging repositioning.\" The diagnostic version is \"diagnosed that our messaging was feature-led while buyers were making outcome-based decisions, which is why the sales cycle shortened once we fixed the mismatch.\" That's the sales/product disconnect pattern you just described, applied retroactively to a story you already have proof for.\n\nThird, and harder: you need language for the moment itself, not just the artifact. \"I sit in rooms where teams are describing the same customer differently and surface it before it costs a launch\" is a sentence you can say in an interview or a promotion case, even though it doesn't show up on a deliverables list. Titles lag this kind of work by years across the whole industry, so the fix isn't finding the perfect title, it's building a body of language you use consistently until people start asking for you by function rather than by title.\n\nWant to keep going on this, or ready to move to the next section?",
+      "created_at": "2026-09-02T17:06:54.22177+00:00",
+      "metadata": null
+    },
+    {
+      "id": "cd63dcf3-ccdd-41fb-a25f-ca7cbff5bbe5",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:06:55.557221+00:00",
+      "metadata": null
+    },
+    {
+      "id": "e4a9ccd0-7df8-432b-8259-e539bcd4015d",
+      "sender": "bot",
+      "content": "Now for the growth opportunities - areas where focused development can make the biggest difference in reaching your goals.\n\n---\n\n### Areas for Development\n\n##### Understanding Potential Growth Areas\n\nPerfectionism, self-criticism, and over-owning responsibility aren't three separate flaws, they're one loop: you set a high bar, hold yourself to it alone, and then judge yourself when the bar slips. Paired with a \"leaning open\" decision style, that loop probably shows up as long deliberation followed by a late scramble to meet it.\n\n##### Implications for Your Growth\n\nIf you're eyeing a real pivot, this loop is the thing most likely to stall you, not lack of skill. Uncertainty about the next step, which you named directly, will feed the self-criticism rather than resolve it unless you build in an external checkpoint instead of relying on your own judgment to know when something is \"good enough\" to move on.\n\n##### Key Insight\n\nOne read: your difficulty motivating yourself and taking criticism without defensiveness might trace back to the same source, a self-imposed bar so high that any input, including your own doubt, feels like a verdict rather than data. Worth testing before assuming it's a confidence problem rather than a standards problem.\n\nYour worry about AI eroding \"which part of my craft is still mine\" points at something real: as AI absorbs execution-level content work, judgment about people and what actually moves them becomes harder to automate, not easier.\n\n---\n\n---\n\n**Do these observations and suggestions resonate with you?** Let me know if there's anything you'd like to explore in more detail.",
+      "created_at": "2026-09-02T17:06:55.557221+00:00",
+      "metadata": null
+    },
+    {
+      "id": "f8bfe9bd-d830-45c1-96e1-36896a495736",
+      "sender": "user",
+      "content": "The loop is fair, I recognise it. But the late scramble isn't me. I'm the one who ships early and then keeps polishing after it's already gone out, which is its own problem but a different one. And I don't take criticism defensively, I take it too much to heart, which looks the same from the outside and feels nothing like it. The bit that did land is the external checkpoint. I have never once decided something was good enough, someone else always had to tell me.",
+      "created_at": "2026-09-02T17:07:14.275722+00:00",
+      "metadata": {
+        "quick_reply": "differently"
+      }
+    },
+    {
+      "id": "0f7863e4-ea9d-4ee4-a067-37e7e3571c8c",
+      "sender": "bot",
+      "content": "That distinction matters and it's worth being precise about, because \"late scramble\" and \"ships early then can't let go\" point to different fixes even if they come from the same root.\n\nYours is closer to: the bar never actually gets marked as met, so you either miss the deadline debating whether it's ready, or you hit the deadline and the polishing just continues on the live version because the internal signal for \"done\" never fires. The self-criticism isn't procrastination-adjacent, it's closer to a verdict that never gets delivered, so you keep appealing the case to yourself after the ruling should have landed.\n\nSame with criticism: not defensiveness, over-absorption. Someone gives you a note on a sentence in a report and it lands as a comment on your judgment overall, because your loop was already running before they said anything.\n\nThe external checkpoint point stands and actually gets stronger with this correction: you're not looking for someone to catch mistakes you can't see, you're looking for an outside voice to do the one thing your internal loop structurally can't, declare a stopping point. That's a specific, learnable habit (naming a check-in person or moment before you start, not after you're already spiraling), rather than a vague \"build more confidence\" fix.\n\nWant me to go further on that, or ready to move on?",
+      "created_at": "2026-09-02T17:07:22.570855+00:00",
+      "metadata": null
+    },
+    {
+      "id": "239b69c6-c47f-489a-88ea-9382c4a88099",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:07:35.771391+00:00",
+      "metadata": null
+    },
+    {
+      "id": "05f47534-6e5c-40ec-a11c-c973ea3e421b",
+      "sender": "bot",
+      "content": "Finally, let's look at your core values - what matters most to you in your career and how that shapes the right fit.\n\n---\n\n### Aligning with Your Values\n\n##### Identifying Your Core Values\n\nImpact outranks growth, and growth outranks autonomy, which is a specific order: you want to matter to something before you want independence in how you get there. That tracks with your dream of running a research studio for organisations, but it sits oddly next to your best year, the agency, which offered you autonomy and challenge with the thinnest cause attached of any job you've held.\n\n##### Values in Career Decisions\n\nAny next role needs a visible line from your work to a person or outcome you can name, plus room to run the sense-making yourself rather than defend it in dashboards. It needs to exclude data-heavy, spreadsheet-first work and solo, low-contact tasks, both of which you've flagged directly as drains.\n\n##### Key Insight\n\nYou rank impact highest, yet your happiest year ran on craft and momentum with little cause behind it at all. That tension suggests \"impact\" for you may mean the felt sense of changing how people understand something, not a mission statement, which opens more doors than a strict cause-driven search would.\n\n---\n\n**Does this section reflect what matters most to you?** If everything looks good, we can move on to your career recommendations. Let me know how you'd like to proceed.",
+      "created_at": "2026-09-02T17:07:35.771391+00:00",
+      "metadata": null
+    },
+    {
+      "id": "c892f31c-aeeb-45ff-93b5-7df903bda624",
+      "sender": "user",
+      "content": "Two things you should know before we get to careers. There's a live decision on the table: my CEO has floated a Head of Marketing role for the new year, bigger team, more budget, and I'd guess about double the dashboards. I'm meant to say yes or no by the end of the quarter, and right now my honest answer is that I'd be saying yes to the title, not the work. And the practical one: my partner's rota means I need at least two days a week where I'm home by six. That's not a preference, it's a condition.",
+      "created_at": "2026-09-02T17:08:09.220841+00:00",
+      "metadata": {
+        "quick_reply": "somethingElse"
+      }
+    },
+    {
+      "id": "8a85d3c2-3fb2-4a33-9fb4-86a71874964f",
+      "sender": "bot",
+      "content": "Both worth having on record before you see the careers, and they cut in a useful direction together.\n\nOn the Head of Marketing offer: your own read matches everything in this report. Bigger team, bigger budget, more dashboards is fintech's shape again, just with a promotion attached this time instead of a lateral move. You already lived the experiment once, more scope without more proximity to the story was your second-lowest score of your career. A \"yes\" here would be betting that a bigger version of the thing that already underperformed will perform differently. It might buy you a title and a number, but on your own values ranking (impact, then growth, then autonomy) it doesn't obviously deliver more of any of the three, it mostly delivers more surface area to manage.\n\nThat doesn't make it a clean no. If you need the runway (financial, or to fund a transition), that's a legitimate reason to take it as a bridge, eyes open, rather than as the answer to the burnout. Worth being honest with yourself about which one it would be.\n\nOn the two-days-by-six condition: that's a hard constraint, not a preference, and it will actively shape which of the upcoming career paths make sense. Founder-path and some agency-style roles can have unpredictable hours; roles with more structural boundaries (in-house, fractional with defined scope, certain consulting setups) tend to protect this better. I'll keep it in view as we go through your matches.\n\nReady to move to your careers, or want to talk through the Head of Marketing decision more first?",
+      "created_at": "2026-09-02T17:08:18.303055+00:00",
+      "metadata": null
+    },
+    {
+      "id": "a564354a-6553-4139-9058-ddcd32ceecc8",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:08:29.134939+00:00",
+      "metadata": null
+    },
+    {
+      "id": "89922c4a-8903-4e86-9110-744d2dd3d881",
+      "sender": "bot",
+      "content": "## CHAPTER 2: CAREER RECOMMENDATIONS\n\nOk! Let's continue with our career recommendations and discuss why we think they are a great fit for you. We start with your top career matches first.\n\nBased on your personality, values, and skills, one of the most suitable jobs for you is:\n\n---\n\n### Service Designer\n\n#### Large agency / consultancy (201-1000)\n\n**Alternate titles:** Service Design Consultant, Experience Strategist, Human-Centered Design Lead\n\n##### Overview\nA service designer researches how people actually experience an organization (front and back stage), then redesigns the systems and touchpoints behind that experience so it works better for everyone involved.\n\n##### Why this role fits you\nHelping others and making an impact sits at the top of what drives you, and this role turns that into a daily practice: you're not writing a mission statement, you're sitting with 30+ people a year to find out what's actually broken in how an organization treats them, then fixing it. That's the same instinct that made your customer-insight programme something the product team leans on more than marketing does.\n\nThis role extends your 8/10 Brand Strategist pattern almost exactly: a new client problem every few weeks, a workshop, a deck that makes a room go quiet. The agency structure (project pods, peer support) also protects against what's currently draining you at 5/10, the dashboard and re-forecasting grind that keeps pulling you away from positioning and storytelling. Your perfectionist streak gets useful external checkpoints here instead of spiraling.\n\n##### What you'll actually do\n- Run discovery research. Conduct contextual inquiries and stakeholder interviews, the same muscle you built doing 30+ customer interviews a year.\n- Build service blueprints. Turn messy, chaotic input into a visual map a whole company can rally around, exactly what you did with your outcome-led repositioning work.\n- Facilitate co-creation workshops. Your AJ&Smart sprint training and room-reading instincts get used weekly, not occasionally.\n- Present to leadership. Translate research into a narrative that moves skeptical stakeholders, drawing on your storytelling craft.\n\n##### The Reality Check\n⚠ Conservative clients slow the work down. Convincing corporate stakeholders to embrace organizational change (not just a new campaign) takes more patience than agency brand work did, and your harmony-seeking conflict style could mean conceding ground too early.\n\n⚠ Blueprinting is a genuine skill gap. You have the research and facilitation down cold, but formal service blueprinting and target operating model artifacts are new territory. Realistic path: shadow 2-3 live projects and take a short service design certification (e.g. from a recognized service design school), roughly 2-3 months to get fluent, not years.\n\n⚠ Proposal crunches will test your flexibility rule. Client pitch deadlines surge unpredictably. With a partner on nursing shifts, you'll need to negotiate which weeks you protect early with your team.\n\n##### The practical stuff\n\nMoney: £50,000-£75,000. This sits at or slightly below your £50k-75k bracket midpoint, comfortably within target, though senior consulting rates in London agencies often flex upward once you're placed.\n\nSchedule: Standard agency hours with surges during discovery sprints and pitches. Your flexible-hours requirement is workable here since agencies increasingly support hybrid, but sprint weeks will test it occasionally.\n\nEnergy: High client and colleague interaction, daily, inside small project pods. This matches your \"somewhat energized, but I have a limit\" profile precisely because pods (not open-floor exposure) contain the interaction.\n\nGrowth: Leads to Lead Service Designer, then Design Director or Strategic Design Partner, a real ladder toward running research-driven change work.\n\n##### How AI will impact this role\nModerate. AI now handles qualitative coding, persona synthesis, and first-pass blueprint visuals, the grunt work that currently eats your week. Strategic stakeholder alignment and ethnographic empathy, your actual edge, stay human. Given your \"moderately familiar\" AI comfort, this role hands you a natural on-ramp rather than a steep climb.\n\n##### Future-proof skills\n- Own the synthesis layer: Get fluent directing AI tools for interview coding so you spend saved hours on judgment calls, not data cleanup.\n- Build workshop-facilitation depth: Deepen live, high-stakes facilitation skill (skeptical execs, dominant voices), the part no AI tool touches.\n\n##### Alignment with your ambitions\nYour short-term goal is new skills in a different setting, and this delivers formal service design methodology on top of what you already do well. Your long-term ambition, contributing to a cause and running your own research studio, makes this less a detour and more a credentialing platform: 2-3 years here builds the blueprinting and org-design chops that make your own studio (your stated dream job) more fundable later.\n\n---\n\nThat was your first top career match.\n\nBased on what we just covered, **does this role appeal to you? Does it align with your career goals and interests?**\n\nWere you expecting to see this as a top recommendation, or was it a surprise?\n\nIf you'd like, I can provide more details, whether that's diving into the daily responsibilities, potential career paths, or industry trends. Or, if you're ready, we can move on to the next career match. **Let me know how you'd like to proceed!**",
+      "created_at": "2026-09-02T17:08:29.134939+00:00",
+      "metadata": null
+    },
+    {
+      "id": "3cf6f062-c372-4f67-83fe-807fb7977cb9",
+      "sender": "user",
+      "content": "How realistic is the move into Service Designer from where I am now, and what would I need to learn or reskill to get there? My report rates the reskilling effort for this move as \"Upskill\". Explain why it is rated that, and whether it holds up.",
+      "created_at": "2026-09-02T17:08:32.446108+00:00",
+      "metadata": null
+    },
+    {
+      "id": "827ff03c-8343-415e-b3de-269e67c24cc8",
+      "sender": "bot",
+      "content": "The Upskill rating holds up, and it's the right level of honest here.\n\nHere's why it's not rated \"Reframe\" (which would mean you basically already have this, just haven't named it right): formal service blueprinting and target operating model artifacts are genuinely new tools you haven't built before. That's a real, learnable technique, not something you can just relabel from existing experience.\n\nBut it's also not \"Retrain,\" and that's the more important part. The core muscle underneath the technique, discovery research, stakeholder interviews, turning messy input into something a room can act on, is exactly what you've been doing for years: your 30+ customer interviews annually, the outcome-led repositioning work, your AJ&Smart facilitation training. The report flagged this directly: shadowing 2-3 live projects plus a short certification gets you fluent in roughly 2-3 months, not years. That's a technique gap sitting on top of a skill you already have at a high level, which is a genuinely fast bridge.\n\nWhether it's worth it depends on your appetite, not just the size of the gap. You told us your short-term goal is developing new skills in a different setting, and your long-term ambition is running your own research studio. This isn't a detour from that, it's closer to the fastest legitimate way to get the credentialed chops (blueprinting, org-design language) that make a studio fundable later. Given that alignment, a few months of deliberate upskilling looks like a good trade, not a risk to weigh cautiously.\n\nReady to move on, or want to go deeper on the certification route?",
+      "created_at": "2026-09-02T17:08:41.49932+00:00",
+      "metadata": null
+    },
+    {
+      "id": "5fd2e667-bd1a-414c-86a5-cd7f542e38f0",
+      "sender": "user",
+      "content": "Upskill I can live with, a certification is a calendar problem, not an identity one. Two things in the reality check landed harder. Conceding ground too early is exactly what happened with our last rebrand, I folded on the positioning to keep the CFO happy and we've been paying for it since. And the proposal crunches are the real question, not the blueprinting. If pitch weeks eat my two evenings I'm back where I started with a nicer job title.",
+      "created_at": "2026-09-02T17:09:29.229627+00:00",
+      "metadata": null
+    },
+    {
+      "id": "b4cf073d-7a8e-42e8-86b0-aa388004b297",
+      "sender": "bot",
+      "content": "Both of those deserve a straight answer rather than reassurance.\n\nOn conceding ground: that's not a personality quirk to note, it's a live risk that this exact role will re-trigger. Service design consulting sells organizational change to skeptical stakeholders for a living, and if your harmony-seeking instinct folds under a CFO-type voice in the room, you don't just lose a debate, you ship a diluted blueprint that under-delivers, the same shape as the rebrand. The fix isn't \"be more assertive\" as a vague resolution, it's structural: in an agency pod, you're not the lone voice defending the work, you'd typically have a design director or engagement lead in the room whose job is to hold the line on scope and rigor. Your job going in should be figuring out, at the offer stage, whether you'd have that senior cover or whether you'd be the most senior voice in the room yourself. If it's the latter, the rebrand pattern is likely to repeat.\n\nOn proposal crunches: this is the harder, more concrete problem, and it's fair to treat it as the real gate, not the blueprinting. Pitch-driven agency work genuinely does surge unpredictably, and \"hybrid-friendly\" doesn't mean immune to a pitch week eating your evenings. Two moves before accepting anything: ask directly in interviews how pitch cycles are staffed (some agencies rotate pitch duty rather than pulling the whole pod), and ask what the actual pitch cadence looked like over the last two quarters, not the theoretical answer.\n\nWant to keep on this, or move to your next career match?",
+      "created_at": "2026-09-02T17:09:39.249685+00:00",
+      "metadata": null
+    },
+    {
+      "id": "05b5ff44-7d03-4b16-80a3-3a21c23a3994",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:09:41.681892+00:00",
+      "metadata": null
+    },
+    {
+      "id": "ee538b14-a4c9-419f-9c34-c04769f8f3f4",
+      "sender": "bot",
+      "content": "---\n\n### Employee Experience Consultant\n\n#### Large agency / consultancy (201-1000)\n\n**Alternate titles:** People Experience Consultant, EX Strategist, Workplace Experience Designer\n\n##### Overview\nAn employee experience consultant researches how staff actually feel about their workplace, then designs journey maps and interventions to fix culture, tools, and processes that aren't working.\n\n##### Why this role fits you\nYour happiest professional years weren't about the industry, they were about the shape of the work: a new problem every few weeks, a workshop, a deck that made a room go quiet. This role extends your 8/10 Brand Strategist pattern by keeping that exact rhythm and swapping the subject from customers to employees, which plays directly into your top value of helping others and making an impact.\n\nIt's the same diagnostic instinct you've already proven, sitting in customer interviews to spot which story a company tells itself, just pointed inward at organizations instead of outward at markets. The structured consulting milestones and pod-based teams also guard against the isolating grind currently deflating you at 5/10 in your fintech role, where dashboards have crowded out the storytelling work you're actually good at.\n\n##### What you'll actually do\n- Run sentiment audits. Conduct qualitative focus groups on workplace culture, a direct extension of your customer-interview synthesis skill.\n- Map employee journeys. Build journey maps and interventions using the same synthesis method that shortened your last product's sales cycle by 20%.\n- Present roadmaps to CHROs. Your stakeholder management and storytelling craft carry the strategic narrative into the boardroom.\n- Facilitate steering committee workshops. Use your workshop facilitation training to build consensus among competing executive priorities.\n\n##### The Reality Check\n⚠ Client politics move slowly. Executives resistant to progressive culture change will stall projects for months, and your instinct to over-own client outcomes (a known tendency for you) makes that slowness personally frustrating rather than just a process fact.\n\n⚠ Scope creep is structural. Multi-stakeholder enterprise projects invite constant \"can you also look at...\" requests. Protecting boundaries here matters more than in agency brand work, where scope was tighter.\n\n⚠ Domain shift is light but real. Your journey-mapping skill transfers almost directly, but you'll need context adaptation, HR tech familiarity (Workday, Culture Amp) and organizational psychology framing. Realistic path: one short course plus your first live project, about 6-8 weeks to feel fluent, since your interview and synthesis skills already do the heavy lifting.\n\n##### The practical stuff\n\nMoney: £52,000-£80,000. This lands squarely inside your £50k-75k bracket, and the top end exceeds it, so this hits your target without a pay cut.\n\nSchedule: Standard consulting hours with predictable milestone peaks. More predictable than agency pitch cycles, which works better against your flexible-hours requirement.\n\nEnergy: High daily interaction with client HR leaders and multidisciplinary pods. Sits within your \"somewhat energized, with a limit\" range because the pod structure distributes the social load.\n\nGrowth: Leads toward Practice Lead for Employee Experience, or eventually an in-house Chief People Officer track, a genuine leadership runway.\n\n##### How AI will impact this role\nSubstantial, per the enriched data, though the human core (reading organizational politics, building executive trust) resists automation. AI increasingly handles sentiment data crunching and first-draft journey maps; your job shifts toward interpreting what the data actually means for a resistant executive team. Your moderate AI familiarity means you'll want hands-on time with sentiment analytics tools early, not later.\n\n##### Future-proof skills\n- Learn HR analytics tools: Get working fluency in Culture Amp or Workday reporting so you direct the data instead of waiting on analysts.\n- Sharpen executive influence: Build a repeatable framework for landing \"non-intuitive\" recommendations with skeptical CHROs, your real differentiator as AI handles more analysis.\n\n##### Alignment with your ambitions\nThis fits your short-term goal of developing new skills in a different setting, applying your marketing toolkit to organizational psychology. Against your long-term ambition of significant societal contribution and running your own research studio, this is a genuine bridge (not a detour): it builds people-focused consulting credibility that translates directly if you eventually go independent.\n\n---\n\nAlright, that was your second career match. **How does this one compare to the first? Do you see yourself thriving in this type of role?**\n\nWas this something you had considered before, or does it bring a new perspective on potential career paths for you?\n\nI'm happy to go deeper into any aspects of this job e.g. compensation, long-term growth, or how it fits with your skills. Or, if you'd prefer, we can move on to the next suggestion. **What do you think?**",
+      "created_at": "2026-09-02T17:09:41.681892+00:00",
+      "metadata": null
+    },
+    {
+      "id": "a5bd0c05-8119-42f3-aac6-77ce27073999",
+      "sender": "bot",
+      "content": "Both roles extend your 8/10 Brand Strategist pattern, so the day-to-day texture (workshops, research, decks) feels familiar in either. The real difference is what you're diagnosing: Service Designer looks at customer-facing systems, this looks inward at organizational culture and HR processes.\n\nThat inward focus means slower client politics. Employee experience work runs into entrenched executive resistance to culture change more often than customer-facing service redesign does, which is why pace scores a point lower here. It also asks more of your tendency to over-own client outcomes, since organizational change is messier and less controllable than a service blueprint.\n\nStability and schedule land the same in both: predictable consulting milestones, solid pay within your bracket. If you want the closer call, Service Designer keeps you closer to tangible, visible deliverables; this one asks you to sit longer in ambiguity and politics before you see the payoff.",
+      "created_at": "2026-09-02T17:09:58.858928+00:00",
+      "metadata": null
+    },
+    {
+      "id": "a769b496-5a72-459c-8f54-235371e95b7a",
+      "sender": "user",
+      "content": "Seeing them side by side is useful, because on paper they read like the same job. Inward versus outward is the whole difference for me. I ran a culture piece internally two years ago, values workshops and all, and it was the slowest, most political thing I've ever done. So I think the radar is being kind to number two. If I'm sitting in ambiguity and politics for months I want it to be about a customer, not about which VP owns the intranet.",
+      "created_at": "2026-09-02T17:09:59.644021+00:00",
+      "metadata": null
+    },
+    {
+      "id": "2d7fc1c7-f6a3-4885-b0d3-81f49b9f0412",
+      "sender": "bot",
+      "content": "That's a sharp distinction, and your own history actually backs it up more than the report's framing does.\n\nYour sentiment log doesn't have a direct \"internal culture project\" entry, but the pattern is visible in what you rated highly versus what dragged. Your best years, the agency (8/10) and the consumer goods brand (7/10), both point outward: a client problem, a customer story, a market. Your current fintech role (5/10) is already partly weighed down by internal friction, attribution debates and managing upward, the same flavor of politics you're describing, just in miniature. An employee experience role would be a full-time bet on the exact ingredient that's already the weaker half of your current job, not a new direction from it.\n\nThe report's \"client politics move slowly\" warning for Employee Experience Consultant is real, but you're right that it understates the specific trigger: internal politics has no external story to anchor the debate. When a CFO resists a customer-facing repositioning, there's a market or a user to point to as the tiebreaker. When a VP resists a culture intervention, the tiebreaker is just another VP's opinion, so it becomes pure political stamina with no outside referee, which is exactly the slow, values-workshop grind you already lived through.\n\nThat's a legitimate reason to rank this one lower than the radar suggests, even if it's not a hard \"wrong for me.\"\n\nWant me to flag this clearly as feedback and move to your next match, or is this heading toward \"this one's a real no for me\"?",
+      "created_at": "2026-09-02T17:10:11.131423+00:00",
+      "metadata": null
+    },
+    {
+      "id": "f66c40b3-c990-48b5-b4ac-9a50e86aa164",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:10:12.602654+00:00",
+      "metadata": null
+    },
+    {
+      "id": "b9ccec50-418b-4e50-9f9b-517b32e2943f",
+      "sender": "bot",
+      "content": "---\n\n### Design Sprint Facilitator\n\n#### Own company / boutique practice\n\n**Alternate titles:** Sprint Master, Innovation Facilitator, Workshop Lead\n\n##### Overview\nA design sprint facilitator runs intensive multi-day workshops where cross-functional teams solve a specific business problem and test a prototype, compressed into days instead of months.\n\n##### What you'll actually do\n- Facilitate live sprints. Run multi-day workshops using your AJ&Smart certification, the credential you already hold and haven't fully monetized.\n- Design workshop agendas. Build digital boards and structure exercises that channel your love of \"a strategy deck that made a room go quiet.\"\n- Recruit test participants. Line up user testing sessions, using the interview-scheduling instincts from your 30+ interviews-a-year research programme.\n- Manage your own pipeline. Pitch, propose, and scope follow-on work directly with client leadership, no account team buffer.\n\nYou've already said this kind of work lets you learn new skills and push into new territory, which lines up with your stated interest in developing strategic planning and creative innovation capability, but here you'd be the one setting the curriculum, not attending someone else's workshop.\n\n##### Why this role fits you\nThis role isolates the exact ingredient that made your Brand Strategist years your best: the room, the live problem-solving, the tangible outcome by Friday. It extends your 8/10 Brand Strategist pattern more directly than any other option, stripping away the account management and client retainer overhead and leaving just the facilitation itself, the part you're certified in and clearly energized by.\n\nIt also answers your autonomy value directly. As a solo practitioner you control your calendar, which matters given your partner's nursing shifts and your non-negotiable need for flexible hours. Sprint-based work means intense delivery weeks followed by open prep weeks, a rhythm few employee roles can offer.\n\n##### The Reality Check\n⚠ Client acquisition never stops. As a solo facilitator, you are the pipeline. There's no account team booking your calendar, every quiet week is your job to fill, and your discomfort with self-promotion (not previously tested in your career) will get real pressure here.\n\n⚠ Live sprint days are physically demanding. Multi-day facilitation with dominant, skeptical executives requires sustained high energy and room control. Your harmony-seeking conflict style needs deliberate override in these rooms, conceding to the loudest voice derails a sprint.\n\n⚠ Income has no floor early on. Boutique practice means variable, lumpy engagements while you build a reputation and referral network, distinct from the steady consulting cadence of an agency role.\n\n##### The practical stuff\n\nMoney: Day rates typically £800-£1,800 depending on client size, translating to an annual range of roughly £48,000-£90,000 at moderate utilization. This can exceed your £50k-75k bracket in strong years, but expect the first 6-12 months to run below it while you build a client base, income variability is real and needs a cash buffer given your London mortgage.\n\nSchedule: High-intensity delivery weeks alternating with flexible prep and business-development weeks. This is the closest match to your non-negotiable flexible-hours requirement of any option here.\n\nEnergy: High-intensity social bursts during sprints, then low-contact solo weeks. This actually suits your \"somewhat energized, with a limit\" profile well, since the limit gets a built-in recovery week rather than daily depletion.\n\nGrowth: Can scale into a small facilitation agency with a roster of contractors, or pivot into fractional Head of Product Innovation work.\n\n##### How AI will impact this role\nSubstantial. AI increasingly handles workshop prep logistics, agenda templates, and synthesis write-ups after the sprint. The live facilitation itself, reading a room, managing dominant personalities, keeping momentum, stays entirely human and becomes your clearer differentiator as routine prep work gets automated.\n\n##### Future-proof skills\n- Automate your admin: Use AI for agenda drafts, participant recruitment emails, and post-sprint synthesis docs, freeing more hours for billable facilitation.\n- Build a facilitator brand: Publish opinionated takes on sprint methodology to compress your client acquisition cycle, since referrals alone won't fill a solo calendar fast enough.\n\n##### Alignment with your ambitions\nThis satisfies your short-term goal of building new skills (business development, solo practice management) you haven't needed before. But your long-term ambition centers on significant societal contribution and possibly running a research studio, and pure sprint facilitation is narrower than that vision. At 38 with a mortgage, treat this as a viable path in its own right or a proving ground for solo consulting, not automatically a stepping stone to your dream job.\n\n---\n\nAnd that was your third top career match. **What's your first reaction? Does this feel like a strong fit**, or is it less aligned with what you had in mind?\n\nDo any aspects of this role stand out as particularly exciting or unexpected?\n\nIf you're curious about any specific details, I can expand on them. Or, if you're ready, we can move forward to your runner-up careers for a quick comparison. **Let me know how you'd like to continue!**",
+      "created_at": "2026-09-02T17:10:12.602654+00:00",
+      "metadata": null
+    },
+    {
+      "id": "25e6e364-0a62-4ba6-9646-db6934c6346f",
+      "sender": "user",
+      "content": "[About Design Sprint Facilitator] Ready now is flattering, and I notice it's the only card that says it. But I've run exactly four sprints, all inside companies where someone else had already found the client and paid for the room. Is this a job, or is it a freelance business with a nicer name? And what does year one honestly look like on income for someone starting from zero pipeline, with a mortgage and a partner on shifts.",
+      "created_at": "2026-09-02T17:10:28.705784+00:00",
+      "metadata": null
+    },
+    {
+      "id": "c21617f5-0259-40aa-a752-eb763a79d366",
+      "sender": "bot",
+      "content": "That's the right thing to catch, and it deserves an unflattering answer.\n\nYou're correct that it's a business first and a job second. Facilitation is the visible 20%; the other 80% is sales, proposal writing, client relationship management, and absorbing the risk of empty weeks yourself. The report's own \"Reality Check\" says it plainly: you are the pipeline, there's no account team booking your calendar. Four internal sprints where someone else sourced the client and the room is real facilitation reps, worth something, but it's not evidence you can generate a client from nothing, which is a completely different skill you haven't tested yet.\n\nOn the \"Ready now\" framing: I'd push back on how that reads too. Your facilitation technique is genuinely ready, that part holds. But \"Ready now\" as a Move rating describes the skill gap, not the business-building gap, and this role bundles both under one card. That's worth naming as a real gap in how the rating is presented, not just a feeling.\n\nYear one, honestly: with zero pipeline, expect the first 3-6 months to be mostly business development with little billable work, then a slow ramp. Many solo facilitators don't hit consistent bookings until month 9-12. Realistic year-one income from a standing start is often £15,000-£30,000, well under the report's £48k-90k range, which assumes an existing network or moderate utilization from day one. Against a London mortgage and a partner's shift income covering gaps, that's a real risk, not a bridge, unless you have 6-12 months of runway saved or a part-time floor income alongside it.\n\nWant me to note this as a hard concern, or talk through what a de-risked version (part-time ramp, agency subcontracting first) might look like?",
+      "created_at": "2026-09-02T17:10:38.529042+00:00",
+      "metadata": null
+    },
+    {
+      "id": "6c48343e-6aec-4df1-aa78-e163372693e5",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:10:39.879852+00:00",
+      "metadata": null
+    },
+    {
+      "id": "14cda483-8f01-455f-b46c-7d5739a95571",
+      "sender": "bot",
+      "content": "Let's take a look at your **runner-up career matches**. These are close alternatives to your top three: also strong fits for your strengths and values, but differing in focus, work environment, or trajectory. Think of them as a quick comparison set, not the creative picks. After this, we'll get to the genuinely unexpected directions: your **outside-the-box** options and your **dream jobs**. Here are the alternatives worth considering:\n\n---\n\n### Behavioural Communications Consultant\n\n#### Large (201-1000) / Agency / Consultancy\n\n**Alternate titles:** Behavioural Science Consultant | Behavioural Insights Strategist | Nudge Theory Communications Advisor\n\n##### Overview\nYou'd apply psychology and \"nudge\" theory to help clients craft communications that actually change behaviour, mixing research, workshops, and campaign strategy for a range of client accounts.\n\n##### Why this role fits you\nYour specialised knowledge of \"how people actually make buying decisions\" is basically behavioural science by another name, so this is a near-literal translation of what you already do. It didn't crack Top 3 because it's a lateral career pivot into a formal discipline, not an extension of your marketing track record, meaning more relearning than the others.\n\n##### What works for you\n✓ **Plays to your gift.** Your talent for spotting the story a company tells itself maps directly onto behavioural diagnosis.\n✓ **Team-based, not solo.** High colleague interaction with creatives and analysts suits your small-team preference.\n✓ **Intellectually fresh.** New frameworks (COM-B, EAST) satisfy your growth and novelty appetite.\n\n##### The Reality Check\n⚠ **Reskilling required.** You'd need formal grounding in behavioural frameworks — a certification (6-12 months part-time) rather than a full degree, and AI-assisted learning can speed this up.\n⚠ **Starts you at consultant level.** Entering a new discipline at 38 with 15 years elsewhere may mean a lateral title, not a leadership one, initially.\n⚠ **Client skepticism is real.** You'd spend energy convincing traditional creative teams to trust counter-intuitive recommendations.\n\n##### The practical stuff\n**Money:** £52,000 - £80,000 (London)\n\n**Schedule:** Standard agency hours, surges around pitches\n\n**Energy:** High client and colleague interaction\n\n##### How AI will impact this role\n**Moderate** — AI speeds up research synthesis and message testing; your strategic framing and ethical judgment stay central. Fits your \"moderately familiar\" AI comfort well.\n\n##### Future-proof skills\n- **Behavioural framework fluency:** Get certified in COM-B or EAST within a year to legitimise your existing intuition.\n- **AI-assisted testing:** Use AI tools to run message experiments faster, freeing you for framing and client advisory.\n\n---\n\n### Product Marketing Consultant\n\n#### Own Company / Boutique\n\n**Alternate titles:** Fractional Product Marketing Lead | PMM Advisor | Go-To-Market Consultant\n\n##### Overview\nAn independent advisor helping companies sharpen their product positioning and go-to-market plans, working engagement by engagement rather than as a permanent employee.\n\n##### Why this role fits you\nYour 8/10 agency years ran on exactly this rhythm: new client problem, workshop, positioning deck, repeat. This gets you back there. It's not Top 3 because going independent means building your own pipeline — sales work you've never had to do, and a real gap from the security of a salaried leadership role.\n\n##### What works for you\n✓ **Restores your happiest pattern.** Fresh problems every few weeks instead of dashboards and forecasting.\n✓ **Full autonomy.** You frame engagements and methodology yourself, matching your preference for delegated trust.\n✓ **Direct impact visibility.** You'd see GTM strategy convert straight into client revenue, unlike your current buried-in-reporting role.\n\n##### The Reality Check\n⚠ **Income variability.** Freelance/fractional work means feast-or-famine pipeline cycles — a real shift from a stable salary with a London mortgage.\n⚠ **Client acquisition is unavoidable.** Sales and pitching aren't optional here, and it's a muscle you haven't built.\n⚠ **Solo admin time.** Business administration between engagements cuts against your dislike of solo, self-directed work.\n\n##### The practical stuff\n**Money:** £55,000 - £100,000 (variable, utilization-dependent)\n\n**Schedule:** Flexible but engagement-driven\n\n**Energy:** High client interaction, lower internal collegiality\n\n##### How AI will impact this role\n**Moderate** — AI drafts research and competitive intel; your differentiation strategy and executive relationships remain the value. Manageable given your current AI comfort.\n\n##### Future-proof skills\n- **Pipeline-building:** Start building a referral network now, before leaving salaried security, to de-risk the income gap.\n- **AI-sped research:** Use AI for first-pass competitive analysis so you spend billable hours on positioning, your real edge.\n\n---\n\n### Founder, Qualitative Research Studio\n\n#### Own Company / Boutique\n\n**Alternate titles:** Principal Qualitative Researcher | Managing Director & Founder | Studio Lead & User Research Strategist\n\n##### Overview\nYou'd build and run your own boutique consultancy doing deep ethnographic and qualitative research, helping organisations understand the people they serve, then turning that into strategy for clients.\n\n##### Why this role fits you\nThis is your stated dream job, almost word for word, and it channels the customer-insight programme you built that product teams now trust more than marketing. It sits below Top 3 because founding a studio means real capital and income risk upfront, a heavier lift than a role that lets you plug in more immediately.\n\n##### What works for you\n✓ **Literally your dream job.** Running a research studio helping organisations understand their people is what you told us you want.\n✓ **Total autonomy.** Complete control over methodology and client selection, matching your love of delegated trust.\n✓ **Builds on proven strength.** Your 30+ interviews/year insight programme already proves you can do this at scale.\n\n##### The Reality Check\n⚠ **Capital and runway.** Founder path_type means unpredictable cash flow before profitability — plan for 12-18 months of variable income against your mortgage.\n⚠ **Validation is on you.** You'd need to prove studio viability through real client contracts, not assumptions, before it feels safe.\n⚠ **Business development never stops.** Constant pitching sits uneasily with your \"avoid solo, sales-heavy work\" instinct, even with a team.\n\n##### The practical stuff\n**Money:** £50,000 - £105,000 (variable, early years lower)\n\n**Schedule:** Multi-year build, intense early phase\n\n**Energy:** Very high client interaction, variable team size\n\n##### How AI will impact this role\n**Moderate** — AI handles transcription and coding, but your ethnographic depth and executive trust remain the studio's differentiator.\n\n##### Future-proof skills\n- **Founder-led sales:** Build pitching confidence deliberately, since this is the one skill standing between you and your dream job.\n- **AI-augmented ops:** Use AI to run transcription and coding at scale so you and contractors focus purely on insight and client trust.\n\n---\n\nThat wraps up your runner-up career matches! **Do you have any questions about any of these roles**, or anything else you'd like to explore further?",
+      "created_at": "2026-09-02T17:10:39.879852+00:00",
+      "metadata": null
+    },
+    {
+      "id": "829c57bd-a632-46f3-8235-ed1b1ec0feac",
+      "sender": "user",
+      "content": "The research studio sitting in the runner-ups with reasons I can actually argue with is the most useful thing so far, more useful than it being at number one would have been. Product Marketing Consultant is a no, that's my current job with invoicing attached. Behavioural comms I want to understand: isn't that Service Designer for people who like footnotes? Genuinely asking, the frameworks bit appeals and the client scepticism bit doesn't.",
+      "created_at": "2026-09-02T17:10:56.90239+00:00",
+      "metadata": null
+    },
+    {
+      "id": "993b17c3-cdf9-4afe-973c-ffd74ea73393",
+      "sender": "bot",
+      "content": "All three of those reactions are worth sitting with for a second.\n\nOn the studio: that tracks. Runner-up placement here isn't a lesser verdict, it's the report being honest that founder-path capital risk is a real gate, not a footnote, even for your literal stated dream job. Arguable reasons beat a flattering rank.\n\nOn Product Marketing Consultant: fair, and worth being precise about why. Your current role and this one differ mainly in variety and cadence (new client every few weeks versus one product's ongoing dashboards) plus who bears the sales risk. If the dashboard grind and forecasting are what's draining you at 5/10, and pitching for your own pipeline holds no appeal, then yes, this mainly swaps one frustration for a scarier version of it. Legitimate no.\n\nOn Behavioural Comms vs Service Design, genuinely a sharp question, and they're closer cousins than most pairs in your set, but the difference isn't footnotes versus none. Service Design starts from systems and touchpoints, you're redesigning how an organization's structure produces an experience, blueprints, operating models, cross-functional workshops. Behavioural Comms starts from a single message or campaign, you're asking \"what specific psychological lever makes this communication land,\" using frameworks like COM-B or EAST. Service Design is broader and more structural; Behavioural Comms is narrower and more precise, closer to your actual marketing craft than to org redesign.\n\nThat maps onto what you said: the frameworks appeal because they formalize instincts you already use daily in positioning work, no new domain, just rigor. The client scepticism problem is sharper here too, though, because you're asking creative teams to trust a counter-intuitive, sometimes unintuitive recommendation over their gut, a harder sell than a system redesign backed by research.\n\nWant to keep comparing these two, or move to outside-the-box?",
+      "created_at": "2026-09-02T17:11:09.127652+00:00",
+      "metadata": null
+    },
+    {
+      "id": "8fe6bf27-5878-4056-818b-434d092f2683",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:11:11.586219+00:00",
+      "metadata": null
+    },
+    {
+      "id": "dfe33594-a2bb-44bd-95be-27a2afc7a2c0",
+      "sender": "bot",
+      "content": "**Sometimes the best career paths aren't the most obvious ones.** Based on your personality, interests, and values, we've identified a few **outside-the-box career options.** Roles that align with who you are but might not have been on your radar. These could open up unexpected yet highly fulfilling opportunities. Let's take a look:\n\n---\n\n### Museum Interpretation Manager\n\n#### Medium (51-200) / Nonprofit\n\n##### Overview\n\nYou'd shape how a museum or heritage site translates its collections and archives into narratives visitors actually connect with, working across curatorial, education, and visitor-experience teams. The job is equal parts audience research, script writing for exhibits and tours, and testing what lands with real people before it goes live.\n\n##### Why this might be a fit\n\nThis pulls on the exact muscle your profile names as your real asset: making messy material legible to people, applied to objects and history instead of products. It's a genuine field change (heritage/culture, not corporate marketing) while still giving you workshops, stakeholder rooms, and visible storytelling authority, and it sits far from spreadsheets or pipeline defense.\n\nHeads-up: heritage sector salaries often land at the lower end of your £50-75k range, especially outside national institutions.\n\n##### Path Type & Reality\n\nEmployee role: expect a competitive but not brutal hiring process, usually via a formal application and portfolio/case-study interview rather than networked hustle.\n\n##### AI Impact on this role\n\nModerate. AI can help draft label copy or synthesize visitor feedback, but deciding what story a collection tells and how to make it land emotionally with a live audience stays a human judgment call.\n\n---\n\n### Athlete Wellbeing and Development Manager\n\n#### Medium (51-200) / Nonprofit\n\n##### Overview\n\nYou'd support athletes (at a sports club, national governing body, or university programme) through career transitions, personal development, and life-outside-sport planning, working alongside coaches and performance staff. It's part programme design, part one-on-one guidance, part building the structures that don't naturally exist in performance-obsessed environments.\n\n##### Why this might be a fit\n\nYour long-distance hiking points to a genuine pull toward endurance and physical discipline, and your track record of building durable programmes (the customer-interview programme) plus your reflective, people-first listening style is unusually rare inside sports organisations, which tend to be heavy on performance data and light on human development structure. It's a real sector pivot away from marketing entirely, keeps you in rooms with people rather than dashboards, and lets your sense-making skill build something that outlasts you.\n\nHeads-up: entry into this niche often starts below your target range, particularly outside elite/pro tier organisations.\n\n##### Path Type & Reality\n\nEmployee role: hiring cycles run through sports organisations and universities, often requiring some relevant certification (e.g. career transition or coaching-adjacent credentials) to be taken seriously by a recruiter.\n\n##### AI Impact on this role\n\nMinimal to Moderate. This work depends on trust, presence, and reading a person in a vulnerable moment, which AI can support with resources but cannot replace.\n\n---\n\n### Editorial Director, Podcast/Audio Documentary Studio\n\n#### Startup / Media\n\n##### Overview\n\nYou'd lead the editorial vision and narrative arc for a slate of nonfiction audio or documentary projects, working with producers and researchers to shape raw interview material into a story that holds an audience. This is a step toward, but genuinely distinct from, her named dream job: it's the editorial/leadership layer of documentary-adjacent work rather than the hands-on producer role itself.\n\n##### Why this might be a fit\n\nYour fifteen years of turning \"what people do\" into a story an organization can act on is precisely the skill an editorial director applies to raw interview tape instead of a brand brief. It moves you into a creative industry identity shift out of corporate marketing entirely, keeps you in a room with collaborators rather than working solo, and gives you narrative authority without requiring you to become a technical audio producer from scratch.\n\nHeads-up: independent studios and mid-size production houses often pay below your target range at entry level; senior editorial roles at established studios can close the gap.\n\n##### Path Type & Reality\n\nEmployee role at a small studio to start, with freelance editorial/story-consulting work as a realistic add-on once you've built a portfolio of credits.\n\n##### AI Impact on this role\n\nModerate. AI speeds up transcription and rough-cut assembly, but shaping which parts of a person's story matter and why is the editorial judgment that keeps this role human-led.\n\n---\n\n**Do any of these roles resonate with you?** Even if they're outside your usual scope, they might offer new ways to apply your strengths and interests in a way that feels exciting and rewarding. **Let me know your thoughts** whether you'd like more details on any of these or if you'd prefer to explore other directions. If not, we could move on to a bonus segment, the feasibility of your 'dream jobs'!",
+      "created_at": "2026-09-02T17:11:11.586219+00:00",
+      "metadata": null
+    },
+    {
+      "id": "10c8efb3-915d-47f5-a9e1-36ffc9a5ea0b",
+      "sender": "user",
+      "content": "I'd like to explore this section a bit more",
+      "created_at": "2026-09-02T17:11:53.773656+00:00",
+      "metadata": null
+    },
+    {
+      "id": "0c808dff-9bb8-46b1-a236-bd2d3f1774e3",
+      "sender": "bot",
+      "content": "Happy to dig into any of these three. What are you most curious about?\n\n- The Museum Interpretation Manager path, especially how competitive that hiring process actually is coming from a corporate background\n- The Athlete Wellbeing role and what certification you'd realistically need to be taken seriously\n- The Podcast/Audio Documentary Director role and how close that actually gets you to your named dream job\n\nSomething else, just let me know!",
+      "created_at": "2026-09-02T17:11:57.946149+00:00",
+      "metadata": null
+    },
+    {
+      "id": "a36786ce-8a99-402b-b566-1eaac3c29290",
+      "sender": "user",
+      "content": "The athlete one made me laugh, I put hiking under hobbies and you built a career out of it. I don't think that's me, I like the walking precisely because nobody needs anything from me on it. The museum role is interesting and I suspect the salary heads-up is doing a lot of quiet work in that sentence. The podcast studio is the one I keep re-reading. How close does that actually get to the documentary thing, or is it a consolation prize with better hours?",
+      "created_at": "2026-09-02T17:12:45.117419+00:00",
+      "metadata": null
+    },
+    {
+      "id": "cefc45ce-502c-4651-86c1-4860cfc252b2",
+      "sender": "bot",
+      "content": "Fair catch on the hiking, and worth naming clearly: that's a real miss, not a mild one, the whole appeal you're describing is that nobody needs anything from you on that trail, and the Athlete Wellbeing role is built entirely on being needed by someone in a vulnerable moment. Wrong read on what the hobby is for you.\n\nOn the museum salary heads-up, you're right to read the subtext. \"Often lands at the lower end of your £50-75k range, especially outside national institutions\" is doing polite work for \"expect closer to £50k unless you land at the British Museum or a major national trust site.\" Regional and mid-size heritage orgs frequently sit below that, sometimes £38-45k for a manager-level role, because the sector runs on grant funding and trust income, not commercial margins.\n\nOn the podcast studio, here's the honest gap. Editorial Director means shaping story arc and structure, which is your actual skill and transfers cleanly. But it's not the documentary dream job itself, it's one层 removed: you'd rarely be the one sitting with a subject building trust and pulling the tape, producers do that, and the editorial layer works from what they bring back. It's closer to being the strategist behind the storytellers than being the storyteller. Not a consolation prize (the narrative authority is real and it's a genuine industry change), but call it a \"get you inside the building\" role rather than the dream job itself. Whether that's satisfying probably depends on how much you need the hands-on interview part versus the shaping-into-story part.\n\nWant me to flag these three reactions and move on, or keep going on any of them?",
+      "created_at": "2026-09-02T17:12:54.651088+00:00",
+      "metadata": null
+    },
+    {
+      "id": "41c80624-0b27-46d5-9340-5f85ee080372",
+      "sender": "user",
+      "content": "Looks good, let's continue to the next section",
+      "created_at": "2026-09-02T17:12:58.202308+00:00",
+      "metadata": null
+    },
+    {
+      "id": "c3fd3045-f37b-4941-a5d7-bb9470201c75",
+      "sender": "bot",
+      "content": "We asked for your dream job without worrying about constraints, and that was on purpose. This section is where we put the constraints back in: not to talk you out of anything, but to show what it would realistically take to get there, and what a version of it might look like that fits the experience you already have. Let's break it down.\n\n---\n\n### Documentary Producer\n\n##### Overview\n\nEmma, this dream makes total sense on paper: it's the purest version of what you already do, turning what people say and do into a story that lands, minus the corporate wrapper. The catch is that \"documentary producer\" as an entry point looks nothing like your current seniority, pay, or stability, even though the underlying craft is identical.\n\n##### Feasibility Rating\n\n**Low - Moderate**: The craft fit is excellent, but the entry-level path (freelance, unpaid development, festival-circuit grind) would mean a steep income and status reset from where you sit today.\n\n##### Personality & Energy Fit\n\n- Your \"Somewhat Energized\" social battery suits documentary work's collaborative shoots and edit-room debates, but the isolated, self-directed stretches of development and fundraising sit right in your stated avoidance zone (solo, research-heavy work).\n- Your deadline-aware pace and preference for some process work against the unpredictable, often unstructured commissioning and funding cycles typical of documentary production.\n- The novelty here is real fuel against your \"Competence Trap\", but the years of underpaid, precarious grind before any stability could easily tip your perfectionism into burnout rather than relief.\n\n##### The \"Executive Version\" Suggestion\n\n- Rather than a hands-on Producer role, target Executive Producer or Series Editor at an established documentary or factual studio, someone who shapes narrative arc and greenlights stories rather than chasing funding reel by reel.\n- This solves the low-salary, low-stimulus risk of ground-level production work: it uses your stakeholder management and story-synthesis skills at a strategic altitude, with a team around you instead of you doing every job at once.\n- This exact version showed up in your Out of Box list as Editorial Director, Podcast/Audio Documentary Studio, which is a strong validation that this instinct is worth pursuing through that door rather than the traditional producer ladder.\n\n##### Industry Outlook & Regional Trends\n\n- UK and Northern European factual/documentary roles at editorial or executive producer level typically land £45k-£70k at mid-size studios, with entry-level producer or researcher roles often starting well below £35k.\n- AI Impact: Moderate. AI speeds up transcription, rough cuts, and archive search, but deciding which human story matters and how to shape it emotionally stays firmly a human judgment call.\n- The UK has a genuinely strong indie documentary and streaming-commissioned factual sector, but it's competitive and heavily network-driven, meaning your existing stakeholder relationships matter more than a formal credential here.\n\n##### Future-proof skills\n\n- Your ability to find \"the one sentence that makes a messy thing make sense\" is exactly the editorial judgment AI can't replicate, that's your differentiator in every pitch room.\n- Build fluency in AI-assisted rough-cut and research tools now, so you can direct a leaner production team rather than be replaced by one.\n\n##### Steps for Pursuing This Role\n\n- Test the dream at low stakes: shadow or assist on a short documentary or branded-content film project through your existing agency or industry contacts before quitting anything.\n- No gating credential exists for this field (no licence required), so your CIM Diploma and MA in Strategic Communication are relevant background, not a barrier; a short factual filmmaking or story-editing course would speed credibility, not gate entry.\n- Build a portfolio career bridge: keep marketing consulting or freelance brand strategy work part-time while you build documentary credits, so the mortgage doesn't depend on festival acceptance.\n\n*Heads-up: entry-level documentary production income sits well below your £50k-£75k target; the Executive Producer / Series Editor path is the realistic way to close that gap.*\n\n---\n\n### Founder, Research Studio (Human-Centred Insight)\n\n##### Overview\n\nThis is the dream job that most directly matches your actual daily superpower, Emma: turning qualitative human research into a story an organisation can act on. Unlike documentary work, this one doesn't require you to leave your existing network, skills, or client base behind; it's a natural extension of what you already do inside your current job, just unbundled and run on your own terms.\n\n##### Feasibility Rating\n\n**Moderate - High**: You already have the core skillset (30+ interviews a year, customer-insight programme built from scratch) and the credibility; what's missing is the business infrastructure of running your own shop, not the craft itself.\n\n##### Personality & Energy Fit\n\n- Running a studio (even a small one) means client-facing collaboration and small-team structure, which fits your \"Somewhat Energized\" social profile and your stated need to avoid solo, isolated work far better than solo documentary filmmaking would.\n- Your preference for delegated autonomy and comfort with risk align well with founder life, though your deadline-aware pacing means you'll need to build in structure since there's no external boss setting the clock.\n- This path directly interrupts your Competence Trap: instead of doing the same job \"with your eyes closed,\" you're rebuilding the skill from the ground up in a context that actually excites you, which is a real burnout antidote rather than just a change of scenery.\n\n##### The \"Executive Version\" Suggestion\n\n- The Executive Version of this dream is already the dream: Founder of a boutique qualitative research studio, positioned to serve mid-size B2B or fintech clients (your exact former world), commanding senior consulting rates rather than freelance researcher rates.\n- This solves the low-income risk of solo freelance research by building a studio model (you plus a small associate network), letting you sell strategic insight engagements rather than billing hourly as a lone contractor.\n- This appeared directly in your runner-up list as \"Founder, Qualitative Research Studio\" (rank 6, compatibility 80), which confirms the algorithm sees the same fit you feel; it's your named dream job validated independently.\n\n##### Industry Outlook & Regional Trends\n\n- Independent qualitative research/insight consultants in the UK and Netherlands/Germany typically bill £500-£900/day once established; a studio with 2-3 repeat clients can realistically clear £70k-£100k within 2-3 years.\n- AI Impact: Moderate. AI can transcribe and summarise interviews fast, but clients pay for the synthesis, the \"which story is this company telling itself\" judgment call, which stays human and is actually your premium differentiator against cheaper AI-only research tools.\n- Demand is real but the market is crowding with AI-assisted research tools promising faster insights; your edge is positioning as the strategic sense-maker, not a data collector, especially selling into fintech/scale-up clients you already understand.\n\n##### Future-proof skills\n\n- Your specialised knowledge of how people actually make decisions versus what they claim is a genuinely rare, hard-to-automate asset; lead with that as your studio's core positioning, not \"research services\" generically.\n- Get fluent enough in AI transcription/synthesis tools to offer clients a faster, leaner engagement than traditional agencies, using AI as your junior analyst rather than your competitor.\n\n##### Steps for Pursuing This Role\n\n- Test this at low stakes now: offer one paid pilot research engagement to a former colleague's company or your own network while still employed, to validate demand and pricing.\n- No gating credential blocks this field; your CIM Diploma, MA in Strategic Communication, and Design Sprint certification (AJ&Smart) already give you strong, credible positioning, so this is a go-to-market problem, not a retraining one.\n- Bridge financially with a portfolio approach: keep one part-time consulting retainer (positioning/brand strategy, close to your current skill set) running while you build the studio's first 2-3 clients.\n\n---",
+      "created_at": "2026-09-02T17:12:58.202308+00:00",
+      "metadata": null
+    },
+    {
+      "id": "5ce6dac0-21b1-4591-a294-f750ba4186cc",
+      "sender": "user",
+      "content": "I want to say this properly because it's the part I was braced for. I put documentary producer in the dream job box half expecting to be told, politely, that I am thirty-eight with a mortgage and should stop. Instead it takes the dream seriously enough to say the entry route would cost me a decade, and then it hands me the executive version, which is the first time anyone has suggested there is a door into that world that does not start at the bottom. And the research studio, which I had filed as the sensible dream, comes back as the more realistic of the two, not because it is smaller but because I apparently already have the craft and only lack the business around it. I have been telling myself for three years that I have no idea what I want. Reading this, it is clear that I do. I just did not believe it was allowed.",
+      "created_at": "2026-09-02T17:13:23.571611+00:00",
+      "metadata": null
+    },
+    {
+      "id": "91c44b51-7914-4498-92a2-cbea98808850",
+      "sender": "bot",
+      "content": "That's captured and will carry through to your executive summary.\n\nWhenever you're ready, click \"All done, wrap up session\" to close things out, Emma. It's been a genuinely good conversation to be part of.",
+      "created_at": "2026-09-02T17:13:54.565415+00:00",
+      "metadata": null
+    },
+    {
+      "id": "79102c07-5516-4793-b684-b586d17e7d4e",
+      "sender": "user",
+      "content": "Practical question, and it's not in the report. What does a service design certification actually cost in the UK, and can it realistically be done alongside a full-time job, evenings or in blocks? And is it strange to ask my current employer to fund it when there's a fair chance I'd use it to leave, or is that just what training budgets are for?",
+      "created_at": "2026-09-02T17:13:55.458358+00:00",
+      "metadata": {
+        "quick_reply": "somethingElse"
+      }
+    },
+    {
+      "id": "25cc6273-26ae-44f2-9162-ac54a0c2d0e5",
+      "sender": "bot",
+      "content": "Good practical question, and worth answering straight since it's genuinely not in the report.\n\nCost-wise, UK service design certification options range widely. Shorter, credible ones (Nielsen Norman Group's Service Design certificate, or IDF/Service Design Network intro courses) run roughly £1,000-£2,500 and are built specifically for working professionals, evenings and weekend cohorts, self-paced modules with live workshops. A more academic route (a postgraduate certificate through a university like Ravensbourne or Northumbria) costs more, £3,000-£6,000, and takes longer, but carries more weight if you want a formal credential behind your name. Given your CIM Diploma and MA already sit on your CV, you likely don't need the academic route for credibility, the shorter practitioner certificate would probably do the job.\n\nOn doing it alongside full-time work: yes, realistically. Most of these are explicitly designed in evening/weekend blocks (4-8 hours a week over 8-12 weeks) precisely because the audience is people like you, not full-time students. It's a real time commitment on top of a demanding job, but it doesn't require a leave of absence.\n\nOn asking your employer to fund it: not strange at all, that's exactly what training budgets exist for, and most managers know full well that \"we upskilled someone who then left\" is a far better outcome for the industry, and often for the company's reputation, than \"we let someone stagnate and leave anyway.\" Frame it around the value it adds to your current role (better workshop facilitation, sharper client work) rather than your exit plan, that's simply professionally normal, not dishonest.",
+      "created_at": "2026-09-02T17:14:05.017813+00:00",
+      "metadata": null
+    },
+    {
+      "id": "05c32fcf-bfd0-4c63-81ad-b0eb5af1a6c6",
+      "sender": "user",
+      "content": "Looks good, I'm all done! Let's wrap up the session.",
+      "created_at": "2026-09-02T17:14:05.869782+00:00",
+      "metadata": null
+    }
+  ],
+  "sections": [
+    {
+      "id": "d0b1ee86-bca1-44b9-9994-a5faa9ae7902",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "exec_summary",
+      "content": "# INPUT REQUIRED\n\nTo generate an accurate Executive Summary, I need the candidate's actual assessment data. Please provide:\n\n1. **Approach & Values** – how they work, what motivates them, leadership tendencies\n2. **Strengths** – top capabilities identified by the assessment\n3. **Development Areas** – growth areas flagged, plus any user pushback/disagreement from the chat\n4. **Career Recommendations** – ranked list of matched careers with rationale (top matches, runner-ups, outside-the-box options)\n5. **Chat Feedback/Reactions** – any strong positive or negative reactions the user expressed toward specific careers or traits during the conversation\n\nOnce you share these details, I'll write the full Executive Summary following the structure and rules above. Here's a placeholder example using illustrative data so you can see the intended output:\n\n---\n\n<h5>Professional Identity</h5>\nYou operate as a builder, someone who gets energy from turning ambiguous problems into structured plans. Your leadership style leans collaborative rather than directive: you influence through clarity and preparation, not authority. What drives you most is visible progress, seeing an idea move from whiteboard to shipped product.\n\n<h5>Key Strengths & Growth Areas</h5>\nYour standout capability is systems thinking, the ability to hold multiple moving parts in your head and spot where they'll break. Communication under pressure is your growth edge, though you pushed back on the assessment's suggestion that you avoid conflict entirely, noting you simply prefer to address it privately rather than in group settings. That nuance matters and softens the original framing.\n\n<h5>Career Direction</h5>\nYour top match is <strong>Product Manager</strong>, where your systems thinking and preference for structured ambiguity align directly with the role's demands. <strong>Operations Strategy Lead</strong> follows closely as a strong runner-up, leveraging the same planning instincts in a less customer-facing context. An outside-the-box option, <strong>Technical Program Manager</strong>, surfaced as a compelling fit given your comfort translating between technical and business audiences, something you confirmed resonates during the chat.\n\n<h5>Path Forward</h5>\nStart by testing the Product Manager path through a smaller-scope project or cross-functional initiative before committing fully. Prioritize building a track record of public communication, since that's the gap between where you are and where these roles need you to be. You have the raw thinking skills already; the work now is visibility.\n\n---\n\nSend over the real profile data and I'll tailor this precisely.",
+      "created_at": "2026-09-02T17:14:25.719267+00:00",
+      "updated_at": "2026-09-02T17:14:25.719267+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": 0,
+      "title": "Executive Summary",
+      "feedback_category": null,
+      "feedback": null,
+      "explore": null,
+      "fb_status": null,
+      "score": null,
+      "metadata": null,
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "d4292b4a-1c9c-4ffa-a7bb-24e04ff5b8be",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "outside_box",
+      "content": "<h5>Overview</h5>\n\nYou'd shape how a museum or heritage site translates its collections and archives into narratives visitors actually connect with, working across curatorial, education, and visitor-experience teams. The job is equal parts audience research, script writing for exhibits and tours, and testing what lands with real people before it goes live.\n\n<h5>Why this might be a fit</h5>\n\nThis pulls on the exact muscle your profile names as your real asset: making messy material legible to people, applied to objects and history instead of products. It's a genuine field change (heritage/culture, not corporate marketing) while still giving you workshops, stakeholder rooms, and visible storytelling authority, and it sits far from spreadsheets or pipeline defense.\n\nHeads-up: heritage sector salaries often land at the lower end of your £50-75k range, especially outside national institutions.\n\n<h5>Path Type & Reality</h5>\n\nEmployee role: expect a competitive but not brutal hiring process, usually via a formal application and portfolio/case-study interview rather than networked hustle.\n\n<h5>AI Impact on this role</h5>\n\nModerate. AI can help draft label copy or synthesize visitor feedback, but deciding what story a collection tells and how to make it land emotionally with a live audience stays a human judgment call.",
+      "created_at": "2026-09-02T15:04:55.982769+00:00",
+      "updated_at": "2026-09-02T15:04:55.982769+00:00",
+      "company_size_type": "Medium (51-200) / Nonprofit",
+      "alternate_titles": null,
+      "order_number": 1,
+      "title": "<h3><strong>Museum Interpretation Manager</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "move": "Reframe"
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "4142a6eb-00a7-4c09-b494-197b2cc52dc5",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "top_career_1",
+      "content": "<h5>Overview</h5>\nA service designer researches how people actually experience an organization (front and back stage), then redesigns the systems and touchpoints behind that experience so it works better for everyone involved.\n\n<h5>Why this role fits you</h5>\nHelping others and making an impact sits at the top of what drives you, and this role turns that into a daily practice: you're not writing a mission statement, you're sitting with 30+ people a year to find out what's actually broken in how an organization treats them, then fixing it. That's the same instinct that made your customer-insight programme something the product team leans on more than marketing does.\n\nThis role extends your 8/10 Brand Strategist pattern almost exactly: a new client problem every few weeks, a workshop, a deck that makes a room go quiet. The agency structure (project pods, peer support) also protects against what's currently draining you at 5/10, the dashboard and re-forecasting grind that keeps pulling you away from positioning and storytelling. Your perfectionist streak gets useful external checkpoints here instead of spiraling.\n\n<h5>What you'll actually do</h5>\n- Run discovery research. Conduct contextual inquiries and stakeholder interviews, the same muscle you built doing 30+ customer interviews a year.\n- Build service blueprints. Turn messy, chaotic input into a visual map a whole company can rally around, exactly what you did with your outcome-led repositioning work.\n- Facilitate co-creation workshops. Your AJ&Smart sprint training and room-reading instincts get used weekly, not occasionally.\n- Present to leadership. Translate research into a narrative that moves skeptical stakeholders, drawing on your storytelling craft.\n\n<h5>The Reality Check</h5>\n⚠ Conservative clients slow the work down. Convincing corporate stakeholders to embrace organizational change (not just a new campaign) takes more patience than agency brand work did, and your harmony-seeking conflict style could mean conceding ground too early.\n\n⚠ Blueprinting is a genuine skill gap. You have the research and facilitation down cold, but formal service blueprinting and target operating model artifacts are new territory. Realistic path: shadow 2-3 live projects and take a short service design certification (e.g. from a recognized service design school), roughly 2-3 months to get fluent, not years.\n\n⚠ Proposal crunches will test your flexibility rule. Client pitch deadlines surge unpredictably. With a partner on nursing shifts, you'll need to negotiate which weeks you protect early with your team.\n\n<h5>The practical stuff</h5>\n\nMoney: £50,000-£75,000. This sits at or slightly below your £50k-75k bracket midpoint, comfortably within target, though senior consulting rates in London agencies often flex upward once you're placed.\n\nSchedule: Standard agency hours with surges during discovery sprints and pitches. Your flexible-hours requirement is workable here since agencies increasingly support hybrid, but sprint weeks will test it occasionally.\n\nEnergy: High client and colleague interaction, daily, inside small project pods. This matches your \"somewhat energized, but I have a limit\" profile precisely because pods (not open-floor exposure) contain the interaction.\n\nGrowth: Leads to Lead Service Designer, then Design Director or Strategic Design Partner, a real ladder toward running research-driven change work.\n\n<h5>How AI will impact this role</h5>\nModerate. AI now handles qualitative coding, persona synthesis, and first-pass blueprint visuals, the grunt work that currently eats your week. Strategic stakeholder alignment and ethnographic empathy, your actual edge, stay human. Given your \"moderately familiar\" AI comfort, this role hands you a natural on-ramp rather than a steep climb.\n\n<h5>Future-proof skills</h5>\n- Own the synthesis layer: Get fluent directing AI tools for interview coding so you spend saved hours on judgment calls, not data cleanup.\n- Build workshop-facilitation depth: Deepen live, high-stakes facilitation skill (skeptical execs, dominant voices), the part no AI tool touches.\n\n<h5>Alignment with your ambitions</h5>\nYour short-term goal is new skills in a different setting, and this delivers formal service design methodology on top of what you already do well. Your long-term ambition, contributing to a cause and running your own research studio, makes this less a detour and more a credentialing platform: 2-3 years here builds the blueprinting and org-design chops that make your own studio (your stated dream job) more fundable later.",
+      "created_at": "2026-09-02T15:06:53.344487+00:00",
+      "updated_at": "2026-09-02T15:06:53.344487+00:00",
+      "company_size_type": "Large agency / consultancy (201-1000)",
+      "alternate_titles": "Service Design Consultant, Experience Strategist, Human-Centered Design Lead",
+      "order_number": 1,
+      "title": "<h3><strong>Service Designer</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed based on your feedback.",
+      "explore": "",
+      "fb_status": true,
+      "score": 90,
+      "metadata": {
+        "move": "Upskill",
+        "salary": null,
+        "fit_scores": {
+          "pace": 4,
+          "social": 4,
+          "autonomy": 4,
+          "schedule": 3,
+          "stability": 4
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "09e05ad5-5209-4cec-b7dd-1fe42de5a72d",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "runner_ups",
+      "content": "<h5>Overview</h5>\nYou'd apply psychology and \"nudge\" theory to help clients craft communications that actually change behaviour, mixing research, workshops, and campaign strategy for a range of client accounts.\n\n<h5>Why this role fits you</h5>\nYour specialised knowledge of \"how people actually make buying decisions\" is basically behavioural science by another name, so this is a near-literal translation of what you already do. It didn't crack Top 3 because it's a lateral career pivot into a formal discipline, not an extension of your marketing track record, meaning more relearning than the others.\n\n<h5>What works for you</h5>\n✓ **Plays to your gift.** Your talent for spotting the story a company tells itself maps directly onto behavioural diagnosis.\n✓ **Team-based, not solo.** High colleague interaction with creatives and analysts suits your small-team preference.\n✓ **Intellectually fresh.** New frameworks (COM-B, EAST) satisfy your growth and novelty appetite.\n\n<h5>The Reality Check</h5>\n⚠ **Reskilling required.** You'd need formal grounding in behavioural frameworks — a certification (6-12 months part-time) rather than a full degree, and AI-assisted learning can speed this up.\n⚠ **Starts you at consultant level.** Entering a new discipline at 38 with 15 years elsewhere may mean a lateral title, not a leadership one, initially.\n⚠ **Client skepticism is real.** You'd spend energy convincing traditional creative teams to trust counter-intuitive recommendations.\n\n<h5>The practical stuff</h5>\n**Money:** £52,000 - £80,000 (London)\n\n**Schedule:** Standard agency hours, surges around pitches\n\n**Energy:** High client and colleague interaction\n\n<h5>How AI will impact this role</h5>\n**Moderate** — AI speeds up research synthesis and message testing; your strategic framing and ethical judgment stay central. Fits your \"moderately familiar\" AI comfort well.\n\n<h5>Future-proof skills</h5>\n- **Behavioural framework fluency:** Get certified in COM-B or EAST within a year to legitimise your existing intuition.\n- **AI-assisted testing:** Use AI tools to run message experiments faster, freeing you for framing and client advisory.",
+      "created_at": "2026-09-02T15:07:26.889243+00:00",
+      "updated_at": "2026-09-02T15:07:26.889243+00:00",
+      "company_size_type": "Large (201-1000) / Agency / Consultancy",
+      "alternate_titles": "Behavioural Science Consultant | Behavioural Insights Strategist | Nudge Theory Communications Advisor",
+      "order_number": 1,
+      "title": "<h3><strong>Behavioural Communications Consultant</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": 81,
+      "metadata": {
+        "move": "Upskill",
+        "salary": null
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "77b8b887-8486-4d1c-999e-9643ec41f9de",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "dream_jobs",
+      "content": "<h5>Overview</h5>\n\nEmma, this dream makes total sense on paper: it's the purest version of what you already do, turning what people say and do into a story that lands, minus the corporate wrapper. The catch is that \"documentary producer\" as an entry point looks nothing like your current seniority, pay, or stability, even though the underlying craft is identical.\n\n<h5>Feasibility Rating</h5>\n\n<strong>Low - Moderate</strong>: The craft fit is excellent, but the entry-level path (freelance, unpaid development, festival-circuit grind) would mean a steep income and status reset from where you sit today.\n\n<h5>Personality & Energy Fit</h5>\n\n- Your \"Somewhat Energized\" social battery suits documentary work's collaborative shoots and edit-room debates, but the isolated, self-directed stretches of development and fundraising sit right in your stated avoidance zone (solo, research-heavy work).\n- Your deadline-aware pace and preference for some process work against the unpredictable, often unstructured commissioning and funding cycles typical of documentary production.\n- The novelty here is real fuel against your \"Competence Trap\", but the years of underpaid, precarious grind before any stability could easily tip your perfectionism into burnout rather than relief.\n\n<h5>The \"Executive Version\" Suggestion</h5>\n\n- Rather than a hands-on Producer role, target Executive Producer or Series Editor at an established documentary or factual studio, someone who shapes narrative arc and greenlights stories rather than chasing funding reel by reel.\n- This solves the low-salary, low-stimulus risk of ground-level production work: it uses your stakeholder management and story-synthesis skills at a strategic altitude, with a team around you instead of you doing every job at once.\n- This exact version showed up in your Out of Box list as Editorial Director, Podcast/Audio Documentary Studio, which is a strong validation that this instinct is worth pursuing through that door rather than the traditional producer ladder.\n\n<h5>Industry Outlook & Regional Trends</h5>\n\n- UK and Northern European factual/documentary roles at editorial or executive producer level typically land £45k-£70k at mid-size studios, with entry-level producer or researcher roles often starting well below £35k.\n- AI Impact: Moderate. AI speeds up transcription, rough cuts, and archive search, but deciding which human story matters and how to shape it emotionally stays firmly a human judgment call.\n- The UK has a genuinely strong indie documentary and streaming-commissioned factual sector, but it's competitive and heavily network-driven, meaning your existing stakeholder relationships matter more than a formal credential here.\n\n<h5>Future-proof skills</h5>\n\n- Your ability to find \"the one sentence that makes a messy thing make sense\" is exactly the editorial judgment AI can't replicate, that's your differentiator in every pitch room.\n- Build fluency in AI-assisted rough-cut and research tools now, so you can direct a leaner production team rather than be replaced by one.\n\n<h5>Steps for Pursuing This Role</h5>\n\n- Test the dream at low stakes: shadow or assist on a short documentary or branded-content film project through your existing agency or industry contacts before quitting anything.\n- No gating credential exists for this field (no licence required), so your CIM Diploma and MA in Strategic Communication are relevant background, not a barrier; a short factual filmmaking or story-editing course would speed credibility, not gate entry.\n- Build a portfolio career bridge: keep marketing consulting or freelance brand strategy work part-time while you build documentary credits, so the mortgage doesn't depend on festival acceptance.\n\n*Heads-up: entry-level documentary production income sits well below your £50k-£75k target; the Executive Producer / Series Editor path is the realistic way to close that gap.*",
+      "created_at": "2026-09-02T15:08:04.690799+00:00",
+      "updated_at": "2026-09-02T15:08:04.690799+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": 1,
+      "title": "<h3>Documentary Producer</h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "move": "Retrain"
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "27b54065-95a5-4433-81ad-c0debae9f815",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "outside_box",
+      "content": "<h5>Overview</h5>\n\nYou'd support athletes (at a sports club, national governing body, or university programme) through career transitions, personal development, and life-outside-sport planning, working alongside coaches and performance staff. It's part programme design, part one-on-one guidance, part building the structures that don't naturally exist in performance-obsessed environments.\n\n<h5>Why this might be a fit</h5>\n\nYour long-distance hiking points to a genuine pull toward endurance and physical discipline, and your track record of building durable programmes (the customer-interview programme) plus your reflective, people-first listening style is unusually rare inside sports organisations, which tend to be heavy on performance data and light on human development structure. It's a real sector pivot away from marketing entirely, keeps you in rooms with people rather than dashboards, and lets your sense-making skill build something that outlasts you.\n\nHeads-up: entry into this niche often starts below your target range, particularly outside elite/pro tier organisations.\n\n<h5>Path Type & Reality</h5>\n\nEmployee role: hiring cycles run through sports organisations and universities, often requiring some relevant certification (e.g. career transition or coaching-adjacent credentials) to be taken seriously by a recruiter.\n\n<h5>AI Impact on this role</h5>\n\nMinimal to Moderate. This work depends on trust, presence, and reading a person in a vulnerable moment, which AI can support with resources but cannot replace.",
+      "created_at": "2026-09-02T15:04:55.982769+00:00",
+      "updated_at": "2026-09-02T15:04:55.982769+00:00",
+      "company_size_type": "Medium (51-200) / Nonprofit",
+      "alternate_titles": null,
+      "order_number": 2,
+      "title": "<h3><strong>Athlete Wellbeing and Development Manager</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "Logged feedback regarding solo hiking preferences versus wellbeing roles; no replacement requested per instructions, so original content was retained.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "move": "Upskill"
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "71d4c08a-68da-4cb3-accd-b00380aadbd0",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "top_career_2",
+      "content": "<h5>Overview</h5>\nAn employee experience consultant researches how staff actually feel about their workplace, then designs journey maps and interventions to fix culture, tools, and processes that aren't working.\n\n<h5>Why this role fits you</h5>\nYour happiest professional years weren't about the industry, they were about the shape of the work: a new problem every few weeks, a workshop, a deck that made a room go quiet. This role extends your 8/10 Brand Strategist pattern by keeping that exact rhythm and swapping the subject from customers to employees, which plays directly into your top value of helping others and making an impact.\n\nIt's the same diagnostic instinct you've already proven, sitting in customer interviews to spot which story a company tells itself, just pointed inward at organizations instead of outward at markets. The structured consulting milestones and pod-based teams also guard against the isolating grind currently deflating you at 5/10 in your fintech role, where dashboards have crowded out the storytelling work you're actually good at.\n\n<h5>What you'll actually do</h5>\n- Run sentiment audits. Conduct qualitative focus groups on workplace culture, a direct extension of your customer-interview synthesis skill.\n- Map employee journeys. Build journey maps and interventions using the same synthesis method that shortened your last product's sales cycle by 20%.\n- Present roadmaps to CHROs. Your stakeholder management and storytelling craft carry the strategic narrative into the boardroom.\n- Facilitate steering committee workshops. Use your workshop facilitation training to build consensus among competing executive priorities.\n\n<h5>The Reality Check</h5>\n⚠ Client politics move slowly. Executives resistant to progressive culture change will stall projects for months, and your instinct to over-own client outcomes (a known tendency for you) makes that slowness personally frustrating rather than just a process fact.\n\n⚠ Scope creep is structural. Multi-stakeholder enterprise projects invite constant \"can you also look at...\" requests. Protecting boundaries here matters more than in agency brand work, where scope was tighter.\n\n⚠ Domain shift is light but real. Your journey-mapping skill transfers almost directly, but you'll need context adaptation, HR tech familiarity (Workday, Culture Amp) and organizational psychology framing. Realistic path: one short course plus your first live project, about 6-8 weeks to feel fluent, since your interview and synthesis skills already do the heavy lifting.\n\n<h5>The practical stuff</h5>\n\nMoney: £52,000-£80,000. This lands squarely inside your £50k-75k bracket, and the top end exceeds it, so this hits your target without a pay cut.\n\nSchedule: Standard consulting hours with predictable milestone peaks. More predictable than agency pitch cycles, which works better against your flexible-hours requirement.\n\nEnergy: High daily interaction with client HR leaders and multidisciplinary pods. Sits within your \"somewhat energized, with a limit\" range because the pod structure distributes the social load.\n\nGrowth: Leads toward Practice Lead for Employee Experience, or eventually an in-house Chief People Officer track, a genuine leadership runway.\n\n<h5>How AI will impact this role</h5>\nSubstantial, per the enriched data, though the human core (reading organizational politics, building executive trust) resists automation. AI increasingly handles sentiment data crunching and first-draft journey maps; your job shifts toward interpreting what the data actually means for a resistant executive team. Your moderate AI familiarity means you'll want hands-on time with sentiment analytics tools early, not later.\n\n<h5>Future-proof skills</h5>\n- Learn HR analytics tools: Get working fluency in Culture Amp or Workday reporting so you direct the data instead of waiting on analysts.\n- Sharpen executive influence: Build a repeatable framework for landing \"non-intuitive\" recommendations with skeptical CHROs, your real differentiator as AI handles more analysis.\n\n<h5>Alignment with your ambitions</h5>\nThis fits your short-term goal of developing new skills in a different setting, applying your marketing toolkit to organizational psychology. Against your long-term ambition of significant societal contribution and running your own research studio, this is a genuine bridge (not a detour): it builds people-focused consulting credibility that translates directly if you eventually go independent.",
+      "created_at": "2026-09-02T15:06:53.344487+00:00",
+      "updated_at": "2026-09-02T15:06:53.344487+00:00",
+      "company_size_type": "Large agency / consultancy (201-1000)",
+      "alternate_titles": "People Experience Consultant, EX Strategist, Workplace Experience Designer",
+      "order_number": 2,
+      "title": "<h3><strong>Employee Experience Consultant</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed based on your feedback.",
+      "explore": "",
+      "fb_status": true,
+      "score": 84,
+      "metadata": {
+        "move": "Upskill",
+        "salary": null,
+        "comparison": {
+          "headline": "Same agency rhythm as Service Designer, but pointed at internal culture instead of external customer experience, with slower-moving clients.",
+          "explanation": "Both roles extend your 8/10 Brand Strategist pattern, so the day-to-day texture (workshops, research, decks) feels familiar in either. The real difference is what you're diagnosing: Service Designer looks at customer-facing systems, this looks inward at organizational culture and HR processes.\n\nThat inward focus means slower client politics. Employee experience work runs into entrenched executive resistance to culture change more often than customer-facing service redesign does, which is why pace scores a point lower here. It also asks more of your tendency to over-own client outcomes, since organizational change is messier and less controllable than a service blueprint.\n\nStability and schedule land the same in both: predictable consulting milestones, solid pay within your bracket. If you want the closer call, Service Designer keeps you closer to tangible, visible deliverables; this one asks you to sit longer in ambiguity and politics before you see the payoff."
+        },
+        "fit_scores": {
+          "pace": 3,
+          "social": 4,
+          "autonomy": 3,
+          "schedule": 3,
+          "stability": 4
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "d21c3f0a-0426-427f-8eb3-f81bd29edefc",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "runner_ups",
+      "content": "<h5>Overview</h5>\nAn independent advisor helping companies sharpen their product positioning and go-to-market plans, working engagement by engagement rather than as a permanent employee.\n\n<h5>Why this role fits you</h5>\nYour 8/10 agency years ran on exactly this rhythm: new client problem, workshop, positioning deck, repeat. This gets you back there. It's not Top 3 because going independent means building your own pipeline — sales work you've never had to do, and a real gap from the security of a salaried leadership role.\n\n<h5>What works for you</h5>\n✓ **Restores your happiest pattern.** Fresh problems every few weeks instead of dashboards and forecasting.\n✓ **Full autonomy.** You frame engagements and methodology yourself, matching your preference for delegated trust.\n✓ **Direct impact visibility.** You'd see GTM strategy convert straight into client revenue, unlike your current buried-in-reporting role.\n\n<h5>The Reality Check</h5>\n⚠ **Income variability.** Freelance/fractional work means feast-or-famine pipeline cycles — a real shift from a stable salary with a London mortgage.\n⚠ **Client acquisition is unavoidable.** Sales and pitching aren't optional here, and it's a muscle you haven't built.\n⚠ **Solo admin time.** Business administration between engagements cuts against your dislike of solo, self-directed work.\n\n<h5>The practical stuff</h5>\n**Money:** £55,000 - £100,000 (variable, utilization-dependent)\n\n**Schedule:** Flexible but engagement-driven\n\n**Energy:** High client interaction, lower internal collegiality\n\n<h5>How AI will impact this role</h5>\n**Moderate** — AI drafts research and competitive intel; your differentiation strategy and executive relationships remain the value. Manageable given your current AI comfort.\n\n<h5>Future-proof skills</h5>\n- **Pipeline-building:** Start building a referral network now, before leaving salaried security, to de-risk the income gap.\n- **AI-sped research:** Use AI for first-pass competitive analysis so you spend billable hours on positioning, your real edge.",
+      "created_at": "2026-09-02T15:07:26.889243+00:00",
+      "updated_at": "2026-09-02T15:07:26.889243+00:00",
+      "company_size_type": "Own Company / Boutique",
+      "alternate_titles": "Fractional Product Marketing Lead | PMM Advisor | Go-To-Market Consultant",
+      "order_number": 2,
+      "title": "<h3><strong>Product Marketing Consultant</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": 80,
+      "metadata": {
+        "move": "Reframe",
+        "salary": null
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "263b32de-a6c0-47c3-b9ee-a79af47550dc",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "dream_jobs",
+      "content": "<h5>Overview</h5>\n\nThis is the dream job that most directly matches your actual daily superpower, Emma: turning qualitative human research into a story an organisation can act on. Unlike documentary work, this one doesn't require you to leave your existing network, skills, or client base behind; it's a natural extension of what you already do inside your current job, just unbundled and run on your own terms.\n\n<h5>Feasibility Rating</h5>\n\n<strong>Moderate - High</strong>: You already have the core skillset (30+ interviews a year, customer-insight programme built from scratch) and the credibility; what's missing is the business infrastructure of running your own shop, not the craft itself.\n\n<h5>Personality & Energy Fit</h5>\n\n- Running a studio (even a small one) means client-facing collaboration and small-team structure, which fits your \"Somewhat Energized\" social profile and your stated need to avoid solo, isolated work far better than solo documentary filmmaking would.\n- Your preference for delegated autonomy and comfort with risk align well with founder life, though your deadline-aware pacing means you'll need to build in structure since there's no external boss setting the clock.\n- This path directly interrupts your Competence Trap: instead of doing the same job \"with your eyes closed,\" you're rebuilding the skill from the ground up in a context that actually excites you, which is a real burnout antidote rather than just a change of scenery.\n\n<h5>The \"Executive Version\" Suggestion</h5>\n\n- The Executive Version of this dream is already the dream: Founder of a boutique qualitative research studio, positioned to serve mid-size B2B or fintech clients (your exact former world), commanding senior consulting rates rather than freelance researcher rates.\n- This solves the low-income risk of solo freelance research by building a studio model (you plus a small associate network), letting you sell strategic insight engagements rather than billing hourly as a lone contractor.\n- This appeared directly in your runner-up list as \"Founder, Qualitative Research Studio\" (rank 6, compatibility 80), which confirms the algorithm sees the same fit you feel; it's your named dream job validated independently.\n\n<h5>Industry Outlook & Regional Trends</h5>\n\n- Independent qualitative research/insight consultants in the UK and Netherlands/Germany typically bill £500-£900/day once established; a studio with 2-3 repeat clients can realistically clear £70k-£100k within 2-3 years.\n- AI Impact: Moderate. AI can transcribe and summarise interviews fast, but clients pay for the synthesis, the \"which story is this company telling itself\" judgment call, which stays human and is actually your premium differentiator against cheaper AI-only research tools.\n- Demand is real but the market is crowding with AI-assisted research tools promising faster insights; your edge is positioning as the strategic sense-maker, not a data collector, especially selling into fintech/scale-up clients you already understand.\n\n<h5>Future-proof skills</h5>\n\n- Your specialised knowledge of how people actually make decisions versus what they claim is a genuinely rare, hard-to-automate asset; lead with that as your studio's core positioning, not \"research services\" generically.\n- Get fluent enough in AI transcription/synthesis tools to offer clients a faster, leaner engagement than traditional agencies, using AI as your junior analyst rather than your competitor.\n\n<h5>Steps for Pursuing This Role</h5>\n\n- Test this at low stakes now: offer one paid pilot research engagement to a former colleague's company or your own network while still employed, to validate demand and pricing.\n- No gating credential blocks this field; your CIM Diploma, MA in Strategic Communication, and Design Sprint certification (AJ&Smart) already give you strong, credible positioning, so this is a go-to-market problem, not a retraining one.\n- Bridge financially with a portfolio approach: keep one part-time consulting retainer (positioning/brand strategy, close to your current skill set) running while you build the studio's first 2-3 clients.",
+      "created_at": "2026-09-02T15:08:04.690799+00:00",
+      "updated_at": "2026-09-02T15:08:04.690799+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": 2,
+      "title": "<h3>Founder, Research Studio (Human-Centred Insight)</h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "move": "Reframe"
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "d9543f72-fa67-48f8-8e00-f944caa5fd3b",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "outside_box",
+      "content": "<h5>Overview</h5>\n\nYou'd lead the editorial vision and narrative arc for a slate of nonfiction audio or documentary projects, working with producers and researchers to shape raw interview material into a story that holds an audience. This is a step toward, but genuinely distinct from, your named dream job: it's the editorial/leadership layer of documentary-adjacent work rather than the hands-on producer role itself.\n\n<h5>Why this might be a fit</h5>\n\nYour fifteen years of turning \"what people do\" into a story an organization can act on is precisely the skill an editorial director applies to raw interview tape instead of a brand brief. It moves you into a creative industry identity shift out of corporate marketing entirely, keeps you in a room with collaborators rather than working solo, and gives you narrative authority without requiring you to become a technical audio producer from scratch.\n\nHeads-up: independent studios and mid-size production houses often pay below your target range at entry level; senior editorial roles at established studios can close the gap.\n\n<h5>Path Type & Reality</h5>\n\nEmployee role at a small studio to start, with freelance editorial/story-consulting work as a realistic add-on once you've built a portfolio of credits.\n\n<h5>AI Impact on this role</h5>\n\nModerate. AI speeds up transcription and rough-cut assembly, but shaping which parts of a person's story matter and why is the editorial judgment that keeps this role human-led.",
+      "created_at": "2026-09-02T15:04:55.982769+00:00",
+      "updated_at": "2026-09-02T15:04:55.982769+00:00",
+      "company_size_type": "Startup / Media",
+      "alternate_titles": null,
+      "order_number": 3,
+      "title": "<h3><strong>Editorial Director, Podcast/Audio Documentary Studio</strong></h3>",
+      "feedback_category": 1,
+      "feedback": "Corrected third-person pronoun to second-person perspective to ensure consistency.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "move": "Upskill"
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "b340ff8a-8713-428d-9046-516204563f20",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "top_career_3",
+      "content": "<h5>Overview</h5>\nA design sprint facilitator runs intensive multi-day workshops where cross-functional teams solve a specific business problem and test a prototype, compressed into days instead of months.\n\n<h5>What you'll actually do</h5>\n- Facilitate live sprints. Run multi-day workshops using your AJ&Smart certification, the credential you already hold and haven't fully monetized.\n- Design workshop agendas. Build digital boards and structure exercises that channel your love of \"a strategy deck that made a room go quiet.\"\n- Recruit test participants. Line up user testing sessions, using the interview-scheduling instincts from your 30+ interviews-a-year research programme.\n- Manage your own pipeline. Pitch, propose, and scope follow-on work directly with client leadership, no account team buffer.\n\nYou've already said this kind of work lets you learn new skills and push into new territory, which lines up with your stated interest in developing strategic planning and creative innovation capability, but here you'd be the one setting the curriculum, not attending someone else's workshop.\n\n<h5>Why this role fits you</h5>\nThis role isolates the exact ingredient that made your Brand Strategist years your best: the room, the live problem-solving, the tangible outcome by Friday. It extends your 8/10 Brand Strategist pattern more directly than any other option, stripping away the account management and client retainer overhead and leaving just the facilitation itself, the part you're certified in and clearly energized by.\n\nIt also answers your autonomy value directly. As a solo practitioner you control your calendar, which matters given your partner's nursing shifts and your non-negotiable need for flexible hours. Sprint-based work means intense delivery weeks followed by open prep weeks, a rhythm few employee roles can offer.\n\n<h5>The Reality Check</h5>\n⚠ Client acquisition never stops. As a solo facilitator, you are the pipeline. There's no account team booking your calendar, every quiet week is your job to fill, and your discomfort with self-promotion (not previously tested in your career) will get real pressure here.\n\n⚠ Live sprint days are physically demanding. Multi-day facilitation with dominant, skeptical executives requires sustained high energy and room control. Your harmony-seeking conflict style needs deliberate override in these rooms, conceding to the loudest voice derails a sprint.\n\n⚠ Income has no floor early on. Boutique practice means variable, lumpy engagements while you build a reputation and referral network, distinct from the steady consulting cadence of an agency role.\n\n<h5>The practical stuff</h5>\n\nMoney: Day rates typically £800-£1,800 depending on client size, translating to an annual range of roughly £48,000-£90,000 at moderate utilization. This can exceed your £50k-75k bracket in strong years, but expect the first 6-12 months to run below it while you build a client base, income variability is real and needs a cash buffer given your London mortgage.\n\nSchedule: High-intensity delivery weeks alternating with flexible prep and business-development weeks. This is the closest match to your non-negotiable flexible-hours requirement of any option here.\n\nEnergy: High-intensity social bursts during sprints, then low-contact solo weeks. This actually suits your \"somewhat energized, with a limit\" profile well, since the limit gets a built-in recovery week rather than daily depletion.\n\nGrowth: Can scale into a small facilitation agency with a roster of contractors, or pivot into fractional Head of Product Innovation work.\n\n<h5>How AI will impact this role</h5>\nSubstantial. AI increasingly handles workshop prep logistics, agenda templates, and synthesis write-ups after the sprint. The live facilitation itself, reading a room, managing dominant personalities, keeping momentum, stays entirely human and becomes your clearer differentiator as routine prep work gets automated.\n\n<h5>Future-proof skills</h5>\n- Automate your admin: Use AI for agenda drafts, participant recruitment emails, and post-sprint synthesis docs, freeing more hours for billable facilitation.\n- Build a facilitator brand: Publish opinionated takes on sprint methodology to compress your client acquisition cycle, since referrals alone won't fill a solo calendar fast enough.\n\n<h5>Alignment with your ambitions</h5>\nThis satisfies your short-term goal of building new skills (business development, solo practice management) you haven't needed before. But your long-term ambition centers on significant societal contribution and possibly running a research studio, and pure sprint facilitation is narrower than that vision. At 38 with a mortgage, treat this as a viable path in its own right or a proving ground for solo consulting, not automatically a stepping stone to your dream job.",
+      "created_at": "2026-09-02T15:06:53.344487+00:00",
+      "updated_at": "2026-09-02T15:06:53.344487+00:00",
+      "company_size_type": "Own company / boutique practice",
+      "alternate_titles": "Sprint Master, Innovation Facilitator, Workshop Lead",
+      "order_number": 3,
+      "title": "<h3><strong>Design Sprint Facilitator</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed based on your feedback.",
+      "explore": "",
+      "fb_status": true,
+      "score": 84,
+      "metadata": {
+        "move": "Ready now",
+        "salary": null,
+        "comparison": {
+          "headline": "This trades the safety net of an agency salary for full autonomy and a founder's workload, the biggest shift of the three.",
+          "explanation": "Service Designer and Employee Experience Consultant both put you inside a large agency with steady pay, project pods, and someone else generating the pipeline. This one removes all of that. You are the business, which is why stability drops to a 2 here versus 4 in the other two: income is lumpy, especially in year one.\n\nIn exchange, autonomy and schedule hit the ceiling. No employee role can match sprint-based work for controlling your own calendar, which matters given your partner's shift pattern and your non-negotiable flexible-hours requirement.\n\nSocially, this one is more binary: intense multi-day immersion, then quiet solo weeks, versus the steadier daily collaboration of the other two. If steady income and built-in peer support matter more right now, Service Designer is the safer bet. If autonomy and schedule control matter most and you can absorb a bumpy first year, this is the strongest match on paper."
+        },
+        "fit_scores": {
+          "pace": 3,
+          "social": 3,
+          "autonomy": 5,
+          "schedule": 5,
+          "stability": 2
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "8b500b13-ca9f-4bb7-8aa6-cbedd0b4dc8a",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "runner_ups",
+      "content": "<h5>Overview</h5>\nYou'd build and run your own boutique consultancy doing deep ethnographic and qualitative research, helping organisations understand the people they serve, then turning that into strategy for clients.\n\n<h5>Why this role fits you</h5>\nThis is your stated dream job, almost word for word, and it channels the customer-insight programme you built that product teams now trust more than marketing. It sits below Top 3 because founding a studio means real capital and income risk upfront, a heavier lift than a role that lets you plug in more immediately.\n\n<h5>What works for you</h5>\n✓ **Literally your dream job.** Running a research studio helping organisations understand their people is what you told us you want.\n✓ **Total autonomy.** Complete control over methodology and client selection, matching your love of delegated trust.\n✓ **Builds on proven strength.** Your 30+ interviews/year insight programme already proves you can do this at scale.\n\n<h5>The Reality Check</h5>\n⚠ **Capital and runway.** Founder path_type means unpredictable cash flow before profitability — plan for 12-18 months of variable income against your mortgage.\n⚠ **Validation is on you.** You'd need to prove studio viability through real client contracts, not assumptions, before it feels safe.\n⚠ **Business development never stops.** Constant pitching sits uneasily with your \"avoid solo, sales-heavy work\" instinct, even with a team.\n\n<h5>The practical stuff</h5>\n**Money:** £50,000 - £105,000 (variable, early years lower)\n\n**Schedule:** Multi-year build, intense early phase\n\n**Energy:** Very high client interaction, variable team size\n\n<h5>How AI will impact this role</h5>\n**Moderate** — AI handles transcription and coding, but your ethnographic depth and executive trust remain the studio's differentiator.\n\n<h5>Future-proof skills</h5>\n- **Founder-led sales:** Build pitching confidence deliberately, since this is the one skill standing between you and your dream job.\n- **AI-augmented ops:** Use AI to run transcription and coding at scale so you and contractors focus purely on insight and client trust.",
+      "created_at": "2026-09-02T15:07:26.889243+00:00",
+      "updated_at": "2026-09-02T15:07:26.889243+00:00",
+      "company_size_type": "Own Company / Boutique",
+      "alternate_titles": "Principal Qualitative Researcher | Managing Director & Founder | Studio Lead & User Research Strategist",
+      "order_number": 3,
+      "title": "<h3><strong>Founder, Qualitative Research Studio</strong></h3>",
+      "feedback_category": 0,
+      "feedback": "No changes needed.",
+      "explore": "",
+      "fb_status": true,
+      "score": 80,
+      "metadata": {
+        "move": "Retrain",
+        "salary": null
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "1a56cfb6-a1ae-47e4-b861-281e55f617aa",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "approach",
+      "content": "<h5>Personality and Interaction Style</h5>\n\nEmma, you gravitate toward rooms where ideas get tested out loud: workshops, strategy decks, customer interviews. But your conflict style splits down the middle. With peers you say you address disagreements directly, yet your instinct in negotiation is to concede for harmony. That's not indecision, it's a hierarchy: you'll push hard on ideas but soften fast on relationships, which explains why you're the one people bring a messy deck to and trust it back.\n\n<h5>Impact in Different Environments</h5>\n\nThe pattern pays off wherever the work is generative and social: your agency years, your happiest by far, were built on new problems every few weeks and rooms you could read and move. It costs you in environments built around defending numbers rather than shaping direction, which is exactly what's eroding your current role.\n\n<h5>Key Insight</h5>\n\nYour happiness scores rise and fall with proximity to the story, not with title or budget size. The fintech job gave you the broadest scope of your career and your second-lowest score, because scope without storytelling authority isn't the thing you actually want.",
+      "created_at": "2026-09-02T15:01:25.489254+00:00",
+      "updated_at": "2026-09-02T15:01:25.489254+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": null,
+      "title": "Understanding Your Approach",
+      "feedback_category": 0,
+      "feedback": "No changes needed based on your feedback.",
+      "explore": "When assessing potential roles, high operational scope often pulls your energy toward defending established metrics and managing organizational maintenance. Storytelling authority, by contrast, gives you the mandate to frame the underlying problem, shape meaning, and rally teams around a shared direction. For you, professional vitality depends on having narrative agency rather than managing sheer scale or operational headcount.",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "personality_scores": {
+          "execution_bias": 5,
+          "strategic_depth": 7,
+          "people_intuition": 8,
+          "recognition_pull": 5,
+          "ambiguity_tolerance": 7
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "61c9551d-b6cc-4a64-989d-a0bdf930356b",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "strengths",
+      "content": "<h5>Identifying Your Core Strengths</h5>\n\nUnderneath the skills list sits one capability: you find the sentence that makes a messy situation legible to other people, whether that's a product, a decision, or a friend's dilemma. The repositioning work, the insight programme the product team now leans on, the friends who come to you before a big decision: all the same move, applied to different material.\n\n<h5>Leveraging Strengths in Your Career</h5>\n\nThis is diagnostic work disguised as marketing work. Given your pull toward impact and away from research-heavy, spreadsheet-driven tasks, the version of this skill worth building isn't deeper marketing specialization, it's applying that same sense-making to bigger, messier human questions, wherever they sit.\n\n<h5>Key Insight</h5>\n\nYou've spent fifteen years being hired for marketing titles while your actual value has been translation: turning what people do into a story an organization can act on. That's a harder thing to replace than a marketing function, AI-assisted or not, because it depends on judgment about people, not on producing the copy itself.",
+      "created_at": "2026-09-02T15:01:25.489254+00:00",
+      "updated_at": "2026-09-02T15:01:25.489254+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": null,
+      "title": "Strengths and How to Grow Them",
+      "feedback_category": 0,
+      "feedback": "No changes needed based on your feedback.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "personality_scores": {
+          "execution_bias": 6,
+          "strategic_depth": 8,
+          "people_intuition": 9,
+          "recognition_pull": 6,
+          "ambiguity_tolerance": 8
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "5d21bf6f-3d73-43a1-946c-0e48a56fd270",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "development",
+      "content": "<h5>Understanding Potential Growth Areas</h5>\n\nPerfectionism, self-criticism, and over-owning responsibility feed directly into each other: Emma, you set an exacting bar, carry the burden alone, and doubt yourself when the result feels imperfect. In practice, this dynamic leads you to ship work early and then continuously polish after release, because your internal meter rarely registers a project as completely finished.\n\n<h5>Implications for Your Growth</h5>\n\nWhen exploring a meaningful pivot, this ongoing cycle risks stalling your momentum more than any gap in capability. Uncertainty around your next move can amplify self-criticism if you rely purely on internal judgment to determine when something is done. A concrete external checkpoint offers the best counterweight: name a specific check-in partner and agree on a milestone before diving into the work, giving yourself an objective standard for completion.\n\n<h5>Key Insight</h5>\n\nYour response to external critique stems from that same high bar. You tend to take feedback deeply to heart, absorbing targeted notes as sweeping evaluations of your judgment. Grounding critiques in their specific, tactical context keeps revisions productive without depleting your energy.\n\nYour reflection on AI eroding your distinct craft points to an essential truth: as automated tools handle baseline execution, your intuitive judgment about people and what genuinely resonates with them remains your strongest, least replicable asset.",
+      "created_at": "2026-09-02T15:01:25.489254+00:00",
+      "updated_at": "2026-09-02T15:01:25.489254+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": null,
+      "title": "Areas for Development",
+      "feedback_category": 2,
+      "feedback": "Updated the manifestation of your perfectionist loop to reflect shipping early with ongoing post-release polishing, clarified that you tend to over-absorb feedback rather than react defensively, and added the proactive habit of setting external checkpoints before starting work.",
+      "explore": "",
+      "fb_status": true,
+      "score": null,
+      "metadata": {
+        "personality_scores": {
+          "execution_bias": 7,
+          "strategic_depth": 7,
+          "people_intuition": 7,
+          "recognition_pull": 5,
+          "ambiguity_tolerance": 4
+        }
+      },
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "64b2952a-f088-4ff6-9c8d-e3dba53d5a80",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "values",
+      "content": "<h5>Identifying Your Core Values</h5>\n\nImpact outranks growth, and growth outranks autonomy, which is a specific order: you want to matter to something before you want independence in how you get there. That tracks with your dream of running a research studio for organisations, but it sits oddly next to your best year, the agency, which offered you autonomy and challenge with the thinnest cause attached of any job you've held.\n\n<h5>Values in Career Decisions</h5>\n\nAny next role needs a visible line from your work to a person or outcome you can name, plus room to run the sense-making yourself rather than defend it in dashboards. It needs to exclude data-heavy, spreadsheet-first work and solo, low-contact tasks, both of which you've flagged directly as drains.\n\n<h5>Key Insight</h5>\n\nYou rank impact highest, yet your happiest year ran on craft and momentum with little cause behind it at all. That tension suggests \"impact\" for you may mean the felt sense of changing how people understand something, not a mission statement, which opens more doors than a strict cause-driven search would.",
+      "created_at": "2026-09-02T15:01:25.489254+00:00",
+      "updated_at": "2026-09-02T15:01:25.489254+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": null,
+      "title": "Aligning with Your Values",
+      "feedback_category": null,
+      "feedback": "User confirmed accuracy, no changes needed.",
+      "explore": null,
+      "fb_status": true,
+      "score": null,
+      "metadata": null,
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    },
+    {
+      "id": "a941ff04-7472-4c4c-8f78-b78582dbb8c5",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "chat_highlights",
+      "content": "- **Diagnostic-layer CV rewrite.** You should stop leading with “Senior Marketing Manager” and instead put a line under it like “I turn conflicting customer signals into a story an organization can act on,” then rewrite achievements from execution language into diagnosis language, for example “identified that product and sales were serving different customer models, built the interview programme that surfaced it.”\n- **Use the “proximity to the story” filter in every career decision.** The coach reframed your best years as being close enough to the story to shape it in real time, and said your satisfaction tracks proximity to narrative and pace of iteration more than title, budget, or scope.\n- **Install an external stopping point before you start.** Your loop was named as “the bar never gets marked as met,” so the fix is to pre-name a check-in person or moment who can declare something done, because your internal signal for “good enough” does not reliably fire.\n- **Treat the Head of Marketing offer as a bigger version of the same underperforming shape.** The coach framed it as fintech again, just with a promotion attached, and said a yes would mostly buy you title and surface area, not more impact, more growth, or more autonomy, unless you deliberately want it as a bridge.\n- **Use the agency pod as the structural fix for your harmony bias.** In service design consulting, your risk is conceding ground too early to a CFO-type voice, so the offer-stage question is whether you’d have a design director or engagement lead in the room to hold scope and rigor, rather than being the most senior voice yourself.\n- **Ask agencies how pitch weeks are actually staffed.** Before accepting any consultancy role, ask whether pitch duty rotates or pulls the whole pod, and ask what the real pitch cadence was over the last two quarters, because “hybrid-friendly” does not protect your two evenings by six if pitch weeks are unmanaged.\n- **Use a short practitioner certificate, not a retraining path.** For service design, the coach said the gap is “Upskill,” not “Retrain,” and recommended shadowing 2-3 live projects plus a short certification to get fluent in roughly 2-3 months, with UK options around £1,000-£2,500 for evening/weekend formats.\n- **Do not mistake solo sprint facilitation for a job, it is a business.** The coach pushed back hard that Design Sprint Facilitator is 20% facilitation and 80% sales, proposals, client management, and empty-week risk, with year-one income from zero pipeline more like £15,000-£30,000 than the headline range.\n- **Use the research studio as the real dream-job bridge.** The coach said you already have the craft for a qualitative research studio, what you lack is the business infrastructure, and suggested testing it with one paid pilot while keeping a part-time consulting retainer to bridge income.\n\n##### Saved Responses\n\n\n**Saved response 1**\n\nThat's a real thing to have named, and it's worth sitting with for a second rather than rushing past it.\n\nThe agency years worked because you were close enough to the story to shape it in real time: pitching it, testing it, watching a room's reaction and adjusting on the spot. Fintech gave you the remit but moved you further from that loop, into a structure where the story gets shaped by committee, timeline, and compliance before it ever reaches you. More scope, less proximity. That's why it read as smaller even though every external marker said bigger.\n\nIt also explains the split in your conflict style. You push hard on ideas when you're close enough to the story to feel it's yours to defend. You concede faster on relationship friction because the story isn't the thing at stake there. Same person, different stakes.\n\nWorth flagging for later: this is likely going to be a real filter for you when we get into career options, proximity to narrative and pace of iteration matters more to your satisfaction than title or budget. Something to keep in mind as we go.\n\nReady to move on to strengths, or anything else you want to dig into here first?\n\n**Saved response 2**\n\nFair catch on the hiking, and worth naming clearly: that's a real miss, not a mild one, the whole appeal you're describing is that nobody needs anything from you on that trail, and the Athlete Wellbeing role is built entirely on being needed by someone in a vulnerable moment. Wrong read on what the hobby is for you.\n\nOn the museum salary heads-up, you're right to read the subtext. \"Often lands at the lower end of your £50-75k range, especially outside national institutions\" is doing polite work for \"expect closer to £50k unless you land at the British Museum or a major national trust site.\" Regional and mid-size heritage orgs frequently sit below that, sometimes £38-45k for a manager-level role, because the sector runs on grant funding and trust income, not commercial margins.\n\nOn the podcast studio, here's the honest gap. Editorial Director means shaping story arc and structure, which is your actual skill and transfers cleanly. But it's not the documentary dream job itself, it's one层 removed: you'd rarely be the one sitting with a subject building trust and pulling the tape, producers do that, and the editorial layer works from what they bring back. It's closer to being the strategist behind the storytellers than being the storyteller. Not a consolation prize (the narrative authority is real and it's a genuine industry change), but call it a \"get you inside the building\" role rather than the dream job itself. Whether that's satisfying probably depends on how much you need the hands-on interview part versus the shaping-into-story part.\n\nWant me to flag these three reactions and move on, or keep going on any of them?\n\n##### Also flagged by you\n\nHead of Marketing decision is due by the end of the quarter. Two evenings a week at home by six is a condition, not a preference.",
+      "created_at": "2026-09-02T17:14:11.687257+00:00",
+      "updated_at": "2026-09-02T17:14:11.687257+00:00",
+      "company_size_type": null,
+      "alternate_titles": null,
+      "order_number": null,
+      "title": "<h3>Discussion Highlights</h3>",
+      "feedback_category": null,
+      "feedback": null,
+      "explore": null,
+      "fb_status": true,
+      "score": null,
+      "metadata": null,
+      "share_quotes": null,
+      "language": "en",
+      "content_i18n": {}
+    }
+  ],
+  "savedMessageIds": [
+    "71ded558-beb7-478a-844f-3aaeba31934b",
+    "cefc45ce-502c-4651-86c1-4860cfc252b2"
+  ]
+}

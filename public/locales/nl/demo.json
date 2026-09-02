@@ -12,15 +12,18 @@
   "personas": {
     "marloes": {
       "tagline": "Marloes, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die ze helpt."
+    },
+    "emma": {
+      "tagline": "Emma, 38, senior marketingmanager bij een Londense fintech. Kan haar werk met haar ogen dicht, en dat is precies het probleem."
     }
   },
   "intro": {
     "eyebrow": "Demo",
     "title": "Een echte coachsessie, van begin tot eind",
-    "body": "Dit is het gesprek zoals Marloes het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
+    "body": "Dit is het gesprek zoals {{name}} het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
     "watchLead": "Let onderweg op deze momenten:",
     "legendAside": "De genummerde momenten staan in de balk bovenaan; klik op een nummer om ernaartoe te springen. Links zie je de rapportsecties, precies zoals in de echte sessie.",
-    "howTo": "Klik op de kaarten om ze te openen, beweeg over de radar, en klik op de knoppen onder een baan om te zien wat Marloes ermee deed. Typen kan hier niet: dit is een replay."
+    "howTo": "Klik op de kaarten om ze te openen, beweeg over de radar, en klik op de knoppen onder een baan om te zien wat {{name}} ermee deed. Typen kan hier niet: dit is een replay."
   },
   "welcome": {
     "caption": "Zo begint elke sessie: de coach stelt zich voor, je klikt op de knop en het eerste hoofdstuk komt binnen. Klik gerust, je springt naar het begin van het gesprek.",
@@ -31,50 +34,96 @@
     "hint": "Klik om ernaartoe te springen."
   },
   "fallback": {
-    "dutchOnly": "Deze demo is in het Nederlands: Marloes is een Nederlandse kandidaat. Een Engelstalige sessie volgt. De knoppen en labels volgen jouw taal, het gesprek blijft Nederlands."
+    "otherLanguage": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels."
   },
   "annotations": {
-    "pushback": {
-      "eyebrow": "Kijk hier",
-      "title": "Ze is het er niet mee eens",
-      "body": "Marloes klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in haar eigen woorden.",
-      "legend": "Tegengas"
+    "marloes": {
+      "pushback": {
+        "eyebrow": "Kijk hier",
+        "title": "Ze is het er niet mee eens",
+        "body": "Marloes klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in haar eigen woorden.",
+        "legend": "Tegengas"
+      },
+      "kept": {
+        "eyebrow": "Dit verandert het rapport",
+        "title": "De coach neemt het over, en zij bewaart het",
+        "body": "De coach corrigeert de analyse ter plekke. Marloes drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, niet alleen over haar.",
+        "legend": "Bewaard in rapport"
+      },
+      "pillTag": {
+        "eyebrow": "Kleine letters",
+        "title": "Het labeltje boven de tekst",
+        "body": "Dat toont welke knop Marloes indrukte voordat ze ging typen, hier 'Iets anders'. Zo zie je in het gesprek terug hoe ze stuurde, niet alleen wat ze zei.",
+        "legend": "Het knop-labeltje"
+      },
+      "movePill": {
+        "eyebrow": "De Stap-knop",
+        "title": "Eén klik, en de coach onderbouwt zijn inschatting",
+        "body": "Onder elke baan staat een knop met de stap die het rapport inschat, hier 'Direct inzetbaar'. Marloes klikte erop: de vraag hierboven is automatisch voor haar geformuleerd en de coach legt uit waarom er geen omscholing nodig is. Klik op zo'n knop in een baankaart en je springt hierheen.",
+        "legend": "De Stap-knop"
+      },
+      "radar": {
+        "eyebrow": "Voor haar gemaakt",
+        "title": "Drie banen, vijf assen, geen sjabloon",
+        "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent.",
+        "legend": "De radar"
+      },
+      "askRole": {
+        "eyebrow": "Vraag over deze rol",
+        "title": "Ze richt haar vraag op één baan",
+        "body": "Bij elke baankaart zit 'Vraag iets over deze rol'. Marloes gebruikte hem bij Facilitator Herstelrecht: haar bericht krijgt het label [Over …] en de coach antwoordt alleen over die baan. Klik op die knop in een kaart en je springt hierheen.",
+        "legend": "Vraag over deze rol"
+      },
+      "dictated": {
+        "eyebrow": "Ingesproken",
+        "title": "Dit heeft ze niet getypt, maar gezegd",
+        "body": "Marloes sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI schoont het op (haperingen, herhalingen, interpunctie) voordat ze op versturen drukt. Wat je leest is haar verhaal, alleen netter.",
+        "legend": "Ingesproken"
+      }
     },
-    "kept": {
-      "eyebrow": "Dit verandert het rapport",
-      "title": "De coach neemt het over, en zij bewaart het",
-      "body": "De coach corrigeert de analyse ter plekke. Marloes drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, niet alleen over haar.",
-      "legend": "Bewaard in rapport"
-    },
-    "pillTag": {
-      "eyebrow": "Kleine letters",
-      "title": "Het labeltje boven de tekst",
-      "body": "Dat toont welke knop Marloes indrukte voordat ze ging typen, hier 'Iets anders'. Zo zie je in het gesprek terug hoe ze stuurde, niet alleen wat ze zei.",
-      "legend": "Het knop-labeltje"
-    },
-    "movePill": {
-      "eyebrow": "De Stap-knop",
-      "title": "Eén klik, en de coach onderbouwt zijn inschatting",
-      "body": "Onder elke baan staat een knop met de stap die het rapport inschat, hier 'Direct inzetbaar'. Marloes klikte erop: de vraag hierboven is automatisch voor haar geformuleerd en de coach legt uit waarom er geen omscholing nodig is. Klik op zo'n knop in een baankaart en je springt hierheen.",
-      "legend": "De Stap-knop"
-    },
-    "radar": {
-      "eyebrow": "Voor haar gemaakt",
-      "title": "Drie banen, vijf assen, geen sjabloon",
-      "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent.",
-      "legend": "De radar"
-    },
-    "askRole": {
-      "eyebrow": "Vraag over deze rol",
-      "title": "Ze richt haar vraag op één baan",
-      "body": "Bij elke baankaart zit 'Vraag iets over deze rol'. Marloes gebruikte hem bij Facilitator Herstelrecht: haar bericht krijgt het label [Over …] en de coach antwoordt alleen over die baan. Klik op die knop in een kaart en je springt hierheen.",
-      "legend": "Vraag over deze rol"
-    },
-    "dictated": {
-      "eyebrow": "Ingesproken",
-      "title": "Dit heeft ze niet getypt, maar gezegd",
-      "body": "Marloes sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI schoont het op (haperingen, herhalingen, interpunctie) voordat ze op versturen drukt. Wat je leest is haar verhaal, alleen netter.",
-      "legend": "Ingesproken"
+    "emma": {
+      "pushback": {
+        "eyebrow": "Let op",
+        "title": "Ze is het er niet mee eens",
+        "body": "Emma klikt op 'Dit zie ik anders' en trekt zelf de grens: de lus klopt, de 'late sprint' is zij niet. Geen formulier, geen sterren: tegengas in haar eigen woorden, en de coach herschrijft zijn lezing ter plekke.",
+        "legend": "Tegengas"
+      },
+      "kept": {
+        "eyebrow": "Dit verandert het rapport",
+        "title": "Ze bewaart het, en het komt in haar rapport",
+        "body": "De coach herformuleert haar fintechjaren als meer bereik, minder nabijheid tot het verhaal. Emma drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, in plaats van alleen over haar.",
+        "legend": "Bewaard in het rapport"
+      },
+      "pillTag": {
+        "eyebrow": "Kleine lettertjes",
+        "title": "Het labeltje boven de tekst",
+        "body": "Dat toont welke knop Emma indrukte voordat ze ging typen, hier 'Iets anders'. Ze brengt twee dingen in die de vragenlijst nooit vroeg: een promotiebeslissing die dit kwartaal valt en het rooster van haar partner. Let op hoe de coach beide meeneemt naar het loopbaanhoofdstuk.",
+        "legend": "Het knoplabel"
+      },
+      "movePill": {
+        "eyebrow": "De Stap-knop",
+        "title": "Eén klik, en de coach verdedigt zijn inschatting",
+        "body": "Onder elke baan staat een knop met de stap die het rapport inschat, hier 'Bijscholen'. Emma klikte erop: de vraag hierboven is automatisch voor haar geschreven en de coach legt uit waarom dit geen 'Herpositioneren' is en ook geen 'Omscholen'. Klik op die knop bij een baankaart en je springt hierheen.",
+        "legend": "De Stap-knop"
+      },
+      "radar": {
+        "eyebrow": "Voor haar gemaakt",
+        "title": "Drie banen, vijf assen, geen sjabloon",
+        "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan apart te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent. Emma las het en zei de coach dat de radar te aardig was voor nummer twee.",
+        "legend": "De radar"
+      },
+      "askRole": {
+        "eyebrow": "Vraag iets over deze rol",
+        "title": "Ze richt haar vraag op één baan",
+        "body": "Bij elke baankaart zit 'Vraag iets over deze rol'. Emma gebruikte hem bij Design Sprint Facilitator, de enige kaart met 'Direct inzetbaar': haar bericht krijgt het label [Over …], de coach antwoordt alleen over die baan en geeft toe dat het een bedrijf is, geen baan. Klik op die knop bij een kaart en je springt hierheen.",
+        "legend": "Vraag over deze rol"
+      },
+      "dictated": {
+        "eyebrow": "Ingesproken",
+        "title": "Dit typte ze niet, dit zei ze",
+        "body": "Emma sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI poetst het op (haperingen, herhalingen, leestekens) voordat ze op verzenden drukt. Wat je leest is haar verhaal, alleen netter.",
+        "legend": "Ingesproken"
+      }
     }
   },
   "highlights": {
@@ -85,7 +134,7 @@
   "footer": {
     "eyebrow": "Demo met fictieve persoon, echte AI-output",
     "title": "Wat je net las",
-    "body": "Marloes bestaat niet. Haar antwoorden op de vragenlijst zijn door ons geschreven. Alles wat de coach zegt en alles in haar rapport is echte, onbewerkte output van Cairnly.",
+    "body": "{{name}} bestaat niet. Haar antwoorden op de vragenlijst zijn door ons geschreven. Alles wat de coach zegt en alles in haar rapport is echte, onbewerkte output van Cairnly.",
     "pdf": "Download haar rapport als pdf",
     "pdfNote": "Het rapport zoals het na dit gesprek is, met haar feedback erin verwerkt.",
     "ctaCustomer": "Doe zelf het assessment",

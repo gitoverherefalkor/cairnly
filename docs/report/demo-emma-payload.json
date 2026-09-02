@@ -1,0 +1,211 @@
+{
+  "survey_id": "00000000-0000-0000-0000-000000000001",
+  "surveyType": "Office / Business Pro - 2025 v1 EN",
+  "accessCode": "DEMO-EN-EMMA",
+  "completedAt": "2026-09-02T14:59:48.756Z",
+  "responses": {
+    "11111111-1111-1111-1111-11111111111a": "Emma Whitfield",
+    "11111111-1111-1111-1111-11111111111b": "She / Her",
+    "11111111-1111-1111-1111-111111111113": 38,
+    "11111111-1111-1111-1111-111111111114": "United Kingdom (London)",
+    "11111111-1111-1111-1111-111111111115": [
+      "Finding a **new career path** that better suits my skills and interests",
+      "Considering a career change due to **burnout or lack of fulfillment**"
+    ],
+    "11111111-1111-1111-1111-111111111116": "Master's degree",
+    "11111111-1111-1111-1111-111111111117": "BA English Literature, then an MA in Strategic Communication.",
+    "11111111-1111-1111-1111-111111111118": 15,
+    "11111111-1111-1111-1111-111111111119": "**Managerial or leadership role** (Managing 1–4 direct reports, focusing on team coordination and supervision)",
+    "11111111-1111-1111-1111-111111111110": [
+      {
+        "title": "Senior Marketing Manager",
+        "companyName": "B2B fintech scale-up",
+        "sector": "Financial technology",
+        "companySize": "Medium (51-200)",
+        "companyCulture": "Startup / Scale-up",
+        "startMonth": 4,
+        "startYear": 2021,
+        "endMonth": null,
+        "endYear": null,
+        "isCurrent": true
+      },
+      {
+        "title": "Marketing Manager",
+        "companyName": "Global consumer goods brand",
+        "sector": "Consumer goods",
+        "companySize": "Multi National (5000+)",
+        "companyCulture": "Corporate",
+        "startMonth": 9,
+        "startYear": 2017,
+        "endMonth": 3,
+        "endYear": 2021,
+        "isCurrent": false
+      },
+      {
+        "title": "Brand Strategist",
+        "companyName": "Brand and communications agency",
+        "sector": "Marketing and advertising",
+        "companySize": "Small (11-50)",
+        "companyCulture": "Agency / Consultancy",
+        "startMonth": 6,
+        "startYear": 2013,
+        "endMonth": 8,
+        "endYear": 2017,
+        "isCurrent": false
+      },
+      {
+        "title": "Communications Executive",
+        "companyName": "Arts charity",
+        "sector": "Arts and culture",
+        "companySize": "Small (11-50)",
+        "companyCulture": "Nonprofit / Social Impact",
+        "startMonth": 9,
+        "startYear": 2010,
+        "endMonth": 5,
+        "endYear": 2013,
+        "isCurrent": false
+      }
+    ],
+    "11111111-1111-1111-1111-11111111111d": [
+      {
+        "title": "Senior Marketing Manager",
+        "companyName": "B2B fintech scale-up",
+        "happiness": "5",
+        "reason": "Broad scope and a team of three I genuinely like, but half my week goes on dashboards, attribution debates and re-forecasting pipeline. The parts I'm actually good at, positioning and telling the story, get squeezed to the edges. And since we brought in AI content tools I keep wondering which part of my craft is still mine."
+      },
+      {
+        "title": "Marketing Manager",
+        "companyName": "Global consumer goods brand",
+        "happiness": "7",
+        "reason": "Proper brand work with real budgets, campaigns I'm still proud of. Decisions took forever and I spent a lot of time managing upwards, but I loved turning research into a story the whole company could rally behind."
+      },
+      {
+        "title": "Brand Strategist",
+        "companyName": "Brand and communications agency",
+        "happiness": "8",
+        "reason": "The best years. Every few weeks a new client problem, a workshop, a strategy deck that made a room go quiet. Long hours, badly paid, and I never once watched the clock."
+      },
+      {
+        "title": "Communications Executive",
+        "companyName": "Arts charity",
+        "happiness": "6",
+        "reason": "A cause I cared about and where I learned to write for real audiences. But tiny budgets, no path upward and I was doing three jobs at once."
+      }
+    ],
+    "11111111-1111-1111-1111-11111111111f": {
+      "topSkills": [
+        "Positioning and messaging",
+        "Workshop facilitation",
+        "Brand storytelling",
+        "Customer research synthesis",
+        "Stakeholder management"
+      ],
+      "topSkillRanks": [
+        "Positioning and messaging",
+        "Workshop facilitation",
+        "Customer research synthesis"
+      ],
+      "achievements": "Led the repositioning of our core product from feature-led to outcome-led messaging; the average sales cycle shortened by about 20% over the following two quarters. Built a customer-insight programme (30+ interviews a year) that the product team now relies on more than marketing does. Ran a brand relaunch across 12 markets at my previous employer. Mentor two junior marketers, one of whom was promoted last year.",
+      "certifications": "CIM Diploma in Professional Marketing; Design Sprint facilitation training (AJ&Smart)",
+      "languages": "English (native), French (conversational)"
+    },
+    "11111111-1111-1111-1111-111111111120": {
+      "interests": [
+        "Long-distance hiking",
+        "Pottery",
+        "Reading about how people make decisions"
+      ]
+    },
+    "11111111-1111-1111-1111-111111111121": "I'm 38, no children, my partner is a nurse working shifts, so flexibility matters more to me than a bigger salary. I'm not burnt out exactly, more hollowed out: I can do this job with my eyes closed and that scares me. I would take a pay cut for work that feels like it matters, within reason, there is a London mortgage. Hybrid is fine, fully remote is not what I want. And I want to understand where AI leaves someone like me instead of quietly dreading it.",
+    "22222222-2222-2222-2222-222222222221": "**Somewhat Energized** (I enjoy it, but have a limit)",
+    "22222222-2222-2222-2222-222222222222": "The long-term, big-picture ideas and impact",
+    "22222222-2222-2222-2222-222222222223": "**Leaning Open** (Explore options, but can decide if forced)",
+    "22222222-2222-2222-2222-222222222224": "Use analogies and metaphors to explain concepts",
+    "22222222-2222-2222-2222-222222222225": "**Leaning Novelty** (I embrace the unknown, but like a safety net)",
+    "22222222-2222-2222-2222-222222222226": "I seek compromise to maintain harmony, even if I have to concede",
+    "22222222-2222-2222-2222-222222222227": "**Somewhat Flexible** (I prefer fluidity but appreciate some process)",
+    "22222222-2222-2222-2222-222222222228": "Comfortable",
+    "22222222-2222-2222-2222-222222222229": "**Leaning Analysis** (Tend to step back, but can act if urgent)",
+    "22222222-2222-2222-2222-22222222222a": [
+      "Perfectionism leading to delays",
+      "Being overly critical of self or others",
+      "Taking on too much responsibility"
+    ],
+    "33333333-3333-3333-3333-333333333331": [
+      "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)",
+      "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)",
+      "**Autonomy** (e.g., having independence in work, making decisions)"
+    ],
+    "33333333-3333-3333-3333-333333333332": "Very",
+    "33333333-3333-3333-3333-333333333333": "Very",
+    "33333333-3333-3333-3333-333333333334": "Flexible hours",
+    "33333333-3333-3333-3333-333333333335": "Moderately important: I value salary but also consider other factors",
+    "33333333-3333-3333-3333-333333333336": "50,000–75,000",
+    "33333333-3333-3333-3333-333333333337": "Work-life balance perks",
+    "33333333-3333-3333-3333-333333333338": [
+      "**Data-heavy or analytical roles** (e.g., working extensively with spreadsheets, statistics, or research-heavy tasks)",
+      "**Solo or independent work** (e.g., minimal interaction with colleagues, self-directed projects, remote individual tasks)"
+    ],
+    "44444444-4444-4444-4444-444444444441": [
+      "Business Strategy & Consulting",
+      "Education & Learning",
+      "Social Impact & Nonprofit"
+    ],
+    "44444444-4444-4444-4444-444444444442": [
+      "**The Communicator** (articulates ideas effectively, fosters understanding)",
+      "**The Visionary** (creative, thinks outside the box, envisions new possibilities)"
+    ],
+    "44444444-4444-4444-4444-444444444443": "Innovative and forward-thinking",
+    "44444444-4444-4444-4444-444444444444": "How people actually make buying decisions versus how they say they do. I've sat in on hundreds of customer interviews and can usually tell within ten minutes which story a company is telling itself. Also positioning: taking a messy product and finding the one sentence that makes it make sense.",
+    "44444444-4444-4444-4444-444444444445": "Moderately familiar. I have used AI tools occasionally",
+    "44444444-4444-4444-4444-444444444446": [
+      "**Marketing Strategies and Brand Development** (e.g., digital marketing trends, building a strong brand presence)",
+      "**Innovation and Product Development** (e.g., fostering a culture of innovation, developing new products)"
+    ],
+    "44444444-4444-4444-4444-444444444447": "Usually it's \"can you help me say this better\". Colleagues bring me a deck or an email that isn't landing and I help them find the actual point. Friends come to me when they're weighing a big decision, a job offer, a move, because I ask the questions they've been avoiding.",
+    "44444444-4444-4444-4444-444444444448": "Documentary producer, or running a small research studio that helps organisations understand the people they serve.",
+    "55555555-5555-5555-5555-555555555551": "Offer ideas and actively engage in discussions.",
+    "55555555-5555-5555-5555-555555555552": "Learning from others",
+    "55555555-5555-5555-5555-555555555553": "Small (2-5 people)",
+    "55555555-5555-5555-5555-555555555554": "Address them directly to find a solution",
+    "55555555-5555-5555-5555-555555555555": [
+      "Trusting team members to complete tasks",
+      "Balancing individual and team responsibilities"
+    ],
+    "55555555-5555-5555-5555-555555555556": "**Deadline-Aware** (I start early but my pace picks up significantly as deadlines approach)",
+    "55555555-5555-5555-5555-555555555557": "Delegating autonomy and trusting me to figure things out",
+    "55555555-5555-5555-5555-555555555558": "Voice concerns openly and try to discuss the issue",
+    "66666666-6666-6666-6666-666666666661": "I actively seek it and use it to improve",
+    "66666666-6666-6666-6666-666666666662": "Try to be encouraging but are careful not to offend.",
+    "66666666-6666-6666-6666-666666666663": "Offer support and listen empathetically",
+    "66666666-6666-6666-6666-666666666664": "Remain calm and control your emotions effectively",
+    "66666666-6666-6666-6666-666666666665": "Practice mindfulness or stress-reduction techniques",
+    "66666666-6666-6666-6666-666666666666": "Actively engage in social interactions, both during and outside work.",
+    "66666666-6666-6666-6666-666666666667": [
+      "Receiving criticism without defensiveness",
+      "Motivating myself and others"
+    ],
+    "77777777-7777-7777-7777-777777777771": [
+      "Gain experience in a different role or industry",
+      "Develop new skills or certifications"
+    ],
+    "77777777-7777-7777-7777-777777777772": [
+      "Make a significant contribution to society or a cause",
+      "Continuously learn and adapt to new challenges"
+    ],
+    "77777777-7777-7777-7777-777777777773": [
+      "Misalignment with personal values or interests",
+      "Uncertainty about my next career step"
+    ],
+    "77777777-7777-7777-7777-777777777774": "Yes, always seeking new skills",
+    "77777777-7777-7777-7777-777777777775": [
+      "Strategic Planning & Big-Picture Thinking",
+      "AI & Automation",
+      "Creative Thinking & Innovation"
+    ],
+    "77777777-7777-7777-7777-777777777776": "Curious about it, but not actively planning",
+    "__non_negotiables": {
+      "33333333-3333-3333-3333-333333333334": true
+    }
+  }
+}

@@ -1,12 +1,17 @@
 // Re-run a DEMO account's survey answers through the full WF1-WF4 pipeline.
 //
 //   node scripts/demo-rerun-report.mjs demo.marloes@cairnly.io
+//   node scripts/demo-rerun-report.mjs demo.emma@cairnly.io --payload=docs/report/demo-emma-payload.json
 //
 // Takes the stored answers (reports.payload) from the account's newest report,
 // submits them as a FRESH report via forward-to-n8n (so nothing collides with
 // the old report's sections/chat), and polls until the new report reaches
 // pending_review — i.e. chat-ready. The old report is NOT touched here; clean
 // it up separately once the new one is confirmed good.
+//
+// --payload=<path> submits that JSON file instead (the output of a
+// demo-<persona>-payload.mjs build). That is how a brand-new persona gets its
+// FIRST report, since there is no stored payload to re-run yet.
 //
 // REFUSES any address that is not an obvious demo account: this re-runs the
 // paid AI pipeline and would otherwise silently regenerate a real customer's
@@ -59,19 +64,31 @@ if (!user) {
   console.error(`No auth user found for ${email}`);
   process.exit(1);
 }
-const { data: oldReport, error: repErr } = await admin
-  .from('reports')
-  .select('id, status, payload, created_at')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false })
-  .limit(1)
-  .maybeSingle();
-if (repErr) throw repErr;
-if (!oldReport?.payload) {
-  console.error('Newest report has no stored payload — nothing to re-run.');
-  process.exit(1);
+const payloadPath = process.argv.slice(3).find((a) => a.startsWith('--payload='))?.slice('--payload='.length);
+let payload;
+if (payloadPath) {
+  payload = JSON.parse(readFileSync(payloadPath, 'utf8'));
+  if (!payload?.responses || !payload?.survey_id) {
+    console.error(`${payloadPath} does not look like a survey payload (needs survey_id + responses).`);
+    process.exit(1);
+  }
+  console.log(`payload from file: ${payloadPath} (${Object.keys(payload.responses).length} responses)`);
+} else {
+  const { data: oldReport, error: repErr } = await admin
+    .from('reports')
+    .select('id, status, payload, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (repErr) throw repErr;
+  if (!oldReport?.payload) {
+    console.error('Newest report has no stored payload — nothing to re-run (pass --payload=<file> for a first run).');
+    process.exit(1);
+  }
+  payload = typeof oldReport.payload === 'string' ? JSON.parse(oldReport.payload) : oldReport.payload;
+  console.log(`old report: ${oldReport.id} (${oldReport.status}, ${oldReport.created_at})`);
 }
-console.log(`old report: ${oldReport.id} (${oldReport.status}, ${oldReport.created_at})`);
 
 // 2. Sign in as the demo user (forward-to-n8n derives user_id from the JWT).
 const client = createClient(url, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -89,7 +106,7 @@ const res = await fetch(`${url}/functions/v1/forward-to-n8n`, {
     apikey: anonKey,
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify({ payload: oldReport.payload }),
+  body: JSON.stringify({ payload }),
 });
 const body = await res.json().catch(() => ({}));
 if (!res.ok || !body.report_id) {
