@@ -3,7 +3,6 @@
     "purpose": "Brand glossary + per-language rules consumed by scripts/i18n-sync.ts and any AI translation call across the project. Single source of truth — edit here, all translation work picks it up next run.",
     "see": "LOCALIZATION_PLAN.md"
   },
-
   "do_not_translate": [
     "Cairnly",
     "Atlas Assessments",
@@ -18,7 +17,6 @@
     "WF4",
     "WF5"
   ],
-
   "preferred": {
     "en->nl": {
       "career": "loopbaan",
@@ -41,7 +39,6 @@
       "cover letter": "begeleidende brief"
     }
   },
-
   "rules": {
     "nl": [
       "Use je-form (informal Dutch), never u",
@@ -53,7 +50,8 @@
       "No em-dashes (—) — use commas, periods, colons, parentheses, or sentence breaks instead",
       "Translate interjections/CTAs naturally (e.g. 'Let's go!' -> 'Aan de slag!'), not literally",
       "Preserve placeholders exactly: {{variable}}, {count}, %s, etc.",
-      "When translating button labels or short UI strings, prefer the shorter Dutch equivalent (UI space matters)"
+      "When translating button labels or short UI strings, prefer the shorter Dutch equivalent (UI space matters)",
+      "AI-impact rating labels translate to EXACTLY these fixed Dutch terms (they must match the UI badge labels): Minimal -> Minimaal, Moderate -> Gemiddeld, High -> Hoog, Severe -> Ernstig, Critical -> Kritiek. This applies wherever these words appear as the rating under an AI-impact heading."
     ],
     "de": [
       "Use Sie-form (formal German) for product copy; du-form only in marketing where appropriate",

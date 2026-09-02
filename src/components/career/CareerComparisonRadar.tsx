@@ -94,8 +94,15 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
   if (!careers || careers.length === 0) return null;
 
   const rings = [1, 2, 3, 4, 5].map((lvl) => (lvl / 5) * MAX_R);
-  // Draw non-focal careers first so the focal polygon sits on top.
-  const ordered = [...careers].sort((a, b) => Number(a.focal) - Number(b.focal));
+  // Scores are coarse 1-5 integers, so polygons often share whole edges. If a
+  // line is simply drawn over another, the one underneath disappears (seen in
+  // production: career 1 invisible because careers 2 and 3 traced the same
+  // edges). So: the FOCAL polygon (fill + solid stroke) goes underneath, and
+  // non-focal careers draw on top as dashed reference lines — the dash gaps
+  // let whatever is below show through, and each non-focal gets a shifted
+  // dash offset so two coinciding dashed lines alternate instead of covering
+  // each other.
+  const ordered = [...careers].sort((a, b) => Number(b.focal) - Number(a.focal));
 
   const hoveredAxis = AXES.find((a) => a.key === hovered) ?? null;
 
@@ -126,7 +133,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
         );
       })}
 
-      {ordered.map((c) => (
+      {ordered.map((c, i) => (
         <polygon
           key={c.label}
           points={polygonPoints(c.scores)}
@@ -134,6 +141,8 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
           fillOpacity={c.focal ? 0.2 : undefined}
           stroke={c.color}
           strokeWidth={c.focal ? 2.5 : 2}
+          strokeDasharray={c.focal ? undefined : '6 5'}
+          strokeDashoffset={c.focal ? undefined : (i - 1) * 5.5}
         />
       ))}
 

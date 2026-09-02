@@ -56,6 +56,7 @@ export const RULES: Record<string, readonly string[]> = {
     "Translate interjections/CTAs naturally (e.g. 'Let's go!' -> 'Aan de slag!'), not literally",
     'Preserve placeholders exactly: {{variable}}, {count}, %s, etc.',
     'When translating button labels or short UI strings, prefer the shorter Dutch equivalent (UI space matters)',
+    'AI-impact rating labels translate to EXACTLY these fixed Dutch terms (they must match the UI badge labels): Minimal -> Minimaal, Moderate -> Gemiddeld, High -> Hoog, Severe -> Ernstig, Critical -> Kritiek. This applies wherever these words appear as the rating under an AI-impact heading.',
   ],
   de: [
     'Use Sie-form (formal German) for product copy; du-form only in marketing where appropriate',
