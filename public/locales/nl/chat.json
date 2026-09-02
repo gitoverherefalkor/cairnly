@@ -160,5 +160,28 @@
     "wbSafeBody": "Ons eerdere gesprek is hier niet meer zichtbaar, maar al je feedback en rapportinhoud is opgeslagen en verwerkt. Je eindrapport bevat alles wat we hebben besproken.",
     "wbReady": "Klaar om verder te gaan waar we gebleven waren? Stel gerust vragen over elk onderdeel van je rapport, vraag om verduidelijking of verken nieuwe loopbaanrichtingen.",
     "wbContinue": "Gesprek voortzetten"
+  },
+  "wrapUp": {
+    "kicker": "Afronden",
+    "title": "Dit hebben we uit ons gesprek meegenomen",
+    "intro1": "Je gesprek wordt niet woord voor woord bewaard. Deze hoogtepunten",
+    "introKept_one": ", plus het antwoord dat je bewaarde,",
+    "introKept_other": ", plus de {{count}} antwoorden die je bewaarde,",
+    "intro2": "komen in je rapport zodra je hieronder op",
+    "intro3": "klikt. Wil je een antwoord volledig bewaren? Klik er dan eerst op",
+    "intro4": ".",
+    "saveClose": "Opslaan & afsluiten",
+    "saving": "Opslaan…",
+    "reviewing": "We nemen het gesprek door",
+    "tryAgain": "Probeer opnieuw",
+    "strategies": "Concrete strategieën uit ons gesprek",
+    "addendumLabel": "Nog iets dat je wilt meegeven?",
+    "optional": "Optioneel",
+    "addendumPlaceholder": "Een concreet inzicht, een notitie voor je toekomstige zelf, of iets dat we nog niet hebben vastgelegd...",
+    "addendumHelper": "Dit is een eenrichtingsnotitie die bij je rapport wordt opgeslagen. Je krijgt er hier geen antwoord op; de chat sluit na het opslaan.",
+    "teaser": "Sla op om je dashboard te ontgrendelen.",
+    "savedBanner": "Opgeslagen in je rapport. Bekijk hieronder nog even je Career Signature en ga daarna naar je dashboard.",
+    "errorFirst": "We konden geen hoogtepunten genereren. Je kunt opslaan met alleen je eigen notitie hieronder, of het opnieuw proberen.",
+    "errorRetry": "Nog steeds geen succes. Je kunt opslaan met alleen je eigen notitie hieronder."
   }
 }

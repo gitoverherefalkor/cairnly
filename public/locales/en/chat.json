@@ -160,5 +160,28 @@
     "wbSafeBody": "While our previous conversation history isn't visible anymore, all your feedback and report content has been saved and processed. Your final report reflects everything we discussed.",
     "wbReady": "Ready to pick up where we left off? Feel free to ask about any section of your assessment, request clarifications, or explore new career paths.",
     "wbContinue": "Continue Session"
+  },
+  "wrapUp": {
+    "kicker": "Wrapping up",
+    "title": "Here's what we captured from our conversation",
+    "intro1": "Your conversation won't be saved word-for-word. These highlights",
+    "introKept_one": ", plus the reply you kept,",
+    "introKept_other": ", plus the {{count}} replies you kept,",
+    "intro2": "are saved to your report when you hit",
+    "intro3": "below. Want a specific reply preserved in full? Click",
+    "intro4": " on it before closing.",
+    "saveClose": "Save & Close",
+    "saving": "Saving…",
+    "reviewing": "Reviewing the conversation",
+    "tryAgain": "Try again",
+    "strategies": "Specific strategies from our conversation",
+    "addendumLabel": "Anything else you want flagged?",
+    "optional": "Optional",
+    "addendumPlaceholder": "A specific takeaway, a note for future-you, or anything we didn't capture...",
+    "addendumHelper": "This is a one-way note that gets saved with your report. It won't be answered here, the chat closes after Save.",
+    "teaser": "Save to unlock your dashboard.",
+    "savedBanner": "Saved to your report. Take a moment with your Career Signature below, then exit to your dashboard.",
+    "errorFirst": "Could not generate highlights. You can still save with just your own notes below, or try again.",
+    "errorRetry": "Still no luck. You can save with just your own notes below."
   }
 }

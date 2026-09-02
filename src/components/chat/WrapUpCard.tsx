@@ -87,7 +87,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
       } catch (err) {
         if (cancelled) return;
         console.error('[WrapUpCard] extract failed:', err);
-        setErrorMsg('Could not generate highlights. You can still save with just your own notes below, or try again.');
+        setErrorMsg(t('wrapUp.errorFirst', { defaultValue: 'Could not generate highlights. You can still save with just your own notes below, or try again.' }));
         setPhase('error');
       }
     })();
@@ -106,7 +106,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
       setPhase('review');
     } catch (err) {
       console.error('[WrapUpCard] retry failed:', err);
-      setErrorMsg('Still no luck. You can save with just your own notes below.');
+      setErrorMsg(t('wrapUp.errorRetry', { defaultValue: 'Still no luck. You can save with just your own notes below.' }));
       setPhase('error');
     }
   };
@@ -169,20 +169,28 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
           <div className="flex items-center gap-2 mb-1">
             <Sparkles size={14} className="text-atlas-teal" />
             <span className="text-xs font-semibold text-atlas-teal uppercase tracking-wider">
-              Wrapping up
+              {t('wrapUp.kicker', { defaultValue: 'Wrapping up' })}
             </span>
           </div>
           <h3 className="text-base font-bold text-atlas-navy font-heading">
-            Here's what we captured from our conversation
+            {t('wrapUp.title', { defaultValue: "Here's what we captured from our conversation" })}
           </h3>
           <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-            Your conversation won't be saved word-for-word. These highlights
+            {t('wrapUp.intro1', { defaultValue: "Your conversation won't be saved word-for-word. These highlights" })}
             {savedResponses.length > 0
-              ? `, plus the ${savedResponses.length} ${savedResponses.length === 1 ? 'reply' : 'replies'} you kept,`
+              ? t('wrapUp.introKept', {
+                  count: savedResponses.length,
+                  defaultValue:
+                    savedResponses.length === 1
+                      ? ', plus the reply you kept,'
+                      : ', plus the {{count}} replies you kept,',
+                })
               : ''}{' '}
-            are saved to your report when you hit <strong>Save &amp; Close</strong>{' '}
-            below. Want a specific reply preserved in full? Click{' '}
-            <strong>Keep</strong> on it before closing.
+            {t('wrapUp.intro2', { defaultValue: 'are saved to your report when you hit' })}{' '}
+            <strong>{t('wrapUp.saveClose', { defaultValue: 'Save & Close' })}</strong>{' '}
+            {t('wrapUp.intro3', { defaultValue: 'below. Want a specific reply preserved in full? Click' })}{' '}
+            <strong>{t('ui.keep', { defaultValue: 'Keep' })}</strong>
+            {t('wrapUp.intro4', { defaultValue: ' on it before closing.' })}
           </p>
         </div>
 
@@ -197,7 +205,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
                 <span className="block w-[3px] bg-atlas-teal rounded-sm h-2 animate-bar-pulse [animation-delay:0.45s]" />
               </div>
               <span className="text-[0.8125rem] text-gray-500 italic">
-                Reviewing the conversation
+                {t('wrapUp.reviewing', { defaultValue: 'Reviewing the conversation' })}
               </span>
             </div>
           )}
@@ -212,7 +220,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
                   onClick={retryExtract}
                   className="mt-1.5 text-xs font-semibold text-atlas-teal hover:underline"
                 >
-                  Try again
+                  {t('wrapUp.tryAgain', { defaultValue: 'Try again' })}
                 </button>
               </div>
             </div>
@@ -223,7 +231,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
               {/* Subtle subtitle so the bullet list doesn't begin abruptly
                   right after the descriptive paragraph above. */}
               <p className="text-xs font-semibold text-atlas-teal uppercase tracking-wider mb-2">
-                Specific strategies from our conversation
+                {t('wrapUp.strategies', { defaultValue: 'Specific strategies from our conversation' })}
               </p>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                 {highlights}
@@ -243,24 +251,23 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
                 htmlFor="wrap-up-addendum"
                 className="block text-sm font-semibold text-atlas-navy mb-1.5"
               >
-                Anything else you want flagged?
+                {t('wrapUp.addendumLabel', { defaultValue: 'Anything else you want flagged?' })}
                 <span className="ml-1.5 text-xs font-normal text-gray-500">
-                  Optional
+                  {t('wrapUp.optional', { defaultValue: 'Optional' })}
                 </span>
               </label>
               <textarea
                 id="wrap-up-addendum"
                 value={addendum}
                 onChange={(e) => setAddendum(e.target.value)}
-                placeholder="A specific takeaway, a note for future-you, or anything we didn't capture..."
+                placeholder={t('wrapUp.addendumPlaceholder', { defaultValue: "A specific takeaway, a note for future-you, or anything we didn't capture..." })}
                 rows={3}
                 disabled={phase === 'saving'}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:border-atlas-teal focus:ring-1 focus:ring-atlas-teal outline-none resize-none disabled:opacity-60"
                 maxLength={4000}
               />
               <p className="mt-1.5 text-xs text-gray-500 leading-snug">
-                This is a one-way note that gets saved with your report.
-                It won't be answered here, the chat closes after Save.
+                {t('wrapUp.addendumHelper', { defaultValue: "This is a one-way note that gets saved with your report. It won't be answered here, the chat closes after Save." })}
               </p>
             </div>
           )}
@@ -272,7 +279,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
           {phase !== 'saved' && (
             <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
               <span className="text-xs text-atlas-teal italic">
-                Save to unlock your dashboard.
+                {t('wrapUp.teaser', { defaultValue: 'Save to unlock your dashboard.' })}
               </span>
               <button
                 type="button"
@@ -281,11 +288,11 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
                 className="ask-pill inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-atlas-teal text-atlas-teal text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {phase === 'saving' ? (
-                  <>Saving…</>
+                  <>{t('wrapUp.saving', { defaultValue: 'Saving…' })}</>
                 ) : (
                   <>
                     <Check size={14} />
-                    Save &amp; Close
+                    {t('wrapUp.saveClose', { defaultValue: 'Save & Close' })}
                   </>
                 )}
               </button>
@@ -296,8 +303,7 @@ export const WrapUpCard: React.FC<WrapUpCardProps> = ({ reportId, onCompleted, s
             <div className="flex gap-2 items-center text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2.5">
               <Check size={16} className="text-emerald-600 shrink-0" />
               <span>
-                Saved to your report. Take a moment with your Career
-                Signature below, then exit to your dashboard.
+                {t('wrapUp.savedBanner', { defaultValue: 'Saved to your report. Take a moment with your Career Signature below, then exit to your dashboard.' })}
               </span>
             </div>
           )}
