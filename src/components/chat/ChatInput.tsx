@@ -80,13 +80,16 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
     onTypingChange?.(text.trim().length > 0);
   }, [text, onTypingChange]);
 
-  // Auto-resize textarea on content change
+  // Auto-resize textarea on content change. Once content exceeds MAX_HEIGHT
+  // (e.g. a long cleaned-up dictation), the box gets a scrollbar — with
+  // overflow hidden, everything past the cap was simply invisible.
   const autoResize = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = 'auto';
     const newHeight = Math.min(Math.max(textarea.scrollHeight, MIN_HEIGHT), MAX_HEIGHT);
     textarea.style.height = `${newHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > MAX_HEIGHT ? 'auto' : 'hidden';
   }, []);
 
   useEffect(() => {
@@ -202,7 +205,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
               }
               disabled={disabled}
               rows={1}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 sm:px-5 pr-[88px] sm:pr-[104px] py-3 sm:py-4 text-sm sm:text-[0.9375rem] leading-normal font-sans resize-none overflow-y-hidden shadow-md focus:outline-none focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 sm:px-5 pr-[88px] sm:pr-[104px] py-3 sm:py-4 text-sm sm:text-[0.9375rem] leading-normal font-sans resize-none shadow-md focus:outline-none focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ minHeight: MIN_HEIGHT, maxHeight: MAX_HEIGHT }}
             />
 

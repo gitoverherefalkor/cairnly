@@ -1260,7 +1260,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
                       ? t('ui.phRevealNext', { count: latestUnrevealedCount })
                       : multiCardLocked
                         ? t('ui.phOpenCards')
-                        : (inputPlaceholderOverride ?? t('ui.inputPlaceholder'))
+                        // undefined lets ChatInput pick its own default,
+                        // which is voice-aware ("Typ hier of dicteer…").
+                        : (inputPlaceholderOverride ?? undefined)
           }
           isSidebarCollapsed={isSidebarCollapsed}
         />
