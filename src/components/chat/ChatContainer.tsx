@@ -648,6 +648,24 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       setInputPlaceholderOverride(null);
     };
 
+    // Click on the "N cards left" chip: scroll to a card that is still
+    // collapsed and pulse it. Collapsed cards carry data-card-collapsed
+    // (CollapsibleCareerBlocks); the gating message is the newest one, so of
+    // all matches the LAST in document order belongs to it.
+    const scrollToCollapsedCard = useCallback(() => {
+      const els = document.querySelectorAll('[data-card-collapsed="true"]');
+      const el = els[els.length - 1] as HTMLElement | undefined;
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.animate(
+        [
+          { boxShadow: '0 0 0 3px rgba(13, 148, 136, 0.55)' },
+          { boxShadow: '0 0 0 3px rgba(13, 148, 136, 0)' },
+        ],
+        { duration: 1400, easing: 'ease-out' },
+      );
+    }, []);
+
     // File a support request when a section never arrives. A stalled section
     // means an upstream workflow didn't write its rows — invisible to us
     // otherwise, because nothing errors: the user just sits in front of a
@@ -1202,6 +1220,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
               ? cardOpenProgress.total - cardOpenProgress.opened
               : null
           }
+          onCardsLeftClick={scrollToCollapsedCard}
           onTypingChange={setIsUserTyping}
           // Disable typing on the welcome screen so users can't accidentally
           // start with an off-script message that confuses the bot. They

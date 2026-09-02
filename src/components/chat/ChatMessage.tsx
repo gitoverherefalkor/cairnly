@@ -979,6 +979,9 @@ const CollapsibleCareerBlocks: React.FC<{
               <div
                 key={idx}
                 className="border border-gray-200 rounded-xl overflow-hidden"
+                // Lets the "N cards left" chip find and scroll to a card that
+                // is still collapsed (ChatContainer's scrollToCollapsedCard).
+                data-card-collapsed={isOpen ? undefined : 'true'}
               >
                 {/* Clickable header — always visible */}
                 <button

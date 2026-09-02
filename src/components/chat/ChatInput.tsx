@@ -23,6 +23,8 @@ interface ChatInputProps {
    * sees why they can't type yet.
    */
   cardsLeftCount?: number | null;
+  /** Click on the cards-left chip — scrolls the chat to a collapsed card. */
+  onCardsLeftClick?: () => void;
 }
 
 const MIN_HEIGHT = 56;
@@ -37,6 +39,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
   askAboutRole = null,
   onCancelAskAboutRole,
   cardsLeftCount = null,
+  onCardsLeftClick,
 }, ref) => {
   const { t } = useTranslation('chat');
   const [text, setText] = useState('');
@@ -116,7 +119,11 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                 the floating input bar. */}
             {cardsLeftCount != null && cardsLeftCount > 0 && (
               <div className="mb-2 flex justify-center">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-atlas-teal bg-white border border-atlas-teal/25 rounded-full px-3 py-1.5 shadow-md">
+                <button
+                  type="button"
+                  onClick={onCardsLeftClick}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-atlas-teal bg-white border border-atlas-teal/25 rounded-full px-3 py-1.5 shadow-md hover:bg-atlas-teal/5 transition-colors"
+                >
                   <FolderOpen className="h-3.5 w-3.5" />
                   {t('ui.cardsLeft', {
                     count: cardsLeftCount,
@@ -125,7 +132,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                         ? '1 card left, tap to expand'
                         : '{{count}} cards left, tap to expand',
                   })}
-                </div>
+                </button>
               </div>
             )}
             {/* "Asking about: <role>" context chip — pinned with the input so it
