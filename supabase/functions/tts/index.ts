@@ -1,18 +1,43 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
 
-// Single voice for now — nova (bright, energetic American female). The
-// frontend always requests 'female'; kept as a map so adding voices later
-// is a one-line change.
-const VOICE_MAP: Record<string, string> = {
-  female: 'nova',
+// Voice + delivery instructions per language.
+//
+// The `instructions` field is not just about pace — on gpt-4o-mini-tts it
+// steers pronunciation too. English instructions were pushing Dutch text
+// toward English phonetics, so nl gets genuinely Dutch instructions (with an
+// explicit accent hint and a note about loanwords, which is where an
+// English-trained voice normally slips).
+//
+// Voices differ per language on purpose: nova is a bright American female
+// that carries a heavy accent in Dutch; ash reads Dutch more neutrally.
+// Adding a language is one entry here.
+const LANG_CONFIG: Record<string, { voice: string; instructions: string }> = {
+  en: {
+    voice: 'nova',
+    instructions:
+      'Speak at a brisk, upbeat conversational pace, like an energetic but ' +
+      'warm career coach. Clear and natural, never rushed or robotic.',
+  },
+  nl: {
+    voice: 'ash',
+    instructions:
+      'Spreek vlot en natuurlijk Nederlands met een Nederlandse tongval, in ' +
+      'een warm maar energiek tempo, zoals een enthousiaste loopbaancoach. ' +
+      'Helder en menselijk, nooit gehaast of robotachtig. Spreek Engelse ' +
+      'leenwoorden uit zoals een Nederlander dat doet.',
+  },
 };
+const DEFAULT_LANG = 'en';
 
-// Steers delivery on gpt-4o-mini-tts. Produces genuinely faster speech
-// rather than time-stretched audio, so it stays natural at speed 1.0.
-const DELIVERY_INSTRUCTIONS =
-  'Speak at a brisk, upbeat conversational pace, like an energetic but ' +
-  'warm career coach. Clear and natural, never rushed or robotic.';
+// The 13 voices gpt-4o-mini-tts accepts. Only used to validate an explicit
+// `voice` override, which lets us A/B a candidate voice straight from the
+// browser without redeploying this function. An unknown value is ignored
+// rather than rejected, so a bad override degrades to the language default.
+const VALID_VOICES = new Set([
+  'alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'nova',
+  'onyx', 'sage', 'shimmer', 'verse', 'marin', 'cedar',
+]);
 
 // Hard cap on input length — OpenAI's limit is 4096 chars per request and
 // long messages cost more anyway. Section reveals are usually under 3000.
@@ -50,8 +75,15 @@ serve(async (req) => {
       return errorResponse('Empty text', 400, corsHeaders);
     }
 
-    const requestedVoice = typeof body.voice === 'string' ? body.voice : 'female';
-    const openaiVoice = VOICE_MAP[requestedVoice] ?? VOICE_MAP.female;
+    // Normalize 'nl-NL' → 'nl'. An old cached frontend sends no lang at all,
+    // which falls through to English — exactly the previous behaviour.
+    const rawLang = typeof body.lang === 'string' ? body.lang : DEFAULT_LANG;
+    const lang = rawLang.split('-')[0].toLowerCase();
+    const config = LANG_CONFIG[lang] ?? LANG_CONFIG[DEFAULT_LANG];
+
+    // Explicit override wins, but only if it names a real voice.
+    const override = typeof body.voice === 'string' ? body.voice.toLowerCase() : '';
+    const openaiVoice = VALID_VOICES.has(override) ? override : config.voice;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -63,7 +95,7 @@ serve(async (req) => {
         model: 'gpt-4o-mini-tts',
         voice: openaiVoice,
         input: text,
-        instructions: DELIVERY_INSTRUCTIONS,
+        instructions: config.instructions,
         response_format: 'mp3',
         speed: 1.0,
       }),

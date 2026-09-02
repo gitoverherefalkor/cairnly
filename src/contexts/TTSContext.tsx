@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import i18n from '@/i18n';
 
 const STORAGE_KEY_READ_ALL = 'cairnly:tts:read-all';
 const STORAGE_KEY_RATE = 'cairnly:tts:rate';
@@ -142,7 +143,10 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             'Authorization': `Bearer ${token}`,
             'apikey': SUPABASE_ANON_KEY,
           },
-          body: JSON.stringify({ text: cleaned, voice: 'female' }),
+          // Language drives both the voice and the delivery instructions on
+          // the backend. Without it the edge function defaults to English,
+          // which is what made Dutch read with an American accent.
+          body: JSON.stringify({ text: cleaned, lang: i18n.language || 'en' }),
           signal: controller.signal,
         });
 
