@@ -15,12 +15,27 @@ export interface DemoMessage {
 
 export interface DemoPersona {
   firstName: string;
+  // profiles.country, shown in the dashboard's welcome block.
+  country?: string | null;
   // Language of the CONVERSATION. Only selects which fixture is shown; the
   // chrome around it follows the visitor's i18n language as everywhere else.
   language: string;
   exportedAt: string;
   reportId: string;
   reportStatus?: string;
+  // reports.updated_at at export time: the date the dashboard prints.
+  reportCompletedAt?: string;
+}
+
+// A saved_chat_responses row, as the dashboard's "Saved answers from the
+// chat" panel reads it (same shape as hooks/useSavedChatResponses).
+export interface DemoSavedResponse {
+  id: string;
+  report_id: string;
+  section_type: string | null;
+  label: string | null;
+  content: string;
+  created_at: string;
 }
 
 export interface DemoFixture {
@@ -31,6 +46,8 @@ export interface DemoFixture {
   sections: ReportSection[];
   // Bot messages the persona pressed Keep on — drives the "Bewaard" badges.
   savedMessageIds: string[];
+  // The Keep rows themselves, for the read-only dashboard replay.
+  savedResponses?: DemoSavedResponse[];
 }
 
 export type DemoAnnotationPlacement = 'top' | 'bottom';

@@ -144,6 +144,40 @@
     "backPartners": "Back to the partner page",
     "backHome": "How it works",
     "pdfPartner": "Download the partner template (PDF)",
-    "pdfPartnerNote": "The same report as a white-label template: [partnernaam] where your name goes, no logo. Shows you where your branding lands."
+    "pdfPartnerNote": "The same report as a white-label template: [partnernaam] where your name goes, no logo. Shows you where your branding lands.",
+    "dashboard": "See her dashboard",
+    "dashboardNote": "The same report as she sees it after the session: matches, career map, radar, saved answers."
+  },
+  "dashboardDemo": {
+    "seo": {
+      "title": "Demo: the dashboard after the coaching session",
+      "description": "A fictional candidate's dashboard after her coaching session: top matches, career map, personality radar and the full report. Real AI output, read-only."
+    },
+    "nav": {
+      "label": "Demo: her dashboard",
+      "back": "Back to the conversation"
+    },
+    "intro": {
+      "eyebrow": "Demo, read-only",
+      "title": "This is where {{name}} landed after the session",
+      "body": "Her dashboard, exactly as she sees it: the top three matches with the comparison radar, the career map, her personality radar, the full report chapter by chapter, and the answers she kept from the chat. Open any card or section; nothing here is a mock-up.",
+      "toolsNote": "The job search, résumé and cover-letter tools are switched off in this demo: they run live searches and AI writing for real users only. Everything else works."
+    },
+    "tools": {
+      "title": "Switched off in the demo",
+      "body": "In a real account this opens {{tool}}. It runs live job searches and AI writing for the person who took the assessment, so it is off here. Take the assessment and it is yours to use.",
+      "bodyPartner": "In a real account this opens {{tool}}. It runs live job searches and AI writing for the candidate, so it is off in the demo.",
+      "share": "the share card generator",
+      "invite": "the invite-a-friend flow that unlocks the toolkit",
+      "jobs": "the job search",
+      "resume": "the résumé tailor",
+      "coverLetter": "the cover-letter writer",
+      "generic": "a signed-in tool",
+      "close": "Back to the dashboard"
+    },
+    "footer": {
+      "chat": "Read the conversation that led here",
+      "chatNote": "The full coaching session, with the moments that changed this report."
+    }
   }
 }

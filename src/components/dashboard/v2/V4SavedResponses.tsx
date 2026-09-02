@@ -19,7 +19,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { Bookmark, ChevronDown, X } from 'lucide-react';
-import { useSavedChatResponses } from '@/hooks/useSavedChatResponses';
+import { useSavedChatResponses, type SavedChatResponse } from '@/hooks/useSavedChatResponses';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from './dashboardV2Shared';
 
 // Friendly label for the section a response was saved from. Falls back to a
@@ -157,6 +157,10 @@ interface V4SavedResponsesProps {
   // row is shown at the top of this card. Only passed to one instance so the
   // conversation-wide summary appears once.
   wrapUpSummary?: string | null;
+  // Rows to render instead of fetching them (the public /demo/dashboard has
+  // no session; the fixture carries the persona's Keeps). Implies read-only:
+  // no remove affordance, nothing is written.
+  responses?: SavedChatResponse[];
 }
 
 const WRAP_UP_ID = '__wrap_up_summary__';
@@ -165,9 +169,16 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
   reportId,
   chapter,
   wrapUpSummary = null,
+  responses,
 }) => {
   const { t } = useTranslation('dashboard');
-  const { savedResponses, removeSavedResponse } = useSavedChatResponses(reportId);
+  const readOnly = responses !== undefined;
+  // With injected rows the query is disabled (no reportId), so an anonymous
+  // visitor never triggers a saved_chat_responses read.
+  const { savedResponses: fetched, removeSavedResponse } = useSavedChatResponses(
+    readOnly ? undefined : reportId,
+  );
+  const savedResponses = responses ?? fetched;
   const [openId, setOpenId] = useState<string | null>(null);
 
   const saved = savedResponses.filter((r) => inChapter(r.section_type, chapter));
@@ -306,7 +317,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
                   </button>
                   {/* The wrap-up summary is a report section, not a removable
                       saved reply — no delete affordance for it. */}
-                  {!isSummary && (
+                  {!isSummary && !readOnly && (
                     <button
                       type="button"
                       onClick={() => {

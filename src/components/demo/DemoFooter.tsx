@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Download, ShieldCheck } from 'lucide-react';
-import { demoPdfPath, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
+import { ArrowLeft, ArrowRight, Download, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { demoPdfPath, DEMO_DASHBOARD_ROUTE, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
 import type { DemoPersonaId } from '@/demo/loadFixture';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { trackCtaClick } from '@/lib/analytics';
@@ -15,6 +15,8 @@ interface DemoFooterProps {
   personaId: DemoPersonaId;
   language: string;
   firstName: string;
+  // The dashboard page renders this footer too; it hides the link to itself.
+  showDashboardLink?: boolean;
 }
 
 /**
@@ -22,7 +24,13 @@ interface DemoFooterProps {
  * (the transcript made the argument, the document is the proof), and one
  * call to action per audience.
  */
-export const DemoFooter: React.FC<DemoFooterProps> = ({ audience, personaId, language, firstName }) => {
+export const DemoFooter: React.FC<DemoFooterProps> = ({
+  audience,
+  personaId,
+  language,
+  firstName,
+  showDashboardLink = true,
+}) => {
   const { t } = useTranslation('demo');
   const partner = audience === 'partner';
 
@@ -101,6 +109,24 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({ audience, personaId, lan
           </p>
         </div>
       </div>
+
+      {/* Phase 3: the same persona's finished dashboard, read-only from the
+          same fixture. The partner flag travels along so the CTAs there keep
+          pointing at the pilot call. */}
+      {showDashboardLink && (
+      <div className="mt-7 rounded-[16px] border px-5 py-4" style={{ borderColor: 'rgba(31,130,130,0.35)', background: 'rgba(31,130,130,0.06)' }}>
+        <Link
+          to={`${DEMO_DASHBOARD_ROUTE}${partner ? '?p=partners' : ''}`}
+          onClick={() => trackCtaClick('demo_dashboard')}
+          className="inline-flex items-center gap-2 text-[16px] font-bold text-[#1F8282] hover:underline underline-offset-4"
+        >
+          <LayoutDashboard size={18} strokeWidth={2.4} />
+          {t('footer.dashboard')}
+          <ArrowRight size={16} strokeWidth={2.4} />
+        </Link>
+        <p className="mt-1.5 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('footer.dashboardNote')}</p>
+      </div>
+      )}
 
       <p className="mt-6 text-[14px] font-medium">
         <Link

@@ -51,6 +51,15 @@ describe.each(PERSONAS)('demo fixture ($id, $lang)', ({ id, lang, fixture, curat
     }
     expect(fixture.sections.some((s) => s.section_type === 'init_summary')).toBe(false);
     expect(fixture.sections.some((s) => s.section_type === 'chat_highlights')).toBe(true);
+    // The dashboard replay (phase 3) needs the exec summary, the Keep rows
+    // and the persona fields DashboardV4 prints in its welcome block.
+    expect(fixture.sections.some((s) => s.section_type === 'exec_summary')).toBe(true);
+    expect(fixture.savedResponses?.length).toBe(fixture.savedMessageIds.length);
+    for (const r of fixture.savedResponses ?? []) expect(r.content && r.created_at).toBeTruthy();
+    expect(fixture.persona.country).toBeTruthy();
+    expect(fixture.persona.reportCompletedAt).toBeTruthy();
+    const approach = fixture.sections.find((s) => s.section_type === 'approach');
+    expect(approach?.metadata?.personality_scores, 'personality radar data').toBeTruthy();
   });
 
   it('holds objects, not JSON strings, in the jsonb columns', () => {

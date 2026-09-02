@@ -109,6 +109,15 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.7',
   },
+  // The same persona's finished dashboard, read-only from the same fixture.
+  {
+    path: '/demo/dashboard',
+    title: 'Demo: het dashboard na de coachsessie',
+    description:
+      'Het dashboard van een fictieve kandidaat na haar coachsessie: topmatches, carrièrekaart, persoonlijkheidsradar en het volledige rapport. Echte AI-output, alleen-lezen.',
+    changefreq: 'monthly',
+    priority: '0.6',
+  },
   // Legal/support pages keep the site-default title+description (matching
   // their runtime DefaultSeo fallback) so static and rendered heads agree.
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },

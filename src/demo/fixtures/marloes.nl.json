@@ -2,9 +2,11 @@
   "persona": {
     "firstName": "Marloes",
     "language": "nl",
-    "exportedAt": "2026-09-02T13:21:31.285Z",
+    "country": "Netherlands",
+    "exportedAt": "2026-09-02T21:46:08.546Z",
     "reportId": "10646823-1920-4889-9dc0-f780b4215fca",
-    "reportStatus": "completed"
+    "reportStatus": "completed",
+    "reportCompletedAt": "2026-09-01T13:14:36.003461+00:00"
   },
   "messages": [
     {
@@ -354,7 +356,11 @@
       "metadata": {
         "move": "Reframe"
       },
-      "share_quotes": null,
+      "share_quotes": [
+        "Je kent deze wereld van binnenuit, je ziet snel waar een proces mensen breekt en je fixt het voor vrijwilligers en cliënten.",
+        "Deze rol geeft je directe, zichtbare impact op mensen die vastlopen, zonder de KPI-druk en executive accountability die je wilt loslaten.",
+        "Je energie zit in het oplossen van knelpunten voor mensen, niet in strategische eindverantwoordelijkheid, en precies daar ligt hier je kracht."
+      ],
       "language": "en",
       "content_i18n": {
         "nl": {
@@ -392,7 +398,11 @@
           "stability": 4
         }
       },
-      "share_quotes": null,
+      "share_quotes": [
+        "Je krijgt de directe klantcases waar je energie van krijgt, zonder de managementsandwich die je nu vastzet tussen mensen en beleid.",
+        "Dit past in je 32 uur, met standaard kantoortijden en zonder avondstress, precies de balans waar je nu bewust voor kiest.",
+        "Je sterke punt blijft centraal: processen scherp diagnosticeren, irritatie vinden en onboarding terugbrengen van tien naar zes weken."
+      ],
       "language": "en",
       "content_i18n": {
         "nl": {
@@ -620,7 +630,11 @@
       "metadata": {
         "origin": "chat_replacement"
       },
-      "share_quotes": null,
+      "share_quotes": [
+        "Je vermogen om spanning op te vangen en te de-escaleren is geen soft skill, maar precies de kern van restorative facilitation.",
+        "Je luistert zonder oordeel, zoekt compromis en houdt sessies rustig en gestructureerd, ideaal voor community- en sociaal-infrastructuurwerk.",
+        "Freelance mediation start vaak met wisselende inkomsten, dus dit werkt het best naast een primaire rol terwijl je caseload groeit."
+      ],
       "language": "en",
       "content_i18n": {
         "nl": {
@@ -662,7 +676,11 @@
           "stability": 4
         }
       },
-      "share_quotes": null,
+      "share_quotes": [
+        "Je droomjob is mensen opleiden en begeleiden, precies waar je al in uitblinkt.",
+        "Je herschreef onboarding en bracht de inwerktijd van nieuwe collega’s terug van tien naar zes weken.",
+        "Je krijgt hoge nabijheid tot mensen die hulp nodig hebben, zonder de managementsandwich van een Teamleider-rol."
+      ],
       "language": "en",
       "content_i18n": {
         "nl": {
@@ -878,5 +896,31 @@
     "d8863a4c-777c-4113-a094-0b8abd399c6f",
     "eb257eaa-29b5-466f-bd81-2ac1358299d9",
     "eb8ceddc-fe07-4914-99a4-b746ec597843"
+  ],
+  "savedResponses": [
+    {
+      "id": "7e362fdd-2b11-405a-8ab5-95fe506c255e",
+      "report_id": "10646823-1920-4889-9dc0-f780b4215fca",
+      "section_type": "values",
+      "label": "Grenzen Stellen Parttime",
+      "content": "Dat onderscheid is belangrijk, en het klopt dat \"confrontatie vermijden\" iets anders zegt dan wat je beschrijft. Kiezen wanneer je een gesprek aangaat is een strategie, geen vermijding. Het verschil zit waarschijnlijk in dat je het gesprek wel voert, maar misschien later dan nodig is, of pas nadat je al veel spanning hebt geabsorbeerd. Dat is iets anders dan het gesprek niet voeren.\n\nWat betreft dat tweede punt: dat is precies de kern die vaak over het hoofd wordt gezien. Minder uren verandert niets aan het patroon zelf, het verkleint alleen het speelveld waarin het patroon zich afspeelt. Als je in 32 uur nog steeds ja zegt tegen elke vergadering, elk verzoek en elke taak die bij niemand anders belandt, vul je die 32 uur net zo snel als je de 40 vulde. De uitputting verplaatst zich, die verdwijnt niet.\n\nDat betekent niet dat parttime werken zinloos is, maar wel dat het pas werkt als je er een vaardigheid naast zet: een manier om vroeger een grens te trekken, voordat de spanning zich opstapelt tot een punt waarop toegeven de enige uitweg lijkt.\n\nZullen we dit zo vastleggen, met de nuance dat het niet om vermijding gaat maar om laat reageren, of wil je dit nog verder verkennen?",
+      "created_at": "2026-09-02T08:49:16.349709+00:00"
+    },
+    {
+      "id": "f9ba18cb-8a80-4565-a189-c1749829bd95",
+      "report_id": "10646823-1920-4889-9dc0-f780b4215fca",
+      "section_type": "top_career_2",
+      "label": "Salaris En Aanspreken",
+      "content": "Dat het salarisverschil eerlijk benoemd wordt is precies het punt, we willen niet dat je hier voor verrast wordt. En dat je nu al worstelt met dat aanspreken, dat is een reëel signaal, niet iets om weg te wuiven.\n\nHet goede nieuws: dit is precies het soort spanning waar we het bij je ontwikkelpunten over hadden, niet confrontatie vermijden, maar spanning liever laat aanpakken dan er meteen op te springen. In deze rol wordt dat patroon zichtbaarder omdat coaching juist vraagt om er vroeg bovenop te zitten. Een trainee die na zes weken nog steeds moeite heeft, heeft geen zachte aanmoediging nodig, die heeft een duidelijk gesprek nodig over wat er nog niet werkt en wat er moet veranderen.\n\nDat betekent niet dat de rol niet bij je past, het betekent dat de rol je meteen confronteert met precies de vaardigheid die je wilt aanscherpen. Dat kan een reden zijn om ervoor te kiezen (het dwingt groei af in een omgeving waar de inzet lager is dan bij een boos escalerende klant), of een reden om het scherp in de gaten te houden voordat je de overstap maakt.\n\nWat betreft het salaris: het is een reële stap terug ten opzichte van je huidige bandbreedte, maar het weegt tegenover minder rapportagedruk en meer van het werk waar je energie van krijgt. Of dat voor jou opweegt, is aan jou.\n\nWil je dit zo vastleggen en doorgaan naar de volgende match, of nog iets bespreken?",
+      "created_at": "2026-09-02T09:16:13.618964+00:00"
+    },
+    {
+      "id": "334ee322-9bc7-4e29-b993-d55fc861ec70",
+      "report_id": "10646823-1920-4889-9dc0-f780b4215fca",
+      "section_type": "top_career_3",
+      "label": "HR Advisor Keuze",
+      "content": "Onboarding Specialist sluit het meest één-op-één aan bij wat je al hebt bewezen: je hebt dit werk al gedaan en de inwerktijd gehalveerd. Hier is helemaal geen bijscholing nodig, in tegenstelling tot de bescheiden stap die HR Advisor vraagt.\n\nMaar vergelijk de trajecten eens. Customer Service Trainer en HR Advisor wijzen allebei richting de toekomst in coaching en het opbouwen van expertise die je als je droombaan noemde. Deze rol leidt naar People Operations Manager, een generalistisch HR-traject, dat afdrijft van het gespecialiseerde 'mensen beter maken'-werk waarvan je zei dat het je het meest aan het hart gaat.\n\nHet salaris is ook het laagst van de drie, onder je streefbereik in plaats van erbij in de buurt. Autonomie scoort ook lager, omdat deze rol meer coördinatiewerk vraagt en reactief is op de planning van andere afdelingen. Wil je de zekerste landingsplek op korte termijn, dan is dit hem. Wil je de sterkste match met je uitgesproken ambitie op de lange termijn, dan is dit juist de zwakste van de drie.",
+      "created_at": "2026-09-02T09:49:59.757482+00:00"
+    }
   ]
 }

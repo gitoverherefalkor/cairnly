@@ -1,5 +1,7 @@
 /** The public replay route. */
 export const DEMO_ROUTE = '/demo';
+/** The persona's finished dashboard, read-only, fed from the same fixture. */
+export const DEMO_DASHBOARD_ROUTE = '/demo/dashboard';
 
 /**
  * A persona's finished report as a PDF, rendered from the same report the

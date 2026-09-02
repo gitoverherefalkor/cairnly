@@ -5,6 +5,27 @@ later the same day after the walkthrough was completed and several chat
 features shipped. This document is self-contained — execute from here, no need
 for the original conversation.**
 
+## Status (2026-09-02, late evening): Phase 3 (dashboard) is built
+
+`/demo/dashboard` renders the persona's finished dashboard through the REAL
+`DashboardV4` from the same fixture the chat replay uses. Same language rule
+(nl → Marloes, else Emma), same `?p=` partner audience, linked from the
+chat replay's footer ("See her dashboard") and back ("Back to the
+conversation").
+
+| Piece | Where |
+|---|---|
+| Page | `src/pages/DemoDashboard.tsx`; route in `src/App.tsx`; SEO entry in `scripts/seo-routes.mjs`; strings under `dashboardDemo.*` + `footer.dashboard*` in both demo locale files |
+| Switched-off controls | `src/components/demo/DemoToolDialog.tsx`: every control that would run a paid tool or needs a session (job search, résumé tailor, cover letters, share-card generation, invite flow, profile/sign-out) opens this dialog: what the button does for a real user + the CTA (checkout, or the pilot call for partners). The referral toolkit renders fully locked, as for a new account |
+| PDF | the dashboard's "Download report PDF" opens the pre-rendered demo PDF (a real render of this report) instead of paying for a Chromium render |
+| Fixture additions | `demo-export-fixture.mjs` now also writes `savedResponses` (the saved_chat_responses rows the "Saved answers from the chat" panel shows), `persona.country` and `persona.reportCompletedAt`. Both fixtures were re-exported (message ids unchanged; the DB rows are stable) |
+| Additive component changes | `DashboardV4` gained `nav` (replaces the signed-in app nav) and `savedResponses` (injected rows); `V4SavedResponses` gained `responses` (implies read-only: query disabled, no remove button). Nothing else in the dashboard tree fetches: `StepCard`'s three count queries are user-gated and stay idle without a session |
+
+Verified in the browser: no Supabase request leaves the page, both personas
+render (welcome block, three matches with the comparison radar, career map,
+personality radar, full report accordions, saved answers, wrap-up summary),
+the locked "Find roles" opens the dialog, Escape closes it.
+
 ## Status (2026-09-02, evening): Phase 2 (Emma, EN) is built
 
 `/demo` now follows the site language: Dutch visitors get Marloes, English
@@ -352,8 +373,8 @@ genuine pushback on the personality analysis, one "Ask about this role", one
 Move-pill click, the comparison + "Explain this comparison". Export fixture,
 wire into `/demo` for EN.
 
-**Phase 3 — dashboard demo:**
-Same fixture approach on a read-only dashboard view ("Bekijk ook haar
+**Phase 3 — dashboard demo: DONE 2026-09-02 (see the status block at the top).**
+Original brief: same fixture approach on a read-only dashboard view ("Bekijk ook haar
 dashboard →" from the demo footer). Exclude: Jobs live search (paid external
 calls) and the resume builder — link back to the CTA instead. Note: the
 dashboard crashed on fit_scores reports until 2026-09-02 (`lang` out of scope

@@ -2,9 +2,11 @@
   "persona": {
     "firstName": "Emma",
     "language": "en",
-    "exportedAt": "2026-09-02T17:15:16.621Z",
+    "country": "United Kingdom",
+    "exportedAt": "2026-09-02T21:46:09.396Z",
     "reportId": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
-    "reportStatus": "completed"
+    "reportStatus": "completed",
+    "reportCompletedAt": "2026-09-02T15:00:41.991397+00:00"
   },
   "messages": [
     {
@@ -821,5 +823,23 @@
   "savedMessageIds": [
     "71ded558-beb7-478a-844f-3aaeba31934b",
     "cefc45ce-502c-4651-86c1-4860cfc252b2"
+  ],
+  "savedResponses": [
+    {
+      "id": "3d3893a8-01bd-446f-8426-8855266a901c",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "approach",
+      "label": "Proximity To Narrative",
+      "content": "That's a real thing to have named, and it's worth sitting with for a second rather than rushing past it.\n\nThe agency years worked because you were close enough to the story to shape it in real time: pitching it, testing it, watching a room's reaction and adjusting on the spot. Fintech gave you the remit but moved you further from that loop, into a structure where the story gets shaped by committee, timeline, and compliance before it ever reaches you. More scope, less proximity. That's why it read as smaller even though every external marker said bigger.\n\nIt also explains the split in your conflict style. You push hard on ideas when you're close enough to the story to feel it's yours to defend. You concede faster on relationship friction because the story isn't the thing at stake there. Same person, different stakes.\n\nWorth flagging for later: this is likely going to be a real filter for you when we get into career options, proximity to narrative and pace of iteration matters more to your satisfaction than title or budget. Something to keep in mind as we go.\n\nReady to move on to strengths, or anything else you want to dig into here first?",
+      "created_at": "2026-09-02T17:05:41.400379+00:00"
+    },
+    {
+      "id": "05b0b2e9-231f-4e70-80b4-5ac7e7c29dda",
+      "report_id": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
+      "section_type": "outside_box",
+      "label": "Role Fit Clarity",
+      "content": "Fair catch on the hiking, and worth naming clearly: that's a real miss, not a mild one, the whole appeal you're describing is that nobody needs anything from you on that trail, and the Athlete Wellbeing role is built entirely on being needed by someone in a vulnerable moment. Wrong read on what the hobby is for you.\n\nOn the museum salary heads-up, you're right to read the subtext. \"Often lands at the lower end of your £50-75k range, especially outside national institutions\" is doing polite work for \"expect closer to £50k unless you land at the British Museum or a major national trust site.\" Regional and mid-size heritage orgs frequently sit below that, sometimes £38-45k for a manager-level role, because the sector runs on grant funding and trust income, not commercial margins.\n\nOn the podcast studio, here's the honest gap. Editorial Director means shaping story arc and structure, which is your actual skill and transfers cleanly. But it's not the documentary dream job itself, it's one层 removed: you'd rarely be the one sitting with a subject building trust and pulling the tape, producers do that, and the editorial layer works from what they bring back. It's closer to being the strategist behind the storytellers than being the storyteller. Not a consolation prize (the narrative authority is real and it's a genuine industry change), but call it a \"get you inside the building\" role rather than the dream job itself. Whether that's satisfying probably depends on how much you need the hands-on interview part versus the shaping-into-story part.\n\nWant me to flag these three reactions and move on, or keep going on any of them?",
+      "created_at": "2026-09-02T17:12:56.825021+00:00"
+    }
   ]
 }

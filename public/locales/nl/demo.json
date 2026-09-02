@@ -144,6 +144,40 @@
     "backPartners": "Terug naar de partnerpagina",
     "backHome": "Hoe het werkt",
     "pdfPartner": "Download de partner-template (pdf)",
-    "pdfPartnerNote": "Hetzelfde rapport als white-label template: [partnernaam] waar jouw naam komt, zonder logo. Zo zie je waar jouw branding landt."
+    "pdfPartnerNote": "Hetzelfde rapport als white-label template: [partnernaam] waar jouw naam komt, zonder logo. Zo zie je waar jouw branding landt.",
+    "dashboard": "Bekijk haar dashboard",
+    "dashboardNote": "Hetzelfde rapport zoals zij het na de sessie ziet: matches, carrièrekaart, radar, bewaarde antwoorden."
+  },
+  "dashboardDemo": {
+    "seo": {
+      "title": "Demo: het dashboard na de coachsessie",
+      "description": "Het dashboard van een fictieve kandidaat na haar coachsessie: topmatches, carrièrekaart, persoonlijkheidsradar en het volledige rapport. Echte AI-output, alleen-lezen."
+    },
+    "nav": {
+      "label": "Demo: haar dashboard",
+      "back": "Terug naar het gesprek"
+    },
+    "intro": {
+      "eyebrow": "Demo, alleen-lezen",
+      "title": "Hier kwam {{name}} uit na de sessie",
+      "body": "Haar dashboard, precies zoals zij het ziet: de drie topmatches met de vergelijkingsradar, de carrièrekaart, haar persoonlijkheidsradar, het volledige rapport per hoofdstuk en de antwoorden die ze uit de chat bewaarde. Open elke kaart of sectie; niets hier is een mock-up.",
+      "toolsNote": "De vacaturezoeker, de cv-tool en de sollicitatiebrieven staan in deze demo uit: die doen live zoekopdrachten en AI-schrijfwerk, alleen voor echte gebruikers. Al het andere werkt."
+    },
+    "tools": {
+      "title": "Uitgeschakeld in de demo",
+      "body": "In een echt account opent dit {{tool}}. Die doet live vacaturezoekopdrachten en AI-schrijfwerk voor degene die het assessment deed, dus hier staat hij uit. Doe het assessment en hij is van jou.",
+      "bodyPartner": "In een echt account opent dit {{tool}}. Die doet live vacaturezoekopdrachten en AI-schrijfwerk voor de kandidaat, dus in de demo staat hij uit.",
+      "share": "de deelkaart-generator",
+      "invite": "de nodig-een-vriend-uit-flow die de toolkit vrijspeelt",
+      "jobs": "de vacaturezoeker",
+      "resume": "de cv-tool",
+      "coverLetter": "de sollicitatiebriefschrijver",
+      "generic": "een tool voor ingelogde gebruikers",
+      "close": "Terug naar het dashboard"
+    },
+    "footer": {
+      "chat": "Lees het gesprek dat hiertoe leidde",
+      "chatNote": "De volledige coachsessie, met de momenten die dit rapport veranderden."
+    }
   }
 }

@@ -12,6 +12,8 @@
 //   savedMessageIds — messages the persona pressed Keep on, resolved by matching
 //               saved_chat_responses.content back to the transcript (the table
 //               has no message_id column; ChatContainer deletes by content too)
+//   savedResponses  — the saved_chat_responses rows themselves (label, section,
+//               content), which the dashboard's "Saved answers" panel renders
 //
 // Report selection: the NEWEST report with status 'completed', falling back to
 // the newest report that has any chat messages. Never blindly "the newest":
@@ -81,7 +83,7 @@ if (!user) {
 }
 const { data: profile } = await admin
   .from('profiles')
-  .select('first_name, preferred_language')
+  .select('first_name, preferred_language, country')
   .eq('id', user.id)
   .maybeSingle();
 const language = (profile?.preferred_language || 'en').slice(0, 2).toLowerCase();
@@ -90,7 +92,7 @@ const firstName = profile?.first_name || email.split('@')[0].replace(/^demo[.\-+
 // 2. Pick the report.
 const { data: reports, error: repErr } = await admin
   .from('reports')
-  .select('id, status, created_at')
+  .select('id, status, created_at, updated_at')
   .eq('user_id', user.id)
   .order('created_at', { ascending: false });
 if (repErr) throw repErr;
@@ -177,7 +179,7 @@ const sections = (rawSections ?? [])
 // 5. Keeps → message ids (matched on content, as the chat itself does).
 const { data: saved, error: savedErr } = await admin
   .from('saved_chat_responses')
-  .select('content, section_type, created_at')
+  .select('id, report_id, section_type, label, content, created_at')
   .eq('report_id', report.id)
   .order('created_at', { ascending: true });
 if (savedErr) throw savedErr;
@@ -197,13 +199,18 @@ const fixture = {
   persona: {
     firstName,
     language,
+    country: profile?.country ?? null,
     exportedAt: new Date().toISOString(),
     reportId: report.id,
     reportStatus: report.status,
+    // What the dashboard prints as the report date (Dashboard.tsx uses
+    // updated_at, which wrap-up-save bumps when the report completes).
+    reportCompletedAt: report.updated_at ?? report.created_at,
   },
   messages,
   sections,
   savedMessageIds,
+  savedResponses: saved ?? [],
 };
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JSON.stringify(fixture, null, 2) + '\n');

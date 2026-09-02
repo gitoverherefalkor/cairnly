@@ -24,6 +24,7 @@ import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSl
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
 import { V4SavedResponses } from './V4SavedResponses';
+import type { SavedChatResponse } from '@/hooks/useSavedChatResponses';
 import { V4ChartBanner } from './V4ChartBanner';
 import { V4PersonalityRadarSVG, type RadarAxis } from './V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend, type CareerPoint } from './V4CareerMapSVG';
@@ -103,6 +104,13 @@ interface DashboardV4Props {
    *  it is the document the user already paid for, not a referral unlock. */
   onDownloadPdf?: () => void;
   pdfLoading?: boolean;
+  /** Replaces the signed-in app nav. The public demo (/demo/dashboard)
+   *  renders this dashboard read-only from a frozen fixture and brings its
+   *  own top bar (no profile, no sign-out). */
+  nav?: React.ReactNode;
+  /** Saved coach replies to show instead of fetching saved_chat_responses
+   *  (the demo has no session; the rows come from the fixture). */
+  savedResponses?: SavedChatResponse[];
 }
 
 /** Download-the-PDF action, sitting beside the full-report header.
@@ -301,6 +309,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   onOpenShareCard,
   onDownloadPdf,
   pdfLoading = false,
+  nav,
+  savedResponses,
 }) => {
   const { t, i18n } = useTranslation('dashboard');
   // Language for report prose/titles: after login this converges with
@@ -599,7 +609,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
   return (
     <LakeBackground intensity="normal">
-      <DashboardAppNav firstName={firstName} onProfile={onProfile} onSignOut={onSignOut} />
+      {nav ?? <DashboardAppNav firstName={firstName} onProfile={onProfile} onSignOut={onSignOut} />}
 
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: '48px 32px 80px' }}>
         {/* ─── Welcome ─── */}
@@ -915,7 +925,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
         {/* Saved coaching responses from the "about you" chapter, tucked under
             its report sections. Renders nothing if none saved. */}
-        <V4SavedResponses reportId={reportId} chapter="about-you" />
+        <V4SavedResponses reportId={reportId} chapter="about-you" responses={savedResponses} />
 
         {/* ─── Career suggestions — single container, accordion left, map right ─── */}
         {careerRows.length > 0 && (
@@ -1003,6 +1013,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         <V4SavedResponses
           reportId={reportId}
           chapter="career"
+          responses={savedResponses}
           wrapUpSummary={sections.find((s) => s.section_type === 'chat_highlights')?.content ?? null}
         />
       </div>

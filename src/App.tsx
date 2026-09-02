@@ -66,6 +66,7 @@ const PartnerSampleReport = lazyWithRetry(() => import("./pages/partners/Partner
 // Public product demo: a frozen replay of a real coaching session through the
 // real chat components. No auth, no n8n. See docs/handoff/demo-replay-plan.md.
 const Demo = lazyWithRetry(() => import("./pages/Demo"));
+const DemoDashboard = lazyWithRetry(() => import("./pages/DemoDashboard"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -193,6 +194,7 @@ const App = () => {
               <Route path="/partners" element={<PartnersIndex />} />
               <Route path="/partners/voorbeeldrapport" element={<PartnerSampleReport />} />
               <Route path="/demo" element={<Demo />} />
+              <Route path="/demo/dashboard" element={<DemoDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
