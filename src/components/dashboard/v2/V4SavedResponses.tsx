@@ -131,6 +131,9 @@ const MD_COMPONENTS = {
     />
   ),
   strong: ({ ...props }) => <strong style={{ color: '#fff', fontWeight: 700 }} {...props} />,
+  // Summary bullets are full sentences, often two lines each. At
+  // marginBottom 4 they ran together into a grey block; 12 separates the
+  // points without turning the card into a list of paragraphs.
   li: ({ ...props }) => (
     <li
       style={{
@@ -138,7 +141,7 @@ const MD_COMPONENTS = {
         fontSize: 14,
         lineHeight: 1.6,
         color: 'rgba(255,255,255,0.82)',
-        marginBottom: 4,
+        marginBottom: 12,
       }}
       {...props}
     />
@@ -195,7 +198,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
             margin: 0,
           }}
         >
-          {t('savedResponses.heading', { defaultValue: 'Coaching responses you saved' })}
+          {t('savedResponses.heading', { defaultValue: 'Saved answers from the chat' })}
         </h4>
       </div>
 

@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
 import { sectionText, sectionTitle } from '@/lib/sectionText';
+import { companyContext } from '@/lib/companyContext';
 import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
@@ -211,7 +212,9 @@ function getMatch(
     // Canonical title stays ENGLISH on purpose — it is the machine key the
     // job-search / CV flows match against report_sections.title.
     canonicalTitle: stripHtml(s.title || 'Career match'),
-    shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
+    // Company size / type is free WF4 prose, translated at the display
+    // boundary by the same helper the chat and the printed report use.
+    shape: s.company_size_type ? companyContext(stripHtml(s.company_size_type), lang) : null,
     matchPct: Math.round(score),
     // Machine metadata is ALWAYS parsed from the canonical English content —
     // that is what keeps this regex reliable (language contract).
@@ -827,8 +830,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               }}
             >
               {t('v4.reportHeader.sub', {
-                defaultValue:
-                  "Closed by default. You've already been here, so open any section to revisit.",
+                defaultValue: 'Open any section to revisit.',
               })}
             </p>
           </div>

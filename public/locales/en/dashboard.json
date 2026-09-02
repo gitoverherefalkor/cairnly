@@ -346,7 +346,7 @@
     "reportHeader": {
       "eyebrow": "YOUR FULL REPORT · REFERENCE",
       "title": "Everything you walked through with your coach",
-      "sub": "Closed by default. You've already been here, so open any section to revisit.",
+      "sub": "Open any section to revisit.",
       "aboutEyebrow_one": "ABOUT YOU · {{count}} SECTION",
       "aboutEyebrow_other": "ABOUT YOU · {{count}} SECTIONS",
       "careersEyebrow_one": "CAREER SUGGESTIONS · {{count}} SECTION",
@@ -469,7 +469,7 @@
     "gotIt": "Got it"
   },
   "savedResponses": {
-    "heading": "Coaching responses you saved",
+    "heading": "Saved answers from the chat",
     "wrapUp": "Chat wrap-up summary",
     "note": "Coaching note",
     "collapse": "Collapse",

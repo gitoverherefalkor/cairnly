@@ -240,11 +240,11 @@
     "modal": {
       "eyebrow": "DELEN · KLAAR VOOR LINKEDIN",
       "title": "Deel je resultaat op",
-      "sub": "Een deelklare momentopname van je resultaat, op maat voor LinkedIn. Laat je netwerk de richting zien die je verkent en start de gesprekken die loopbanen in beweging brengen.",
+      "sub": "Een deelklare momentopname van je resultaat, op maat voor LinkedIn. Laat je netwerk de richting zien die je verkent en start de gesprekken die carrières in beweging brengen.",
       "close": "Sluiten",
       "typeRole": "Best passende rol",
       "typePersonality": "Persoonlijkheid",
-      "pickCareer": "Kies de loopbaan",
+      "pickCareer": "Kies de carrière",
       "pickSection": "Kies de sectie",
       "matchPct": "{{pct}}% match",
       "outsideBox": "Outside-the-box",
@@ -255,8 +255,8 @@
       "download": "Afbeelding downloaden",
       "saving": "Opslaan…",
       "shareLinkedIn": "Deel op LinkedIn",
-      "captionRole": "Mijn beste loopbaanmatch: {{title}}. Ik breng mijn volgende stap in kaart met Cairnly.",
-      "caption": "Ik breng mijn volgende loopbaanstap in kaart met Cairnly."
+      "captionRole": "Mijn beste carrièrematch: {{title}}. Ik breng mijn volgende stap in kaart met Cairnly.",
+      "caption": "Ik breng mijn volgende carrièrestap in kaart met Cairnly."
     },
     "card": {
       "eyebrow": "UIT MIJN RAPPORT",
@@ -265,8 +265,8 @@
       "subRoleNoName": "Waarom deze rol bij mij past.",
       "subPersonality": "Wat {{name}} meebrengt.",
       "subPersonalityNoName": "Wat ik meebreng.",
-      "tagline": "Loopbaanhelderheid in één keer ·",
-      "bestFit": "BEST PASSENDE LOOPBAAN",
+      "tagline": "Carrièreduidelijkheid in één keer ·",
+      "bestFit": "BEST PASSENDE CARRIÈRE",
       "outsideBox": "OUTSIDE-THE-BOX",
       "myPersonality": "MIJN PERSOONLIJKHEID",
       "personalityFallback": "Mijn kijk op mezelf"
@@ -278,17 +278,17 @@
   },
   "v4": {
     "oneLiner": {
-      "summary": "Wie je professioneel bent en wat je loopbaan drijft.",
+      "summary": "Wie je professioneel bent en wat je carrière drijft.",
       "approach": "Hoe je werkt, leiding geeft en met uitdagingen omgaat.",
       "strengths": "Wat jou onderscheidt en hoe je dat strategisch inzet.",
       "development": "Groeikansen die je helpen je doelen te bereiken.",
       "values": "Wat voor jou het belangrijkst is en hoe dat de juiste fit bepaalt.",
       "top-1": "Je sterkste match.",
-      "top-2": "Loopbaan #2, een goede tweede.",
-      "top-3": "Loopbaan #3, ook een sterke fit.",
+      "top-2": "Carrière #2, een goede tweede.",
+      "top-3": "Carrière #3, ook een sterke fit.",
       "runners": "Sterke alternatieven die een tweede blik waard zijn.",
       "outside": "Onverwachte paden die aansluiten bij je interesses.",
-      "dream": "Een eerlijke realiteitscheck van je ideale loopbaan."
+      "dream": "Een eerlijke realiteitscheck van je ideale carrière."
     },
     "fallbackTitle": {
       "summary": "Samenvatting",
@@ -296,21 +296,21 @@
       "strengths": "Je sterke punten",
       "development": "Ontwikkelpunten",
       "values": "Je loopbaanwaarden",
-      "runners": "Runner-up loopbanen",
-      "outside": "Outside-the-box loopbanen",
+      "runners": "Runner-up carrières",
+      "outside": "Outside-the-box carrières",
       "dream": "Droombaananalyse"
     },
     "fallback": {
-      "careerMatch": "Loopbaanmatch",
-      "career": "Loopbaan",
-      "careerN": "Loopbaan {{n}}",
-      "bestFitCareer": "Je best passende loopbaan"
+      "careerMatch": "Carrièrematch",
+      "career": "Carrière",
+      "careerN": "Carrière {{n}}",
+      "bestFitCareer": "Je best passende carrière"
     },
     "welcome": {
-      "eyebrow": "JOUW LOOPBAANPROFIEL · RAPPORT KLAAR",
+      "eyebrow": "JOUW CARRIÈREPROFIEL · RAPPORT KLAAR",
       "title": "Welkom terug, {{name}}.",
       "titleNoName": "Welkom terug.",
-      "sub": "Hieronder staan je sterkste loopbaanmatches. Open er een voor de volledige onderbouwing en zoek daarna naar actuele vacatures zodra je er klaar voor bent.",
+      "sub": "Hieronder staan je sterkste carrièrematches. Open er een voor de volledige onderbouwing en zoek daarna naar actuele vacatures zodra je er klaar voor bent.",
       "generated": "Rapport gegenereerd · {{date}}",
       "profile": "Profiel"
     },
@@ -321,20 +321,20 @@
       "hintBuilding": "De eerste keer duurt dit ongeveer een halve minuut."
     },
     "hero": {
-      "eyebrow": "STERKSTE MATCH · LOOPBAAN #1",
+      "eyebrow": "STERKSTE MATCH · CARRIÈRE #1",
       "alignment": "AANSLUITING BIJ JE AMBITIES",
       "why": "Waarom dit past",
       "findRole": "Zoek deze rol",
       "findRoleLocked": "Zoek deze rol · vergrendeld",
-      "tailorCv": "Cv afstemmen op deze rol",
-      "tailorCvLocked": "Cv afstemmen · vergrendeld",
+      "tailorCv": "CV afstemmen op deze rol",
+      "tailorCvLocked": "CV afstemmen · vergrendeld",
       "compare": "Hoe dit zich verhoudt · beweeg voor detail",
       "backEyebrow": "HOE DEZE VERSCHILT VAN JE ANDERE TOPROLLEN",
       "backHint": "Beweeg over een aslabel om te zien wat het meet",
       "backBlurb": "Vijf assen die de dagelijkse fit bepalen. De gevulde vorm is je sterkste match, de omlijnde vormen zijn je andere toprollen. De afstand tot het midden is de score op elke as."
     },
     "secondary": {
-      "eyebrow": "LOOPBAAN #{{rank}}",
+      "eyebrow": "CARRIÈRE #{{rank}}",
       "open": "Openen",
       "findRoles": "Zoek rollen",
       "findRolesLocked": "Zoek rollen · vergrendeld"
@@ -346,11 +346,11 @@
     "reportHeader": {
       "eyebrow": "JE VOLLEDIGE RAPPORT · NASLAG",
       "title": "Alles wat je met je coach hebt doorgenomen",
-      "sub": "Standaard dichtgeklapt. Je bent hier al geweest, dus open een sectie om terug te lezen.",
+      "sub": "Open een sectie om terug te lezen.",
       "aboutEyebrow_one": "OVER JOU · {{count}} SECTIE",
       "aboutEyebrow_other": "OVER JOU · {{count}} SECTIES",
-      "careersEyebrow_one": "LOOPBAANSUGGESTIES · {{count}} SECTIE",
-      "careersEyebrow_other": "LOOPBAANSUGGESTIES · {{count}} SECTIES"
+      "careersEyebrow_one": "CARRIÈRESUGGESTIES · {{count}} SECTIE",
+      "careersEyebrow_other": "CARRIÈRESUGGESTIES · {{count}} SECTIES"
     },
     "radarBanner": {
       "eyebrow": "PERSOONLIJKHEIDSRADAR",
@@ -363,7 +363,7 @@
       "leadMany": "Sterkste dimensies: {{head}} en {{tail}}."
     },
     "mapBanner": {
-      "eyebrow": "LOOPBAANKAART",
+      "eyebrow": "CARRIÈREKAART",
       "title": "Waar de matches liggen",
       "blurb": "Je toprollen uitgezet naar matchsterkte tegenover AI-gevoeligheid. De sweet spot ligt linksboven, rechtsonder is de zone om weg te lopen.",
       "stat_one": "topmatch valt in het sterk-en-veilig kwadrant.",
@@ -375,11 +375,11 @@
     },
     "toolkit": {
       "eyebrow": "SOLLICITATIE-TOOLKIT · VERDIEN JE GELD TERUG",
-      "title": "Zes vrienden en je assessment heeft zichzelf terugverdiend.",
-      "bodyBefore": "Je eerste drie vrienden ontgrendelen de sollicitatietools. De volgende drie betalen je aankoop terug,",
+      "title": "Zes referenties en je assessment heeft zichzelf terugverdiend.",
+      "bodyBefore": "Je eerste drie referenties ontgrendelen de sollicitatietools. De volgende drie betalen je aankoop terug,",
       "bodySplit": "25% + 25% + 50%",
       "bodyAfter": ", terug op je kaart. Zij krijgen helderheid, jij krijgt je geld terug.",
-      "progress": "{{count}} van de 6 vrienden aangesloten",
+      "progress": "{{count}} van de 6 referenties aangesloten",
       "allUnlocked": "Alles ontgrendeld 🎉",
       "code": "Code",
       "invite": "Uitnodigen",
@@ -389,15 +389,15 @@
     "step": {
       "unlocked": "Ontgrendeld!",
       "unlockedSoon": "Ontgrendeld · binnenkort",
-      "friend": "Vriend #{{n}}",
+      "friend": "Referentie #{{n}}",
       "comingSoon": "Binnenkort",
       "inviteToUnlock": "Nodig uit om te ontgrendelen",
       "refundOnItsWay": "✓ Terugbetaling onderweg",
-      "referFriend": "Nodig vriend #{{n}} uit",
+      "referFriend": "Nodig referentie #{{n}} uit",
       "viewYour": "Bekijk je {{count}} {{noun}}",
       "noun": {
-        "resume_one": "geoptimaliseerd cv",
-        "resume_other": "geoptimaliseerde cv's",
+        "resume_one": "geoptimaliseerd CV",
+        "resume_other": "geoptimaliseerde CV's",
         "jobs_one": "bewaarde vacature",
         "jobs_other": "bewaarde vacatures",
         "coverLetter_one": "motivatiebrief op maat",
@@ -405,7 +405,7 @@
       },
       "cta": {
         "jobs": "Zoek open rollen",
-        "resume": "Stem je cv af",
+        "resume": "Stem je CV af",
         "cover-letter": "Maak motivatiebrieven"
       }
     },
@@ -413,11 +413,11 @@
       "tool": {
         "jobs": {
           "title": "Vacatures zoeken",
-          "description": "Zoek actuele vacatures die aansluiten op je beste loopbaanmatches."
+          "description": "Zoek actuele vacatures die aansluiten op je beste carrièrematches."
         },
         "resume": {
-          "title": "Cv afstemmen",
-          "description": "Herschrijf je geüploade cv zodat het past bij de specifieke banen waarop je wilt solliciteren."
+          "title": "CV afstemmen",
+          "description": "Herschrijf je geüploade CV zodat het past bij de specifieke banen waarop je wilt solliciteren."
         },
         "cover-letter": {
           "title": "Motivatiebrieven op maat",
@@ -445,14 +445,14 @@
       "body": "Een korte, eerlijke kaart met een zin die je coach over je schreef. Cairn-metafoor intact. Brengt meer vrienden op hun pad en ontgrendelt jouw toolkit.",
       "generate": "Maak deelkaart",
       "customise": "Citaat aanpassen",
-      "cardEyebrow": "BEST PASSENDE LOOPBAAN · MIJN CAIRNLY-MATCH",
+      "cardEyebrow": "BEST PASSENDE CARRIÈRE · MIJN CAIRNLY-MATCH",
       "matchPct": "{{pct}}% match"
     },
     "execBanner": {
       "pendingTitle": "Je samenvatting wordt samengesteld…",
       "pendingBody": "De momentopname van je hele profiel wordt nu gemaakt. Hij verschijnt zo vanzelf, verversen is niet nodig.",
       "arrivedTitle": "Je samenvatting is klaar.",
-      "arrivedBody": "De beknopte lezing van je loopbaanprofiel is af.",
+      "arrivedBody": "De beknopte lezing van je carrièreprofiel is af.",
       "timedoutTitle": "Je samenvatting duurt iets langer dan gebruikelijk.",
       "timedoutBody": "Hij wordt op de achtergrond nog gemaakt. Kom over een paar minuten terug. De rest van je rapport staat hieronder klaar.",
       "open": "Openen",
@@ -464,12 +464,12 @@
   "execSummaryModal": {
     "eyebrow": "SAMENVATTING",
     "title": "Een momentopname van waar je staat.",
-    "sub": "De kortste lezing van je loopbaanprofiel. De volledige uitwerking staat hieronder in de rapportsecties.",
+    "sub": "De kortste lezing van je carrièreprofiel. De volledige uitwerking staat hieronder in de rapportsecties.",
     "close": "Sluiten",
     "gotIt": "Duidelijk"
   },
   "savedResponses": {
-    "heading": "Coachantwoorden die je bewaarde",
+    "heading": "Bewaarde antwoorden uit de chat",
     "wrapUp": "Samenvatting van het gesprek",
     "note": "Coachnotitie",
     "collapse": "Inklappen",
@@ -480,10 +480,10 @@
       "strengths": "Je sterke punten",
       "development": "Ontwikkelpunten",
       "values": "Je waarden",
-      "top_career_1": "Eerste loopbaanmatch",
-      "top_career_2": "Tweede loopbaanmatch",
-      "top_career_3": "Derde loopbaanmatch",
-      "runner_ups": "Runner-up loopbanen",
+      "top_career_1": "Eerste carrièrematch",
+      "top_career_2": "Tweede carrièrematch",
+      "top_career_3": "Derde carrièrematch",
+      "runner_ups": "Runner-up carrières",
       "outside_box": "Outside-the-box",
       "dream_jobs": "Droombaananalyse",
       "init_summary": "Overzicht",
