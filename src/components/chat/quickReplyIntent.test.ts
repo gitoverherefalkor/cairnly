@@ -80,6 +80,13 @@ describe('inferQuickReplyIntent', () => {
     });
   });
 
+  it.each(['ga maar door', 'Ga door', 'ga verder'])(
+    'advances on typed Dutch escape %j',
+    (text) => {
+      expect(inferQuickReplyIntent(text)).toBe('advance');
+    },
+  );
+
   it('leaves ordinary conversation alone', () => {
     for (const text of [
       'Can you explain the second career again?',

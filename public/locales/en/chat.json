@@ -95,7 +95,8 @@
     "askingAbout": "Asking about:",
     "tapCardsHint": "Tap a card below to open it. Once you've opened all of them, you can continue.",
     "savedSectionBody": "Your discussion of this section will be reflected in your final report.",
-    "somethingElseChip": "Something else, type below"
+    "somethingElseChip": "Something else, type below",
+    "askAboutPlaceholder": "Ask about {{role}}…"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",

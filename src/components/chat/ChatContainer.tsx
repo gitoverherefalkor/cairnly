@@ -626,7 +626,9 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     const handleAskAboutRole = (roleTitle: string) => {
       pendingAskRoleRef.current = roleTitle;
       setAskAboutRole(roleTitle);
-      setInputPlaceholderOverride(`Ask about ${roleTitle}…`);
+      setInputPlaceholderOverride(
+        t('ui.askAboutPlaceholder', { role: roleTitle, defaultValue: `Ask about ${roleTitle}…` }),
+      );
       inputRef.current?.focus();
     };
 
@@ -700,6 +702,13 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         // Localised prefix: the user sees this as part of their own message,
         // and the agent mirrors the language of the turn.
         message = `${t('prompts.aboutPrefix', { role })} ${message}`;
+      }
+
+      // An intent send (advance / wrap-up / skip) means the user moved on:
+      // drop any lingering "Ask about <role>" scoping, chip included, so the
+      // next free-text turn in the new section doesn't get a stale prefix.
+      if (intent) {
+        cancelAskAboutRole();
       }
 
       // Dismiss the in-chat welcome card the moment the user sends anything,

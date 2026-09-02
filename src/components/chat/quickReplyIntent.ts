@@ -64,6 +64,12 @@ export function inferQuickReplyIntent(message: string): QuickReplyIntent | undef
     lower === 'volgende sectie' ||
     lower === 'doorgaan' ||
     lower === 'verder' ||
+    // Typed escapes seen in real sessions — e.g. a user stuck in the
+    // "Ask about this role" scoping types one of these to move on. Matching
+    // them advances cleanly AND skips the [About <role>] prefix.
+    lower === 'ga maar door' ||
+    lower === 'ga door' ||
+    lower === 'ga verder' ||
     normalized === 'ja laten we doorgaan' ||
     normalized === 'laten we doorgaan' ||
     normalized === 'laten we verder gaan' ||
