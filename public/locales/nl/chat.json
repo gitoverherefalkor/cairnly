@@ -96,7 +96,9 @@
     "tapCardsHint": "Tik op een kaart hieronder om deze te openen. Heb je ze allemaal geopend, dan kun je verder.",
     "savedSectionBody": "Je bespreking van deze sectie wordt verwerkt in je eindrapport.",
     "somethingElseChip": "Iets anders, typ het hieronder",
-    "askAboutPlaceholder": "Stel je vraag over {{role}}…"
+    "askAboutPlaceholder": "Stel je vraag over {{role}}…",
+    "cardsLeft_one": "Nog 1 kaart, tik om te openen",
+    "cardsLeft_other": "Nog {{count}} kaarten, tik om te openen"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",

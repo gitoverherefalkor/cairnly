@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
-import { Send, Mic, MessageCircle, X } from 'lucide-react';
+import { Send, Mic, MessageCircle, X, FolderOpen } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 export interface ChatInputHandle {
@@ -17,6 +17,12 @@ interface ChatInputProps {
   askAboutRole?: string | null;
   /** Clears the pending ask-about-role scoping (chip's ✕). */
   onCancelAskAboutRole?: () => void;
+  /**
+   * While a multi-card section locks the input: how many cards are still
+   * unopened. Renders a progress chip pinned above the input, so the user
+   * sees why they can't type yet.
+   */
+  cardsLeftCount?: number | null;
 }
 
 const MIN_HEIGHT = 56;
@@ -30,6 +36,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
   isSidebarCollapsed = false,
   askAboutRole = null,
   onCancelAskAboutRole,
+  cardsLeftCount = null,
 }, ref) => {
   const { t } = useTranslation('chat');
   const [text, setText] = useState('');
@@ -104,6 +111,23 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
       <div className="chat-input-root fixed bottom-0 z-30">
         <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-2">
           <div className="max-w-[800px] mx-auto">
+            {/* Card-open progress chip — pinned with the input (same treatment
+                as the ask-about chip) so it can't end up half-hidden behind
+                the floating input bar. */}
+            {cardsLeftCount != null && cardsLeftCount > 0 && (
+              <div className="mb-2 flex justify-center">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-atlas-teal bg-white border border-atlas-teal/25 rounded-full px-3 py-1.5 shadow-md">
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  {t('ui.cardsLeft', {
+                    count: cardsLeftCount,
+                    defaultValue:
+                      cardsLeftCount === 1
+                        ? '1 card left, tap to expand'
+                        : '{{count}} cards left, tap to expand',
+                  })}
+                </div>
+              </div>
+            )}
             {/* "Asking about: <role>" context chip — pinned with the input so it
                 stays centered and sidebar-offset, sitting just above the box. */}
             {askAboutRole && (

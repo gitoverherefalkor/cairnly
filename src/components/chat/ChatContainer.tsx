@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from 'react';
-import { FolderOpen } from 'lucide-react';
 import { ChatMessages, ChatMessagesHandle } from './ChatMessages';
 import { ChatInput, ChatInputHandle } from './ChatInput';
 import { ALL_SECTIONS } from './ReportSidebar';
@@ -1181,21 +1180,6 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onLikeToggle={handleLikeToggle}
         />
 
-        {/* Card-open progress chip — while a multi-card section (runner-ups /
-            outside-the-box / dream jobs) is locking the input, shows how many
-            cards are still collapsed so the user isn't left guessing why
-            they can't type or continue. Disappears the moment every card's
-            been opened at least once. */}
-        {multiCardLocked && cardOpenProgress && cardOpenProgress.opened < cardOpenProgress.total && (
-          <div className="px-4 pb-2 bg-white">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-atlas-teal bg-atlas-teal/10 border border-atlas-teal/25 rounded-full px-3 py-1.5">
-              <FolderOpen className="h-3.5 w-3.5" />
-              {cardOpenProgress.total - cardOpenProgress.opened} card
-              {cardOpenProgress.total - cardOpenProgress.opened === 1 ? '' : 's'} left — tap to expand
-            </div>
-          </div>
-        )}
-
         {/* Mobile-only Complete Session CTA — sidebar button isn't visible on mobile */}
         {isSessionCompleted && (
           <div className="md:hidden px-4 py-3 bg-white border-t border-gray-100">
@@ -1203,7 +1187,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
               onClick={onSessionComplete}
               className="w-full bg-atlas-teal text-white rounded-full py-3 font-semibold text-sm flex items-center justify-center gap-2"
             >
-              View Your Report →
+              {t('session.viewReport', { defaultValue: 'View Your Report' })} →
             </button>
           </div>
         )}
@@ -1213,6 +1197,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           onSend={handleSend}
           askAboutRole={isSessionCompleted ? null : askAboutRole}
           onCancelAskAboutRole={cancelAskAboutRole}
+          cardsLeftCount={
+            multiCardLocked && cardOpenProgress
+              ? cardOpenProgress.total - cardOpenProgress.opened
+              : null
+          }
           onTypingChange={setIsUserTyping}
           // Disable typing on the welcome screen so users can't accidentally
           // start with an off-script message that confuses the bot. They
