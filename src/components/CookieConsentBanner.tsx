@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
 const COOKIE_CONSENT_KEY = 'cairnly-cookie-consent';
 
 const CookieConsentBanner = () => {
+  const { t } = useTranslation('common');
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -53,11 +55,9 @@ const CookieConsentBanner = () => {
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex-1 text-sm text-gray-700">
           <p>
-            We use essential cookies to keep you logged in and make the platform work.
-            With your consent, we also use Google Ads cookies to measure whether our
-            advertising leads to purchases.{' '}
+            {t('cookieBanner.body', { defaultValue: 'We use essential cookies to keep you logged in and make the platform work. With your consent, we also use Google Ads cookies to measure whether our advertising leads to purchases.' })}{' '}
             <Link to="/cookie-policy" className="text-atlas-blue underline hover:text-atlas-navy">
-              Learn more
+              {t('cookieBanner.learnMore', { defaultValue: 'Learn more' })}
             </Link>
           </p>
         </div>
@@ -67,14 +67,14 @@ const CookieConsentBanner = () => {
             size="sm"
             onClick={() => handleAccept('essential')}
           >
-            Essential Only
+            {t('cookieBanner.essentialOnly', { defaultValue: 'Essential Only' })}
           </Button>
           <Button
             size="sm"
             className="bg-atlas-teal hover:bg-atlas-teal/90 text-white"
             onClick={() => handleAccept('all')}
           >
-            Accept All
+            {t('cookieBanner.acceptAll', { defaultValue: 'Accept All' })}
           </Button>
         </div>
       </div>

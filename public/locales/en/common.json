@@ -54,5 +54,11 @@
   "errors": {
     "somethingWentWrong": "Something went wrong. Please refresh or contact support.",
     "unexpectedError": "An unexpected error occurred. Please try again."
+  },
+  "cookieBanner": {
+    "body": "We use essential cookies to keep you logged in and make the platform work. With your consent, we also use Google Ads cookies to measure whether our advertising leads to purchases.",
+    "learnMore": "Learn more",
+    "essentialOnly": "Essential Only",
+    "acceptAll": "Accept All"
   }
 }

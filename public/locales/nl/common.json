@@ -54,5 +54,11 @@
   "errors": {
     "somethingWentWrong": "Er is iets misgegaan. Vernieuw de pagina of neem contact op met support.",
     "unexpectedError": "Er is een onverwachte fout opgetreden. Probeer het opnieuw."
+  },
+  "cookieBanner": {
+    "body": "We gebruiken essentiële cookies om je ingelogd te houden en het platform te laten werken. Met jouw toestemming gebruiken we ook Google Ads-cookies om te meten of onze advertenties tot aankopen leiden.",
+    "learnMore": "Meer informatie",
+    "essentialOnly": "Alleen essentieel",
+    "acceptAll": "Alles accepteren"
   }
 }
