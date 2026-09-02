@@ -1,0 +1,184 @@
+# Handoff: scrollable product demo (chat replay)
+
+**Written 2026-09-02, after the plan was agreed with Sjoerd in chat. This document
+is self-contained — execute from here, no need for the original conversation.**
+
+## Goal
+
+A public, scrollable replay of a real coaching session, on the website, to
+convince two audiences that the product is interactive rather than a static
+report:
+
+- **Partners** (NL) — loopbaanbureaus deciding whether to white-label Cairnly.
+- **Customers** (EN + NL) — visitors who won't pay €59 for an unproven product.
+
+Screenshots prove the product exists; the replay proves it *responds*: the
+persona pushes back on her personality analysis, the coach takes it, the report
+changes. That is the differentiator, and no copy or PDF can assert it as
+convincingly. The PDF becomes the footnote ("download this as a PDF" at the end
+of the transcript) — the ordering itself makes the argument.
+
+## Locked decisions (agreed with Sjoerd — do not relitigate)
+
+1. **Replay real components from a frozen fixture.** Not a login-able demo
+   account (fragile, auth surface, visitors would trigger paid n8n calls), not
+   a video (proves nothing, ages instantly). A public route renders the actual
+   chat components from a committed JSON fixture. No input box, no n8n calls.
+   The fixture freezes *content*; the *presentation* stays live, so every UI
+   improvement automatically upgrades the demo.
+2. **Fixture = messages + sections + persona**, not messages alone (see schema
+   below — the rich cards read `report_sections`, not the message text).
+3. **Annotation layer on top.** Margin notes at the moments that make the
+   argument, plus a sticky chapter progress bar. Pure demo-layer, i18n strings,
+   zero changes to chat components.
+4. **Two personas, one route.** `/demo` follows the site language: NL shows
+   Marloes (exists), EN shows a new higher-educated persona ("Emma", see
+   below). Language toggle on the page.
+5. **Honest labeling.** A fixed, visible label: fictional persona, real AI
+   output ("Demo met fictieve persoon, echte AI-output" / "Demo with a
+   fictional persona, real AI output"). Non-negotiable — without it the page
+   reads as a fake testimonial.
+6. **Dashboard demo is phase 3**, chat replay first (80% of the persuasion for
+   30% of the work).
+
+## Existing infrastructure to reuse
+
+| Thing | Where | Notes |
+|---|---|---|
+| Chat rendering | `src/components/chat/ChatMessage.tsx` | Renders stored markdown; contains `SequentialSubsections` (top-career reveal flow) and `CollapsibleCareerBlocks` (runner-ups/OOB cards) |
+| Score/AI/Move pills | `src/components/chat/CareerScoreCard.tsx` | Reads `report_sections` rows via the `sections` prop |
+| Comparison radar | `src/components/chat/CareerComparisonCard.tsx` | Needs `metadata.fit_scores` + `metadata.comparison` + `content_i18n[lang].comparison` on top_career_2/3 rows |
+| Chat page assembly | `src/components/chat/ChatContainer.tsx` | Too coupled to live sessions — do NOT reuse wholesale; build a thin `DemoReplay` container that maps fixture messages onto `ChatMessage` |
+| Demo account tooling | `scripts/demo-set-password.mjs`, `scripts/demo-rerun-report.mjs` | Password conventions + full WF1-WF4 re-run for a demo account. Both refuse non-`demo.*` emails — keep that guard in every new demo script |
+| Partner pages | `/partners`, `/partners/voorbeeldrapport` | The demo link for partners goes here |
+| PDF pipeline | `report-pdf` components + render tokens | Target of the "download as PDF" footnote |
+
+**Demo account:** `demo.marloes@cairnly.io`, user id
+`70bf5083-6f44-4578-930d-1247afde1572`, `preferred_language='nl'`. Password is
+in `.env.local` as `DEMO_DEMO_MARLOES_PASSWORD` (written by
+`demo-set-password.mjs`). Her current report is `9144c1e6-9859-4289-9182-5421d2492b41`
+(generated 2026-09-01 with the post-cleanup pipeline: clean metadata, NL
+comparison translations), but **do not hardcode the id** — the export script
+must take the account's newest report, because reruns replace it.
+
+## Fixture
+
+One JSON file per persona, committed to the repo (e.g.
+`src/demo/fixtures/marloes.nl.json`). Content is marketing-public by design;
+the personas are fictional. `.pdf` is gitignored in this repo — JSON is fine.
+
+```jsonc
+{
+  "persona": { "firstName": "Marloes", "language": "nl", "exportedAt": "…", "reportId": "…" },
+  "messages": [
+    // from chat_messages, ordered by created_at:
+    // { id, sender ('user'|'bot'), content, created_at, curated? }
+  ],
+  "sections": [
+    // from report_sections for the same report — every column the chat reads:
+    // { id, section_type, order_number, title, alternate_titles,
+    //   company_size_type, content, score, metadata, language, content_i18n }
+  ]
+}
+```
+
+Build `scripts/demo-export-fixture.mjs` (service-role, demo-guarded, same
+`.env.local` parsing as the sibling scripts): finds the account's newest
+report, dumps messages + sections, writes the fixture. Re-running it after a
+better walkthrough re-freezes the demo — that's the intended workflow.
+
+**Curation:** add an optional local overlay (either a `curated: false` flag
+patched into the fixture by hand, or a sibling `marloes.nl.curation.json`
+listing message ids to hide). Boring in-between turns get cut from the replay
+without touching the database. Keep the mechanism dumb.
+
+## The replay route
+
+- `Route path="/demo"` in `src/App.tsx`, public (no auth guard — the guard is
+  per-page in this app, so simply don't add one), in the generated sitemap,
+  NOT noindexed.
+- A `DemoReplay` page: picks the fixture by `i18n.language` (NL → Marloes,
+  EN → Emma once she exists; EN before phase 2 can fall back to Marloes with a
+  "Dutch demo" note, or hold the EN link until phase 2 — Sjoerd's call at
+  build time).
+- Renders the message list through `ChatMessage` with `sections` from the
+  fixture. No `ChatInput`, no `QuickReplies` wired to anything, no n8n.
+- **Reveal behavior:** the sequential-reveal and collapsed-cards gating exists
+  to pace a real session. For the demo, keep the *interactions* (open a career
+  card, hover the radar — they make the product feel alive) but do not gate
+  scrolling: render top-career messages fully revealed (`forceFullReveal` prop
+  already exists on the sequential flow), leave the multi-card sections
+  collapsed-but-clickable.
+- Sticky chapter nav: Persoonlijkheid → Carrières → Droombanen (derived from
+  which message delivers which section_type; clicking scrolls).
+- Annotation layer: margin/inline callouts anchored to specific message ids
+  from the fixture. Start with three: the pushback moment on the personality
+  analysis, the "Opgeslagen / In rapport" moment (this answer changes the
+  final report), and the comparison radar (generated for her, not a
+  template). Annotations are demo-layer components + i18n strings — do not
+  touch the chat components for them.
+- Footer: honest-label + "Download dit rapport als PDF" + CTA (customers →
+  /payment funnel; a `?p=partners` variant or referrer-based CTA can point
+  partners at /partners contact — keep it simple).
+- Landing page + /partners each get a teaser block linking to /demo. If the
+  teaser embeds the page in an iframe, remember the X-Frame-Options lesson
+  from the partner sample-PDF work: same-origin framing needed explicit
+  header handling. A styled static snippet linking out is cheaper and safer.
+
+## Traps (all hit recently — do not rediscover them)
+
+1. **jsonb-as-string:** n8n writes some jsonb columns as JSON-encoded strings.
+   Every fixture consumer must parse-if-string before use (`metadata`,
+   `content_i18n`, `fit_scores`). House pattern; see memory/code comments.
+2. **Two metadata shapes:** rows generated before 2026-08-31 carry
+   presentation baked into data (`<strong>Alternate titles:</strong> …`,
+   `<h4><strong>size</strong></h4>`); newer rows are bare values. All display
+   components tolerate both — keep it that way in any new demo code.
+3. **Language plumbing:** chat components localise via `i18n.language`
+   (i18next) — the demo route must let the normal locale switching work; the
+   fixture's `persona.language` only selects WHICH fixture, not how it
+   renders. Section text resolves through `sectionTitle`/`sectionText`
+   (content_i18n with English fallback) — pass rows through those, never read
+   `content` directly.
+4. **Comparison translation** lives at `content_i18n.nl.comparison`
+   ({headline, explanation}) since 2026-09-01. Older reports lack it
+   (translate-section backfills on re-run). Marloes's current report has it.
+5. **Sitemap is generated** at build ("static meta injected for N routes") —
+   add the route where the other public routes are registered, don't
+   hand-edit output.
+6. **Never exceed font-weight 700** anywhere (platform rule).
+7. **Em-dashes:** none in any user-facing/marketing copy (NL or EN). House
+   writing rule.
+
+## Phases
+
+**Phase 1 — NL demo live (one session):**
+export script → fixture from Marloes's finished walkthrough (confirm with
+Sjoerd that his walkthrough is DONE before freezing) → `/demo` replay route +
+chapter nav + 3 annotations + honest label + PDF footnote → teaser links on
+landing + /partners → build, tests, verify in browser, ship to main.
+Acceptance: a logged-out visitor can scroll the full NL session on production,
+open career cards, hover the radar, and reach the PDF + CTA.
+
+**Phase 2 — Emma (EN):**
+New demo account `demo.emma@cairnly.io` (create via normal auth +
+`demo-set-password.mjs`), `preferred_language='en'`. Persona: ~38, senior
+marketing manager or strategy consultant, college-educated, stuck on
+meaning/AI-uncertainty — aspirational for the paying audience. Write her
+survey payload (mirror the shape of Marloes's `reports.payload`), run
+`demo-rerun-report.mjs`, then a *directed* EN walkthrough: at least one
+genuine pushback on the personality analysis, one "Ask about this role", one
+Move-pill click, the comparison + "Explain this comparison". Export fixture,
+wire into `/demo` for EN.
+
+**Phase 3 — dashboard demo:**
+Same fixture approach on a read-only dashboard view ("Bekijk ook haar
+dashboard →" from the demo footer). Exclude: Jobs live search (paid external
+calls) and the resume builder — link back to the CTA instead.
+
+## Out of scope
+
+- Any n8n workflow changes (none needed).
+- Live "try it yourself" input on the demo — the landing page's intake chat
+  already covers that; link to it rather than rebuilding it.
+- Migrating or re-rendering old reports.
