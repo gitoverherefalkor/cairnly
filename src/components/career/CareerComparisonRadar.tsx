@@ -137,20 +137,29 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
         );
       })}
 
-      {ordered.map((c, i) => (
-        <polygon
-          key={c.label}
-          points={polygonPoints(c.scores)}
-          fill={c.focal ? c.color : 'none'}
-          fillOpacity={c.focal ? 0.2 : undefined}
-          stroke={c.color}
-          strokeWidth={c.focal ? 2.5 : 2}
-          strokeDasharray={c.focal ? undefined : '6 5'}
-          strokeDashoffset={c.focal ? undefined : (i - 1) * 5.5}
-          opacity={highlightedLabel && c.label !== highlightedLabel ? 0.15 : 1}
-          style={{ transition: 'opacity 150ms ease' }}
-        />
-      ))}
+      {ordered.map((c, i) => {
+        const isHighlighted = highlightedLabel === c.label;
+        const isDimmed = !!highlightedLabel && !isHighlighted;
+        // While highlighting, the highlighted career takes over the fill
+        // (even a non-focal one) so its footprint is visible against the
+        // others — and the others dim only moderately, staying readable as
+        // the reference the highlight is compared against.
+        const filled = highlightedLabel ? isHighlighted : c.focal;
+        return (
+          <polygon
+            key={c.label}
+            points={polygonPoints(c.scores)}
+            fill={filled ? c.color : 'none'}
+            fillOpacity={filled ? 0.2 : undefined}
+            stroke={c.color}
+            strokeWidth={c.focal ? 2.5 : 2}
+            strokeDasharray={c.focal ? undefined : '6 5'}
+            strokeDashoffset={c.focal ? undefined : (i - 1) * 5.5}
+            opacity={isDimmed ? 0.4 : 1}
+            style={{ transition: 'opacity 150ms ease, fill-opacity 150ms ease' }}
+          />
+        );
+      })}
 
       {ordered
         .filter((c) => c.focal)
@@ -164,7 +173,7 @@ export const CareerComparisonRadar: React.FC<CareerComparisonRadarProps> = ({
                 cy={p.y}
                 r={3.5}
                 fill={c.color}
-                opacity={highlightedLabel && c.label !== highlightedLabel ? 0.15 : 1}
+                opacity={highlightedLabel && c.label !== highlightedLabel ? 0.4 : 1}
                 style={{ transition: 'opacity 150ms ease' }}
               />
             );
