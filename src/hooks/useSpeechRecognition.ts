@@ -3,6 +3,23 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import i18n from '@/i18n';
+
+// Web Speech needs the right locale: a Dutch speaker dictating against en-US
+// comes out as English gibberish. Resolved at the moment dictation starts, so
+// a mid-session language switch applies to the next recording. Keys follow
+// the app's supported languages (de is future-proofing, like the domain
+// detector in i18n.ts).
+const SPEECH_LOCALES: Record<string, string> = {
+  nl: 'nl-NL',
+  en: 'en-US',
+  de: 'de-DE',
+};
+
+function speechLocale(): string {
+  const lang = (i18n.language || 'en').split('-')[0].toLowerCase();
+  return SPEECH_LOCALES[lang] ?? 'en-US';
+}
 
 const SpeechRecognitionAPI =
   typeof window !== 'undefined'
@@ -154,7 +171,7 @@ export function useSpeechRecognition({
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    recognition.lang = speechLocale();
 
     finalTranscriptRef.current = existingText ? existingText + ' ' : '';
 
