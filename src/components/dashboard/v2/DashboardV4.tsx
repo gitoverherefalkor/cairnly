@@ -637,6 +637,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               resumeUnlocked={resumeUnlocked}
               compareCareers={compareCareers}
               compareCareersRich={compareCareersRich}
+              lang={lang}
             />
             {secondary.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -923,6 +924,11 @@ const HeroMatch: React.FC<{
   onTailorCV: (careerTitle?: string) => void;
   compareCareers: CompareCareer[];
   compareCareersRich: RadarCareer[];
+  // Display language for the radar's axis labels/tooltips. Was referenced
+  // here without being in scope at all — a runtime ReferenceError (Vite
+  // builds don't typecheck) that crashed the dashboard for any report
+  // with fit_scores on its top careers.
+  lang: string;
 }> = ({
   match,
   jobsUnlocked,
@@ -932,6 +938,7 @@ const HeroMatch: React.FC<{
   onTailorCV,
   compareCareers,
   compareCareersRich,
+  lang,
 }) => {
   // Only render the radar when there's something to compare against.
   const showRadar = compareCareers.length >= 2;
