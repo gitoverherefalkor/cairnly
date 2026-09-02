@@ -6,7 +6,15 @@ import React from 'react';
 import { Bot, Route, Gauge, Coins } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { type MoveLevel, MOVE_COLOR, moveLegend } from '@/lib/moveScale';
-import { aiImpactLabel, aiImpactMeaning, moveLabel } from '@/lib/enumLabels';
+import {
+  aiImpactLabel,
+  aiImpactMeaning,
+  matchPillLabel,
+  matchPillTitle,
+  moveLabel,
+  salaryPillPrefix,
+  salaryPillTitle,
+} from '@/lib/enumLabels';
 
 // ---------- Brand palette ----------
 // Mirrors the --cairnly-* tokens in src/index.css. Kept as a local constant
@@ -202,11 +210,13 @@ export const AIImpactPill: React.FC<{ label: AIImpactLevel; lang?: string }> = (
 // ---------- MatchPill ----------
 // Match score as a pill, styled to sit in the same row as the AI + Move pills.
 // Gold treatment so the match % still leads the trio (it's the primary metric).
-export const MatchPill: React.FC<{ pct: number }> = ({ pct }) => {
+export const MatchPill: React.FC<{ pct: number; lang?: string }> = ({ pct, lang }) => {
+  const { i18n } = useTranslation();
+  const l = lang ?? i18n.language;
   const color = '#EFBE48'; // PALETTE.goldBright
   return (
     <span
-      title={`${pct}% fit against your profile`}
+      title={matchPillTitle(pct, l)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -224,7 +234,7 @@ export const MatchPill: React.FC<{ pct: number }> = ({ pct }) => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Gauge size={11} color={color} /> Match · {pct}%
+      <Gauge size={11} color={color} /> {matchPillLabel(pct, l)}
     </span>
   );
 };
@@ -272,11 +282,13 @@ function compactRange(s: string): string {
     .trim();
 }
 
-export const SalaryPill: React.FC<{ range: string }> = ({ range }) => {
+export const SalaryPill: React.FC<{ range: string; lang?: string }> = ({ range, lang }) => {
+  const { i18n } = useTranslation();
+  const l = lang ?? i18n.language;
   const color = '#6B7F8B'; // muted slate-grey — supporting info, not a headline
   return (
     <span
-      title="AI-estimated range for your region. See real posted ranges in Find Open Roles."
+      title={salaryPillTitle(l)}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -294,7 +306,7 @@ export const SalaryPill: React.FC<{ range: string }> = ({ range }) => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Coins size={11} color={color} /> est. {compactRange(range)}
+      <Coins size={11} color={color} /> {salaryPillPrefix(l)} {compactRange(range)}
     </span>
   );
 };

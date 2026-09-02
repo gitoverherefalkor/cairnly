@@ -116,7 +116,9 @@ interface DashboardV4Props {
 const DownloadReportButton: React.FC<{ onClick: () => void; loading: boolean }> = ({
   onClick,
   loading,
-}) => (
+}) => {
+  const { t } = useTranslation('dashboard');
+  return (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
     <button
       type="button"
@@ -140,7 +142,9 @@ const DownloadReportButton: React.FC<{ onClick: () => void; loading: boolean }> 
       }}
     >
       {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-      {loading ? 'Building your PDF…' : 'Download report PDF'}
+      {loading
+        ? t('v4.pdf.building', { defaultValue: 'Building your PDF…' })
+        : t('v4.pdf.download', { defaultValue: 'Download report PDF' })}
     </button>
     <span
       style={{
@@ -149,10 +153,13 @@ const DownloadReportButton: React.FC<{ onClick: () => void; loading: boolean }> 
         color: 'rgba(255,255,255,0.45)',
       }}
     >
-      {loading ? 'About half a minute the first time.' : 'A4, ready to print or share.'}
+      {loading
+        ? t('v4.pdf.hintBuilding', { defaultValue: 'About half a minute the first time.' })
+        : t('v4.pdf.hint', { defaultValue: 'A4, ready to print or share.' })}
     </span>
   </div>
-);
+  );
+};
 
 // ── Career extraction ─────────────────────────────────────────
 // Pull the AI salary estimate WF4 writes into metadata. Tolerates a plain
@@ -172,6 +179,7 @@ function getMatch(
   rank: number,
   withDetail: boolean,
   lang: string,
+  fallbackTitle: string,
 ): CareerMatch | null {
   const s = sections.find((x) => x.section_type === type);
   if (!s) return null;
@@ -199,7 +207,9 @@ function getMatch(
   const alignment = alignmentHtml ? firstSentences(alignmentHtml, 2) : undefined;
   return {
     rank,
-    title: stripHtml(sectionTitle(s, lang) || 'Career match'),
+    title: stripHtml(sectionTitle(s, lang) || fallbackTitle),
+    // Canonical title stays ENGLISH on purpose — it is the machine key the
+    // job-search / CV flows match against report_sections.title.
     canonicalTitle: stripHtml(s.title || 'Career match'),
     shape: s.company_size_type ? stripHtml(s.company_size_type) : null,
     matchPct: Math.round(score),
@@ -327,11 +337,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   };
 
   const { hero, secondary } = useMemo(() => {
-    const hero = getMatch(sections, 'top_career_1', 1, true, lang);
-    const second = getMatch(sections, 'top_career_2', 2, false, lang);
-    const third = getMatch(sections, 'top_career_3', 3, false, lang);
+    const fb = t('v4.fallback.careerMatch', { defaultValue: 'Career match' });
+    const hero = getMatch(sections, 'top_career_1', 1, true, lang, fb);
+    const second = getMatch(sections, 'top_career_2', 2, false, lang, fb);
+    const third = getMatch(sections, 'top_career_3', 3, false, lang, fb);
     return { hero, secondary: [second, third].filter(Boolean) as CareerMatch[] };
-  }, [sections, lang]);
+  }, [sections, lang, t]);
 
   // "More paths" — one tile per group. Each section_type repeats in the DB
   // (one row per career, split by WF4), so we collect ALL matching rows and
@@ -345,7 +356,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       return {
         title: fallbackTitleFor(fallbackId),
         descriptor: oneLinerFor(fallbackId),
-        careers: matches.map((s) => stripHtml(sectionTitle(s, lang) || 'Career')),
+        careers: matches.map((s) =>
+          stripHtml(sectionTitle(s, lang) || t('v4.fallback.career', { defaultValue: 'Career' })),
+        ),
       };
     };
     return {
@@ -424,7 +437,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           if (!peer || !peerFit) continue;
           const isFocal = peerType === type;
           careersForRadar.push({
-            label: stripHtml(sectionTitle(peer, lang) || `Career ${i + 1}`),
+            label: stripHtml(
+              sectionTitle(peer, lang) ||
+                t('v4.fallback.careerN', { n: i + 1, defaultValue: 'Career {{n}}' }),
+            ),
             scores: peerFit,
             color: isFocal ? RADAR_FOCAL_COLOR : RADAR_NON_FOCAL[peerType] ?? '#64748b',
             focal: isFocal,
@@ -442,7 +458,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
       rows.push({
         id,
-        title: stripHtml(sectionTitle(s, lang) || 'Career match'),
+        title: stripHtml(
+          sectionTitle(s, lang) || t('v4.fallback.careerMatch', { defaultValue: 'Career match' }),
+        ),
         oneLiner: oneLinerFor(id),
         content: sectionText(s, lang),
         careerSlot: slot,
@@ -467,7 +485,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         title: fallbackTitleFor(id),
         oneLiner: oneLinerFor(id),
         careers: matches.map((s) => ({
-          title: stripHtml(sectionTitle(s, lang) || 'Career'),
+          title: stripHtml(
+            sectionTitle(s, lang) || t('v4.fallback.career', { defaultValue: 'Career' }),
+          ),
           content: sectionText(s, lang),
         })),
         careerSlot: slot,
@@ -494,20 +514,42 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     const leads = radarAxes.filter((a) => Math.abs(a.score - max) < 0.05);
 
     if (leads.length === radarAxes.length) {
-      return { label: `Balanced across all ${radarAxes.length} dimensions.` };
+      return {
+        label: t('v4.radarBanner.balanced', {
+          count: radarAxes.length,
+          defaultValue: 'Balanced across all {{count}} dimensions.',
+        }),
+      };
     }
     const names = leads.map((a) => a.label);
     if (leads.length === 1) {
-      return { label: `Strongest dimension: ${names[0]}.` };
+      return {
+        label: t('v4.radarBanner.lead1', {
+          one: names[0],
+          defaultValue: 'Strongest dimension: {{one}}.',
+        }),
+      };
     }
     if (leads.length === 2) {
-      return { label: `Strongest dimensions: ${names[0]} and ${names[1]}.` };
+      return {
+        label: t('v4.radarBanner.lead2', {
+          one: names[0],
+          two: names[1],
+          defaultValue: 'Strongest dimensions: {{one}} and {{two}}.',
+        }),
+      };
     }
     // 3+ leaders — comma list with Oxford-style "and" on the last item.
     const head = names.slice(0, -1).join(', ');
     const tail = names[names.length - 1];
-    return { label: `Strongest dimensions: ${head}, and ${tail}.` };
-  }, [radarAxes]);
+    return {
+      label: t('v4.radarBanner.leadMany', {
+        head,
+        tail,
+        defaultValue: 'Strongest dimensions: {{head}}, and {{tail}}.',
+      }),
+    };
+  }, [radarAxes, t]);
   const sweetSpotCount = useMemo(
     () => careerMapPoints.filter((p) => p.x <= 0.5 && p.y <= 0.5 && p.rank).length,
     [careerMapPoints],
@@ -569,7 +611,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           }}
         >
           <div>
-            <Eyebrow>YOUR CAREER PROFILE · REPORT READY</Eyebrow>
+            <Eyebrow>
+              {t('v4.welcome.eyebrow', { defaultValue: 'YOUR CAREER PROFILE · REPORT READY' })}
+            </Eyebrow>
             <h1
               style={{
                 fontFamily: FONT_DISPLAY,
@@ -581,7 +625,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 lineHeight: 1.0,
               }}
             >
-              Welcome back, {firstName || 'there'}.
+              {firstName
+                ? t('v4.welcome.title', { name: firstName, defaultValue: 'Welcome back, {{name}}.' })
+                : t('v4.welcome.titleNoName', { defaultValue: 'Welcome back.' })}
             </h1>
             <p
               style={{
@@ -594,8 +640,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 margin: 0,
               }}
             >
-              Your strongest career matches are below. Open any one for the full breakdown, then find live
-              openings when you're ready.
+              {t('v4.welcome.sub', {
+                defaultValue:
+                  "Your strongest career matches are below. Open any one for the full breakdown, then find live openings when you're ready.",
+              })}
             </p>
           </div>
           <div
@@ -610,8 +658,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               fontWeight: 500,
             }}
           >
-            {reportDate && <span>Report generated · {reportDate}</span>}
-            <span>{['Profile', firstName, country].filter(Boolean).join(' · ')}</span>
+            {reportDate && (
+              <span>
+                {t('v4.welcome.generated', {
+                  date: reportDate,
+                  defaultValue: 'Report generated · {{date}}',
+                })}
+              </span>
+            )}
+            <span>
+              {[t('v4.welcome.profile', { defaultValue: 'Profile' }), firstName, country]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
           </div>
         </div>
 
@@ -656,13 +715,23 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         )}
 
         {/* ─── Share promo (sits right under the top-3 row) ─── */}
-        <SharePromoBlock heroTitle={hero?.title ?? 'Your best-fit career'} heroShape={hero?.shape ?? null} heroPct={hero?.matchPct ?? 0} onGenerate={onOpenShareCard} />
+        <SharePromoBlock
+          heroTitle={
+            hero?.title ??
+            t('v4.fallback.bestFitCareer', { defaultValue: 'Your best-fit career' })
+          }
+          heroShape={hero?.shape ?? null}
+          heroPct={hero?.matchPct ?? 0}
+          onGenerate={onOpenShareCard}
+        />
 
         {/* ─── More paths ─── */}
         {(paths.runners || paths.outside || paths.dream) && (
           <section style={{ marginTop: 16, marginBottom: 48 }}>
             <div style={{ marginBottom: 16 }}>
-              <Eyebrow>MORE PATHS WORTH CONSIDERING</Eyebrow>
+              <Eyebrow>
+                {t('v4.paths.eyebrow', { defaultValue: 'MORE PATHS WORTH CONSIDERING' })}
+              </Eyebrow>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
               {paths.runners && (
@@ -730,7 +799,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               room for the copy, the button drops to its own line instead of
               crushing the heading. */}
           <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-            <Eyebrow>YOUR FULL REPORT · REFERENCE</Eyebrow>
+            <Eyebrow>
+              {t('v4.reportHeader.eyebrow', { defaultValue: 'YOUR FULL REPORT · REFERENCE' })}
+            </Eyebrow>
             <h3
               style={{
                 fontFamily: FONT_DISPLAY,
@@ -741,7 +812,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 margin: '8px 0 4px 0',
               }}
             >
-              Everything you walked through with your coach
+              {t('v4.reportHeader.title', {
+                defaultValue: 'Everything you walked through with your coach',
+              })}
             </h3>
             <p
               style={{
@@ -753,7 +826,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 maxWidth: 540,
               }}
             >
-              Closed by default. You've already been here, so open any section to revisit.
+              {t('v4.reportHeader.sub', {
+                defaultValue:
+                  "Closed by default. You've already been here, so open any section to revisit.",
+              })}
             </p>
           </div>
 
@@ -785,7 +861,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             >
               <div style={{ minWidth: 0 }}>
                 <div style={{ padding: '22px 28px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <Eyebrow>ABOUT YOU · {aboutRows.length} SECTION{aboutRows.length === 1 ? '' : 'S'}</Eyebrow>
+                  <Eyebrow>
+                    {t('v4.reportHeader.aboutEyebrow', {
+                      count: aboutRows.length,
+                      defaultValue: 'ABOUT YOU · {{count}} SECTIONS',
+                    })}
+                  </Eyebrow>
                 </div>
                 {(execSummaryStatus === 'pending' || execSummaryStatus === 'timedout') && (
                   <ExecSummaryPlaceholderRow status={execSummaryStatus} />
@@ -809,13 +890,19 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   <div style={{ position: 'sticky', top: 24 }}>
                     <V4ChartBanner
                       layout="vertical"
-                      eyebrow="PERSONALITY RADAR"
+                      eyebrow={t('v4.radarBanner.eyebrow', { defaultValue: 'PERSONALITY RADAR' })}
                       icon={<Activity size={14} />}
-                      title="How you actually work"
-                      blurb="Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach."
-                      meta={`${radarAxes.length} axes`}
+                      title={t('v4.radarBanner.title', { defaultValue: 'How you actually work' })}
+                      blurb={t('v4.radarBanner.blurb', {
+                        defaultValue:
+                          'Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach.',
+                      })}
+                      meta={t('v4.radarBanner.meta', {
+                        count: radarAxes.length,
+                        defaultValue: '{{count}} axes',
+                      })}
                       stat={radarLeadStat ?? undefined}
-                      chart={<V4PersonalityRadarSVG axes={radarAxes} />}
+                      chart={<V4PersonalityRadarSVG axes={radarAxes} lang={lang} />}
                     />
                   </div>
                 </div>
@@ -853,7 +940,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                     background: 'rgba(39,161,161,0.04)',
                   }}
                 >
-                  <Eyebrow>CAREER SUGGESTIONS · {careerRows.length} SECTION{careerRows.length === 1 ? '' : 'S'}</Eyebrow>
+                  <Eyebrow>
+                    {t('v4.reportHeader.careersEyebrow', {
+                      count: careerRows.length,
+                      defaultValue: 'CAREER SUGGESTIONS · {{count}} SECTIONS',
+                    })}
+                  </Eyebrow>
                 </div>
                 {careerRows.map((row, i) => (
                   <ReportAccordionRow
@@ -874,20 +966,26 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                   <div style={{ position: 'sticky', top: 24 }}>
                     <V4ChartBanner
                       layout="vertical"
-                      eyebrow="CAREER MAP"
+                      eyebrow={t('v4.mapBanner.eyebrow', { defaultValue: 'CAREER MAP' })}
                       icon={<MapIcon size={14} />}
-                      title="Where the matches sit"
-                      blurb="Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone."
+                      title={t('v4.mapBanner.title', { defaultValue: 'Where the matches sit' })}
+                      blurb={t('v4.mapBanner.blurb', {
+                        defaultValue:
+                          'Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone.',
+                      })}
                       stat={
                         sweetSpotCount > 0
                           ? {
                               value: String(sweetSpotCount),
-                              label: `top match${sweetSpotCount === 1 ? '' : 'es'} land in the safe-strong quadrant.`,
+                              label: t('v4.mapBanner.stat', {
+                                count: sweetSpotCount,
+                                defaultValue: 'top matches land in the safe-strong quadrant.',
+                              }),
                             }
                           : undefined
                       }
-                      legend={<V4CareerMapLegend points={careerMapPoints} />}
-                      chart={<V4CareerMapSVG points={careerMapPoints} />}
+                      legend={<V4CareerMapLegend points={careerMapPoints} lang={lang} />}
+                      chart={<V4CareerMapSVG points={careerMapPoints} lang={lang} />}
                     />
                   </div>
                 </div>
@@ -948,6 +1046,7 @@ const HeroMatch: React.FC<{
   // trigger to the radar (not the whole card) avoids accidental flips while
   // the user is just reading the alignment text or about to click a button.
   const [flipped, setFlipped] = useState(false);
+  const { t } = useTranslation('dashboard');
   return (
     <article
       onMouseLeave={() => setFlipped(false)}
@@ -1000,7 +1099,7 @@ const HeroMatch: React.FC<{
           />
 
           {/* Eyebrow */}
-          <Eyebrow>STRONGEST MATCH · CAREER #1</Eyebrow>
+          <Eyebrow>{t('v4.hero.eyebrow', { defaultValue: 'STRONGEST MATCH · CAREER #1' })}</Eyebrow>
 
           {/* Title + shape */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1069,7 +1168,9 @@ const HeroMatch: React.FC<{
               >
                 {match.alignment && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <Eyebrow>ALIGNMENT WITH YOUR AMBITIONS</Eyebrow>
+                    <Eyebrow>
+                      {t('v4.hero.alignment', { defaultValue: 'ALIGNMENT WITH YOUR AMBITIONS' })}
+                    </Eyebrow>
                     <p
                       style={{
                         fontFamily: FONT_BODY,
@@ -1106,7 +1207,8 @@ const HeroMatch: React.FC<{
                         boxShadow: '0 10px 24px -8px rgba(39,161,161,0.55)',
                       }}
                     >
-                      Why this fits <ArrowRight size={16} />
+                      {t('v4.hero.why', { defaultValue: 'Why this fits' })}{' '}
+                      <ArrowRight size={16} />
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -1129,7 +1231,9 @@ const HeroMatch: React.FC<{
                       }}
                     >
                       {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-                      {jobsUnlocked ? 'Find this role' : 'Find this role · locked'}
+                      {jobsUnlocked
+                        ? t('v4.hero.findRole', { defaultValue: 'Find this role' })
+                        : t('v4.hero.findRoleLocked', { defaultValue: 'Find this role · locked' })}
                     </button>
                     <button
                       type="button"
@@ -1150,7 +1254,9 @@ const HeroMatch: React.FC<{
                       }}
                     >
                       {resumeUnlocked ? <FileText size={14} /> : <Lock size={14} />}
-                      {resumeUnlocked ? 'Tailor CV to this role' : 'Tailor CV · locked'}
+                      {resumeUnlocked
+                        ? t('v4.hero.tailorCv', { defaultValue: 'Tailor CV to this role' })
+                        : t('v4.hero.tailorCvLocked', { defaultValue: 'Tailor CV · locked' })}
                     </button>
                   </div>
                 </div>
@@ -1184,9 +1290,14 @@ const HeroMatch: React.FC<{
                       color: PALETTE.tealDeep,
                     }}
                   >
-                    How it compares · hover for detail
+                    {t('v4.hero.compare', { defaultValue: 'How it compares · hover for detail' })}
                   </span>
-                  <V4CompareRadarSVG careers={compareCareers} focalRank={1} variant="compact" />
+                  <V4CompareRadarSVG
+                    careers={compareCareers}
+                    focalRank={1}
+                    variant="compact"
+                    lang={lang}
+                  />
                   <V4CompareLegend careers={compareCareers} focalRank={1} />
                 </div>
               )}
@@ -1226,10 +1337,14 @@ const HeroMatch: React.FC<{
                   color: PALETTE.tealDeep,
                 }}
               >
-                HOW IT DIFFERS FROM YOUR OTHER TOP ROLES
+                {t('v4.hero.backEyebrow', {
+                  defaultValue: 'HOW IT DIFFERS FROM YOUR OTHER TOP ROLES',
+                })}
               </span>
               <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 700, color: PALETTE.inkSoft }}>
-                Hover an axis label to see what it measures
+                {t('v4.hero.backHint', {
+                  defaultValue: 'Hover an axis label to see what it measures',
+                })}
               </span>
             </div>
             <p
@@ -1242,8 +1357,10 @@ const HeroMatch: React.FC<{
                 margin: 0,
               }}
             >
-              Five axes that shape day-to-day fit. The filled polygon is your strongest match; the outlined
-              polygons are your other top roles. Distance from the centre is the score on each axis.
+              {t('v4.hero.backBlurb', {
+                defaultValue:
+                  'Five axes that shape day-to-day fit. The filled polygon is your strongest match; the outlined polygons are your other top roles. Distance from the centre is the score on each axis.',
+              })}
             </p>
             <div
               style={{
@@ -1284,7 +1401,9 @@ const SecondaryMatch: React.FC<{
   onOpen: () => void;
   onFindRoles: (careerTitle?: string) => void;
   jobsUnlocked: boolean;
-}> = ({ match, onOpen, onFindRoles, jobsUnlocked }) => (
+}> = ({ match, onOpen, onFindRoles, jobsUnlocked }) => {
+  const { t } = useTranslation('dashboard');
+  return (
   <article
     style={{
       background: 'rgba(18, 46, 59, 0.55)',
@@ -1300,7 +1419,9 @@ const SecondaryMatch: React.FC<{
       boxShadow: '0 24px 50px -22px rgba(0,0,0,0.4)',
     }}
   >
-    <Eyebrow>CAREER #{match.rank}</Eyebrow>
+    <Eyebrow>
+      {t('v4.secondary.eyebrow', { rank: match.rank, defaultValue: 'CAREER #{{rank}}' })}
+    </Eyebrow>
     <h3
       style={{
         fontFamily: FONT_DISPLAY,
@@ -1361,7 +1482,7 @@ const SecondaryMatch: React.FC<{
           cursor: 'pointer',
         }}
       >
-        Open <ArrowRight size={13} />
+        {t('v4.secondary.open', { defaultValue: 'Open' })} <ArrowRight size={13} />
       </button>
       <button
         type="button"
@@ -1384,11 +1505,14 @@ const SecondaryMatch: React.FC<{
         }}
       >
         {jobsUnlocked ? <Briefcase size={13} /> : <Lock size={13} />}
-        {jobsUnlocked ? 'Find roles' : 'Find roles · locked'}
+        {jobsUnlocked
+          ? t('v4.secondary.findRoles', { defaultValue: 'Find roles' })
+          : t('v4.secondary.findRolesLocked', { defaultValue: 'Find roles · locked' })}
       </button>
     </div>
   </article>
-);
+  );
+};
 
 // ── Paths tile ────────────────────────────────────────────────
 const PathsTile: React.FC<{
@@ -1398,7 +1522,9 @@ const PathsTile: React.FC<{
   accent: string;
   careers: string[];
   onOpen: () => void;
-}> = ({ slot, title, descriptor, accent, careers, onOpen }) => (
+}> = ({ slot, title, descriptor, accent, careers, onOpen }) => {
+  const { t } = useTranslation('dashboard');
+  return (
   <article
     style={{
       background: 'rgba(18, 46, 59, 0.55)',
@@ -1508,18 +1634,29 @@ const PathsTile: React.FC<{
         alignSelf: 'flex-start',
       }}
     >
-      See full breakdown <ArrowRight size={14} />
+      {t('v4.paths.seeBreakdown', { defaultValue: 'See full breakdown' })}{' '}
+      <ArrowRight size={14} />
     </button>
   </article>
-);
+  );
+};
 
 // ── Unlock toolkit ────────────────────────────────────────────
-// Icons + CTA labels for the three tool steps (refund steps render a % badge
-// instead of an icon, handled inline below).
-const TOOL_META: Record<string, { label: string; icon: React.ReactNode }> = {
-  jobs: { label: 'Find open roles', icon: <Briefcase size={18} /> },
-  resume: { label: 'Tailor your resume', icon: <FileText size={18} /> },
-  'cover-letter': { label: 'Generate cover letters', icon: <FilePlus size={18} /> },
+// Icons for the three tool steps (refund steps render a coins badge instead,
+// handled inline below). The CTA label beside each icon is a translation key
+// (`v4.step.cta.<featureKey>`), not a literal, so a new language picks it up.
+const TOOL_ICON: Record<string, React.ReactNode> = {
+  jobs: <Briefcase size={18} />,
+  resume: <FileText size={18} />,
+  'cover-letter': <FilePlus size={18} />,
+};
+
+// English defaults for the CTA labels, kept beside the icons so the fallback
+// text lives next to what it labels.
+const TOOL_CTA_EN: Record<string, string> = {
+  jobs: 'Find open roles',
+  resume: 'Tailor your resume',
+  'cover-letter': 'Generate cover letters',
 };
 
 const UnlockToolkit: React.FC<{
@@ -1529,6 +1666,7 @@ const UnlockToolkit: React.FC<{
   onInvite: () => void;
   onNavigate: (route: string) => void;
 }> = ({ referralCode, referralCount, ladder, onInvite, onNavigate }) => {
+  const { t } = useTranslation('dashboard');
   const earned = Math.min(referralCount, 6);
   const fullyRefunded = referralCount >= 6;
   return (
@@ -1565,7 +1703,11 @@ const UnlockToolkit: React.FC<{
           }}
         >
           <div>
-            <Eyebrow>JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK</Eyebrow>
+            <Eyebrow>
+              {t('v4.toolkit.eyebrow', {
+                defaultValue: 'JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK',
+              })}
+            </Eyebrow>
             <h3
               style={{
                 fontFamily: FONT_DISPLAY,
@@ -1576,7 +1718,9 @@ const UnlockToolkit: React.FC<{
                 margin: '10px 0 8px 0',
               }}
             >
-              Six friends, and your assessment paid for itself.
+              {t('v4.toolkit.title', {
+                defaultValue: 'Six friends, and your assessment paid for itself.',
+              })}
             </h3>
             <p
               style={{
@@ -1589,9 +1733,16 @@ const UnlockToolkit: React.FC<{
                 maxWidth: 540,
               }}
             >
-              Your first three friends unlock the job-hunt tools. The next three
-              refund your purchase, <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>25% + 25% + 50%</em>, back
-              to your card. They get clarity, you get paid back.
+              {t('v4.toolkit.bodyBefore', {
+                defaultValue:
+                  'Your first three friends unlock the job-hunt tools. The next three refund your purchase,',
+              })}{' '}
+              <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>
+                {t('v4.toolkit.bodySplit', { defaultValue: '25% + 25% + 50%' })}
+              </em>
+              {t('v4.toolkit.bodyAfter', {
+                defaultValue: ', back to your card. They get clarity, you get paid back.',
+              })}
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 280 }}>
@@ -1606,7 +1757,12 @@ const UnlockToolkit: React.FC<{
                 color: 'rgba(255,255,255,0.7)',
               }}
             >
-              <span style={{ whiteSpace: 'nowrap' }}>{earned} of 6 friends joined</span>
+              <span style={{ whiteSpace: 'nowrap' }}>
+                {t('v4.toolkit.progress', {
+                  count: earned,
+                  defaultValue: '{{count}} of 6 friends joined',
+                })}
+              </span>
               <span style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.10)', borderRadius: 9999, overflow: 'hidden' }}>
                 <span
                   style={{
@@ -1632,7 +1788,7 @@ const UnlockToolkit: React.FC<{
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  All unlocked 🎉
+                  {t('v4.toolkit.allUnlocked', { defaultValue: 'All unlocked 🎉' })}
                 </span>
               )}
             </div>
@@ -1659,7 +1815,7 @@ const UnlockToolkit: React.FC<{
                     textTransform: 'uppercase',
                   }}
                 >
-                  Code
+                  {t('v4.toolkit.code', { defaultValue: 'Code' })}
                 </span>
                 <span
                   style={{
@@ -1693,7 +1849,7 @@ const UnlockToolkit: React.FC<{
                   whiteSpace: 'nowrap',
                 }}
               >
-                Invite <ArrowRight size={14} />
+                {t('v4.toolkit.invite', { defaultValue: 'Invite' })} <ArrowRight size={14} />
               </button>
             </div>
           </div>
@@ -1703,8 +1859,18 @@ const UnlockToolkit: React.FC<{
       {/* Two compact rows: tools (1–3) on top, refunds (4–6) below. Each row
           flows left-to-right with arrows that light up as steps unlock. */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <LadderRow label="Tools" items={ladder.slice(0, 3)} onInvite={onInvite} onNavigate={onNavigate} />
-        <LadderRow label="Money back" items={ladder.slice(3, 6)} onInvite={onInvite} onNavigate={onNavigate} />
+        <LadderRow
+          label={t('v4.toolkit.rowTools', { defaultValue: 'Tools' })}
+          items={ladder.slice(0, 3)}
+          onInvite={onInvite}
+          onNavigate={onNavigate}
+        />
+        <LadderRow
+          label={t('v4.toolkit.rowMoneyBack', { defaultValue: 'Money back' })}
+          items={ladder.slice(3, 6)}
+          onInvite={onInvite}
+          onNavigate={onNavigate}
+        />
       </div>
     </section>
   );
@@ -1771,11 +1937,21 @@ const StepCard: React.FC<{
   onInvite: () => void;
   onNavigate: (route: string) => void;
 }> = ({ item, onInvite, onNavigate }) => {
+  const { t } = useTranslation('dashboard');
   const { step, unlocked } = item;
   const isTool = step.kind === 'tool';
   const builtYet = isTool ? step.builtYet : true;
   const route = isTool ? step.route : undefined;
   const actionable = isTool && unlocked && builtYet && !!route;
+
+  // Step title + blurb live in useReferralStatus as English literals (that
+  // catalogue is also read by the Jobs gate). Translate at the display layer,
+  // with the catalogue's own English as the defaultValue so EN is unchanged.
+  const stepKey = isTool ? `tool.${step.featureKey}` : `refund.${step.requiredReferrals}`;
+  const stepTitle = t(`v4.unlock.${stepKey}.title`, { defaultValue: step.title });
+  const stepDescription = t(`v4.unlock.${stepKey}.description`, {
+    defaultValue: step.description,
+  });
 
   // Per-tool activity badge (teal, clickable): a simple count + noun that
   // links to where that work lives. All hooks are called unconditionally
@@ -1790,15 +1966,24 @@ const StepCard: React.FC<{
   if (isTool && unlocked && builtYet) {
     if (step.featureKey === 'resume') {
       summaryCount = savedResumes?.length ?? 0;
-      summaryNoun = summaryCount === 1 ? 'optimized resume' : 'optimized resumes';
+      summaryNoun = t('v4.step.noun.resume', {
+        count: summaryCount,
+        defaultValue: 'optimized resumes',
+      });
       summaryRoute = '/custom-resume';
     } else if (step.featureKey === 'jobs') {
       summaryCount = savedJobs?.length ?? 0;
-      summaryNoun = summaryCount === 1 ? 'saved job' : 'saved jobs';
+      summaryNoun = t('v4.step.noun.jobs', {
+        count: summaryCount,
+        defaultValue: 'saved jobs',
+      });
       summaryRoute = '/jobs?mode=saved';
     } else if (step.featureKey === 'cover-letter') {
       summaryCount = coverLetters?.length ?? 0;
-      summaryNoun = summaryCount === 1 ? 'custom coverletter' : 'custom coverletters';
+      summaryNoun = t('v4.step.noun.coverLetter', {
+        count: summaryCount,
+        defaultValue: 'custom cover letters',
+      });
       summaryRoute = '/jobs?mode=saved';
     }
   }
@@ -1807,9 +1992,12 @@ const StepCard: React.FC<{
   // Status line under the title.
   const statusText = unlocked
     ? builtYet
-      ? 'Unlocked!'
-      : 'Unlocked · soon'
-    : `Friend #${step.requiredReferrals}`;
+      ? t('v4.step.unlocked', { defaultValue: 'Unlocked!' })
+      : t('v4.step.unlockedSoon', { defaultValue: 'Unlocked · soon' })
+    : t('v4.step.friend', {
+        n: step.requiredReferrals,
+        defaultValue: 'Friend #{{n}}',
+      });
 
   // Refund cards get a prominent gold outline + glow so the money tier draws
   // the eye, locked or not. Tool cards keep the quieter teal/tan treatment.
@@ -1906,7 +2094,7 @@ const StepCard: React.FC<{
           }}
         >
           {isTool ? (
-            unlocked ? TOOL_META[step.featureKey].icon : <Lock size={14} />
+            unlocked ? TOOL_ICON[step.featureKey] : <Lock size={14} />
           ) : (
             // Refund steps: coins icon in both states (the % is in the title;
             // the lock lives in the button below, no need to double up).
@@ -1926,7 +2114,7 @@ const StepCard: React.FC<{
               whiteSpace: 'nowrap',
             }}
           >
-            {step.title}
+            {stepTitle}
           </div>
           <div
             style={{
@@ -1958,7 +2146,7 @@ const StepCard: React.FC<{
             flex: 1,
           }}
         >
-          {step.description}
+          {stepDescription}
         </p>
       )}
 
@@ -1980,7 +2168,11 @@ const StepCard: React.FC<{
             textAlign: 'left',
             width: '100%',
           }}
-          title={`View your ${summaryCount} ${summaryNoun}`}
+          title={t('v4.step.viewYour', {
+            count: summaryCount,
+            noun: summaryNoun,
+            defaultValue: 'View your {{count}} {{noun}}',
+          })}
         >
           <BookOpen size={12} color={PALETTE.tealDeep} style={{ flexShrink: 0 }} />
           <span
@@ -2035,7 +2227,13 @@ const StepCard: React.FC<{
           }}
         >
           {!unlocked && <Lock size={12} />}
-          {actionable ? TOOL_META[step.featureKey].label : unlocked ? 'Coming soon' : 'Invite to unlock'}
+          {actionable
+            ? t(`v4.step.cta.${step.featureKey}`, {
+                defaultValue: TOOL_CTA_EN[step.featureKey],
+              })
+            : unlocked
+              ? t('v4.step.comingSoon', { defaultValue: 'Coming soon' })
+              : t('v4.step.inviteToUnlock', { defaultValue: 'Invite to unlock' })}
           {actionable && <ArrowRight size={12} />}
         </button>
       ) : (
@@ -2057,7 +2255,17 @@ const StepCard: React.FC<{
             gap: 6,
           }}
         >
-          {unlocked ? '✓ Refund on its way' : <><Lock size={12} /> Refer friend #{step.requiredReferrals}</>}
+          {unlocked ? (
+            t('v4.step.refundOnItsWay', { defaultValue: '✓ Refund on its way' })
+          ) : (
+            <>
+              <Lock size={12} />{' '}
+              {t('v4.step.referFriend', {
+                n: step.requiredReferrals,
+                defaultValue: 'Refer friend #{{n}}',
+              })}
+            </>
+          )}
         </div>
       )}
     </article>
@@ -2070,7 +2278,9 @@ const SharePromoBlock: React.FC<{
   heroShape: string | null;
   heroPct: number;
   onGenerate: () => void;
-}> = ({ heroTitle, heroShape, heroPct, onGenerate }) => (
+}> = ({ heroTitle, heroShape, heroPct, onGenerate }) => {
+  const { t } = useTranslation('dashboard');
+  return (
   <section
     style={{
       marginBottom: 48,
@@ -2106,7 +2316,7 @@ const SharePromoBlock: React.FC<{
           color: PALETTE.goldBright,
         }}
       >
-        SHAREABLE · LINKEDIN-READY
+        {t('v4.sharePromo.eyebrow', { defaultValue: 'SHAREABLE · LINKEDIN-READY' })}
       </span>
       <h3
         style={{
@@ -2119,7 +2329,9 @@ const SharePromoBlock: React.FC<{
           lineHeight: 1.1,
         }}
       >
-        Share what surprised you, not what flattered you.
+        {t('v4.sharePromo.title', {
+          defaultValue: 'Share what surprised you, not what flattered you.',
+        })}
       </h3>
       <p
         style={{
@@ -2131,8 +2343,10 @@ const SharePromoBlock: React.FC<{
           lineHeight: 1.55,
         }}
       >
-        A short, honest card with one line your coach wrote about you. Cairn metaphor intact. Brings more
-        friends to find their path, and unlocks your toolkit.
+        {t('v4.sharePromo.body', {
+          defaultValue:
+            'A short, honest card with one line your coach wrote about you. Cairn metaphor intact. Brings more friends to find their path, and unlocks your toolkit.',
+        })}
       </p>
       <div style={{ display: 'flex', gap: 10, marginTop: 6, flexWrap: 'wrap' }}>
         <button
@@ -2154,7 +2368,8 @@ const SharePromoBlock: React.FC<{
             boxShadow: '0 10px 22px -8px rgba(39,161,161,0.5)',
           }}
         >
-          <Sparkles size={14} /> Generate share card
+          <Sparkles size={14} />{' '}
+          {t('v4.sharePromo.generate', { defaultValue: 'Generate share card' })}
         </button>
         <button
           type="button"
@@ -2171,7 +2386,7 @@ const SharePromoBlock: React.FC<{
             cursor: 'pointer',
           }}
         >
-          Customise quote
+          {t('v4.sharePromo.customise', { defaultValue: 'Customise quote' })}
         </button>
       </div>
     </div>
@@ -2214,7 +2429,9 @@ const SharePromoBlock: React.FC<{
             color: PALETTE.goldBright,
           }}
         >
-          BEST-FIT CAREER · MY CAIRNLY MATCH
+          {t('v4.sharePromo.cardEyebrow', {
+            defaultValue: 'BEST-FIT CAREER · MY CAIRNLY MATCH',
+          })}
         </span>
         <h4
           style={{
@@ -2231,7 +2448,14 @@ const SharePromoBlock: React.FC<{
         </h4>
         {(heroShape || heroPct > 0) && (
           <div style={{ fontFamily: FONT_BODY, fontSize: 11.5, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: 10 }}>
-            {[heroShape, heroPct > 0 ? `${heroPct}% match` : null].filter(Boolean).join(' · ')}
+            {[
+              heroShape,
+              heroPct > 0
+                ? t('v4.sharePromo.matchPct', { pct: heroPct, defaultValue: '{{pct}}% match' })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           </div>
         )}
         <div style={{ height: 5, background: 'rgba(255,255,255,0.12)', borderRadius: 9999, overflow: 'hidden' }}>
@@ -2246,7 +2470,8 @@ const SharePromoBlock: React.FC<{
       </div>
     </div>
   </section>
-);
+  );
+};
 
 // ── Executive summary status banner ──────────────────────────
 // Surfaces the async WF7 exec-summary state at the top of the dashboard so a
@@ -2256,23 +2481,38 @@ const ExecSummaryBanner: React.FC<{
   status: 'pending' | 'arrived' | 'timedout' | null | undefined;
   onOpen?: () => void;
 }> = ({ status, onOpen }) => {
+  const { t } = useTranslation('dashboard');
   if (!status) return null;
 
   const config = {
     pending: {
       icon: <Loader2 size={18} className="animate-spin" style={{ color: PALETTE.teal }} />,
-      title: 'Putting together your executive summary…',
-      body: 'The snapshot of your whole profile is generating now. It will appear here in a moment, no need to refresh.',
+      title: t('v4.execBanner.pendingTitle', {
+        defaultValue: 'Putting together your executive summary…',
+      }),
+      body: t('v4.execBanner.pendingBody', {
+        defaultValue:
+          'The snapshot of your whole profile is generating now. It will appear here in a moment, no need to refresh.',
+      }),
     },
     arrived: {
       icon: <CheckCircle2 size={18} style={{ color: PALETTE.teal }} />,
-      title: 'Your executive summary is ready.',
-      body: 'The high-level read of your career profile is done.',
+      title: t('v4.execBanner.arrivedTitle', {
+        defaultValue: 'Your executive summary is ready.',
+      }),
+      body: t('v4.execBanner.arrivedBody', {
+        defaultValue: 'The high-level read of your career profile is done.',
+      }),
     },
     timedout: {
       icon: <Clock size={18} style={{ color: '#d4a024' }} />,
-      title: 'Your executive summary is taking a little longer than usual.',
-      body: 'It is still being generated behind the scenes. Check back in a few minutes. The rest of your report is ready below.',
+      title: t('v4.execBanner.timedoutTitle', {
+        defaultValue: 'Your executive summary is taking a little longer than usual.',
+      }),
+      body: t('v4.execBanner.timedoutBody', {
+        defaultValue:
+          'It is still being generated behind the scenes. Check back in a few minutes. The rest of your report is ready below.',
+      }),
     },
   }[status];
 
@@ -2321,7 +2561,7 @@ const ExecSummaryBanner: React.FC<{
             cursor: 'pointer',
           }}
         >
-          Open <ArrowRight size={15} />
+          {t('v4.execBanner.open', { defaultValue: 'Open' })} <ArrowRight size={15} />
         </button>
       )}
     </div>
@@ -2332,6 +2572,7 @@ const ExecSummaryBanner: React.FC<{
 // summary is still generating (or timed out), so the slot where it lands is
 // never empty. Non-interactive — it swaps for the real row once WF7 writes it.
 const ExecSummaryPlaceholderRow: React.FC<{ status: 'pending' | 'timedout' }> = ({ status }) => {
+  const { t } = useTranslation('dashboard');
   const pending = status === 'pending';
   return (
     <div
@@ -2350,12 +2591,16 @@ const ExecSummaryPlaceholderRow: React.FC<{ status: 'pending' | 'timedout' }> = 
       )}
       <div style={{ minWidth: 0 }}>
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: 'rgba(255,255,255,0.92)' }}>
-          Executive summary
+          {t('v4.execBanner.placeholderTitle', { defaultValue: 'Executive summary' })}
         </div>
         <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
           {pending
-            ? 'Generating your snapshot… this appears automatically.'
-            : 'Taking longer than usual. Check back shortly.'}
+            ? t('v4.execBanner.placeholderPending', {
+                defaultValue: 'Generating your snapshot… this appears automatically.',
+              })
+            : t('v4.execBanner.placeholderTimedout', {
+                defaultValue: 'Taking longer than usual. Check back shortly.',
+              })}
         </div>
       </div>
     </div>
@@ -2472,16 +2717,13 @@ const ReportAccordionRow: React.FC<{
 const CareerComparisonPanel: React.FC<{
   comparison: NonNullable<ReportRow['comparison']>;
 }> = ({ comparison }) => {
-  const { i18n } = useTranslation();
-  const nl = i18n.language?.toLowerCase().startsWith('nl');
-  const heading =
-    comparison.careers.length === 2
-      ? nl
-        ? 'Hoe deze verschilt van je andere toprol'
-        : 'How it differs from your other top role'
-      : nl
-        ? 'Hoe deze verschilt van je andere toprollen'
-        : 'How it differs from your other top roles';
+  const { t, i18n } = useTranslation('dashboard');
+  // count is "how many OTHER top roles", so a 2-career radar compares against
+  // exactly one other role.
+  const heading = t('v4.comparison.heading', {
+    count: comparison.careers.length - 1,
+    defaultValue: 'How it differs from your other top roles',
+  });
   return (
     <div
       style={{

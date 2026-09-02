@@ -13,6 +13,8 @@
 // circular import.
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
@@ -21,7 +23,9 @@ import { useSavedChatResponses } from '@/hooks/useSavedChatResponses';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from './dashboardV2Shared';
 
 // Friendly label for the section a response was saved from. Falls back to a
-// generic tag when the section is unknown (null/legacy rows).
+// generic tag when the section is unknown (null/legacy rows). The English
+// literals below are the i18n defaultValue, so EN renders byte-identically and
+// every other language only needs `savedResponses.sections.*` in its JSON.
 const SECTION_LABELS: Record<string, string> = {
   approach: 'Your Approach',
   strengths: 'Your Strengths',
@@ -37,9 +41,12 @@ const SECTION_LABELS: Record<string, string> = {
   executive_summary: 'Executive Summary',
 };
 
-function sectionLabel(sectionType: string | null): string {
-  if (!sectionType) return 'Coaching note';
-  return SECTION_LABELS[sectionType] ?? 'Coaching note';
+function sectionLabel(sectionType: string | null, t: TFunction): string {
+  const fallback = t('savedResponses.note', { defaultValue: 'Coaching note' });
+  if (!sectionType) return fallback;
+  const en = SECTION_LABELS[sectionType];
+  if (!en) return fallback;
+  return t(`savedResponses.sections.${sectionType}`, { defaultValue: en });
 }
 
 // Which report chapter a saved response belongs to. Career responses are the
@@ -156,6 +163,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
   chapter,
   wrapUpSummary = null,
 }) => {
+  const { t } = useTranslation('dashboard');
   const { savedResponses, removeSavedResponse } = useSavedChatResponses(reportId);
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -187,7 +195,7 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
             margin: 0,
           }}
         >
-          Coaching responses you saved
+          {t('savedResponses.heading', { defaultValue: 'Coaching responses you saved' })}
         </h4>
       </div>
 
@@ -246,7 +254,9 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
                       marginBottom: 6,
                     }}
                   >
-                    {isSummary ? 'Chat wrap-up summary' : sectionLabel(item.section_type)}
+                    {isSummary
+                      ? t('savedResponses.wrapUp', { defaultValue: 'Chat wrap-up summary' })
+                      : sectionLabel(item.section_type, t)}
                   </div>
                   {!isOpen && (
                     <div
@@ -273,7 +283,11 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
                   <button
                     type="button"
                     onClick={() => setOpenId(isOpen ? null : item.id)}
-                    aria-label={isOpen ? 'Collapse' : 'Expand'}
+                    aria-label={
+                      isOpen
+                        ? t('savedResponses.collapse', { defaultValue: 'Collapse' })
+                        : t('savedResponses.expand', { defaultValue: 'Expand' })
+                    }
                     style={{
                       background: 'transparent',
                       border: 'none',
@@ -296,8 +310,10 @@ export const V4SavedResponses: React.FC<V4SavedResponsesProps> = ({
                         if (isOpen) setOpenId(null);
                         removeSavedResponse(item.id);
                       }}
-                      aria-label="Remove from saved"
-                      title="Remove from saved"
+                      aria-label={t('savedResponses.remove', {
+                        defaultValue: 'Remove from saved',
+                      })}
+                      title={t('savedResponses.remove', { defaultValue: 'Remove from saved' })}
                       style={{
                         background: 'transparent',
                         border: 'none',

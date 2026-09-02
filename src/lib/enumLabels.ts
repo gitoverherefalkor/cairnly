@@ -84,3 +84,27 @@ export const moveBlurb = (level: string, blurbEn: string, lang?: string | null) 
 export const feasibilityLabel = (level: string, lang?: string | null) =>
   pick(FEASIBILITY_LABEL, level, lang);
 export const pillTag = (tag: string, lang?: string | null) => pick(PILL_TAG, tag, lang);
+
+// ── Pill chrome that is a phrase rather than an enum value ────────────────
+// Same contract as the maps above: keyed by language, English is the fallback,
+// and adding a language means adding its line here. These render on the
+// dashboard, the printed report AND the landing page, so they cannot come
+// from a react-i18next hook alone.
+const NL = (lang?: string | null) => norm(lang) === 'nl';
+
+/** Match pill body, e.g. "Match · 87%". */
+export const matchPillLabel = (pct: number, lang?: string | null) =>
+  `${pillTag('Match', lang)} · ${pct}%`;
+
+/** Match pill hover tooltip. */
+export const matchPillTitle = (pct: number, lang?: string | null) =>
+  NL(lang) ? `${pct}% match met jouw profiel` : `${pct}% fit against your profile`;
+
+/** Salary pill prefix — it is an estimate, never a sourced figure. */
+export const salaryPillPrefix = (lang?: string | null) => (NL(lang) ? 'ca.' : 'est.');
+
+/** Salary pill hover tooltip. */
+export const salaryPillTitle = (lang?: string | null) =>
+  NL(lang)
+    ? 'Door AI geschatte range voor jouw regio. Echte gepubliceerde ranges vind je bij Zoek open rollen.'
+    : 'AI-estimated range for your region. See real posted ranges in Find Open Roles.';

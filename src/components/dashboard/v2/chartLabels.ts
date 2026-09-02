@@ -61,3 +61,10 @@ const MAP_NL: Record<string, string> = {
   'match strength': 'matchsterkte',
 };
 export const mapLabel = (label: string, lang: ChartLang) => pick(MAP_NL, label, lang);
+
+// The one full sentence the career-map legend carries (screen only — print
+// lists every runner-up by name instead, so it never needs this).
+export const runnerUpsLegend = (count: number, lang: ChartLang): string =>
+  isNl(lang)
+    ? `+${count} runner-up${count === 1 ? '' : 's'} (beweeg over de stippen voor namen)`
+    : `+${count} runner-up${count === 1 ? '' : 's'} (hover the dots for names)`;

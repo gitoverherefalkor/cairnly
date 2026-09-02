@@ -330,7 +330,7 @@ export const ReportPrintDocument: React.FC<{
             title={t.mapTitle}
             blurb={t.mapBlurb}
             chart={<V4CareerMapSVG points={mapPoints} numbered lang={lang} />}
-            legend={<V4CareerMapLegend points={mapPoints} print />}
+            legend={<V4CareerMapLegend points={mapPoints} print lang={lang} />}
           />,
         )
       : null;

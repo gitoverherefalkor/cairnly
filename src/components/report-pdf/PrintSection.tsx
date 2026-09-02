@@ -354,7 +354,7 @@ export const PrintSection: React.FC<{
 
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 0 0' }}>
-            {Number.isFinite(score) && <MatchPill pct={score} />}
+            {Number.isFinite(score) && <MatchPill pct={score} lang={lang} />}
             {impact && <AIImpactPill label={impact as AIImpactLevel} lang={lang} />}
             {move && <MovePill level={move} lang={lang} />}
           </div>

@@ -236,6 +236,40 @@
       "execSummary": "Executive summary",
       "bestFitCareer": "Best-fit career",
       "outsideBoxCareer": "Outside-the-box career"
+    },
+    "modal": {
+      "eyebrow": "SHARE · LINKEDIN-READY",
+      "title": "Share your result on",
+      "sub": "A post-ready snapshot of your result, sized for LinkedIn. Share it to show your network the direction you're exploring and start the conversations that move careers.",
+      "close": "Close",
+      "typeRole": "Best-fit role",
+      "typePersonality": "Personality",
+      "pickCareer": "Pick the career",
+      "pickSection": "Pick the section",
+      "matchPct": "{{pct}}% match",
+      "outsideBox": "Outside-the-box",
+      "chooseLine": "Choose the line",
+      "generating": "Generating shareable quotes from your report…",
+      "generateError": "Could not generate quotes. Try closing and re-opening.",
+      "helper": "We'll open LinkedIn with a starter caption and save the image. Just attach the saved image to your post.",
+      "download": "Download image",
+      "saving": "Saving…",
+      "shareLinkedIn": "Share on LinkedIn",
+      "captionRole": "My top career match: {{title}}. Mapping my next move with Cairnly.",
+      "caption": "Mapping my next career direction with Cairnly."
+    },
+    "card": {
+      "eyebrow": "FROM MY REPORT",
+      "quoteFallback": "A clear, honest read on where you do your best work.",
+      "subRole": "Why this role fits {{name}}.",
+      "subRoleNoName": "Why this role fits me.",
+      "subPersonality": "What {{name}} brings to the table.",
+      "subPersonalityNoName": "What I bring to the table.",
+      "tagline": "One-shot career clarity ·",
+      "bestFit": "BEST-FIT CAREER",
+      "outsideBox": "OUTSIDE-THE-BOX",
+      "myPersonality": "MY PERSONALITY",
+      "personalityFallback": "My read on me"
     }
   },
   "pdfButton": {
@@ -265,6 +299,195 @@
       "runners": "Runner-up Careers",
       "outside": "Outside-the-Box Careers",
       "dream": "Dream Job Analysis"
+    },
+    "fallback": {
+      "careerMatch": "Career match",
+      "career": "Career",
+      "careerN": "Career {{n}}",
+      "bestFitCareer": "Your best-fit career"
+    },
+    "welcome": {
+      "eyebrow": "YOUR CAREER PROFILE · REPORT READY",
+      "title": "Welcome back, {{name}}.",
+      "titleNoName": "Welcome back.",
+      "sub": "Your strongest career matches are below. Open any one for the full breakdown, then find live openings when you're ready.",
+      "generated": "Report generated · {{date}}",
+      "profile": "Profile"
+    },
+    "pdf": {
+      "download": "Download report PDF",
+      "building": "Building your PDF…",
+      "hint": "A4, ready to print or share.",
+      "hintBuilding": "About half a minute the first time."
+    },
+    "hero": {
+      "eyebrow": "STRONGEST MATCH · CAREER #1",
+      "alignment": "ALIGNMENT WITH YOUR AMBITIONS",
+      "why": "Why this fits",
+      "findRole": "Find this role",
+      "findRoleLocked": "Find this role · locked",
+      "tailorCv": "Tailor CV to this role",
+      "tailorCvLocked": "Tailor CV · locked",
+      "compare": "How it compares · hover for detail",
+      "backEyebrow": "HOW IT DIFFERS FROM YOUR OTHER TOP ROLES",
+      "backHint": "Hover an axis label to see what it measures",
+      "backBlurb": "Five axes that shape day-to-day fit. The filled polygon is your strongest match; the outlined polygons are your other top roles. Distance from the centre is the score on each axis."
+    },
+    "secondary": {
+      "eyebrow": "CAREER #{{rank}}",
+      "open": "Open",
+      "findRoles": "Find roles",
+      "findRolesLocked": "Find roles · locked"
+    },
+    "paths": {
+      "eyebrow": "MORE PATHS WORTH CONSIDERING",
+      "seeBreakdown": "See full breakdown"
+    },
+    "reportHeader": {
+      "eyebrow": "YOUR FULL REPORT · REFERENCE",
+      "title": "Everything you walked through with your coach",
+      "sub": "Closed by default. You've already been here, so open any section to revisit.",
+      "aboutEyebrow_one": "ABOUT YOU · {{count}} SECTION",
+      "aboutEyebrow_other": "ABOUT YOU · {{count}} SECTIONS",
+      "careersEyebrow_one": "CAREER SUGGESTIONS · {{count}} SECTION",
+      "careersEyebrow_other": "CAREER SUGGESTIONS · {{count}} SECTIONS"
+    },
+    "radarBanner": {
+      "eyebrow": "PERSONALITY RADAR",
+      "title": "How you actually work",
+      "blurb": "Your operating profile across five dimensions, built from the assessment and pressure-tested by your coach.",
+      "meta": "{{count}} axes",
+      "balanced": "Balanced across all {{count}} dimensions.",
+      "lead1": "Strongest dimension: {{one}}.",
+      "lead2": "Strongest dimensions: {{one}} and {{two}}.",
+      "leadMany": "Strongest dimensions: {{head}}, and {{tail}}."
+    },
+    "mapBanner": {
+      "eyebrow": "CAREER MAP",
+      "title": "Where the matches sit",
+      "blurb": "Your top roles plotted by match strength against AI-exposure risk. Sweet spot is top-left; bottom-right is the walk-away zone.",
+      "stat_one": "top match lands in the safe-strong quadrant.",
+      "stat_other": "top matches land in the safe-strong quadrant."
+    },
+    "comparison": {
+      "heading_one": "How it differs from your other top role",
+      "heading_other": "How it differs from your other top roles"
+    },
+    "toolkit": {
+      "eyebrow": "JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK",
+      "title": "Six friends, and your assessment paid for itself.",
+      "bodyBefore": "Your first three friends unlock the job-hunt tools. The next three refund your purchase,",
+      "bodySplit": "25% + 25% + 50%",
+      "bodyAfter": ", back to your card. They get clarity, you get paid back.",
+      "progress": "{{count}} of 6 friends joined",
+      "allUnlocked": "All unlocked 🎉",
+      "code": "Code",
+      "invite": "Invite",
+      "rowTools": "Tools",
+      "rowMoneyBack": "Money back"
+    },
+    "step": {
+      "unlocked": "Unlocked!",
+      "unlockedSoon": "Unlocked · soon",
+      "friend": "Friend #{{n}}",
+      "comingSoon": "Coming soon",
+      "inviteToUnlock": "Invite to unlock",
+      "refundOnItsWay": "✓ Refund on its way",
+      "referFriend": "Refer friend #{{n}}",
+      "viewYour": "View your {{count}} {{noun}}",
+      "noun": {
+        "resume_one": "optimized resume",
+        "resume_other": "optimized resumes",
+        "jobs_one": "saved job",
+        "jobs_other": "saved jobs",
+        "coverLetter_one": "custom cover letter",
+        "coverLetter_other": "custom cover letters"
+      },
+      "cta": {
+        "jobs": "Find open roles",
+        "resume": "Tailor your resume",
+        "cover-letter": "Generate cover letters"
+      }
+    },
+    "unlock": {
+      "tool": {
+        "jobs": {
+          "title": "Find Job Openings",
+          "description": "Search live job openings matched to your top career recommendations."
+        },
+        "resume": {
+          "title": "Tailor Your Resume",
+          "description": "Rewrite your uploaded resume to fit the specific jobs you want to apply for."
+        },
+        "cover-letter": {
+          "title": "Tailor Cover Letters",
+          "description": "Generate a tailored cover letter for each role, written to the specific posting."
+        }
+      },
+      "refund": {
+        "4": {
+          "title": "25% refund",
+          "description": "Get a quarter of what you paid back to your card."
+        },
+        "5": {
+          "title": "Additional 25% refund",
+          "description": "Another quarter back, now half your purchase recovered."
+        },
+        "6": {
+          "title": "Remaining 50% refund",
+          "description": "The final half back. Your assessment is now completely free."
+        }
+      }
+    },
+    "sharePromo": {
+      "eyebrow": "SHAREABLE · LINKEDIN-READY",
+      "title": "Share what surprised you, not what flattered you.",
+      "body": "A short, honest card with one line your coach wrote about you. Cairn metaphor intact. Brings more friends to find their path, and unlocks your toolkit.",
+      "generate": "Generate share card",
+      "customise": "Customise quote",
+      "cardEyebrow": "BEST-FIT CAREER · MY CAIRNLY MATCH",
+      "matchPct": "{{pct}}% match"
+    },
+    "execBanner": {
+      "pendingTitle": "Putting together your executive summary…",
+      "pendingBody": "The snapshot of your whole profile is generating now. It will appear here in a moment, no need to refresh.",
+      "arrivedTitle": "Your executive summary is ready.",
+      "arrivedBody": "The high-level read of your career profile is done.",
+      "timedoutTitle": "Your executive summary is taking a little longer than usual.",
+      "timedoutBody": "It is still being generated behind the scenes. Check back in a few minutes. The rest of your report is ready below.",
+      "open": "Open",
+      "placeholderTitle": "Executive summary",
+      "placeholderPending": "Generating your snapshot… this appears automatically.",
+      "placeholderTimedout": "Taking longer than usual. Check back shortly."
+    }
+  },
+  "execSummaryModal": {
+    "eyebrow": "EXECUTIVE SUMMARY",
+    "title": "A snapshot of where you are.",
+    "sub": "The shortest read of your career profile. The full breakdown sits below in the report sections.",
+    "close": "Close",
+    "gotIt": "Got it"
+  },
+  "savedResponses": {
+    "heading": "Coaching responses you saved",
+    "wrapUp": "Chat wrap-up summary",
+    "note": "Coaching note",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "remove": "Remove from saved",
+    "sections": {
+      "approach": "Your Approach",
+      "strengths": "Your Strengths",
+      "development": "Development Areas",
+      "values": "Your Values",
+      "top_career_1": "Primary Career Match",
+      "top_career_2": "Second Career Match",
+      "top_career_3": "Third Career Match",
+      "runner_ups": "Runner-up Careers",
+      "outside_box": "Outside-the-Box",
+      "dream_jobs": "Dream-Job Analysis",
+      "init_summary": "Overview",
+      "executive_summary": "Executive Summary"
     }
   }
 }

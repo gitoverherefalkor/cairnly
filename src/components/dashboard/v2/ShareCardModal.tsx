@@ -5,6 +5,7 @@
 // and which quote line goes on the card.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toPng } from 'html-to-image';
 import { Download, Linkedin, Loader2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,7 @@ import {
   type AIImpactLevel,
 } from './dashboardV2Shared';
 import { MOVE_COLOR, moveLegend, type MoveLevel } from '@/lib/moveScale';
+import { aiImpactLabel, moveLabel, pillTag } from '@/lib/enumLabels';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnImageHero from '@/logos/live/Cairn_image_hero.png';
 
@@ -71,6 +73,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   roleShares,
   onQuotesGenerated,
 }) => {
+  const { t, i18n } = useTranslation('dashboard');
+  const lang = i18n.language;
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Default to whichever type actually has data. Prefer role.
@@ -149,7 +153,11 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
       } catch (e) {
         if (cancelled) return;
         console.error('[ShareCardModal] generate-share-quotes failed:', e);
-        setGenerateError('Could not generate quotes. Try closing and re-opening.');
+        setGenerateError(
+          t('shareCard.modal.generateError', {
+            defaultValue: 'Could not generate quotes. Try closing and re-opening.',
+          }),
+        );
       } finally {
         if (!cancelled) setGeneratingQuotes(false);
       }
@@ -208,8 +216,14 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   const handleShareLinkedIn = () => {
     const caption =
       cardType === 'role' && role?.title
-        ? `My top career match: ${role.title}. Mapping my next move with Cairnly.`
-        : 'Mapping my next career direction with Cairnly.';
+        ? t('shareCard.modal.captionRole', {
+            title: role.title,
+            defaultValue:
+              'My top career match: {{title}}. Mapping my next move with Cairnly.',
+          })
+        : t('shareCard.modal.caption', {
+            defaultValue: 'Mapping my next career direction with Cairnly.',
+          });
     window.open(
       `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(caption)}`,
       '_blank',
@@ -265,10 +279,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
                 color: PALETTE.tealDeep,
               }}
             >
-              SHARE · LINKEDIN-READY
+              {t('shareCard.modal.eyebrow', { defaultValue: 'SHARE · LINKEDIN-READY' })}
             </div>
             <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: PALETTE.canvasDeep, margin: '6px 0 0 0', display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              Share your result on
+              {t('shareCard.modal.title', { defaultValue: 'Share your result on' })}
               {/* Inline LinkedIn bug — stays crisp at any size, unlike the
                   rasterised PNG that rendered blurry/clipped at this height. */}
               <svg
@@ -293,15 +307,17 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
                 maxWidth: 440,
               }}
             >
-              A post-ready snapshot of your result, sized for LinkedIn. Share it to show your
-              network the direction you're exploring and start the conversations that move careers.
+              {t('shareCard.modal.sub', {
+                defaultValue:
+                  "A post-ready snapshot of your result, sized for LinkedIn. Share it to show your network the direction you're exploring and start the conversations that move careers.",
+              })}
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14 }}>
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t('shareCard.modal.close', { defaultValue: 'Close' })}
               style={{
                 background: 'transparent',
                 border: `1px solid ${PALETTE.tan}`,
@@ -346,6 +362,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
                 quote={quote}
                 role={role ?? null}
                 personality={personality ?? null}
+                lang={lang}
               />
             </div>
           </div>
@@ -354,11 +371,19 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         {/* Section / role picker — depends on card type */}
         {cardType === 'role' && roleShares.length > 0 && (
           <PickerList
-            label="Pick the career"
+            label={t('shareCard.modal.pickCareer', { defaultValue: 'Pick the career' })}
             items={roleShares.map((r) => ({
               key: r.sectionType + ':' + r.title,
               primary: r.title,
-              secondary: r.matchPct != null ? `${r.matchPct}% match` : r.isOutsideBox ? 'Outside-the-box' : null,
+              secondary:
+                r.matchPct != null
+                  ? t('shareCard.modal.matchPct', {
+                      pct: r.matchPct,
+                      defaultValue: '{{pct}}% match',
+                    })
+                  : r.isOutsideBox
+                    ? t('shareCard.modal.outsideBox', { defaultValue: 'Outside-the-box' })
+                    : null,
             }))}
             activeIndex={roleIdx}
             onSelect={setRoleIdx}
@@ -366,7 +391,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
         )}
         {cardType === 'personality' && personalityShares.length > 0 && (
           <PickerList
-            label="Pick the section"
+            label={t('shareCard.modal.pickSection', { defaultValue: 'Pick the section' })}
             items={personalityShares.map((p) => ({
               key: p.sectionType + ':' + p.title,
               primary: p.title,
@@ -391,7 +416,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               marginBottom: 8,
             }}
           >
-            Choose the line
+            {t('shareCard.modal.chooseLine', { defaultValue: 'Choose the line' })}
           </div>
           {cardType === 'role' && generatingQuotes && activeQuotes.length === 0 ? (
             <div
@@ -409,7 +434,9 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               }}
             >
               <Loader2 size={14} className="animate-spin" />
-              Generating shareable quotes from your report…
+              {t('shareCard.modal.generating', {
+                defaultValue: 'Generating shareable quotes from your report…',
+              })}
             </div>
           ) : cardType === 'role' && generateError && activeQuotes.length === 0 ? (
             <div
@@ -464,8 +491,10 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             color: PALETTE.inkMuted,
           }}
         >
-          We'll open LinkedIn with a starter caption and save the image. Just attach the saved
-          image to your post.
+          {t('shareCard.modal.helper', {
+            defaultValue:
+              "We'll open LinkedIn with a starter caption and save the image. Just attach the saved image to your post.",
+          })}
         </div>
         <div style={{ display: 'flex', gap: 10, marginTop: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <button
@@ -483,7 +512,7 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               cursor: 'pointer',
             }}
           >
-            Close
+            {t('shareCard.modal.close', { defaultValue: 'Close' })}
           </button>
           <button
             type="button"
@@ -506,7 +535,9 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
             }}
           >
             {exporting ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
-            {exporting ? 'Saving…' : 'Download image'}
+            {exporting
+              ? t('shareCard.modal.saving', { defaultValue: 'Saving…' })
+              : t('shareCard.modal.download', { defaultValue: 'Download image' })}
           </button>
           <button
             type="button"
@@ -529,7 +560,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               boxShadow: '0 10px 22px -8px rgba(39,161,161,0.5)',
             }}
           >
-            <Linkedin size={15} /> Share on LinkedIn
+            <Linkedin size={15} />{' '}
+            {t('shareCard.modal.shareLinkedIn', { defaultValue: 'Share on LinkedIn' })}
           </button>
         </div>
       </div>
@@ -544,9 +576,18 @@ const CardTypeToggle: React.FC<{
   roleAvailable: boolean;
   personalityAvailable: boolean;
 }> = ({ value, onChange, roleAvailable, personalityAvailable }) => {
+  const { t } = useTranslation('dashboard');
   const options: { key: CardType; label: string; available: boolean }[] = [
-    { key: 'role', label: 'Best-fit role', available: roleAvailable },
-    { key: 'personality', label: 'Personality', available: personalityAvailable },
+    {
+      key: 'role',
+      label: t('shareCard.modal.typeRole', { defaultValue: 'Best-fit role' }),
+      available: roleAvailable,
+    },
+    {
+      key: 'personality',
+      label: t('shareCard.modal.typePersonality', { defaultValue: 'Personality' }),
+      available: personalityAvailable,
+    },
   ];
   return (
     <div
@@ -658,7 +699,12 @@ const ShareCard: React.FC<{
   quote: string;
   role: RoleShare | null;
   personality: PersonalityShare | null;
-}> = ({ cardType, firstName, quote, role, personality }) => (
+  /** Card language. Passed explicitly rather than read from a hook so the
+   *  exported PNG always matches the language the user is reading in. */
+  lang: string;
+}> = ({ cardType, firstName, quote, role, personality, lang }) => {
+  const { t } = useTranslation('dashboard');
+  return (
   <div
     style={{
       width: CARD_W,
@@ -684,7 +730,7 @@ const ShareCard: React.FC<{
             color: PALETTE.tealDeep,
           }}
         >
-          FROM MY REPORT
+          {t('shareCard.card.eyebrow', { defaultValue: 'FROM MY REPORT' })}
         </span>
         <div style={{ marginTop: 28 }}>
           <p
@@ -698,19 +744,37 @@ const ShareCard: React.FC<{
               margin: 0,
             }}
           >
-            {quote || 'A clear, honest read on where you do your best work.'}
+            {quote ||
+              t('shareCard.card.quoteFallback', {
+                defaultValue: 'A clear, honest read on where you do your best work.',
+              })}
           </p>
           <div style={{ fontFamily: FONT_BODY, fontSize: 19, fontWeight: 600, color: PALETTE.inkMuted, marginTop: 18 }}>
             {cardType === 'role' && role
-              ? `Why this role fits ${firstName || 'me'}.`
-              : `What ${firstName || 'I'} bring${firstName ? 's' : ''} to the table.`}
+              ? firstName
+                ? t('shareCard.card.subRole', {
+                    name: firstName,
+                    defaultValue: 'Why this role fits {{name}}.',
+                  })
+                : t('shareCard.card.subRoleNoName', {
+                    defaultValue: 'Why this role fits me.',
+                  })
+              : firstName
+                ? t('shareCard.card.subPersonality', {
+                    name: firstName,
+                    defaultValue: 'What {{name}} brings to the table.',
+                  })
+                : t('shareCard.card.subPersonalityNoName', {
+                    defaultValue: 'What I bring to the table.',
+                  })}
           </div>
         </div>
       </div>
       <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', gap: 16 }}>
         <img src={LOGO_WORDMARK_URL} alt="Cairnly" style={{ height: 52, width: 'auto', display: 'block' }} crossOrigin="anonymous" />
         <div style={{ fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: PALETTE.inkMuted }}>
-          One-shot career clarity · <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
+          {t('shareCard.card.tagline', { defaultValue: 'One-shot career clarity ·' })}{' '}
+          <span style={{ color: PALETTE.tealDeep, fontWeight: 700 }}>cairnly.io</span>
         </div>
       </div>
     </div>
@@ -776,7 +840,9 @@ const ShareCard: React.FC<{
                 color: PALETTE.goldBright,
               }}
             >
-              {role.isOutsideBox ? 'OUTSIDE-THE-BOX' : 'BEST-FIT CAREER'}
+              {role.isOutsideBox
+                ? t('shareCard.card.outsideBox', { defaultValue: 'OUTSIDE-THE-BOX' })
+                : t('shareCard.card.bestFit', { defaultValue: 'BEST-FIT CAREER' })}
             </span>
             <h2
               style={{
@@ -818,7 +884,7 @@ const ShareCard: React.FC<{
                       color: 'rgba(255,255,255,0.5)',
                     }}
                   >
-                    Match
+                    {pillTag('Match', lang)}
                   </span>
                 </div>
               )}
@@ -844,7 +910,7 @@ const ShareCard: React.FC<{
                     }}
                   />
                   <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff' }}>
-                    {role.aiImpact}
+                    {aiImpactLabel(role.aiImpact, lang)}
                   </span>
                   <span
                     style={{
@@ -856,13 +922,13 @@ const ShareCard: React.FC<{
                       color: 'rgba(255,255,255,0.5)',
                     }}
                   >
-                    AI impact
+                    {pillTag('AI Impact', lang)}
                   </span>
                 </div>
               )}
               {role.move && (
                 <div
-                  title={moveLegend(role.move)}
+                  title={moveLegend(role.move, lang)}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -883,7 +949,7 @@ const ShareCard: React.FC<{
                     }}
                   />
                   <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 15, color: '#fff' }}>
-                    {role.move}
+                    {moveLabel(role.move, lang)}
                   </span>
                   <span
                     style={{
@@ -895,7 +961,7 @@ const ShareCard: React.FC<{
                       color: 'rgba(255,255,255,0.5)',
                     }}
                   >
-                    Move
+                    {pillTag('Move', lang)}
                   </span>
                 </div>
               )}
@@ -913,7 +979,7 @@ const ShareCard: React.FC<{
                 color: PALETTE.goldBright,
               }}
             >
-              MY PERSONALITY
+              {t('shareCard.card.myPersonality', { defaultValue: 'MY PERSONALITY' })}
             </span>
             <h2
               style={{
@@ -926,7 +992,8 @@ const ShareCard: React.FC<{
                 color: '#fff',
               }}
             >
-              {personality?.title || 'My read on me'}
+              {personality?.title ||
+                t('shareCard.card.personalityFallback', { defaultValue: 'My read on me' })}
             </h2>
             {personality?.subheader && (
               <div
@@ -945,4 +1012,5 @@ const ShareCard: React.FC<{
       </div>
     </div>
   </div>
-);
+  );
+};

@@ -43,6 +43,8 @@ There is **one** set of React components. Every language renders through the exa
 | `src/lib/format.ts` | `formatDate` / `formatCurrency` / `formatNumber` via `Intl`. Maps `nl→nl-NL`, `de→de-DE`, else `en-US`. Never hardcode locale strings. |
 | `src/lib/pricing.ts` | Price source of truth by currency. `nl`/`de` → EUR, else USD. |
 | `src/lib/i18nArray.ts` | **`tArray(t, key)`** — safe reader for `returnObjects: true` arrays. Mandatory for any translation array (see Pitfall P2). |
+| `src/lib/enumLabels.ts` | **Code-level** per-language maps for pipeline enums + pill chrome (AI-impact levels and their tooltips, Move levels, feasibility, pill tags, Match/Salary pill text). NOT in the JSON on purpose: these render on the dashboard, the printed PDF **and** the landing page, and the print components resolve language by *prop*, not by the i18next hook. `npm run i18n:sync` does NOT touch this file, so a new language needs a block added here by hand. |
+| `src/components/dashboard/v2/chartLabels.ts` | Same deal for chart chrome: radar axis labels, career-map quadrant/axis words, the runner-ups legend line. Language by prop. Also not covered by `i18n:sync`. |
 | `scripts/i18n-sync.ts` | `npm run i18n:sync <lang> [--dry-run]`. Reads `en/*.json`, finds missing keys in target, translates via Claude using the glossary, writes target files. Preserves arrays. Needs `ANTHROPIC_API_KEY` in `.env`. |
 | `scripts/i18n-glossary.json` | Do-not-translate brand terms + per-language rules (je-form, no em-dashes, currency format, etc.). |
 | `supabase/functions/deliver-section/boilerplate.ts` | Chat section intros/outros, **per language**, hand-written. `getBoilerplate(lang)` / `getDreamJobsWrapUp(lang)`. |
@@ -99,6 +101,20 @@ This creates `public/locales/de/*.json` with arrays preserved. **Human-review th
 ### Step 4 — Formatting & pricing (usually already done)
 - `src/lib/format.ts`: confirm a `lang.startsWith("de")` → `de-DE` line exists (it does). Add one if introducing a brand-new code.
 - `src/lib/pricing.ts`: confirm currency mapping covers the language.
+
+### Step 4b — Code-level label maps (NOT covered by `i18n:sync`)
+Two files hold per-language maps in TypeScript rather than JSON, because their
+consumers (the printed PDF, the landing page) resolve language by prop instead of
+through the i18next hook. `npm run i18n:sync` will never fill these in.
+- `src/lib/enumLabels.ts` — add a `de` block to `AI_IMPACT_LABEL`,
+  `AI_IMPACT_MEANING_I18N`, `MOVE_LABEL`, `MOVE_BLURB_I18N`, `FEASIBILITY_LABEL`,
+  `PILL_TAG`, and extend the `NL(lang)` helpers at the bottom (match/salary pill
+  text) to branch on the new language.
+- `src/components/dashboard/v2/chartLabels.ts` — the `*_NL` maps and
+  `runnerUpsLegend` are keyed on Dutch only today; generalise to a
+  `Record<lang, Record<string, string>>` when a third language lands.
+Symptom of forgetting this step: the whole dashboard is in the new language
+except the pill labels and the chart axis words.
 
 ### Step 5 — AI edge functions
 - Confirm `LANG_NAMES` in `wrap-up-extract` and `generate-share-quotes` includes the language (de is present). Add it if missing.
@@ -192,6 +208,8 @@ As of this writing, these are English-only regardless of selected language. Addi
 - **Survey question content** in the DB (`questions`, `survey_sections`) — JSONB `translations` column exists but isn't populated/read yet (Phase 3).
 - **n8n-generated report + chat content** — the pipeline passes `preferred_language` (Phase 2 done), but the workflows don't yet inject the output-language instruction (Phase 4, needs per-node approval). So AI report/chat text returns in English until Phase 4.
 - **`Profile.tsx` body** (~40 strings) — descoped, hardcoded English.
+- **Sub-page app navs** — most `DashboardAppNav` callers pass their own English
+  `pageLabel`, so localizing that component alone does not localize every header.
 - **`WorkflowDiagramV2.tsx`** SVG labels — short technical strings, hardcoded.
 
 When you add a language, mention these so expectations are set: "UI shell + landing are <lang>; AI-generated content and emails follow once Phases 3-4 ship."

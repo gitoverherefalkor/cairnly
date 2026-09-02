@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { PALETTE } from './dashboardV2Shared';
-import { mapLabel, type ChartLang } from './chartLabels';
+import { mapLabel, runnerUpsLegend, type ChartLang } from './chartLabels';
 
 export interface CareerPoint {
   x: number; // 0–1, AI exposure (0 = safe, 1 = at risk)
@@ -366,10 +366,13 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
 // Compact legend rendered alongside the chart (the chart no longer prints
 // inline titles because most careers bucket to the same X). Top 3 show
 // colored rank chips with names; secondaries collapse to "+N runner-ups".
-export const V4CareerMapLegend: React.FC<{ points: CareerPoint[]; print?: boolean }> = ({
-  points,
-  print = false,
-}) => {
+export const V4CareerMapLegend: React.FC<{
+  points: CareerPoint[];
+  print?: boolean;
+  /** Label language. Print passes the document's language; the dashboard
+   *  passes the UI language. Same contract as V4CareerMapSVG. */
+  lang?: ChartLang;
+}> = ({ points, print = false, lang }) => {
   const tops = points
     .filter((p) => p.rank)
     .sort((a, b) => (a.rank! - b.rank!));
@@ -473,8 +476,7 @@ export const V4CareerMapLegend: React.FC<{ points: CareerPoint[]; print?: boolea
                 lineHeight: 1.3,
               }}
             >
-              +{secondaries.length} runner-up{secondaries.length === 1 ? '' : 's'} (hover the dots
-              for names)
+              {runnerUpsLegend(secondaries.length, lang)}
             </span>
           </div>
         ))}

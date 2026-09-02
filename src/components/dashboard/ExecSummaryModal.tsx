@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import {
   PALETTE,
@@ -85,6 +86,7 @@ function renderExecContent(content: string): React.ReactNode[] {
 }
 
 export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onClose }) => {
+  const { t } = useTranslation('dashboard');
   // Esc + body scroll lock.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -155,7 +157,7 @@ export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onC
                 color: PALETTE.tealDeep,
               }}
             >
-              EXECUTIVE SUMMARY
+              {t('execSummaryModal.eyebrow', { defaultValue: 'EXECUTIVE SUMMARY' })}
             </div>
             <h2
               style={{
@@ -168,7 +170,7 @@ export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onC
                 lineHeight: 1.15,
               }}
             >
-              A snapshot of where you are.
+              {t('execSummaryModal.title', { defaultValue: 'A snapshot of where you are.' })}
             </h2>
             <p
               style={{
@@ -180,13 +182,16 @@ export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onC
                 lineHeight: 1.5,
               }}
             >
-              The shortest read of your career profile. The full breakdown sits below in the report sections.
+              {t('execSummaryModal.sub', {
+                defaultValue:
+                  'The shortest read of your career profile. The full breakdown sits below in the report sections.',
+              })}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('execSummaryModal.close', { defaultValue: 'Close' })}
             style={{
               background: 'transparent',
               border: `1px solid ${PALETTE.tan}`,
@@ -233,7 +238,7 @@ export const ExecSummaryModal: React.FC<ExecSummaryModalProps> = ({ content, onC
               boxShadow: '0 10px 22px -8px rgba(39,161,161,0.5)',
             }}
           >
-            Got it
+            {t('execSummaryModal.gotIt', { defaultValue: 'Got it' })}
           </button>
         </div>
       </div>
