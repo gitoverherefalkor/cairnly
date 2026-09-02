@@ -12,6 +12,23 @@ another one.
 
 Both PDFs are print build `p21-partner-closing`, rendered 2026-08-31.
 
+## The template on the website (since 2026-09-02)
+
+`public/partners/cairnly-voorbeeldrapport-nl-template.pdf` is the `[partnernaam]`
+template rendered from the **current** demo report (the one the `/demo` replay
+is frozen from), so it matches what a partner just scrolled through. It is the
+download for partner visitors of `/demo?p=…`. Refresh it in one command (it
+keeps the demo profile's partner link and uses the `?pn=` override):
+
+```
+node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io \
+  --partner-name='[partnernaam]' \
+  --out=public/partners/cairnly-voorbeeldrapport-nl-template.pdf
+```
+
+To publish a hand-made template instead, drop the file at that exact path and
+commit; the demo needs no code change.
+
 ## Publishing these to /partners
 
 This folder is the source. The website serves its own copies under `public/partners/`,

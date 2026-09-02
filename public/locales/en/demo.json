@@ -93,6 +93,8 @@
     "ctaPartner": "Book 20 minutes with us",
     "ctaPartnerNote": "This is what your candidate gets, under your logo.",
     "backPartners": "Back to the partner page",
-    "backHome": "How it works"
+    "backHome": "How it works",
+    "pdfPartner": "Download the partner template (PDF)",
+    "pdfPartnerNote": "The same report as a white-label template: [partnernaam] where your name goes, no logo. Shows you where your branding lands."
   }
 }

@@ -91,6 +91,13 @@ UI: that card carries `metadata.origin = chat_replacement` (only the
 coach's replace-a-career flow writes that) and no `move`; the badge text
 is now localised (`careerPills.chatGenerated`).
 
+Round 5 (same day): partner visitors (`/demo?p=…`) download the white-label
+TEMPLATE instead of Marloes's plain report:
+`public/partners/cairnly-voorbeeldrapport-nl-template.pdf`, rendered from the
+same report with `demo-render-pdf.mjs --partner-name='[partnernaam]'` (see
+partners/README.md). The sidebar's multi-row sublines ("3 alternatives") are
+localised via chat.json `sidebarCounts` (plural keys).
+
 ## Goal
 
 A public, scrollable replay of a real coaching session, on the website, to

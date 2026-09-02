@@ -185,5 +185,13 @@
     "savedBanner": "Saved to your report. Take a moment with your Career Signature below, then exit to your dashboard.",
     "errorFirst": "Could not generate highlights. You can still save with just your own notes below, or try again.",
     "errorRetry": "Still no luck. You can save with just your own notes below."
+  },
+  "sidebarCounts": {
+    "alternatives_one": "{{count}} alternative",
+    "alternatives_other": "{{count}} alternatives",
+    "unconventional_one": "{{count}} unconventional path",
+    "unconventional_other": "{{count}} unconventional paths",
+    "dreamJobs_one": "{{count}} dream job",
+    "dreamJobs_other": "{{count}} dream jobs"
   }
 }

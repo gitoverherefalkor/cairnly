@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, Download, ShieldCheck } from 'lucide-react';
-import { DEMO_PDF_PATH } from '@/demo/constants';
+import { DEMO_PDF_PATH, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { trackCtaClick } from '@/lib/analytics';
 
@@ -53,17 +53,19 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({ audience }) => {
 
       <div className="mt-7 grid gap-4 sm:grid-cols-2">
         <div>
+          {/* Customers get her plain report; partners get the same report as
+              the white-label template ([partnernaam], no logo). */}
           <a
-            href={DEMO_PDF_PATH}
+            href={partner ? DEMO_PARTNER_TEMPLATE_PDF_PATH : DEMO_PDF_PATH}
             download
-            onClick={() => trackCtaClick('demo_pdf')}
+            onClick={() => trackCtaClick(partner ? 'demo_pdf_partner_template' : 'demo_pdf')}
             className="lp-btn-primary !text-[15px] !py-3 !px-6"
           >
-            {t('footer.pdf')}
+            {partner ? t('footer.pdfPartner') : t('footer.pdf')}
             <Download size={17} strokeWidth={2.4} />
           </a>
           <p className="mt-2.5 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">
-            {t('footer.pdfNote')}
+            {partner ? t('footer.pdfPartnerNote') : t('footer.pdfNote')}
           </p>
         </div>
         <div>

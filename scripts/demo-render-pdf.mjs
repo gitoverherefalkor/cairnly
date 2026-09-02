@@ -3,6 +3,13 @@
 //
 //   node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io
 //   node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io --report=<uuid> --keep-partner
+//   node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io \
+//     --partner-name='[partnernaam]' --out=public/partners/cairnly-voorbeeldrapport-nl-template.pdf
+//
+// --partner-name=<name> renders the white-label TEMPLATE: the print route's
+// `?pn=` override puts that name where the bureau's name goes and drops the
+// logo (see partners/README.md). It implies --keep-partner, because the
+// override only applies to a profile that has a partner link.
 //
 // Picks the report the committed fixture was frozen from (src/demo/fixtures/
 // <persona>.<lang>.json → persona.reportId) so the PDF matches the transcript;
@@ -42,7 +49,8 @@ const flag = (name) => {
   const hit = process.argv.slice(3).find((a) => a.startsWith(`--${name}=`));
   return hit ? hit.slice(name.length + 3) : undefined;
 };
-const keepPartner = process.argv.includes('--keep-partner');
+const partnerName = flag('partner-name');
+const keepPartner = process.argv.includes('--keep-partner') || partnerName !== undefined;
 
 const env = Object.fromEntries(
   readFileSync('.env.local', 'utf8')
@@ -133,7 +141,9 @@ try {
   if (tokErr) throw tokErr;
 
   // 5. Render on the live site.
-  const printUrl = `${SITE_URL}/report/print?rt=${tok.token}&sample=1`;
+  const printUrl =
+    `${SITE_URL}/report/print?rt=${tok.token}&sample=1` +
+    (partnerName !== undefined ? `&pn=${encodeURIComponent(partnerName)}` : '');
   console.log('rendering… (30-90s)');
   const started = Date.now();
   const res = await fetch(`${SITE_URL}/api/render-report`, {

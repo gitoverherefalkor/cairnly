@@ -100,20 +100,12 @@ const CAREER_SIDEBAR_SECTIONS: Record<string, string> = {
 };
 
 // Multi-row career sections — sidebar shows a count + label so the user
-// knows how many cards they're working through.
-const MULTI_ROW_SIDEBAR_SECTIONS: Record<string, { sectionType: string; label: (n: number) => string }> = {
-  'runner-up': {
-    sectionType: 'runner_ups',
-    label: (n) => `${n} alternative${n === 1 ? '' : 's'}`,
-  },
-  'outside-box': {
-    sectionType: 'outside_box',
-    label: (n) => `${n} unconventional path${n === 1 ? '' : 's'}`,
-  },
-  'dream-jobs': {
-    sectionType: 'dream_jobs',
-    label: (n) => `${n} dream job${n === 1 ? '' : 's'}`,
-  },
+// knows how many cards they're working through. The label is the plural
+// key under chat.json `sidebarCounts` (i18next picks _one/_other on count).
+const MULTI_ROW_SIDEBAR_SECTIONS: Record<string, { sectionType: string; countKey: string }> = {
+  'runner-up': { sectionType: 'runner_ups', countKey: 'alternatives' },
+  'outside-box': { sectionType: 'outside_box', countKey: 'unconventional' },
+  'dream-jobs': { sectionType: 'dream_jobs', countKey: 'dreamJobs' },
 };
 
 // Strip HTML tags + leaked markdown bold tokens from a stored field.
@@ -256,7 +248,13 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                     (r) => r.section_type === multi.sectionType,
                   ).length;
                   if (count > 0) {
-                    careerInfo = { title: multi.label(count), size: null };
+                    careerInfo = {
+                      title: t(`chat:sidebarCounts.${multi.countKey}`, {
+                        count,
+                        defaultValue: `${count} ${multi.countKey}`,
+                      }),
+                      size: null,
+                    };
                   }
                 }
               }

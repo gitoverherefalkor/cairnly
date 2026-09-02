@@ -185,5 +185,13 @@
     "savedBanner": "Opgeslagen in je rapport. Bekijk hieronder nog even je Career Signature en ga daarna naar je dashboard.",
     "errorFirst": "We konden geen hoogtepunten genereren. Je kunt opslaan met alleen je eigen notitie hieronder, of het opnieuw proberen.",
     "errorRetry": "Nog steeds geen succes. Je kunt opslaan met alleen je eigen notitie hieronder."
+  },
+  "sidebarCounts": {
+    "alternatives_one": "{{count}} alternatief",
+    "alternatives_other": "{{count}} alternatieven",
+    "unconventional_one": "{{count}} onconventioneel pad",
+    "unconventional_other": "{{count}} onconventionele paden",
+    "dreamJobs_one": "{{count}} droombaan",
+    "dreamJobs_other": "{{count}} droombanen"
   }
 }
