@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import fixtureJson from './fixtures/marloes.nl.json';
 import curation from './fixtures/marloes.nl.curation.json';
@@ -5,6 +7,14 @@ import { applyCuration, chooseFixture } from './loadFixture';
 import type { DemoCuration, DemoFixture } from './types';
 
 const fixture = fixtureJson as unknown as DemoFixture;
+
+// The annotation text lives in the demo locale files, keyed by the curation
+// key. A key without strings renders as raw "annotations.x.title" on the
+// live page, so check both languages here.
+const localeAnnotations = (lang: string) =>
+  JSON.parse(
+    readFileSync(resolve(process.cwd(), `public/locales/${lang}/demo.json`), 'utf8'),
+  ).annotations as Record<string, Record<string, string>>;
 
 describe('demo fixture (Marloes, nl)', () => {
   it('is a complete, finished session', () => {
@@ -46,6 +56,17 @@ describe('demo fixture (Marloes, nl)', () => {
     }
     for (const id of (curation as DemoCuration).hiddenMessageIds ?? []) {
       expect(ids.has(id), `hidden ${id}`).toBe(true);
+    }
+  });
+
+  it('every annotation key has eyebrow, title, body and legend in nl and en', () => {
+    const nl = localeAnnotations('nl');
+    const en = localeAnnotations('en');
+    for (const a of (curation as DemoCuration).annotations ?? []) {
+      for (const field of ['eyebrow', 'title', 'body', 'legend']) {
+        expect(nl[a.key]?.[field], `nl annotations.${a.key}.${field}`).toBeTruthy();
+        expect(en[a.key]?.[field], `en annotations.${a.key}.${field}`).toBeTruthy();
+      }
     }
   });
 

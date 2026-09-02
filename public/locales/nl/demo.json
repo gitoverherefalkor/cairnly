@@ -22,13 +22,18 @@
   "intro": {
     "eyebrow": "Demo",
     "title": "Een echte coachsessie, van begin tot eind",
-    "body": "Dit is het gesprek zoals Marloes het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst. Let onderweg op drie momenten:",
-    "watch": [
-      "Waar ze tegengas geeft op haar persoonlijkheidsanalyse, en de coach dat overneemt.",
-      "Waar ze een antwoord bewaart, zodat het letterlijk in haar rapport komt.",
-      "De vergelijking tussen haar topbanen, getekend uit haar eigen scores."
-    ],
+    "body": "Dit is het gesprek zoals Marloes het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
+    "watchLead": "Let onderweg op deze momenten:",
+    "legendAside": "De gemarkeerde momenten staan links in de kantlijn. Klik erop om ernaartoe te springen.",
     "howTo": "Klik op de kaarten om ze te openen, beweeg over de radar. Typen kan hier niet: dit is een replay."
+  },
+  "welcome": {
+    "caption": "Zo begint elke sessie: de coach stelt zich voor, je klikt op de knop en het eerste hoofdstuk komt binnen. Klik gerust, je springt naar het begin van het gesprek.",
+    "pillsCaption": "Onder elk coachbericht staan daarna deze vier knoppen. Ze sturen het gesprek: doorgaan, verdiepen, tegengas geven of iets anders inbrengen. Hier ter illustratie, niet klikbaar."
+  },
+  "legend": {
+    "title": "Let op deze momenten",
+    "hint": "Klik om ernaartoe te springen."
   },
   "fallback": {
     "dutchOnly": "Deze demo is in het Nederlands: Marloes is een Nederlandse kandidaat. Een Engelstalige sessie volgt. De knoppen en labels volgen jouw taal, het gesprek blijft Nederlands."
@@ -37,17 +42,32 @@
     "pushback": {
       "eyebrow": "Kijk hier",
       "title": "Ze is het er niet mee eens",
-      "body": "Marloes klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in haar eigen woorden."
+      "body": "Marloes klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in haar eigen woorden.",
+      "legend": "Ze geeft tegengas"
     },
     "kept": {
       "eyebrow": "Dit verandert het rapport",
       "title": "De coach neemt het over, en zij bewaart het",
-      "body": "De coach corrigeert de analyse ter plekke. Marloes drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, niet alleen over haar."
+      "body": "De coach corrigeert de analyse ter plekke. Marloes drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, niet alleen over haar.",
+      "legend": "Ze bewaart een antwoord"
+    },
+    "pillTag": {
+      "eyebrow": "Kleine letters",
+      "title": "Het labeltje boven de tekst",
+      "body": "Dat toont welke knop Marloes indrukte voordat ze ging typen, hier 'Iets anders'. Zo zie je in het gesprek terug hoe ze stuurde, niet alleen wat ze zei.",
+      "legend": "Het knop-labeltje"
     },
     "radar": {
       "eyebrow": "Voor haar gemaakt",
       "title": "Drie banen, vijf assen, geen sjabloon",
-      "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent."
+      "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent.",
+      "legend": "De radar, voor haar gemaakt"
+    },
+    "dictated": {
+      "eyebrow": "Ingesproken",
+      "title": "Dit heeft ze niet getypt, maar gezegd",
+      "body": "Marloes sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI schoont het op (haperingen, herhalingen, interpunctie) voordat ze op versturen drukt. Wat je leest is haar verhaal, alleen netter.",
+      "legend": "Ingesproken, opgeschoond door AI"
     }
   },
   "highlights": {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
@@ -8,13 +8,14 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { TTSProvider } from '@/contexts/TTSContext';
-import { tArray } from '@/lib/i18nArray';
 import { trackSampleView } from '@/lib/analytics';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoReplay, messageDomId } from '@/components/demo/DemoReplay';
 import { DemoChapterBar } from '@/components/demo/DemoChapterBar';
 import { DemoHighlightsCard } from '@/components/demo/DemoHighlightsCard';
 import { DemoFooter } from '@/components/demo/DemoFooter';
+import { DemoLegend } from '@/components/demo/DemoLegend';
+import { DemoWelcome } from '@/components/demo/DemoWelcome';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
 import { buildChapters, sectionIndexByMessage, type DemoChapterId } from '@/demo/chapters';
@@ -25,6 +26,10 @@ import type { DemoFixture } from '@/demo/types';
  * /demo — a public, scrollable replay of a real coaching session, rendered
  * through the real chat components from a frozen fixture. No login, no input
  * box, no n8n. See docs/handoff/demo-replay-plan.md for the decisions.
+ *
+ * Layout: below 1360px a single 800px column. From 1360px a three-column
+ * grid: the legend rail (sticky) on the left, the transcript in the middle,
+ * and an empty right column the margin notes hang into.
  *
  * `?p=<slug>` marks a partner-audience visit (the /partners teaser links with
  * ?p=partners; outreach mails can tag the bureau): the CTAs point at the
@@ -67,25 +72,41 @@ const Demo: React.FC = () => {
     () => (fixture ? buildChapters(fixture.messages, fixture.sections) : []),
     [fixture],
   );
+  // Annotations in transcript order, numbered 1..n; the number is what ties
+  // the legend rail to the margin notes.
   const annotations = useMemo<ResolvedAnnotation[]>(() => {
     if (!fixture) return [];
-    const ids = new Set(fixture.messages.map((m) => m.id));
+    const position = new Map(fixture.messages.map((m, i) => [m.id, i]));
     return (choice.curation.annotations ?? [])
-      .filter((a) => ids.has(a.messageId))
-      .map((a) => ({
+      .filter((a) => position.has(a.messageId))
+      .sort((a, b) => (position.get(a.messageId) ?? 0) - (position.get(b.messageId) ?? 0))
+      .map((a, i) => ({
         key: a.key,
         messageId: a.messageId,
         placement: a.placement ?? 'top',
+        index: i + 1,
         eyebrow: t(`annotations.${a.key}.eyebrow`),
         title: t(`annotations.${a.key}.title`),
         body: t(`annotations.${a.key}.body`),
+        legend: t(`annotations.${a.key}.legend`),
       }));
   }, [fixture, choice, t]);
 
-  // Scroll-spy: active chapter + overall progress through the transcript.
+  // Jump to a message and ring it for a moment. Shared by the legend, the
+  // welcome card's button and the comparison "explain" scroll.
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const flash = useCallback((id: string) => {
+    document.getElementById(messageDomId(id))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setFlashId(id);
+    window.setTimeout(() => setFlashId((current) => (current === id ? null : current)), 2000);
+  }, []);
+
+  // Scroll-spy: active chapter, overall progress, and which annotated
+  // moments the visitor has already scrolled past.
   const transcriptRef = useRef<HTMLDivElement>(null);
   const [activeChapter, setActiveChapter] = useState<DemoChapterId | null>(null);
   const [progress, setProgress] = useState(0);
+  const [reachedIds, setReachedIds] = useState<Set<string>>(() => new Set());
   useEffect(() => {
     if (!fixture) return;
     let raf = 0;
@@ -100,6 +121,14 @@ const Demo: React.FC = () => {
           if (el && el.getBoundingClientRect().top <= probe) active = ch.id;
         }
         setActiveChapter(active);
+        const reached = new Set<string>();
+        for (const a of annotations) {
+          const el = document.getElementById(messageDomId(a.messageId));
+          if (el && el.getBoundingClientRect().top <= probe) reached.add(a.messageId);
+        }
+        setReachedIds((prev) =>
+          prev.size === reached.size && Array.from(reached).every((id) => prev.has(id)) ? prev : reached,
+        );
         const el = transcriptRef.current;
         if (el) {
           const rect = el.getBoundingClientRect();
@@ -117,7 +146,7 @@ const Demo: React.FC = () => {
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [fixture, chapters]);
+  }, [fixture, chapters, annotations]);
 
   const scrollToChapter = (id: DemoChapterId) => {
     const ch = chapters.find((c) => c.id === id);
@@ -134,10 +163,20 @@ const Demo: React.FC = () => {
   };
 
   const highlights = fixture?.sections.find((s) => s.section_type === 'chat_highlights');
-  const watch = tArray<string>(t, 'intro.watch');
+  const firstMessageId = fixture?.messages[0]?.id ?? null;
+
+  const legend = (
+    <DemoLegend
+      items={annotations}
+      reachedIds={reachedIds}
+      onSelect={flash}
+      title={t('legend.title')}
+      hint={t('legend.hint')}
+    />
+  );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-clip">
       <Seo title={t('seo.title')} description={t('seo.description')} path={DEMO_ROUTE} />
       {/* Same fixed cairn-trail canvas as /chat, so the replay looks like the
           product and not like a marketing page pretending to be one. */}
@@ -186,77 +225,113 @@ const Demo: React.FC = () => {
       </nav>
 
       <main className="relative z-10 flex-1">
-        <div className="max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
-          <section
-            className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7 mb-8"
-            style={{
-              background: '#FDFBF2',
-              borderColor: 'rgba(201, 182, 144, 0.6)',
-              boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
-            }}
-          >
-            <div className="lp-eyebrow text-[#1F8282] mb-3">{t('intro.eyebrow')}</div>
-            <h1
-              className="font-heading text-[26px] sm:text-[32px]"
-              style={{ color: '#122E3B', fontWeight: 700, letterSpacing: '-0.015em', lineHeight: 1.15 }}
-            >
-              {t('intro.title')}
-            </h1>
-            <p className="mt-3 text-[15px] sm:text-base text-[#122E3B] font-semibold leading-relaxed">
-              {t(`personas.${choice.personaId}.tagline`)}
-            </p>
-            <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{t('intro.body')}</p>
-            <ol className="mt-3 space-y-2">
-              {watch.map((line, i) => (
-                <li key={i} className="flex gap-3 text-[15px] text-[#4B6373] font-medium leading-[1.6]">
-                  <span
-                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold mt-0.5"
-                    style={{ background: 'rgba(212,160,36,0.16)', color: '#8A6508' }}
-                  >
-                    {i + 1}
-                  </span>
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ol>
-            <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('intro.howTo')}</p>
-            {choice.isFallback && (
-              <p
-                className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"
-                style={{ background: 'rgba(212,160,36,0.12)', color: '#122E3B' }}
-              >
-                {t('fallback.dutchOnly')}
-              </p>
-            )}
-          </section>
+        <div className="mx-auto px-3 sm:px-6 max-w-[800px] pt-6 sm:pt-10 pb-16 min-[1360px]:px-0 min-[1360px]:max-w-none min-[1360px]:grid min-[1360px]:grid-cols-[232px_800px_248px] min-[1360px]:gap-8 min-[1360px]:justify-center">
+          {/* Legend rail, wide screens only. Sticky inside its grid column so
+              it follows the transcript and leaves with it, never over the
+              site footer. */}
+          <aside className="hidden min-[1360px]:block">
+            <div className="sticky top-[136px]">{fixture && legend}</div>
+          </aside>
 
-          {fixture ? (
-            <>
-              <div ref={transcriptRef}>
-                <TTSProvider>
-                  <DemoReplay
-                    messages={fixture.messages}
-                    sections={fixture.sections}
-                    savedMessageIds={fixture.savedMessageIds}
-                    annotations={annotations}
-                    sectionIndexByMessage={sectionIndexMap}
-                  />
-                </TTSProvider>
+          <div className="min-w-0 min-[1360px]:px-6">
+            <section
+              className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7 mb-8"
+              style={{
+                background: '#FDFBF2',
+                borderColor: 'rgba(201, 182, 144, 0.6)',
+                boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
+              }}
+            >
+              <div className="lp-eyebrow text-[#1F8282] mb-3">{t('intro.eyebrow')}</div>
+              <h1
+                className="font-heading text-[26px] sm:text-[32px]"
+                style={{ color: '#122E3B', fontWeight: 700, letterSpacing: '-0.015em', lineHeight: 1.15 }}
+              >
+                {t('intro.title')}
+              </h1>
+              <p className="mt-3 text-[15px] sm:text-base text-[#122E3B] font-semibold leading-relaxed">
+                {t(`personas.${choice.personaId}.tagline`)}
+              </p>
+              <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{t('intro.body')}</p>
+
+              {/* Small screens: the annotated moments as a jump list here.
+                  Wide screens: they live in the legend rail on the left. */}
+              {annotations.length > 0 && (
+                <div className="min-[1360px]:hidden">
+                  <p className="mt-3 text-[15px] font-semibold text-[#122E3B]">{t('intro.watchLead')}</p>
+                  <ol className="mt-2 space-y-1.5">
+                    {annotations.map((a) => (
+                      <li key={a.key}>
+                        <button
+                          type="button"
+                          onClick={() => flash(a.messageId)}
+                          className="flex items-start gap-3 text-left text-[15px] text-[#4B6373] font-medium leading-[1.6] hover:text-[#122E3B]"
+                        >
+                          <span
+                            className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-bold mt-0.5"
+                            style={{ background: 'rgba(212,160,36,0.16)', color: '#8A6508' }}
+                          >
+                            {a.index}
+                          </span>
+                          <span className="underline underline-offset-4 decoration-[#D4A024]/50">{a.legend}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              <p className="hidden min-[1360px]:block mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">
+                {t('intro.legendAside')}
+              </p>
+              <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('intro.howTo')}</p>
+              {choice.isFallback && (
+                <p
+                  className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"
+                  style={{ background: 'rgba(212,160,36,0.12)', color: '#122E3B' }}
+                >
+                  {t('fallback.dutchOnly')}
+                </p>
+              )}
+            </section>
+
+            {fixture ? (
+              <>
+                <DemoWelcome
+                  onReady={() => firstMessageId && flash(firstMessageId)}
+                  caption={t('welcome.caption')}
+                  pillsCaption={t('welcome.pillsCaption')}
+                />
+                <div ref={transcriptRef}>
+                  <TTSProvider>
+                    <DemoReplay
+                      messages={fixture.messages}
+                      sections={fixture.sections}
+                      savedMessageIds={fixture.savedMessageIds}
+                      annotations={annotations}
+                      sectionIndexByMessage={sectionIndexMap}
+                      flashId={flashId}
+                      onFlash={flash}
+                    />
+                  </TTSProvider>
+                </div>
+                <DemoHighlightsCard
+                  section={highlights}
+                  lang={i18n.language}
+                  kicker={t('highlights.kicker')}
+                  title={t('highlights.title')}
+                  body={t('highlights.body')}
+                />
+                <DemoFooter audience={audience} />
+              </>
+            ) : (
+              <div className="flex items-center justify-center py-24 text-blue-100/70">
+                <Loader2 className="h-6 w-6 animate-spin" />
               </div>
-              <DemoHighlightsCard
-                section={highlights}
-                lang={i18n.language}
-                kicker={t('highlights.kicker')}
-                title={t('highlights.title')}
-                body={t('highlights.body')}
-              />
-              <DemoFooter audience={audience} />
-            </>
-          ) : (
-            <div className="flex items-center justify-center py-24 text-blue-100/70">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Right column: empty on purpose, the margin notes hang into it. */}
+          <div className="hidden min-[1360px]:block" aria-hidden="true" />
         </div>
       </main>
 

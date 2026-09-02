@@ -57,6 +57,18 @@ Two small changes to chat components were needed after all (both additive):
 in the curation file (the tests fail loudly on a stale id) → render the PDF →
 `npm test` → commit the fixture, curation and PDF together.
 
+Round 2 (same day, after Sjoerd's first look): the real `WelcomeCard` opens
+the replay (its button jumps to the first turn) with a non-clickable
+illustration of the four quick-reply pills under it (`DemoWelcome`); the
+annotated moments are numbered and listed in a sticky legend rail on the
+left from 1360px (`DemoLegend`, jump links, lights up as you scroll past;
+below 1360px the list sits in the intro card); the connector line of each
+note is measured at runtime so it reaches the bubble; and two more notes:
+the "via Iets anders" label (message 16) and the dictated dream-jobs turn
+(message 39, speech → text → AI tidy-up before send). Five annotations now;
+add one = curation anchor + `annotations.<key>.{eyebrow,title,body,legend}`
+in both locale files (a test checks the strings exist).
+
 ## Goal
 
 A public, scrollable replay of a real coaching session, on the website, to

@@ -11,9 +11,13 @@ interface DemoReplayProps {
   annotations: ResolvedAnnotation[];
   // message id → canonical section index, for the chapter scroll-spy.
   sectionIndexByMessage: Record<string, number>;
+  // Highlight ring on one message (page-owned, shared with the legend and
+  // the welcome card's jump).
+  flashId: string | null;
+  onFlash: (messageId: string) => void;
 }
 
-/** DOM id of a message wrapper; chapter nav and explain-scroll target it. */
+/** DOM id of a message wrapper; chapter nav, legend and explain-scroll target it. */
 export const messageDomId = (id: string) => `demo-msg-${id}`;
 
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
@@ -40,6 +44,8 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
   savedMessageIds,
   annotations,
   sectionIndexByMessage,
+  flashId,
+  onFlash,
 }) => {
   // Keep state is local and starts from what the persona actually kept.
   // Toggling is harmless (nothing is persisted) and shows the mechanic.
@@ -48,7 +54,6 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
   // Explanations added locally via the comparison card, keyed by the message
   // they were requested from. Rendered right after that message.
   const [inserted, setInserted] = useState<Record<string, DemoMessage>>({});
-  const [flashId, setFlashId] = useState<string | null>(null);
 
   const toggleKept = useCallback((id: string) => {
     setKept((prev) => {
@@ -69,26 +74,20 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
     return out;
   }, [messages, inserted]);
 
-  const flash = useCallback((id: string) => {
-    document.getElementById(messageDomId(id))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setFlashId(id);
-    window.setTimeout(() => setFlashId((current) => (current === id ? null : current)), 2000);
-  }, []);
-
   const handleExplain = useCallback(
     (fromId: string, content: string) => {
       const existing = rendered.find((m) => m.sender === 'bot' && norm(m.content) === norm(content));
       if (existing) {
-        flash(existing.id);
+        onFlash(existing.id);
         return;
       }
       const id = `${fromId}-explain`;
       setInserted((prev) =>
         prev[fromId] ? prev : { ...prev, [fromId]: { id, sender: 'bot', content, created_at: '' } },
       );
-      window.setTimeout(() => flash(id), 80);
+      window.setTimeout(() => onFlash(id), 80);
     },
-    [rendered, flash],
+    [rendered, onFlash],
   );
 
   const annotationsByMessage = useMemo(() => {

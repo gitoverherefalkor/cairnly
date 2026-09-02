@@ -22,13 +22,18 @@
   "intro": {
     "eyebrow": "Demo",
     "title": "A real coaching session, start to finish",
-    "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards. Watch for three moments along the way:",
-    "watch": [
-      "Where she pushes back on her personality analysis, and the coach takes it on board.",
-      "Where she keeps an answer, so it goes into her report word for word.",
-      "The comparison between her top careers, drawn from her own scores."
-    ],
+    "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
+    "watchLead": "Watch for these moments along the way:",
+    "legendAside": "The marked moments sit in the margin on the left. Click one to jump to it.",
     "howTo": "Click the cards to open them, hover over the radar. You cannot type here: this is a replay."
+  },
+  "welcome": {
+    "caption": "Every session starts like this: the coach introduces itself, you click the button and the first chapter arrives. Go ahead and click, it jumps to the start of the conversation.",
+    "pillsCaption": "Under every coach message you then get these four buttons. They steer the conversation: continue, dig deeper, push back, or bring up something else. Shown here for illustration, not clickable."
+  },
+  "legend": {
+    "title": "Watch for these moments",
+    "hint": "Click to jump there."
   },
   "fallback": {
     "dutchOnly": "This demo is in Dutch: Marloes is a Dutch candidate. An English session is coming. The buttons and labels follow your language, the conversation stays Dutch."
@@ -37,17 +42,32 @@
     "pushback": {
       "eyebrow": "Look here",
       "title": "She disagrees",
-      "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words."
+      "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words.",
+      "legend": "She pushes back"
     },
     "kept": {
       "eyebrow": "This changes the report",
       "title": "The coach takes it on board, and she keeps it",
-      "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her."
+      "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
+      "legend": "She keeps an answer"
+    },
+    "pillTag": {
+      "eyebrow": "Small print",
+      "title": "The little label above the text",
+      "body": "It shows which button Marloes pressed before she started typing, here 'Something else'. So the conversation shows how she steered, not just what she said.",
+      "legend": "The button label"
     },
     "radar": {
       "eyebrow": "Made for her",
       "title": "Three careers, five axes, no template",
-      "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her."
+      "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her.",
+      "legend": "The radar, made for her"
+    },
+    "dictated": {
+      "eyebrow": "Spoken",
+      "title": "She did not type this, she said it",
+      "body": "Marloes dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
+      "legend": "Dictated, tidied by AI"
     }
   },
   "highlights": {
