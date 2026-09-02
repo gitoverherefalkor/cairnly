@@ -43,6 +43,9 @@ handoff/*.pdf
 # fabricated persona, holds no user data, and has to ship in the build or the
 # page 404s. Keep this negation narrow: one directory, nothing else.
 !public/partners/*.pdf
+# ...and the demo persona's report served from /demo (same reasoning: a
+# fictional persona, no user data, must ship in the build).
+!public/demo/*.pdf
 
 # One-off design drops should never be committed at root
 /*.zip

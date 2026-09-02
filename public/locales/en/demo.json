@@ -1,0 +1,71 @@
+{
+  "seo": {
+    "title": "Demo: a real coaching session with Cairnly",
+    "description": "Scroll through a complete coaching session of a fictional candidate: where she pushes back, what the coach does with it, and how her report changes. Real AI output, no script."
+  },
+  "nav": {
+    "label": "Demo: a real coaching session",
+    "honest": "Demo with a fictional persona, real AI output",
+    "ctaCustomer": "Start yours",
+    "ctaPartner": "Book 20 minutes"
+  },
+  "chapters": {
+    "personality": "Personality",
+    "careers": "Careers",
+    "dreams": "Dream jobs"
+  },
+  "personas": {
+    "marloes": {
+      "tagline": "Marloes, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people she helps."
+    }
+  },
+  "intro": {
+    "eyebrow": "Demo",
+    "title": "A real coaching session, start to finish",
+    "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards. Watch for three moments along the way:",
+    "watch": [
+      "Where she pushes back on her personality analysis, and the coach takes it on board.",
+      "Where she keeps an answer, so it goes into her report word for word.",
+      "The comparison between her top careers, drawn from her own scores."
+    ],
+    "howTo": "Click the cards to open them, hover over the radar. You cannot type here: this is a replay."
+  },
+  "fallback": {
+    "dutchOnly": "This demo is in Dutch: Marloes is a Dutch candidate. An English session is coming. The buttons and labels follow your language, the conversation stays Dutch."
+  },
+  "annotations": {
+    "pushback": {
+      "eyebrow": "Look here",
+      "title": "She disagrees",
+      "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words."
+    },
+    "kept": {
+      "eyebrow": "This changes the report",
+      "title": "The coach takes it on board, and she keeps it",
+      "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her."
+    },
+    "radar": {
+      "eyebrow": "Made for her",
+      "title": "Three careers, five axes, no template",
+      "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her."
+    }
+  },
+  "highlights": {
+    "kicker": "End of the session",
+    "title": "What this conversation changed in her report",
+    "body": "At wrap-up the coach summarises the session. These points now sit in her report, next to the answers she kept along the way."
+  },
+  "footer": {
+    "eyebrow": "Demo with a fictional persona, real AI output",
+    "title": "What you just read",
+    "body": "Marloes does not exist. Her survey answers were written by us. Everything the coach says and everything in her report is real, unedited Cairnly output.",
+    "pdf": "Download her report as a PDF",
+    "pdfNote": "The report as it stands after this conversation, with her feedback folded in.",
+    "ctaCustomer": "Take the assessment yourself",
+    "ctaCustomerNote": "Same questionnaire, same coach, your report.",
+    "ctaPartner": "Book 20 minutes with us",
+    "ctaPartnerNote": "This is what your candidate gets, under your logo.",
+    "backPartners": "Back to the partner page",
+    "backHome": "How it works"
+  }
+}

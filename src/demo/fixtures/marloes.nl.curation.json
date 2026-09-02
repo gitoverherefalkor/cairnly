@@ -1,0 +1,21 @@
+{
+  "_comment": "Overlay on marloes.nl.json. Message ids are the exported chat_messages ids and change with every re-export: after running demo-export-fixture.mjs again, re-anchor the annotations here (src/demo/loadFixture.test.ts fails loudly if an id no longer exists). Annotation text lives in public/locales/<lang>/demo.json under annotations.<key>.",
+  "hiddenMessageIds": [],
+  "annotations": [
+    {
+      "key": "pushback",
+      "messageId": "8f02d60d-d935-4bde-a144-98b5ac7949a4",
+      "placement": "top"
+    },
+    {
+      "key": "kept",
+      "messageId": "d8863a4c-777c-4113-a094-0b8abd399c6f",
+      "placement": "bottom"
+    },
+    {
+      "key": "radar",
+      "messageId": "6e7d5598-8627-4fc7-bd53-5b663801f8f2",
+      "placement": "bottom"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import PartnerCarousel from './PartnerCarousel';
 import { SAMPLE_ROUTE } from './constants';
+import { DEMO_ROUTE } from '@/demo/constants';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 /**
@@ -47,9 +48,16 @@ const PartnersHero: React.FC = () => {
           <PartnerCarousel />
         </Reveal>
 
-        <Reveal as="div" className="mt-8">
+        <Reveal as="div" className="mt-8 flex flex-wrap items-center gap-4">
           <Link to={SAMPLE_ROUTE} className="lp-btn-primary">
             {t('hero.sampleCta')}
+            <ArrowRight size={18} strokeWidth={2.4} />
+          </Link>
+          {/* The replay of a full coaching session. ?p=partners switches the
+              demo's CTAs to the pilot call and tags the visit as partner
+              traffic in the sample-view beacon. */}
+          <Link to={`${DEMO_ROUTE}?p=partners`} className="lp-btn-primary lp-btn-gold">
+            {t('hero.demoCta')}
             <ArrowRight size={18} strokeWidth={2.4} />
           </Link>
         </Reveal>

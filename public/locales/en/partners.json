@@ -21,7 +21,8 @@
     },
     "prevSlide": "Vorige",
     "nextSlide": "Volgende",
-    "goToSlide": "Ga naar beeld {{n}}"
+    "goToSlide": "Ga naar beeld {{n}}",
+    "demoCta": "Bekijk een echte coachsessie"
   },
   "whoFor": {
     "title": "Voor wie",

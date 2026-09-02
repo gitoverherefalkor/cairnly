@@ -5,6 +5,58 @@ later the same day after the walkthrough was completed and several chat
 features shipped. This document is self-contained — execute from here, no need
 for the original conversation.**
 
+## Status (2026-09-02, end of day): Phase 1 is LIVE on `/demo`
+
+Built and shipped to `main` in one session. What exists now:
+
+| Piece | Where |
+|---|---|
+| Export script (freeze a walkthrough) | `scripts/demo-export-fixture.mjs` — newest `completed` report, falls back to newest report with chat; `--report=<uuid>` override; user turn sorts before the bot turn on a created_at tie |
+| PDF script (footnote of the replay) | `scripts/demo-render-pdf.mjs` — renders the fixture's report through the live pipeline with `?sample=1`, into `public/demo/cairnly-demo-<persona>-<lang>.pdf`. Clears the demo profile's `partner_id` for the render and restores it (the profile is linked to the sample partner for `/partners`); `--keep-partner` renders the white-labelled variant |
+| Fixture + curation | `src/demo/fixtures/marloes.nl.json` (report `10646823…`, 42 messages, 17 sections, 3 Keeps) + `marloes.nl.curation.json` (hidden ids, annotation anchors) |
+| Pure logic + tests | `src/demo/{types,chapters,loadFixture,constants}.ts`, `src/demo/*.test.ts` (the tests load the real fixture: 10 sections detected in order, every anchor id exists, jsonb parsed) |
+| Page + components | `src/pages/Demo.tsx`, `src/components/demo/{DemoReplay,DemoAnnotation,DemoChapterBar,DemoHighlightsCard,DemoFooter}.tsx` |
+| Strings | `public/locales/{nl,en}/demo.json` (namespace `demo` registered in `src/i18n.ts`) |
+| Route / SEO | `/demo` in `src/App.tsx` and `scripts/seo-routes.mjs` (Dutch static shell, indexable, in the sitemap) |
+| Teasers | landing: button under the chat-refine cards (`CoachCards.tsx`); `/partners` hero: gold "Bekijk een echte coachsessie" → `/demo?p=partners` |
+
+Decisions taken at build time (Sjoerd's calls that the plan left open):
+
+- **EN before phase 2:** English visitors get Marloes with an "in Dutch" note
+  (`fallback.dutchOnly`), instead of holding the EN link. `chooseFixture()` in
+  `src/demo/loadFixture.ts` is the one place to add Emma.
+- **`?p=<anything>` = partner audience:** CTAs become the Calendly pilot call +
+  "back to the partner page"; the visit fires the existing `sample_view`
+  beacon with the `p` slug, so outreach links can be tagged per bureau.
+- **Read-aloud stays on** in the replay. The `tts` function was already
+  reachable with the anon key from anywhere (rate-limited 30/min/IP), so the
+  demo adds no new exposure; hiding it would also hide the Keep / In rapport
+  badges that share the footer.
+- **Keep is local:** the persona's kept replies show "Bewaard"; toggling only
+  changes local state. Other bot replies show no Keep button.
+- **"Leg deze vergelijking uit"** scrolls to (and flashes) the explanation the
+  coach already posted in the session (career 3); where the persona never
+  asked (career 2) it drops the stored explanation in locally.
+- **Closing beat** is a demo-layer card fed with the `chat_highlights` section
+  (the real WrapUpCard calls the extraction function on mount, so it cannot be
+  fed statically without changing it).
+- **The chapter-1 feedback card is not reconstructed** (trap 9). Skip stays.
+
+Two small changes to chat components were needed after all (both additive):
+
+1. `ChatMessage` gained a `forceFullReveal` prop, passed through to
+   `SequentialSubsections`, whose initial state now starts fully open when
+   set (growing in an effect would fire scroll-into-view on every message at
+   mount and yank the page).
+2. `normalizeTitle` in `ChatMessage` (and the mirror in `src/demo/chapters.ts`)
+   folds hyphens to spaces. The delivered heading "HR-adviseur, …" no longer
+   matched the re-translated title "HR Adviseur, …", which silently dropped
+   career 2's score pills and radar. That fix applies to the live chat too.
+
+**Re-freezing after a better walkthrough:** export → check the annotation ids
+in the curation file (the tests fail loudly on a stale id) → render the PDF →
+`npm test` → commit the fixture, curation and PDF together.
+
 ## Goal
 
 A public, scrollable replay of a real coaching session, on the website, to

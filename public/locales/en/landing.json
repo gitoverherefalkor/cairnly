@@ -138,7 +138,9 @@
       "title": "A subscription chat",
       "body": "Stays available forever. Designed to keep you logging in. Great for company. Less great for closing the question."
     },
-    "closer": "It's the difference between an assessment about you and one built with you. And once it's right, it stays right."
+    "closer": "It's the difference between an assessment about you and one built with you. And once it's right, it stays right.",
+    "demoCta": "Watch a real session, start to finish",
+    "demoNote": "A fictional candidate, real AI output. Five minutes of scrolling, no account needed."
   },
   "comparison": {
     "eyebrow": "A side-by-side",

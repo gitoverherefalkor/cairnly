@@ -138,7 +138,9 @@
       "title": "Een chat op abonnementsbasis",
       "body": "Blijft voor altijd beschikbaar. Ontworpen om je te laten blijven inloggen. Gezellig voor het gezelschap, minder geschikt om de vraag daadwerkelijk te beantwoorden."
     },
-    "closer": "Het is het verschil tussen een assessment over jou en een dat mét jou is gemaakt. En als het eenmaal klopt, dan klopt het."
+    "closer": "Het is het verschil tussen een assessment over jou en een dat mét jou is gemaakt. En als het eenmaal klopt, dan klopt het.",
+    "demoCta": "Bekijk een echte sessie, van begin tot eind",
+    "demoNote": "Een fictieve kandidaat, echte AI-output. Vijf minuten scrollen, geen account nodig."
   },
   "comparison": {
     "eyebrow": "Een directe vergelijking",

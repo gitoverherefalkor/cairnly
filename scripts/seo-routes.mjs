@@ -97,6 +97,18 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.5',
   },
+  // Public product demo: a frozen replay of a real coaching session. Only the
+  // Dutch persona exists so far, so the static shell carries the Dutch copy
+  // (matching public/locales/nl/demo.json); English visitors get the same
+  // transcript with an "in Dutch" note at runtime.
+  {
+    path: '/demo',
+    title: 'Demo: een echte coachsessie met Cairnly',
+    description:
+      'Scroll door een volledige coachsessie van een fictieve kandidaat: waar ze tegengas geeft, wat de coach ermee doet en hoe haar rapport verandert. Echte AI-output, geen script.',
+    changefreq: 'monthly',
+    priority: '0.7',
+  },
   // Legal/support pages keep the site-default title+description (matching
   // their runtime DefaultSeo fallback) so static and rendered heads agree.
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },

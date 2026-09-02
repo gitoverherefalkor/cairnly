@@ -1,7 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Sparkles, MessageSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { FileText, Sparkles, MessageSquare, ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
+import { trackCtaClick } from '@/lib/analytics';
+import { DEMO_ROUTE } from '@/demo/constants';
 
 const CoachCards: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -96,6 +99,21 @@ const CoachCards: React.FC = () => {
           <p className="text-center text-base md:text-lg text-[#4B6373] italic font-medium leading-relaxed">
             {t('chatRefine.closer')}
           </p>
+        </Reveal>
+
+        {/* The proof for the claim above: a scrollable replay of a real
+            session (/demo). A plain link, not an iframe — same-origin framing
+            needs explicit header handling (see the partner sample PDF). */}
+        <Reveal as="div" className="max-w-3xl mx-auto mt-10 text-center">
+          <Link
+            to={DEMO_ROUTE}
+            onClick={() => trackCtaClick('landing_demo')}
+            className="lp-btn-primary"
+          >
+            {t('chatRefine.demoCta')}
+            <ArrowRight size={18} strokeWidth={2.4} />
+          </Link>
+          <p className="mt-4 text-[14px] text-[#4B6373]/85 font-medium">{t('chatRefine.demoNote')}</p>
         </Reveal>
       </div>
     </section>

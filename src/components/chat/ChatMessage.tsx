@@ -87,6 +87,11 @@ interface ChatMessageProps {
   // Posts the pre-written comparison explanation into the chat as a bot
   // message. Supplied by ChatContainer; only used by Career 2/3 messages.
   onComparisonExplain?: (content: string) => void;
+  // Render section-reveal messages with every sub-section open from the
+  // first paint (no chevron click-through). Used by the public /demo replay,
+  // where the reveal pacing would gate plain scrolling. Live chat leaves it
+  // unset and keeps the sequential reveal.
+  forceFullReveal?: boolean;
 }
 
 interface ChipOption {
@@ -198,10 +203,15 @@ const SECTION_TYPE_TO_INDEX: Record<string, number> = {
 };
 
 // Strip basic HTML tags + bold markers from a heading-style string and lowercase it.
+// Hyphens fold into spaces: a re-translation can turn "HR-adviseur" into
+// "HR Adviseur" after the section was already delivered into the chat, and
+// the delivered heading must keep matching its report_sections row or the
+// score card and comparison radar silently disappear from that message.
 function normalizeTitle(raw: string): string {
   return raw
     .replace(/<[^>]+>/g, '')
     .replace(/\*\*/g, '')
+    .replace(/[-‐-―]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -616,7 +626,12 @@ const SequentialSubsections: React.FC<{
   const { t, i18n } = useTranslation('chat');
   // revealedCount = number of sub-sections currently visible. Starts at 1
   // so the user sees the preamble + first h2 + first body on first render.
-  const [revealedCount, setRevealedCount] = useState(1);
+  // When the parent asks for a full reveal up front (demo replay), start
+  // fully open instead of growing in an effect — growing would fire the
+  // scroll-into-view below on mount and yank the page to every message.
+  const [revealedCount, setRevealedCount] = useState(
+    forceFullReveal ? subsections.length : 1,
+  );
   // Ref attached to the most recently revealed sub-section so we can scroll
   // it into view when the user clicks the chevron — otherwise newly revealed
   // text appears below the fold and the user has to manually scroll.
@@ -1114,6 +1129,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   liked = false,
   onLikeToggle,
   onComparisonExplain,
+  forceFullReveal = false,
 }) => {
   const { t, i18n } = useTranslation('chat');
   const messageRef = useRef<HTMLDivElement>(null);
@@ -1406,6 +1422,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             fullBody={sanitized}
             intro={deliveryIntro}
             outro={deliveryOutro}
+            forceFullReveal={forceFullReveal}
             // Only the latest message reports state — older messages
             // shouldn't lock the input even if their state is partial.
             onRevealStateChange={isLatestBotMessage ? onSequentialRevealStateChange : undefined}
