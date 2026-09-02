@@ -158,7 +158,11 @@ export type Database = {
           id: string
           milestone: number | null
           path: string
+          prospect: string | null
           session_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
         }
         Insert: {
           country?: string | null
@@ -168,7 +172,11 @@ export type Database = {
           id?: string
           milestone?: number | null
           path: string
+          prospect?: string | null
           session_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Update: {
           country?: string | null
@@ -178,7 +186,11 @@ export type Database = {
           id?: string
           milestone?: number | null
           path?: string
+          prospect?: string | null
           session_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: []
       }
@@ -271,6 +283,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          metadata: Json | null
           report_id: string
           sender: string
           session_id: string
@@ -280,6 +293,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          metadata?: Json | null
           report_id: string
           sender: string
           session_id: string
@@ -289,6 +303,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          metadata?: Json | null
           report_id?: string
           sender?: string
           session_id?: string
@@ -489,6 +504,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      demo_marloes_backup_20260828: {
+        Row: {
+          alternate_titles: string | null
+          company_size_type: string | null
+          content: string | null
+          content_i18n: Json | null
+          created_at: string | null
+          explore: string | null
+          fb_status: boolean | null
+          feedback: string | null
+          feedback_category: number | null
+          id: string | null
+          language: string | null
+          metadata: Json | null
+          order_number: number | null
+          report_id: string | null
+          score: number | null
+          section_type: string | null
+          share_quotes: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          alternate_titles?: string | null
+          company_size_type?: string | null
+          content?: string | null
+          content_i18n?: Json | null
+          created_at?: string | null
+          explore?: string | null
+          fb_status?: boolean | null
+          feedback?: string | null
+          feedback_category?: number | null
+          id?: string | null
+          language?: string | null
+          metadata?: Json | null
+          order_number?: number | null
+          report_id?: string | null
+          score?: number | null
+          section_type?: string | null
+          share_quotes?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          alternate_titles?: string | null
+          company_size_type?: string | null
+          content?: string | null
+          content_i18n?: Json | null
+          created_at?: string | null
+          explore?: string | null
+          fb_status?: boolean | null
+          feedback?: string | null
+          feedback_category?: number | null
+          id?: string | null
+          language?: string | null
+          metadata?: Json | null
+          order_number?: number | null
+          report_id?: string | null
+          score?: number | null
+          section_type?: string | null
+          share_quotes?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       enriched_jobs: {
         Row: {

@@ -12,6 +12,9 @@ export interface ChatMessage {
   sender: 'user' | 'bot';
   content: string;
   created_at: string;
+  // Provenance, e.g. { quick_reply: 'differently' } when the turn was typed
+  // after clicking a focus-type quick-reply pill. Renders as a small label.
+  metadata?: { quick_reply?: string } | null;
 }
 
 interface UseChatMessagesOptions {
@@ -67,7 +70,11 @@ export function useChatMessages({ sessionId, reportId, userId }: UseChatMessages
   // race where a user refreshes mid-flight and loses an unpersisted bot
   // message, since the server-side write is atomic with the API response.
   const addMessage = useCallback(
-    (sender: 'user' | 'bot', content: string, options?: { skipPersist?: boolean }): string | null => {
+    (
+      sender: 'user' | 'bot',
+      content: string,
+      options?: { skipPersist?: boolean; metadata?: ChatMessage['metadata'] },
+    ): string | null => {
       if (!sessionId || !reportId || !userId) return null;
 
       const now = new Date().toISOString();
@@ -81,6 +88,7 @@ export function useChatMessages({ sessionId, reportId, userId }: UseChatMessages
         sender,
         content,
         created_at: now,
+        metadata: options?.metadata ?? null,
       };
 
       // Add to local state immediately
@@ -96,6 +104,7 @@ export function useChatMessages({ sessionId, reportId, userId }: UseChatMessages
             user_id: userId,
             sender,
             content,
+            metadata: options?.metadata ?? null,
           })
           .then(({ error }) => {
             if (error) {

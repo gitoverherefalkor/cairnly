@@ -609,8 +609,13 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // Called by quick replies that focus the input instead of sending a
     // message. Optional placeholder overrides the default "Type here" so the
     // user sees an inviting prompt that matches what we asked them to share.
-    const handleFocusInput = (placeholder?: string) => {
+    const handleFocusInput = (placeholder?: string, pillKey?: string) => {
       setInputPlaceholderOverride(placeholder ?? null);
+      // Remember which focus-type pill (differently / somethingElse) opened
+      // the input, so the next typed turn can carry a "via <pill>" label in
+      // the transcript. Only set when a pill says so — other focus calls
+      // (e.g. follow-up chips) leave any pending label alone.
+      if (pillKey) pendingQuickReplyRef.current = pillKey;
       inputRef.current?.focus();
     };
 
@@ -622,6 +627,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
     // stick until they actually type, then it clears on send. Using a ref
     // (not state) so the prefix doesn't trigger re-renders.
     const pendingAskRoleRef = useRef<string | null>(null);
+
+    // Which focus-type quick-reply pill (differently / somethingElse) the
+    // user clicked before typing. Consumed by the next free-text send as
+    // message metadata; cleared on intent sends (the user moved on).
+    const pendingQuickReplyRef = useRef<string | null>(null);
 
     const handleAskAboutRole = (roleTitle: string) => {
       pendingAskRoleRef.current = roleTitle;
@@ -707,9 +717,15 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       // An intent send (advance / wrap-up / skip) means the user moved on:
       // drop any lingering "Ask about <role>" scoping, chip included, so the
       // next free-text turn in the new section doesn't get a stale prefix.
+      // Same for a pending quick-reply label.
       if (intent) {
         cancelAskAboutRole();
+        pendingQuickReplyRef.current = null;
       }
+
+      // Consume the pending pill label for this free-text turn.
+      const quickReplyKey = !intent ? pendingQuickReplyRef.current : null;
+      pendingQuickReplyRef.current = null;
 
       // Dismiss the in-chat welcome card the moment the user sends anything,
       // so manually typing a first message has the same effect as clicking
@@ -990,7 +1006,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         // persistence via addMessage's fire-and-forget Supabase write.
         // Capture the new message id so we can pin a retry affordance
         // to it if the agent call fails below.
-        const newId = addMessage('user', message);
+        const newId = addMessage(
+          'user',
+          message,
+          quickReplyKey ? { metadata: { quick_reply: quickReplyKey } } : undefined,
+        );
         if (newId) lastUserMessageIdRef.current = newId;
         setLoadingMode('agent');
         setIsWaitingForResponse(true);

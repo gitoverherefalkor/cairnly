@@ -342,6 +342,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   messageId={msg.id}
                   content={msg.content}
                   sender={msg.sender}
+                  quickReplyKey={msg.metadata?.quick_reply ?? null}
                   onSectionDetected={onSectionDetected}
                   defaultAllCollapsed={isMultiCardMessage}
                   onAllBlocksOpened={isMultiCardMessage ? () => {

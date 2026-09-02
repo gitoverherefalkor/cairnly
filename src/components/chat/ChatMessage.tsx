@@ -26,6 +26,10 @@ interface ChatMessageProps {
   messageId?: string;
   content: string;
   sender: 'user' | 'bot';
+  // For user messages typed after clicking a focus-type quick-reply pill
+  // (differently / somethingElse): the pill key, rendered as a small
+  // "via <pill label>" tag above the bubble.
+  quickReplyKey?: string | null;
   onSectionDetected?: (sectionIndex: number) => void;
   onAllBlocksOpened?: () => void;
   // Fires on every newly-opened card in a multi-card message with the
@@ -1080,6 +1084,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   messageId,
   content,
   sender,
+  quickReplyKey = null,
   onSectionDetected,
   onAllBlocksOpened,
   onOpenProgress,
@@ -1159,8 +1164,23 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   }, [content, sender, onSectionDetected, sections]);
 
   if (sender === 'user') {
+    // Label of the quick-reply pill this turn came from, e.g. "Dit zie ik
+    // anders". Sits as a small tag above the bubble so the transcript shows
+    // that a quick option was used, not just the typed text.
+    const quickReplyLabel = quickReplyKey
+      ? t(`quickReplies.${quickReplyKey}.label`, { defaultValue: '' })
+      : '';
     return (
-      <div className="flex justify-end items-center gap-2 mb-4">
+      <div className="mb-4">
+        {quickReplyLabel && (
+          <div className="flex justify-end mb-1 pr-1">
+            <span className="inline-flex items-center gap-1 text-xs text-white/75">
+              <MousePointerClick size={12} />
+              {quickReplyLabel}
+            </span>
+          </div>
+        )}
+      <div className="flex justify-end items-center gap-2">
         {/* Subtle retry affordance for messages whose agent call failed.
             Sits to the LEFT of the bubble (still on the right side of the
             chat) so it doesn't push vertical scroll. Only shows on the
@@ -1181,6 +1201,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         }`}>
           {content}
         </div>
+      </div>
       </div>
     );
   }

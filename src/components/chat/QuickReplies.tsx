@@ -42,7 +42,9 @@ interface QuickReplySpec {
 
 interface QuickRepliesProps {
   onSend: (message: string, intent?: QuickReplyIntent) => void;
-  onFocusInput: (placeholder?: string) => void;
+  // pillKey names the focus-type pill that was clicked (e.g. 'differently'),
+  // so the container can label the user's next typed turn with it.
+  onFocusInput: (placeholder?: string, pillKey?: string) => void;
   visible: boolean;
   isLastSection?: boolean; // True when on dream jobs (final section)
   isWrappedUp?: boolean; // True after the user has sent the wrap-up message
@@ -204,9 +206,10 @@ export const QuickReplies: React.FC<QuickRepliesProps> = ({ onSend, onFocusInput
     } else {
       // No message → focus the input so user can type freely. If a custom
       // placeholder is configured, pass it through so the chat input shows
-      // an inviting prompt ("Tell me how you see it…").
+      // an inviting prompt ("Tell me how you see it…"). The pill key rides
+      // along so the typed turn can carry a "via <pill>" label.
       const key = `quickReplies.${reply.key}.placeholder`;
-      onFocusInput(t(key, { defaultValue: SENT_TEXT_FALLBACK[key] ?? '' }));
+      onFocusInput(t(key, { defaultValue: SENT_TEXT_FALLBACK[key] ?? '' }), reply.key);
     }
   };
 
