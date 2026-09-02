@@ -1,7 +1,9 @@
 # Handoff: scrollable product demo (chat replay)
 
-**Written 2026-09-02, after the plan was agreed with Sjoerd in chat. This document
-is self-contained — execute from here, no need for the original conversation.**
+**Written 2026-09-02, after the plan was agreed with Sjoerd in chat. Updated
+later the same day after the walkthrough was completed and several chat
+features shipped. This document is self-contained — execute from here, no need
+for the original conversation.**
 
 ## Goal
 
@@ -47,19 +49,32 @@ of the transcript) — the ordering itself makes the argument.
 |---|---|---|
 | Chat rendering | `src/components/chat/ChatMessage.tsx` | Renders stored markdown; contains `SequentialSubsections` (top-career reveal flow) and `CollapsibleCareerBlocks` (runner-ups/OOB cards) |
 | Score/AI/Move pills | `src/components/chat/CareerScoreCard.tsx` | Reads `report_sections` rows via the `sections` prop |
-| Comparison radar | `src/components/chat/CareerComparisonCard.tsx` | Needs `metadata.fit_scores` + `metadata.comparison` + `content_i18n[lang].comparison` on top_career_2/3 rows |
+| Comparison radar | `src/components/chat/CareerComparisonCard.tsx` | Needs `metadata.fit_scores` + `metadata.comparison` + `content_i18n[lang].comparison` on top_career_2/3 rows. Since 2026-09-02: dashed reference lines + legend hover/tap highlights a career — exactly the interaction the radar annotation should invite |
 | Chat page assembly | `src/components/chat/ChatContainer.tsx` | Too coupled to live sessions — do NOT reuse wholesale; build a thin `DemoReplay` container that maps fixture messages onto `ChatMessage` |
-| Demo account tooling | `scripts/demo-set-password.mjs`, `scripts/demo-rerun-report.mjs` | Password conventions + full WF1-WF4 re-run for a demo account. Both refuse non-`demo.*` emails — keep that guard in every new demo script |
+| Demo account tooling | `scripts/demo-set-password.mjs`, `scripts/demo-rerun-report.mjs`, `scripts/demo-reset-chat.mjs` | Password conventions, full WF1-WF4 re-run, and a full chat reset (4 state locations). All refuse non-`demo.*` emails — keep that guard in every new demo script |
+| Wrap-up card | `src/components/chat/WrapUpCard.tsx` | Fully Dutch since 2026-09-02. Optional closing beat: render it statically fed with the `chat_highlights` section from the fixture, phase `review`, so the replay ends on "dit verandert je rapport" instead of stopping mid-air |
 | Partner pages | `/partners`, `/partners/voorbeeldrapport` | The demo link for partners goes here |
 | PDF pipeline | `report-pdf` components + render tokens | Target of the "download as PDF" footnote |
 
 **Demo account:** `demo.marloes@cairnly.io`, user id
 `70bf5083-6f44-4578-930d-1247afde1572`, `preferred_language='nl'`. Password is
 in `.env.local` as `DEMO_DEMO_MARLOES_PASSWORD` (written by
-`demo-set-password.mjs`). Her current report is `9144c1e6-9859-4289-9182-5421d2492b41`
-(generated 2026-09-01 with the post-cleanup pipeline: clean metadata, NL
-comparison translations), but **do not hardcode the id** — the export script
-must take the account's newest report, because reruns replace it.
+`demo-set-password.mjs`; the BOTTOM entry in the file is the current one —
+each run appends).
+
+**The walkthrough is DONE.** Report `10646823-1920-4889-9dc0-f780b4215fca`,
+status `completed` (walkthrough + wrap-up finished 2026-09-02): 42 chat
+messages, 3 Keeps (`saved_chat_responses`), 2 quick-reply provenance labels
+(`chat_messages.metadata.quick_reply`), chapter-feedback discussion via WF6 on
+13 sections, `chat_highlights` + `exec_summary` written. All content is Dutch
+(15 sections translated), AI-impact badge and prose vocabulary are in sync,
+and top careers carry `fit_scores` + `comparison` + `move` metadata. Freeze
+from THIS report — nothing is pending.
+
+**Do not hardcode the id**, but also do not blindly take "the newest report":
+running `demo-rerun-report.mjs` creates a NEW (chat-less) report that would
+then be the newest. The export script must select the newest report with
+status `completed` (or the newest that has chat_messages).
 
 ## Fixture
 
@@ -72,12 +87,22 @@ the personas are fictional. `.pdf` is gitignored in this repo — JSON is fine.
   "persona": { "firstName": "Marloes", "language": "nl", "exportedAt": "…", "reportId": "…" },
   "messages": [
     // from chat_messages, ordered by created_at:
-    // { id, sender ('user'|'bot'), content, created_at, curated? }
+    // { id, sender ('user'|'bot'), content, created_at, metadata, curated? }
+    // metadata is the jsonb column (added 2026-09-02); metadata.quick_reply
+    // holds the pill key ('differently'/'somethingElse') that renders the
+    // small "via <pill>" tag above a typed user turn — keep it.
   ],
   "sections": [
     // from report_sections for the same report — every column the chat reads:
     // { id, section_type, order_number, title, alternate_titles,
     //   company_size_type, content, score, metadata, language, content_i18n }
+    // EXCLUDE init_summary: no renderer reads it, and it is the one section
+    // that is raw survey extraction rather than user-facing content.
+  ],
+  "savedMessageIds": [
+    // message ids from saved_chat_responses for this report — drives the
+    // "In rapport" (Keep) badges in the replay, one of the three planned
+    // annotation moments.
   ]
 }
 ```
@@ -103,6 +128,17 @@ without touching the database. Keep the mechanism dumb.
   build time).
 - Renders the message list through `ChatMessage` with `sections` from the
   fixture. No `ChatInput`, no `QuickReplies` wired to anything, no n8n.
+- **Per-message props shipped on 2026-09-02 that the thin container must
+  replicate** (ChatMessages.tsx shows the pattern — a few lines each):
+  - `quickReplyKey={msg.metadata?.quick_reply ?? null}` — the "via Dit zie ik
+    anders" tag above typed turns.
+  - `followUpAnsweredBy={next message's content when it is a user turn}` —
+    makes an answered multiple-choice message keep its choice-card look
+    (options disabled, picked one check-marked) instead of degrading to plain
+    bullets. Without this the demo loses one of its best "the product asks,
+    she chooses" beats.
+  - `bookmarkedMessageIds` from the fixture's `savedMessageIds` — the
+    "In rapport" badges.
 - **Reveal behavior:** the sequential-reveal and collapsed-cards gating exists
   to pace a real session. For the demo, keep the *interactions* (open a career
   card, hover the radar — they make the product feel alive) but do not gate
@@ -149,14 +185,28 @@ without touching the database. Keep the mechanism dumb.
 6. **Never exceed font-weight 700** anywhere (platform rule).
 7. **Em-dashes:** none in any user-facing/marketing copy (NL or EN). House
    writing rule.
+8. **Rerunning the demo account destroys the frozen source.**
+   `demo-rerun-report.mjs` creates a fresh chat-less report;
+   `scripts/demo-reset-chat.mjs` wipes the chat (four state locations — see
+   the checklist at the top of `docs/report/demo-marloes-chat-script.md`).
+   Export the fixture FIRST; after that the database is expendable.
+9. **The chapter-1 feedback card is absent from this walkthrough.** A gating
+   bug (open task: the modal keys on `currentSectionIndex === 4`, which was
+   out of sync) meant it never appeared, so there is no chapter_1_feedback
+   row and no modal moment in the transcript. If the demo wants that beat,
+   render `ChapterFeedbackModal` as a static reconstructed card in the demo
+   layer — do not fake a message for it.
+10. **Build now runs `tsc --noEmit` first** (added 2026-09-02 after a
+    dashboard crash from an unchecked identifier). New demo code must
+    typecheck clean or the build fails — that is intended.
 
 ## Phases
 
 **Phase 1 — NL demo live (one session):**
-export script → fixture from Marloes's finished walkthrough (confirm with
-Sjoerd that his walkthrough is DONE before freezing) → `/demo` replay route +
-chapter nav + 3 annotations + honest label + PDF footnote → teaser links on
-landing + /partners → build, tests, verify in browser, ship to main.
+export script → fixture from Marloes's finished walkthrough (already DONE —
+report `10646823…`, status completed; freeze immediately) → `/demo` replay
+route + chapter nav + 3 annotations + honest label + PDF footnote → teaser
+links on landing + /partners → build, tests, verify in browser, ship to main.
 Acceptance: a logged-out visitor can scroll the full NL session on production,
 open career cards, hover the radar, and reach the PDF + CTA.
 
@@ -174,7 +224,10 @@ wire into `/demo` for EN.
 **Phase 3 — dashboard demo:**
 Same fixture approach on a read-only dashboard view ("Bekijk ook haar
 dashboard →" from the demo footer). Exclude: Jobs live search (paid external
-calls) and the resume builder — link back to the CTA instead.
+calls) and the resume builder — link back to the CTA instead. Note: the
+dashboard crashed on fit_scores reports until 2026-09-02 (`lang` out of scope
+in DashboardV4's compare panel); fixed, and the compare radar there works
+with Marloes's report now.
 
 ## Out of scope
 
