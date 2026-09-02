@@ -98,7 +98,10 @@
     "somethingElseChip": "Something else, type below",
     "askAboutPlaceholder": "Ask about {{role}}…",
     "cardsLeft_one": "1 card left, tap to expand",
-    "cardsLeft_other": "{{count}} cards left, tap to expand"
+    "cardsLeft_other": "{{count}} cards left, tap to expand",
+    "inputPlaceholderVoice": "Type here or dictate…",
+    "micTitle": "Dictate (tip: space starts and stops)",
+    "micTitleStop": "Stop dictation (space)"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",

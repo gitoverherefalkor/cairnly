@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
-import { Send, Mic, MessageCircle, X, FolderOpen } from 'lucide-react';
+import { Send, Mic, MessageCircle, X, FolderOpen, Loader2 } from 'lucide-react';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 export interface ChatInputHandle {
@@ -45,12 +45,30 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
   const [text, setText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Voice input via shared hook
-  const { isListening, isSupported: hasSpeechRecognition, toggleListening, stopListening } =
+  // Voice input via shared hook. cleanOnStop: when the user stops dictating,
+  // the raw transcript is tidied (punctuation, capitals) by clean-transcript;
+  // isCleaning drives a brief spinner and blocks send until the tidy text is in.
+  const { isListening, isCleaning, isSupported: hasSpeechRecognition, toggleListening, stopListening } =
     useSpeechRecognition({
       onTranscript: setText,
       existingText: text,
+      cleanOnStop: true,
     });
+
+  // Space bar controls dictation: while listening, ANY space press stops it
+  // (the user isn't typing during dictation). Document-level so it works
+  // regardless of where focus ended up.
+  useEffect(() => {
+    if (!isListening) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        stopListening();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isListening, stopListening]);
 
   // Expose focus method so quick replies can focus the input
   useImperativeHandle(ref, () => ({
@@ -77,11 +95,12 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
 
   const handleSend = () => {
     const trimmed = text.trim();
-    if (!trimmed || disabled) return;
+    if (!trimmed || disabled || isCleaning) return;
 
-    // Auto-stop mic when sending
+    // Auto-stop mic when sending — and skip the cleanup pass, whose result
+    // would otherwise repopulate the just-cleared field with stale text.
     if (isListening) {
-      stopListening();
+      stopListening({ skipClean: true });
     }
 
     onSend(trimmed);
@@ -96,6 +115,20 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+      return;
+    }
+    // Space in an EMPTY field starts dictation (nobody starts a message with
+    // a space). Stopping via space is handled by the document listener above.
+    if (
+      e.key === ' ' &&
+      text.length === 0 &&
+      hasSpeechRecognition &&
+      !isListening &&
+      !isCleaning &&
+      !disabled
+    ) {
+      e.preventDefault();
+      void toggleListening();
     }
   };
 
@@ -161,7 +194,12 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={placeholder ?? t('ui.inputPlaceholder')}
+              placeholder={
+                placeholder ??
+                (hasSpeechRecognition
+                  ? t('ui.inputPlaceholderVoice', { defaultValue: 'Type here or dictate…' })
+                  : t('ui.inputPlaceholder'))
+              }
               disabled={disabled}
               rows={1}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 sm:px-5 pr-[88px] sm:pr-[104px] py-3 sm:py-4 text-sm sm:text-[0.9375rem] leading-normal font-sans resize-none overflow-y-hidden shadow-md focus:outline-none focus:border-atlas-teal focus:ring-2 focus:ring-atlas-teal/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -177,16 +215,26 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                 <button
                   type="button"
                   onClick={toggleListening}
-                  disabled={disabled}
-                  title={isListening ? 'Stop recording' : 'Voice input'}
+                  disabled={disabled || isCleaning}
+                  title={
+                    isListening
+                      ? t('ui.micTitleStop', { defaultValue: 'Stop dictation (space)' })
+                      : t('ui.micTitle', { defaultValue: 'Dictate (tip: space starts and stops)' })
+                  }
                   className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-md transition-colors ${
                     isListening
                       ? 'text-red-500 bg-red-50 animate-mic-pulse'
                       : 'text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  <Mic size={18} className="sm:hidden" />
-                  <Mic size={20} className="hidden sm:block" />
+                  {isCleaning ? (
+                    <Loader2 size={20} className="animate-spin text-atlas-teal" />
+                  ) : (
+                    <>
+                      <Mic size={18} className="sm:hidden" />
+                      <Mic size={20} className="hidden sm:block" />
+                    </>
+                  )}
                 </button>
               )}
 
@@ -194,8 +242,8 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
               <button
                 type="button"
                 onClick={handleSend}
-                disabled={disabled || !text.trim()}
-                title="Send message"
+                disabled={disabled || !text.trim() || isCleaning}
+                title={t('input.send', { defaultValue: 'Send' })}
                 className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 bg-atlas-teal rounded-md text-white transition-all hover:bg-atlas-teal/90 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={16} className="sm:hidden" />

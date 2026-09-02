@@ -98,7 +98,10 @@
     "somethingElseChip": "Iets anders, typ het hieronder",
     "askAboutPlaceholder": "Stel je vraag over {{role}}…",
     "cardsLeft_one": "Nog 1 kaart, tik om te openen",
-    "cardsLeft_other": "Nog {{count}} kaarten, tik om te openen"
+    "cardsLeft_other": "Nog {{count}} kaarten, tik om te openen",
+    "inputPlaceholderVoice": "Typ hier of dicteer…",
+    "micTitle": "Dicteren (tip: spatie start en stopt)",
+    "micTitleStop": "Stop dicteren (spatie)"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",

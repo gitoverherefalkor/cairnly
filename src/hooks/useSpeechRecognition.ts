@@ -142,9 +142,15 @@ export function useSpeechRecognition({
     }
   }, []);
 
-  const stopListening = useCallback(() => {
+  // One-shot flag: when the caller stops recognition because the text was
+  // just SENT, the cleanup pass must not run — its result would repopulate
+  // the (already cleared) field with stale text.
+  const skipCleanOnceRef = useRef(false);
+
+  const stopListening = useCallback((opts?: { skipClean?: boolean }) => {
     // Stops recognition; the `onend` handler captures the final transcript and
     // triggers cleanup (when enabled), so finalTranscriptRef is NOT cleared here.
+    if (opts?.skipClean) skipCleanOnceRef.current = true;
     recognitionRef.current?.stop();
     setIsListening(false);
     isListeningRef.current = false;
@@ -200,7 +206,9 @@ export function useSpeechRecognition({
       // Recognition has fully stopped. Optionally tidy up the transcript.
       const raw = finalTranscriptRef.current;
       finalTranscriptRef.current = '';
-      if (cleanOnStopRef.current && !unmountedRef.current) {
+      const skipClean = skipCleanOnceRef.current;
+      skipCleanOnceRef.current = false;
+      if (cleanOnStopRef.current && !skipClean && !unmountedRef.current) {
         void runCleanup(raw);
       }
     };
