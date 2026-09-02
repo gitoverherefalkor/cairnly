@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
-import { ChevronDown, MessageCircle, Pencil, RotateCw, Route, MousePointerClick } from 'lucide-react';
+import { Check, ChevronDown, MessageCircle, Pencil, RotateCw, Route, MousePointerClick } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { sectionTitleCandidates } from '@/lib/sectionText';
@@ -30,6 +30,11 @@ interface ChatMessageProps {
   // (differently / somethingElse): the pill key, rendered as a small
   // "via <pill label>" tag above the bubble.
   quickReplyKey?: string | null;
+  // For bot messages: content of the user turn that directly follows this
+  // message, if any. Lets an answered follow-up-options message keep its
+  // choice-card rendering (disabled, chosen option highlighted) instead of
+  // degrading to plain bullets once it's no longer the latest message.
+  followUpAnsweredBy?: string | null;
   onSectionDetected?: (sectionIndex: number) => void;
   onAllBlocksOpened?: () => void;
   // Fires on every newly-opened card in a multi-card message with the
@@ -1085,6 +1090,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   content,
   sender,
   quickReplyKey = null,
+  followUpAnsweredBy = null,
   onSectionDetected,
   onAllBlocksOpened,
   onOpenProgress,
@@ -1244,16 +1250,25 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   }, [isLatestBotMessage, useSequentialReveal, onSequentialRevealStateChange]);
 
   // Detect 'follow-up with options' messages (response to Explore More /
-  // I see this differently). Only the latest bot message gets the chip
-  // treatment so old follow-ups stay rendered as plain bullets — clicking
-  // through historical chips wouldn't make sense conversationally.
+  // I see this differently). The latest bot message gets clickable chips;
+  // an ANSWERED follow-up (a user turn directly follows it) keeps the same
+  // choice-card rendering, but disabled and with the picked option
+  // highlighted — so the transcript shows there were options, instead of
+  // degrading to plain bullets. Once a user turn follows, the chips also
+  // stop being clickable even while this is still the latest bot message,
+  // which closes the double-click-two-chips window.
+  const followUpAnswered = sender === 'bot' && !!followUpAnsweredBy;
   const followUpOptions =
-    isLatestBotMessage && !hasMultipleBlocks && !useSequentialReveal
+    (isLatestBotMessage || followUpAnswered) && !hasMultipleBlocks && !useSequentialReveal
       ? detectFollowUpOptions(
           sanitized,
           t('ui.somethingElseChip', { defaultValue: 'Something else, type below' }),
         )
       : null;
+  const followUpInteractive = isLatestBotMessage && !followUpAnswered;
+  // Chip sends strip trailing punctuation from the option title, so compare
+  // the same way when matching the answering user turn back to an option.
+  const normalizeChoice = (s: string) => s.trim().toLowerCase().replace(/[!?.]+$/, '');
 
   // If this single message is a Career 2 or Career 3 section, resolve its
   // report_sections row so we can render the comparison card. Career 1 is
@@ -1415,8 +1430,45 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                 free-text 'Something else' option. */}
             <div className="mt-3 rounded-xl border border-atlas-teal/30 overflow-hidden bg-white">
               {followUpOptions.options.map((opt, i) => {
-                const isLastOption = i === followUpOptions.options.length - 1;
                 const isFreeText = opt.isFreeText;
+                const isSelected =
+                  !followUpInteractive &&
+                  !isFreeText &&
+                  followUpAnsweredBy != null &&
+                  normalizeChoice(opt.message) === normalizeChoice(followUpAnsweredBy);
+                const rowInner = (
+                  <>
+                    {isFreeText ? (
+                      <Pencil className="w-4 h-4 text-atlas-teal/70 shrink-0" />
+                    ) : isSelected ? (
+                      <span className="w-7 h-7 rounded-full bg-atlas-teal text-white flex items-center justify-center shrink-0">
+                        <Check size={14} />
+                      </span>
+                    ) : (
+                      <span className="w-7 h-7 rounded-full bg-atlas-teal/10 text-atlas-teal flex items-center justify-center text-xs font-bold shrink-0">
+                        {i + 1}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium text-atlas-navy leading-snug">
+                      {opt.display}
+                    </span>
+                  </>
+                );
+                // Answered (historical) card: same rows, no interaction.
+                // The picked option keeps full contrast + a teal check;
+                // the rest fades back.
+                if (!followUpInteractive) {
+                  return (
+                    <div
+                      key={i}
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left ${
+                        i > 0 ? 'border-t border-atlas-teal/15' : ''
+                      } ${isSelected ? 'bg-atlas-teal/10' : 'opacity-50'}`}
+                    >
+                      {rowInner}
+                    </div>
+                  );
+                }
                 return (
                   <button
                     key={i}
@@ -1436,16 +1488,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
                       i > 0 ? 'border-t border-atlas-teal/15' : ''
                     }`}
                   >
-                    {isFreeText ? (
-                      <Pencil className="w-4 h-4 text-atlas-teal/70 shrink-0" />
-                    ) : (
-                      <span className="w-7 h-7 rounded-full bg-atlas-teal/10 text-atlas-teal flex items-center justify-center text-xs font-bold shrink-0">
-                        {i + 1}
-                      </span>
-                    )}
-                    <span className="text-sm font-medium text-atlas-navy leading-snug">
-                      {opt.display}
-                    </span>
+                    {rowInner}
                   </button>
                 );
               })}

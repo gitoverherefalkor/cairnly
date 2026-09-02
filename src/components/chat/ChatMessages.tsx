@@ -343,6 +343,11 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
                   content={msg.content}
                   sender={msg.sender}
                   quickReplyKey={msg.metadata?.quick_reply ?? null}
+                  followUpAnsweredBy={
+                    msg.sender === 'bot' && arr[idx + 1]?.sender === 'user'
+                      ? arr[idx + 1].content
+                      : null
+                  }
                   onSectionDetected={onSectionDetected}
                   defaultAllCollapsed={isMultiCardMessage}
                   onAllBlocksOpened={isMultiCardMessage ? () => {
