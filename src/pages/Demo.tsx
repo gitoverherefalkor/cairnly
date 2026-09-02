@@ -8,28 +8,35 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { TTSProvider } from '@/contexts/TTSContext';
+import { ReportSidebar } from '@/components/chat/ReportSidebar';
 import { trackSampleView } from '@/lib/analytics';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoReplay, messageDomId } from '@/components/demo/DemoReplay';
-import { DemoChapterBar } from '@/components/demo/DemoChapterBar';
+import { DemoMomentsBar } from '@/components/demo/DemoMomentsBar';
 import { DemoHighlightsCard } from '@/components/demo/DemoHighlightsCard';
 import { DemoFooter } from '@/components/demo/DemoFooter';
-import { DemoLegend } from '@/components/demo/DemoLegend';
 import { DemoWelcome } from '@/components/demo/DemoWelcome';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
-import { buildChapters, sectionIndexByMessage, type DemoChapterId } from '@/demo/chapters';
+import { sectionIndexByMessage } from '@/demo/chapters';
 import { DEMO_ROUTE } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
+
+// Below this width the sidebar starts collapsed (the transcript would get
+// squeezed) and the margin notes render inline instead of in the margin.
+const WIDE = 1360;
 
 /**
  * /demo — a public, scrollable replay of a real coaching session, rendered
  * through the real chat components from a frozen fixture. No login, no input
  * box, no n8n. See docs/handoff/demo-replay-plan.md for the decisions.
  *
- * Layout: below 1360px a single 800px column. From 1360px a three-column
- * grid: the legend rail (sticky) on the left, the transcript in the middle,
- * and an empty right column the margin notes hang into.
+ * The page is laid out like /chat: the real ReportSidebar on the left
+ * (sections, progress, career sublines; every section is a jump target
+ * because the whole session is on the page), the transcript in the middle
+ * with the same 320px side margins the chat uses while the sidebar is open,
+ * and the demo-layer margin notes hanging into the right margin. The
+ * annotated moments are the numbered chips in the sticky header.
  *
  * `?p=<slug>` marks a partner-audience visit (the /partners teaser links with
  * ?p=partners; outreach mails can tag the bureau): the CTAs point at the
@@ -64,16 +71,24 @@ const Demo: React.FC = () => {
     trackSampleView(location.pathname, location.search);
   }, [location.pathname, location.search]);
 
+  // message id → canonical section index, and the reverse (first message
+  // that delivers each section) for the sidebar's jump links.
   const sectionIndexMap = useMemo(
     () => (fixture ? sectionIndexByMessage(fixture.messages, fixture.sections) : {}),
     [fixture],
   );
-  const chapters = useMemo(
-    () => (fixture ? buildChapters(fixture.messages, fixture.sections) : []),
-    [fixture],
-  );
+  const messageIdBySection = useMemo(() => {
+    const out: Record<number, string> = {};
+    if (!fixture) return out;
+    for (const m of fixture.messages) {
+      const idx = sectionIndexMap[m.id];
+      if (idx != null && out[idx] === undefined) out[idx] = m.id;
+    }
+    return out;
+  }, [fixture, sectionIndexMap]);
+
   // Annotations in transcript order, numbered 1..n; the number is what ties
-  // the legend rail to the margin notes.
+  // the header chips to the margin notes.
   const annotations = useMemo<ResolvedAnnotation[]>(() => {
     if (!fixture) return [];
     const position = new Map(fixture.messages.map((m, i) => [m.id, i]));
@@ -92,8 +107,8 @@ const Demo: React.FC = () => {
       }));
   }, [fixture, choice, t]);
 
-  // Jump to a message and ring it for a moment. Shared by the legend, the
-  // welcome card's button and the comparison "explain" scroll.
+  // Jump to a message and ring it for a moment. Shared by the header chips,
+  // the sidebar, the welcome card's button and the comparison "explain".
   const [flashId, setFlashId] = useState<string | null>(null);
   const flash = useCallback((id: string) => {
     document.getElementById(messageDomId(id))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -101,10 +116,17 @@ const Demo: React.FC = () => {
     window.setTimeout(() => setFlashId((current) => (current === id ? null : current)), 2000);
   }, []);
 
-  // Scroll-spy: active chapter, overall progress, and which annotated
-  // moments the visitor has already scrolled past.
+  // Sidebar open/closed, as in the chat. Starts collapsed on narrower
+  // desktops so the transcript keeps a readable width.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < WIDE,
+  );
+
+  // Scroll-spy: the section the visitor is in (drives the sidebar's
+  // past/current/upcoming states and its N/M pill), overall progress, and
+  // which annotated moments have been scrolled past.
   const transcriptRef = useRef<HTMLDivElement>(null);
-  const [activeChapter, setActiveChapter] = useState<DemoChapterId | null>(null);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(-1);
   const [progress, setProgress] = useState(0);
   const [reachedIds, setReachedIds] = useState<Set<string>>(() => new Set());
   useEffect(() => {
@@ -114,13 +136,12 @@ const Demo: React.FC = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const probe = window.innerHeight * 0.4;
-        let active: DemoChapterId | null = null;
-        for (const ch of chapters) {
-          if (!ch.firstMessageId) continue;
-          const el = document.getElementById(messageDomId(ch.firstMessageId));
-          if (el && el.getBoundingClientRect().top <= probe) active = ch.id;
+        let current = -1;
+        for (const [id, idx] of Object.entries(sectionIndexMap)) {
+          const el = document.getElementById(messageDomId(id));
+          if (el && el.getBoundingClientRect().top <= probe) current = Math.max(current, idx);
         }
-        setActiveChapter(active);
+        setCurrentSectionIndex(current);
         const reached = new Set<string>();
         for (const a of annotations) {
           const el = document.getElementById(messageDomId(a.messageId));
@@ -146,16 +167,7 @@ const Demo: React.FC = () => {
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [fixture, chapters, annotations]);
-
-  const scrollToChapter = (id: DemoChapterId) => {
-    const ch = chapters.find((c) => c.id === id);
-    if (!ch?.firstMessageId) return;
-    document.getElementById(messageDomId(ch.firstMessageId))?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
+  }, [fixture, sectionIndexMap, annotations]);
 
   const onNavCta = () => {
     if (audience === 'partner') window.open(CALENDLY_URL, '_blank', 'noopener');
@@ -164,16 +176,6 @@ const Demo: React.FC = () => {
 
   const highlights = fixture?.sections.find((s) => s.section_type === 'chat_highlights');
   const firstMessageId = fixture?.messages[0]?.id ?? null;
-
-  const legend = (
-    <DemoLegend
-      items={annotations}
-      reachedIds={reachedIds}
-      onSelect={flash}
-      title={t('legend.title')}
-      hint={t('legend.hint')}
-    />
-  );
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-clip">
@@ -206,14 +208,11 @@ const Demo: React.FC = () => {
             </div>
           </div>
         </div>
-        <DemoChapterBar
-          chapters={chapters.map((c) => ({
-            id: c.id,
-            label: t(`chapters.${c.id}`),
-            reachable: c.firstMessageId !== null,
-          }))}
-          activeId={activeChapter}
-          onSelect={scrollToChapter}
+        <DemoMomentsBar
+          items={annotations}
+          reachedIds={reachedIds}
+          onSelect={flash}
+          title={t('legend.title')}
           honestLabel={t('nav.honest')}
         />
         <div className="h-[3px] bg-gray-100">
@@ -224,16 +223,16 @@ const Demo: React.FC = () => {
         </div>
       </nav>
 
-      <main className="relative z-10 flex-1">
-        <div className="mx-auto px-3 sm:px-6 max-w-[800px] pt-6 sm:pt-10 pb-16 min-[1360px]:px-0 min-[1360px]:max-w-none min-[1360px]:grid min-[1360px]:grid-cols-[232px_800px_248px] min-[1360px]:gap-8 min-[1360px]:justify-center">
-          {/* Legend rail, wide screens only. Sticky inside its grid column so
-              it follows the transcript and leaves with it, never over the
-              site footer. */}
-          <aside className="hidden min-[1360px]:block">
-            <div className="sticky top-[136px]">{fixture && legend}</div>
-          </aside>
-
-          <div className="min-w-0 min-[1360px]:px-6">
+      {/* Same row as /chat: the column keeps 320px side margins while the
+          sidebar is open (80px when collapsed); the sidebar itself is a
+          fixed panel on the left from md up and a drawer below that. */}
+      <main className="relative z-10 flex-1 flex">
+        <div
+          className={`flex-1 flex flex-col min-w-0 transition-all ${
+            sidebarCollapsed ? 'md:mx-20' : 'md:mx-80'
+          }`}
+        >
+          <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
             <section
               className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7 mb-8"
               style={{
@@ -254,8 +253,9 @@ const Demo: React.FC = () => {
               </p>
               <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{t('intro.body')}</p>
 
-              {/* Small screens: the annotated moments as a jump list here.
-                  Wide screens: they live in the legend rail on the left. */}
+              {/* Below 1360px the header chips are numbers only, so the
+                  moments are listed in full here. From 1360px the sentence
+                  below points at the header chips and the sidebar. */}
               {annotations.length > 0 && (
                 <div className="min-[1360px]:hidden">
                   <p className="mt-3 text-[15px] font-semibold text-[#122E3B]">{t('intro.watchLead')}</p>
@@ -329,10 +329,26 @@ const Demo: React.FC = () => {
               </div>
             )}
           </div>
-
-          {/* Right column: empty on purpose, the margin notes hang into it. */}
-          <div className="hidden min-[1360px]:block" aria-hidden="true" />
         </div>
+
+        {/* The real chat sidebar. Clicking a section jumps to the message
+            that delivered it; the current section follows the scroll. */}
+        {fixture && (
+          <ReportSidebar
+            currentSectionIndex={currentSectionIndex}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+            onSectionClick={(_sectionId, index) => {
+              const id = messageIdBySection[index];
+              if (id) flash(id);
+            }}
+            reportSections={fixture.sections}
+            allSectionsReachable
+            // The demo header is one row taller than /chat's (the moments
+            // bar); without this the panel slides under it on short screens.
+            desktopTopOffset={47}
+          />
+        )}
       </main>
 
       <div className="relative z-10">

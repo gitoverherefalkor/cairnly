@@ -138,6 +138,16 @@ interface ReportSidebarProps {
   // Career rows from `report_sections`. Used to surface the actual career
   // title + company size next to the current top-career section button.
   reportSections?: ReportSection[];
+  // Demo replay (/demo): the whole session is already on the page, so every
+  // section is a jump target even before the visitor has scrolled to it.
+  // currentSectionIndex still drives the past/current/upcoming styling.
+  // Live chat leaves this unset and keeps the progress lock.
+  allSectionsReachable?: boolean;
+  // Extra sticky-header height (px) above the chat area. The desktop panel
+  // centres itself in the viewport; with a taller header than /chat's it
+  // would slide under it on short screens. The offset re-centres the panel
+  // in the space below the header. Default 0 = /chat's own geometry.
+  desktopTopOffset?: number;
 }
 
 export const ReportSidebar: React.FC<ReportSidebarProps> = ({
@@ -148,9 +158,24 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
   onCompleteSession,
   isSessionCompleted = false,
   reportSections,
+  allSectionsReachable = false,
+  desktopTopOffset = 0,
 }) => {
   const { t, i18n } = useTranslation(['report', 'chat']);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Inline overrides for the fixed desktop panel when a taller header sits
+  // above the chat (see desktopTopOffset). Empty when the offset is 0, so
+  // the Tailwind classes keep doing the work on /chat.
+  const desktopPanelStyle: React.CSSProperties = {
+    background: 'rgba(18, 46, 59, 0.55)',
+    ...(desktopTopOffset > 0
+      ? {
+          top: `calc(50% + ${desktopTopOffset / 2}px)`,
+          maxHeight: `calc(100vh - 180px - ${desktopTopOffset}px)`,
+        }
+      : {}),
+  };
 
   // Translate a section title using the report namespace, falling back to the English static title
   const translateTitle = (sectionId: string, fallback: string) => {
@@ -165,9 +190,10 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
     return 'upcoming';
   };
 
-  // Section is clickable if it's been reached (past or current)
+  // Section is clickable if it's been reached (past or current), or when the
+  // parent says the whole report is already on the page (demo replay).
   const isClickable = (index: number): boolean => {
-    return index <= currentSectionIndex;
+    return allSectionsReachable || index <= currentSectionIndex;
   };
 
   // Handle section click - delegate to parent
@@ -334,7 +360,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
       {isCollapsed ? (
         <div
           className="hidden md:flex w-12 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col items-center py-4 space-y-2 fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-y-auto z-40"
-          style={{ background: 'rgba(18, 46, 59, 0.55)' }}
+          style={desktopPanelStyle}
         >
           <Button
             variant="ghost"
@@ -361,7 +387,9 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
                     ? 'bg-atlas-teal text-white ring-2 ring-atlas-teal/30 cursor-pointer hover:ring-atlas-teal/50'
                     : state === 'past'
                       ? 'bg-white/15 text-white ring-1 ring-white/20 hover:bg-white/25 cursor-pointer'
-                      : 'bg-white/5 text-white/40 cursor-not-allowed'
+                      : clickable
+                        ? 'bg-white/5 text-white/60 hover:bg-white/15 cursor-pointer'
+                        : 'bg-white/5 text-white/40 cursor-not-allowed'
                 }`}
                 title={translateTitle(section.id, section.title)}
               >
@@ -375,7 +403,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         /* Expanded desktop sidebar */
         <div
           className="hidden md:flex w-72 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-hidden z-40"
-          style={{ background: 'rgba(18, 46, 59, 0.55)' }}
+          style={desktopPanelStyle}
         >
           {/* Header — gold editorial eyebrow */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
@@ -430,16 +458,25 @@ const SectionButton: React.FC<SectionButtonProps> = ({ sectionId, title, state, 
           ? 'text-white cursor-pointer border-[rgba(39,161,161,0.32)]'
           : state === 'past'
             ? 'text-white hover:bg-white/5 cursor-pointer border-transparent'
-            : 'text-white/40 cursor-not-allowed border-transparent'
+            : disabled
+              ? 'text-white/40 cursor-not-allowed border-transparent'
+              : 'text-white/40 hover:bg-white/5 cursor-pointer border-transparent'
       }`}
       style={state === 'current' ? { background: 'rgba(39, 161, 161, 0.18)' } : undefined}
     >
       {/* Status icon — pinned to top so the row aligns when a careerInfo
-          subline pushes the content to two-or-more lines. */}
+          subline pushes the content to two-or-more lines. An upcoming
+          section shows the lock only while it is actually locked; in the
+          demo replay (allSectionsReachable) it is a plain open circle. */}
       <span className="flex-shrink-0 mt-0.5">
         {state === 'past' && <Check className="h-[15px] w-[15px] text-[#EFBE48]" />}
         {state === 'current' && <Circle className="h-[15px] w-[15px] text-[#EFBE48] fill-[#EFBE48]" />}
-        {state === 'upcoming' && <Lock className="h-3.5 w-3.5 text-white/35" />}
+        {state === 'upcoming' &&
+          (disabled ? (
+            <Lock className="h-3.5 w-3.5 text-white/35" />
+          ) : (
+            <Circle className="h-[15px] w-[15px] text-white/35" />
+          ))}
       </span>
 
       {/* Section icon or number badge */}

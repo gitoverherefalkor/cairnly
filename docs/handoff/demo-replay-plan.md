@@ -69,6 +69,17 @@ the "via Iets anders" label (message 16) and the dictated dream-jobs turn
 add one = curation anchor + `annotations.<key>.{eyebrow,title,body,legend}`
 in both locale files (a test checks the strings exist).
 
+Round 3 (same day): the real `ReportSidebar` replaced the demo-layer chapter
+bar and legend rail. The page is laid out like `/chat` (fixed glass panel on
+the left, `md:mx-80` / `md:mx-20` column margins, drawer + N/M pill on
+mobile); the current section follows the scroll, every section is a jump
+target. Two additive props on `ReportSidebar` made that possible:
+`allSectionsReachable` (no progress lock; upcoming sections show an open
+circle instead of the lock) and `desktopTopOffset` (re-centres the panel
+below a header taller than /chat's). The annotated moments moved to
+numbered chips in the sticky header (`DemoMomentsBar`); the sidebar starts
+collapsed below 1360px so the transcript keeps its width.
+
 ## Goal
 
 A public, scrollable replay of a real coaching session, on the website, to

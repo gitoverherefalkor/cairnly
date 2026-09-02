@@ -9,11 +9,6 @@
     "ctaCustomer": "Start yours",
     "ctaPartner": "Book 20 minutes"
   },
-  "chapters": {
-    "personality": "Personality",
-    "careers": "Careers",
-    "dreams": "Dream jobs"
-  },
   "personas": {
     "marloes": {
       "tagline": "Marloes, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people she helps."
@@ -24,7 +19,7 @@
     "title": "A real coaching session, start to finish",
     "body": "This is the conversation as Marloes had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
     "watchLead": "Watch for these moments along the way:",
-    "legendAside": "The marked moments sit in the margin on the left. Click one to jump to it.",
+    "legendAside": "The numbered moments sit in the bar at the top; click a number to jump there. On the left you see the report sections, exactly as in a real session.",
     "howTo": "Click the cards to open them, hover over the radar. You cannot type here: this is a replay."
   },
   "welcome": {

@@ -9,11 +9,6 @@
     "ctaCustomer": "Zelf starten",
     "ctaPartner": "Plan 20 minuten"
   },
-  "chapters": {
-    "personality": "Persoonlijkheid",
-    "careers": "Carrières",
-    "dreams": "Droombanen"
-  },
   "personas": {
     "marloes": {
       "tagline": "Marloes, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die ze helpt."
@@ -24,7 +19,7 @@
     "title": "Een echte coachsessie, van begin tot eind",
     "body": "Dit is het gesprek zoals Marloes het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
     "watchLead": "Let onderweg op deze momenten:",
-    "legendAside": "De gemarkeerde momenten staan links in de kantlijn. Klik erop om ernaartoe te springen.",
+    "legendAside": "De genummerde momenten staan in de balk bovenaan; klik op een nummer om ernaartoe te springen. Links zie je de rapportsecties, precies zoals in de echte sessie.",
     "howTo": "Klik op de kaarten om ze te openen, beweeg over de radar. Typen kan hier niet: dit is een replay."
   },
   "welcome": {
