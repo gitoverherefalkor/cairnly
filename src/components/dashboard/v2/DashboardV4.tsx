@@ -1048,6 +1048,9 @@ const HeroMatch: React.FC<{
   // trigger to the radar (not the whole card) avoids accidental flips while
   // the user is just reading the alignment text or about to click a button.
   const [flipped, setFlipped] = useState(false);
+  // Legend hover/tap → highlight that career's polygon in the big radar
+  // (same interaction as the chat's comparison card).
+  const [radarHighlight, setRadarHighlight] = useState<string | null>(null);
   const { t } = useTranslation('dashboard');
   return (
     <article
@@ -1373,13 +1376,27 @@ const HeroMatch: React.FC<{
                 minHeight: 320,
               }}
             >
-              <CareerComparisonRadar careers={compareCareersRich} size={520} lang={lang} />
+              <CareerComparisonRadar
+                careers={compareCareersRich}
+                size={520}
+                lang={lang}
+                highlightedLabel={radarHighlight}
+              />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {compareCareersRich.map((c, i) => (
                 <span
                   key={c.label}
+                  onMouseEnter={() => setRadarHighlight(c.label)}
+                  onMouseLeave={() => setRadarHighlight(null)}
+                  onClick={() =>
+                    setRadarHighlight((prev) => (prev === c.label ? null : c.label))
+                  }
                   style={{
+                    cursor: 'pointer',
+                    width: 'fit-content',
+                    opacity: radarHighlight && radarHighlight !== c.label ? 0.45 : 1,
+                    transition: 'opacity 150ms ease',
                     fontFamily: FONT_BODY,
                     fontSize: 13.5,
                     fontWeight: 700,
@@ -2720,6 +2737,8 @@ const CareerComparisonPanel: React.FC<{
   comparison: NonNullable<ReportRow['comparison']>;
 }> = ({ comparison }) => {
   const { t, i18n } = useTranslation('dashboard');
+  // Legend hover/tap → highlight that polygon (same as the chat's card).
+  const [highlighted, setHighlighted] = useState<string | null>(null);
   // count is "how many OTHER top roles", so a 2-career radar compares against
   // exactly one other role.
   const heading = t('v4.comparison.heading', {
@@ -2763,13 +2782,25 @@ const CareerComparisonPanel: React.FC<{
         {comparison.headline}
       </p>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-        <CareerComparisonRadar careers={comparison.careers} size={380} lang={i18n.language} />
+        <CareerComparisonRadar
+          careers={comparison.careers}
+          size={380}
+          lang={i18n.language}
+          highlightedLabel={highlighted}
+        />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {comparison.careers.map((c, i) => (
           <span
             key={c.label}
+            onMouseEnter={() => setHighlighted(c.label)}
+            onMouseLeave={() => setHighlighted(null)}
+            onClick={() => setHighlighted((prev) => (prev === c.label ? null : c.label))}
             style={{
+              cursor: 'pointer',
+              width: 'fit-content',
+              opacity: highlighted && highlighted !== c.label ? 0.45 : 1,
+              transition: 'opacity 150ms ease',
               fontFamily: FONT_BODY,
               fontSize: 13.5,
               fontWeight: 700,
