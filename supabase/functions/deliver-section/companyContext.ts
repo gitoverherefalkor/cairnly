@@ -42,6 +42,10 @@ const EXACT_NL: Record<string, string> = {
   'Small (11-50) / Scale-up': 'Klein (11-50) / Scale-up',
   'Micro (1-10) / Boutique Consulting': 'Micro (1-10) / Boutique consultancy',
   'Own Company / Solo Practice': 'Eigen bedrijf / Eigen praktijk',
+  // Emma's (demo) report, 2026-09-03: agency-shaped values WF4 also emits.
+  'Large agency / consultancy (201-1000)': 'Groot bureau of consultancy (201-1000)',
+  'Large (201-1000) / Agency / Consultancy': 'Groot (201-1000) / Bureau of consultancy',
+  'Own company / boutique practice': 'Eigen bedrijf / Boutiquepraktijk',
 };
 
 /** Per-segment fallback for anything not matched whole. */

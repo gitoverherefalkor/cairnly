@@ -60,8 +60,11 @@ const PERSONAS: Record<DemoPersonaId, PersonaEntry> = {
     firstName: 'Emma',
     load: () => import('./fixtures/emma.en.json').then((m) => m.default as unknown as DemoFixture),
     curation: emmaCuration as DemoCuration,
-    translations: {},
-    pdfLanguages: ['en'],
+    translations: {
+      nl: () =>
+        import('./fixtures/emma.en.messages.nl.json').then((m) => m.default as unknown as DemoTranslation),
+    },
+    pdfLanguages: ['en', 'nl'],
   },
 };
 

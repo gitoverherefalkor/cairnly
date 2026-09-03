@@ -469,11 +469,25 @@ apart:
   the chat shows the delivered text, the dashboard/PDF the rewritten one, in
   both languages.
 
-Done: Marcel → English (24 model calls; 5 sections re-rendered, 1 comparison,
-12 mapped, 1 template, 1 option, 1 scoped, 21 model). Pending Sjoerd's click:
-Emma's Dutch sections, then `demo-translate-fixture.ts emma --to=nl`, her
-Dutch PDF (`--lang=nl`), and `translations: { nl }` + `pdfLanguages` on her
-`PERSONAS` entry.
+Done, both directions: Marcel → English (24 model calls; 5 sections
+re-rendered, 1 comparison, 12 mapped, 1 template, 1 option, 1 scoped, 21
+model) and Emma → Dutch (her sections via the OPS utility, run by Sjoerd:
+16 translated, 3 exempt; 27 model calls; 8 re-rendered, 12 mapped, 1
+template, 1 option, 2 scoped, 23 model). Both PDFs exist in both languages
+(`cairnly-demo-<persona>-<lang>.pdf`). Sub-section headings (`#####`) and
+company lines (`####`) of model-translated deliveries are aligned by position
+to the report's own strings, because the chat's icons match on the exact
+subheader text and companyContext localises the company line; re-rendered
+deliveries are refreshed on every run so label fixes reach the sidecars.
+Emma's report used three company-line shapes companyContext did not know
+("Large agency / consultancy (201-1000)", "Large (201-1000) / Agency /
+Consultancy", "Own company / boutique practice"); added to BOTH copies of
+the table (src/lib and the edge function mirror, kept identical).
+
+One known oddity worth knowing: Emma's delivered runner-ups still show
+"Product Marketing Consultant", a card WF6 replaced after the chat, so it has
+no section row and renders without score pills in both languages. That is
+faithful to what she saw; leave it.
 
 ## Status (2026-09-03): Marloes became Marcel
 

@@ -186,17 +186,33 @@ for (const s of fixture.sections) {
   if (src.length && src.length === tgt.length) src.forEach((h, i) => headingMap.set(normTitle(h), tgt[i]));
 }
 const headingPairs = [...new Set([...headingMap.entries()].map(([k, v]) => `«${k}» → «${v}»`))];
-/** Replace the target's ##### lines with the report's own subheaders, by position. */
+// Company size/type lines (#### …): the renderer localises them through
+// companyContext(), so map the source rendering of each raw value to its
+// target rendering and align by position, like the subheadings.
+const sizeLineMap = new Map<string, string>();
+for (const s of fixture.sections) {
+  if (!s.company_size_type) continue;
+  const raw = stripHtml(s.company_size_type);
+  sizeLineMap.set(normTitle(companyContext(raw, from)), companyContext(raw, to));
+}
+
+/** Replace the target's ##### and #### lines with the report's own, by position. */
 function alignSubheadings(source: string, target: string): string {
-  const srcHeads = [...source.matchAll(/^#####\s+(.+)$/gm)].map((m) => stripHtml(m[1]));
-  const tgtLines = target.split('\n');
-  const tgtIdx = tgtLines.map((l, i) => (/^#####\s+/.test(l) ? i : -1)).filter((i) => i >= 0);
-  if (!srcHeads.length || srcHeads.length !== tgtIdx.length) return target;
-  srcHeads.forEach((h, i) => {
-    const mapped = headingMap.get(normTitle(h));
-    if (mapped) tgtLines[tgtIdx[i]] = `##### ${mapped}`;
-  });
-  return tgtLines.join('\n');
+  let out = target;
+  for (const [level, map] of [['#####', headingMap], ['####', sizeLineMap]] as const) {
+    const re = new RegExp(`^${level}\\s+(.+)$`, 'gm');
+    const isLine = new RegExp(`^${level}\\s+(?!#)`);
+    const srcHeads = [...source.matchAll(re)].map((m) => stripHtml(m[1]));
+    const lines = out.split('\n');
+    const idx = lines.map((l, i) => (isLine.test(l) ? i : -1)).filter((i) => i >= 0);
+    if (!srcHeads.length || srcHeads.length !== idx.length) continue;
+    srcHeads.forEach((h, i) => {
+      const mapped = map.get(normTitle(h));
+      if (mapped) lines[idx[i]] = `${level} ${mapped}`;
+    });
+    out = lines.join('\n');
+  }
+  return out;
 }
 
 // Company size/type lines, both languages, from the report's own values.
@@ -353,7 +369,10 @@ for (const type of SECTION_TYPES) {
   const hit = bots.find((m) => norm(m.content) === norm(source));
   if (!hit) continue;
   reconstructed.add(hit.id);
-  if (!want(hit.id)) continue;
+  // Deterministic and free: always refreshed, so a later fix to the renderer
+  // or its label tables (companyContext, boilerplate) reaches the sidecar on
+  // the next run without --force.
+  if (only.size && !only.has(hit.id)) continue;
   set(hit.id, renderSection(type as never, resolveRows(rows, to) as never, to), 'reconstructed');
 }
 

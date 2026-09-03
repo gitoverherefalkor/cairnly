@@ -3,7 +3,7 @@
     "firstName": "Emma",
     "language": "en",
     "country": "United Kingdom",
-    "exportedAt": "2026-09-03T09:50:10.861Z",
+    "exportedAt": "2026-09-03T13:15:10.088Z",
     "reportId": "dc17ed73-2c0c-4fa8-8fab-6f0078aea3d1",
     "reportStatus": "completed",
     "reportCompletedAt": "2026-09-02T15:00:41.991397+00:00"
@@ -370,7 +370,14 @@
       "metadata": null,
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "Executive Summary",
+          "content": "<h5>Professionele identiteit</h5>\nJe werkt als een bouwer die structuur prefereert, met ruimte om te improviseren. Je aanpak kiest voor duidelijk eigenaarschap boven besluitvorming-bij-consensus, en je voelt je aangetrokken tot rollen waarin je een directe lijn ziet tussen jouw inzet en een tastbaar resultaat. Wat je drijft is niet erkenning om de erkenning, maar de voldoening van het oplossen van een probleem dat er echt toe deed.\n\n<h5>Sterke punten & groeigebieden</h5>\nJe sterkste vaardigheid is het vertalen van vage problemen naar werkbare plannen, gecombineerd met een communicatiestijl die teams op één lijn houdt zonder ze te micromanagen. Waar je ruimte hebt om te groeien is in delegeren: je houdt details vaak langer vast dan nodig, wat je kan afremmen naarmate de scope groeit. Je gaf aan het niet eens te zijn met het idee dat je conflictmijdend bent, en dat is een terechte kanttekening: je feedback suggereert dat het eerder selectief engagement is dan vermijding, je kiest je gevechten in plaats van ze uit de weg te gaan.\n\n<h5>Loopbaanrichting</h5>\nJe beste match is <strong>Product Manager</strong>, wat aansluit bij je gemak in het samenbrengen van input uit verschillende richtingen en het nemen van beslissingen bij onvolledige informatie. <strong>Operations Manager</strong> volgt op de voet, dankzij je systeemdenken en je neiging naar efficiëntie. <strong>Technical Program Manager</strong> komt naar voren als een sterke runner-up, gezien je hybride interesse in zowel mensen als technische details. Je was opvallend weinig enthousiast over rollen met de nadruk op puur individuele bijdrage met minimale cross-team interactie, en dat klopt: je energie komt consistent naar boven bij coördinatie en gedeelde resultaten, niet bij solo-uitvoering.\n\n<h5>De weg vooruit</h5>\nDe prioriteit op korte termijn is het opbouwen van een trackrecord van afgebakend eigenaarschap, of dat nu een project, een klein team of een productgebied is, zodat je delegatiespieren onder echte omstandigheden getest worden. Zoek naar rollen die expliciet inzicht belonen boven het volgen van processen, want daar heeft jouw profiel de meeste hefboomwerking. Je hebt de basis voor een sterk managementtraject; het eerlijke werk nu is dat bewijzen op steeds grotere schaal, in plaats van op zoek te gaan naar nog meer assessments om het te bevestigen.",
+          "translated_at": "2026-09-03T13:11:56.886Z"
+        }
+      }
     },
     {
       "id": "d4292b4a-1c9c-4ffa-a7bb-24e04ff5b8be",
@@ -393,7 +400,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Museum Interpretation Manager</strong></h3>",
+          "content": "<h5>Overzicht</h5>\n\nJij zou vormgeven hoe een museum of erfgoedlocatie zijn collecties en archieven vertaalt naar verhalen waar bezoekers echt iets mee hebben, in samenwerking met curatoren, educatieteams en teams voor bezoekerservaring. Het werk is een mix van doelgroeponderzoek, scripts schrijven voor exposities en rondleidingen, en testen wat aanslaat bij echte mensen voordat het live gaat.\n\n<h5>Waarom dit bij je past</h5>\n\nDit spreekt precies de vaardigheid aan die je profiel als jouw echte kracht benoemt: rommelig materiaal begrijpelijk maken voor mensen, alleen dan toegepast op objecten en geschiedenis in plaats van producten. Het is een echte overstap naar een ander vakgebied (erfgoed/cultuur, geen corporate marketing), maar je houdt wel workshops, stakeholdergesprekken en zichtbare autoriteit als verhalenverteller, en het staat ver af van spreadsheets of pipelineverdediging.\n\nLet op: salarissen in de erfgoedsector liggen vaak aan de onderkant van je range van £50-75k, zeker buiten de landelijke instellingen.\n\n<h5>Type pad & realiteit</h5>\n\nWerknemersrol: reken op een competitief maar niet moordend wervingsproces, meestal via een formele sollicitatie en een interview met portfolio of case study, niet via netwerken en hustlen.\n\n<h5>AI-impact op deze rol</h5>\n\nGemiddeld. AI kan helpen bij het opstellen van labelteksten of het samenvatten van bezoekersfeedback, maar bepalen welk verhaal een collectie vertelt en hoe je dat emotioneel laat landen bij een live publiek blijft een menselijke afweging.",
+          "translated_at": "2026-09-03T13:13:26.742Z"
+        }
+      }
     },
     {
       "id": "4142a6eb-00a7-4c09-b494-197b2cc52dc5",
@@ -424,7 +438,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Service Designer</strong></h3>",
+          "content": "<h5>Overzicht</h5>\nEen service designer onderzoekt hoe mensen een organisatie daadwerkelijk ervaren (zowel front als back stage), en herontwerpt vervolgens de systemen en contactmomenten achter die ervaring, zodat het beter werkt voor iedereen die erbij betrokken is.\n\n<h5>Waarom deze rol bij je past</h5>\nAnderen helpen en impact maken staat bovenaan wat jou drijft, en deze rol maakt daar een dagelijkse praktijk van: je schrijft geen missieverklaring, je zit met 30+ mensen per jaar om te achterhalen wat er daadwerkelijk misgaat in hoe een organisatie met hen omgaat, en dat los je vervolgens op. Dat is hetzelfde instinct dat je klantinzicht-programma tot iets maakte waar het productteam meer op leunt dan marketing.\n\nDeze rol borduurt bijna precies voort op je 8/10 Brand Strategist-patroon: elke paar weken een nieuw klantprobleem, een workshop, een presentatie die een zaal stil maakt. De structuur van een agency (projectteams, steun van collega's) beschermt je ook tegen wat je nu op 5/10 uitput: het dashboard- en herprognosewerk dat je steeds wegtrekt van positionering en storytelling. Je perfectionistische kant krijgt hier nuttige externe controlemomenten in plaats van dat het uit de hand loopt.\n\n<h5>Wat je daadwerkelijk gaat doen</h5>\n- Discovery-onderzoek uitvoeren. Contextuele interviews en stakeholderinterviews afnemen, dezelfde spier die je hebt opgebouwd met 30+ klantinterviews per jaar.\n- Service blueprints bouwen. Rommelige, chaotische input omzetten in een visuele kaart waar een heel bedrijf achter kan staan, precies wat je deed met je outcome-led repositioneringswerk.\n- Co-creatieworkshops begeleiden. Je AJ&Smart sprinttraining en je vermogen om een ruimte te lezen worden hier wekelijks ingezet, niet af en toe.\n- Presenteren aan het management. Onderzoek vertalen naar een verhaal dat sceptische stakeholders overtuigt, met gebruik van je storytelling-vaardigheden.\n\n<h5>De realiteitscheck</h5>\n⚠ Conservatieve klanten vertragen het werk. Corporate stakeholders overtuigen om organisatorische verandering te omarmen (niet alleen een nieuwe campagne) vraagt meer geduld dan agency-brandwerk, en je conflictstijl gericht op harmonie kan betekenen dat je te vroeg toegeeft.\n\n⚠ Blueprinting is een echte vaardigheidskloof. Je onderzoek en facilitatie beheers je uit je hoofd, maar formele service blueprinting en target operating model-artefacten zijn nieuw terrein. Realistisch pad: loop mee bij 2-3 lopende projecten en volg een korte service design-certificering (bijvoorbeeld van een erkende service design-school), ongeveer 2-3 maanden om het onder de knie te krijgen, geen jaren.\n\n⚠ Drukke pitchperiodes testen je flexibiliteitsregel. Deadlines voor klantpitches pieken onvoorspelbaar. Met een partner die nachtdiensten draait, moet je vooraf met je team afspreken welke weken je beschermt.\n\n<h5>De praktische kant</h5>\n\nGeld: £50.000-£75.000. Dit ligt op of net onder het middelpunt van je bracket van £50k-75k, comfortabel binnen je doel, al liggen senior consultancytarieven bij Londense agencies vaak hoger zodra je eenmaal geplaatst bent.\n\nRooster: Standaard agency-uren met piekmomenten tijdens discovery-sprints en pitches. Je vereiste van flexibele uren is hier haalbaar omdat agencies steeds vaker hybride werken ondersteunen, maar sprintweken zullen dit af en toe op de proef stellen.\n\nEnergie: Veel interactie met klanten en collega's, dagelijks, binnen kleine projectteams. Dit past precies bij je profiel \"enigszins energiek, maar tot op zekere hoogte\", omdat de teams (en niet blootstelling op een open werkvloer) de interactie afbakenen.\n\nGroei: Leidt naar Lead Service Designer, daarna Design Director of Strategic Design Partner, een echte ladder richting het leiden van onderzoeksgedreven verandertrajecten.\n\n<h5>AI-impact op deze rol</h5>\nGemiddeld. AI neemt nu kwalitatieve codering, persona-synthese en eerste versies van blueprint-visuals voor haar rekening, het grondwerk dat momenteel je week opeet. Strategische afstemming met stakeholders en etnografisch inlevingsvermogen, jouw echte kracht, blijven mensenwerk. Gezien je \"redelijk vertrouwd\" comfortniveau met AI biedt deze rol een natuurlijke instap in plaats van een steile klim.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- Eigen de synthese-laag: word vaardig in het aansturen van AI-tools voor interviewcodering, zodat je de bespaarde uren besteedt aan oordeelsvorming in plaats van dataschoonmaak.\n- Verdiep je facilitatievaardigheden: verdiep je vermogen om live, hoogrisico-facilitatie te doen (sceptische leidinggevenden, dominante stemmen), het onderdeel dat geen AI-tool aanraakt.\n\n<h5>Aansluiting bij je ambities</h5>\nJe kortetermijndoel is nieuwe vaardigheden in een andere omgeving, en dit levert formele service design-methodologie boven op wat je al goed doet. Je langetermijnambitie, bijdragen aan een goede zaak en je eigen onderzoeksstudio runnen, maakt dit minder een omweg en meer een platform om je geloofwaardigheid op te bouwen: 2-3 jaar hier bouwt de blueprinting- en organisatieontwerp-vaardigheden op die je eigen studio (je genoemde droombaan) later financierbaarder maken.",
+          "translated_at": "2026-09-03T13:12:13.277Z"
+        }
+      }
     },
     {
       "id": "09e05ad5-5209-4cec-b7dd-1fe42de5a72d",
@@ -448,7 +469,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Behavioural Communications Consultant</strong></h3>",
+          "content": "<h5>Overzicht</h5>\nJe zou psychologie en \"nudge\"-theorie toepassen om klanten te helpen communicatie te maken die daadwerkelijk gedrag verandert, met een mix van onderzoek, workshops en campagnestrategie voor verschillende klantaccounts.\n\n<h5>Waarom deze rol bij je past</h5>\nJouw specialistische kennis van \"hoe mensen daadwerkelijk aankoopbeslissingen nemen\" is in feite gedragswetenschap onder een andere naam, dus dit is bijna een letterlijke vertaling van wat je al doet. Het haalde de Top 3 niet omdat het een zijwaartse loopbaanstap betekent naar een formele discipline gericht op psychologie op campagneniveau, wat meer bijleren vergt dan je andere opties.\n\n<h5>Wat voor jou werkt</h5>\n✓ **Speelt in op je talent.** Jouw gave om het verhaal te doorzien dat een bedrijf zichzelf vertelt, sluit direct aan op gedragsdiagnose.\n✓ **Teamgericht, niet solo.** Veel interactie met collega's, creatievelingen en analisten past bij jouw voorkeur voor kleine teams.\n✓ **Intellectueel verfrissend.** Nieuwe kaders (COM-B, EAST) voeden je behoefte aan groei en nieuwigheid.\n\n<h5>De realiteitscheck</h5>\n⚠ **Bijscholing nodig.** Je hebt formele basiskennis van gedragskaders nodig, een certificering (6-12 maanden parttime) in plaats van een volledige opleiding, en AI-ondersteund leren kan dit versnellen.\n⚠ **Je start op consultantniveau.** Een nieuwe discipline instappen op je 38 met 15 jaar ervaring elders kan aanvankelijk betekenen dat je een zijwaartse titel krijgt, geen leidinggevende.\n⚠ **Scepsis bij klanten is reëel.** Je zou energie moeten steken in het overtuigen van traditionele creatieve teams om contra-intuïtieve aanbevelingen te vertrouwen, een echt frictiepunt gezien je natuurlijke voorkeur voor harmonie boven aanhoudende discussie.\n\n<h5>De praktische kant</h5>\n**Geld:** £52.000 - £80.000 (Londen)\n\n**Rooster:** Standaard bureau-uren, met pieken rond pitches\n\n**Energie:** Veel interactie met klanten en collega's\n\n<h5>AI-impact op deze rol</h5>\n**Gemiddeld** — AI versnelt het samenvatten van onderzoek en het testen van boodschappen; jouw strategische kaderstelling en ethisch oordeel blijven centraal staan. Past goed bij jouw \"redelijk vertrouwd\" AI-comfortniveau.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- **Kennis van gedragskaders:** Haal binnen een jaar een certificering in COM-B of EAST om je bestaande intuïtie te onderbouwen.\n- **AI-ondersteund testen:** Gebruik AI-tools om sneller boodschap-experimenten uit te voeren, zodat je meer tijd overhoudt voor kaderstelling en klantadvies.",
+          "translated_at": "2026-09-03T13:12:07.774Z"
+        }
+      }
     },
     {
       "id": "77b8b887-8486-4d1c-999e-9643ec41f9de",
@@ -471,7 +499,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3>Documentary Producer</h3>",
+          "content": "<h5>Overzicht</h5>\n\nEmma, deze droom klopt helemaal op papier: het is de puurste versie van wat je nu al doet, namelijk wat mensen zeggen en doen omzetten in een verhaal dat raakt, maar dan zonder de corporate verpakking. De adder onder het gras is dat \"documentary producer\" als instapfunctie er totaal anders uitziet dan je huidige senioriteit, salaris of stabiliteit, ook al is het onderliggende vakmanschap identiek.\n\n<h5>Haalbaarheidsscore</h5>\n\n<strong>Laag - Gemiddeld</strong>: De match met je vakmanschap is uitstekend, maar het instappad (freelance, onbetaalde ontwikkeling, gezwoeg op het festivalcircuit) zou een flinke stap terug betekenen in inkomen en status ten opzichte van waar je nu staat.\n\n<h5>Aansluiting op persoonlijkheid en energie</h5>\n\n- Je \"Enigszins Energieker\" sociale batterij past goed bij het samenwerken tijdens opnames en de discussies in de montagekamer die bij documentairewerk horen, maar de geïsoleerde, zelfstandige periodes van ontwikkeling en fondsenwerving liggen precies in je vermijdingszone (solitair, onderzoeksintensief werk).\n- Je deadline-gerichte tempo en voorkeur voor enige structuur werken tegen de onvoorspelbare, vaak ongestructureerde opdracht- en financieringscycli die typisch zijn voor documentaireproductie.\n- De nieuwheid hier is echte brandstof tegen je \"Competentieval\", maar de jaren van onderbetaald, onzeker gezwoeg voordat er stabiliteit komt, kunnen je perfectionisme makkelijk richting burn-out duwen in plaats van verlichting.\n\n<h5>De executive-versie</h5>\n\n- Richt je in plaats van een hands-on Producer-rol op Executive Producer of Series Editor bij een gevestigde documentaire- of factual-studio, iemand die de verhaallijn vormgeeft en verhalen groenlicht in plaats van van productie naar productie fondsen achterna te jagen.\n- Dit lost het risico op van laag salaris en weinig prikkeling in productiewerk op de werkvloer: het benut je stakeholdermanagement en je vermogen om verhalen samen te brengen op strategisch niveau, met een team om je heen in plaats van dat je alles zelf doet.\n- Precies deze versie kwam naar voren in je outside-the-box lijst als Editorial Director, Podcast/Audio Documentary Studio, wat een sterke bevestiging is dat dit instinct het waard is om via die deur te volgen in plaats van via de traditionele producer-ladder.\n\n<h5>Sectorvooruitzichten en regionale trends</h5>\n\n- Britse en Noord-Europese factual/documentaire-rollen op editorial- of executive producer-niveau leveren doorgaans £45k-£70k op bij middelgrote studio's, terwijl instapfuncties als producer of researcher vaak ver onder £35k beginnen.\n- AI-impact: Gemiddeld. AI versnelt transcriptie, ruwe montages en archiefonderzoek, maar het bepalen welk menselijk verhaal ertoe doet en hoe je het emotioneel vormgeeft, blijft stevig mensenwerk.\n- Het VK heeft een echt sterke onafhankelijke documentaire- en streaming-gecommissioneerde factual-sector, maar die is competitief en sterk netwerkgedreven, wat betekent dat je bestaande stakeholderrelaties hier belangrijker zijn dan een formeel diploma.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n\n- Jouw vermogen om \"die ene zin te vinden die van een rommelig geheel iets logisch maakt\" is precies het redactionele oordeel dat AI niet kan evenaren, dat is jouw onderscheidend vermogen in elke pitchruimte.\n- Bouw nu al vaardigheid op met AI-ondersteunde tools voor ruwe montage en onderzoek, zodat jij straks een kleiner productieteam aanstuurt in plaats van erdoor vervangen te worden.\n\n<h5>Stappen om deze rol na te streven</h5>\n\n- Test de droom met lage inzet: loop mee of assisteer bij een korte documentaire of branded-content filmproject via je bestaande bureau- of branchecontacten, voordat je iets opzegt.\n- Er bestaat geen verplicht diploma voor dit vakgebied (geen licentie vereist), dus je CIM Diploma en MA in Strategic Communication zijn relevante achtergrond, geen barrière; een korte cursus factual filmmaking of story-editing zou de geloofwaardigheid versnellen, niet de toegang beperken.\n- Bouw een overbrugging via een portfolio-loopbaan: houd marketingconsultancy of freelance brandstrategiewerk parttime aan terwijl je documentaire-credits opbouwt, zodat de hypotheek niet afhangt van festivaltoelating.\n\n*Let op: het instapniveau-inkomen in documentaireproductie ligt ruim onder je doel van £50k-£75k; het pad naar Executive Producer / Series Editor is de realistische manier om dat gat te dichten.*",
+          "translated_at": "2026-09-03T13:13:04.353Z"
+        }
+      }
     },
     {
       "id": "27b54065-95a5-4433-81ad-c0debae9f815",
@@ -494,7 +529,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Athlete Wellbeing and Development Manager</strong></h3>",
+          "content": "<h5>Overzicht</h5>\n\nJe ondersteunt sporters (bij een sportclub, nationale sportbond, of universitair programma) bij loopbaanovergangen, persoonlijke ontwikkeling en de planning van een leven naast de sport, in samenwerking met coaches en performancestaf. Het is deels programma-ontwerp, deels één-op-één begeleiding, en deels het bouwen van structuren die in prestatiegerichte omgevingen niet vanzelf ontstaan.\n\n<h5>Waarom dit bij je past</h5>\n\nJe lange-afstandswandelen wijst op een echte drang naar uithoudingsvermogen en fysieke discipline, en je track record in het bouwen van duurzame programma's (het klantinterviewprogramma) samen met je reflectieve, mensgerichte manier van luisteren is opvallend zeldzaam binnen sportorganisaties, die vaak zwaar leunen op prestatiedata en weinig structuur bieden voor menselijke ontwikkeling. Het is een echte sectorswitch, helemaal weg van marketing, houdt je in de buurt van mensen in plaats van dashboards, en laat je gevoel voor betekenis iets opbouwen dat langer meegaat dan jij.\n\nLet op: instappen in deze niche begint vaak onder je streefsalaris, zeker buiten de elite/pro-organisaties.\n\n<h5>Type pad & realiteit</h5>\n\nRol als werknemer: aannameprocessen lopen via sportorganisaties en universiteiten, en vaak is een relevante certificering nodig (bijvoorbeeld op het gebied van loopbaanovergang of coaching-achtige kwalificaties) om serieus genomen te worden door een recruiter.\n\n<h5>AI-impact op deze rol</h5>\n\nMinimaal tot Gemiddeld. Dit werk draait om vertrouwen, aanwezigheid en het aanvoelen van iemand op een kwetsbaar moment, iets waarbij AI kan ondersteunen met hulpmiddelen, maar wat het niet kan vervangen.",
+          "translated_at": "2026-09-03T13:12:24.864Z"
+        }
+      }
     },
     {
       "id": "71d4c08a-68da-4cb3-accd-b00380aadbd0",
@@ -529,7 +571,18 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Employee Experience Consultant</strong></h3>",
+          "content": "<h5>Overzicht</h5>\nEen employee experience consultant onderzoekt hoe medewerkers zich écht voelen op hun werkplek, en ontwerpt vervolgens journey maps en interventies om cultuur, tools en processen te verbeteren die niet goed werken.\n\n<h5>Waarom deze rol bij je past</h5>\nJe gelukkigste professionele jaren draaiden niet om de sector, maar om de vorm van het werk: elke paar weken een nieuw probleem, een workshop, een presentatie die een zaal stil maakte. Deze rol bouwt voort op je 8/10-patroon als Brand Strategist door dat exacte ritme te behouden en het onderwerp te verschuiven van klanten naar medewerkers, wat direct aansluit bij je belangrijkste waarde: anderen helpen en impact maken.\n\nHet is hetzelfde diagnostische instinct dat je al hebt bewezen, door tijdens klantinterviews te ontdekken welk verhaal een bedrijf zichzelf vertelt, maar nu naar binnen gericht op organisaties in plaats van naar buiten op markten. De gestructureerde consulting-mijlpalen en pod-gebaseerde teams beschermen je ook tegen het isolerende sleurwerk dat je nu op 5/10 zet in je fintech-rol, waar dashboards het verhalende werk waar je echt goed in bent hebben verdrongen.\n\n<h5>Wat je daadwerkelijk gaat doen</h5>\n- Voer sentimentaudits uit. Leid kwalitatieve focusgroepen over werkcultuur, een directe uitbreiding van je synthesevaardigheden uit klantinterviews.\n- Breng medewerkersreizen in kaart. Bouw journey maps en interventies met dezelfde synthesemethode waarmee je bij je laatste product de verkoopcyclus met 20% verkortte.\n- Presenteer roadmaps aan CHRO's. Je stakeholdermanagement en storytelling-vaardigheden brengen het strategische verhaal de bestuurskamer in.\n- Begeleid workshops voor stuurgroepen. Gebruik je training in workshopfacilitatie om consensus te bouwen tussen concurrerende prioriteiten van leidinggevenden.\n\n<h5>De realiteitscheck</h5>\n⚠ Klantpolitiek beweegt traag. Leidinggevenden die weerstand bieden tegen progressieve cultuurverandering zorgen ervoor dat projecten maandenlang stilliggen, en je instinct om te veel eigenaarschap te nemen over klantresultaten (een bekende neiging bij jou) maakt die traagheid persoonlijk frustrerend in plaats van gewoon een feit van het proces.\n\n⚠ Scope creep is structureel. Enterprise-projecten met meerdere stakeholders zorgen voor voortdurende verzoeken van het type \"kun je ook nog even kijken naar...\". Grenzen bewaken is hier belangrijker dan bij bureauwerk rond merken, waar de scope strakker was.\n\n⚠ De verschuiving in vakgebied is licht, maar reëel. Je vaardigheid in journey mapping is bijna direct overdraagbaar, maar je hebt context-aanpassing nodig, bekendheid met HR-tech (Workday, Culture Amp) en kennis van organisatiepsychologie. Realistisch pad: één korte cursus plus je eerste live project, ongeveer 6 tot 8 weken om je vertrouwd te voelen, omdat je interview- en synthesevaardigheden al het zware werk doen.\n\n<h5>De praktische kant</h5>\n\nSalaris: £52.000-£80.000. Dit valt precies binnen jouw bracket van £50k-75k, en de bovengrens overtreft die zelfs, dus dit voldoet aan je doel zonder salarisverlaging.\n\nWerktijden: Standaard consulting-uren met voorspelbare piekmomenten rond mijlpalen. Voorspelbaarder dan bureaupitchcycli, wat beter aansluit bij jouw wens voor flexibele uren.\n\nEnergie: Veel dagelijkse interactie met HR-leiders van klanten en multidisciplinaire pods. Dit valt binnen jouw bandbreedte van \"een beetje energie, maar tot op zekere hoogte\", omdat de pod-structuur de sociale belasting verdeelt.\n\nGroei: Leidt richting Practice Lead for Employee Experience, of uiteindelijk een intern Chief People Officer-traject, een echt groeipad naar leiderschap.\n\n<h5>AI-impact op deze rol</h5>\nSubstantieel, volgens de verrijkte data, al blijft de menselijke kern (organisatiepolitiek doorzien, vertrouwen opbouwen bij leidinggevenden) resistent tegen automatisering. AI neemt steeds meer het verwerken van sentimentdata en eerste versies van journey maps over; jouw werk verschuift naar het interpreteren van wat die data écht betekent voor een terughoudend managementteam. Jouw gematigde bekendheid met AI betekent dat je vroeg, niet laat, praktijkervaring wilt opbouwen met sentimentanalyse-tools.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- Leer HR-analysetools: Bouw werkvaardigheid op in Culture Amp of Workday-rapportages, zodat jij de data aanstuurt in plaats van te wachten op analisten.\n- Scherp je invloed op leidinggevenden aan: Bouw een herhaalbaar raamwerk om \"niet-intuïtieve\" aanbevelingen te laten landen bij sceptische CHRO's, jouw echte onderscheidend vermogen nu AI steeds meer analysewerk overneemt.\n\n<h5>Aansluiting bij je ambities</h5>\nDit past bij je kortetermijndoel om nieuwe vaardigheden te ontwikkelen in een andere omgeving, waarbij je je marketingtoolkit toepast op organisatiepsychologie. In het licht van je langetermijnambitie om een significante maatschappelijke bijdrage te leveren en je eigen research studio te runnen, is dit een echte brug (geen omweg): het bouwt geloofwaardigheid op als mensgerichte consultant, iets dat direct van waarde is als je uiteindelijk zelfstandig verder gaat.",
+          "comparison": {
+            "headline": "Hetzelfde bureau-ritme als Service Designer, maar dan gericht op interne cultuur in plaats van externe klantervaring, met klanten die trager bewegen.",
+            "explanation": "Beide rollen bouwen voort op je 8/10 Brand Strategist-patroon, dus de dagelijkse praktijk (workshops, onderzoek, presentaties) voelt in beide gevallen vertrouwd aan. Het echte verschil zit in wat je analyseert: Service Designer kijkt naar klantgerichte systemen, dit kijkt naar binnen, naar organisatiecultuur en HR-processen.\n\nDie interne focus betekent tragere klantpolitiek. Werk aan employee experience loopt vaker vast op hardnekkige weerstand van directies tegen cultuurverandering dan klantgerichte servicevernieuwing, en daarom scoort tempo hier een punt lager. Het doet ook een groter beroep op je neiging om klantresultaten te veel naar je toe te trekken, want organisatieverandering is rommeliger en minder beheersbaar dan een service blueprint.\n\nStabiliteit en werkschema komen in beide gevallen op hetzelfde uit: voorspelbare consultancy-mijlpalen, een goed salaris binnen jouw range. Als je het verschil wilt weten: Service Designer houdt je dichter bij tastbare, zichtbare resultaten; deze rol vraagt dat je langer in onduidelijkheid en politiek blijft hangen voordat je de opbrengst ziet."
+          },
+          "translated_at": "2026-09-03T13:13:44.907Z"
+        }
+      }
     },
     {
       "id": "d21c3f0a-0426-427f-8eb3-f81bd29edefc",
@@ -553,7 +606,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Customer Experience (CX) Strategist</strong></h3>",
+          "content": "*Op basis van je feedback hebben we Product Marketing Consultant laten vallen, omdat dit aanvoelde als je huidige baan met facturatie erbij, zonder echte verandering. In plaats daarvan stellen we Customer Experience (CX) Strategist voor, een richting waarin je klantinzicht-sterke punten worden ingezet om complete gebruikersreizen te herontwerpen in plaats van marketinguitingen.*\n\n<h5>Overzicht</h5>\nJe zou organisaties begeleiden bij het herontwerpen van hun complete klantreizen, door kwalitatief onderzoek, klantmotivaties en gedragsmatige contactmomenten te vertalen naar concrete serviceverbeteringen.\n\n<h5>Waarom deze rol bij je past</h5>\nDit bouwt direct voort op het kwalitatieve inzichtenprogramma dat je hebt opgezet en dat interne teams al vertrouwen, waardoor je verankerd blijft in echt klantbegrip. Het staat als runner-up genoteerd omdat het complexe afstemming tussen afdelingen vraagt, zoals product, operations en support, in plaats van puur strategische storytelling.\n\n<h5>Wat voor jou werkt</h5>\n✓ **Verankerd in kwalitatieve empathie.** Draait om diepgaand onderzoek en begrijpen hoe mensen een dienst daadwerkelijk ervaren, wat aansluit bij jouw achtergrond van 30+ interviews per jaar.\n✓ **Adviserende rol met samenwerking.** Veel interactie met uiteenlopende operationele teams, wat past bij jouw voorkeur voor kleine teams en gedelegeerd vertrouwen.\n✓ **Betekenisvolle afwisseling.** Het diagnosticeren van verschillende frictiepunten in de klantreis over meerdere contactmomenten geeft intellectuele afwisseling, zonder de eenzaamheid van solo freelancewerk.\n\n<h5>De realiteitscheck</h5>\n⚠ **Navigeren tussen stakeholders in een matrixstructuur.** Om veranderingen in de klantreis door te voeren, moet je invloed uitoefenen op teams die je niet direct aanstuurt, wat spanning kan geven voor iemand die harmonie zoekt.\n⚠ **Operationele leercurve.** CX hangt direct samen met operationele systemen en dienstverlening, dus je moet zowel de processen achter de schermen als de klantkant begrijpen.\n⚠ **Onduidelijke toerekening.** Het aantonen van de commerciële opbrengst van klanttevredenheid en frictievermindering duurt langer dan bij directe marketingcampagne-cijfers.\n\n<h5>De praktische kant</h5>\n**Geld:** £60.000 - £85.000 (Londen)\n\n**Werktijden:** Standaard kantoor- of adviesuren, af en toe intensievere projectperiodes\n\n**Energie:** Veel gezamenlijke workshops en advieswerk tussen afdelingen\n\n<h5>AI-impact op deze rol</h5>\n**Gemiddeld** , AI versnelt journey-analyses en het samenvatten van klantfeedback, maar kwalitatieve interpretatie, empathie en het aansturen van stakeholders blijven duidelijk mensenwerk.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- **Journey mapping & service blueprinting:** Formaliseer je kwalitatieve onderzoek in visuele blueprints, zodat operationele teams direct duidelijkheid krijgen.\n- **AI-ondersteunde synthese:** Gebruik AI-tools om grote hoeveelheden feedback te clusteren, zodat je je energie kunt bewaren voor diepgaande interviews en afstemming met het management.",
+          "translated_at": "2026-09-03T13:12:14.120Z"
+        }
+      }
     },
     {
       "id": "263b32de-a6c0-47c3-b9ee-a79af47550dc",
@@ -576,7 +636,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3>Founder, Research Studio (Human-Centred Insight)</h3>",
+          "content": "<h5>Overzicht</h5>\n\nDit is de droombaan die het meest direct aansluit bij je échte dagelijkse superkracht, Emma: kwalitatief mensgericht onderzoek omzetten in een verhaal waar een organisatie mee aan de slag kan. Anders dan documentairewerk vraagt dit niet dat je je bestaande netwerk, vaardigheden of klantenbestand achterlaat; het is een natuurlijke uitbreiding van wat je nu al doet in je huidige baan, alleen losgekoppeld en op je eigen voorwaarden.\n\n<h5>Haalbaarheidsscore</h5>\n\n<strong>Gemiddeld - Hoog</strong>: Je hebt de kernvaardigheden al (30+ interviews per jaar, een customer-insightprogramma dat je vanaf nul hebt opgebouwd) en de geloofwaardigheid; wat ontbreekt is de bedrijfsinfrastructuur van je eigen zaak runnen, niet het vakmanschap zelf.\n\n<h5>Aansluiting op persoonlijkheid en energie</h5>\n\n- Een studio runnen (ook een kleine) betekent klantcontact en samenwerking in een klein team, wat veel beter past bij je \"Enigszins energiek\" sociale profiel en je aangegeven behoefte om solistisch, geïsoleerd werk te vermijden dan solo documentairefilmwerk zou doen.\n- Je voorkeur voor gedelegeerde autonomie en je gemak met risico sluiten goed aan bij het leven als founder, al betekent je deadline-bewuste tempo dat je zelf structuur moet inbouwen, want er is geen externe baas die de klok zet.\n- Dit pad doorbreekt direct je Competence Trap: in plaats van dezelfde klus \"met je ogen dicht\" te doen, bouw je de vaardigheid vanaf de grond weer op in een context die je écht enthousiast maakt, wat een echt tegengif voor burn-out is en niet alleen een verandering van omgeving.\n\n<h5>De executive-versie</h5>\n\n- De executive-versie van deze droom is de droom al: Founder van een boetiek kwalitatieve onderzoeksstudio, gepositioneerd om middelgrote B2B- of fintechklanten te bedienen (precies je oude wereld), tegen senior consultingtarieven in plaats van freelance-onderzoekstarieven.\n- Dit lost het risico van een laag inkomen als solo freelance onderzoeker op door een studiomodel te bouwen (jij plus een klein netwerk van associates), waardoor je strategische inzichtopdrachten kunt verkopen in plaats van als eenpitter per uur te factureren.\n- Dit kwam direct terug in je runner-up lijst als \"Founder, Qualitative Research Studio\" (plek 6, compatibiliteit 80), wat bevestigt dat het algoritme dezelfde fit ziet die jij voelt; het is jouw eigen droombaan, onafhankelijk bevestigd.\n\n<h5>Sectorvooruitzichten en regionale trends</h5>\n\n- Zelfstandige kwalitatieve onderzoeks-/insightconsultants in het VK en Nederland/Duitsland rekenen doorgaans £500-£900 per dag als ze eenmaal gevestigd zijn; een studio met 2-3 terugkerende klanten kan binnen 2-3 jaar realistisch £70k-£100k opleveren.\n- AI-impact: Gemiddeld. AI kan interviews snel transcriberen en samenvatten, maar klanten betalen voor de synthese, de inschatting van \"welk verhaal vertelt dit bedrijf zichzelf\", en die blijft mensenwerk en is juist jouw premium onderscheidend vermogen tegenover goedkopere AI-only onderzoekstools.\n- De vraag is reëel, maar de markt raakt drukker met AI-ondersteunde onderzoekstools die snellere inzichten beloven; jouw voordeel is dat je jezelf positioneert als strategische zingever, niet als dataverzamelaar, zeker bij verkoop aan fintech-/scale-upklanten die je al goed kent.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n\n- Je gespecialiseerde kennis van hoe mensen daadwerkelijk beslissingen nemen versus wat ze beweren, is een echt zeldzame asset die moeilijk te automatiseren is; zet dit voorop als de kernpositionering van je studio, niet als generieke \"onderzoeksdiensten\".\n- Word vloeiend genoeg in AI-transcriptie-/synthesetools om klanten een snellere, slankere aanpak te bieden dan traditionele bureaus, en gebruik AI als je junior analist in plaats van je concurrent.\n\n<h5>Stappen om deze rol na te streven</h5>\n\n- Test dit nu op kleine schaal: bied één betaalde pilotopdracht aan bij het bedrijf van een oud-collega of binnen je eigen netwerk, terwijl je nog in loondienst bent, om vraag en prijsstelling te valideren.\n- Er is geen belemmerend diploma voor dit vakgebied; je CIM Diploma, MA in Strategic Communication en Design Sprint-certificaat (AJ&Smart) geven je al een sterke, geloofwaardige positionering, dus dit is een go-to-marketvraagstuk, geen omscholingsvraagstuk.\n- Bouw financieel een brug met een portfoliobenadering: houd één parttime consultancy-retainer (positionering/merkstrategie, dicht bij je huidige vaardigheden) draaiende terwijl je de eerste 2-3 klanten van de studio opbouwt.",
+          "translated_at": "2026-09-03T13:12:50.538Z"
+        }
+      }
     },
     {
       "id": "d9543f72-fa67-48f8-8e00-f944caa5fd3b",
@@ -599,7 +666,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Editorial Director, Podcast/Audio Documentary Studio</strong></h3>",
+          "content": "<h5>Overzicht</h5>\n\nJe zou de redactionele visie en verhaallijn bepalen voor een reeks non-fictie audio- of documentaireprojecten, en samenwerken met producers en onderzoekers om ruw interviewmateriaal om te vormen tot een verhaal dat een publiek vasthoudt. Dit is een stap richting je genoemde droombaan, maar wel echt iets anders: het is de redactionele/leidinggevende laag van documentaire-achtig werk, niet de rol van producer zelf.\n\n<h5>Waarom dit bij je past</h5>\n\nJouw vijftien jaar ervaring in het omzetten van \"wat mensen doen\" naar een verhaal waar een organisatie mee aan de slag kan, is precies de vaardigheid die een editorial director toepast op ruw interviewmateriaal in plaats van een merkbrief. Het brengt je in een creatieve sector, weg van corporate marketing, houdt je in een ruimte met andere mensen in plaats van solo te werken, en geeft je narratieve zeggenschap zonder dat je vanaf nul een technisch audioproducer hoeft te worden.\n\nLet op: onafhankelijke studio's en middelgrote productiehuizen betalen op instapniveau vaak minder dan je streefsalaris; senior redactionele functies bij gevestigde studio's kunnen dat verschil overbruggen.\n\n<h5>Type pad & realiteit</h5>\n\nOm te beginnen een functie in loondienst bij een kleine studio, met freelance redactioneel werk/storyconsulting als realistische aanvulling zodra je een portfolio met credits hebt opgebouwd.\n\n<h5>AI-impact op deze rol</h5>\n\nGemiddeld. AI versnelt transcriptie en het samenstellen van ruwe montages, maar bepalen welke delen van iemands verhaal ertoe doen en waarom, is de redactionele afweging die deze rol mensenwerk houdt.",
+          "translated_at": "2026-09-03T13:13:14.031Z"
+        }
+      }
     },
     {
       "id": "b340ff8a-8713-428d-9046-516204563f20",
@@ -634,7 +708,18 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Design Sprint Facilitator</strong></h3>",
+          "content": "<h5>Overzicht</h5>\nEen design sprint facilitator leidt intensieve workshops van meerdere dagen waarin cross-functionele teams een specifiek bedrijfsprobleem oplossen en een prototype testen, samengeperst in dagen in plaats van maanden.\n\n<h5>Wat je daadwerkelijk gaat doen</h5>\n- Live sprints begeleiden. Je leidt meerdaagse workshops met je AJ&Smart-certificering, het diploma dat je al hebt en nog niet volledig hebt verzilverd.\n- Workshopagenda's ontwerpen. Je bouwt digitale borden en structureert oefeningen die je liefde voor \"een strategiedeck waar een hele ruimte stil van werd\" kanaliseren.\n- Testdeelnemers werven. Je regelt user testing sessies, met dezelfde instincten voor het plannen van interviews die je opdeed bij je onderzoeksprogramma van 30+ interviews per jaar.\n- Je eigen pipeline beheren. Je pitcht, stelt voor en bepaalt de scope van vervolgopdrachten rechtstreeks met de directie van de klant, zonder buffer van een accountteam.\n\nJe hebt zelf al aangegeven dat dit soort werk je nieuwe vaardigheden laat leren en nieuw terrein laat betreden, wat aansluit bij je aangegeven interesse in het ontwikkelen van strategische planning en creatief innovatievermogen, maar hier bepaal jij het curriculum, in plaats van dat je iemand anders' workshop volgt.\n\n<h5>Waarom deze rol bij je past</h5>\nDeze rol isoleert precies het ingrediënt dat je jaren als Brand Strategist zo goed maakte: de ruimte, het live oplossen van problemen, het tastbare resultaat voor vrijdag. Het bouwt directer voort op je 8/10-patroon als Brand Strategist dan welke andere optie dan ook, door het accountmanagement en de overhead van klantretainers weg te laten en alleen de facilitatie zelf over te houden, het onderdeel waarvoor je gecertificeerd bent en waar je duidelijk energie van krijgt.\n\nHet sluit ook direct aan bij je waarde autonomie. Als zelfstandig ondernemer bepaal je zelf je agenda, wat belangrijk is gezien de diensten van je partner in de verpleging en jouw niet-onderhandelbare behoefte aan flexibele uren. Sprint-gebaseerd werk betekent intensieve weken met opleveringen, gevolgd door open voorbereidingsweken, een ritme dat maar weinig loondienstfuncties kunnen bieden.\n\n<h5>De realiteitscheck</h5>\n⚠ Klantenwerving stopt nooit. Als solofacilitator ben jij de pipeline. Er is geen accountteam dat je agenda vult, elke rustige week moet je zelf opvullen, en je onbehagen met zelfpromotie (nog niet eerder getest in je loopbaan) komt hier onder echte druk te staan.\n\n⚠ Live sprintdagen zijn fysiek zwaar. Meerdaagse facilitatie met dominante, sceptische directieleden vraagt om aanhoudend hoge energie en controle over de ruimte. Je harmoniezoekende conflictstijl vraagt hier om bewuste zelfsturing, meegaan met de luidste stem laat een sprint ontsporen.\n\n⚠ In het begin is er geen inkomensbodem. Een boutique-praktijk betekent wisselende, onregelmatige opdrachten terwijl je een reputatie en verwijzingsnetwerk opbouwt, heel anders dan het stabiele consultingritme van een bureaufunctie.\n\n<h5>De praktische kant</h5>\n\nGeld: Dagtarieven liggen doorgaans tussen £800 en £1.800, afhankelijk van de omvang van de klant, wat neerkomt op een jaarlijkse bandbreedte van ongeveer £48.000 tot £90.000 bij een gematigde bezettingsgraad. Dit kan in goede jaren boven je bandbreedte van £50k-75k uitkomen, maar reken erop dat de eerste 6 tot 12 maanden daaronder liggen terwijl je een klantenbestand opbouwt. De inkomensvariabiliteit is reëel en vraagt om een financiële buffer gezien je hypotheek in Londen.\n\nRooster: Intensieve opleveringsweken wisselen af met flexibele voorbereidings- en acquisitieweken. Dit sluit van alle opties hier het dichtst aan bij je niet-onderhandelbare behoefte aan flexibele uren.\n\nEnergie: Intensieve sociale pieken tijdens sprints, gevolgd door rustige soloweken met weinig contact. Dit past eigenlijk goed bij je profiel van \"enigszins energiek, met een grens\", omdat die grens een ingebouwde hersteltijd krijgt in plaats van dagelijkse uitputting.\n\nGroei: Kan uitgroeien tot een kleine facilitatiebureau met een team van zzp'ers, of doorgroeien naar fractioneel werk als Head of Product Innovation.\n\n<h5>AI-impact op deze rol</h5>\nAanzienlijk. AI neemt steeds vaker de logistiek van workshopvoorbereiding, agendasjablonen en de synthese-verslagen na de sprint over. De live facilitatie zelf, het aanvoelen van een ruimte, het managen van dominante persoonlijkheden, het vasthouden van momentum, blijft volledig mensenwerk en wordt juist jouw duidelijkere onderscheidende factor naarmate routinematig voorbereidingswerk wordt geautomatiseerd.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- Automatiseer je administratie: gebruik AI voor conceptagenda's, wervingsmails voor deelnemers en synthesedocumenten na de sprint, zodat je meer uren overhoudt voor factureerbare facilitatie.\n- Bouw een facilitator-merk op: publiceer uitgesproken standpunten over sprintmethodologie om je acquisitiecyclus te verkorten, want alleen verwijzingen zullen een solo-agenda niet snel genoeg vullen.\n\n<h5>Aansluiting bij je ambities</h5>\nDit voldoet aan je kortetermijndoel om nieuwe vaardigheden op te bouwen (acquisitie, het runnen van een eigen praktijk) die je nog niet nodig had. Maar je langetermijnambitie draait om een betekenisvolle bijdrage aan de samenleving en mogelijk het leiden van een eigen onderzoeksstudio, en pure sprintfacilitatie is smaller dan die visie. Op je 38e met een hypotheek kun je dit het beste zien als een op zichzelf staand haalbaar pad of als proeftuin voor zelfstandig consultingwerk, niet automatisch als opstap naar je droombaan.",
+          "comparison": {
+            "headline": "Dit ruilt het vangnet van een bureausalaris in voor volledige autonomie en de werklast van een ondernemer, de grootste verandering van de drie.",
+            "explanation": "Service Designer en Employee Experience Consultant plaatsen je allebei binnen een groot bureau met een vast salaris, projectteams, en iemand anders die voor de pipeline zorgt. Deze optie haalt dat allemaal weg. Jij bent het bedrijf, en daarom zakt de stabiliteit hier naar een 2 tegenover 4 bij de andere twee: het inkomen is onregelmatig, zeker in het eerste jaar.\n\nDaar staat tegenover dat autonomie en flexibiliteit het maximum bereiken. Geen enkele functie in loondienst kan tippen aan sprintgebaseerd werk als het gaat om controle over je eigen agenda, en dat telt zwaar mee gezien het dienstrooster van je partner en jouw niet-onderhandelbare behoefte aan flexibele uren.\n\nSociaal gezien is dit een meer wisselvallig verhaal: intensieve meerdaagse verdieping, gevolgd door rustige weken alleen, tegenover de stabielere dagelijkse samenwerking bij de andere twee opties. Als een vast inkomen en ingebouwde steun van collega's nu belangrijker voor je zijn, is Service Designer de veiligere keuze. Als autonomie en controle over je agenda het zwaarst wegen en je een hobbelig eerste jaar kunt opvangen, is dit op papier de sterkste match."
+          },
+          "translated_at": "2026-09-03T13:12:25.666Z"
+        }
+      }
     },
     {
       "id": "8b500b13-ca9f-4bb7-8aa6-cbedd0b4dc8a",
@@ -658,7 +743,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "<h3><strong>Founder, Qualitative Research Studio</strong></h3>",
+          "content": "<h5>Overzicht</h5>\nJe zou je eigen boutique consultancy opzetten en runnen, gericht op diepgaand etnografisch en kwalitatief onderzoek. Je helpt organisaties begrijpen wie de mensen zijn die ze bedienen, en vertaalt dat naar strategie voor klanten.\n\n<h5>Waarom deze rol bij je past</h5>\nDit is, bijna woord voor woord, de droombaan die je zelf hebt omschreven. Het bouwt voort op het klantinzicht-programma dat je hebt opgezet en dat productteams nu meer vertrouwen dan marketing. Deze rol staat niet in de Top 3 omdat het starten van een studio vooraf echt kapitaal- en inkomensrisico met zich meebrengt, een zwaardere klus dan een rol waarin je sneller aan de slag kunt.\n\n<h5>Wat voor jou werkt</h5>\n✓ **Letterlijk je droombaan.** Een onderzoeksstudio runnen die organisaties helpt hun mensen te begrijpen, is precies wat je ons vertelde te willen.\n✓ **Volledige autonomie.** Complete controle over methodologie en klantselectie, wat aansluit bij jouw voorkeur voor gedelegeerd vertrouwen.\n✓ **Bouwt voort op een bewezen sterk punt.** Jouw inzichtprogramma met 30+ interviews per jaar laat al zien dat je dit op schaal kunt.\n\n<h5>De realiteitscheck</h5>\n⚠ **Kapitaal en financiële buffer.** Het path_type \"founder\" betekent onvoorspelbare cashflow voordat je winstgevend bent, houd rekening met 12 tot 18 maanden wisselend inkomen naast je hypotheek.\n⚠ **Validatie ligt bij jou.** Je moet de haalbaarheid van de studio bewijzen met echte klantcontracten, niet met aannames, voordat het veilig aanvoelt.\n⚠ **Business development stopt nooit.** Constant pitchen wringt met je instinct om \"solo, verkoopintensief werk te vermijden\", ook met een team.\n\n<h5>De praktische kant</h5>\n**Geld:** £50.000 - £105.000 (variabel, lager in de eerste jaren)\n\n**Planning:** Meerjarige opbouw, intensieve begintase\n\n**Energie:** Zeer veel klantinteractie, wisselende teamgrootte\n\n<h5>AI-impact op deze rol</h5>\n**Gemiddeld** — AI neemt transcriptie en codering over, maar jouw etnografische diepgang en het vertrouwen van bestuurders blijven het onderscheidende vermogen van de studio.\n\n<h5>Toekomstbestendige vaardigheden</h5>\n- **Sales als founder:** Bouw gericht aan pitchvertrouwen, want dit is de enige vaardigheid die tussen jou en je droombaan staat.\n- **AI-ondersteunde operatie:** Gebruik AI om transcriptie en codering op schaal uit te voeren, zodat jij en je contractors je puur kunnen richten op inzicht en klantvertrouwen.",
+          "translated_at": "2026-09-03T13:12:56.941Z"
+        }
+      }
     },
     {
       "id": "5d21bf6f-3d73-43a1-946c-0e48a56fd270",
@@ -687,7 +779,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "Ontwikkelpunten",
+          "content": "<h5>Inzicht in je groeigebieden</h5>\n\nPerfectionisme, zelfkritiek en het te veel naar je toe trekken van verantwoordelijkheid houden elkaar direct in stand: Emma, jij legt de lat torenhoog, draagt de last alleen, en twijfelt aan jezelf als het resultaat niet perfect aanvoelt. In de praktijk uit zich dit als een interne kalibratie-uitdaging. Jouw eindstreep ligt op een uitzonderlijk hoog niveau, waardoor je werk vroeg oplevert en daarna voortdurend blijft bijschaven na release, omdat je interne meter een project zelden als écht af beschouwt.\n\n<h5>Wat dit betekent voor je groei</h5>\n\nAls je een betekenisvolle overstap overweegt, loopt dit terugkerende patroon het risico je vooruitgang te vertragen. Omdat je zelf zelden zelfstandig besluit dat iets af is, biedt een externe standaard het meest betrouwbare houvast. Door een interne meetlat te vervangen door concrete, externe checkpoints houd je je voortgang stabiel. Rollen en omgevingen met vaste reviewmomenten en afgesproken mijlpalen passen bijzonder goed bij jou: ze geven je heldere, objectieve markeringen van afronding, in plaats van je in vage zelfbeoordeling te laten hangen.\n\n<h5>Belangrijkste inzicht</h5>\n\nHoe je reageert op kritiek hangt direct samen met die hoge interne standaard. Je neemt feedback diep in je op en interpreteert tactische opmerkingen soms als een oordeel over je hele kunnen. Door kritiek te plaatsen binnen zijn specifieke, tactische grenzen blijven je aanpassingen productief en bescherm je je energie.\n\nJe overweging dat AI je unieke vakmanschap uitholt, raakt een essentiële waarheid: terwijl geautomatiseerde tools de basisuitvoering overnemen, blijft jouw intuïtieve gevoel voor mensen en voor wat écht aanslaat je sterkste en minst kopieerbare troef.",
+          "translated_at": "2026-09-03T13:12:25.859Z"
+        }
+      }
     },
     {
       "id": "64b2952a-f088-4ff6-9c8d-e3dba53d5a80",
@@ -716,7 +815,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "Aansluiten bij je waarden",
+          "content": "<h5>Je kernwaarden in kaart</h5>\n\nImpact staat hoger dan groei, en groei staat hoger dan autonomie, en dat is een specifieke volgorde: je wilt ertoe doen voordat je onafhankelijkheid wilt in hoe je dat bereikt. Dat past bij je droom om een researchstudio te runnen voor organisaties, maar het wringt een beetje met je beste jaar, bij het bureau, waar je autonomie en uitdaging kreeg, met het minste onderliggende doel van alle banen die je ooit hebt gehad.\n\n<h5>Waarden in loopbaankeuzes</h5>\n\nElke volgende rol heeft een zichtbare lijn nodig tussen jouw werk en een persoon of resultaat die je kunt benoemen, plus de ruimte om zelf betekenis te geven in plaats van die te moeten verantwoorden in dashboards. Het moet data-zwaar, spreadsheet-gedreven werk uitsluiten, en solitaire taken met weinig contact, want dat heb je zelf al aangewezen als energievreters.\n\n<h5>Belangrijkste inzicht</h5>\n\nJe zet impact op de eerste plaats, maar je gelukkigste jaar draaide op vakmanschap en momentum, met nauwelijks een missie erachter. Die spanning suggereert dat \"impact\" voor jou misschien het gevoel is dat je verandert hoe mensen iets begrijpen, niet een missieverklaring, en dat opent meer deuren dan een zoektocht die strikt om een zaak draait.",
+          "translated_at": "2026-09-03T13:12:42.133Z"
+        }
+      }
     },
     {
       "id": "1a56cfb6-a1ae-47e4-b861-281e55f617aa",
@@ -745,7 +851,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "Jouw aanpak begrijpen",
+          "content": "<h5>Persoonlijkheid en interactiestijl</h5>\n\nEmma, jij voelt je het meest thuis in ruimtes waar ideeën hardop worden getest: workshops, strategiepresentaties, klantinterviews. Maar je conflictstijl is verdeeld. Met collega's zeg je dat je meningsverschillen direct aanpakt, maar bij onderhandelen is je instinct om toe te geven voor de harmonie. Dat is geen besluiteloosheid, maar een prioriteitsvolgorde: je duwt hard op ideeën, maar geeft snel toe als het om relaties gaat. Dat verklaart waarom mensen juist bij jou aankloppen met een rommelige presentatie en erop vertrouwen dat die goed terugkomt.\n\n<h5>Impact in verschillende omgevingen</h5>\n\nDit patroon werkt in je voordeel overal waar het werk creatief en sociaal is: je jaren bij het bureau, verreweg je gelukkigste periode, draaiden om elke paar weken nieuwe problemen en ruimtes die je kon lezen en beïnvloeden. Het werkt tegen je in omgevingen die draaien om het verdedigen van cijfers in plaats van het bepalen van de richting, en dat is precies wat je huidige rol ondermijnt.\n\n<h5>Belangrijkste inzicht</h5>\n\nJouw geluksscores stijgen en dalen met hoe dicht je bij het verhaal staat, niet met je titel of budgetgrootte. De fintech-baan gaf je de breedste scope van je loopbaan tot nu toe, en je op één na laagste score, omdat scope zonder zeggenschap over het verhaal niet is wat je eigenlijk wilt.",
+          "translated_at": "2026-09-03T13:13:05.322Z"
+        }
+      }
     },
     {
       "id": "61c9551d-b6cc-4a64-989d-a0bdf930356b",
@@ -774,7 +887,14 @@
       },
       "share_quotes": null,
       "language": "en",
-      "content_i18n": {}
+      "content_i18n": {
+        "nl": {
+          "model": "claude-sonnet-5",
+          "title": "Sterke punten en hoe je ze ontwikkelt",
+          "content": "<h5>Je kernkwaliteiten in kaart</h5>\n\nEmma, onder je lijst met vaardigheden zit één kerncapaciteit: jij vindt de zin die een rommelige situatie behapbaar maakt voor anderen, of het nu gaat om een productrichting, een dilemma tussen teams, of een organisatiebeslissing. Het herpositioneringswerk, het inzichtenprogramma waar het productteam op leunt, en de collega's die je opzoeken vóór belangrijke beslissingen komen allemaal voort uit datzelfde diagnostische instinct. Jij ziet mismatches vóórdat ze worden gladgestreken.\n\n<h5>Je sterke punten benutten in je loopbaan</h5>\n\nDit is diagnostisch en adviserend werk, ook al zit het verpakt in een marketingtitel. Gezien jouw drang naar impact en je afkeer van spreadsheet-zwaar uitvoerend werk, kun je dit vermogen om structuur aan te brengen inzetten op bredere organisatievraagstukken, zoals verandermanagement, advieswerk voor oprichters, of cross-functionele strategie. Richt je erop je bijdragen te framen rond de structurele mismatches die jij blootlegde en de werkwijzen die teams daardoor overnamen.\n\n<h5>Belangrijkste inzicht</h5>\n\nHoewel je functietitels vaak de nadruk legden op campagne-uitvoering, zit jouw blijvende waarde in vertaling: van wat mensen doen een heldere richting maken waar een organisatie zich achter kan scharen. Dat diagnostische vermogen om dingen op te merken hangt volledig af van aanwezigheid, sociaal vertrouwen en mensenkennis, waardoor het bestand is tegen automatisering en veel breder inzetbaar is dan welke functionele rol dan ook.",
+          "translated_at": "2026-09-03T13:13:07.393Z"
+        }
+      }
     },
     {
       "id": "a6e14901-bc47-47ec-b81d-9bdddb15e7d4",
@@ -836,6 +956,77 @@
       "label": "Career Feasibility",
       "content": "That's the part worth sitting with for a second, Emma. The report didn't rate the dream feasible because it's safe, it rated it \"Low-Moderate\" because the craft fit is genuinely strong and the honest cost is the entry path, not the skill. Nobody handed you permission before because most career advice defaults to \"be realistic\" as code for \"pick smaller.\" This just showed you the actual mechanism: Executive Producer isn't a consolation prize, it's the same judgment call you've been making for 15 years, aimed at a different kind of material.\n\nAnd the research studio landing as more feasible isn't a demotion either. It's the same signal from two different angles: your skillset already exists, fully formed, in your current 30+ interviews a year. One dream needs you to build new craft from zero. The other needs you to build a business around craft you already have. That's not a smaller ambition, that's just a shorter distance.\n\nWorth sitting with rather than resolving right now. Whenever you're ready, click \"All done, wrap up session\" to close out and get your summary.",
       "created_at": "2026-09-03T09:35:08.327016+00:00"
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "21bbbf38-17ea-41fc-9eda-1c80952f6c6b",
+      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
+      "job_search_id": null,
+      "external_job_id": "4428835385",
+      "job_title": "Service Designer",
+      "company_name": "Utility Warehouse",
+      "location": "London, England, United Kingdom",
+      "salary_min": null,
+      "salary_max": null,
+      "description_snippet": "Hi! We're UW. We’re on a mission to take the headache out of utilities by providing them all in one place. One bill for energy, broadband, mobile and insurance and a whole lot of savings!. We’re aiming to double in size as we help more people to stop wasting time and money. Big ambitions, to be delivered by people like you. The challenge . For our customers and Partners, UW just needs to work – there when you need it, and invisible when you don’t. Just like flicking a switch. Our proposition to ",
+      "apply_url": "https://uk.linkedin.com/jobs/view/service-designer-at-utility-warehouse-4428835385",
+      "source": "LinkedIn",
+      "posted_date": "2026-08-20",
+      "saved_at": "2026-09-03T10:18:51.767484+00:00",
+      "status": "applied",
+      "applied_at": "2026-09-03T10:18:51.473+00:00",
+      "note": null,
+      "stage": null,
+      "archived_reason": null,
+      "from_career": "Service Designer",
+      "match_score": 8
+    },
+    {
+      "id": "a0b80240-5691-4cc6-a90b-553537d78157",
+      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
+      "job_search_id": null,
+      "external_job_id": "4457301992",
+      "job_title": "Service Designer",
+      "company_name": "Legal & General",
+      "location": "Brighton And Hove, England, United Kingdom",
+      "salary_min": null,
+      "salary_max": null,
+      "description_snippet": "Legal & General (L&G) is a leading UK financial services group and major global investor. We’ve been safeguarding people’s financial futures since 1836, and strive to build a better society, while improving the lives of our customers and creating value for shareholders. We are one of the world’s largest asset managers and provide powerful asset origination capabilities. Together, these underpin our retirement and protection solutions: we are an international player in pension risk transfer, in U",
+      "apply_url": "https://uk.linkedin.com/jobs/view/service-designer-at-legal-general-4457301992",
+      "source": "LinkedIn",
+      "posted_date": "2026-08-21",
+      "saved_at": "2026-09-03T10:18:51.767484+00:00",
+      "status": "saved",
+      "applied_at": null,
+      "note": null,
+      "stage": null,
+      "archived_reason": null,
+      "from_career": "Service Designer",
+      "match_score": 8
+    },
+    {
+      "id": "6648ccde-ae26-4ff0-b7a7-620be387a737",
+      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
+      "job_search_id": null,
+      "external_job_id": "4450120842",
+      "job_title": "Customer Experience Designer",
+      "company_name": "Elexon",
+      "location": "London Area, United Kingdom",
+      "salary_min": null,
+      "salary_max": null,
+      "description_snippet": "We have an exciting opportunity for a Customer Experience Designer (Grade 11) to join our Customer Experience team on a permanent basis. This role is central to shaping how customers experience Elexon’s services, ensuring they are intuitive, efficient and designed around customer needs. You’ll play a key role in leading service design activities across Elexon, working with colleagues across Operations, Product, Digital and Customer Support to understand customer journeys, identify opportunities ",
+      "apply_url": "https://uk.linkedin.com/jobs/view/customer-experience-designer-at-elexon-4450120842",
+      "source": "LinkedIn",
+      "posted_date": "2026-08-12",
+      "saved_at": "2026-09-03T10:18:51.767484+00:00",
+      "status": "saved",
+      "applied_at": null,
+      "note": null,
+      "stage": null,
+      "archived_reason": null,
+      "from_career": "Service Designer",
+      "match_score": 8
     }
   ],
   "jobs": [
@@ -1093,77 +1284,6 @@
         "workArrangement": "remote_friendly",
         "jobCommitment": "full_time"
       }
-    }
-  ],
-  "savedJobs": [
-    {
-      "id": "21bbbf38-17ea-41fc-9eda-1c80952f6c6b",
-      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
-      "job_search_id": null,
-      "external_job_id": "4428835385",
-      "job_title": "Service Designer",
-      "company_name": "Utility Warehouse",
-      "location": "London, England, United Kingdom",
-      "salary_min": null,
-      "salary_max": null,
-      "description_snippet": "Hi! We're UW. We’re on a mission to take the headache out of utilities by providing them all in one place. One bill for energy, broadband, mobile and insurance and a whole lot of savings!. We’re aiming to double in size as we help more people to stop wasting time and money. Big ambitions, to be delivered by people like you. The challenge . For our customers and Partners, UW just needs to work – there when you need it, and invisible when you don’t. Just like flicking a switch. Our proposition to ",
-      "apply_url": "https://uk.linkedin.com/jobs/view/service-designer-at-utility-warehouse-4428835385",
-      "source": "LinkedIn",
-      "posted_date": "2026-08-20",
-      "saved_at": "2026-09-03T10:18:51.767484+00:00",
-      "status": "applied",
-      "applied_at": "2026-09-03T10:18:51.473+00:00",
-      "note": null,
-      "stage": null,
-      "archived_reason": null,
-      "from_career": "Service Designer",
-      "match_score": 8
-    },
-    {
-      "id": "a0b80240-5691-4cc6-a90b-553537d78157",
-      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
-      "job_search_id": null,
-      "external_job_id": "4457301992",
-      "job_title": "Service Designer",
-      "company_name": "Legal & General",
-      "location": "Brighton And Hove, England, United Kingdom",
-      "salary_min": null,
-      "salary_max": null,
-      "description_snippet": "Legal & General (L&G) is a leading UK financial services group and major global investor. We’ve been safeguarding people’s financial futures since 1836, and strive to build a better society, while improving the lives of our customers and creating value for shareholders. We are one of the world’s largest asset managers and provide powerful asset origination capabilities. Together, these underpin our retirement and protection solutions: we are an international player in pension risk transfer, in U",
-      "apply_url": "https://uk.linkedin.com/jobs/view/service-designer-at-legal-general-4457301992",
-      "source": "LinkedIn",
-      "posted_date": "2026-08-21",
-      "saved_at": "2026-09-03T10:18:51.767484+00:00",
-      "status": "saved",
-      "applied_at": null,
-      "note": null,
-      "stage": null,
-      "archived_reason": null,
-      "from_career": "Service Designer",
-      "match_score": 8
-    },
-    {
-      "id": "6648ccde-ae26-4ff0-b7a7-620be387a737",
-      "user_id": "b5ed7c5b-833a-470b-b14c-733976e4bdc8",
-      "job_search_id": null,
-      "external_job_id": "4450120842",
-      "job_title": "Customer Experience Designer",
-      "company_name": "Elexon",
-      "location": "London Area, United Kingdom",
-      "salary_min": null,
-      "salary_max": null,
-      "description_snippet": "We have an exciting opportunity for a Customer Experience Designer (Grade 11) to join our Customer Experience team on a permanent basis. This role is central to shaping how customers experience Elexon’s services, ensuring they are intuitive, efficient and designed around customer needs. You’ll play a key role in leading service design activities across Elexon, working with colleagues across Operations, Product, Digital and Customer Support to understand customer journeys, identify opportunities ",
-      "apply_url": "https://uk.linkedin.com/jobs/view/customer-experience-designer-at-elexon-4450120842",
-      "source": "LinkedIn",
-      "posted_date": "2026-08-12",
-      "saved_at": "2026-09-03T10:18:51.767484+00:00",
-      "status": "saved",
-      "applied_at": null,
-      "note": null,
-      "stage": null,
-      "archived_reason": null,
-      "from_career": "Service Designer",
-      "match_score": 8
     }
   ]
 }

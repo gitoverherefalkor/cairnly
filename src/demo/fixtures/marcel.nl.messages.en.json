@@ -4,7 +4,7 @@
     "from": "nl",
     "to": "en",
     "model": "claude-opus-5",
-    "translatedAt": "2026-09-03T13:07:18.470Z",
+    "translatedAt": "2026-09-03T13:21:42.314Z",
     "methods": {
       "d0db3ff3-53af-4338-a935-496e56e063ef": "reconstructed",
       "edb752f8-60cb-408c-a75c-cb9c86ea85cf": "reconstructed",
