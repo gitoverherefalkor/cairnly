@@ -87,6 +87,8 @@ interface ChatMessageProps {
   // Posts the pre-written comparison explanation into the chat as a bot
   // message. Supplied by ChatContainer; only used by Career 2/3 messages.
   onComparisonExplain?: (content: string) => void;
+  // Pulse the voice Settings button on this message (see MessageVoiceButton).
+  voiceSettingsHint?: boolean;
   // Render section-reveal messages with every sub-section open from the
   // first paint (no chevron click-through). Used by the public /demo replay,
   // where the reveal pacing would gate plain scrolling. Live chat leaves it
@@ -1129,6 +1131,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   liked = false,
   onLikeToggle,
   onComparisonExplain,
+  voiceSettingsHint = false,
   forceFullReveal = false,
 }) => {
   const { t, i18n } = useTranslation('chat');
@@ -1537,6 +1540,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
             onLikeToggle={
               onLikeToggle ? () => onLikeToggle(messageId, sanitized) : undefined
             }
+            hintSettings={voiceSettingsHint}
           />
         )}
       </div>

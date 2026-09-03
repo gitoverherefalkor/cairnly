@@ -83,6 +83,9 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
   }, [messages, inserted]);
 
   const userTurns = useMemo(() => messages.filter((m) => m.sender === 'user'), [messages]);
+  // The read-aloud speed control is easy to miss and most people want it:
+  // pulse the Settings button on the first coach message only.
+  const firstBotId = useMemo(() => messages.find((m) => m.sender === 'bot')?.id ?? null, [messages]);
 
   // "Ask about this role" → the [Over <role>] turn for that role if the
   // persona asked one, otherwise the first scoped turn in the session.
@@ -184,6 +187,7 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
               bookmarked={kept.has(msg.id)}
               onBookmarkToggle={toggleKept}
               alreadyInReport={isSectionReveal}
+              voiceSettingsHint={isBot && msg.id === firstBotId}
             />
             {notes
               .filter((a) => a.placement === 'bottom')

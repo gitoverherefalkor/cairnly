@@ -158,10 +158,16 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         const audio = new Audio();
+        // Loading a source resets playbackRate to defaultPlaybackRate, so
+        // setting playbackRate alone here was silently undone: the menu
+        // showed 1.2x while the audio played at 1x. Set both, and apply
+        // once more when playback starts.
+        audio.defaultPlaybackRate = rateRef.current;
         audio.playbackRate = rateRef.current;
         audioRef.current = audio;
 
         audio.onplay = () => {
+          audio.playbackRate = rateRef.current;
           setIsLoading(false);
           setLoadingId(null);
           setIsSpeaking(true);
@@ -269,6 +275,7 @@ export const TTSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setPlaybackRateState(v);
     // Apply immediately to anything currently playing.
     if (audioRef.current) {
+      audioRef.current.defaultPlaybackRate = v;
       audioRef.current.playbackRate = v;
     }
     if (typeof window !== 'undefined') {

@@ -22,6 +22,11 @@ interface MessageVoiceButtonProps {
   // Optional so non-feedback contexts simply don't render it.
   liked?: boolean;
   onLikeToggle?: () => void;
+  // Draw the eye to the voice settings (a teal pulse on the Settings button)
+  // until the menu is opened once. The public demo uses it on the first
+  // coach message: most people prefer 1.1x or 1.2x once they find the
+  // speed control, but 1x stays the default for everyone.
+  hintSettings?: boolean;
 }
 
 export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
@@ -33,8 +38,11 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
   alreadyInReport = false,
   liked = false,
   onLikeToggle,
+  hintSettings = false,
 }) => {
   const { t } = useTranslation('chat');
+  const [settingsSeen, setSettingsSeen] = useState(false);
+  const pulseSettings = hintSettings && !settingsSeen;
   const {
     isSupported,
     speakingId,
@@ -106,9 +114,14 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
       <div className="relative">
         <button
           type="button"
-          onClick={() => setMenuOpen((o) => !o)}
+          onClick={() => {
+            setSettingsSeen(true);
+            setMenuOpen((o) => !o);
+          }}
           title="Voice settings"
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-gray-400 hover:text-atlas-teal hover:bg-atlas-teal/5 transition-colors"
+          className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors hover:text-atlas-teal hover:bg-atlas-teal/5 ${
+            pulseSettings ? 'text-atlas-teal bg-atlas-teal/5 animate-mic-hint-pulse' : 'text-gray-400'
+          }`}
         >
           <Settings2 size={13} />
           <span>{t('ui.voiceSettings')}</span>
