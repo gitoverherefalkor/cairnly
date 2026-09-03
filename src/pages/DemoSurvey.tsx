@@ -34,6 +34,10 @@ const PAYOFF_KEYS = ['happiness', 'ranking', 'schedule'] as const;
 
 const DemoSurvey: React.FC = () => {
   const { t, i18n } = useTranslation('demo');
+  // The question card's eyebrow is the assessment's own string, so the demo
+  // shows the real position ("Section 3 · Question 4 of 8") instead of
+  // suggesting the survey is three questions long.
+  const { t: tSurvey } = useTranslation('survey');
   const location = useLocation();
   const navigate = useNavigate();
   const audience: 'customer' | 'partner' = new URLSearchParams(location.search).has('p')
@@ -112,31 +116,31 @@ const DemoSurvey: React.FC = () => {
 
       <main className="relative z-10 flex-1">
         <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
-          <section
-            className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7 mb-8"
-            style={{
-              background: '#FDFBF2',
-              borderColor: 'rgba(201, 182, 144, 0.6)',
-              boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
-            }}
-          >
-            <div className="lp-eyebrow text-[#1F8282] mb-3">{t('surveyDemo.intro.eyebrow')}</div>
+          {/* Editorial opening on the canvas, not a card: three stacked cream
+              boxes (intro, résumé step, questions) read as a wall. */}
+          <header className="mb-9 sm:mb-11 max-w-[62ch]">
+            <div className="lp-eyebrow text-[#2ABFBF] mb-3">{t('surveyDemo.intro.eyebrow')}</div>
             <h1
-              className="font-heading text-[26px] sm:text-[32px]"
-              style={{ color: '#122E3B', fontWeight: 700, letterSpacing: '-0.015em', lineHeight: 1.15 }}
+              className="font-heading text-white"
+              style={{
+                fontSize: 'clamp(27px, 3.2vw, 38px)',
+                fontWeight: 700,
+                letterSpacing: '-0.018em',
+                lineHeight: 1.14,
+              }}
             >
               {t('surveyDemo.intro.title')}
             </h1>
-            <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">
-              {t('surveyDemo.intro.body', { name: choice.firstName })}
-            </p>
-            <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">
+            <p className="mt-4 text-[16px] sm:text-[17px] text-white/80 font-medium leading-[1.6]">
               {t('surveyDemo.intro.prefilled', { name: choice.firstName })}
             </p>
-            <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">
+            <p className="mt-3 text-[15px] text-white/65 font-medium leading-[1.6]">
+              {t('surveyDemo.intro.body', { name: choice.firstName })}
+            </p>
+            <p className="mt-4 text-[13px] text-white/50 font-medium leading-relaxed">
               {t('surveyDemo.intro.note')}
             </p>
-          </section>
+          </header>
 
           {/* Beat 0 — the résumé step, exactly as it opens the real assessment,
               with a file that has already been read. */}
@@ -179,7 +183,9 @@ const DemoSurvey: React.FC = () => {
                     className="font-heading uppercase text-[11px]"
                     style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
                   >
-                    {t('surveyDemo.questionCard.eyebrow', { current: index + 1, total: questions.length })}
+                    {demoSurvey.questions[index].placement
+                      ? tSurvey('questionCard.eyebrow', demoSurvey.questions[index].placement!)
+                      : t('surveyDemo.questionCard.eyebrow', { current: index + 1, total: questions.length })}
                   </div>
                   <div className="text-base sm:text-lg font-light text-gray-900">
                     <QuestionRenderer
@@ -217,8 +223,9 @@ const DemoSurvey: React.FC = () => {
           <section
             className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-6 mb-2"
             style={{
-              background: 'rgba(31,130,130,0.06)',
-              borderColor: 'rgba(31,130,130,0.35)',
+              background: '#FDFBF2',
+              borderColor: 'rgba(201, 182, 144, 0.6)',
+              boxShadow: '0 28px 56px -22px rgba(0,0,0,0.45)',
             }}
           >
             <h2

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "exportedAt": "2026-09-03T16:27:20.265Z",
+    "exportedAt": "2026-09-03T17:10:06.281Z",
     "questionIds": [
       "11111111-1111-1111-1111-11111111111d",
       "33333333-3333-3333-3333-333333333331",
@@ -32,6 +32,12 @@
           "label": "Hoe gelukkig was je in elk van deze rollen?",
           "description": "Geef je geluk een cijfer (1-10) en leg uit wat er aan de verantwoordelijkheden en het werk zelf je tevredenheid beïnvloedde, niet de bedrijfscultuur, specifieke mensen of omstandigheden."
         }
+      },
+      "placement": {
+        "section": 1,
+        "sectionTitle": "Intake Questions",
+        "current": 11,
+        "total": 14
       }
     },
     {
@@ -71,6 +77,12 @@
             "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)": "**Persoonlijke Groei & Uitdaging** (bijvoorbeeld nieuwe vaardigheden leren, moeilijke uitdagingen overwinnen, je persoonlijke en professionele grenzen verleggen)"
           }
         }
+      },
+      "placement": {
+        "section": 3,
+        "sectionTitle": "Values and Motivations",
+        "current": 1,
+        "total": 8
       }
     },
     {
@@ -103,6 +115,12 @@
           },
           "non_negotiable_rider": "Dit is voor mij niet onderhandelbaar. Sluit banen uit die duidelijk niet bij dit rooster passen."
         }
+      },
+      "placement": {
+        "section": 3,
+        "sectionTitle": "Values and Motivations",
+        "current": 4,
+        "total": 8
       }
     }
   ],

@@ -33,6 +33,8 @@ export interface DemoQuestionRow {
   max_selections: number | null;
   config: Question['config'] | null;
   translations: Record<string, QuestionTranslation> | null;
+  /** Where this question sits in the real assessment, for the card's eyebrow. */
+  placement?: { section: number; sectionTitle: string; current: number; total: number };
 }
 
 export interface DemoSurveyPersona {

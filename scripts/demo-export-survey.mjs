@@ -73,6 +73,37 @@ if (!url || !serviceKey) {
 }
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
+// 1a. Where each question sits in the real assessment: section number and
+//     its position within that section, so the demo's card can carry the
+//     same "Section 3 · Question 4 of 8" eyebrow the assessment shows.
+//     Otherwise "1 of 3" would suggest the whole survey is three questions.
+const MAIN_SURVEY = '00000000-0000-0000-0000-000000000001';
+const { data: sections, error: sErr } = await admin
+  .from('survey_sections')
+  .select('id, title, order_num')
+  .eq('survey_id', MAIN_SURVEY)
+  .order('order_num');
+if (sErr) throw sErr;
+const { data: allQuestions, error: aqErr } = await admin
+  .from('questions')
+  .select('id, section_id, order_num')
+  .in('section_id', (sections ?? []).map((s) => s.id));
+if (aqErr) throw aqErr;
+const placement = {};
+(sections ?? []).forEach((section, sectionIndex) => {
+  const inSection = (allQuestions ?? [])
+    .filter((q) => q.section_id === section.id)
+    .sort((a, b) => (a.order_num ?? 0) - (b.order_num ?? 0));
+  inSection.forEach((q, i) => {
+    placement[q.id] = {
+      section: sectionIndex + 1,
+      sectionTitle: section.title,
+      current: i + 1,
+      total: inSection.length,
+    };
+  });
+});
+
 // 1. The question rows, raw (label/choices English, translations alongside):
 //    the demo resolves them per language exactly as useSurvey does.
 const { data: rows, error: qErr } = await admin
@@ -89,7 +120,13 @@ for (const id of [...QUESTION_IDS, ...CONTEXT_IDS]) {
     process.exit(1);
   }
 }
-const questions = QUESTION_IDS.map((id) => byId[id]);
+const questions = QUESTION_IDS.map((id) => {
+  if (!placement[id]) {
+    console.error(`Question ${id} is not in the main survey's sections.`);
+    process.exit(1);
+  }
+  return { ...byId[id], placement: placement[id] };
+});
 const context = CONTEXT_IDS.map((id) => byId[id]);
 
 // 2. Per persona: answers from the report payload + the jump targets.
@@ -168,7 +205,10 @@ writeFileSync(
   ) + '\n',
 );
 
-console.log(`questions:  ${questions.map((q) => q.type).join(', ')}`);
+for (const q of questions) {
+  const p = q.placement;
+  console.log(`${q.type.padEnd(18)} section ${p.section} (${p.sectionTitle}) · question ${p.current} of ${p.total}`);
+}
 console.log(`context:    ${context.map((q) => q.type).join(', ')}`);
 for (const [id, p] of Object.entries(personas)) {
   console.log(`${id.padEnd(7)} ${p.language} | résumé ${p.resume.fileName} | focus ${Object.values(p.focus).map((m) => m.slice(0, 8)).join(', ')}`);
