@@ -1210,62 +1210,68 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           </div>
         )}
 
-        <ChatInput
-          ref={inputRef}
-          onSend={handleSend}
-          askAboutRole={isSessionCompleted ? null : askAboutRole}
-          onCancelAskAboutRole={cancelAskAboutRole}
-          cardsLeftCount={
-            multiCardLocked && cardOpenProgress
-              ? cardOpenProgress.total - cardOpenProgress.opened
-              : null
-          }
-          onCardsLeftClick={scrollToCollapsedCard}
-          onTypingChange={setIsUserTyping}
-          // Disable typing on the welcome screen so users can't accidentally
-          // start with an off-script message that confuses the bot. They
-          // click "I'm Ready!" to kick off, then type freely from there.
-          // Also disabled while the latest section reveal still has hidden
-          // sub-sections — forces the user to read everything before they
-          // can react.
-          //
-          // EXCEPTION: returning users with an autoResumeMessage are NOT new
-          // users — if their history failed to load (network blip, server
-          // hiccup, edge case) we'd rather let them type than trap them in
-          // a disabled welcome state with no escape.
-          disabled={
-            isSessionCompleted ||
-            isWaitingForResponse ||
-            (messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) ||
-            // The "reveal each section / open each card" gates block the normal
-            // flow, but a user who clicked "Ask about this role" has already
-            // picked a revealed card — let them ask without first opening every
-            // other card. Scoped to askAboutRole so the sequential-reveal gate
-            // is untouched for every other case.
-            (!askAboutRole && (latestUnrevealedCount !== 0 || multiCardLocked)) ||
-            wrapUpState !== 'idle'
-          }
-          placeholder={
-            isSessionCompleted
-              ? t('ui.phSessionCompleted')
-              : wrapUpState === 'pending'
-                ? t('ui.phWrappingUp')
-                : wrapUpState === 'completed'
-                  ? t('ui.phSessionClosed')
-                  : messages.length === 0
-                    ? t('ui.phNotStarted')
-                    : askAboutRole
-                      ? t('ui.phAskQuestion')
-                      : latestUnrevealedCount > 0
-                      ? t('ui.phRevealNext', { count: latestUnrevealedCount })
-                      : multiCardLocked
-                        ? t('ui.phOpenCards')
-                        // undefined lets ChatInput pick its own default,
-                        // which is voice-aware ("Typ hier of dicteer…").
-                        : (inputPlaceholderOverride ?? undefined)
-          }
-          isSidebarCollapsed={isSidebarCollapsed}
-        />
+        {/* The welcome screen has nothing to type into (the input was disabled
+            there anyway): hide the bar so the welcome card can take the same
+            vertical box as the sidebar. Returning users with an auto-resume
+            keep it, they are mid-conversation. */}
+        {!(messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) && (
+          <ChatInput
+            ref={inputRef}
+            onSend={handleSend}
+            askAboutRole={isSessionCompleted ? null : askAboutRole}
+            onCancelAskAboutRole={cancelAskAboutRole}
+            cardsLeftCount={
+              multiCardLocked && cardOpenProgress
+                ? cardOpenProgress.total - cardOpenProgress.opened
+                : null
+            }
+            onCardsLeftClick={scrollToCollapsedCard}
+            onTypingChange={setIsUserTyping}
+            // Disable typing on the welcome screen so users can't accidentally
+            // start with an off-script message that confuses the bot. They
+            // click "I'm Ready!" to kick off, then type freely from there.
+            // Also disabled while the latest section reveal still has hidden
+            // sub-sections — forces the user to read everything before they
+            // can react.
+            //
+            // EXCEPTION: returning users with an autoResumeMessage are NOT new
+            // users — if their history failed to load (network blip, server
+            // hiccup, edge case) we'd rather let them type than trap them in
+            // a disabled welcome state with no escape.
+            disabled={
+              isSessionCompleted ||
+              isWaitingForResponse ||
+              (messages.length === 0 && !isWaitingForResponse && !autoResumeMessage) ||
+              // The "reveal each section / open each card" gates block the normal
+              // flow, but a user who clicked "Ask about this role" has already
+              // picked a revealed card — let them ask without first opening every
+              // other card. Scoped to askAboutRole so the sequential-reveal gate
+              // is untouched for every other case.
+              (!askAboutRole && (latestUnrevealedCount !== 0 || multiCardLocked)) ||
+              wrapUpState !== 'idle'
+            }
+            placeholder={
+              isSessionCompleted
+                ? t('ui.phSessionCompleted')
+                : wrapUpState === 'pending'
+                  ? t('ui.phWrappingUp')
+                  : wrapUpState === 'completed'
+                    ? t('ui.phSessionClosed')
+                    : messages.length === 0
+                      ? t('ui.phNotStarted')
+                      : askAboutRole
+                        ? t('ui.phAskQuestion')
+                        : latestUnrevealedCount > 0
+                        ? t('ui.phRevealNext', { count: latestUnrevealedCount })
+                        : multiCardLocked
+                          ? t('ui.phOpenCards')
+                          // undefined lets ChatInput pick its own default,
+                          // which is voice-aware ("Typ hier of dicteer…").
+                          : (inputPlaceholderOverride ?? undefined)
+            }
+            isSidebarCollapsed={isSidebarCollapsed}
+          />
+        )}
 
         <ChapterFeedbackModal
           open={chapterFeedbackOpen}

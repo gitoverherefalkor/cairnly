@@ -8,13 +8,26 @@ import atlasFigure from '@/logos/live/cairnly_logo_symbol_only.png';
 interface WelcomeCardProps {
   onReady: () => void;
   isLoading?: boolean;
+  // On /chat the card sits beside the report sidebar, whose fixed panel is
+  // centred in the viewport with max-height calc(100vh - 180px). With this
+  // on, the card takes the same box (from md up), so their top and bottom
+  // edges line up instead of the card floating a little higher and shorter.
+  matchSidebar?: boolean;
 }
 
-export const WelcomeCard: React.FC<WelcomeCardProps> = ({ onReady, isLoading = false }) => {
+export const WelcomeCard: React.FC<WelcomeCardProps> = ({
+  onReady,
+  isLoading = false,
+  matchSidebar = false,
+}) => {
   const { t } = useTranslation('chat');
   return (
     <div className="w-full max-w-[800px] mx-auto py-4">
-      <Card className="border-2 border-atlas-blue/20 shadow-lg">
+      <Card
+        className={`border-2 border-atlas-blue/20 shadow-lg ${
+          matchSidebar ? 'md:min-h-[calc(100vh-180px)] flex flex-col justify-center' : ''
+        }`}
+      >
         <CardHeader className="text-center pb-4">
           <img src={atlasFigure} alt="Cairnly" className="mx-auto mb-4 h-40 w-auto" />
           <CardTitle className="text-2xl font-bold text-atlas-navy">
@@ -25,10 +38,6 @@ export const WelcomeCard: React.FC<WelcomeCardProps> = ({ onReady, isLoading = f
         <CardContent className="space-y-5 text-center">
           <p className="text-gray-700 leading-relaxed">
             {t('welcome.intro')}
-          </p>
-
-          <p className="text-gray-700 leading-relaxed">
-            {t('welcome.encouragement')}
           </p>
 
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-left">

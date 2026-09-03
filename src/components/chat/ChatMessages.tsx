@@ -241,7 +241,12 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
     // messages yet. Once any message exists, welcome auto-hides.
     if (messages.length === 0 && !isWaitingForResponse) {
       return (
-        <div className="flex-1 overflow-y-auto flex items-center justify-center px-3 sm:px-6 pt-4 pb-[180px] sm:pb-[140px]">
+        // From md up the bottom padding equals the header's height (48px logo
+        // + 2×10px + 3px progress bar), so the card's centre lands on the
+        // viewport centre, where the sidebar's fixed panel is centred too.
+        // The input bar is hidden on the welcome screen, so nothing needs the
+        // old 140px clearance there; below md it stays for the drawer layout.
+        <div className="flex-1 overflow-y-auto flex items-center justify-center px-3 sm:px-6 pt-4 pb-[180px] sm:pb-[140px] md:pt-0 md:pb-[71px]">
           {isReturningUser ? (
             <WelcomeBackCard
               onContinue={onWelcomeReady ?? (() => {})}
@@ -252,6 +257,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
             <WelcomeCard
               onReady={onWelcomeReady ?? (() => {})}
               isLoading={false}
+              matchSidebar
             />
           )}
         </div>
