@@ -11,7 +11,7 @@ import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
-import { demoLink, readPersonaParam } from '@/demo/links';
+import { demoLink, demoQuery, readPersonaParam } from '@/demo/links';
 import { demoSurvey, initialResponses, resolveQuestion, surveyPersona } from '@/demo/survey';
 import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
 
@@ -79,10 +79,14 @@ const DemoSurvey: React.FC = () => {
     firstQuestionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   // "See what this became" → the chat replay, focused on one message.
+  // The persona rides along explicitly: the message id only exists in this
+  // persona's transcript, and without it a reader whose stored language
+  // picks the other persona would land on a page where it means nothing.
   const chatLink = (messageId?: string) => {
-    const base = demoLink(DEMO_ROUTE, location.search);
-    if (!messageId) return base;
-    return `${base}${base.includes('?') ? '&' : '?'}focus=${messageId}`;
+    const params = new URLSearchParams(demoQuery(location.search).replace(/^\?/, ''));
+    params.set('persona', choice.personaId);
+    if (messageId) params.set('focus', messageId);
+    return `${DEMO_ROUTE}?${params.toString()}`;
   };
 
   const onCta = demoCtaTarget(audience, navigate);
