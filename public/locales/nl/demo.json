@@ -5,7 +5,7 @@
   },
   "nav": {
     "label": "Demo: een echte coachsessie",
-    "honest": "Demo met fictieve persoon, echte AI-output",
+    "honest": "Demo-account. Echte analyse en echte antwoorden.",
     "ctaCustomer": "Zelf starten",
     "ctaPartner": "Plan 20 minuten"
   },
@@ -132,7 +132,7 @@
     "body": "Bij het afronden vat de coach de sessie samen. Deze punten staan nu in haar rapport, naast de antwoorden die ze onderweg bewaarde."
   },
   "footer": {
-    "eyebrow": "Demo met fictieve persoon, echte AI-output",
+    "eyebrow": "Demo-account. Echte analyse en echte antwoorden.",
     "title": "Wat je net las",
     "body": "{{name}} bestaat niet. Haar antwoorden op de vragenlijst zijn door ons geschreven. Alles wat de coach zegt en alles in haar rapport is echte, onbewerkte output van Cairnly.",
     "pdf": "Download haar rapport als pdf",
@@ -179,5 +179,13 @@
       "chat": "Lees het gesprek dat hiertoe leidde",
       "chatNote": "De volledige coachsessie, met de momenten die dit rapport veranderden."
     }
+  },
+  "trust": {
+    "gdpr": "GDPR compliant",
+    "gdprDetail": "Data in de EU",
+    "security": "Sterke databeveiliging",
+    "securityDetail": "Versleuteld, strikte toegang",
+    "delete": "One-click delete",
+    "deleteDetail": "Je data is van jou"
   }
 }

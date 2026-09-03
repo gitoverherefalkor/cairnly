@@ -5,7 +5,7 @@
   },
   "nav": {
     "label": "Demo: a real coaching session",
-    "honest": "Demo with a fictional persona, real AI output",
+    "honest": "Demo account. Real analysis and responses.",
     "ctaCustomer": "Start yours",
     "ctaPartner": "Book 20 minutes"
   },
@@ -132,7 +132,7 @@
     "body": "At wrap-up the coach summarises the session. These points now sit in her report, next to the answers she kept along the way."
   },
   "footer": {
-    "eyebrow": "Demo with a fictional persona, real AI output",
+    "eyebrow": "Demo account. Real analysis and responses.",
     "title": "What you just read",
     "body": "{{name}} does not exist. Her survey answers were written by us. Everything the coach says and everything in her report is real, unedited Cairnly output.",
     "pdf": "Download her report as a PDF",
@@ -179,5 +179,13 @@
       "chat": "Read the conversation that led here",
       "chatNote": "The full coaching session, with the moments that changed this report."
     }
+  },
+  "trust": {
+    "gdpr": "GDPR compliant",
+    "gdprDetail": "EU-hosted data",
+    "security": "Strong data security",
+    "securityDetail": "Encrypted and access-controlled",
+    "delete": "One-click delete",
+    "deleteDetail": "Your data is yours"
   }
 }

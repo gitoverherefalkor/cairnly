@@ -13,6 +13,7 @@ import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoToolDialog, type DemoTool } from '@/components/demo/DemoToolDialog';
+import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
 import { DEMO_DASHBOARD_ROUTE, DEMO_ROUTE, demoPdfPath } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
@@ -81,6 +82,8 @@ const DemoDashboard: React.FC = () => {
   const pdfHref = demoPdfPath(choice.personaId, choice.language);
 
   const nav = (
+    <>
+    <DemoTrustBanner />
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="px-4 sm:px-6">
         <div className="flex justify-between items-center py-2.5 gap-3">
@@ -121,6 +124,7 @@ const DemoDashboard: React.FC = () => {
         {t('nav.honest')}
       </div>
     </nav>
+    </>
   );
 
   return (

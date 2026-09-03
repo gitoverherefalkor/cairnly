@@ -16,6 +16,7 @@ import { DemoMomentsBar } from '@/components/demo/DemoMomentsBar';
 import { DemoHighlightsCard } from '@/components/demo/DemoHighlightsCard';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoWelcome } from '@/components/demo/DemoWelcome';
+import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
 import { sectionIndexByMessage } from '@/demo/chapters';
@@ -184,6 +185,7 @@ const Demo: React.FC = () => {
           product and not like a marketing page pretending to be one. */}
       <div className="fixed inset-0 survey-bg" aria-hidden="true" />
 
+      <DemoTrustBanner />
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="px-4 sm:px-6">
           <div className="flex justify-between items-center py-2.5 gap-3">
@@ -356,7 +358,10 @@ const Demo: React.FC = () => {
         )}
       </main>
 
-      <div className="relative z-10">
+      {/* Above the sidebar's fixed panel (z-40) so the footer covers it as
+          you scroll to the end, instead of the panel floating over the
+          footer. Below the sticky nav (z-50). */}
+      <div className="relative z-[45]">
         <LandingFooter />
       </div>
     </div>

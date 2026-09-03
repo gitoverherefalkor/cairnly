@@ -5,6 +5,27 @@ later the same day after the walkthrough was completed and several chat
 features shipped. This document is self-contained — execute from here, no need
 for the original conversation.**
 
+## Status (2026-09-03): Emma re-recording prepared
+
+Sjoerd asked for a fresh Emma walkthrough (chat only, same report), with the
+comparison explanation on career 3 (its radar plots all three matches, so the
+"three careers, five axes" note finally sits next to a three-career radar)
+and less polished typed turns. The script is
+`docs/report/demo-emma-chat-script.md`; it ends with the re-freeze steps
+(export, re-anchor the seven curation ids, update the movePill/radar
+annotation bodies, render the PDF, test, commit).
+
+`demo-reset-chat.mjs --full` now rewinds the REPORT too (Keeps, wrap-up rows,
+section feedback, status back to pending_review); it was run for Emma on
+2026-09-03, so her account is pristine and waiting. The committed fixture
+and PDF still serve /demo until the re-export lands.
+
+Same day, on the demo pages: the honest label reads "Demo account. Real
+analysis and responses."; a trust bar (GDPR, strong data security, one-click
+delete; no payment line) sits above the nav and folds away on scroll
+(`DemoTrustBanner`); the chat replay's footer now stacks above the sidebar's
+fixed panel (z-45 vs z-40) so the panel no longer floats over the footer.
+
 ## Status (2026-09-02, late evening): Phase 3 (dashboard) is built
 
 `/demo/dashboard` renders the persona's finished dashboard through the REAL
