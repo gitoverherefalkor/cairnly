@@ -193,7 +193,11 @@ for (const row of saved ?? []) {
 }
 
 // 6. Write.
-const personaSlug = email.split('@')[0].replace(/^demo[.\-+]/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+// --persona=<slug> names the persona when it differs from the login (the
+// account demo.marloes@ became the persona Marcel; the login stayed).
+const personaSlug =
+  flag('persona')?.toLowerCase() ??
+  email.split('@')[0].replace(/^demo[.\-+]/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
 const outPath = outOverride ?? join('src', 'demo', 'fixtures', `${personaSlug}.${language}.json`);
 const fixture = {
   persona: {

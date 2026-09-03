@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import marloesJson from './fixtures/marloes.nl.json';
-import marloesCuration from './fixtures/marloes.nl.curation.json';
+import marcelJson from './fixtures/marcel.nl.json';
+import marcelCuration from './fixtures/marcel.nl.curation.json';
 import emmaJson from './fixtures/emma.en.json';
 import emmaCuration from './fixtures/emma.en.curation.json';
 import { applyCuration, chooseFixture, personaForLanguage, type DemoPersonaId } from './loadFixture';
@@ -26,7 +26,7 @@ const PERSONAS: Array<{
   fixture: DemoFixture;
   curation: DemoCuration;
 }> = [
-  { id: 'marloes', lang: 'nl', fixture: marloesJson as unknown as DemoFixture, curation: marloesCuration as DemoCuration },
+  { id: 'marcel', lang: 'nl', fixture: marcelJson as unknown as DemoFixture, curation: marcelCuration as DemoCuration },
   { id: 'emma', lang: 'en', fixture: emmaJson as unknown as DemoFixture, curation: emmaCuration as DemoCuration },
 ];
 
@@ -124,9 +124,9 @@ describe.each(PERSONAS)('demo fixture ($id, $lang)', ({ id, lang, fixture, curat
 });
 
 describe('chooseFixture', () => {
-  it('serves Marloes to Dutch visitors and Emma to everyone else', () => {
-    expect(chooseFixture('nl').personaId).toBe('marloes');
-    expect(chooseFixture('nl-NL').personaId).toBe('marloes');
+  it('serves Marcel to Dutch visitors and Emma to everyone else', () => {
+    expect(chooseFixture('nl').personaId).toBe('marcel');
+    expect(chooseFixture('nl-NL').personaId).toBe('marcel');
     expect(chooseFixture('en').personaId).toBe('emma');
     expect(chooseFixture('en-GB').personaId).toBe('emma');
     expect(chooseFixture(undefined).personaId).toBe('emma');
@@ -138,7 +138,7 @@ describe('chooseFixture', () => {
     expect(chooseFixture('en').isFallback).toBe(false);
     expect(chooseFixture('de').isFallback).toBe(true);
     expect(chooseFixture('de').language).toBe('en');
-    expect(chooseFixture('nl').firstName).toBe('Marloes');
+    expect(chooseFixture('nl').firstName).toBe('Marcel');
     expect(chooseFixture('en').firstName).toBe('Emma');
   });
 });

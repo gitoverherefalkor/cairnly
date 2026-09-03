@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import marloesJson from './fixtures/marloes.nl.json';
+import marcelJson from './fixtures/marcel.nl.json';
 import emmaJson from './fixtures/emma.en.json';
 import { buildChapters, chapterOfSection, detectSectionIndex, sectionIndexByMessage } from './chapters';
 import type { DemoFixture } from './types';
 
 const FIXTURES = [
-  { name: 'Marloes (nl)', lang: 'nl', fixture: marloesJson as unknown as DemoFixture, noHeading: 'Geen kop hier' },
+  { name: 'Marcel (nl)', lang: 'nl', fixture: marcelJson as unknown as DemoFixture, noHeading: 'Geen kop hier' },
   { name: 'Emma (en)', lang: 'en', fixture: emmaJson as unknown as DemoFixture, noHeading: 'No heading here' },
 ];
 

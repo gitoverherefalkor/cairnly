@@ -321,7 +321,7 @@ const Demo: React.FC = () => {
                   lang={i18n.language}
                   kicker={t('highlights.kicker')}
                   title={t('highlights.title')}
-                  body={t('highlights.body')}
+                  body={t('highlights.body', { name: choice.firstName })}
                 />
                 <DemoFooter
                   audience={audience}

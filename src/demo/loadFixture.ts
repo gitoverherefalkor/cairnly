@@ -1,9 +1,9 @@
 // Which frozen session /demo shows, and the hand-written overlay on top.
 import type { DemoCuration, DemoFixture } from './types';
-import marloesCuration from './fixtures/marloes.nl.curation.json';
+import marcelCuration from './fixtures/marcel.nl.curation.json';
 import emmaCuration from './fixtures/emma.en.curation.json';
 
-export type DemoPersonaId = 'marloes' | 'emma';
+export type DemoPersonaId = 'marcel' | 'emma';
 
 export interface DemoFixtureChoice {
   personaId: DemoPersonaId;
@@ -31,17 +31,17 @@ interface PersonaEntry {
 
 /**
  * One persona per site language (docs/handoff/demo-replay-plan.md):
- * Marloes for Dutch visitors, Emma for English ones. Adding a persona = a
+ * Marcel for Dutch visitors, Emma for English ones. Adding a persona = a
  * new fixture pair (json + curation.json), an entry here, and its strings
  * under `personas.<id>` and `annotations.<id>` in both demo locale files.
  */
 const PERSONAS: Record<DemoPersonaId, PersonaEntry> = {
-  marloes: {
+  marcel: {
     language: 'nl',
-    firstName: 'Marloes',
+    firstName: 'Marcel',
     load: () =>
-      import('./fixtures/marloes.nl.json').then((m) => m.default as unknown as DemoFixture),
-    curation: marloesCuration as DemoCuration,
+      import('./fixtures/marcel.nl.json').then((m) => m.default as unknown as DemoFixture),
+    curation: marcelCuration as DemoCuration,
   },
   emma: {
     language: 'en',

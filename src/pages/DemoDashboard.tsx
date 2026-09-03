@@ -181,7 +181,7 @@ const DemoDashboard: React.FC = () => {
                   {t('dashboardDemo.intro.title', { name: choice.firstName })}
                 </h1>
                 <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-[1.65]">
-                  {t('dashboardDemo.intro.body')}
+                  {t('dashboardDemo.intro.body', { name: choice.firstName })}
                 </p>
                 <p className="mt-3 text-[14px] text-[#4B6373]/85 font-medium leading-relaxed">
                   {t('dashboardDemo.intro.toolsNote')}

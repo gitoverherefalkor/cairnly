@@ -1,7 +1,7 @@
 {
   "seo": {
     "title": "Demo: a real coaching session with Cairnly",
-    "description": "Scroll through a complete coaching session of a fictional candidate: where she pushes back, what the coach does with it, and how her report changes. Real AI output, no script."
+    "description": "Scroll through a complete coaching session of a fictional candidate: where the candidate pushes back, what the coach does with it, and how the report changes. Real AI output, no script."
   },
   "nav": {
     "label": "Demo: a real coaching session",
@@ -10,8 +10,8 @@
     "ctaPartner": "Book 20 minutes"
   },
   "personas": {
-    "marloes": {
-      "tagline": "Marloes, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people she helps."
+    "marcel": {
+      "tagline": "Marcel, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people he helps."
     },
     "emma": {
       "tagline": "Emma, 38, senior marketing manager at a London fintech. Can do the job with her eyes closed, and that is exactly the problem."
@@ -20,7 +20,7 @@
   "intro": {
     "eyebrow": "Demo",
     "title": "A real coaching session, start to finish",
-    "body": "This is the conversation as {{name}} had it: the report arrives chapter by chapter, she reacts, the coach reacts back. Nothing was polished afterwards.",
+    "body": "This is the conversation as {{name}} had it: the report arrives chapter by chapter, {{name}} reacts, the coach reacts back. Nothing was polished afterwards.",
     "watchLead": "Watch for these moments along the way:",
     "legendAside": "The numbered moments sit in the bar at the top; click a number to jump there. On the left you see the report sections, exactly as in a real session.",
     "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what {{name}} did with them. You cannot type here: this is a replay."
@@ -37,47 +37,47 @@
     "otherLanguage": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English."
   },
   "annotations": {
-    "marloes": {
+    "marcel": {
       "pushback": {
         "eyebrow": "Look here",
-        "title": "She disagrees",
-        "body": "Marloes clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in her own words.",
+        "title": "He disagrees",
+        "body": "Marcel clicks 'I see this differently' and says exactly where the analysis goes too far. No form, no star rating: pushback in his own words.",
         "legend": "Pushback"
       },
       "kept": {
         "eyebrow": "This changes the report",
-        "title": "The coach takes it on board, and she keeps it",
-        "body": "The coach corrects the analysis on the spot. Marloes presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
+        "title": "The coach takes it on board, and he keeps it",
+        "body": "The coach corrects the analysis on the spot. Marcel presses Keep and this answer goes into his final report word for word. That is how the report becomes his, not just about him.",
         "legend": "Kept in the report"
       },
       "pillTag": {
         "eyebrow": "Small print",
         "title": "The little label above the text",
-        "body": "It shows which button Marloes pressed before she started typing, here 'Something else'. So the conversation shows how she steered, not just what she said.",
+        "body": "It shows which button Marcel pressed before he started typing, here 'Something else'. So the conversation shows how he steered, not just what he said.",
         "legend": "The button label"
       },
       "movePill": {
         "eyebrow": "The Move button",
         "title": "One click, and the coach backs up its rating",
-        "body": "Under every career sits a button with the step the report expects, here 'Ready now'. Marloes clicked it: the question above was written for her automatically and the coach explains why no retraining is needed. Click that button on any career card and you jump here.",
+        "body": "Under every career sits a button with the step the report expects, here 'Ready now'. Marcel clicked it: the question above was written for him automatically and the coach explains why no retraining is needed. Click that button on any career card and you jump here.",
         "legend": "The Move button"
       },
       "radar": {
-        "eyebrow": "Made for her",
+        "eyebrow": "Made for him",
         "title": "Three careers, five axes, no template",
-        "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her.",
+        "body": "This radar is drawn from his own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for him.",
         "legend": "The radar"
       },
       "askRole": {
         "eyebrow": "Ask about this role",
-        "title": "She aims her question at one career",
-        "body": "Every career card has 'Ask about this role'. Marloes used it on Facilitator Restorative Practices: her message gets the [About …] label and the coach answers about that career only. Click that button on any card and you jump here.",
+        "title": "He aims his question at one career",
+        "body": "Every career card has 'Ask about this role'. Marcel used it on Facilitator Restorative Practices: his message gets the [About …] label and the coach answers about that career only. Click that button on any card and you jump here.",
         "legend": "Ask about this role"
       },
       "dictated": {
         "eyebrow": "Spoken",
-        "title": "She did not type this, she said it",
-        "body": "Marloes dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before she presses send. What you read is her story, just neater.",
+        "title": "He did not type this, he said it",
+        "body": "Marcel dictated this answer through the microphone. Speech recognition turns it into text and the AI tidies it up (stumbles, repetitions, punctuation) before he presses send. What you read is his story, just neater.",
         "legend": "Dictated"
       }
     },
@@ -128,15 +128,15 @@
   },
   "highlights": {
     "kicker": "End of the session",
-    "title": "What this conversation changed in her report",
-    "body": "At wrap-up the coach summarises the session. These points now sit in her report, next to the answers she kept along the way."
+    "title": "What this conversation changed in the report",
+    "body": "At wrap-up the coach summarises the session. These points now sit in {{name}}'s report, next to the answers kept along the way."
   },
   "footer": {
     "eyebrow": "Demo account. Real analysis and responses.",
     "title": "What you just read",
-    "body": "{{name}} does not exist. Her survey answers were written by us. Everything the coach says and everything in her report is real, unedited Cairnly output.",
-    "pdf": "Download her report as a PDF",
-    "pdfNote": "The report as it stands after this conversation, with her feedback folded in.",
+    "body": "{{name}} does not exist. The survey answers were written by us. Everything the coach says and everything in the report is real, unedited Cairnly output.",
+    "pdf": "Download the report as a PDF",
+    "pdfNote": "The report as it stands after this conversation, with the feedback from the session folded in.",
     "ctaCustomer": "Take the assessment yourself",
     "ctaCustomerNote": "Same questionnaire, same coach, your report.",
     "ctaPartner": "Book 20 minutes with us",
@@ -145,22 +145,22 @@
     "backHome": "How it works",
     "pdfPartner": "Download the partner template (PDF)",
     "pdfPartnerNote": "The same report as a white-label template: [partnernaam] where your name goes, no logo. Shows you where your branding lands.",
-    "dashboard": "See her dashboard",
-    "dashboardNote": "The same report as she sees it after the session: matches, career map, radar, saved answers."
+    "dashboard": "See {{name}}'s dashboard",
+    "dashboardNote": "The same report as {{name}} sees it after the session: matches, career map, radar, saved answers."
   },
   "dashboardDemo": {
     "seo": {
       "title": "Demo: the dashboard after the coaching session",
-      "description": "A fictional candidate's dashboard after her coaching session: top matches, career map, personality radar and the full report. Real AI output, read-only."
+      "description": "A fictional candidate's dashboard after the coaching session: top matches, career map, personality radar and the full report. Real AI output, read-only."
     },
     "nav": {
-      "label": "Demo: her dashboard",
+      "label": "Demo: the dashboard",
       "back": "Back to the conversation"
     },
     "intro": {
       "eyebrow": "Demo, read-only",
       "title": "This is where {{name}} landed after the session",
-      "body": "Her dashboard, exactly as she sees it: the top three matches with the comparison radar, the career map, her personality radar, the full report chapter by chapter, and the answers she kept from the chat. Open any card or section; nothing here is a mock-up.",
+      "body": "{{name}}'s dashboard, exactly as {{name}} sees it: the top three matches with the comparison radar, the career map, the personality radar, the full report chapter by chapter, and the answers she kept from the chat. Open any card or section; nothing here is a mock-up.",
       "toolsNote": "The job search, résumé and cover-letter tools are switched off in this demo: they run live searches and AI writing for real users only. Everything else works."
     },
     "tools": {

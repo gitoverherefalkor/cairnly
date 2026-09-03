@@ -70,7 +70,7 @@ Keyed off the partner being present, so a direct customer's PDF is unchanged:
 
 ## Rendering another one
 
-Persona is the Dutch demo (Marloes de Vries) — fabricated, safe to send out.
+Persona is the Dutch demo (Marcel de Vries, renamed from Marloes on 2026-09-03; the login is still demo.marloes@cairnly.io) — fabricated, safe to send out.
 See `docs/report/REPORT-OUTLINE.md` for how it was built.
 
 ```

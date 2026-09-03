@@ -85,7 +85,11 @@ const { data: profile, error: profErr } = await admin
   .maybeSingle();
 if (profErr) throw profErr;
 const language = (profile?.preferred_language || 'en').slice(0, 2).toLowerCase();
-const personaSlug = email.split('@')[0].replace(/^demo[.\-+]/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+// --persona=<slug> names the persona when it differs from the login (the
+// account demo.marloes@ became the persona Marcel; the login stayed).
+const personaSlug =
+  flag('persona')?.toLowerCase() ??
+  email.split('@')[0].replace(/^demo[.\-+]/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
 
 // 2. Which report: the frozen fixture's, unless overridden.
 let reportId = flag('report');

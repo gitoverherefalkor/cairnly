@@ -1,7 +1,7 @@
 {
   "seo": {
     "title": "Demo: een echte coachsessie met Cairnly",
-    "description": "Scroll door een volledige coachsessie van een fictieve kandidaat: waar ze tegengas geeft, wat de coach ermee doet en hoe haar rapport verandert. Echte AI-output, geen script."
+    "description": "Scroll door een volledige coachsessie van een fictieve kandidaat: waar de kandidaat tegengas geeft, wat de coach ermee doet en hoe het rapport verandert. Echte AI-output, geen script."
   },
   "nav": {
     "label": "Demo: een echte coachsessie",
@@ -10,8 +10,8 @@
     "ctaPartner": "Plan 20 minuten"
   },
   "personas": {
-    "marloes": {
-      "tagline": "Marloes, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die ze helpt."
+    "marcel": {
+      "tagline": "Marcel, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die hij helpt."
     },
     "emma": {
       "tagline": "Emma, 38, senior marketingmanager bij een Londense fintech. Kan haar werk met haar ogen dicht, en dat is precies het probleem."
@@ -20,7 +20,7 @@
   "intro": {
     "eyebrow": "Demo",
     "title": "Een echte coachsessie, van begin tot eind",
-    "body": "Dit is het gesprek zoals {{name}} het voerde: het rapport komt per hoofdstuk binnen, zij reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
+    "body": "Dit is het gesprek zoals {{name}} het voerde: het rapport komt per hoofdstuk binnen, {{name}} reageert, de coach reageert terug. Niets is achteraf opgepoetst.",
     "watchLead": "Let onderweg op deze momenten:",
     "legendAside": "De genummerde momenten staan in de balk bovenaan; klik op een nummer om ernaartoe te springen. Links zie je de rapportsecties, precies zoals in de echte sessie.",
     "howTo": "Klik op de kaarten om ze te openen, beweeg over de radar, en klik op de knoppen onder een baan om te zien wat {{name}} ermee deed. Typen kan hier niet: dit is een replay."
@@ -37,47 +37,47 @@
     "otherLanguage": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels."
   },
   "annotations": {
-    "marloes": {
+    "marcel": {
       "pushback": {
         "eyebrow": "Kijk hier",
-        "title": "Ze is het er niet mee eens",
-        "body": "Marloes klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in haar eigen woorden.",
+        "title": "Hij is het er niet mee eens",
+        "body": "Marcel klikt op 'Dit zie ik anders' en zegt precies waar de analyse te ver gaat. Geen formulier, geen sterretjes: tegengas in zijn eigen woorden.",
         "legend": "Tegengas"
       },
       "kept": {
         "eyebrow": "Dit verandert het rapport",
-        "title": "De coach neemt het over, en zij bewaart het",
-        "body": "De coach corrigeert de analyse ter plekke. Marloes drukt op Bewaren en dit antwoord komt letterlijk in haar eindrapport. Zo wordt het rapport van haar, niet alleen over haar.",
+        "title": "De coach neemt het over, en hij bewaart het",
+        "body": "De coach corrigeert de analyse ter plekke. Marcel drukt op Bewaren en dit antwoord komt letterlijk in zijn eindrapport. Zo wordt het rapport van hem, niet alleen over hem.",
         "legend": "Bewaard in rapport"
       },
       "pillTag": {
         "eyebrow": "Kleine letters",
         "title": "Het labeltje boven de tekst",
-        "body": "Dat toont welke knop Marloes indrukte voordat ze ging typen, hier 'Iets anders'. Zo zie je in het gesprek terug hoe ze stuurde, niet alleen wat ze zei.",
+        "body": "Dat toont welke knop Marcel indrukte voordat hij ging typen, hier 'Iets anders'. Zo zie je in het gesprek terug hoe hij stuurde, niet alleen wat hij zei.",
         "legend": "Het knop-labeltje"
       },
       "movePill": {
         "eyebrow": "De Stap-knop",
         "title": "Eén klik, en de coach onderbouwt zijn inschatting",
-        "body": "Onder elke baan staat een knop met de stap die het rapport inschat, hier 'Direct inzetbaar'. Marloes klikte erop: de vraag hierboven is automatisch voor haar geformuleerd en de coach legt uit waarom er geen omscholing nodig is. Klik op zo'n knop in een baankaart en je springt hierheen.",
+        "body": "Onder elke baan staat een knop met de stap die het rapport inschat, hier 'Direct inzetbaar'. Marcel klikte erop: de vraag hierboven is automatisch voor hem geformuleerd en de coach legt uit waarom er geen omscholing nodig is. Klik op zo'n knop in een baankaart en je springt hierheen.",
         "legend": "De Stap-knop"
       },
       "radar": {
-        "eyebrow": "Voor haar gemaakt",
+        "eyebrow": "Voor hem gemaakt",
         "title": "Drie banen, vijf assen, geen sjabloon",
-        "body": "Deze radar is getekend uit haar eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor haar betekent.",
+        "body": "Deze radar is getekend uit zijn eigen scores. Beweeg over een naam om die baan los te zien, en klik op 'Leg deze vergelijking uit' om te lezen wat het verschil voor hem betekent.",
         "legend": "De radar"
       },
       "askRole": {
         "eyebrow": "Vraag over deze rol",
-        "title": "Ze richt haar vraag op één baan",
-        "body": "Bij elke baankaart zit 'Vraag iets over deze rol'. Marloes gebruikte hem bij Facilitator Herstelrecht: haar bericht krijgt het label [Over …] en de coach antwoordt alleen over die baan. Klik op die knop in een kaart en je springt hierheen.",
+        "title": "Hij richt zijn vraag op één baan",
+        "body": "Bij elke baankaart zit 'Vraag iets over deze rol'. Marcel gebruikte hem bij Facilitator Herstelrecht: zijn bericht krijgt het label [Over …] en de coach antwoordt alleen over die baan. Klik op die knop in een kaart en je springt hierheen.",
         "legend": "Vraag over deze rol"
       },
       "dictated": {
         "eyebrow": "Ingesproken",
-        "title": "Dit heeft ze niet getypt, maar gezegd",
-        "body": "Marloes sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI schoont het op (haperingen, herhalingen, interpunctie) voordat ze op versturen drukt. Wat je leest is haar verhaal, alleen netter.",
+        "title": "Dit heeft hij niet getypt, maar gezegd",
+        "body": "Marcel sprak dit antwoord in via de microfoon. Spraakherkenning zet het om in tekst en de AI schoont het op (haperingen, herhalingen, interpunctie) voordat hij op versturen drukt. Wat je leest is zijn verhaal, alleen netter.",
         "legend": "Ingesproken"
       }
     },
@@ -128,15 +128,15 @@
   },
   "highlights": {
     "kicker": "Einde van de sessie",
-    "title": "Wat dit gesprek in haar rapport veranderde",
-    "body": "Bij het afronden vat de coach de sessie samen. Deze punten staan nu in haar rapport, naast de antwoorden die ze onderweg bewaarde."
+    "title": "Wat dit gesprek in het rapport veranderde",
+    "body": "Bij het afronden vat de coach de sessie samen. Deze punten staan nu in het rapport van {{name}}, naast de antwoorden die onderweg bewaard zijn."
   },
   "footer": {
     "eyebrow": "Demo-account. Echte analyse en echte antwoorden.",
     "title": "Wat je net las",
-    "body": "{{name}} bestaat niet. Haar antwoorden op de vragenlijst zijn door ons geschreven. Alles wat de coach zegt en alles in haar rapport is echte, onbewerkte output van Cairnly.",
-    "pdf": "Download haar rapport als pdf",
-    "pdfNote": "Het rapport zoals het na dit gesprek is, met haar feedback erin verwerkt.",
+    "body": "{{name}} bestaat niet. De antwoorden op de vragenlijst zijn door ons geschreven. Alles wat de coach zegt en alles in het rapport is echte, onbewerkte output van Cairnly.",
+    "pdf": "Download het rapport als pdf",
+    "pdfNote": "Het rapport zoals het na dit gesprek is, met de feedback uit de sessie erin verwerkt.",
     "ctaCustomer": "Doe zelf het assessment",
     "ctaCustomerNote": "Dezelfde vragenlijst, dezelfde coach, jouw rapport.",
     "ctaPartner": "Plan 20 minuten met ons",
@@ -145,22 +145,22 @@
     "backHome": "Hoe het werkt",
     "pdfPartner": "Download de partner-template (pdf)",
     "pdfPartnerNote": "Hetzelfde rapport als white-label template: [partnernaam] waar jouw naam komt, zonder logo. Zo zie je waar jouw branding landt.",
-    "dashboard": "Bekijk haar dashboard",
-    "dashboardNote": "Hetzelfde rapport zoals zij het na de sessie ziet: matches, carrièrekaart, radar, bewaarde antwoorden."
+    "dashboard": "Bekijk het dashboard van {{name}}",
+    "dashboardNote": "Hetzelfde rapport zoals {{name}} het na de sessie ziet: matches, carrièrekaart, radar, bewaarde antwoorden."
   },
   "dashboardDemo": {
     "seo": {
       "title": "Demo: het dashboard na de coachsessie",
-      "description": "Het dashboard van een fictieve kandidaat na haar coachsessie: topmatches, carrièrekaart, persoonlijkheidsradar en het volledige rapport. Echte AI-output, alleen-lezen."
+      "description": "Het dashboard van een fictieve kandidaat na de coachsessie: topmatches, carrièrekaart, persoonlijkheidsradar en het volledige rapport. Echte AI-output, alleen-lezen."
     },
     "nav": {
-      "label": "Demo: haar dashboard",
+      "label": "Demo: het dashboard",
       "back": "Terug naar het gesprek"
     },
     "intro": {
       "eyebrow": "Demo, alleen-lezen",
       "title": "Hier kwam {{name}} uit na de sessie",
-      "body": "Haar dashboard, precies zoals zij het ziet: de drie topmatches met de vergelijkingsradar, de carrièrekaart, haar persoonlijkheidsradar, het volledige rapport per hoofdstuk en de antwoorden die ze uit de chat bewaarde. Open elke kaart of sectie; niets hier is een mock-up.",
+      "body": "Het dashboard van {{name}}, precies zoals {{name}} het ziet: de drie topmatches met de vergelijkingsradar, de carrièrekaart, de persoonlijkheidsradar, het volledige rapport per hoofdstuk en de antwoorden die ze uit de chat bewaarde. Open elke kaart of sectie; niets hier is een mock-up.",
       "toolsNote": "De vacaturezoeker, de cv-tool en de sollicitatiebrieven staan in deze demo uit: die doen live zoekopdrachten en AI-schrijfwerk, alleen voor echte gebruikers. Al het andere werkt."
     },
     "tools": {

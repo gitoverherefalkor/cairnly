@@ -1,6 +1,6 @@
 // Builds the survey payload for the English demo persona, Emma Whitfield.
 //
-// Same mechanism as demo-marloes-payload.mjs: every multiple-choice answer is
+// Same mechanism as demo-marcel-payload.mjs: every multiple-choice answer is
 // written as a short distinctive SUBSTRING and resolved against the live
 // `questions.config.choices` at build time (exact match wins, then unique
 // substring), and the build fails loudly on a miss or an ambiguous match. The

@@ -1,4 +1,4 @@
-// Builds the survey payload for the Dutch demo persona, Marloes de Vries.
+// Builds the survey payload for the Dutch demo persona, Marcel de Vries.
 //
 // WHY A SCRIPT AND NOT A HAND-WRITTEN JSON: multiple-choice answers must match
 // the survey's option strings EXACTLY — they are markdown-laden ("**Energized**
@@ -17,7 +17,7 @@
 // write English canonical regardless (language contract), and translate-section
 // produces the Dutch document afterwards.
 //
-//   node scripts/demo-marloes-payload.mjs  ->  writes docs/report/demo-marloes-payload.json
+//   node scripts/demo-marcel-payload.mjs  ->  writes docs/report/demo-marcel-payload.json
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -54,7 +54,7 @@ const picks = (...a) => ({ __picks: a });
 
 const ANSWERS = {
   // Section 1 — about her
-  [Q('name')]: 'Marloes de Vries',
+  [Q('name')]: 'Marcel de Vries',
   [Q('pronoun')]: pick('She / Her'),
   [Q('age')]: 41,
   [Q('country')]: pick('Northern and Western Europe'),
@@ -223,7 +223,7 @@ const payload = {
   responses,
 };
 
-const out = path.join('docs', 'report', 'demo-marloes-payload.json');
+const out = path.join('docs', 'report', 'demo-marcel-payload.json');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, JSON.stringify(payload, null, 2));
 console.log(`✅ resolved ${Object.keys(responses).length} responses -> ${out}`);

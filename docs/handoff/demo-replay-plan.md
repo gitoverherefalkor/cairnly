@@ -408,3 +408,34 @@ with Marloes's report now.
 - Live "try it yourself" input on the demo — the landing page's intake chat
   already covers that; link to it rather than rebuilding it.
 - Migrating or re-rendering old reports.
+
+## Status (2026-09-03): Marloes became Marcel
+
+Sjoerd wanted a name non-Dutch readers can pronounce and a second gender next
+to Emma. The Dutch persona is now **Marcel de Vries** (same story: 41,
+customer-service team lead, two children, the fixed Wednesday at home). The
+coach only ever addressed the persona in the second person, so the rename
+was a whole-word replace of the name: 15 occurrences across profile, survey
+payload, chat, sections (both languages), Keeps and the coach's memory.
+
+- **Login unchanged:** `demo.marloes@cairnly.io` (password var
+  `DEMO_DEMO_MARLOES_PASSWORD`). The export/render scripts take
+  `--persona=marcel` to name the persona independently of the login.
+- `scripts/demo-rename-persona.mjs <email> --from= --to= [--apply]` did the
+  database side (dry run first). It keeps translations past the staleness
+  trigger by re-sending them with a `renamed_at` marker when only the
+  canonical text mentions the name. Lesson from the first run: replace inside
+  string VALUES, never on serialised JSON text, where `\n` hides a name
+  behind a letter.
+- **Trap found on the way:** the demo profile's `preferred_language` had
+  flipped to `en` (the app writes the UI language back to the profile on
+  every language change while signed in, so a login with an English UI
+  re-labels the persona). Export and PDF render key off that column; both
+  came out English until it was set back to `nl`. Check it before any
+  re-freeze.
+- Fixture `marcel.nl.json` + `marcel.nl.curation.json` (same message ids),
+  PDFs `public/demo/cairnly-demo-marcel-nl.pdf` and the partner template
+  re-rendered; persona id `marcel` in `loadFixture.ts`, tests and both demo
+  locale files. Shared demo copy is now gender-neutral (`{{name}}`, "het
+  rapport"), so a persona of either gender reads right; only the
+  per-persona annotations and taglines carry pronouns.

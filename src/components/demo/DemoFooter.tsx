@@ -121,10 +121,10 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
           className="inline-flex items-center gap-2 text-[16px] font-bold text-[#1F8282] hover:underline underline-offset-4"
         >
           <LayoutDashboard size={18} strokeWidth={2.4} />
-          {t('footer.dashboard')}
+          {t('footer.dashboard', { name: firstName })}
           <ArrowRight size={16} strokeWidth={2.4} />
         </Link>
-        <p className="mt-1.5 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('footer.dashboardNote')}</p>
+        <p className="mt-1.5 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('footer.dashboardNote', { name: firstName })}</p>
       </div>
       )}
 

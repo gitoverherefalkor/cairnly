@@ -75,7 +75,7 @@ with Marloes is the point: a visitor should see themselves in one of them.
 
 Generate exactly as Marloes was:
 
-- Copy `scripts/demo-marloes-payload.mjs`. Its choice-resolution approach is the
+- Copy `scripts/demo-marcel-payload.mjs (was demo-marloes-payload.mjs)`. Its choice-resolution approach is the
   important part: multiple-choice answers are written as short SUBSTRINGS and
   resolved against the live `questions.config.choices` at build time, failing
   loudly on a miss or an ambiguity. Do not hand-transcribe option strings — they

@@ -98,7 +98,7 @@ const STATIC_ROUTES = [
     priority: '0.5',
   },
   // Public product demo: a frozen replay of a real coaching session, one
-  // persona per site language (Marloes for Dutch, Emma for English). The
+  // persona per site language (Marcel for Dutch, Emma for English). The
   // static shell carries the Dutch copy like the rest of the site (matching
   // public/locales/nl/demo.json); the rendered head follows the visitor.
   {
