@@ -519,3 +519,61 @@ payload, chat, sections (both languages), Keeps and the coach's memory.
   locale files. Shared demo copy is now gender-neutral (`{{name}}`, "het
   rapport"), so a persona of either gender reads right; only the
   per-persona annotations and taglines carry pronouns.
+
+## Status (2026-09-03, evening): the survey demo at /demo/survey
+
+The fourth demo page: the first screens of the assessment, so a visitor sees
+where the report's raw material comes from before reading the conversation.
+
+Three questions, picked so each one visibly pays off in the replay (the
+selection criterion, not "impressive" versus "substantive"):
+
+| Beat | What | Why this one |
+|---|---|---|
+| 0 | `PreSurveyUpload` with a file already read | It fills the roles the first question rates. Frames the page: the CV gives the facts, the questions get what a CV cannot know |
+| 1 | `career_happiness` (slider + why, per role) | Both rich and substantive; the report's central insight is derived from it (Marcel 8/6/4, Emma 5/7/…) |
+| 2 | `ranking` (8 career values) | The most tactile control in the product, ten seconds of work |
+| 3 | schedule + `non_negotiable_rider` | Both personas ticked it; shows a hard constraint the scoring respects. Chosen over the salary question, which invites a price discussion |
+
+Deliberately not shown: `career_history` (data entry; it is the résumé
+step's payoff instead), `skills_achievements` (five fields, too long for a
+teaser, though Marcel's Praktijkopleider certificate is the hinge of his
+dream-job payoff), the 14-option "tendencies" multi-select (a wall of
+checkboxes as a first impression).
+
+How it is built:
+- `scripts/demo-export-survey.mjs` freezes the three question rows (as the
+  database holds them: English label/choices + translations), the
+  `career_history` answer as context, both personas' answers, the résumé
+  file name, and the message id each answer paid off in. It verifies those
+  ids against the committed transcripts, so a re-export after a new
+  walkthrough fails loudly.
+- `src/demo/survey.ts` resolves a row per language exactly as `useSurvey`
+  does; `src/pages/DemoSurvey.tsx` renders the REAL `QuestionRenderer` with
+  local state. Nothing is submitted; the only network call is the
+  first-party page-view beacon every demo page fires.
+- `PreSurveyUpload` gained one optional prop, `demoPreset`: renders the
+  processed state for a frozen file, embedded (no full-screen canvas, no
+  wordmark), with every upload path inert and no localStorage write.
+- `/demo` learned `?focus=<messageId>`, and the survey's payoff links carry
+  `persona` too — the id only exists in one transcript, and a first-time
+  visitor has no stored language yet.
+
+Two product bugs found while building it, both fixed here:
+- The `career_happiness` role cards used `bg-gray-50`, which `index.css`
+  maps to the teal-navy page background under the locked dark palette while
+  the grey label text stays dark: the role labels sat at **1.08:1** contrast
+  in the live assessment (measured). Now an explicit cream surface; worst
+  case in the card is 5.5:1.
+- `Question['config']` was missing `linkedQuestionId`, which the data
+  carries and `QuestionRenderer` reads.
+
+⚠️ **The build's typecheck gate is a no-op.** `npm run build` runs
+`tsc --noEmit` at the repo root, where `tsconfig.json` has `"files": []` and
+only project references, so it checks nothing (verified with a deliberate
+undefined identifier: exit 0). The real command is
+`npx tsc -p tsconfig.app.json --noEmit`, which currently reports errors in
+six pre-existing files (ChapterFeedbackModal, QuestionRenderer, Chat,
+Profile, useReportSections, AccessCodeVerifier) — all lucide icon-prop
+typings and similar, none of them new. Making the gate real means fixing
+those six first, so it is left as a decision rather than changed silently.
