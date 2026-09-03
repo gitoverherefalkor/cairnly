@@ -5,6 +5,17 @@ later the same day after the walkthrough was completed and several chat
 features shipped. This document is self-contained — execute from here, no need
 for the original conversation.**
 
+## Status (2026-09-03, afternoon): Phase 4 (the job search) is built
+
+`/demo/jobs` renders the persona's job search through the REAL `JobsResults`
+and `JobsSavedKanban` from one frozen search run per persona, linked from the
+demo dashboard (Jobs tile unlocked + nudge). Persona and language are
+decoupled now: `?persona=emma|marcel` on any demo page overrides the language
+pick, and every link between the demo pages carries `?p=` and `?persona=`
+along (`src/demo/links.ts`). Details, the fixture additions, the additive
+component props and the one open point (Marcel's thin result) are in
+`docs/handoff/demo-toolkit-plan.md`, status block at the top.
+
 ## Status (2026-09-03): Emma re-recording prepared
 
 Sjoerd asked for a fresh Emma walkthrough (chat only, same report), with the

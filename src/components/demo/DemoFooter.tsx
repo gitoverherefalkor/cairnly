@@ -1,9 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, Download, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { demoPdfPath, DEMO_DASHBOARD_ROUTE, DEMO_PARTNER_TEMPLATE_PDF_PATH } from '@/demo/constants';
 import type { DemoPersonaId } from '@/demo/loadFixture';
+import { demoLink } from '@/demo/links';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { trackCtaClick } from '@/lib/analytics';
 
@@ -32,6 +33,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
   showDashboardLink = true,
 }) => {
   const { t } = useTranslation('demo');
+  const location = useLocation();
   const partner = audience === 'partner';
 
   return (
@@ -111,12 +113,12 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
       </div>
 
       {/* Phase 3: the same persona's finished dashboard, read-only from the
-          same fixture. The partner flag travels along so the CTAs there keep
-          pointing at the pilot call. */}
+          same fixture. The partner tag and the persona travel along so the
+          CTAs there keep pointing at the pilot call and the same session. */}
       {showDashboardLink && (
       <div className="mt-7 rounded-[16px] border px-5 py-4" style={{ borderColor: 'rgba(31,130,130,0.35)', background: 'rgba(31,130,130,0.06)' }}>
         <Link
-          to={`${DEMO_DASHBOARD_ROUTE}${partner ? '?p=partners' : ''}`}
+          to={demoLink(DEMO_DASHBOARD_ROUTE, location.search)}
           onClick={() => trackCtaClick('demo_dashboard')}
           className="inline-flex items-center gap-2 text-[16px] font-bold text-[#1F8282] hover:underline underline-offset-4"
         >

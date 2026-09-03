@@ -19,6 +19,7 @@ import { DemoWelcome } from '@/components/demo/DemoWelcome';
 import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
+import { readPersonaParam } from '@/demo/links';
 import { sectionIndexByMessage } from '@/demo/chapters';
 import { DEMO_ROUTE } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
@@ -52,7 +53,11 @@ const Demo: React.FC = () => {
     ? 'partner'
     : 'customer';
 
-  const choice = useMemo(() => chooseFixture(i18n.language), [i18n.language]);
+  // Persona: the language pick, unless the homepage sent ?persona=.
+  const choice = useMemo(
+    () => chooseFixture(i18n.language, readPersonaParam(location.search)),
+    [i18n.language, location.search],
+  );
   const [fixture, setFixture] = useState<DemoFixture | null>(null);
   useEffect(() => {
     let alive = true;
@@ -291,7 +296,7 @@ const Demo: React.FC = () => {
                   className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"
                   style={{ background: 'rgba(212,160,36,0.12)', color: '#122E3B' }}
                 >
-                  {t('fallback.otherLanguage')}
+                  {t(`personas.${choice.personaId}.fallback`)}
                 </p>
               )}
             </section>

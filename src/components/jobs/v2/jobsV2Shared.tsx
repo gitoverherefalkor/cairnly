@@ -251,3 +251,12 @@ const HistogramKey: React.FC<{ color: string; count: number }> = ({ color, count
     </span>
   </div>
 );
+
+// How the "View & apply" links behave. The signed-in page uses the defaults;
+// the public demo asks for rel="nofollow noopener" (frozen listings in a
+// public page should not pass link equity) and counts the click as a CTA.
+export interface ApplyLinkOptions {
+  rel: string;
+  onClick?: () => void;
+}
+export const DEFAULT_APPLY_LINK: ApplyLinkOptions = { rel: 'noopener noreferrer' };

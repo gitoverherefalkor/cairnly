@@ -111,6 +111,13 @@ interface DashboardV4Props {
   /** Saved coach replies to show instead of fetching saved_chat_responses
    *  (the demo has no session; the rows come from the fixture). */
   savedResponses?: SavedChatResponse[];
+  /** Pulse one toolkit step (the teal ring the chat's voice Settings hint
+   *  uses) until it is first clicked. The public demo nudges visitors to
+   *  the one tool it has switched on. */
+  pulseStepKey?: 'jobs' | 'resume' | 'cover-letter';
+  /** One line rendered directly above the toolkit (the demo's explainer
+   *  that the job search is switched on). */
+  toolkitBanner?: React.ReactNode;
 }
 
 /** Download-the-PDF action, sitting beside the full-report header.
@@ -311,6 +318,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   pdfLoading = false,
   nav,
   savedResponses,
+  pulseStepKey,
+  toolkitBanner,
 }) => {
   const { t, i18n } = useTranslation('dashboard');
   // Language for report prose/titles: after login this converges with
@@ -787,10 +796,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
         {/* ─── Unlock toolkit ─── */}
         <div ref={toolkitRef} style={{ scrollMarginTop: 16 }}>
+          {toolkitBanner}
           <UnlockToolkit
             referralCode={referralCode}
             referralCount={referralCount}
             ladder={ladder}
+            pulseStepKey={pulseStepKey}
             onInvite={onInvite}
             onNavigate={onNavigate}
           />
@@ -1695,7 +1706,8 @@ const UnlockToolkit: React.FC<{
   ladder: ResolvedUnlockStep[];
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ referralCode, referralCount, ladder, onInvite, onNavigate }) => {
+  pulseStepKey?: 'jobs' | 'resume' | 'cover-letter';
+}> = ({ referralCode, referralCount, ladder, onInvite, onNavigate, pulseStepKey }) => {
   const { t } = useTranslation('dashboard');
   const earned = Math.min(referralCount, 6);
   const fullyRefunded = referralCount >= 6;
@@ -1892,6 +1904,7 @@ const UnlockToolkit: React.FC<{
         <LadderRow
           label={t('v4.toolkit.rowTools', { defaultValue: 'Tools' })}
           items={ladder.slice(0, 3)}
+          pulseStepKey={pulseStepKey}
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
@@ -1914,7 +1927,8 @@ const LadderRow: React.FC<{
   items: ResolvedUnlockStep[];
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ label, items, onInvite, onNavigate }) => (
+  pulseStepKey?: 'jobs' | 'resume' | 'cover-letter';
+}> = ({ label, items, onInvite, onNavigate, pulseStepKey }) => (
   <div>
     <div
       style={{
@@ -1934,7 +1948,12 @@ const LadderRow: React.FC<{
       {items.map((item, i) => (
         <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
           <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
-            <StepCard item={item} onInvite={onInvite} onNavigate={onNavigate} />
+            <StepCard
+              item={item}
+              onInvite={onInvite}
+              onNavigate={onNavigate}
+              pulse={item.step.kind === 'tool' && item.step.featureKey === pulseStepKey}
+            />
           </div>
           {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} />}
         </React.Fragment>
@@ -1966,9 +1985,13 @@ const StepCard: React.FC<{
   item: ResolvedUnlockStep;
   onInvite: () => void;
   onNavigate: (route: string) => void;
-}> = ({ item, onInvite, onNavigate }) => {
+  // Teal attention ring until the card is first clicked (demo nudge).
+  pulse?: boolean;
+}> = ({ item, onInvite, onNavigate, pulse = false }) => {
   const { t } = useTranslation('dashboard');
   const { step, unlocked } = item;
+  const [pulseSeen, setPulseSeen] = useState(false);
+  const pulsing = pulse && !pulseSeen;
   const isTool = step.kind === 'tool';
   const builtYet = isTool ? step.builtYet : true;
   const route = isTool ? step.route : undefined;
@@ -2066,6 +2089,8 @@ const StepCard: React.FC<{
   return (
     <article
       ref={cardRef}
+      className={pulsing ? 'animate-mic-hint-pulse' : undefined}
+      onClickCapture={() => setPulseSeen(true)}
       style={{
         background: PALETTE.cream,
         borderRadius: 14,

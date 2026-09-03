@@ -11,10 +11,12 @@
   },
   "personas": {
     "marcel": {
-      "tagline": "Marcel, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people he helps."
+      "tagline": "Marcel, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people he helps.",
+      "fallback": "This session was held in Dutch: Marcel is a Dutch candidate. The buttons and labels follow your language, the conversation stays in Dutch."
     },
     "emma": {
-      "tagline": "Emma, 38, senior marketing manager at a London fintech. Can do the job with her eyes closed, and that is exactly the problem."
+      "tagline": "Emma, 38, senior marketing manager at a London fintech. Can do the job with her eyes closed, and that is exactly the problem.",
+      "fallback": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English."
     }
   },
   "intro": {
@@ -32,9 +34,6 @@
   "legend": {
     "title": "Watch for these moments",
     "hint": "Click to jump there."
-  },
-  "fallback": {
-    "otherLanguage": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English."
   },
   "annotations": {
     "marcel": {
@@ -161,7 +160,7 @@
       "eyebrow": "Demo, read-only",
       "title": "This is where {{name}} landed after the session",
       "body": "{{name}}'s dashboard, exactly as {{name}} sees it: the top three matches with the comparison radar, the career map, the personality radar, the full report chapter by chapter, and the answers she kept from the chat. Open any card or section; nothing here is a mock-up.",
-      "toolsNote": "The job search, résumé and cover-letter tools are switched off in this demo: they run live searches and AI writing for real users only. Everything else works."
+      "toolsNote": "The job search is switched on in this demo: one real search, frozen, with the listings it found for {{name}}. The résumé and cover-letter tools stay off: they run AI writing for real users only. Everything else works."
     },
     "tools": {
       "title": "Switched off in the demo",
@@ -173,11 +172,19 @@
       "resume": "the résumé tailor",
       "coverLetter": "the cover-letter writer",
       "generic": "a signed-in tool",
-      "close": "Back to the dashboard"
+      "close": "Back to the dashboard",
+      "jobsSearch": "a new job search",
+      "inviteNote": "The toolkit you see is the demo's: one referral counted, which is what unlocked the job search for {{name}}. Everything else stays locked here."
     },
     "footer": {
       "chat": "Read the conversation that led here",
-      "chatNote": "The full coaching session, with the moments that changed this report."
+      "chatNote": "The full coaching session, with the moments that changed this report.",
+      "jobs": "See what the job search found for {{name}}",
+      "jobsNote": "Real listings, scored against the report, with the saved-jobs pipeline."
+    },
+    "jobsNudge": {
+      "body": "{{name}} unlocked the job search. Open it to see what it found.",
+      "cta": "Open the job search"
     }
   },
   "trust": {
@@ -187,5 +194,27 @@
     "securityDetail": "Encrypted and access-controlled",
     "delete": "One-click delete",
     "deleteDetail": "Your data is yours"
+  },
+  "jobsDemo": {
+    "seo": {
+      "title": "Demo: the job search after the coaching session",
+      "description": "Real job listings the search found for a fictional candidate, scored against the report, with the pipeline of saved jobs. Real output, read-only."
+    },
+    "nav": {
+      "label": "Demo: the job search",
+      "back": "Back to the dashboard"
+    },
+    "intro": {
+      "eyebrow": "Demo, read-only",
+      "title": "What the job search found for {{name}}",
+      "body": "One real search, run on {{date}} for {{name}}'s top match, {{career}}. The listings come from LinkedIn; the AI scores each one against the report and says why, so the strong matches sit on top and the weaker ones fold away below.",
+      "pipeline": "Save a job with the heart and open the pipeline: the saved jobs sit on a board you drag from Saved to Applied to Interviewing. {{name}} has three on it. What you save or move here stays in this tab only; a reload puts the demo back.",
+      "ageNote": "The listings were found on {{date}} and are not refreshed, so some will have closed by now. For a real user a new search runs live, whenever they want.",
+      "englishNote": "The job search page is in English for now, and listings come back in the language of the search."
+    },
+    "footer": {
+      "dashboard": "Back to {{name}}'s dashboard",
+      "dashboardNote": "The matches this search was run for, the career map, the full report."
+    }
   }
 }

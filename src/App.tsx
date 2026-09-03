@@ -67,6 +67,7 @@ const PartnerSampleReport = lazyWithRetry(() => import("./pages/partners/Partner
 // real chat components. No auth, no n8n. See docs/handoff/demo-replay-plan.md.
 const Demo = lazyWithRetry(() => import("./pages/Demo"));
 const DemoDashboard = lazyWithRetry(() => import("./pages/DemoDashboard"));
+const DemoJobs = lazyWithRetry(() => import("./pages/DemoJobs"));
 // Note: Payment is intentionally NOT lazy-loaded — see eager imports above.
 
 // Loading fallback shown while lazy chunks are downloading
@@ -195,6 +196,7 @@ const App = () => {
               <Route path="/partners/voorbeeldrapport" element={<PartnerSampleReport />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/dashboard" element={<DemoDashboard />} />
+              <Route path="/demo/jobs" element={<DemoJobs />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

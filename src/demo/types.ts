@@ -1,6 +1,8 @@
 // Shapes of the frozen demo fixtures under src/demo/fixtures/, written by
 // scripts/demo-export-fixture.mjs. See docs/handoff/demo-replay-plan.md.
 import type { ReportSection } from '@/hooks/useReportSections';
+import type { JobSearchResult } from '@/hooks/useJobSearch';
+import type { SavedJob } from '@/hooks/useSavedJobs';
 
 export interface DemoMessage {
   id: string;
@@ -48,7 +50,27 @@ export interface DemoFixture {
   savedMessageIds: string[];
   // The Keep rows themselves, for the read-only dashboard replay.
   savedResponses?: DemoSavedResponse[];
+  // Phase 4 (docs/handoff/demo-toolkit-plan.md): one REAL job-search run per
+  // persona, frozen. Results are never stored server-side (the 24h cache
+  // expires), so this fixture is the only copy: demo-export-fixture.mjs
+  // carries the key over on a re-freeze. Written by demo-run-job-search.mjs.
+  jobs?: DemoJobSearchResult[];
+  // The persona's saved_jobs rows (the kanban), exported like savedResponses.
+  savedJobs?: DemoSavedJob[];
 }
+
+// Structurally the JobSearchResult the Jobs page holds in state, plus when
+// and how the search ran (the /demo/jobs intro prints the date; listings age).
+export interface DemoJobSearchResult extends JobSearchResult {
+  searchedAt?: string;
+  searchOptions?: {
+    countryCodes: string[];
+    workArrangement: string;
+    jobCommitment: string;
+  };
+}
+
+export type DemoSavedJob = SavedJob;
 
 export type DemoAnnotationPlacement = 'top' | 'bottom';
 

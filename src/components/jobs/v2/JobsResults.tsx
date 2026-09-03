@@ -23,6 +23,8 @@ import {
   TIER_LABEL,
   matchTone,
   postedAgo as fmtPostedAgo,
+  DEFAULT_APPLY_LINK,
+  type ApplyLinkOptions,
   type JobsTier,
 } from './jobsV2Shared';
 
@@ -33,6 +35,12 @@ export interface JobsResultsCareer {
 }
 
 interface JobsResultsProps {
+  /** Replaces the signed-in app nav. The public demo (/demo/jobs) renders
+   *  this screen read-only from a frozen fixture and brings its own top bar
+   *  (no profile, no sign-out), as DashboardV4.nav does. */
+  nav?: React.ReactNode;
+  /** rel + click tracking for the apply links (demo). Defaults to the signed-in behaviour. */
+  applyLink?: ApplyLinkOptions;
   firstName: string;
   reportId: string;
   results: JobSearchResult[];
@@ -56,6 +64,8 @@ interface JobsResultsProps {
 }
 
 export const JobsResults: React.FC<JobsResultsProps> = ({
+  nav,
+  applyLink = DEFAULT_APPLY_LINK,
   firstName,
   reportId,
   results,
@@ -88,6 +98,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
 
   return (
     <LakeBackground intensity="normal">
+      {nav ?? (
       <DashboardAppNav
         firstName={firstName}
         pageLabel="Find Open Roles"
@@ -96,6 +107,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
         onBack={onBack}
         backLabel="Back to dashboard"
       />
+      )}
 
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: '36px 32px 80px' }}>
         {/* Summary bar */}
@@ -256,6 +268,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
                 onInvite={onInvite}
                 onGenerateCoverLetter={(job) => setCoverLetterJob(job)}
                 onTailorResume={onTailorResume}
+                applyLink={applyLink}
               />
             );
           }
@@ -295,6 +308,7 @@ const CareerGrouping: React.FC<{
   onInvite: () => void;
   onGenerateCoverLetter: (job: JobListing) => void;
   onTailorResume: (careerTitle: string) => void;
+  applyLink: ApplyLinkOptions;
 }> = ({
   career,
   careerTitle,
@@ -307,6 +321,7 @@ const CareerGrouping: React.FC<{
   onInvite,
   onGenerateCoverLetter,
   onTailorResume,
+  applyLink,
 }) => {
   // Score buckets (backend already drops 0-2):
   //   6+    → main results (strong matches)
@@ -397,6 +412,7 @@ const CareerGrouping: React.FC<{
                   saveIfNeeded();
                   onTailorResume(careerTitle);
                 }}
+                applyLink={applyLink}
               />
             );
           })}
@@ -453,6 +469,7 @@ const CareerGrouping: React.FC<{
                       saveIfNeeded();
                       onTailorResume(careerTitle);
                     }}
+                    applyLink={applyLink}
                   />
                 );
               })}
@@ -560,6 +577,7 @@ const JobCardCream: React.FC<{
   // feature is unlocked. Should send them to /custom-resume with the originating
   // career pre-selected so they don't have to re-pick it.
   onTailorResume: () => void;
+  applyLink: ApplyLinkOptions;
 }> = ({
   job,
   saved,
@@ -570,6 +588,7 @@ const JobCardCream: React.FC<{
   onLockedAction,
   onGenerateCoverLetter,
   onTailorResume,
+  applyLink,
 }) => {
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
@@ -756,7 +775,8 @@ const JobCardCream: React.FC<{
         <a
           href={job.apply_url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel={applyLink.rel}
+          onClick={applyLink.onClick}
           style={{
             background: PALETTE.teal,
             color: '#fff',

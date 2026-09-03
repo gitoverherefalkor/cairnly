@@ -22,9 +22,15 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { SavedJob, SavedJobStatus } from '@/hooks/useSavedJobs';
-import { JEyebrow, matchTone } from './jobsV2Shared';
+import { DEFAULT_APPLY_LINK, JEyebrow, matchTone, type ApplyLinkOptions } from './jobsV2Shared';
 
 interface JobsSavedKanbanProps {
+  /** Replaces the signed-in app nav. The public demo (/demo/jobs) renders
+   *  this screen read-only from a frozen fixture and brings its own top bar
+   *  (no profile, no sign-out), as DashboardV4.nav does. */
+  nav?: React.ReactNode;
+  /** rel + click tracking for the apply links (demo). Defaults to the signed-in behaviour. */
+  applyLink?: ApplyLinkOptions;
   firstName: string;
   savedJobs: SavedJob[];
   resumeUnlocked: boolean;
@@ -63,6 +69,8 @@ const COLUMNS: ColumnDef[] = [
 ];
 
 export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
+  nav,
+  applyLink = DEFAULT_APPLY_LINK,
   firstName,
   savedJobs,
   resumeUnlocked,
@@ -96,6 +104,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
 
   return (
     <LakeBackground intensity="normal">
+      {nav ?? (
       <DashboardAppNav
         firstName={firstName}
         pageLabel="Your pipeline"
@@ -104,6 +113,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
         onBack={onBack}
         backLabel="Back to dashboard"
       />
+      )}
 
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: '36px 32px 80px' }}>
         <div
@@ -164,6 +174,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
                 onOpenResumes={onOpenResumes}
                 onCreateLetter={onCreateLetter}
                 onViewLetter={onViewLetter}
+                applyLink={applyLink}
               />
             ))}
           </div>
@@ -185,6 +196,7 @@ const KanbanColumn: React.FC<{
   onOpenResumes: (careerTitle: string) => void;
   onCreateLetter: (job: SavedJob) => void;
   onViewLetter: (job: SavedJob, coverLetterId: string) => void;
+  applyLink: ApplyLinkOptions;
 }> = ({
   col,
   jobs,
@@ -196,6 +208,7 @@ const KanbanColumn: React.FC<{
   onOpenResumes,
   onCreateLetter,
   onViewLetter,
+  applyLink,
 }) => {
   const { isOver, setNodeRef } = useDroppable({ id: col.id });
   return (
@@ -266,6 +279,7 @@ const KanbanColumn: React.FC<{
               onOpenResumes={onOpenResumes}
               onCreateLetter={onCreateLetter}
               onViewLetter={onViewLetter}
+              applyLink={applyLink}
             />
           );
         })}
@@ -305,6 +319,7 @@ const KanbanJobCard: React.FC<{
   onOpenResumes: (careerTitle: string) => void;
   onCreateLetter: (job: SavedJob) => void;
   onViewLetter: (job: SavedJob, coverLetterId: string) => void;
+  applyLink: ApplyLinkOptions;
 }> = ({
   job,
   resumeUnlocked,
@@ -315,6 +330,7 @@ const KanbanJobCard: React.FC<{
   onOpenResumes,
   onCreateLetter,
   onViewLetter,
+  applyLink,
 }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: job.external_job_id });
   const tone = matchTone(job.match_score, 'dark');
@@ -394,7 +410,8 @@ const KanbanJobCard: React.FC<{
             <a
               href={job.apply_url}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={applyLink.rel}
+              onClick={applyLink.onClick}
               style={{
                 background: PALETTE.teal,
                 color: '#fff',

@@ -11,10 +11,12 @@
   },
   "personas": {
     "marcel": {
-      "tagline": "Marcel, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die hij helpt."
+      "tagline": "Marcel, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die hij helpt.",
+      "fallback": "Deze sessie was in het Nederlands: Marcel is een Nederlandse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Nederlands."
     },
     "emma": {
-      "tagline": "Emma, 38, senior marketingmanager bij een Londense fintech. Kan haar werk met haar ogen dicht, en dat is precies het probleem."
+      "tagline": "Emma, 38, senior marketingmanager bij een Londense fintech. Kan haar werk met haar ogen dicht, en dat is precies het probleem.",
+      "fallback": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels."
     }
   },
   "intro": {
@@ -32,9 +34,6 @@
   "legend": {
     "title": "Let op deze momenten",
     "hint": "Klik om ernaartoe te springen."
-  },
-  "fallback": {
-    "otherLanguage": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels."
   },
   "annotations": {
     "marcel": {
@@ -161,7 +160,7 @@
       "eyebrow": "Demo, alleen-lezen",
       "title": "Hier kwam {{name}} uit na de sessie",
       "body": "Het dashboard van {{name}}, precies zoals {{name}} het ziet: de drie topmatches met de vergelijkingsradar, de carrièrekaart, de persoonlijkheidsradar, het volledige rapport per hoofdstuk en de antwoorden die ze uit de chat bewaarde. Open elke kaart of sectie; niets hier is een mock-up.",
-      "toolsNote": "De vacaturezoeker, de cv-tool en de sollicitatiebrieven staan in deze demo uit: die doen live zoekopdrachten en AI-schrijfwerk, alleen voor echte gebruikers. Al het andere werkt."
+      "toolsNote": "De vacaturezoeker staat in deze demo aan: één echte zoekopdracht, bevroren, met de vacatures die hij voor {{name}} vond. De cv-tool en de sollicitatiebrieven staan uit: die doen AI-schrijfwerk, alleen voor echte gebruikers. Al het andere werkt."
     },
     "tools": {
       "title": "Uitgeschakeld in de demo",
@@ -173,11 +172,19 @@
       "resume": "de cv-tool",
       "coverLetter": "de sollicitatiebriefschrijver",
       "generic": "een tool voor ingelogde gebruikers",
-      "close": "Terug naar het dashboard"
+      "close": "Terug naar het dashboard",
+      "jobsSearch": "een nieuwe vacaturezoekopdracht",
+      "inviteNote": "De toolkit die je ziet is die van de demo: één uitnodiging geteld, en dat speelde de vacaturezoeker voor {{name}} vrij. Al het andere blijft hier op slot."
     },
     "footer": {
       "chat": "Lees het gesprek dat hiertoe leidde",
-      "chatNote": "De volledige coachsessie, met de momenten die dit rapport veranderden."
+      "chatNote": "De volledige coachsessie, met de momenten die dit rapport veranderden.",
+      "jobs": "Bekijk wat de vacaturezoeker voor {{name}} vond",
+      "jobsNote": "Echte vacatures, gescoord op het rapport, met de pijplijn van bewaarde vacatures."
+    },
+    "jobsNudge": {
+      "body": "{{name}} heeft de vacaturezoeker vrijgespeeld. Open hem om te zien wat hij vond.",
+      "cta": "Open de vacaturezoeker"
     }
   },
   "trust": {
@@ -187,5 +194,27 @@
     "securityDetail": "Versleuteld, strikte toegang",
     "delete": "One-click delete",
     "deleteDetail": "Je data is van jou"
+  },
+  "jobsDemo": {
+    "seo": {
+      "title": "Demo: de vacaturezoeker na de coachsessie",
+      "description": "Echte vacatures die de zoeker voor een fictieve kandidaat vond, gescoord op het rapport, met de pijplijn van bewaarde vacatures. Echte output, alleen-lezen."
+    },
+    "nav": {
+      "label": "Demo: de vacaturezoeker",
+      "back": "Terug naar het dashboard"
+    },
+    "intro": {
+      "eyebrow": "Demo, alleen-lezen",
+      "title": "Wat de vacaturezoeker voor {{name}} vond",
+      "body": "Eén echte zoekopdracht, gedaan op {{date}} voor de beste match van {{name}}, {{career}}. De vacatures komen van LinkedIn; de AI scoort elke vacature op het rapport en zegt waarom, zodat de sterke matches bovenaan staan en de zwakkere eronder ingeklapt zijn.",
+      "pipeline": "Bewaar een vacature met het hartje en open de pijplijn: bewaarde vacatures staan op een bord dat je van Bewaard naar Gesolliciteerd naar Gesprek sleept. {{name}} heeft er drie op staan. Wat je hier bewaart of verplaatst blijft alleen in dit tabblad; na herladen staat de demo weer terug.",
+      "ageNote": "De vacatures zijn gevonden op {{date}} en worden niet ververst, dus een deel is inmiddels gesloten. Voor een echte gebruiker draait een nieuwe zoekopdracht live, wanneer die maar wil.",
+      "englishNote": "De vacaturepagina is voorlopig Engelstalig, en vacatures komen terug in de taal van de zoekopdracht."
+    },
+    "footer": {
+      "dashboard": "Terug naar het dashboard van {{name}}",
+      "dashboardNote": "De matches waarvoor deze zoekopdracht liep, de carrièrekaart, het volledige rapport."
+    }
   }
 }

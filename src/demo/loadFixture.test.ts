@@ -113,6 +113,28 @@ describe.each(PERSONAS)('demo fixture ($id, $lang)', ({ id, lang, fixture, curat
     expect(localePersona('en', id)?.tagline, `en personas.${id}.tagline`).toBeTruthy();
   });
 
+  it('carries one frozen job search and a kanban for /demo/jobs (phase 4)', () => {
+    const done = (fixture.jobs ?? []).filter((r) => r.status === 'done');
+    expect(done.length, 'at least one completed search').toBeGreaterThan(0);
+    expect(done[0].jobs.length).toBeGreaterThanOrEqual(5);
+    for (const r of done) {
+      expect(r.careerTitle && r.sectionType && r.searchedAt).toBeTruthy();
+      // The searched career is one of the report's top three, by title.
+      expect(fixture.sections.some((s) => (s.title ?? '').includes(r.careerTitle))).toBe(true);
+      for (const j of r.jobs) {
+        expect(j.id && j.title && j.company && j.apply_url).toBeTruthy();
+        // LinkedIn scrape-session tokens are stripped before the fixture is committed.
+        expect(j.apply_url).not.toMatch(/trackingId|refId/);
+      }
+    }
+    const ids = new Set(done.flatMap((r) => r.jobs.map((j) => j.id)));
+    const saved = fixture.savedJobs ?? [];
+    expect(saved.length).toBeGreaterThanOrEqual(2);
+    for (const s of saved) expect(ids.has(s.external_job_id), `saved ${s.external_job_id}`).toBe(true);
+    expect(saved.some((s) => s.status === 'applied')).toBe(true);
+    expect(saved.some((s) => s.status === 'saved')).toBe(true);
+  });
+
   it('applyCuration drops hidden turns and nothing else', () => {
     const [first, second] = fixture.messages;
     const curated = applyCuration(fixture, { hiddenMessageIds: [second.id] });
@@ -120,6 +142,35 @@ describe.each(PERSONAS)('demo fixture ($id, $lang)', ({ id, lang, fixture, curat
     expect(curated.messages[0].id).toBe(first.id);
     expect(curated.messages.some((m) => m.id === second.id)).toBe(false);
     expect(applyCuration(fixture, {})).toBe(fixture);
+  });
+});
+
+describe('demo locale files', () => {
+  const demoLocale = (lang: string) =>
+    JSON.parse(readFileSync(resolve(process.cwd(), `public/locales/${lang}/demo.json`), 'utf8'));
+  const leaves = (obj: Record<string, unknown>, prefix = ''): string[] =>
+    Object.entries(obj).flatMap(([k, v]) =>
+      v && typeof v === 'object' ? leaves(v as Record<string, unknown>, `${prefix}${k}.`) : [`${prefix}${k}`],
+    );
+
+  it('carry the same keys in nl and en (a missing key renders as its path)', () => {
+    const en = leaves(demoLocale('en')).sort();
+    const nl = leaves(demoLocale('nl')).sort();
+    expect(nl).toEqual(en);
+  });
+
+  it('carry the jobs demo strings and the persona fallback notes', () => {
+    for (const lang of ['en', 'nl']) {
+      const d = demoLocale(lang);
+      for (const key of ['seo.title', 'nav.label', 'intro.title', 'intro.body', 'intro.pipeline', 'intro.ageNote', 'intro.englishNote', 'footer.dashboard']) {
+        const value = key.split('.').reduce((o: any, k) => o?.[k], d.jobsDemo);
+        expect(value, `${lang} jobsDemo.${key}`).toBeTruthy();
+      }
+      expect(d.dashboardDemo.jobsNudge?.body, `${lang} jobsNudge`).toBeTruthy();
+      expect(d.dashboardDemo.tools?.jobsSearch, `${lang} tools.jobsSearch`).toBeTruthy();
+      expect(d.dashboardDemo.tools?.inviteNote, `${lang} tools.inviteNote`).toBeTruthy();
+      for (const id of ['emma', 'marcel']) expect(d.personas[id].fallback, `${lang} personas.${id}.fallback`).toBeTruthy();
+    }
   });
 });
 
@@ -140,5 +191,16 @@ describe('chooseFixture', () => {
     expect(chooseFixture('de').language).toBe('en');
     expect(chooseFixture('nl').firstName).toBe('Marcel');
     expect(chooseFixture('en').firstName).toBe('Emma');
+  });
+
+  it('lets ?persona= override the language pick, with the fallback note when languages differ', () => {
+    expect(chooseFixture('nl', 'emma').personaId).toBe('emma');
+    expect(chooseFixture('nl', 'emma').isFallback).toBe(true);
+    expect(chooseFixture('en', 'marcel').personaId).toBe('marcel');
+    expect(chooseFixture('en', 'marcel').isFallback).toBe(true);
+    expect(chooseFixture('nl', 'marcel').isFallback).toBe(false);
+    // Unknown values fall back to the language pick.
+    expect(chooseFixture('nl', 'marloes').personaId).toBe('marcel');
+    expect(chooseFixture('en', null).personaId).toBe('emma');
   });
 });

@@ -58,9 +58,20 @@ export function personaForLanguage(lang: string | undefined): DemoPersonaId {
   return hit ?? 'emma';
 }
 
-export function chooseFixture(lang: string | undefined): DemoFixtureChoice {
+/** True for the persona ids the demo knows; anything else is ignored. */
+export function isDemoPersonaId(value: unknown): value is DemoPersonaId {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(PERSONAS, value);
+}
+
+/**
+ * The persona to show. `personaOverride` (the `?persona=` parameter the
+ * homepage entry points set) wins over the language pick, so a Dutch
+ * visitor can read Emma's session and an English one Marcel's; the
+ * fallback note then says the conversation is in the other language.
+ */
+export function chooseFixture(lang: string | undefined, personaOverride?: string | null): DemoFixtureChoice {
   const short = (lang || 'en').slice(0, 2).toLowerCase();
-  const personaId = personaForLanguage(short);
+  const personaId = isDemoPersonaId(personaOverride) ? personaOverride : personaForLanguage(short);
   const persona = PERSONAS[personaId];
   return {
     personaId,

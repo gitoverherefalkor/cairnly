@@ -5,6 +5,37 @@ from here. Read `docs/handoff/demo-replay-plan.md` first for the demo's
 locked decisions, its fixture mechanism and the traps; this document only
 adds to it.**
 
+## Status (2026-09-03): BUILT, on main
+
+Everything below is implemented. What landed, and where:
+
+| Piece | Where |
+|---|---|
+| Persona parameter | `chooseFixture(lang, personaOverride)` in `src/demo/loadFixture.ts`; `src/demo/links.ts` (`readPersonaParam`, `demoQuery`, `demoLink`) carries `?p=` and `?persona=` between the three demo pages (Demo, DemoDashboard, DemoJobs, DemoFooter all use it). The fallback note is per persona now: `personas.<id>.fallback` |
+| The two searches | `scripts/demo-run-job-search.mjs` (`--career=top_career_1` runs `search-jobs` with the Jobs page's payload; `--save=<ids> --applied=<id>` writes `saved_jobs` rows; `--list`). Run once per persona on 2026-09-03: Emma, Service Designer, GB, 14 listings (12 scored 6+); Marcel, Customer Service Trainer, NL, 15 listings (ONE scored 6+, the rest 3 to 5, see the note below). `remote_friendly` + `full_time`. LinkedIn tracking tokens stripped from `apply_url`; descriptions scanned for personal names (none) |
+| Fixture | `jobs: DemoJobSearchResult[]` (JobSearchResult + `searchedAt`, `searchOptions`) and `savedJobs: SavedJob[]` in both fixtures (`src/demo/types.ts`). Three saved rows per persona, one of them `applied`. `demo-export-fixture.mjs` exports `savedJobs` from the DB and CARRIES `jobs` over from the existing file |
+| Page | `src/pages/DemoJobs.tsx` at `/demo/jobs`; route in `App.tsx`, SEO entry in `seo-routes.mjs`, `DEMO_JOBS_ROUTE`; strings under `jobsDemo.*`. Opens on results; save heart, kanban drag and status changes are local state only |
+| Shared nav | `src/components/demo/DemoPageNav.tsx` (trust bar + top bar + honest label), used by the dashboard and jobs demos |
+| Additive component props | `JobsResults.nav` / `JobsSavedKanban.nav` (replace `DashboardAppNav`); `applyLink` on both (rel + click tracking, `DEFAULT_APPLY_LINK` keeps the signed-in behaviour); `DashboardV4.pulseStepKey` (teal `animate-mic-hint-pulse` ring on one toolkit step until first click) and `DashboardV4.toolkitBanner` |
+| Demo dashboard | jobs unlocked (`DEMO_REFERRAL_COUNT = 1`), banner + pulse, every `/jobs*` route → `/demo/jobs`; `DemoToolDialog` gained `jobsSearch` (the "Edit search" button) and an invite note (`tools.inviteNote`) that says the toolkit state is the demo's |
+| Tests | `loadFixture.test.ts`: both fixtures carry a completed search with 5+ listings, saved rows that exist in the results and one `applied`, no tracking tokens; nl and en demo locale files carry the same key set; `links.test.ts` |
+
+Verified in the browser on 2026-09-03: no request to `functions/v1/*`, `saved_jobs`
+or any Supabase host leaves `/demo/jobs`; save heart toggles locally; a kanban
+drag moves a card; the locked résumé button opens the dialog; the dashboard's
+Jobs step is unlocked and pulses, the banner and the per-career "Find open
+roles" land on `/demo/jobs` with the query carried; `?persona=` and `?lang=`
+combine (Dutch chrome around Emma's English listings, with the note).
+
+**Open point for Sjoerd: Marcel's result is thin.** The Dutch search scored
+one listing 6+ (JD.COM, 7/10) and fourteen at 3 to 5, so his results page
+shows one card and a collapsed "14 more roles scored 3-5" panel. Honest
+output, but a weak showcase. Options, each ONE extra WF8 run: search his
+second career (HR Advisor, Learning and Development) or third (Onboarding
+Specialist) instead or as well; or re-run the same career with
+`--arrangement=any` (on-site roles included; the Dutch market for this role
+is mostly on-site). Not done without a yes (cost discipline from step 1).
+
 ## What Sjoerd decided (do not relitigate)
 
 1. **Jobs only.** The job search is the one toolkit tool the demo showcases.

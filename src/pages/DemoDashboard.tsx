@@ -1,22 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Briefcase, Loader2 } from 'lucide-react';
 import '../components/landing/landing.css';
 import Seo from '@/components/Seo';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LandingFooter from '@/components/landing/LandingFooter';
-import { Button } from '@/components/ui/button';
 import { DashboardV4 } from '@/components/dashboard/v2/DashboardV4';
 import { REFERRAL_FEATURES, UNLOCK_LADDER } from '@/hooks/useReferralStatus';
 import { trackSampleView, trackCtaClick } from '@/lib/analytics';
-import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoFooter } from '@/components/demo/DemoFooter';
+import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoToolDialog, type DemoTool } from '@/components/demo/DemoToolDialog';
-import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import { applyCuration, chooseFixture } from '@/demo/loadFixture';
-import { DEMO_DASHBOARD_ROUTE, DEMO_ROUTE, demoPdfPath } from '@/demo/constants';
+import { demoLink, readPersonaParam } from '@/demo/links';
+import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE, DEMO_ROUTE, demoPdfPath } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
+
+// The toolkit as the demo shows it: the job search unlocked (one referral
+// counted, the state /demo/jobs is built on), the other two tools locked.
+const DEMO_REFERRAL_COUNT = 1;
 
 /**
  * /demo/dashboard — phase 3 of docs/handoff/demo-replay-plan.md: the persona's
@@ -25,10 +27,12 @@ import type { DemoFixture } from '@/demo/types';
  *
  * What is different from a signed-in dashboard, on purpose:
  *  - the app nav (profile, sign-out) is replaced by the demo's top bar;
- *  - every control that would run a paid tool or needs a session (job search,
- *    résumé tailor, cover letters, share-card generation, the invite flow)
- *    opens DemoToolDialog instead, which says what it does and points at the
- *    CTA. The referral toolkit renders fully locked, as for a new user;
+ *  - the job search is the one tool switched on (phase 4,
+ *    docs/handoff/demo-toolkit-plan.md): its tile is unlocked and pulses, a
+ *    one-line banner above the toolkit says why, and every route into /jobs
+ *    lands on /demo/jobs (frozen results). The résumé tailor, cover letters,
+ *    share-card generation and the invite flow open DemoToolDialog instead,
+ *    which says what they do and points at the CTA;
  *  - "Download PDF" serves the pre-rendered demo PDF (a real render of this
  *    report) instead of paying for a fresh Chromium render;
  *  - the saved coach replies come from the fixture rather than a query.
@@ -41,7 +45,10 @@ const DemoDashboard: React.FC = () => {
     ? 'partner'
     : 'customer';
 
-  const choice = useMemo(() => chooseFixture(i18n.language), [i18n.language]);
+  const choice = useMemo(
+    () => chooseFixture(i18n.language, readPersonaParam(location.search)),
+    [i18n.language, location.search],
+  );
   const [fixture, setFixture] = useState<DemoFixture | null>(null);
   useEffect(() => {
     let alive = true;
@@ -62,69 +69,70 @@ const DemoDashboard: React.FC = () => {
 
   const [tool, setTool] = useState<DemoTool | null>(null);
 
-  // Every in-app route the dashboard would navigate to is a signed-in tool.
+  const chatHref = demoLink(DEMO_ROUTE, location.search);
+  const jobsHref = demoLink(DEMO_JOBS_ROUTE, location.search);
+  const pdfHref = demoPdfPath(choice.personaId, choice.language);
+
+  // Every in-app route the dashboard would navigate to is a signed-in tool,
+  // except the job search: that one has a frozen twin at /demo/jobs.
   const handleNavigate = (route: string) => {
-    if (route.startsWith('/jobs?mode=saved')) setTool('coverLetter');
-    else if (route.startsWith('/jobs')) setTool('jobs');
-    else if (route.startsWith('/custom-resume')) setTool('resume');
+    if (route.startsWith('/jobs')) {
+      trackCtaClick('demo_dashboard_to_jobs');
+      navigate(jobsHref);
+    } else if (route.startsWith('/custom-resume')) setTool('resume');
     else setTool('generic');
   };
 
-  // Locked toolkit, as a fresh account sees it (no referrals yet).
-  const features = useMemo(() => REFERRAL_FEATURES.map((f) => ({ ...f, unlocked: false })), []);
-  const ladder = useMemo(() => UNLOCK_LADDER.map((step) => ({ step, unlocked: false })), []);
-
-  const onNavCta = () => {
-    if (audience === 'partner') window.open(CALENDLY_URL, '_blank', 'noopener');
-    else navigate('/payment');
-  };
-  const chatHref = `${DEMO_ROUTE}${audience === 'partner' ? '?p=partners' : ''}`;
-  const pdfHref = demoPdfPath(choice.personaId, choice.language);
+  const features = useMemo(
+    () => REFERRAL_FEATURES.map((f) => ({ ...f, unlocked: DEMO_REFERRAL_COUNT >= f.requiredReferrals })),
+    [],
+  );
+  const ladder = useMemo(
+    () => UNLOCK_LADDER.map((step) => ({ step, unlocked: DEMO_REFERRAL_COUNT >= step.requiredReferrals })),
+    [],
+  );
 
   const nav = (
-    <>
-    <DemoTrustBanner />
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="px-4 sm:px-6">
-        <div className="flex justify-between items-center py-2.5 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link to="/" className="flex items-center shrink-0">
-              <img src="/logos/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto" />
-            </Link>
-            <span className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy truncate">
-              <span className="h-4 w-px bg-gray-200" aria-hidden="true" />
-              {t('dashboardDemo.nav.label')}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <Link
-              to={chatHref}
-              className="hidden md:inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1F8282] hover:underline underline-offset-4 mr-2"
-            >
-              <ArrowLeft size={14} strokeWidth={2.4} />
-              {t('dashboardDemo.nav.back')}
-            </Link>
-            <LanguageSwitcher />
-            <Button
-              size="sm"
-              onClick={onNavCta}
-              className="bg-atlas-teal hover:bg-atlas-teal/90 text-white text-xs sm:text-sm"
-            >
-              {audience === 'partner' ? t('nav.ctaPartner') : t('nav.ctaCustomer')}
-            </Button>
-          </div>
-        </div>
-      </div>
-      {/* The honest label, always in view, as on the chat replay. */}
-      <div
-        className="px-4 sm:px-6 py-1.5 flex items-center justify-end gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
-        style={{ background: '#FDFBF2', color: '#122E3B', borderTop: '1px solid rgba(201,182,144,0.5)' }}
+    <DemoPageNav
+      audience={audience}
+      label={t('dashboardDemo.nav.label')}
+      backTo={chatHref}
+      backLabel={t('dashboardDemo.nav.back')}
+      onCta={demoCtaTarget(audience, navigate)}
+    />
+  );
+
+  // One line above the toolkit: the job search is on, go and look.
+  const toolkitBanner = (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        flexWrap: 'wrap',
+        marginBottom: 14,
+        padding: '12px 18px',
+        borderRadius: 14,
+        background: 'rgba(39,161,161,0.14)',
+        border: '1px solid rgba(39,161,161,0.40)',
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: 1.45,
+      }}
+    >
+      <Briefcase size={16} style={{ color: '#EFBE48', flexShrink: 0 }} />
+      <span style={{ flex: '1 1 320px' }}>{t('dashboardDemo.jobsNudge.body', { name: choice.firstName })}</span>
+      <Link
+        to={jobsHref}
+        onClick={() => trackCtaClick('demo_dashboard_jobs_nudge')}
+        className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold"
+        style={{ background: '#27A1A1', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
       >
-        <ShieldCheck size={13} strokeWidth={2.4} style={{ color: '#B8860B' }} />
-        {t('nav.honest')}
-      </div>
-    </nav>
-    </>
+        {t('dashboardDemo.jobsNudge.cta')}
+        <ArrowRight size={14} strokeWidth={2.4} />
+      </Link>
+    </div>
   );
 
   return (
@@ -146,9 +154,11 @@ const DemoDashboard: React.FC = () => {
             sections={fixture.sections}
             execSummaryStatus={null}
             referralCode="DEMO"
-            referralCount={0}
+            referralCount={DEMO_REFERRAL_COUNT}
             features={features}
             ladder={ladder}
+            pulseStepKey="jobs"
+            toolkitBanner={toolkitBanner}
             savedResponses={fixture.savedResponses ?? []}
             onNavigate={handleNavigate}
             onProfile={() => setTool('generic')}
@@ -184,9 +194,20 @@ const DemoDashboard: React.FC = () => {
                   {t('dashboardDemo.intro.body', { name: choice.firstName })}
                 </p>
                 <p className="mt-3 text-[14px] text-[#4B6373]/85 font-medium leading-relaxed">
-                  {t('dashboardDemo.intro.toolsNote')}
+                  {t('dashboardDemo.intro.toolsNote', { name: choice.firstName })}
                 </p>
                 <p className="mt-5 text-[15px] font-medium">
+                  <Link
+                    to={jobsHref}
+                    onClick={() => trackCtaClick('demo_dashboard_to_jobs')}
+                    className="inline-flex items-center gap-1.5 text-[#1F8282] font-semibold underline underline-offset-4 decoration-[#1F8282]/40 hover:decoration-[#1F8282] transition-colors"
+                  >
+                    {t('dashboardDemo.footer.jobs', { name: choice.firstName })}
+                    <ArrowRight size={14} strokeWidth={2.4} />
+                  </Link>
+                  <span className="block mt-1 text-[13px] text-[#4B6373]/85">{t('dashboardDemo.footer.jobsNote')}</span>
+                </p>
+                <p className="mt-4 text-[15px] font-medium">
                   <Link
                     to={chatHref}
                     onClick={() => trackCtaClick('demo_dashboard_to_chat')}
@@ -208,7 +229,7 @@ const DemoDashboard: React.FC = () => {
             </div>
           </div>
 
-          <DemoToolDialog tool={tool} onClose={() => setTool(null)} audience={audience} />
+          <DemoToolDialog tool={tool} onClose={() => setTool(null)} audience={audience} firstName={choice.firstName} />
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center py-24" style={{ background: '#0F2530' }}>

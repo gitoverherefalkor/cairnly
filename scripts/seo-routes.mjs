@@ -118,6 +118,16 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.6',
   },
+  // The persona's job search: one real search run, frozen, plus the saved-jobs
+  // pipeline. Linked from the demo dashboard.
+  {
+    path: '/demo/jobs',
+    title: 'Demo: de vacaturezoeker na de coachsessie',
+    description:
+      'Echte vacatures die de zoeker voor een fictieve kandidaat vond, gescoord op het rapport, met de pijplijn van bewaarde vacatures. Echte output, alleen-lezen.',
+    changefreq: 'monthly',
+    priority: '0.6',
+  },
   // Legal/support pages keep the site-default title+description (matching
   // their runtime DefaultSeo fallback) so static and rendered heads agree.
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },

@@ -15,12 +15,15 @@ import { trackCtaClick } from '@/lib/analytics';
 
 // The dashboard controls that would cost money or need a session in a real
 // account. Each maps to a short description of what it opens.
-export type DemoTool = 'share' | 'invite' | 'jobs' | 'resume' | 'coverLetter' | 'generic';
+export type DemoTool = 'share' | 'invite' | 'jobs' | 'jobsSearch' | 'resume' | 'coverLetter' | 'generic';
 
 interface DemoToolDialogProps {
   tool: DemoTool | null;
   onClose: () => void;
   audience: 'customer' | 'partner';
+  // The persona's first name, for the invite note (the toolkit state shown
+  // is the demo's: one referral counted for the job search).
+  firstName?: string;
 }
 
 /**
@@ -29,7 +32,7 @@ interface DemoToolDialogProps {
  * and the way to become one. Every gated control (job search, résumé tailor,
  * cover letters, share card, invite flow) lands here instead of doing nothing.
  */
-export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({ tool, onClose, audience }) => {
+export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({ tool, onClose, audience, firstName }) => {
   const { t } = useTranslation('demo');
   const partner = audience === 'partner';
   const toolName = t(`dashboardDemo.tools.${tool ?? 'generic'}`);
@@ -42,6 +45,9 @@ export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({ tool, onClose, a
           </DialogTitle>
           <DialogDescription className="text-[15px] text-[#4B6373] font-medium leading-relaxed pt-1">
             {t(partner ? 'dashboardDemo.tools.bodyPartner' : 'dashboardDemo.tools.body', { tool: toolName })}
+            {tool === 'invite' && (
+              <span className="block mt-3">{t('dashboardDemo.tools.inviteNote', { name: firstName ?? '' })}</span>
+            )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-between gap-3 pt-2">

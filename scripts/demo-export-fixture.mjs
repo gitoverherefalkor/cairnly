@@ -14,6 +14,11 @@
 //               has no message_id column; ChatContainer deletes by content too)
 //   savedResponses  — the saved_chat_responses rows themselves (label, section,
 //               content), which the dashboard's "Saved answers" panel renders
+//   savedJobs — the persona's saved_jobs rows (the /demo/jobs kanban)
+//   jobs      — CARRIED OVER from the existing fixture file, never exported:
+//               job-search results live only in component state (the server
+//               cache expires after 24h), so scripts/demo-run-job-search.mjs
+//               writes them once and a re-freeze must not drop them
 //
 // Report selection: the NEWEST report with status 'completed', falling back to
 // the newest report that has any chat messages. Never blindly "the newest":
@@ -26,7 +31,7 @@
 //
 // REFUSES any address that is not an obvious demo account: this dumps a full
 // transcript + report into a file that gets committed to a public repo.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
@@ -194,13 +199,31 @@ for (const row of saved ?? []) {
   else unmatched += 1;
 }
 
-// 6. Write.
+// 6. Saved jobs (the kanban on /demo/jobs), and the frozen search results
+//    from the existing fixture, if any.
+const { data: savedJobs, error: savedJobsErr } = await admin
+  .from('saved_jobs')
+  .select('*')
+  .eq('user_id', user.id)
+  .order('saved_at', { ascending: false });
+if (savedJobsErr) throw savedJobsErr;
+
+// 7. Write.
 // --persona=<slug> names the persona when it differs from the login (the
 // account demo.marloes@ became the persona Marcel; the login stayed).
 const personaSlug =
   flag('persona')?.toLowerCase() ??
   email.split('@')[0].replace(/^demo[.\-+]/i, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
 const outPath = outOverride ?? join('src', 'demo', 'fixtures', `${personaSlug}.${language}.json`);
+const previousPath = join('src', 'demo', 'fixtures', `${personaSlug}.${language}.json`);
+let carriedJobs;
+if (existsSync(previousPath)) {
+  try {
+    carriedJobs = JSON.parse(readFileSync(previousPath, 'utf8')).jobs;
+  } catch {
+    carriedJobs = undefined;
+  }
+}
 const fixture = {
   persona: {
     firstName,
@@ -217,6 +240,8 @@ const fixture = {
   sections,
   savedMessageIds,
   savedResponses: saved ?? [],
+  savedJobs: savedJobs ?? [],
+  ...(carriedJobs ? { jobs: carriedJobs } : {}),
 };
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JSON.stringify(fixture, null, 2) + '\n');
@@ -230,4 +255,6 @@ if (language !== 'en') {
     `translations:      ${i18nMissing.length === 0 ? `all sections carry ${language}` : `MISSING ${language} on ${i18nMissing.join(', ')}`}`,
   );
 }
+console.log(`saved jobs:        ${(savedJobs ?? []).length}`);
+console.log(`job search:        ${carriedJobs ? `${carriedJobs.length} result set(s) carried over from ${previousPath}` : 'none (run demo-run-job-search.mjs)'}`);
 console.log(`written:           ${outPath}`);
