@@ -6,12 +6,11 @@ import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE, DEMO_ROUTE } from '@/demo/consta
 import type { DemoPersonaId } from '@/demo/loadFixture';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
-import MiniReplay from './MiniReplay';
 import { HERO_PERSONAS, useHeroPersona } from './HeroPersonaContext';
 
 type Slug = 'chat' | 'dashboard' | 'jobs';
 
-/** The three demo screens in product order; the chat plays, the rest are stills. */
+/** The three demo screens in product order, each a still of the persona's demo page. */
 const SCREENS: { slug: Slug; route: string }[] = [
   { slug: 'chat', route: DEMO_ROUTE },
   { slug: 'dashboard', route: DEMO_DASHBOARD_ROUTE },
@@ -25,8 +24,10 @@ const STEP_PX = 14;
 
 /**
  * The hero's demo stage: three faux-browser windows stacked like a deck
- * (chat in front, dashboard and jobs peeking out behind it), a persona
- * toggle above and a stepper below. Clicking the front window opens that
+ * (chat in front, dashboard and jobs peeking out behind it), each showing a
+ * still of the active persona's demo page, a persona toggle above and a
+ * stepper below. Nothing animates inside the windows; the stills swap when
+ * the persona changes (the cards cycle on their own until the visitor picks). Clicking the front window opens that
  * screen in the demo with the active persona; clicking a window behind
  * (or its stepper pill) brings it to the front.
  */
@@ -99,9 +100,7 @@ const DemoStage: React.FC = () => {
                 </div>
               </div>
               <div className="relative flex-1 min-h-0">
-                {screen.slug === 'chat' ? (
-                  <MiniReplay persona={persona} playing={isFront} />
-                ) : broken.has(stillSrc(persona, screen.slug)) ? (
+                {broken.has(stillSrc(persona, screen.slug)) ? (
                   <div className="absolute inset-0 grid place-items-center text-white/35 text-[12px] font-medium">
                     {labels[i]}
                   </div>

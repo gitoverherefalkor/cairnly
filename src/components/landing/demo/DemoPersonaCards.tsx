@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Globe } from 'lucide-react';
@@ -6,20 +6,57 @@ import { DEMO_ROUTE } from '@/demo/constants';
 import { demoSessionLanguage, type DemoPersonaId } from '@/demo/loadFixture';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
-import { heroPersonaOrder, useHeroPersona } from './HeroPersonaContext';
+import { HERO_PERSONAS, heroPersonaOrder, useHeroPersona } from './HeroPersonaContext';
+
+/** How long each card holds the spotlight while nobody has picked. */
+const CYCLE_MS = 3000;
 
 /**
  * The two doors into the demo. Not "which one is you": a visitor reads what
- * each session is about and opens the one that looks most useful. Hovering
- * a card swaps the stage beside it; clicking anywhere on the card opens the
- * full replay with that persona.
+ * each session is about and opens the one that looks most useful. Until
+ * someone hovers a card or uses the toggle, the spotlight moves from one
+ * card to the other every few seconds (the other card dims, the stage shows
+ * the lit card's screens). Hovering a card swaps the stage; clicking anywhere
+ * on the card opens the full replay with that persona.
  */
 const DemoPersonaCards: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
-  const { persona: active, setPersona, demoHref } = useHeroPersona();
+  const { persona: active, picked, setPersona, previewPersona, demoHref } = useHeroPersona();
+  const rootRef = useRef<HTMLDivElement>(null);
+  // The interval reads the latest persona without restarting on every swap.
+  const activeRef = useRef(active);
+  activeRef.current = active;
+
+  // Idle cycle: only while unpicked, only while the cards are on screen, and
+  // not for visitors who asked for less motion.
+  useEffect(() => {
+    if (picked) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const el = rootRef.current;
+    if (!el) return;
+    let timer: number | undefined;
+    const start = () => {
+      if (timer !== undefined) return;
+      timer = window.setInterval(() => {
+        const next = HERO_PERSONAS[(HERO_PERSONAS.indexOf(activeRef.current) + 1) % HERO_PERSONAS.length];
+        previewPersona(next);
+      }, CYCLE_MS);
+    };
+    const stop = () => {
+      if (timer === undefined) return;
+      window.clearInterval(timer);
+      timer = undefined;
+    };
+    const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), { threshold: 0.3 });
+    io.observe(el);
+    return () => {
+      stop();
+      io.disconnect();
+    };
+  }, [picked, previewPersona]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={rootRef} className="flex flex-col gap-4">
       {heroPersonaOrder(i18n.language).map((id) => (
         <PersonaCard
           key={id}
@@ -63,10 +100,10 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ id, active, href, onHover, t 
       onMouseEnter={onHover}
       onFocus={onHover}
       onClick={() => trackCtaClick(`hero_demo_${id}`)}
-      className={`group block rounded-2xl p-5 text-[#122E3B] transition-all duration-300 ${
+      className={`group block rounded-2xl p-5 text-[#122E3B] bg-[#FDFBF2] transition-all duration-500 ${
         active
-          ? 'bg-[#FDFBF2] ring-2 ring-[#D4A024] shadow-[0_28px_56px_-22px_rgba(0,0,0,0.55)]'
-          : 'bg-[#FDFBF2]/90 ring-1 ring-white/10 hover:bg-[#FDFBF2]'
+          ? 'opacity-100 ring-2 ring-[#D4A024] shadow-[0_28px_56px_-22px_rgba(0,0,0,0.55)]'
+          : 'opacity-[0.55] ring-1 ring-white/10 hover:opacity-100'
       }`}
     >
       <div className="flex items-start justify-between gap-3">

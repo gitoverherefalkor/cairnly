@@ -4,6 +4,7 @@ import { Check, XCircle } from 'lucide-react';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
 import { useIntent, type IntentKey } from '@/contexts/IntentContext';
+import IntakeSection from './intake/IntakeSection';
 
 /** Which rightItems bullet moves to the front per intent (index in the default order). */
 const FIRST_ITEM: Partial<Record<IntentKey, number>> = {
@@ -106,6 +107,12 @@ const WhoFor: React.FC = () => {
               </div>
             </div>
           </Reveal>
+        </div>
+
+        {/* The intake chat belongs to this question: the pills reorder the
+            fit bullets above and seed a short conversation with the coach. */}
+        <div className="mt-14 md:mt-20">
+          <IntakeSection />
         </div>
       </div>
     </section>

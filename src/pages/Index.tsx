@@ -9,7 +9,6 @@ import Methodology from '@/components/landing/Methodology';
 import CoachCards from '@/components/landing/CoachCards';
 import ComparisonTable from '@/components/landing/ComparisonTable';
 import CostMath from '@/components/landing/CostMath';
-import IntakeSection from '@/components/landing/intake/IntakeSection';
 import PricingSection from '@/components/landing/PricingSection';
 import WhoFor from '@/components/landing/WhoFor';
 import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
@@ -26,8 +25,8 @@ import { organizationSchema, websiteSchema } from '@/lib/seo';
  * Cairnly homepage (v2) — an editorial, cairn-as-way-marker landing page.
  * Assembled from self-contained sections under src/components/landing/.
  * The hero sells with the public demo (HeroPersonaProvider carries the
- * chosen persona into every demo link on the page); the intake chat has its
- * own section directly above Pricing.
+ * chosen persona into every demo link on the page); the intake chat lives
+ * inside "Is Cairnly for you?" (WhoFor).
  */
 const Index: React.FC = () => (
   <IntentProvider>
@@ -48,7 +47,6 @@ const Index: React.FC = () => (
       <CoachCards />
       <ComparisonTable />
       <CostMath />
-      <IntakeSection />
       <PricingSection />
       <WhoFor />
       {/* ForkDivider hidden — the same-path/different-path diagram wasn't landing well */}

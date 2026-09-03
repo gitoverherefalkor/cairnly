@@ -17,6 +17,8 @@ interface HeroPersonaValue {
   /** True once the visitor hovered a card or used the toggle. */
   picked: boolean;
   setPersona: (id: DemoPersonaId) => void;
+  /** Swap the persona without counting it as the visitor's choice (the idle cycle). */
+  previewPersona: (id: DemoPersonaId) => void;
   /** `route` with `?persona=<active>` appended (via demoLink, so `?p=` survives too). */
   demoHref: (route: string) => string;
 }
@@ -45,14 +47,19 @@ export const HeroPersonaProvider: React.FC<{ children: React.ReactNode }> = ({ c
     setState({ persona: id, picked: true });
   }, []);
 
+  const previewPersona = useCallback((id: DemoPersonaId) => {
+    setState((s) => (s.picked ? s : { persona: id, picked: false }));
+  }, []);
+
   const value = useMemo<HeroPersonaValue>(
     () => ({
       persona: state.persona,
       picked: state.picked,
       setPersona,
+      previewPersona,
       demoHref: (route: string) => demoLink(route, `?persona=${state.persona}`),
     }),
-    [state, setPersona],
+    [state, setPersona, previewPersona],
   );
 
   return <HeroPersonaContext.Provider value={value}>{children}</HeroPersonaContext.Provider>;
