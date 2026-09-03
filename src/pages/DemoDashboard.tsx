@@ -11,7 +11,7 @@ import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoToolDialog, type DemoTool } from '@/components/demo/DemoToolDialog';
-import { applyCuration, chooseFixture } from '@/demo/loadFixture';
+import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { demoLink, readPersonaParam } from '@/demo/links';
 import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE, DEMO_ROUTE, demoPdfPath } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
@@ -52,7 +52,7 @@ const DemoDashboard: React.FC = () => {
   const [fixture, setFixture] = useState<DemoFixture | null>(null);
   useEffect(() => {
     let alive = true;
-    choice.load().then((raw) => {
+    choice.load(i18n.language).then((raw) => {
       if (alive) setFixture(applyCuration(raw, choice.curation));
     });
     return () => {
@@ -222,7 +222,7 @@ const DemoDashboard: React.FC = () => {
               <DemoFooter
                 audience={audience}
                 personaId={choice.personaId}
-                language={choice.language}
+                language={demoPdfLanguage(choice.personaId, i18n.language)}
                 firstName={choice.firstName}
                 showDashboardLink={false}
               />

@@ -1,5 +1,5 @@
 // Which frozen session /demo shows, and the hand-written overlay on top.
-import type { DemoCuration, DemoFixture } from './types';
+import type { DemoCuration, DemoFixture, DemoTranslation } from './types';
 import marcelCuration from './fixtures/marcel.nl.curation.json';
 import emmaCuration from './fixtures/emma.en.curation.json';
 
@@ -18,8 +18,12 @@ export interface DemoFixtureChoice {
   isFallback: boolean;
   // The transcript is ~180 KB, so it is a lazy chunk of its own: only the
   // demo page pays for it, and only once the page is actually opened.
-  load: () => Promise<DemoFixture>;
+  // Pass the visitor's UI language: when a translation of the session into
+  // that language exists, it is overlaid (fixture.translatedTo is set).
+  load: (uiLanguage?: string) => Promise<DemoFixture>;
   curation: DemoCuration;
+  // Languages the persona's PDF exists in (public/demo/cairnly-demo-<id>-<lang>.pdf).
+  pdfLanguages: string[];
 }
 
 interface PersonaEntry {
@@ -27,6 +31,9 @@ interface PersonaEntry {
   firstName: string;
   load: () => Promise<DemoFixture>;
   curation: DemoCuration;
+  // Demo-layer translations of the session, by target language.
+  translations: Record<string, () => Promise<DemoTranslation>>;
+  pdfLanguages: string[];
 }
 
 /**
@@ -42,14 +49,58 @@ const PERSONAS: Record<DemoPersonaId, PersonaEntry> = {
     load: () =>
       import('./fixtures/marcel.nl.json').then((m) => m.default as unknown as DemoFixture),
     curation: marcelCuration as DemoCuration,
+    translations: {
+      en: () =>
+        import('./fixtures/marcel.nl.messages.en.json').then((m) => m.default as unknown as DemoTranslation),
+    },
+    pdfLanguages: ['nl', 'en'],
   },
   emma: {
     language: 'en',
     firstName: 'Emma',
     load: () => import('./fixtures/emma.en.json').then((m) => m.default as unknown as DemoFixture),
     curation: emmaCuration as DemoCuration,
+    translations: {},
+    pdfLanguages: ['en'],
   },
 };
+
+/**
+ * Overlay a demo-layer translation on a fixture: every message the sidecar
+ * knows gets its translated text; the Keep rows (whose content equals a
+ * message's) follow; chat_highlights gets the translation as its
+ * content_i18n entry for the target language, which is where the section
+ * accessors already look. Messages the sidecar misses keep the original.
+ */
+export function applyTranslation(fixture: DemoFixture, translation: DemoTranslation): DemoFixture {
+  const to = translation.meta.to;
+  const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
+  const byOriginal = new Map<string, string>();
+  const messages = fixture.messages.map((m) => {
+    const text = translation.messages[m.id];
+    if (!text) return m;
+    byOriginal.set(norm(m.content), text);
+    return { ...m, content: text };
+  });
+  const savedResponses = fixture.savedResponses?.map((r) => {
+    const text = byOriginal.get(norm(r.content));
+    return text ? { ...r, content: text } : r;
+  });
+  const sections = fixture.sections.map((s) => {
+    const t = translation.sections[s.section_type];
+    if (!t) return s;
+    const i18n = s.content_i18n && typeof s.content_i18n === 'object' ? s.content_i18n : {};
+    return { ...s, content_i18n: { ...i18n, [to]: { ...(i18n[to] ?? {}), title: t.title, content: t.content } } };
+  });
+  return { ...fixture, translatedTo: to, messages, savedResponses, sections };
+}
+
+/** The language to serve a persona's PDF in: the UI language when that PDF exists, else the session's. */
+export function demoPdfLanguage(personaId: DemoPersonaId, uiLanguage: string | undefined): string {
+  const persona = PERSONAS[personaId];
+  const short = (uiLanguage || persona.language).slice(0, 2).toLowerCase();
+  return persona.pdfLanguages.includes(short) ? short : persona.language;
+}
 
 /** The persona whose session was held in this language, else the English one. */
 export function personaForLanguage(lang: string | undefined): DemoPersonaId {
@@ -78,8 +129,14 @@ export function chooseFixture(lang: string | undefined, personaOverride?: string
     language: persona.language,
     firstName: persona.firstName,
     isFallback: short !== persona.language,
-    load: persona.load,
+    load: async (uiLanguage?: string) => {
+      const fixture = await persona.load();
+      const ui = (uiLanguage || short).slice(0, 2).toLowerCase();
+      const translation = ui !== persona.language ? persona.translations[ui] : undefined;
+      return translation ? applyTranslation(fixture, await translation()) : fixture;
+    },
     curation: persona.curation,
+    pdfLanguages: persona.pdfLanguages,
   };
 }
 

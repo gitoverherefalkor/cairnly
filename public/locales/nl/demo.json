@@ -12,11 +12,13 @@
   "personas": {
     "marcel": {
       "tagline": "Marcel, 41, teamleider klantenservice bij een verzekeraar. Wil geen team meer aansturen, wel dichter bij de mensen die hij helpt.",
-      "fallback": "Deze sessie was in het Nederlands: Marcel is een Nederlandse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Nederlands."
+      "fallback": "Deze sessie was in het Nederlands: Marcel is een Nederlandse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Nederlands.",
+      "translated": "Dit gesprek is in het Nederlands gevoerd. Je leest het hier in jouw taal; Marcels typfouten en spreektaal zijn bewust meevertaald, niet opgepoetst."
     },
     "emma": {
       "tagline": "Emma, 38, senior marketingmanager bij een Londense fintech. Kan haar werk met haar ogen dicht, en dat is precies het probleem.",
-      "fallback": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels."
+      "fallback": "Deze sessie was in het Engels: Emma is een Britse kandidaat. De knoppen en labels volgen jouw taal, het gesprek blijft Engels.",
+      "translated": "Dit gesprek is in het Engels gevoerd. Je leest het hier in jouw taal; Emma's typfouten en spreektaal zijn bewust meevertaald, niet opgepoetst."
     }
   },
   "intro": {

@@ -12,11 +12,13 @@
   "personas": {
     "marcel": {
       "tagline": "Marcel, 41, customer service team lead at an insurer. Done managing a team, wants to be closer to the people he helps.",
-      "fallback": "This session was held in Dutch: Marcel is a Dutch candidate. The buttons and labels follow your language, the conversation stays in Dutch."
+      "fallback": "This session was held in Dutch: Marcel is a Dutch candidate. The buttons and labels follow your language, the conversation stays in Dutch.",
+      "translated": "This conversation was held in Dutch. You are reading it in your language; Marcel's typos and casual phrasing were carried over on purpose, not tidied up."
     },
     "emma": {
       "tagline": "Emma, 38, senior marketing manager at a London fintech. Can do the job with her eyes closed, and that is exactly the problem.",
-      "fallback": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English."
+      "fallback": "This session was held in English: Emma is a British candidate. The buttons and labels follow your language, the conversation stays in English.",
+      "translated": "This conversation was held in English. You are reading it in your language; Emma's typos and casual phrasing were carried over on purpose, not tidied up."
     }
   },
   "intro": {

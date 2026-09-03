@@ -40,8 +40,22 @@ export interface DemoSavedResponse {
   created_at: string;
 }
 
+// Demo-layer translation of a session (scripts/demo-translate-fixture.ts):
+// every chat message in another language, plus the chat_highlights section
+// (the one section the product's translator leaves alone). Overlaid on the
+// fixture by applyTranslation() when the visitor's UI language is `to`.
+export interface DemoTranslation {
+  meta: { persona: string; from: string; to: string; model: string; translatedAt: string; methods: Record<string, string> };
+  messages: Record<string, string>;
+  sections: Record<string, { title: string; content: string }>;
+}
+
 export interface DemoFixture {
   persona: DemoPersona;
+  // Set by applyTranslation(): the language the transcript is shown in when
+  // it is not the session's own. Pages use it for the "you are reading a
+  // translation" note.
+  translatedTo?: string;
   messages: DemoMessage[];
   // Every report_sections row the chat components read (score pills, Move
   // pill, comparison radar, translated titles). init_summary is excluded.

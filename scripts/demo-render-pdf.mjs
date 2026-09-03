@@ -51,6 +51,12 @@ const flag = (name) => {
 };
 const partnerName = flag('partner-name');
 const keepPartner = process.argv.includes('--keep-partner') || partnerName !== undefined;
+// --lang=<lang> renders the report in another language than the profile's:
+// the print route reads profiles.preferred_language, so the flag flips it for
+// the duration of the render and restores it afterwards (also on failure).
+// Only a language whose translations are complete renders that way; the
+// print route falls back to English otherwise (check the cover kicker).
+const langOverride = flag('lang')?.slice(0, 2).toLowerCase();
 
 const env = Object.fromEntries(
   readFileSync('.env.local', 'utf8')
@@ -84,7 +90,8 @@ const { data: profile, error: profErr } = await admin
   .eq('id', user.id)
   .maybeSingle();
 if (profErr) throw profErr;
-const language = (profile?.preferred_language || 'en').slice(0, 2).toLowerCase();
+const profileLanguage = (profile?.preferred_language || 'en').slice(0, 2).toLowerCase();
+const language = langOverride ?? profileLanguage;
 // --persona=<slug> names the persona when it differs from the login (the
 // account demo.marloes@ became the persona Marcel; the login stayed).
 const personaSlug =
@@ -93,7 +100,9 @@ const personaSlug =
 
 // 2. Which report: the frozen fixture's, unless overridden.
 let reportId = flag('report');
-const fixturePath = join('src', 'demo', 'fixtures', `${personaSlug}.${language}.json`);
+// The fixture is named after the SESSION language (the profile's), whatever
+// language this render is in.
+const fixturePath = join('src', 'demo', 'fixtures', `${personaSlug}.${profileLanguage}.json`);
 if (!reportId && existsSync(fixturePath)) {
   reportId = JSON.parse(readFileSync(fixturePath, 'utf8'))?.persona?.reportId;
   if (reportId) console.log(`report from fixture: ${reportId}`);
@@ -129,11 +138,20 @@ const setPartner = async (value) => {
   const { error } = await admin.from('profiles').update({ partner_id: value }).eq('id', user.id);
   if (error) throw error;
 };
+const flipLanguage = langOverride !== undefined && langOverride !== profileLanguage;
+const setLanguage = async (value) => {
+  const { error } = await admin.from('profiles').update({ preferred_language: value }).eq('id', user.id);
+  if (error) throw error;
+};
 
 try {
   if (detachPartner) {
     await setPartner(null);
     console.log(`partner link ${originalPartner} cleared for this render`);
+  }
+  if (flipLanguage) {
+    await setLanguage(langOverride);
+    console.log(`profile language ${profileLanguage} → ${langOverride} for this render`);
   }
 
   // 4. Single-use render token (10-minute expiry by default).
@@ -169,5 +187,9 @@ try {
   if (detachPartner) {
     await setPartner(originalPartner);
     console.log(`partner link ${originalPartner} restored`);
+  }
+  if (flipLanguage) {
+    await setLanguage(profileLanguage);
+    console.log(`profile language restored to ${profileLanguage}`);
   }
 }

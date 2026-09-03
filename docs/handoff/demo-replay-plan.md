@@ -420,6 +420,61 @@ with Marloes's report now.
   already covers that; link to it rather than rebuilding it.
 - Migrating or re-rendering old reports.
 
+## Status (2026-09-03, afternoon): both personas in both languages (translation layer)
+
+Sjoerd wants visitors to pick a persona by situation, not by language, so each
+session has to exist in the other language too. Two layers, deliberately kept
+apart:
+
+- **Report sections** go through the product's own translator
+  (`translate-section`, gated, writes `content_i18n`). Marcel's sections were
+  already bilingual (English canonical + Dutch). Emma's Dutch side is produced
+  by the n8n utility "OPS - Retranslate report (manual)" (`TRao82muo2Pifqd1`),
+  whose HTTP body now names her report + `target_language: nl`; running it is
+  a manual click in n8n (this session could not execute workflows). Backup of
+  the previous body: `n8n_wfs_cairnly/OPS_retranslate_report_BACKUP_pre_emma_20260903.json`.
+  After it ran: re-export her fixture (`demo-export-fixture.mjs demo.emma@…`).
+- **Chat messages** (which the product never translates) get a demo-layer
+  sidecar, `src/demo/fixtures/<persona>.<from>.messages.<to>.json`, written by
+  `npx tsx scripts/demo-translate-fixture.ts <persona> --to=<lang>`. Most
+  faithful method first: section deliveries whose stored text still equals
+  what `renderSection()` renders today are re-rendered in the target language
+  (exactly what the product would have delivered); the comparison explanation
+  is the stored one in the target language; canned quick-reply turns map to
+  the product's own strings; the Move-pill question uses
+  `buildFeasibilityQuestion`'s template; a clicked follow-up option becomes the
+  same bullet of the translated follow-up; `[Over …]` becomes `[About …]`; the
+  rest (typed turns, coach replies, and the section deliveries WF6 rewrote
+  after the chat, which no longer match the stored section) goes to
+  `claude-opus-5` with a glossary of the report's own titles and the
+  persona's typing style preserved (lowercase, no final period, small slips).
+  Idempotent; `--dry` prints the plan and glossary; `--only=` / `--force`
+  redo entries. `chat_highlights` (exempt from the product translator) is
+  translated into the sidecar's `sections` and injected as `content_i18n`.
+- **Loader**: `chooseFixture(lang, persona).load(uiLanguage)` overlays the
+  sidecar when the UI language differs from the session's and a sidecar is
+  registered (`PERSONAS[id].translations`), setting `fixture.translatedTo`;
+  Keep rows follow their message text. The intro note switches to
+  `personas.<id>.translated` ("you are reading a translation; typos kept on
+  purpose"). `demoPdfLanguage()` serves the PDF in the UI language when it
+  exists (`pdfLanguages`); `demo-render-pdf.mjs --lang=<lang>` renders it by
+  flipping `preferred_language` for the render only.
+- **Tests**: `src/demo/translations.test.ts` runs for every sidecar that
+  exists: full coverage, every section delivery still resolves to its
+  section (score pills, radar), the clicked follow-up option still matches a
+  bullet, the Move/scoped turns keep their shapes, Keep rows and highlights
+  carried along.
+- Discovered on the way: WF6's feedback rewrite means several stored sections
+  differ from what the chat delivered (that is the "report changes" story);
+  the chat shows the delivered text, the dashboard/PDF the rewritten one, in
+  both languages.
+
+Done: Marcel → English (24 model calls; 5 sections re-rendered, 1 comparison,
+12 mapped, 1 template, 1 option, 1 scoped, 21 model). Pending Sjoerd's click:
+Emma's Dutch sections, then `demo-translate-fixture.ts emma --to=nl`, her
+Dutch PDF (`--lang=nl`), and `translations: { nl }` + `pdfLanguages` on her
+`PERSONAS` entry.
+
 ## Status (2026-09-03): Marloes became Marcel
 
 Sjoerd wanted a name non-Dutch readers can pronounce and a second gender next

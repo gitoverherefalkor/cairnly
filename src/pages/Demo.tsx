@@ -18,7 +18,7 @@ import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoWelcome } from '@/components/demo/DemoWelcome';
 import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
-import { applyCuration, chooseFixture } from '@/demo/loadFixture';
+import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { readPersonaParam } from '@/demo/links';
 import { sectionIndexByMessage } from '@/demo/chapters';
 import { DEMO_ROUTE } from '@/demo/constants';
@@ -61,7 +61,7 @@ const Demo: React.FC = () => {
   const [fixture, setFixture] = useState<DemoFixture | null>(null);
   useEffect(() => {
     let alive = true;
-    choice.load().then((raw) => {
+    choice.load(i18n.language).then((raw) => {
       if (alive) setFixture(applyCuration(raw, choice.curation));
     });
     return () => {
@@ -296,7 +296,7 @@ const Demo: React.FC = () => {
                   className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"
                   style={{ background: 'rgba(212,160,36,0.12)', color: '#122E3B' }}
                 >
-                  {t(`personas.${choice.personaId}.fallback`)}
+                  {t(`personas.${choice.personaId}.${fixture?.translatedTo ? 'translated' : 'fallback'}`)}
                 </p>
               )}
             </section>
@@ -331,7 +331,7 @@ const Demo: React.FC = () => {
                 <DemoFooter
                   audience={audience}
                   personaId={choice.personaId}
-                  language={choice.language}
+                  language={demoPdfLanguage(choice.personaId, i18n.language)}
                   firstName={choice.firstName}
                 />
               </>
