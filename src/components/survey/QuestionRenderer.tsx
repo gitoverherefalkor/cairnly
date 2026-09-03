@@ -1548,7 +1548,15 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
 
           <div className="space-y-6">
             {syncedHappiness.map((entry, index) => (
-              <div key={index} className="p-4 border rounded-lg bg-gray-50">
+              // Explicit cream surface, not bg-gray-50: the app locks the dark
+              // palette on, where `.dark .bg-gray-50` becomes the teal-navy page
+              // background (index.css) while the grey label text stays dark —
+              // the role labels then sat at a 1.08:1 contrast ratio.
+              <div
+                key={index}
+                className="p-4 border rounded-lg"
+                style={{ background: '#F5EFE2', borderColor: 'rgba(201, 182, 144, 0.6)' }}
+              >
                 <div className="mb-3">
                   <span className="text-sm font-medium text-gray-700">
                     {index === 0
@@ -1564,7 +1572,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 <div className="space-y-3">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs text-gray-500">{t('careerHappiness.happinessLabel')}</label>
+                      <label className="text-xs text-[#4B6373]">{t('careerHappiness.happinessLabel')}</label>
                       <span className="text-lg font-semibold text-atlas-navy">{entry.happiness}</span>
                     </div>
                     <Slider
@@ -1575,7 +1583,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                       step={1}
                       className="w-full"
                     />
-                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <div className="flex justify-between text-xs text-[#4B6373] mt-1">
                       <span>{t('careerHappiness.scaleLow')}</span>
                       <span>{t('careerHappiness.scaleHigh')}</span>
                     </div>

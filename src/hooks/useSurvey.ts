@@ -27,6 +27,13 @@ export interface Question {
      * translations.<lang>.non_negotiable_rider.
      */
     non_negotiable_rider?: string;
+    /**
+     * career_happiness only: the career_history question whose roles it rates.
+     * Read by QuestionRenderer through `allResponses`; the seeded question
+     * carries it, so it belongs on the type (a plain `tsc --noEmit` at the
+     * repo root does not typecheck src/, which is why it was missing).
+     */
+    linkedQuestionId?: string;
   };
   /**
    * Display-only map of the ENGLISH choice string → its translation in the

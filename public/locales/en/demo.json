@@ -27,7 +27,8 @@
     "body": "This is the conversation as {{name}} had it: the report arrives chapter by chapter, {{name}} reacts, the coach reacts back. Nothing was polished afterwards.",
     "watchLead": "Watch for these moments along the way:",
     "legendAside": "The numbered moments sit in the bar at the top; click a number to jump there. On the left you see the report sections, exactly as in a real session.",
-    "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what {{name}} did with them. You cannot type here: this is a replay."
+    "howTo": "Click the cards to open them, hover over the radar, and click the buttons under a career to see what {{name}} did with them. You cannot type here: this is a replay.",
+    "surveyLink": "See the questions {{name}} answered first"
   },
   "welcome": {
     "caption": "Every session starts like this: the coach introduces itself, you click the button and the first chapter arrives. Go ahead and click, it jumps to the start of the conversation.",
@@ -219,5 +220,39 @@
       "dashboardNote": "The matches this search was run for, the career map, the full report."
     },
     "foundOn": "Found on {{date}}"
+  },
+  "surveyDemo": {
+    "seo": {
+      "title": "Demo: the first questions of the assessment",
+      "description": "Three real questions from the Cairnly assessment, filled in with a fictional candidate's answers. For each one, see what the report did with it."
+    },
+    "nav": {
+      "label": "Demo: the questionnaire",
+      "back": "To the conversation"
+    },
+    "intro": {
+      "eyebrow": "Demo",
+      "title": "The questions the report is built on",
+      "body": "These are three real questions from the assessment, filled in with {{name}}'s answers. Change them if you like; nothing is submitted and nothing is stored.",
+      "prefilled": "Your CV gives us the facts. The questions get what a CV cannot know: how a role actually felt, what you weigh heaviest, and where you will not compromise.",
+      "note": "Under every question there is a link to the moment in the conversation where that answer came back."
+    },
+    "resume": {
+      "caption": "This is how the assessment opens",
+      "note": "{{name}} uploaded a CV. The roles, years and skills came from it and are already filled in on the first question below. Everything stays editable."
+    },
+    "questionCard": {
+      "eyebrow": "Question {{current}} of {{total}}"
+    },
+    "payoff": {
+      "happiness": "See what the coach did with these ratings",
+      "ranking": "See these values back in the report",
+      "schedule": "See where {{name}} made this non-negotiable"
+    },
+    "rest": {
+      "title": "That is 3 of about 60 questions",
+      "body": "The rest works the same way: concrete, no trick questions, no right or wrong answers. Twenty-five to forty minutes in total. Then the AI reads all of it and delivers the report chapter by chapter in the chat.",
+      "toChat": "Read {{name}}'s conversation"
+    }
   }
 }

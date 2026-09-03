@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
+import { ClipboardList, Loader2 } from 'lucide-react';
 import '../components/landing/landing.css';
 import Seo from '@/components/Seo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -9,7 +9,7 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { TTSProvider } from '@/contexts/TTSContext';
 import { ReportSidebar } from '@/components/chat/ReportSidebar';
-import { trackSampleView } from '@/lib/analytics';
+import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoReplay, messageDomId } from '@/components/demo/DemoReplay';
 import { DemoMomentsBar } from '@/components/demo/DemoMomentsBar';
@@ -19,9 +19,9 @@ import { DemoWelcome } from '@/components/demo/DemoWelcome';
 import { DemoTrustBanner } from '@/components/demo/DemoTrustBanner';
 import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
-import { readPersonaParam } from '@/demo/links';
+import { demoLink, readPersonaParam } from '@/demo/links';
 import { sectionIndexByMessage } from '@/demo/chapters';
-import { DEMO_ROUTE } from '@/demo/constants';
+import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
 
 // Below this width the sidebar starts collapsed (the transcript would get
@@ -121,6 +121,19 @@ const Demo: React.FC = () => {
     setFlashId(id);
     window.setTimeout(() => setFlashId((current) => (current === id ? null : current)), 2000);
   }, []);
+
+  // A deep link from the survey demo ("see what this became"): flash the
+  // named message once the transcript is on the page. Runs once per id, so a
+  // later click elsewhere is not overridden.
+  const focusId = new URLSearchParams(location.search).get('focus');
+  const focusedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!fixture || !focusId || focusedRef.current === focusId) return;
+    if (!fixture.messages.some((m) => m.id === focusId)) return;
+    focusedRef.current = focusId;
+    const timer = window.setTimeout(() => flash(focusId), 250);
+    return () => window.clearTimeout(timer);
+  }, [fixture, focusId, flash]);
 
   // Sidebar open/closed, as in the chat. Starts collapsed on narrower
   // desktops so the transcript keeps a readable width.
@@ -291,6 +304,18 @@ const Demo: React.FC = () => {
                 {t('intro.legendAside')}
               </p>
               <p className="mt-4 text-[13px] text-[#4B6373]/85 font-medium leading-relaxed">{t('intro.howTo', { name: choice.firstName })}</p>
+              {/* The step before this one: the questions the report is built
+                  on, with this persona's own answers. */}
+              <p className="mt-4 text-[14px] font-medium">
+                <Link
+                  to={demoLink(DEMO_SURVEY_ROUTE, location.search)}
+                  onClick={() => trackCtaClick('demo_to_survey')}
+                  className="inline-flex items-center gap-1.5 text-[#1F8282] font-semibold underline underline-offset-4 decoration-[#1F8282]/40 hover:decoration-[#1F8282] transition-colors"
+                >
+                  <ClipboardList size={15} strokeWidth={2.4} />
+                  {t('intro.surveyLink', { name: choice.firstName })}
+                </Link>
+              </p>
               {choice.isFallback && (
                 <p
                   className="mt-4 rounded-lg px-3.5 py-2.5 text-[14px] font-medium leading-relaxed"

@@ -18,6 +18,14 @@ import { useToast } from '@/hooks/use-toast';
 
 interface PreSurveyUploadProps {
   onContinue: () => void;
+  /**
+   * Public demo (/demo/survey) only: render this step as a résumé that has
+   * ALREADY been read, with nothing wired to the backend — no upload, no
+   * parse call, no localStorage. The real app never passes it, so the live
+   * step is untouched. Values are the frozen persona's (file name, size and
+   * the field count the parser reported).
+   */
+  demoPreset?: { fileName: string; fileSizeBytes: number; fieldsExtracted: number };
 }
 
 // Animated illustration showing resume → auto-fill value proposition.
@@ -109,7 +117,7 @@ const ResumeAutoFillAnimation = () => {
   );
 };
 
-export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) => {
+export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, demoPreset }) => {
   const { t } = useTranslation('survey');
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasUploadedResume, setHasUploadedResume] = React.useState(false);
@@ -162,6 +170,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   });
 
   const validateAndSetFile = (file: File): boolean => {
+    // The demo's frozen file is the only one this step ever shows.
+    if (demoPreset) return false;
     // PDF only — the n8n resume parser (WF0.1) can't read Word/text files and
     // fails downstream if anything else gets through.
     const isPdf =
@@ -191,6 +201,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (demoPreset) return;
     const file = event.target.files?.[0];
     if (!file) return;
     if (!validateAndSetFile(file)) return;
@@ -200,6 +211,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   };
 
   const handleRemoveFile = () => {
+    if (demoPreset) return;
     setUploadedFile(null);
     setHasUploadedResume(false);
     resetState();
@@ -213,29 +225,52 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
   };
 
   const handleSkipConfirmed = () => {
-    localStorage.setItem('pre_survey_upload_complete', 'true');
+    if (!demoPreset) localStorage.setItem('pre_survey_upload_complete', 'true');
     onContinue();
   };
 
   const handleContinue = () => {
-    localStorage.setItem('pre_survey_upload_complete', 'true');
+    // The demo owns its own "continue"; it must not claim the real step.
+    if (!demoPreset) localStorage.setItem('pre_survey_upload_complete', 'true');
     onContinue();
   };
 
   const isBusy = isProcessing || aiProcessing;
-  const isContinueDisabled = isBusy || !hasUploadedResume;
+  const isContinueDisabled = demoPreset ? false : isBusy || !hasUploadedResume;
+
+  // In demo mode the card shows the frozen file in its processed state; the
+  // real state hooks stay untouched (and idle, since nothing can upload).
+  const shownFile: { name: string; size: number } | null = demoPreset
+    ? { name: demoPreset.fileName, size: demoPreset.fileSizeBytes }
+    : uploadedFile;
+  const shownProcessed = demoPreset ? true : hasProcessed;
+  const shownFields = demoPreset ? demoPreset.fieldsExtracted : processingResult?.fieldsExtracted;
+  const pickFile = () => {
+    if (demoPreset) return;
+    fileInputRef.current?.click();
+  };
 
   return (
-    <div className="min-h-screen survey-bg">
-      <div className="min-h-screen flex flex-col items-center px-6 pt-12 pb-12">
-        {/* Cairnly wordmark on dark bg */}
-        <a href="/" className="inline-flex mb-6">
-          <img
-            src="/logos/cairnly-logo-white.png"
-            alt="Cairnly"
-            className="h-12 sm:h-14 w-auto"
-          />
-        </a>
+    // In the demo this step is one section of a longer page, so it drops its
+    // own full-screen canvas and wordmark and keeps only the card.
+    <div className={demoPreset ? '' : 'min-h-screen survey-bg'}>
+      <div
+        className={
+          demoPreset
+            ? 'flex flex-col items-center px-0 pt-2 pb-2'
+            : 'min-h-screen flex flex-col items-center px-6 pt-12 pb-12'
+        }
+      >
+        {!demoPreset && (
+          /* Cairnly wordmark on dark bg */
+          <a href="/" className="inline-flex mb-6">
+            <img
+              src="/logos/cairnly-logo-white.png"
+              alt="Cairnly"
+              className="h-12 sm:h-14 w-auto"
+            />
+          </a>
+        )}
 
         {/* Gold editorial eyebrow */}
         <span
@@ -325,9 +360,9 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   ? {
                       border: '2px dashed rgba(39,161,161,0.5)',
                       background: 'rgba(39,161,161,0.06)',
-                      padding: uploadedFile ? '18px 22px' : '32px 28px',
+                      padding: shownFile ? '18px 22px' : '32px 28px',
                     }
-                  : uploadedFile && hasProcessed
+                  : shownFile && shownProcessed
                     ? {
                         border: '2px dashed rgba(34,197,94,0.5)',
                         background: 'rgba(34,197,94,0.04)',
@@ -336,7 +371,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                     : {
                         border: '2px dashed rgba(201,182,144,0.7)',
                         background: '#F5EFE2',
-                        padding: uploadedFile ? '18px 22px' : '32px 28px',
+                        padding: shownFile ? '18px 22px' : '32px 28px',
                       }
               }
               onDragOver={(e) => {
@@ -366,13 +401,13 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                 }
               }}
             >
-              {uploadedFile ? (
+              {shownFile ? (
                 <>
                   <div className="flex items-center gap-3.5">
                     <div
                       className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
                       style={
-                        hasProcessed
+                        shownProcessed
                           ? {
                               background: 'rgba(34, 197, 94, 0.14)',
                               border: '1px solid rgba(34, 197, 94, 0.32)',
@@ -388,7 +423,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                               }
                       }
                     >
-                      {hasProcessed ? (
+                      {shownProcessed ? (
                         <CheckCircle className="h-5 w-5" style={{ color: '#16A34A' }} />
                       ) : error && !isProcessing ? (
                         <AlertTriangle className="h-5 w-5" style={{ color: '#DC2626' }} />
@@ -401,14 +436,14 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         className="text-[14px] font-bold truncate"
                         style={{ color: '#122E3B' }}
                       >
-                        {uploadedFile.name}
+                        {shownFile.name}
                       </p>
                       <p
                         className="text-[12px] font-medium mt-0.5"
-                        style={{ color: hasProcessed ? '#15803D' : '#6B7F8B' }}
+                        style={{ color: shownProcessed ? '#15803D' : '#6B7F8B' }}
                       >
-                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                        {hasProcessed && ' · Processed'}
+                        {(shownFile.size / 1024 / 1024).toFixed(2)} MB
+                        {shownProcessed && ' · Processed'}
                         {isProcessing && ' · Processing…'}
                       </p>
                     </div>
@@ -426,23 +461,23 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                   <div
                     className="mt-3 pt-3 text-[13px] font-semibold"
                     style={{
-                      borderTop: hasProcessed
+                      borderTop: shownProcessed
                         ? '1px solid rgba(34, 197, 94, 0.24)'
                         : error && !isProcessing
                           ? '1px solid rgba(220, 38, 38, 0.24)'
                           : '1px solid rgba(201,182,144,0.5)',
-                      color: hasProcessed
+                      color: shownProcessed
                         ? '#15803D'
                         : error && !isProcessing
                           ? '#B91C1C'
                           : '#C8891A',
                     }}
                   >
-                    {hasProcessed ? (
+                    {shownProcessed ? (
                       <span className="flex items-center gap-2">
                         <CheckCircle className="h-3.5 w-3.5" style={{ color: '#16A34A' }} />
-                        {processingResult?.fieldsExtracted
-                          ? t('preSurveyUpload.status.extracted', { count: processingResult.fieldsExtracted })
+                        {shownFields
+                          ? t('preSurveyUpload.status.extracted', { count: shownFields })
                           : t('preSurveyUpload.status.processed')}
                       </span>
                     ) : error && !isProcessing ? (
@@ -457,7 +492,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         <div>
                           <Button
                             size="sm"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => pickFile()}
                             className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
                           >
                             <Upload className="h-3.5 w-3.5 mr-1.5" />
@@ -476,7 +511,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
               ) : (
                 <div
                   className="text-center cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => pickFile()}
                 >
                   <Upload
                     className="mx-auto"
@@ -546,7 +581,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue }) 
                         size="sm"
                         onClick={() => {
                           setShowSkipConfirm(false);
-                          fileInputRef.current?.click();
+                          pickFile();
                         }}
                         className="rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[13px] px-4"
                       >

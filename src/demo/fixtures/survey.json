@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "exportedAt": "2026-09-03T16:27:20.265Z",
+    "questionIds": [
+      "11111111-1111-1111-1111-11111111111d",
+      "33333333-3333-3333-3333-333333333331",
+      "33333333-3333-3333-3333-333333333334"
+    ],
+    "contextIds": [
+      "11111111-1111-1111-1111-111111111110"
+    ]
+  },
+  "questions": [
+    {
+      "id": "11111111-1111-1111-1111-11111111111d",
+      "type": "career_happiness",
+      "label": "How happy were you in each of these roles?",
+      "required": true,
+      "allow_multiple": false,
+      "allow_other": false,
+      "order_num": 12,
+      "min_selections": null,
+      "max_selections": null,
+      "config": {
+        "maxValue": 10,
+        "minValue": 1,
+        "description": "Rate your happiness (1-10) and explain what about the role's responsibilities and work itself affected your satisfaction - not the company culture, specific people, or circumstances.",
+        "linkedQuestionId": "11111111-1111-1111-1111-111111111110"
+      },
+      "translations": {
+        "nl": {
+          "label": "Hoe gelukkig was je in elk van deze rollen?",
+          "description": "Geef je geluk een cijfer (1-10) en leg uit wat er aan de verantwoordelijkheden en het werk zelf je tevredenheid beïnvloedde, niet de bedrijfscultuur, specifieke mensen of omstandigheden."
+        }
+      }
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333331",
+      "type": "ranking",
+      "label": "Please rank the following career values in order of importance",
+      "required": true,
+      "allow_multiple": true,
+      "allow_other": false,
+      "order_num": 1,
+      "min_selections": null,
+      "max_selections": null,
+      "config": {
+        "choices": [
+          "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)",
+          "**Autonomy** (e.g., having independence in work, making decisions)",
+          "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)",
+          "**Creativity** (e.g., having the freedom to innovate, engaging in creative problem-solving)",
+          "**Job Stability & Financial Security** (e.g., long-term stability, financial reliability)",
+          "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)",
+          "**Accomplishment & Recognition** (e.g., reaching significant milestones, excelling in work, receiving awards)",
+          "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)"
+        ],
+        "description": ""
+      },
+      "translations": {
+        "nl": {
+          "label": "Zet de volgende carrièrewaarden op volgorde van belangrijkheid",
+          "choices": {
+            "**Autonomy** (e.g., having independence in work, making decisions)": "**Autonomie** (bijvoorbeeld zelfstandig kunnen werken, eigen beslissingen nemen)",
+            "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)": "**Work-Life Balance** (bijvoorbeeld balans tussen privé en werk, flexibele werktijden)",
+            "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)": "**Werkplezier** (bijvoorbeeld plezier hebben in je dagelijkse werk, betrokken en gemotiveerd zijn)",
+            "**Job Stability & Financial Security** (e.g., long-term stability, financial reliability)": "**Werkzekerheid & Financiële Zekerheid** (bijvoorbeeld stabiliteit op lange termijn, financiële betrouwbaarheid)",
+            "**Creativity** (e.g., having the freedom to innovate, engaging in creative problem-solving)": "**Creativiteit** (bijvoorbeeld vrijheid om te innoveren, creatief problemen oplossen)",
+            "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)": "**Anderen Helpen & Impact Maken** (bijvoorbeeld bijdragen aan een goed doel, collega's of klanten ondersteunen)",
+            "**Accomplishment & Recognition** (e.g., reaching significant milestones, excelling in work, receiving awards)": "**Prestaties & Erkenning** (bijvoorbeeld belangrijke doelen bereiken, uitblinken in je werk, prijzen ontvangen)",
+            "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)": "**Persoonlijke Groei & Uitdaging** (bijvoorbeeld nieuwe vaardigheden leren, moeilijke uitdagingen overwinnen, je persoonlijke en professionele grenzen verleggen)"
+          }
+        }
+      }
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333334",
+      "type": "multiple_choice",
+      "label": "What kind of schedule works best for you?",
+      "required": true,
+      "allow_multiple": false,
+      "allow_other": false,
+      "order_num": 4,
+      "min_selections": null,
+      "max_selections": null,
+      "config": {
+        "choices": [
+          "Standard 9-to-5 schedule",
+          "Flexible hours",
+          "Project-based deadlines",
+          "Part-time work"
+        ],
+        "non_negotiable_rider": "This is non-negotiable for me. Rule out careers that clearly don't fit this schedule."
+      },
+      "translations": {
+        "nl": {
+          "label": "Welk soort werkschema past het beste bij jou?",
+          "choices": {
+            "Flexible hours": "Flexibele werktijden",
+            "Part-time work": "Parttime werk",
+            "Project-based deadlines": "Projectgebonden deadlines",
+            "Standard 9-to-5 schedule": "Standaard 9-tot-5 schema"
+          },
+          "non_negotiable_rider": "Dit is voor mij niet onderhandelbaar. Sluit banen uit die duidelijk niet bij dit rooster passen."
+        }
+      }
+    }
+  ],
+  "context": [
+    {
+      "id": "11111111-1111-1111-1111-111111111110",
+      "type": "career_history",
+      "label": "What are your most recent professional roles?",
+      "required": true,
+      "allow_multiple": false,
+      "allow_other": false,
+      "order_num": 10,
+      "min_selections": null,
+      "max_selections": null,
+      "config": {
+        "companySizeOptions": [
+          "Micro (1-10)",
+          "Small (11-50)",
+          "Medium (51-200)",
+          "Large (201-1000)",
+          "Enterprise (1000-5000)",
+          "Multi National (5000+)",
+          "Own Company"
+        ],
+        "companyCultureOptions": [
+          "Startup / Scale-up",
+          "Corporate",
+          "Mid-Market",
+          "Agency / Consultancy",
+          "Boutique / Niche",
+          "Nonprofit / Social Impact",
+          "Public Sector / Gov",
+          "Solo / Freelance",
+          "Small Business Owner (up to 5 FTE)"
+        ]
+      },
+      "translations": {
+        "nl": {
+          "label": "Wat zijn je meest recente professionele rollen?"
+        }
+      }
+    }
+  ],
+  "personas": {
+    "marcel": {
+      "language": "nl",
+      "firstName": "Marcel",
+      "resume": {
+        "fileName": "Marcel_de_Vries_CV.pdf",
+        "fileSizeBytes": 188416,
+        "fieldsExtracted": 9
+      },
+      "answers": {
+        "11111111-1111-1111-1111-11111111111d": [
+          {
+            "title": "Teamleider Klantenservice",
+            "reason": "Ik doe het werk graag en mijn team draait goed, maar ik zit klem tussen wat het management wil en wat mijn mensen aankunnen. Er gaat te veel tijd op aan rapportages en overleg.",
+            "happiness": "6",
+            "companyName": "Regionale verzekeraar"
+          },
+          {
+            "title": "Senior Medewerker Klantcontact",
+            "reason": "Veel direct klantcontact en ik was degene die de lastige gevallen oploste. Ik kwam thuis met het gevoel dat ik iets had betekend.",
+            "happiness": "8",
+            "companyName": "Regionale verzekeraar"
+          },
+          {
+            "title": "Medewerker Klantenservice",
+            "reason": "Strak op gespreksduur gestuurd. Weinig ruimte om een klant echt te helpen, alleen om het gesprek af te ronden.",
+            "happiness": "4",
+            "companyName": "Energieleverancier"
+          },
+          {
+            "title": "Administratief Medewerker",
+            "reason": "Prettige collega’s en ik leerde er nauwkeurig werken, maar het werk zelf was voorspelbaar en eenzaam.",
+            "happiness": "5",
+            "companyName": "Accountantskantoor"
+          }
+        ],
+        "33333333-3333-3333-3333-333333333331": [
+          "**Work-Life Balance** (e.g., balancing personal and professional life, flexible hours)",
+          "**Job Satisfaction** (e.g., enjoying daily tasks, feeling engaged and motivated by work)",
+          "**Autonomy** (e.g., having independence in work, making decisions)"
+        ],
+        "33333333-3333-3333-3333-333333333334": "Part-time work",
+        "11111111-1111-1111-1111-111111111110": [
+          {
+            "title": "Teamleider Klantenservice",
+            "sector": "Verzekeringen",
+            "endYear": null,
+            "endMonth": null,
+            "isCurrent": true,
+            "startYear": 2019,
+            "startMonth": 3,
+            "companyName": "Regionale verzekeraar",
+            "companySize": "Large (201-1000)",
+            "companyCulture": "Corporate"
+          },
+          {
+            "title": "Senior Medewerker Klantcontact",
+            "sector": "Verzekeringen",
+            "endYear": 2019,
+            "endMonth": 2,
+            "isCurrent": false,
+            "startYear": 2015,
+            "startMonth": 1,
+            "companyName": "Regionale verzekeraar",
+            "companySize": "Large (201-1000)",
+            "companyCulture": "Corporate"
+          },
+          {
+            "title": "Medewerker Klantenservice",
+            "sector": "Energie",
+            "endYear": 2014,
+            "endMonth": 12,
+            "isCurrent": false,
+            "startYear": 2011,
+            "startMonth": 9,
+            "companyName": "Energieleverancier",
+            "companySize": "Enterprise (1000-5000)",
+            "companyCulture": "Corporate"
+          },
+          {
+            "title": "Administratief Medewerker",
+            "sector": "Zakelijke dienstverlening",
+            "endYear": 2011,
+            "endMonth": 8,
+            "isCurrent": false,
+            "startYear": 2007,
+            "startMonth": 8,
+            "companyName": "Accountantskantoor",
+            "companySize": "Small (11-50)",
+            "companyCulture": "Small Business Owner (up to 5 FTE)"
+          }
+        ],
+        "__non_negotiables": {
+          "33333333-3333-3333-3333-333333333334": true
+        }
+      },
+      "focus": {
+        "11111111-1111-1111-1111-11111111111d": "d0db3ff3-53af-4338-a935-496e56e063ef",
+        "33333333-3333-3333-3333-333333333331": "7994977b-6845-4436-a046-027f4bffb53f",
+        "33333333-3333-3333-3333-333333333334": "a4a895fd-21ed-4967-9628-e624e53b9434"
+      }
+    },
+    "emma": {
+      "language": "en",
+      "firstName": "Emma",
+      "resume": {
+        "fileName": "Emma_Whitfield_Resume.pdf",
+        "fileSizeBytes": 188416,
+        "fieldsExtracted": 9
+      },
+      "answers": {
+        "11111111-1111-1111-1111-11111111111d": [
+          {
+            "title": "Senior Marketing Manager",
+            "reason": "Broad scope and a team of three I genuinely like, but half my week goes on dashboards, attribution debates and re-forecasting pipeline. The parts I'm actually good at, positioning and telling the story, get squeezed to the edges. And since we brought in AI content tools I keep wondering which part of my craft is still mine.",
+            "happiness": "5",
+            "companyName": "B2B fintech scale-up"
+          },
+          {
+            "title": "Marketing Manager",
+            "reason": "Proper brand work with real budgets, campaigns I'm still proud of. Decisions took forever and I spent a lot of time managing upwards, but I loved turning research into a story the whole company could rally behind.",
+            "happiness": "7",
+            "companyName": "Global consumer goods brand"
+          },
+          {
+            "title": "Brand Strategist",
+            "reason": "The best years. Every few weeks a new client problem, a workshop, a strategy deck that made a room go quiet. Long hours, badly paid, and I never once watched the clock.",
+            "happiness": "8",
+            "companyName": "Brand and communications agency"
+          },
+          {
+            "title": "Communications Executive",
+            "reason": "A cause I cared about and where I learned to write for real audiences. But tiny budgets, no path upward and I was doing three jobs at once.",
+            "happiness": "6",
+            "companyName": "Arts charity"
+          }
+        ],
+        "33333333-3333-3333-3333-333333333331": [
+          "**Helping Others & Making an Impact** (e.g., contributing to a cause, supporting colleagues or clients)",
+          "**Personal Growth & Challenge** (e.g., learning new skills, overcoming difficult challenges, pushing personal and professional limits)",
+          "**Autonomy** (e.g., having independence in work, making decisions)"
+        ],
+        "33333333-3333-3333-3333-333333333334": "Flexible hours",
+        "11111111-1111-1111-1111-111111111110": [
+          {
+            "title": "Senior Marketing Manager",
+            "sector": "Financial technology",
+            "endYear": null,
+            "endMonth": null,
+            "isCurrent": true,
+            "startYear": 2021,
+            "startMonth": 4,
+            "companyName": "B2B fintech scale-up",
+            "companySize": "Medium (51-200)",
+            "companyCulture": "Startup / Scale-up"
+          },
+          {
+            "title": "Marketing Manager",
+            "sector": "Consumer goods",
+            "endYear": 2021,
+            "endMonth": 3,
+            "isCurrent": false,
+            "startYear": 2017,
+            "startMonth": 9,
+            "companyName": "Global consumer goods brand",
+            "companySize": "Multi National (5000+)",
+            "companyCulture": "Corporate"
+          },
+          {
+            "title": "Brand Strategist",
+            "sector": "Marketing and advertising",
+            "endYear": 2017,
+            "endMonth": 8,
+            "isCurrent": false,
+            "startYear": 2013,
+            "startMonth": 6,
+            "companyName": "Brand and communications agency",
+            "companySize": "Small (11-50)",
+            "companyCulture": "Agency / Consultancy"
+          },
+          {
+            "title": "Communications Executive",
+            "sector": "Arts and culture",
+            "endYear": 2013,
+            "endMonth": 5,
+            "isCurrent": false,
+            "startYear": 2010,
+            "startMonth": 9,
+            "companyName": "Arts charity",
+            "companySize": "Small (11-50)",
+            "companyCulture": "Nonprofit / Social Impact"
+          }
+        ],
+        "__non_negotiables": {
+          "33333333-3333-3333-3333-333333333334": true
+        }
+      },
+      "focus": {
+        "11111111-1111-1111-1111-11111111111d": "2c9725f6-0238-45b3-9848-bdd6c2df84de",
+        "33333333-3333-3333-3333-333333333331": "95b7c137-f101-4b30-87fd-e305bc2f1d18",
+        "33333333-3333-3333-3333-333333333334": "cc38e5d2-27bf-4dad-b3d1-d3b6810f96ff"
+      }
+    }
+  }
+}

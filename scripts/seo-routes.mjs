@@ -128,6 +128,14 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.6',
   },
+  {
+    path: '/demo/survey',
+    title: 'Demo: the first questions of the assessment | Cairnly',
+    description:
+      "Three real questions from the Cairnly assessment, filled in with a fictional candidate's answers. For each one, see what the report did with it.",
+    changefreq: 'monthly',
+    priority: '0.6',
+  },
   // Legal/support pages keep the site-default title+description (matching
   // their runtime DefaultSeo fallback) so static and rendered heads agree.
   { path: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },
