@@ -1,40 +1,40 @@
 {
-  "_comment": "Overlay on emma.en.json. Message ids are the exported chat_messages ids and change with every re-export: after running demo-export-fixture.mjs again, re-anchor the annotations here (src/demo/loadFixture.test.ts fails loudly if an id no longer exists). Annotation text lives in public/locales/<lang>/demo.json under annotations.emma.<key> (eyebrow, title, body, legend). Numbering in the UI follows transcript order, not the order here.",
+  "_comment": "Overlay on emma.en.json (re-recorded 2026-09-03). Message ids are the exported chat_messages ids and change with every re-export: after running demo-export-fixture.mjs again, re-anchor the annotations here (src/demo/loadFixture.test.ts fails loudly if an id no longer exists). Annotation text lives in public/locales/<lang>/demo.json under annotations.emma.<key> (eyebrow, title, body, legend). Numbering in the UI follows transcript order, not the order here.",
   "hiddenMessageIds": [],
   "annotations": [
     {
-      "key": "kept",
-      "messageId": "71ded558-beb7-478a-844f-3aaeba31934b",
-      "placement": "bottom"
-    },
-    {
       "key": "pushback",
-      "messageId": "f8bfe9bd-d830-45c1-96e1-36896a495736",
+      "messageId": "f402c2e4-bd80-4d55-9f09-c2a8e47e2774",
       "placement": "top"
     },
     {
+      "key": "kept",
+      "messageId": "0586dfa8-8950-4b43-894e-f22c9d713de1",
+      "placement": "bottom"
+    },
+    {
       "key": "pillTag",
-      "messageId": "c892f31c-aeeb-45ff-93b5-7df903bda624",
+      "messageId": "cc38e5d2-27bf-4dad-b3d1-d3b6810f96ff",
       "placement": "top"
     },
     {
       "key": "movePill",
-      "messageId": "3cf6f062-c372-4f67-83fe-807fb7977cb9",
+      "messageId": "e9b6d32c-bf70-44f1-b903-96d4448f8ffd",
       "placement": "top"
     },
     {
       "key": "radar",
-      "messageId": "ee538b14-a4c9-419f-9c34-c04769f8f3f4",
+      "messageId": "9538ad11-67f1-48ac-b03c-0b837468159a",
       "placement": "bottom"
     },
     {
       "key": "askRole",
-      "messageId": "25e6e364-0a62-4ba6-9646-db6934c6346f",
+      "messageId": "943da834-2bba-4e26-99e6-6c402e6a3ccd",
       "placement": "top"
     },
     {
       "key": "dictated",
-      "messageId": "5ce6dac0-21b1-4591-a294-f750ba4186cc",
+      "messageId": "b75f1287-5313-4f4d-9954-d44a559fb03b",
       "placement": "top"
     }
   ]

@@ -161,7 +161,9 @@ const { data: rawSections, error: secErr } = await admin
   .from('report_sections')
   .select('*')
   .eq('report_id', report.id)
-  .neq('section_type', 'init_summary');
+  // init_summary is raw survey extraction, chapter_1_feedback is the
+  // product-feedback form: neither is report content anything renders.
+  .not('section_type', 'in', '(init_summary,chapter_1_feedback)');
 if (secErr) throw secErr;
 const sections = (rawSections ?? [])
   .map((s) => ({

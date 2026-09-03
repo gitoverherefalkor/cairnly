@@ -91,7 +91,7 @@
       "kept": {
         "eyebrow": "This changes the report",
         "title": "She keeps it, and it lands in her report",
-        "body": "The coach reframes her fintech years as more scope, less proximity to the story. Emma presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
+        "body": "The coach takes the correction on the spot: shipping early and polishing afterwards is a calibration problem, not a time problem. Emma presses Keep and this answer goes into her final report word for word. That is how the report becomes hers, not just about her.",
         "legend": "Kept in the report"
       },
       "pillTag": {
@@ -103,13 +103,13 @@
       "movePill": {
         "eyebrow": "The Move button",
         "title": "One click, and the coach defends its rating",
-        "body": "Under every career sits a button with the step the report expects, here 'Upskill'. Emma clicked it: the question above was written for her automatically and the coach explains why this is not 'Reframe' and not 'Retrain' either. Click that button on any career card and you jump here.",
+        "body": "Under every career sits a button with the step the report expects, here 'Upskill'. Emma clicked it on Employee Experience Consultant: the question above was written for her automatically and the coach explains why the gap is context, not craft, and why the rating holds. Click that button on any career card and you jump here.",
         "legend": "The Move button"
       },
       "radar": {
         "eyebrow": "Made for her",
         "title": "Three careers, five axes, no template",
-        "body": "This radar is drawn from her own scores. Hover over a name to see that career on its own, and click 'Explain this comparison' to read what the difference means for her. Emma read it and told the coach the radar was being kind to number two.",
+        "body": "This radar plots her three top careers on five axes, drawn from her own scores. Hover over a name to see one career on its own, and click 'Explain this comparison' to read what the trade-off means for her. Emma's next question goes straight at the axis that worried her: stability at 2.",
         "legend": "The radar"
       },
       "askRole": {
