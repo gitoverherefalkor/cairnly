@@ -149,3 +149,8 @@ export function applyCuration(fixture: DemoFixture, curation: DemoCuration): Dem
   if (hidden.size === 0) return fixture;
   return { ...fixture, messages: fixture.messages.filter((m) => !hidden.has(m.id)) };
 }
+
+/** The language a persona's session was held in (the homepage cards label it). */
+export function demoSessionLanguage(personaId: DemoPersonaId): string {
+  return PERSONAS[personaId].language;
+}

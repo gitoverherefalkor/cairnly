@@ -1,37 +1,29 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
-import HeroCarousel from './HeroCarousel';
-import IntentChips from './IntentChips';
-import { useIntentCopy } from './useIntentCopy';
-import IntakeChatPanel from './intake/IntakeChatSection';
 import PriceCountdown from './PriceCountdown';
 import CompareLink from './CompareLink';
-import ReportDeliverablesCard from './intake/ReportDeliverablesCard';
-import { useIntakeChatOptional } from './intake/IntakeChatContext';
+import DemoPersonaCards from './demo/DemoPersonaCards';
+import DemoStage from './demo/DemoStage';
+import { INTAKE_SECTION_ANCHOR } from './intake/IntakeSection';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
 
 /**
- * Hero + intake chat as one continuous section on the app's nature
- * background (survey-bg starts navy at the top, so the header area stays
- * dark). Left column: copy, intent pills, then the product carousel + CTA.
- * Right column: the intake chat, directly beside the pills that seed it,
- * overlapping the semi-transparent cairn mark.
+ * Hero on the app's nature background. The proof is the public demo: two
+ * persona cards (left) open a real coaching session, and the stage beside
+ * them (right) plays an excerpt of the active persona's chat in front of the
+ * dashboard and job screens that follow it. The intake chat that used to
+ * live here has its own section above Pricing (IntakeSection).
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
-  const { vt, intent, picked } = useIntentCopy();
-  const intakeChat = useIntakeChatOptional();
-  // Once the chat delivers its pitch, the right column stops being a generic
-  // product tour and itemizes the report the visitor is about to buy.
-  const pitched = intakeChat?.stage === 'pitched';
-  // The price deadline greets visitors who haven't engaged yet, then gets out
-  // of the way. Once someone is answering questions, the conversation is what
-  // converts, and a ticking price clock only pulls attention off it. It comes
-  // back at the pitch, inside the deliverables card's own price panel.
-  const chatStarted = intakeChat?.started ?? false;
+
+  const scrollToIntake = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    document.getElementById(INTAKE_SECTION_ANCHOR)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <section className="survey-bg relative text-white pt-10 md:pt-14 pb-16 md:pb-20 overflow-hidden">
@@ -40,21 +32,15 @@ const Hero: React.FC = () => {
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
-      {/* Cairn mark behind the chat column */}
+      {/* Cairn mark behind the stage */}
       <div className="absolute bottom-6 right-[-20px] pointer-events-none z-0 hidden lg:block">
         <img src={CairnSymbolInvert} alt="" aria-hidden="true" className="w-[280px] h-auto opacity-[0.08]" />
       </div>
 
       <div className="lp-container relative z-10">
-        {/* Header band: the brand lockup (left) sits level with the headline
-            (right). The nav stays hidden above the fold, so the page opens on
-            the mark + tagline over the landscape, aligned to the H1. */}
+        {/* Header band: the brand lockup (left) sits level with the headline (right). */}
         <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
           <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
-            {/* Width-capped (the lockup is a wide 3.2:1 image): 160px on
-                phones, 190px max on desktop. mt nudges past the PNG's
-                transparent top trim so it sits ~10px lower than dead-level
-                with the H1's first line. */}
             <img
               src={CairnlyLockup}
               alt="Cairnly — career path clarity"
@@ -63,116 +49,70 @@ const Hero: React.FC = () => {
             />
           </a>
 
-          {/* Headline (desktop: right column, level with the logo) */}
           <div className="lg:col-span-7 lg:col-start-6">
-            {/* min-height reserves 2 title lines on md+ so the rule below
-                stays put when a variant's H1 wraps to 1 vs 2 lines */}
             <Reveal
               as="div"
-              className="font-heading font-bold leading-[1.15] text-white md:min-h-[2.3em]"
+              className="font-heading font-bold leading-[1.15] text-white"
               style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
             >
-              {/* key={`${picked}-${intent}`} remounts the text so the fade plays on chip switch */}
-              <h1 key={`${picked}-${intent}`} className="lp-intent-fade">
-                {vt('hero.titleA')}
-                {/* default's second sentence is highlight + titleB ("Not changing
-                    is just quieter."); break before it so it sits on its own row */}
-                {intent === 'default' ? <br /> : ' '}
-                <span className="lp-text-gold-grad">{vt('hero.titleHighlight')}</span>
-                {/* life-changed's titleB is a short standalone clause; force it onto its own row
-                    instead of letting the browser split it mid-sentence at this width */}
-                {intent === 'life-changed' ? <br /> : ' '}
-                {vt('hero.titleB')}
+              <h1>
+                {t('hero.titleA')}
+                <br />
+                <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
               </h1>
             </Reveal>
           </div>
         </div>
 
-        {/* Eyebrow + full-width gold rule: this IS the divider between the
-            header band and the content, so the first pill row and the body's
-            first line start from the same edge below it. */}
+        {/* Eyebrow + full-width gold rule */}
         <Reveal className="flex items-center gap-3 mt-6 mb-8 md:mb-10">
           <span className="whitespace-nowrap text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-            {t('hero.eyebrow')} · {t('intentChips.prompt')}
+            {t('hero.eyebrowDemo')}
           </span>
           <span className="h-px flex-1 bg-[#D4A024]/50" />
         </Reveal>
 
-        {/* Content band: pills + chat on the left, body copy and the product
-            proof on the right. DOM order (body, interactive, proof) keeps the
-            mobile flow sensible; desktop positions are explicit. */}
-        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8 lg:gap-y-10">
-          {/* Body copy (desktop: right column, row 1) */}
-          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
-            {/* min-height keeps the carousel from jumping as body copy varies */}
-            <Reveal as="div" className="max-w-2xl md:min-h-[122px]">
-              <p key={`${picked}-${intent}`} className="lp-intent-fade text-base md:text-lg text-white/65 font-medium leading-relaxed">
-                {vt('hero.body')}{' '}
-                <span className="text-white font-semibold">
-                  {vt('hero.bodyEmphasis')}
-                </span>
+        {/* Lead paragraph, full width under the rule. */}
+        <Reveal as="div" className="max-w-3xl mb-8 md:mb-10">
+          <p className="text-base md:text-lg text-white/65 font-medium leading-relaxed">
+            {t('hero.body')}{' '}
+            <span className="text-white font-semibold">{t('hero.bodyEmphasis')}</span>
+          </p>
+        </Reveal>
+
+        {/* Content band. DOM order (stage, cards) is the mobile order: the
+            moving picture first, the choice right under it. Desktop puts the
+            cards left and the stage right; the stage stretches to the cards'
+            height so both columns end on the same line. */}
+        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
+          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1 lg:self-stretch">
+            <Reveal as="div" className="lg:h-full">
+              <DemoStage />
+            </Reveal>
+          </div>
+
+          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1">
+            <Reveal as="div">
+              <DemoPersonaCards />
+              <p className="mt-5 text-[14px] text-white/55 font-medium">
+                {t('hero.neitherLine')}{' '}
+                <a
+                  href={`#${INTAKE_SECTION_ANCHOR}`}
+                  onClick={scrollToIntake}
+                  className="inline-flex items-center gap-1 text-white/85 font-semibold underline decoration-[#D4A024]/60 underline-offset-4 hover:text-white hover:decoration-[#D4A024]"
+                >
+                  {t('hero.neitherCta')}
+                  <ArrowRight size={13} strokeWidth={2.4} />
+                </a>
               </p>
             </Reveal>
           </div>
 
-          {/* Pills + chat as ONE left block (spans both rows, so the chat sits
-              tight under its pills regardless of the right height) */}
-          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:row-span-2">
-            <Reveal as="div">
-              <IntentChips />
-            </Reveal>
-            <Reveal as="div" className="mt-8">
-              <IntakeChatPanel />
-            </Reveal>
-          </div>
-
-          {/* Product proof + CTA (desktop: right column, row 2). Swaps to the
-              report deliverables card once the chat pitch lands — that card
-              carries its own checkout CTA, so the generic hero CTA and
-              reassurance line below step aside to avoid a second, competing
-              button; "See how it works" stays as the one remaining, low-key
-              way to keep browsing instead of buying. */}
-          <Reveal as="div" className="lg:col-span-7 lg:col-start-6 lg:row-start-2">
-            {pitched ? <ReportDeliverablesCard /> : <HeroCarousel />}
-            {pitched ? (
-              <>
-                <div className="mt-5 flex justify-center">
-                  <a
-                    href="#how-it-works"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="lp-btn-secondary-text"
-                  >
-                    {t('hero.ctaSecondary')}
-                    <ChevronDown size={14} strokeWidth={2} />
-                  </a>
-                </div>
-              </>
-            ) : (
-              // The pills + chat are the CTA here; a generic "Get Started"
-              // that drops straight into the signup form only invites bounces.
-              // Keep the reassurance line under the carousel, with the price
-              // deadline above it until the visitor starts talking. Flex gap so
-              // the spacing closes by itself when the countdown steps aside.
-              <div className="mt-8 flex flex-col items-center gap-3">
-                {!chatStarted && (
-                  <>
-                    <PriceCountdown tone="gold" leadWithPrice href="#pricing" />
-                    {/* Straight under the price, because that is the exact
-                        moment "is there a free version of this?" fires. Quiz
-                        traffic gets a route to the side-by-side instead of a
-                        bounce. Steps aside once the chat starts: mid
-                        conversation, nothing should pull them out of it. */}
-                    <CompareLink label={t('hero.compareLink')} />
-                  </>
-                )}
-                <p className="text-sm text-white/45 font-medium text-center">
-                  {t('hero.reassurance')}
-                </p>
-              </div>
-            )}
+          {/* Price deadline, the free-alternatives link and the reassurance line, under both columns. */}
+          <Reveal as="div" className="lg:col-span-12 mt-4 md:mt-6 flex flex-col items-center gap-3">
+            <PriceCountdown tone="gold" leadWithPrice href="#pricing" />
+            <CompareLink label={t('hero.compareLink')} />
+            <p className="text-sm text-white/45 font-medium text-center">{t('hero.reassurance')}</p>
           </Reveal>
         </div>
       </div>

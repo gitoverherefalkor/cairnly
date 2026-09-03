@@ -11,7 +11,10 @@
     "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
     "compareLink": "Hoe dit zich verhoudt tot gratis tests en coaches",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
-    "screenshotAlt": "Cairnly AI-coachsessie"
+    "screenshotAlt": "Cairnly AI-coachsessie",
+    "eyebrowDemo": "01 · Bekijk een echte sessie",
+    "neitherLine": "Herken je je in geen van beide?",
+    "neitherCta": "Vertel wat jou hier brengt"
   },
   "pillars": {
     "eyebrow": "Waarom Cairnly anders is",
@@ -85,7 +88,8 @@
         "screenshotLabel": "Live vacatures, op maat gemaakte materialen",
         "screenshotDesc": "Komt eraan zodra de bèta job-landing flow live gaat."
       }
-    ]
+    ],
+    "demoLabel": "Bekijk in de demo"
   },
   "methodology": {
     "eyebrow": "Chapter 03 · Methodologie",
@@ -566,5 +570,63 @@
       "body": "Een loopbaancoach rekent €80 tot €150 per sessie. Een gratis test geeft je een vierletterig label en laat de rest aan jou.",
       "link": "Bekijk de volledige vergelijking"
     }
+  },
+  "heroDemo": {
+    "stageLabel": "Speelt: de sessie van {{name}}",
+    "toggleAria": "Kies wiens sessie je wilt zien",
+    "clickHint": "Open in de demo",
+    "stepper": [
+      "Chat",
+      "Dashboard",
+      "Vacatures"
+    ],
+    "sessionLanguage": {
+      "en": "Sessie gevoerd in het Engels",
+      "nl": "Sessie gevoerd in het Nederlands"
+    },
+    "cards": {
+      "emma": {
+        "name": "Emma",
+        "who": "Emma · 38 · Senior marketing manager, fintech in Londen",
+        "intent": "Kan de job met haar ogen dicht, en dat is precies het probleem.",
+        "seeLabel": "Wat je in haar sessie ziet",
+        "see": [
+          "drie carrières naast elkaar op één radar",
+          "de coach die terugduwt op een aanname",
+          "een Move-pill: direct inzetbaar of eerst bijscholen"
+        ],
+        "traits": [
+          "strategisch",
+          "betekenisgever",
+          "rusteloos"
+        ],
+        "cta": "Bekijk Emma's sessie"
+      },
+      "marcel": {
+        "name": "Marcel",
+        "who": "Marcel · 41 · Teamleider klantenservice, verzekeraar",
+        "intent": "Klaar met een team managen, wil dichter bij de mensen staan die hij helpt.",
+        "seeLabel": "Wat je in zijn sessie ziet",
+        "see": [
+          "van teamleider naar learning & development",
+          "echte vacatures voor zijn tweede carrière",
+          "chatfeedback die het rapport herschrijft"
+        ],
+        "traits": [
+          "empathisch",
+          "praktisch",
+          "loyaal"
+        ],
+        "cta": "Bekijk Marcels sessie"
+      }
+    }
+  },
+  "intakeSection": {
+    "eyebrow": "Jouw vraag",
+    "title": "Vertel wat jou hier brengt",
+    "subtitle": "Vijf korte vragen, één eerlijk antwoord op de vraag of Cairnly iets is voor jouw situatie. Ga je door naar de assessment, dan staan deze antwoorden er al in.",
+    "asideTitle": "Wat er met je antwoorden gebeurt",
+    "asideBody": "De chat is een voorproefje van de coach, geen test: er zijn geen foute antwoorden. Ga je door naar de assessment, dan hoef je niets twee keer te typen.",
+    "surveyLink": "Benieuwd wat de assessment zelf vraagt? Bekijk de eerste drie vragen"
   }
 }

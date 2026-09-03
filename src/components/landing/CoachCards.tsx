@@ -5,9 +5,11 @@ import { FileText, Sparkles, MessageSquare, ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
 import { trackCtaClick } from '@/lib/analytics';
 import { DEMO_ROUTE } from '@/demo/constants';
+import { useDemoHref } from './demo/HeroPersonaContext';
 
 const CoachCards: React.FC = () => {
   const { t } = useTranslation('landing');
+  const demoHref = useDemoHref();
 
   return (
     <section className="bg-[#FAF5E8] py-24 md:py-32">
@@ -106,7 +108,7 @@ const CoachCards: React.FC = () => {
             needs explicit header handling (see the partner sample PDF). */}
         <Reveal as="div" className="max-w-3xl mx-auto mt-10 text-center">
           <Link
-            to={DEMO_ROUTE}
+            to={demoHref(DEMO_ROUTE)}
             onClick={() => trackCtaClick('landing_demo')}
             className="lp-btn-primary"
           >

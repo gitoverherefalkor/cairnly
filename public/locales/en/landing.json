@@ -11,7 +11,10 @@
     "reassurance": "Done in one sitting. No subscription. No account left dangling.",
     "compareLink": "How this compares to free tests and coaches",
     "screenshotMeta": "5 : 4 · AI coach session",
-    "screenshotAlt": "Cairnly AI coaching session"
+    "screenshotAlt": "Cairnly AI coaching session",
+    "eyebrowDemo": "01 · See a real session",
+    "neitherLine": "Neither of these sounds like you?",
+    "neitherCta": "Tell us what brings you here"
   },
   "pillars": {
     "eyebrow": "Why Cairnly is different",
@@ -85,7 +88,8 @@
         "screenshotLabel": "Live openings, tailored materials",
         "screenshotDesc": "Coming once the beta job-landing flow ships."
       }
-    ]
+    ],
+    "demoLabel": "See it in the demo"
   },
   "methodology": {
     "eyebrow": "Chapter 03 · Methodology",
@@ -566,5 +570,63 @@
       "body": "A career coach charges €80 to €150 per session. A free quiz hands you a four-letter label and leaves the rest to you.",
       "link": "See the full side-by-side"
     }
+  },
+  "heroDemo": {
+    "stageLabel": "Playing: {{name}}'s session",
+    "toggleAria": "Choose whose session to preview",
+    "clickHint": "Open in the demo",
+    "stepper": [
+      "Chat",
+      "Dashboard",
+      "Jobs"
+    ],
+    "sessionLanguage": {
+      "en": "Session held in English",
+      "nl": "Session held in Dutch"
+    },
+    "cards": {
+      "emma": {
+        "name": "Emma",
+        "who": "Emma · 38 · Senior marketing manager, London fintech",
+        "intent": "Can do the job with her eyes closed, and that is exactly the problem.",
+        "seeLabel": "What you see in her session",
+        "see": [
+          "three careers side by side on one radar",
+          "the coach pushing back on an assumption",
+          "a Move pill: ready now, or upskill first"
+        ],
+        "traits": [
+          "strategic",
+          "sense-maker",
+          "restless"
+        ],
+        "cta": "See Emma's session"
+      },
+      "marcel": {
+        "name": "Marcel",
+        "who": "Marcel · 41 · Customer service team lead, insurer",
+        "intent": "Done managing a team, wants to be closer to the people he helps.",
+        "seeLabel": "What you see in his session",
+        "see": [
+          "from team lead to learning and development",
+          "live openings for his second career",
+          "chat feedback that rewrites the report"
+        ],
+        "traits": [
+          "empathetic",
+          "practical",
+          "loyal"
+        ],
+        "cta": "See Marcel's session"
+      }
+    }
+  },
+  "intakeSection": {
+    "eyebrow": "Your question",
+    "title": "Tell us what brings you here",
+    "subtitle": "Five short questions, one honest answer on whether Cairnly is worth it for your situation. If you go on to the assessment, these answers are already filled in.",
+    "asideTitle": "What happens with your answers",
+    "asideBody": "The chat is a taste of the coach, not a test: there are no wrong answers. Continue to the assessment and you never type the same thing twice.",
+    "surveyLink": "Curious what the assessment itself asks? See the first three questions"
   }
 }

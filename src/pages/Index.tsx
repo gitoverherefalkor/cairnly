@@ -9,6 +9,7 @@ import Methodology from '@/components/landing/Methodology';
 import CoachCards from '@/components/landing/CoachCards';
 import ComparisonTable from '@/components/landing/ComparisonTable';
 import CostMath from '@/components/landing/CostMath';
+import IntakeSection from '@/components/landing/intake/IntakeSection';
 import PricingSection from '@/components/landing/PricingSection';
 import WhoFor from '@/components/landing/WhoFor';
 import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
@@ -17,16 +18,21 @@ import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { IntentProvider } from '@/contexts/IntentContext';
 import { IntakeChatProvider } from '@/components/landing/intake/IntakeChatContext';
+import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
 import Seo from '@/components/Seo';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
 
 /**
  * Cairnly homepage (v2) — an editorial, cairn-as-way-marker landing page.
  * Assembled from self-contained sections under src/components/landing/.
+ * The hero sells with the public demo (HeroPersonaProvider carries the
+ * chosen persona into every demo link on the page); the intake chat has its
+ * own section directly above Pricing.
  */
 const Index: React.FC = () => (
   <IntentProvider>
   <IntakeChatProvider>
+  <HeroPersonaProvider>
   <Seo path="/" jsonLd={[organizationSchema, websiteSchema]} />
   <div
     className="min-h-screen font-sans overflow-x-clip"
@@ -42,6 +48,7 @@ const Index: React.FC = () => (
       <CoachCards />
       <ComparisonTable />
       <CostMath />
+      <IntakeSection />
       <PricingSection />
       <WhoFor />
       {/* ForkDivider hidden — the same-path/different-path diagram wasn't landing well */}
@@ -51,6 +58,7 @@ const Index: React.FC = () => (
     </main>
     <LandingFooter />
   </div>
+  </HeroPersonaProvider>
   </IntakeChatProvider>
   </IntentProvider>
 );

@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import Reveal from './Reveal';
 import ScreenshotSlot from './ScreenshotSlot';
 import WorkflowDiagramSimple from './WorkflowDiagramSimple';
 import CairnProgress from '@/components/survey/CairnProgress';
 import { tArray } from '@/lib/i18nArray';
+import { trackCtaClick } from '@/lib/analytics';
+import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE, DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
+import { useDemoHref } from './demo/HeroPersonaContext';
 
 interface StepCopy {
   eyebrow: string;
@@ -19,8 +23,15 @@ interface StepCopy {
   screenshotDesc?: string;
 }
 
+/** A step's door into the public demo: the screen this step produces. */
+interface DemoEntry {
+  slug: 'survey' | 'chat' | 'dashboard' | 'jobs';
+  route: string;
+}
+
 const HowItWorks: React.FC = () => {
   const { t } = useTranslation('landing');
+  const demoHref = useDemoHref();
   const [activeStep, setActiveStep] = useState(0);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -58,7 +69,8 @@ const HowItWorks: React.FC = () => {
     visual: React.ReactNode;
     imageLeft: boolean;
     extra?: React.ReactNode;
-  }> = ({ idx, eyebrow, body, visual, imageLeft, extra }) => {
+    demo?: DemoEntry;
+  }> = ({ idx, eyebrow, body, visual, imageLeft, extra, demo }) => {
     const copy = (
       <div className={`md:col-span-7 ${imageLeft ? 'order-1 md:order-2' : ''}`}>
         <div className="flex items-center gap-4 mb-4">
@@ -71,8 +83,25 @@ const HowItWorks: React.FC = () => {
         {extra}
       </div>
     );
+    // The demo pill sits bottom-left; the slot's own zoom button owns bottom-right.
     const visualCol = (
-      <div className={`md:col-span-5 ${imageLeft ? 'order-2 md:order-1' : ''}`}>{visual}</div>
+      <div className={`md:col-span-5 ${imageLeft ? 'order-2 md:order-1' : ''}`}>
+        {demo ? (
+          <div className="relative">
+            {visual}
+            <Link
+              to={demoHref(demo.route)}
+              onClick={() => trackCtaClick(`howitworks_demo_${demo.slug}`)}
+              className="absolute bottom-3 left-3 z-[3] inline-flex items-center gap-1.5 rounded-full bg-[#D4A024] text-[#122E3B] px-3.5 py-1.5 text-[12px] font-bold shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] hover:bg-[#C08F1B] transition-colors"
+            >
+              {t('howItWorks.demoLabel')}
+              <ArrowRight size={13} strokeWidth={2.6} />
+            </Link>
+          </div>
+        ) : (
+          visual
+        )}
+      </div>
     );
     return (
       <div
@@ -125,13 +154,14 @@ const HowItWorks: React.FC = () => {
             </div>
           </aside>
 
-          {/* Steps */}
+          {/* Steps. 1, 3, 4 and 5 each open the demo screen they produce. */}
           <div className="col-span-12 lg:col-span-10 space-y-20 md:space-y-24">
             <Step
               idx={0}
               eyebrow={steps[0]?.eyebrow}
               imageLeft
               body={steps[0]?.body}
+              demo={{ slug: 'survey', route: DEMO_SURVEY_ROUTE }}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
@@ -168,11 +198,12 @@ const HowItWorks: React.FC = () => {
               eyebrow={steps[2]?.eyebrow}
               imageLeft
               body={steps[2]?.body}
+              demo={{ slug: 'chat', route: DEMO_ROUTE }}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[2]?.screenshotMeta}
-                  src="/images/live/landing/chat_with_coach_jun26.png"
+                  src="/images/live/landing/chat_with_coach_sep26.jpg"
                   alt={steps[2]?.screenshotAlt}
                 />
               }
@@ -182,11 +213,12 @@ const HowItWorks: React.FC = () => {
               eyebrow={steps[3]?.eyebrow}
               imageLeft={false}
               body={steps[3]?.body}
+              demo={{ slug: 'dashboard', route: DEMO_DASHBOARD_ROUTE }}
               visual={
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[3]?.screenshotMeta}
-                  src="/images/live/landing/get_report_jun26.png"
+                  src="/images/live/landing/get_report_sep26.jpg"
                   alt={steps[3]?.screenshotAlt}
                 />
               }
@@ -196,6 +228,7 @@ const HowItWorks: React.FC = () => {
               eyebrow={steps[4]?.eyebrow}
               imageLeft
               body={steps[4]?.body}
+              demo={{ slug: 'jobs', route: DEMO_JOBS_ROUTE }}
               extra={
                 <p className="mt-5 text-[13px] text-[#D4A024] font-bold flex items-center gap-2">
                   <Sparkles size={14} strokeWidth={2} />
@@ -206,7 +239,7 @@ const HowItWorks: React.FC = () => {
                 <ScreenshotSlot
                   aspect="aspect-[4/3]"
                   meta={steps[4]?.screenshotMeta}
-                  src="/images/live/landing/land_the_job_jun26_v2.png"
+                  src="/images/live/landing/land_the_job_sep26.jpg"
                   alt={steps[4]?.screenshotAlt || steps[4]?.screenshotLabel}
                 />
               }
