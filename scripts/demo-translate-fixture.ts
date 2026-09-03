@@ -173,6 +173,32 @@ for (const m of fixture.messages) {
 }
 const translateTitle = (raw: string) => titleMap.get(normTitle(raw)) ?? null;
 
+// Sub-section headings (##### …). The chat picks icons by EXACT match on
+// the prompt's fixed subheaders (subsectionIcons.ts), so a free translation
+// ("Insight into your growth areas" for "Understanding Potential Growth
+// Areas") silently loses the icon. The report carries every subheader in
+// both languages in the same order, so map source → target by position.
+const headingMap = new Map<string, string>();
+const h5s = (html: string | null | undefined) => [...(html ?? '').matchAll(/<h5>(.+?)<\/h5>/g)].map((m) => stripHtml(m[1]));
+for (const s of fixture.sections) {
+  const src = h5s(from === 'en' ? s.content : sectionI18n(s, from)?.content);
+  const tgt = h5s(to === 'en' ? s.content : sectionI18n(s, to)?.content);
+  if (src.length && src.length === tgt.length) src.forEach((h, i) => headingMap.set(normTitle(h), tgt[i]));
+}
+const headingPairs = [...new Set([...headingMap.entries()].map(([k, v]) => `«${k}» → «${v}»`))];
+/** Replace the target's ##### lines with the report's own subheaders, by position. */
+function alignSubheadings(source: string, target: string): string {
+  const srcHeads = [...source.matchAll(/^#####\s+(.+)$/gm)].map((m) => stripHtml(m[1]));
+  const tgtLines = target.split('\n');
+  const tgtIdx = tgtLines.map((l, i) => (/^#####\s+/.test(l) ? i : -1)).filter((i) => i >= 0);
+  if (!srcHeads.length || srcHeads.length !== tgtIdx.length) return target;
+  srcHeads.forEach((h, i) => {
+    const mapped = headingMap.get(normTitle(h));
+    if (mapped) tgtLines[tgtIdx[i]] = `##### ${mapped}`;
+  });
+  return tgtLines.join('\n');
+}
+
 // Company size/type lines, both languages, from the report's own values.
 const sizeLines = new Set<string>();
 for (const s of fixture.sections) {
@@ -250,6 +276,8 @@ const system = [
   'Preserve the markdown structure exactly: the same heading levels (#, ##, ###, ####, #####), bold, bullet and numbered lists, blank lines, "---" separators, emoji and bracketed labels, in the same order. Do not add, drop, merge, reorder or summarise anything; translate every sentence.',
   `Career and section titles must use the report's own titles, exactly as listed here (they have to match the report):`,
   ...glossaryLines.map((l) => `  ${l}`),
+  `Sub-section headings (##### lines) must use these exact target headings:`,
+  ...headingPairs.map((l) => `  ${l}`),
   `Labels and lines: «${ALT_LABEL[from]}» → «${ALT_LABEL[to]}»`,
   ...[...sizeLines].map((l) => `  ${l}`),
   'Reskilling levels: ' + movePairs.join('; '),
@@ -410,6 +438,21 @@ for (let i = 0; i < messages.length; i++) {
   process.stdout.write(`  llm ${m.id.slice(0, 8)} (${out.length} chars)\n`);
 }
 
+// 3b. Subheadings of model-translated section deliveries → the report's own
+//     (icons match on them). Runs on every existing entry, so a re-run with
+//     no new translations still repairs older sidecars.
+let realigned = 0;
+for (const m of messages) {
+  if (m.sender !== 'bot' || methods[m.id] !== 'llm' || !/^### /m.test(m.content)) continue;
+  const before = sidecar.messages[m.id];
+  if (!before) continue;
+  const after = alignSubheadings(m.content, before);
+  if (after !== before) {
+    sidecar.messages[m.id] = after;
+    realigned += 1;
+  }
+}
+
 // 4. chat_highlights: the wrap-up's own text, natively in the session language.
 const highlights = fixture.sections.find((s) => s.section_type === 'chat_highlights');
 if (highlights && (force || !sidecar.sections.chat_highlights)) {
@@ -434,7 +477,7 @@ for (const id of Object.keys(sidecar.messages)) counts[methods[id] ?? '?'] = (co
 const missing = messages.filter((m) => !sidecar.messages[m.id]).map((m) => m.id.slice(0, 8));
 console.log(`\n${persona}: ${from} → ${to}  (${llmCalls} model calls${dry ? ', dry run' : ''})`);
 console.log('methods:', JSON.stringify(counts));
-console.log('reconstructed sections:', reconstructed.size, '| chat_highlights:', sidecar.sections.chat_highlights ? 'yes' : 'no');
+console.log('reconstructed sections:', reconstructed.size, '| subheadings realigned:', realigned, '| chat_highlights:', sidecar.sections.chat_highlights ? 'yes' : 'no');
 console.log('missing:', missing.length ? missing.join(', ') : 'none');
 if (warnings.length) console.log('WARNINGS:\n  ' + warnings.join('\n  '));
 console.log(dry ? '(dry run, nothing written)' : `written: ${sidecarPath}`);
