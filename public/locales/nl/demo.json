@@ -207,7 +207,7 @@
     "intro": {
       "eyebrow": "Demo, alleen-lezen",
       "title": "Wat de vacaturezoeker voor {{name}} vond",
-      "body": "Eén echte zoekopdracht, gedaan op {{date}} voor de beste match van {{name}}, {{career}}. De vacatures komen van LinkedIn; de AI scoort elke vacature op het rapport en zegt waarom, zodat de sterke matches bovenaan staan en de zwakkere eronder ingeklapt zijn.",
+      "body": "Eén echte zoekopdracht, gedaan op {{date}} voor {{career}}, een van de drie topmatches van {{name}}. De vacatures komen van LinkedIn; de AI scoort elke vacature op het rapport en zegt waarom, zodat de sterke matches bovenaan staan en de zwakkere eronder ingeklapt zijn.",
       "pipeline": "Bewaar een vacature met het hartje en open de pijplijn: bewaarde vacatures staan op een bord dat je van Bewaard naar Gesolliciteerd naar Gesprek sleept. {{name}} heeft er drie op staan. Wat je hier bewaart of verplaatst blijft alleen in dit tabblad; na herladen staat de demo weer terug.",
       "ageNote": "De vacatures zijn gevonden op {{date}} en worden niet ververst, dus een deel is inmiddels gesloten. Voor een echte gebruiker draait een nieuwe zoekopdracht live, wanneer die maar wil.",
       "englishNote": "De vacaturepagina is voorlopig Engelstalig, en vacatures komen terug in de taal van de zoekopdracht."
@@ -215,6 +215,7 @@
     "footer": {
       "dashboard": "Terug naar het dashboard van {{name}}",
       "dashboardNote": "De matches waarvoor deze zoekopdracht liep, de carrièrekaart, het volledige rapport."
-    }
+    },
+    "foundOn": "Gevonden op {{date}}"
   }
 }

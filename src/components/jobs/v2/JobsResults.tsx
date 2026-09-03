@@ -41,6 +41,10 @@ interface JobsResultsProps {
   nav?: React.ReactNode;
   /** rel + click tracking for the apply links (demo). Defaults to the signed-in behaviour. */
   applyLink?: ApplyLinkOptions;
+  /** Short note after the job count in the results bar ("Found on 3 September
+   *  2026"). The demo shows frozen listings that age; the signed-in page
+   *  searches live and leaves it out. */
+  resultsNote?: string;
   firstName: string;
   reportId: string;
   results: JobSearchResult[];
@@ -66,6 +70,7 @@ interface JobsResultsProps {
 export const JobsResults: React.FC<JobsResultsProps> = ({
   nav,
   applyLink = DEFAULT_APPLY_LINK,
+  resultsNote,
   firstName,
   reportId,
   results,
@@ -133,6 +138,23 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
           <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>
             {totalJobs} {totalJobs === 1 ? 'job' : 'jobs'} found
           </span>
+          {resultsNote && (
+            <span
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 12,
+                fontWeight: 700,
+                color: PALETTE.goldBright,
+                background: 'rgba(212,160,36,0.14)',
+                border: '1px solid rgba(212,160,36,0.35)',
+                padding: '4px 10px',
+                borderRadius: 9999,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {resultsNote}
+            </span>
+          )}
           <button
             type="button"
             onClick={onEditSearch}

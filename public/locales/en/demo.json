@@ -207,7 +207,7 @@
     "intro": {
       "eyebrow": "Demo, read-only",
       "title": "What the job search found for {{name}}",
-      "body": "One real search, run on {{date}} for {{name}}'s top match, {{career}}. The listings come from LinkedIn; the AI scores each one against the report and says why, so the strong matches sit on top and the weaker ones fold away below.",
+      "body": "One real search, run on {{date}} for {{career}}, one of {{name}}'s top three matches. The listings come from LinkedIn; the AI scores each one against the report and says why, so the strong matches sit on top and the weaker ones fold away below.",
       "pipeline": "Save a job with the heart and open the pipeline: the saved jobs sit on a board you drag from Saved to Applied to Interviewing. {{name}} has three on it. What you save or move here stays in this tab only; a reload puts the demo back.",
       "ageNote": "The listings were found on {{date}} and are not refreshed, so some will have closed by now. For a real user a new search runs live, whenever they want.",
       "englishNote": "The job search page is in English for now, and listings come back in the language of the search."
@@ -215,6 +215,7 @@
     "footer": {
       "dashboard": "Back to {{name}}'s dashboard",
       "dashboardNote": "The matches this search was run for, the career map, the full report."
-    }
+    },
+    "foundOn": "Found on {{date}}"
   }
 }

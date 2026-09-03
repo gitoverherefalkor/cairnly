@@ -11,11 +11,18 @@
 //       a second run costs a WF8 run (Apify + two LLM calls) and returns
 //       different listings than the ones the copy may refer to.
 //
-//   node scripts/demo-run-job-search.mjs <email> --save=<jobId>,<jobId> [--applied=<jobId>] [--persona=marcel]
+//   node scripts/demo-run-job-search.mjs <email> --save=<jobId>,<jobId> [--applied=<jobId>] [--replace] [--persona=marcel]
 //       inserts saved_jobs rows for the persona (service role, the same
 //       columns useSavedJobs.saveJob writes), optionally marks one as
 //       applied, and writes `savedJobs` (SavedJob[]) into the fixture.
-//       demo-export-fixture.mjs exports the same rows on a re-freeze.
+//       --replace first deletes ALL of the persona's saved rows (when the
+//       shown career changes). demo-export-fixture.mjs exports the same
+//       rows on a re-freeze.
+//
+//   node scripts/demo-run-job-search.mjs <email> --drop=<section_type> [--persona=marcel]
+//       removes that career's frozen results from the fixture (the demo
+//       shows one career per persona; a thin result gets replaced, not
+//       stacked). Saved rows that point at it must be replaced too.
 //
 //   node scripts/demo-run-job-search.mjs <email> --list [--persona=marcel]
 //       prints the frozen listings (id, score, title, company) to pick from.
@@ -140,6 +147,22 @@ if (has('list')) {
   process.exit(0);
 }
 
+// ── --drop=<section_type>: forget a career's results ───────────────────────
+const drop = flag('drop');
+if (drop) {
+  const key = SECTION_KEY[drop];
+  const before = (fixture.jobs ?? []).length;
+  fixture.jobs = (fixture.jobs ?? []).filter((r) => r.sectionType !== key);
+  if (fixture.jobs.length === before) {
+    console.error(`Fixture holds no results for ${drop}.`);
+    process.exit(1);
+  }
+  const orphans = (fixture.savedJobs ?? []).filter((s) => !fixture.jobs.some((r) => r.jobs.some((j) => j.id === s.external_job_id)));
+  writeFixture();
+  console.log(`dropped ${drop} from ${fixtureFile}; ${fixture.jobs.length} result set(s) left${orphans.length ? `; ${orphans.length} saved row(s) now point at nothing, re-run --save --replace` : ''}`);
+  process.exit(0);
+}
+
 // ── --career=<section_type>: the real search, once ─────────────────────────
 const career = flag('career');
 if (career) {
@@ -217,10 +240,13 @@ if (career) {
     process.exit(1);
   }
   const data = JSON.parse(text);
+  // LinkedIn's job-view URLs work without the scrape-session tracking
+  // tokens (?position=&refId=&trackingId=); a public fixture carries none.
+  const jobs = (data.jobs ?? []).map((j) => ({ ...j, apply_url: String(j.apply_url ?? '').split('?')[0] }));
   const result = {
     careerTitle,
     sectionType,
-    jobs: data.jobs ?? [],
+    jobs,
     totalCount: data.total_count ?? 0,
     cached: !!data.cached,
     status: 'done',
@@ -268,8 +294,10 @@ if (save) {
       match_score: job.match_score ?? null,
     });
   }
-  // Idempotent: a re-run replaces the persona's rows for these listings.
-  const { error: delErr } = await admin.from('saved_jobs').delete().eq('user_id', userId).in('external_job_id', ids);
+  // Idempotent: a re-run replaces the persona's rows for these listings
+  // (--replace: all of the persona's rows, when the shown career changed).
+  const del = admin.from('saved_jobs').delete().eq('user_id', userId);
+  const { error: delErr } = await (has('replace') ? del : del.in('external_job_id', ids));
   if (delErr) throw delErr;
   const { error: insErr } = await admin.from('saved_jobs').insert(rows);
   if (insErr) throw insErr;

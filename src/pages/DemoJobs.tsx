@@ -211,6 +211,7 @@ const DemoJobs: React.FC = () => {
             <JobsResults
               nav={nav}
               applyLink={applyLink}
+              resultsNote={dateText ? t('jobsDemo.foundOn', { date: dateText }) : undefined}
               firstName={fixture.persona.firstName}
               reportId={fixture.persona.reportId}
               results={results}

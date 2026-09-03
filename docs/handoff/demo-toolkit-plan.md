@@ -12,7 +12,7 @@ Everything below is implemented. What landed, and where:
 | Piece | Where |
 |---|---|
 | Persona parameter | `chooseFixture(lang, personaOverride)` in `src/demo/loadFixture.ts`; `src/demo/links.ts` (`readPersonaParam`, `demoQuery`, `demoLink`) carries `?p=` and `?persona=` between the three demo pages (Demo, DemoDashboard, DemoJobs, DemoFooter all use it). The fallback note is per persona now: `personas.<id>.fallback` |
-| The two searches | `scripts/demo-run-job-search.mjs` (`--career=top_career_1` runs `search-jobs` with the Jobs page's payload; `--save=<ids> --applied=<id>` writes `saved_jobs` rows; `--list`). Run once per persona on 2026-09-03: Emma, Service Designer, GB, 14 listings (12 scored 6+); Marcel, Customer Service Trainer, NL, 15 listings (ONE scored 6+, the rest 3 to 5, see the note below). `remote_friendly` + `full_time`. LinkedIn tracking tokens stripped from `apply_url`; descriptions scanned for personal names (none) |
+| The two searches | `scripts/demo-run-job-search.mjs` (`--career=<section_type>` runs `search-jobs` with the Jobs page's payload; `--save=<ids> --applied=<id> [--replace]` writes `saved_jobs` rows; `--drop=<section_type>`; `--list`). Emma: Service Designer, GB, 14 listings (12 scored 6+). Marcel: HR Advisor, Learning and Development (his SECOND career), NL, 19 listings (5 scored 6+); his first career, Customer Service Trainer, scored one listing 6+ and was dropped from the fixture after Sjoerd chose the second-career run. `remote_friendly` + `full_time`, all on 2026-09-03. LinkedIn tracking tokens stripped from `apply_url`; descriptions scanned for personal names (none) |
 | Fixture | `jobs: DemoJobSearchResult[]` (JobSearchResult + `searchedAt`, `searchOptions`) and `savedJobs: SavedJob[]` in both fixtures (`src/demo/types.ts`). Three saved rows per persona, one of them `applied`. `demo-export-fixture.mjs` exports `savedJobs` from the DB and CARRIES `jobs` over from the existing file |
 | Page | `src/pages/DemoJobs.tsx` at `/demo/jobs`; route in `App.tsx`, SEO entry in `seo-routes.mjs`, `DEMO_JOBS_ROUTE`; strings under `jobsDemo.*`. Opens on results; save heart, kanban drag and status changes are local state only |
 | Shared nav | `src/components/demo/DemoPageNav.tsx` (trust bar + top bar + honest label), used by the dashboard and jobs demos |
@@ -27,14 +27,25 @@ Jobs step is unlocked and pulses, the banner and the per-career "Find open
 roles" land on `/demo/jobs` with the query carried; `?persona=` and `?lang=`
 combine (Dutch chrome around Emma's English listings, with the note).
 
-**Open point for Sjoerd: Marcel's result is thin.** The Dutch search scored
-one listing 6+ (JD.COM, 7/10) and fourteen at 3 to 5, so his results page
-shows one card and a collapsed "14 more roles scored 3-5" panel. Honest
-output, but a weak showcase. Options, each ONE extra WF8 run: search his
-second career (HR Advisor, Learning and Development) or third (Onboarding
-Specialist) instead or as well; or re-run the same career with
-`--arrangement=any` (on-site roles included; the Dutch market for this role
-is mostly on-site). Not done without a yes (cost discipline from step 1).
+**Marcel's first result was thin and got replaced.** Customer Service
+Trainer in NL scored one listing 6+ and fourteen at 3 to 5. Sjoerd chose one
+extra run on his second career; that run came back UNSCORED (every
+`match_score` null) because the WF8 scorer's reply was cut off after 10 of
+15 jobs (1162 characters, mid-JSON; `Apply Scores` catches the parse error
+and returns the jobs unscored, and the edge function caches that for 24h).
+The poisoned `job_search_cache` row was deleted and the run repeated; the
+second attempt scored fine. Two things to know: (1) a real user can hit the
+same silent failure, and the cache then serves unscored results for a day;
+the fix belongs in WF8 (the `Claude Son5` node has no max-tokens setting,
+so a long think can eat the output budget) and needs a per-workflow yes;
+(2) `--force` alone does NOT get past the cache, the row has to go first.
+
+The results bar now carries a "Found on <date>" label (`JobsResults.resultsNote`,
+`jobsDemo.foundOn`) so the age of the listings is visible where the apply
+buttons are, not only in the intro card. Closed postings still open on
+LinkedIn (a "no longer accepting applications" page), which keeps the proof
+that the listings are real; refresh with `--force` after clearing the cache
+row if the demo gets traffic.
 
 ## What Sjoerd decided (do not relitigate)
 
