@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,45 @@ interface WelcomeCardProps {
   onReady: () => void;
   isLoading?: boolean;
   // On /chat the card sits beside the report sidebar, whose fixed panel is
-  // centred in the viewport with max-height calc(100vh - 180px). With this
-  // on, the card takes the same box (from md up), so their top and bottom
-  // edges line up instead of the card floating a little higher and shorter.
+  // centred in the viewport. With this on, the card measures that panel and
+  // takes exactly its height (from md up), so their top and bottom edges
+  // line up on any screen size.
   matchSidebar?: boolean;
+}
+
+// Height of the desktop sidebar panel (ReportSidebar marks it with
+// data-report-sidebar-panel), tracked live so a collapse/expand or a window
+// resize keeps the card in step. 0 when no panel is on screen (mobile).
+function useSidebarPanelHeight(enabled: boolean): number {
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    if (!enabled) return;
+    let observer: ResizeObserver | null = null;
+    let observed: Element | null = null;
+    const measure = () => {
+      const panel = document.querySelector('[data-report-sidebar-panel]');
+      if (panel !== observed) {
+        observer?.disconnect();
+        observed = panel;
+        if (panel && typeof ResizeObserver !== 'undefined') {
+          observer = new ResizeObserver(measure);
+          observer.observe(panel);
+        }
+      }
+      setHeight(panel ? Math.round(panel.getBoundingClientRect().height) : 0);
+    };
+    measure();
+    // The panel mounts in a sibling subtree; poll briefly so the first
+    // measurement does not miss it, then rely on the observer + resize.
+    const retry = window.setTimeout(measure, 250);
+    window.addEventListener('resize', measure);
+    return () => {
+      window.clearTimeout(retry);
+      window.removeEventListener('resize', measure);
+      observer?.disconnect();
+    };
+  }, [enabled]);
+  return height;
 }
 
 export const WelcomeCard: React.FC<WelcomeCardProps> = ({
@@ -21,12 +56,14 @@ export const WelcomeCard: React.FC<WelcomeCardProps> = ({
   matchSidebar = false,
 }) => {
   const { t } = useTranslation('chat');
+  const panelHeight = useSidebarPanelHeight(matchSidebar);
   return (
     <div className="w-full max-w-[800px] mx-auto py-4">
       <Card
         className={`border-2 border-atlas-blue/20 shadow-lg ${
-          matchSidebar ? 'md:min-h-[calc(100vh-180px)] flex flex-col justify-center' : ''
+          matchSidebar ? 'flex flex-col justify-center' : ''
         }`}
+        style={matchSidebar && panelHeight > 0 ? { minHeight: panelHeight } : undefined}
       >
         <CardHeader className="text-center pb-4">
           <img src={atlasFigure} alt="Cairnly" className="mx-auto mb-4 h-40 w-auto" />

@@ -359,6 +359,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         <div
           className="hidden md:flex w-12 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col items-center py-4 space-y-2 fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-y-auto z-40"
           style={desktopPanelStyle}
+          data-report-sidebar-panel
         >
           <Button
             variant="ghost"
@@ -402,6 +403,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
         <div
           className="hidden md:flex w-72 backdrop-blur-[14px] border border-white/10 rounded-[20px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.45)] flex-col fixed left-4 top-1/2 -translate-y-1/2 max-h-[calc(100vh-180px)] overflow-hidden z-40"
           style={desktopPanelStyle}
+          data-report-sidebar-panel
         >
           {/* Header — gold editorial eyebrow */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
