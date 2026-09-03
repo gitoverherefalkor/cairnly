@@ -149,7 +149,7 @@ if (full && reportIds.length > 0) {
 
 const { data: eng, error: engErr } = await admin
   .from('user_engagement_tracking')
-  .update({ chat_started_at: null, chat_last_section_index: null })
+  .update({ chat_started_at: null, chat_last_section_index: null, chat_completed_at: null })
   .eq('user_id', user.id)
   .select('user_id');
 if (engErr) throw engErr;
