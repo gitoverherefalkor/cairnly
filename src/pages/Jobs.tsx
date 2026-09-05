@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -15,6 +16,8 @@ import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
 import { JobsSearch, type JobsSearchCareerOption, type RecentSearch } from '@/components/jobs/v2/JobsSearch';
 import { JobsResults, type JobsResultsCareer } from '@/components/jobs/v2/JobsResults';
+import { searchSummary } from '@/components/jobs/v2/jobsV2Shared';
+import { sectionTitle } from '@/lib/sectionText';
 import { JobsSavedKanban } from '@/components/jobs/v2/JobsSavedKanban';
 import type { JobsTier } from '@/components/jobs/v2/jobsV2Shared';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
@@ -112,6 +115,7 @@ function pushRecentSearch(snapshot: Omit<RecentSearch, 'ranAt'>): RecentSearch[]
 }
 
 const Jobs = () => {
+  const { t, i18n } = useTranslation('jobs');
   const { user, isLoading: authLoading } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
   const { reports, isLoading: reportsLoading } = useReports();
@@ -209,7 +213,8 @@ const Jobs = () => {
       if (['runner-up', 'outside-box'].includes(sectionId)) {
         // Multi-career sections — each row becomes its own pickable option.
         for (const s of matching) {
-          const title = s.title ? stripHtml(s.title) : '';
+          const localized = sectionTitle(s, i18n.language);
+          const title = localized ? stripHtml(localized) : '';
           if (!title) continue;
           opts.push({
             sectionType: `${sectionId}__${s.id}`,
@@ -221,7 +226,8 @@ const Jobs = () => {
         }
       } else {
         const s = matching[0];
-        const title = s.title ? stripHtml(s.title) : '';
+        const localized = sectionTitle(s, i18n.language);
+        const title = localized ? stripHtml(localized) : '';
         if (!title) continue;
         opts.push({
           sectionType: sectionId,
@@ -233,7 +239,7 @@ const Jobs = () => {
       }
     }
     return opts;
-  }, [sections]);
+  }, [sections, i18n.language]);
 
   // Career lookup keyed by sectionType for the Results screen.
   const careersBySectionType = useMemo(() => {
@@ -498,14 +504,14 @@ const Jobs = () => {
     // popup with a link back to the dashboard toolkit (the invite hub), and
     // copy the link as a convenience when it's ready.
     const toolkitAction = (
-      <ToastAction altText="Open toolkit" onClick={() => navigate('/dashboard?focus=toolkit')}>
-        Open toolkit
+      <ToastAction altText={t('toast.openToolkit')} onClick={() => navigate('/dashboard?focus=toolkit')}>
+        {t('toast.openToolkit')}
       </ToastAction>
     );
     if (!link) {
       toast({
-        title: 'Invite a friend to unlock',
-        description: 'Refer friends to unlock this tool. Open your toolkit to grab your invite link and track progress.',
+        title: t('toast.inviteTitle'),
+        description: t('toast.inviteNoLink'),
         action: toolkitAction,
       });
       return;
@@ -513,12 +519,12 @@ const Jobs = () => {
     try {
       await navigator.clipboard.writeText(link);
       toast({
-        title: 'Invite a friend to unlock',
-        description: 'Invite link copied. Open your toolkit to track progress toward your next unlock.',
+        title: t('toast.inviteTitle'),
+        description: t('toast.inviteCopied'),
         action: toolkitAction,
       });
     } catch {
-      toast({ title: 'Invite a friend to unlock', description: link, action: toolkitAction });
+      toast({ title: t('toast.inviteTitle'), description: link, action: toolkitAction });
     }
   };
 
@@ -624,18 +630,15 @@ const Jobs = () => {
 
   // ── Results ──────────────────────────────────────────────────
   if (view === 'results') {
-    const summaryParts = [
-      `${selectedCareers.length} ${selectedCareers.length === 1 ? 'career' : 'careers'}`,
-      [primaryCountry, secondaryCountry].filter(Boolean).map((c) => c.toUpperCase()).join(' + '),
-      workArrangement === 'remote_only' ? 'remote only' : workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
-      jobCommitment === 'full_time'
-        ? 'full-time'
-        : jobCommitment === 'part_time'
-          ? 'part-time'
-          : jobCommitment === 'contract'
-            ? 'contract / freelance'
-            : null,
-    ].filter(Boolean);
+    const summaryLine = searchSummary(
+      t,
+      {
+        countryCodes: [primaryCountry, secondaryCountry].filter(Boolean) as string[],
+        workArrangement,
+        jobCommitment,
+      },
+      selectedCareers.length,
+    );
     return (
       <JobsResults
         firstName={firstName}
@@ -643,7 +646,7 @@ const Jobs = () => {
         results={results}
         careersBySectionType={careersBySectionType}
         savedCount={savedCount}
-        searchSummary={summaryParts.join(' · ')}
+        searchSummary={summaryLine}
         isJobSaved={isJobSaved}
         onSaveJob={(job: JobListing, fromCareer: string) => saveJob({ job, fromCareer } as any)}
         onUnsaveJob={unsaveJob}

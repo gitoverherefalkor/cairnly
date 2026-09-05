@@ -2,6 +2,7 @@
 // Mirrors the dashboard's invite-to-unlock vocabulary.
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, FilePlus, FileText, Search } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -31,15 +32,16 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
   onSignOut,
 }) => {
   const mobile = useIsMobile();
+  const { t } = useTranslation('jobs');
   return (
   <LakeBackground intensity="heavy">
     <DashboardAppNav
       firstName={firstName}
-      pageLabel="Find Open Roles"
+      pageLabel={t('nav.findRoles')}
       onProfile={onProfile}
       onSignOut={onSignOut}
       onBack={onBack}
-      backLabel="Back to dashboard"
+      backLabel={t('nav.backToDashboard')}
     />
 
     <div style={{ maxWidth: 920, margin: '0 auto', padding: mobile ? '40px 16px 64px' : '80px 32px', textAlign: 'center' }}>
@@ -56,7 +58,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           color: PALETTE.goldBright,
         }}
       >
-        STEP 1 · 1 FRIEND TO UNLOCK
+        {t('locked.eyebrow')}
       </span>
       <h1
         style={{
@@ -69,7 +71,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           lineHeight: 1.0,
         }}
       >
-        Help one friend find their path, unlock yours.
+        {t('locked.title')}
       </h1>
       <p
         style={{
@@ -82,8 +84,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           maxWidth: 620,
         }}
       >
-        Job openings refresh daily and stay matched to your top 3 careers. As soon as one friend you invite
-        joins Cairnly, this page opens.
+        {t('locked.body')}
       </p>
 
       <div
@@ -123,7 +124,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
               textTransform: 'uppercase',
             }}
           >
-            Your code
+            {t('locked.yourCode')}
           </span>
           <span
             style={{
@@ -157,7 +158,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          Share <ArrowRight size={15} />
+          {t('locked.share')} <ArrowRight size={15} />
         </button>
       </div>
 
@@ -172,7 +173,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             color: 'rgba(255,255,255,0.55)',
           }}
         >
-          WHEN UNLOCKED · YOU CAN
+          {t('locked.whenUnlocked')}
         </span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
@@ -180,18 +181,18 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           [
             {
               icon: <Search size={18} />,
-              t: 'Find live openings',
-              d: 'Refreshed daily, matched to your top 3 careers + runner-ups, ranked by an AI score against your profile.',
+              t: t('locked.perk1Title'),
+              d: t('locked.perk1Body'),
             },
             {
               icon: <FileText size={18} />,
-              t: 'Tailor your resume',
-              d: 'On any saved job. Opens after a second invited friend joins.',
+              t: t('locked.perk2Title'),
+              d: t('locked.perk2Body'),
             },
             {
               icon: <FilePlus size={18} />,
-              t: 'Generate cover letters',
-              d: 'On any saved job. Opens after a third invited friend joins.',
+              t: t('locked.perk3Title'),
+              d: t('locked.perk3Body'),
             },
           ] as const
         ).map((step, i) => (

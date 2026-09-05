@@ -4,6 +4,8 @@
 // match histogram.
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Award, Lightbulb } from 'lucide-react';
 import {
   PALETTE,
@@ -21,6 +23,10 @@ export const TIER_LABEL: Record<JobsTier, string> = {
   'outside-box': 'Outside the Box',
 };
 
+/** Localized tier label. `t` is the 'jobs' namespace's t. */
+export const tierLabel = (t: TFunction, tier: JobsTier): string =>
+  t(`tier.${tier}`, { defaultValue: TIER_LABEL[tier] });
+
 // Match-score colour bands. 8+ = strong, 5–7 = decent, <5 = adjacent.
 export const MATCH_EXCELLENT = '#10B981';
 export const MATCH_DECENT = PALETTE.gold;
@@ -33,27 +39,36 @@ export function matchTone(score: number | null | undefined, surface: 'dark' | 'c
   return surface === 'cream' ? PALETTE.inkSoft : MATCH_ADJACENT;
 }
 
-export function matchLabel(score: number | null | undefined): string {
-  if (score == null) return 'Unscored';
-  if (score >= 8) return 'Excellent fit';
-  if (score >= 5) return 'Decent fit';
-  return 'Adjacent';
+export function matchLabel(t: TFunction, score: number | null | undefined): string {
+  if (score == null) return t('match.unscored');
+  if (score >= 8) return t('match.excellent');
+  if (score >= 5) return t('match.decent');
+  return t('match.adjacent');
 }
 
-// "2 days ago" / "Today" / "1 week ago" from an ISO posted_date.
-export function postedAgo(iso: string | null | undefined): string {
+// "2 days ago" / "Today" / "1 week ago" from an ISO posted_date, in the
+// caller's language (i18next picks the _one / _other form from `count`).
+export function postedAgo(t: TFunction, iso: string | null | undefined): string {
   if (!iso) return '';
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
   const days = Math.floor((Date.now() - then) / 86_400_000);
-  if (days <= 0) return 'Today';
-  if (days === 1) return '1 day ago';
-  if (days < 7) return `${days} days ago`;
+  if (days <= 0) return t('posted.today');
+  if (days < 7) return t('posted.days', { count: days });
   const weeks = Math.floor(days / 7);
-  if (weeks === 1) return '1 week ago';
-  if (weeks < 5) return `${weeks} weeks ago`;
-  const months = Math.floor(days / 30);
-  return months === 1 ? '1 month ago' : `${months} months ago`;
+  if (weeks < 5) return t('posted.weeks', { count: weeks });
+  return t('posted.months', { count: Math.floor(days / 30) });
+}
+
+/**
+ * Employment / workplace chips ("Full-time", "Remote", "Hybrid") come from the
+ * scraped listing, not from us, so they arrive in English whatever the user's
+ * language is. Map the values LinkedIn actually emits and pass anything else
+ * through untouched rather than showing a missing-key placeholder.
+ */
+export function jobBadgeLabel(t: TFunction, raw: string): string {
+  const key = raw.toLowerCase().replace(/[^a-z]/g, '');
+  return t(`badge.${key}`, { defaultValue: raw });
 }
 
 // Gold/teal eyebrow tag used across all four jobs screens.
@@ -80,10 +95,13 @@ export const CareerTierBadge: React.FC<{
   tier: JobsTier;
   tierLabel?: string;
   selected?: boolean;
-}> = ({ tier, tierLabel, selected = false }) => {
+}> = ({ tier, tierLabel: tierLabelOverride, selected = false }) => {
+  const { t } = useTranslation('jobs');
   const number = ({ 'top-1': 1, 'top-2': 2, 'top-3': 3 } as Record<string, number>)[tier];
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    // data-career-tier is the capture script's anchor for the jobs still: the
+    // visible label is localized, so text matching cannot find it.
+    <div data-career-tier={tier} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <span
         style={{
           width: 22,
@@ -112,7 +130,7 @@ export const CareerTierBadge: React.FC<{
           color: 'rgba(255,255,255,0.55)',
         }}
       >
-        {tierLabel ?? TIER_LABEL[tier]}
+        {tierLabelOverride ?? tierLabel(t, tier)}
       </span>
     </div>
   );
@@ -262,3 +280,29 @@ export interface ApplyLinkOptions {
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 export const DEFAULT_APPLY_LINK: ApplyLinkOptions = { rel: 'noopener noreferrer' };
+
+/**
+ * The one-line "3 careers · NL + BE · remote-friendly · full-time" summary
+ * above the results. Shared so the signed-in page and the public demo can
+ * never drift apart (they used to hold two hand-written copies of this).
+ */
+export function searchSummary(
+  t: TFunction,
+  opts:
+    | { countryCodes?: string[]; workArrangement?: string; jobCommitment?: string }
+    | undefined,
+  careerCount: number,
+): string {
+  return [
+    t('summary.careers', { count: careerCount }),
+    (opts?.countryCodes ?? []).map((c) => c.toUpperCase()).join(' + '),
+    opts?.workArrangement && opts.workArrangement !== 'any'
+      ? t(`summary.arrangement.${opts.workArrangement}`, { defaultValue: '' })
+      : null,
+    opts?.jobCommitment && opts.jobCommitment !== 'any'
+      ? t(`summary.commitment.${opts.jobCommitment}`, { defaultValue: '' })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}

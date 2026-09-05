@@ -5,6 +5,8 @@
 // through the search-jobs edge function yet.
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ArrowRight, ExternalLink, FilePlus, FileText, Heart, Loader2, Lock, Sliders } from 'lucide-react';
 import {
   PALETTE,
@@ -21,7 +23,7 @@ import {
   CompanyLogo,
   JEyebrow,
   MatchHistogram,
-  TIER_LABEL,
+  jobBadgeLabel,
   matchTone,
   postedAgo as fmtPostedAgo,
   DEFAULT_APPLY_LINK,
@@ -102,17 +104,18 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
   // JobCardCream below.
   const [coverLetterJob, setCoverLetterJob] = useState<JobListing | null>(null);
   const mobile = useIsMobile();
+  const { t } = useTranslation('jobs');
 
   return (
     <LakeBackground intensity="normal">
       {nav ?? (
       <DashboardAppNav
         firstName={firstName}
-        pageLabel="Find Open Roles"
+        pageLabel={t('nav.findRoles')}
         onProfile={onProfile}
         onSignOut={onSignOut}
         onBack={onBack}
-        backLabel="Back to dashboard"
+        backLabel={t('nav.backToDashboard')}
       />
       )}
 
@@ -133,12 +136,12 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
             flexWrap: 'wrap',
           }}
         >
-          <JEyebrow>RESULTS</JEyebrow>
+          <JEyebrow>{t('results.eyebrow')}</JEyebrow>
           <span style={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: '#fff' }}>
             {searchSummary}
           </span>
           <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)' }}>
-            {totalJobs} {totalJobs === 1 ? 'job' : 'jobs'} found
+            {t('results.jobsFound', { count: totalJobs })}
           </span>
           {resultsNote && (
             <span
@@ -176,7 +179,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
               cursor: 'pointer',
             }}
           >
-            <Sliders size={13} /> Edit search
+            <Sliders size={13} /> {t('results.editSearch')}
           </button>
           <button
             type="button"
@@ -196,7 +199,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
               cursor: 'pointer',
             }}
           >
-            <Heart size={13} /> Saved · {savedCount}
+            <Heart size={13} /> {t('results.savedCount', { count: savedCount })}
           </button>
         </div>
 
@@ -219,14 +222,15 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
             <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
               {!resumeUnlocked && (
                 <>
-                  <strong style={{ color: PALETTE.goldBright }}>Tailor resume</strong> opens after your 2nd
-                  invited friend joins
+                  <strong style={{ color: PALETTE.goldBright }}>{t('card.tailorResume')}</strong>{' '}
+                  {t('invite.resumeAfter')}
                 </>
               )}
               {!resumeUnlocked && !coverUnlocked && ' · '}
               {!coverUnlocked && (
                 <>
-                  <strong style={{ color: PALETTE.goldBright }}>Cover letter</strong> after the 3rd
+                  <strong style={{ color: PALETTE.goldBright }}>{t('card.coverLetter')}</strong>{' '}
+                  {t('invite.coverAfter')}
                 </>
               )}
             </span>
@@ -249,7 +253,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
                 cursor: 'pointer',
               }}
             >
-              Invite a friend <ArrowRight size={12} />
+              {t('invite.cta')} <ArrowRight size={12} />
             </button>
           </div>
         )}
@@ -267,7 +271,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
               color: 'rgba(255,255,255,0.6)',
             }}
           >
-            No completed career searches yet.
+            {t('results.empty')}
           </div>
         )}
 
@@ -354,6 +358,7 @@ const CareerGrouping: React.FC<{
   const mainJobs = jobs.filter((j) => j.match_score == null || j.match_score >= 6);
   const lowJobs = jobs.filter((j) => typeof j.match_score === 'number' && j.match_score >= 3 && j.match_score <= 5);
   const [showLow, setShowLow] = useState(false);
+  const { t } = useTranslation('jobs');
 
   return (
     <section style={{ marginBottom: 44 }}>
@@ -368,7 +373,7 @@ const CareerGrouping: React.FC<{
         }}
       >
         <div>
-          {career && <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} />}
+          {career && <CareerTierBadge tier={career.tier} />}
           <h2
             style={{
               fontFamily: FONT_DISPLAY,
@@ -386,7 +391,7 @@ const CareerGrouping: React.FC<{
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <MatchHistogram jobs={jobs} />
           <span style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
-            {mainJobs.length} {mainJobs.length === 1 ? 'strong match' : 'strong matches'}
+            {t('results.strongMatches', { count: mainJobs.length })}
           </span>
         </div>
       </div>
@@ -403,9 +408,7 @@ const CareerGrouping: React.FC<{
             textAlign: 'center',
           }}
         >
-          {lowJobs.length > 0
-            ? 'No strong matches (6+/10) found. Lower-scoring matches are listed below.'
-            : 'No openings found for this career right now. Try widening location filters.'}
+          {lowJobs.length > 0 ? t('results.noStrongMatches') : t('results.noOpenings')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -465,8 +468,8 @@ const CareerGrouping: React.FC<{
               gap: 8,
             }}
           >
-            {showLow ? '▾' : '▸'} {lowJobs.length} more {lowJobs.length === 1 ? 'role' : 'roles'} scored 3-5
-            {showLow ? ' — hide' : ' — show why'}
+            {showLow ? '▾' : '▸'} {t('results.moreRoles', { count: lowJobs.length })} ·{' '}
+            {showLow ? t('results.hide') : t('results.showWhy')}
           </button>
           {showLow && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14, opacity: 0.78 }}>
@@ -514,12 +517,13 @@ const CareerSearching: React.FC<{
   status: JobSearchResult['status'];
   error?: string;
 }> = ({ career, careerTitle, status, error }) => {
+  const { t } = useTranslation('jobs');
   const isError = status === 'error';
   const isSearching = status === 'searching';
   return (
     <section style={{ marginBottom: 44 }}>
       <div style={{ marginBottom: 16 }}>
-        {career && <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} />}
+        {career && <CareerTierBadge tier={career.tier} />}
         <h2
           style={{
             fontFamily: FONT_DISPLAY,
@@ -552,12 +556,12 @@ const CareerSearching: React.FC<{
       >
         {isError ? (
           <span style={{ color: 'rgba(255,180,180,0.9)' }}>
-            {error || 'Search failed for this career. Try again.'}
+            {error || t('results.failed')}
           </span>
         ) : (
           <>
             <Loader2 size={16} className="animate-spin" style={{ color: PALETTE.goldBright }} />
-            <span>{isSearching ? 'Searching live openings…' : 'Queued — searching next…'}</span>
+            <span>{isSearching ? t('results.searching') : t('results.queued')}</span>
           </>
         )}
       </div>
@@ -614,9 +618,10 @@ const JobCardCream: React.FC<{
   onTailorResume,
   applyLink,
 }) => {
+  const { t } = useTranslation('jobs');
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
-  const postedText = fmtPostedAgo(job.posted_date);
+  const postedText = fmtPostedAgo(t, job.posted_date);
   // On phones the action column moves under the content instead of
   // squeezing beside it (a 240px column left ~100px for the title).
   const mobile = useIsMobile();
@@ -700,14 +705,14 @@ const JobCardCream: React.FC<{
               <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {job.workplace_type && (
                   <JobBadge
-                    label={job.workplace_type}
+                    label={jobBadgeLabel(t, job.workplace_type)}
                     highlight={/remote/i.test(job.workplace_type)}
                   />
                 )}
-                {job.employment_type && <JobBadge label={job.employment_type} />}
+                {job.employment_type && <JobBadge label={jobBadgeLabel(t, job.employment_type)} />}
                 {job.applicants_count != null && (
                   <JobBadge
-                    label={formatApplicants(job.applicants_count)}
+                    label={formatApplicants(t, job.applicants_count)}
                     highlight={job.applicants_count <= LOW_APPLICANT_THRESHOLD}
                   />
                 )}
@@ -743,7 +748,7 @@ const JobCardCream: React.FC<{
               fontStyle: 'italic',
             }}
           >
-            Why: {job.match_reason.replace(/[.\s]+$/, '')}...
+            {t('card.why', { reason: job.match_reason.replace(/[.\s]+$/, '') })}
           </div>
         )}
       </div>
@@ -780,7 +785,7 @@ const JobCardCream: React.FC<{
             </span>
           ) : (
             <span style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500, color: PALETTE.inkSoft }}>
-              Salary not stated
+              {t('card.salaryNotStated')}
             </span>
           )}
           {job.match_score != null && (
@@ -797,7 +802,7 @@ const JobCardCream: React.FC<{
               }}
             >
               {job.match_score}
-              <span style={{ fontSize: 10, opacity: 0.6 }}>/10</span>
+              <span style={{ fontSize: 10, opacity: 0.6 }}>{t('card.outOfTen')}</span>
             </span>
           )}
         </div>
@@ -823,12 +828,12 @@ const JobCardCream: React.FC<{
             marginTop: 4,
           }}
         >
-          View &amp; apply <ExternalLink size={12} />
+          {t('card.viewApply')} <ExternalLink size={12} />
         </a>
         <LockedActionButton
           unlocked={resumeUnlocked}
           icon={<FileText size={12} />}
-          label="Tailor resume"
+          label={t('card.tailorResume')}
           onLocked={onLockedAction}
           onClick={onTailorResume}
         />
@@ -836,7 +841,7 @@ const JobCardCream: React.FC<{
           tone="gold"
           unlocked={coverUnlocked}
           icon={<FilePlus size={12} />}
-          label="Cover letter"
+          label={t('card.coverLetter')}
           onLocked={onLockedAction}
           onClick={onGenerateCoverLetter}
         />
@@ -860,7 +865,7 @@ const JobCardCream: React.FC<{
           }}
         >
           <Heart size={13} fill={saved ? PALETTE.tealDeep : 'none'} />
-          {saved ? 'Saved' : 'Save'}
+          {saved ? t('card.saved') : t('card.save')}
         </button>
       </div>
     </article>
@@ -939,9 +944,9 @@ const LockedActionButton: React.FC<{
 // LinkedIn stops counting publicly at 200, hence the "200+".
 const LOW_APPLICANT_THRESHOLD = 30;
 
-function formatApplicants(count: number): string {
-  if (count >= 200) return '200+ applicants';
-  return count === 1 ? '1 applicant' : `${count} applicants`;
+function formatApplicants(t: TFunction, count: number): string {
+  if (count >= 200) return t('card.applicantsMax');
+  return t('card.applicants', { count });
 }
 
 // "110–180k" with no currency symbol (per product decision — no currency in schema).

@@ -1,0 +1,195 @@
+{
+  "nav": {
+    "findRoles": "Find Open Roles",
+    "backToDashboard": "Back to dashboard",
+    "pipeline": "Your pipeline",
+    "backToSearch": "Back to search"
+  },
+  "tier": {
+    "top-1": "Top Career #1",
+    "top-2": "Top Career #2",
+    "top-3": "Top Career #3",
+    "runner-up": "Runner-up",
+    "outside-box": "Outside the Box"
+  },
+  "match": {
+    "unscored": "Unscored",
+    "excellent": "Excellent fit",
+    "decent": "Decent fit",
+    "adjacent": "Adjacent"
+  },
+  "posted": {
+    "today": "Today",
+    "days_one": "1 day ago",
+    "days_other": "{{count}} days ago",
+    "weeks_one": "1 week ago",
+    "weeks_other": "{{count}} weeks ago",
+    "months_one": "1 month ago",
+    "months_other": "{{count}} months ago"
+  },
+  "badge": {
+    "fulltime": "Full-time",
+    "parttime": "Part-time",
+    "contract": "Contract",
+    "temporary": "Temporary",
+    "internship": "Internship",
+    "volunteer": "Volunteer",
+    "remote": "Remote",
+    "hybrid": "Hybrid",
+    "onsite": "On-site"
+  },
+  "results": {
+    "eyebrow": "RESULTS",
+    "jobsFound_one": "{{count}} job found",
+    "jobsFound_other": "{{count}} jobs found",
+    "editSearch": "Edit search",
+    "savedCount": "Saved · {{count}}",
+    "empty": "No completed career searches yet.",
+    "strongMatches_one": "{{count}} strong match",
+    "strongMatches_other": "{{count}} strong matches",
+    "noStrongMatches": "No strong matches (6+/10) found. Lower-scoring matches are listed below.",
+    "noOpenings": "No openings found for this career right now. Try widening location filters.",
+    "moreRoles_one": "{{count}} more role scored 3-5",
+    "moreRoles_other": "{{count}} more roles scored 3-5",
+    "hide": "hide",
+    "showWhy": "show why",
+    "searching": "Searching live openings…",
+    "queued": "Queued — searching next…",
+    "failed": "Search failed for this career. Try again."
+  },
+  "invite": {
+    "resumeAfter": "opens after your 2nd invited friend joins",
+    "coverAfter": "after the 3rd",
+    "cta": "Invite a friend"
+  },
+  "card": {
+    "salaryNotStated": "Salary not stated",
+    "viewApply": "View & apply",
+    "tailorResume": "Tailor resume",
+    "coverLetter": "Cover letter",
+    "save": "Save",
+    "saved": "Saved",
+    "why": "Why: {{reason}}...",
+    "applicants_one": "{{count}} applicant",
+    "applicants_other": "{{count}} applicants",
+    "applicantsMax": "200+ applicants",
+    "outOfTen": "/10"
+  },
+  "search": {
+    "eyebrow": "STEP 1 · UNLOCKED · TIER 1 OF 3",
+    "title": "Find live openings.",
+    "intro": "Pick up to 3 careers from your report, set where you'd work, then run the search. Results are ranked by an AI score against your profile.",
+    "careersEyebrow": "CAREERS TO SEARCH",
+    "noCareers": "Your report doesn't have career suggestions yet. Finish the coach conversation first.",
+    "whereEyebrow": "WHERE",
+    "country": "Country",
+    "secondCountry": "+ Another country (optional)",
+    "none": "None",
+    "city": "City (optional)",
+    "cityPlaceholder": "Amsterdam, Berlin…",
+    "arrangement": "Work arrangement",
+    "arrangementNote": "\"Remote\" surfaces remote roles posted for the countries you picked. We don't yet search for roles that are remote",
+    "arrangementNoteEmphasis": "anywhere in the world",
+    "hours": "Hours / commitment",
+    "hoursNote": "Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract roles are rarer than full-time, so these can return noticeably fewer results. Leave it on \"Any hours\" for the widest search.",
+    "avoidTitle": "Hiding roles you said you'd avoid",
+    "avoidNote": "From your assessment. We lower the score of roles matching these, so they drop off your list. Uncheck any you'd actually consider for this search.",
+    "timingNote": "Typical search takes 20 to 40 seconds. Live results stream in as each career completes.",
+    "submit": "Search",
+    "submitting": "Searching…",
+    "recent": "Recent searches",
+    "restoreTitle": "Restore these filters — click Search to run",
+    "location": {
+      "any": "Any location",
+      "remote_friendly": "Remote-friendly",
+      "remote_only": "Remote only"
+    },
+    "commitment": {
+      "any": "Any hours",
+      "full_time": "Full-time",
+      "part_time": "Part-time",
+      "contract": "Contract / Freelance"
+    },
+    "commitmentShort": {
+      "contract": "Contract"
+    },
+    "savedRoles": "Saved roles · {{count}}",
+    "avoidActive": "{{active}} of {{total}} active",
+    "submitCareers_one": "Search {{count}} career",
+    "submitCareers_other": "Search {{count}} careers",
+    "ago": {
+      "justNow": "just now",
+      "minutes": "{{count}}m ago",
+      "hours": "{{count}}h ago",
+      "days": "{{count}}d ago"
+    },
+    "arrangementNoteTail": "Want that? Let us know via the Feedback & Support button, bottom-right."
+  },
+  "summary": {
+    "careers_one": "{{count}} career",
+    "careers_other": "{{count}} careers",
+    "arrangement": {
+      "remote_only": "remote only",
+      "remote_friendly": "remote-friendly"
+    },
+    "commitment": {
+      "full_time": "full-time",
+      "part_time": "part-time",
+      "contract": "contract / freelance"
+    }
+  },
+  "locked": {
+    "eyebrow": "STEP 1 · 1 FRIEND TO UNLOCK",
+    "title": "Help one friend find their path, unlock yours.",
+    "body": "Job openings refresh daily and stay matched to your top 3 careers. As soon as one friend you invite joins Cairnly, this page opens.",
+    "yourCode": "Your code",
+    "share": "Share",
+    "whenUnlocked": "WHEN UNLOCKED · YOU CAN",
+    "perk1Title": "Find live openings",
+    "perk2Title": "Tailor your resume",
+    "perk2Body": "On any saved job. Opens after a second invited friend joins.",
+    "perk3Title": "Generate cover letters",
+    "perk3Body": "On any saved job. Opens after a third invited friend joins.",
+    "perk1Body": "Refreshed daily, matched to your top 3 careers + runner-ups, ranked by an AI score against your profile."
+  },
+  "pipeline": {
+    "eyebrow": "YOUR PIPELINE",
+    "apply": "Apply",
+    "viewLetter": "View letter",
+    "createLetter": "Create letter",
+    "interviewScheduled": "Interview scheduled",
+    "archived": "Archived",
+    "columns": {
+      "saved": "Saved",
+      "savedBlurb": "Worth a closer look",
+      "savedEmpty": "Save jobs from search.",
+      "applied": "Applied",
+      "appliedBlurb": "Out there, in flight",
+      "appliedEmpty": "Move here once applied.",
+      "interviewing": "Interviewing",
+      "interviewingBlurb": "Conversations in progress",
+      "interviewingEmpty": "Drag from Applied.",
+      "archived": "Archived",
+      "archivedBlurb": "Not pursuing, kept for reference",
+      "archivedEmpty": "Nothing archived yet."
+    },
+    "savedAgo": "Saved {{when}}",
+    "appliedAgo": "Applied {{when}}",
+    "fromCareer": " · from \"{{career}}\"",
+    "resume": "Résumé",
+    "resumes": "{{count}} résumés",
+    "ago": {
+      "today": "today",
+      "days": "{{count}}d ago",
+      "weeks": "{{count}}w ago"
+    },
+    "rolesActive_one": "{{count}} role · {{active}} active",
+    "rolesActive_other": "{{count}} roles · {{active}} active"
+  },
+  "toast": {
+    "openToolkit": "Open toolkit",
+    "inviteTitle": "Invite a friend to unlock",
+    "inviteNoLink": "Refer friends to unlock this tool. Open your toolkit to grab your invite link and track progress.",
+    "inviteCopied": "Invite link copied. Open your toolkit to track progress toward your next unlock."
+  }
+}

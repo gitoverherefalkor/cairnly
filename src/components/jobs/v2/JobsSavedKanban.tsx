@@ -3,6 +3,8 @@
 // patch the saved_jobs.status column. Per-card status row + mini next-step
 // actions follow the handoff spec.
 
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import React from 'react';
 import {
   DndContext,
@@ -56,17 +58,16 @@ interface JobsSavedKanbanProps {
 
 interface ColumnDef {
   id: SavedJobStatus;
-  label: string;
   color: string;
-  hint: string;
-  emptyHint: string;
 }
 
+// Only the language-independent bits live here; the column's name, blurb and
+// empty state come from jobs.pipeline.columns.* at render time.
 const COLUMNS: ColumnDef[] = [
-  { id: 'saved', label: 'Saved', color: '#D4A024', hint: 'Worth a closer look', emptyHint: 'Save jobs from search.' },
-  { id: 'applied', label: 'Applied', color: '#27A1A1', hint: 'Out there, in flight', emptyHint: 'Move here once applied.' },
-  { id: 'interviewing', label: 'Interviewing', color: '#EFBE48', hint: 'Conversations in progress', emptyHint: 'Drag from Applied.' },
-  { id: 'archived', label: 'Archived', color: 'rgba(255,255,255,0.30)', hint: 'Not pursuing, kept for reference', emptyHint: 'Nothing archived yet.' },
+  { id: 'saved', color: '#D4A024' },
+  { id: 'applied', color: '#27A1A1' },
+  { id: 'interviewing', color: '#EFBE48' },
+  { id: 'archived', color: 'rgba(255,255,255,0.30)' },
 ];
 
 export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
@@ -88,6 +89,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
   onCreateLetter,
   onViewLetter,
 }) => {
+  const { t } = useTranslation('jobs');
   // Require a small drag distance before activating so click-to-apply isn't
   // hijacked by a drag intent.
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -110,11 +112,11 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
       {nav ?? (
       <DashboardAppNav
         firstName={firstName}
-        pageLabel="Your pipeline"
+        pageLabel={t('nav.pipeline')}
         onProfile={onProfile}
         onSignOut={onSignOut}
         onBack={onBack}
-        backLabel="Back to dashboard"
+        backLabel={t('nav.backToDashboard')}
       />
       )}
 
@@ -134,9 +136,9 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
             flexWrap: 'wrap',
           }}
         >
-          <JEyebrow>YOUR PIPELINE</JEyebrow>
+          <JEyebrow>{t('pipeline.eyebrow')}</JEyebrow>
           <span style={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: '#fff' }}>
-            {savedJobs.length} {savedJobs.length === 1 ? 'role' : 'roles'} · {activeCount} active
+            {t('pipeline.rolesActive', { count: savedJobs.length, active: activeCount })}
           </span>
           <button
             type="button"
@@ -158,7 +160,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
               boxShadow: '0 8px 18px -6px rgba(39,161,161,0.5)',
             }}
           >
-            <Search size={13} /> Back to search
+            <Search size={13} /> {t('nav.backToSearch')}
           </button>
         </div>
 
@@ -213,6 +215,7 @@ const KanbanColumn: React.FC<{
   onViewLetter,
   applyLink,
 }) => {
+  const { t } = useTranslation('jobs');
   const { isOver, setNodeRef } = useDroppable({ id: col.id });
   return (
     <div>
@@ -240,14 +243,14 @@ const KanbanColumn: React.FC<{
                 letterSpacing: '-0.01em',
               }}
             >
-              {col.label}
+              {t(`pipeline.columns.${col.id}`)}
             </span>
             <span style={{ fontFamily: FONT_BODY, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
               {jobs.length}
             </span>
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>
-            {col.hint}
+            {t(`pipeline.columns.${col.id}Blurb`)}
           </div>
         </div>
       </div>
@@ -300,7 +303,7 @@ const KanbanColumn: React.FC<{
               lineHeight: 1.5,
             }}
           >
-            {col.emptyHint}
+            {t(`pipeline.columns.${col.id}Empty`)}
           </div>
         )}
       </div>
@@ -335,6 +338,7 @@ const KanbanJobCard: React.FC<{
   onViewLetter,
   applyLink,
 }) => {
+  const { t } = useTranslation('jobs');
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: job.external_job_id });
   const tone = matchTone(job.match_score, 'dark');
   const salaryText = formatSavedSalary(job.salary_min, job.salary_max);
@@ -429,11 +433,11 @@ const KanbanJobCard: React.FC<{
                 gap: 5,
               }}
             >
-              <ExternalLink size={11} /> Apply
+              <ExternalLink size={11} /> {t('pipeline.apply')}
             </a>
           )}
           <MiniNextStep
-            label={resumeCount > 0 ? (resumeCount === 1 ? 'Résumé' : `${resumeCount} résumés`) : 'Résumé'}
+            label={resumeCount > 1 ? t('pipeline.resumes', { count: resumeCount }) : t('pipeline.resume')}
             unlocked={resumeUnlocked}
             highlight={resumeCount > 0}
             onLocked={onInvite}
@@ -447,7 +451,7 @@ const KanbanJobCard: React.FC<{
             }
           />
           <MiniNextStep
-            label={existingLetterId ? 'View letter' : 'Create letter'}
+            label={existingLetterId ? t('pipeline.viewLetter') : t('pipeline.createLetter')}
             unlocked={coverUnlocked}
             highlight={!!existingLetterId}
             onLocked={onInvite}
@@ -464,20 +468,21 @@ const KanbanJobCard: React.FC<{
 };
 
 const StatusLine: React.FC<{ job: SavedJob }> = ({ job }) => {
+  const { t } = useTranslation('jobs');
   if (job.status === 'saved') {
-    const days = daysAgo(job.saved_at);
-    const provenance = job.from_career ? ` · from "${job.from_career}"` : '';
+    const days = daysAgo(t, job.saved_at);
+    const provenance = job.from_career ? t('pipeline.fromCareer', { career: job.from_career }) : '';
     return (
       <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>
-        Saved {days}{provenance}
+        {t('pipeline.savedAgo', { when: days })}{provenance}
       </div>
     );
   }
   if (job.status === 'applied') {
-    const days = daysAgo(job.applied_at || job.saved_at);
+    const days = daysAgo(t, job.applied_at || job.saved_at);
     return (
       <div style={{ fontFamily: FONT_BODY, fontSize: 11, fontWeight: 600, color: PALETTE.teal }}>
-        Applied {days}
+        {t('pipeline.appliedAgo', { when: days })}
         {job.note ? ` · ${job.note}` : ''}
       </div>
     );
@@ -500,7 +505,7 @@ const StatusLine: React.FC<{ job: SavedJob }> = ({ job }) => {
           alignSelf: 'flex-start',
         }}
       >
-        <Calendar size={11} /> {job.stage || 'Interview scheduled'}
+        <Calendar size={11} /> {job.stage || t('pipeline.interviewScheduled')}
       </div>
     );
   }
@@ -515,7 +520,7 @@ const StatusLine: React.FC<{ job: SavedJob }> = ({ job }) => {
         fontStyle: 'italic',
       }}
     >
-      {job.archived_reason || 'Archived'}
+      {job.archived_reason || t('pipeline.archived')}
     </div>
   );
 };
@@ -574,16 +579,14 @@ const MiniNextStep: React.FC<{
   );
 };
 
-function daysAgo(iso: string | null | undefined): string {
+function daysAgo(t: TFunction, iso: string | null | undefined): string {
   if (!iso) return '';
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
   const days = Math.floor((Date.now() - then) / 86_400_000);
-  if (days <= 0) return 'today';
-  if (days === 1) return '1d ago';
-  if (days < 7) return `${days}d ago`;
-  const weeks = Math.floor(days / 7);
-  return weeks === 1 ? '1w ago' : `${weeks}w ago`;
+  if (days <= 0) return t('pipeline.ago.today');
+  if (days < 7) return t('pipeline.ago.days', { count: days });
+  return t('pipeline.ago.weeks', { count: Math.floor(days / 7) });
 }
 
 function formatSavedSalary(min: number | null | undefined, max: number | null | undefined): string {

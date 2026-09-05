@@ -4,6 +4,8 @@
 // profileCountryToCode) are still used.
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Ban, CheckCircle2, Clock, Globe, Heart, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import {
   PALETTE,
@@ -12,7 +14,7 @@ import {
   LakeBackground,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
-import { CareerTierBadge, JEyebrow, type JobsTier, TIER_LABEL } from './jobsV2Shared';
+import { CareerTierBadge, JEyebrow, type JobsTier } from './jobsV2Shared';
 import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -46,18 +48,10 @@ export interface JobsSearchCountry {
   label: string;
 }
 
-const WORK_OPTIONS: { value: WorkArrangement; label: string }[] = [
-  { value: 'any', label: 'Any location' },
-  { value: 'remote_friendly', label: 'Remote-friendly' },
-  { value: 'remote_only', label: 'Remote only' },
-];
-
-const COMMITMENT_OPTIONS: { value: JobCommitment; label: string }[] = [
-  { value: 'any', label: 'Any hours' },
-  { value: 'full_time', label: 'Full-time' },
-  { value: 'part_time', label: 'Part-time' },
-  { value: 'contract', label: 'Contract / Freelance' },
-];
+// Labels resolve through t() at render time (search.location.* /
+// search.commitment.*), so the option value is the only constant here.
+const WORK_OPTIONS: WorkArrangement[] = ['any', 'remote_friendly', 'remote_only'];
+const COMMITMENT_OPTIONS: JobCommitment[] = ['any', 'full_time', 'part_time', 'contract'];
 
 // Collapsible panel showing the "avoid" preferences pulled from the user's
 // assessment. Each item is a toggle — unchecking it means "don't filter this
@@ -130,21 +124,22 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
 }) => {
   // Phones get one column everywhere; the desktop grids are unchanged.
   const mobile = useIsMobile();
+  const { t } = useTranslation('jobs');
   return (
   <LakeBackground intensity="normal">
     <DashboardAppNav
       firstName={firstName}
-      pageLabel="Find Open Roles"
+      pageLabel={t('nav.findRoles')}
       onProfile={onProfile}
       onSignOut={onSignOut}
       onBack={onBack}
-      backLabel="Back to dashboard"
+      backLabel={t('nav.backToDashboard')}
     />
 
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: mobile ? '28px 16px 64px' : '48px 32px 80px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 36, gap: 24, flexWrap: 'wrap' }}>
         <div>
-          <JEyebrow>STEP 1 · UNLOCKED · TIER 1 OF 3</JEyebrow>
+          <JEyebrow>{t('search.eyebrow')}</JEyebrow>
           <h1
             style={{
               fontFamily: FONT_DISPLAY,
@@ -156,7 +151,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               lineHeight: 1.0,
             }}
           >
-            Find live openings.
+            {t('search.title')}
           </h1>
           <p
             style={{
@@ -195,7 +190,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             }}
           >
             <Heart size={15} fill={PALETTE.canvasDeep} />
-            Saved roles · {savedCount}
+            {t('search.savedRoles', { count: savedCount })}
           </button>
         )}
       </div>
@@ -203,7 +198,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
       {/* Career picker */}
       <section style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
-          <JEyebrow>CAREERS TO SEARCH</JEyebrow>
+          <JEyebrow>{t('search.careersEyebrow')}</JEyebrow>
           <span style={{ fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)' }}>
             {selected.length} / 3 selected
           </span>
@@ -221,7 +216,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               color: 'rgba(255,255,255,0.6)',
             }}
           >
-            Your report doesn't have career suggestions yet. Finish the coach conversation first.
+            {t('search.noCareers')}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14 }}>
@@ -241,7 +236,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
       {/* Location + avoid panel (single card, two columns split by a thin divider) */}
       <section style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: 14, gap: 8 }}>
-          <JEyebrow>WHERE</JEyebrow>
+          <JEyebrow>{t('search.whereEyebrow')}</JEyebrow>
         </div>
         <div
           style={{
@@ -266,18 +261,18 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
-              <FormField label="Country">
+              <FormField label={t('search.country')}>
                 <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
               </FormField>
-              <FormField label="+ Another country (optional)">
+              <FormField label={t('search.secondCountry')}>
                 <CreamSelect
                   value={secondaryCountry}
                   onChange={onSecondaryCountryChange}
-                  options={[{ code: '', label: 'None' }, ...countries.filter((c) => c.code !== primaryCountry)]}
+                  options={[{ code: '', label: t('search.none') }, ...countries.filter((c) => c.code !== primaryCountry)]}
                 />
               </FormField>
-              <FormField label="City (optional)">
-                <CreamInput value={city} onChange={onCityChange} placeholder="Amsterdam, Berlin…" />
+              <FormField label={t('search.city')}>
+                <CreamInput value={city} onChange={onCityChange} placeholder={t('search.cityPlaceholder')} />
               </FormField>
             </div>
 
@@ -293,16 +288,16 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   marginBottom: 8,
                 }}
               >
-                Work arrangement
+                {t('search.arrangement')}
               </div>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
                 {WORK_OPTIONS.map((opt) => {
-                  const active = workArrangement === opt.value;
+                  const active = workArrangement === opt;
                   return (
                     <button
-                      key={opt.value}
+                      key={opt}
                       type="button"
-                      onClick={() => onWorkArrangementChange(opt.value)}
+                      onClick={() => onWorkArrangementChange(opt)}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -319,8 +314,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {opt.value !== 'any' && <Globe size={14} />}
-                      {opt.label}
+                      {opt !== 'any' && <Globe size={14} />}
+                      {t(`search.location.${opt}`)}
                     </button>
                   );
                 })}
@@ -336,9 +331,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   maxWidth: 640,
                 }}
               >
-                "Remote" surfaces remote roles posted for the countries you picked. We don't yet search
-                for roles that are remote <em>anywhere in the world</em>. Want that? Let us know via the
-                Feedback &amp; Support button, bottom-right.
+                {t('search.arrangementNote')} <em>{t('search.arrangementNoteEmphasis')}</em>.{' '}
+                {t('search.arrangementNoteTail')}
               </p>
             </div>
 
@@ -354,16 +348,16 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   marginBottom: 8,
                 }}
               >
-                Hours / commitment
+                {t('search.hours')}
               </div>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
                 {COMMITMENT_OPTIONS.map((opt) => {
-                  const active = jobCommitment === opt.value;
+                  const active = jobCommitment === opt;
                   return (
                     <button
-                      key={opt.value}
+                      key={opt}
                       type="button"
-                      onClick={() => onJobCommitmentChange(opt.value)}
+                      onClick={() => onJobCommitmentChange(opt)}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -380,8 +374,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {opt.value !== 'any' && <Clock size={14} />}
-                      {opt.label}
+                      {opt !== 'any' && <Clock size={14} />}
+                      {t(`search.commitment.${opt}`)}
                     </button>
                   );
                 })}
@@ -397,9 +391,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   maxWidth: 640,
                 }}
               >
-                Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract
-                roles are rarer than full-time, so these can return noticeably fewer results. Leave it on
-                "Any hours" for the widest search.
+                {t('search.hoursNote')}
               </p>
             </div>
           </div>
@@ -420,10 +412,15 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <SlidersHorizontal size={15} color={PALETTE.goldBright} />
                 <span style={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 700, color: '#fff' }}>
-                  Hiding roles you said you'd avoid
+                  {t('search.avoidTitle')}
                 </span>
                 <span style={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
-                  {avoidPreferences.length - disabledAvoids.filter((d) => avoidPreferences.includes(d)).length} of {avoidPreferences.length} active
+                  {t('search.avoidActive', {
+                    active:
+                      avoidPreferences.length -
+                      disabledAvoids.filter((d) => avoidPreferences.includes(d)).length,
+                    total: avoidPreferences.length,
+                  })}
                 </span>
               </div>
               <p
@@ -436,8 +433,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   margin: 0,
                 }}
               >
-                From your assessment. We lower the score of roles matching these, so they drop off your
-                list. Uncheck any you'd actually consider for this search.
+                {t('search.avoidNote')}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {avoidPreferences.map((item) => {
@@ -498,12 +494,10 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           }}
         >
           {isSearching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-          {isSearching
-            ? 'Searching…'
-            : `Search ${selected.length} ${selected.length === 1 ? 'career' : 'careers'}`}
+          {isSearching ? t('search.submitting') : t('search.submitCareers', { count: selected.length })}
         </button>
         <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
-          Typical search takes 20 to 40 seconds. Live results stream in as each career completes.
+          {t('search.timingNote')}
         </div>
       </div>
 
@@ -522,29 +516,23 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               marginBottom: 10,
             }}
           >
-            Recent searches
+            {t('search.recent')}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {recentSearches.map((s, i) => {
               const parts = [
-                `${s.selectedCareers.length} ${s.selectedCareers.length === 1 ? 'career' : 'careers'}`,
+                t('summary.careers', { count: s.selectedCareers.length }),
                 [s.primaryCountry, s.secondaryCountry]
                   .filter(Boolean)
                   .map(countryLabelByCode)
                   .join(' + '),
-                s.workArrangement === 'remote_only'
-                  ? 'Remote only'
-                  : s.workArrangement === 'remote_friendly'
-                    ? 'Remote-friendly'
-                    : null,
-                s.jobCommitment === 'full_time'
-                  ? 'Full-time'
-                  : s.jobCommitment === 'part_time'
-                    ? 'Part-time'
-                    : s.jobCommitment === 'contract'
-                      ? 'Contract'
-                      : null,
-                relativeAgo(s.ranAt),
+                s.workArrangement !== 'any' ? t(`search.location.${s.workArrangement}`) : null,
+                s.jobCommitment !== 'any'
+                  ? s.jobCommitment === 'contract'
+                    ? t('search.commitmentShort.contract')
+                    : t(`search.commitment.${s.jobCommitment}`)
+                  : null,
+                relativeAgo(t, s.ranAt),
               ].filter(Boolean);
               return (
                 <button
@@ -563,7 +551,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                   }}
-                  title="Restore these filters — click Search to run"
+                  title={t('search.restoreTitle')}
                 >
                   {parts.join(' · ')}
                 </button>
@@ -580,15 +568,15 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
 // "12m ago" / "3h ago" / "2d ago" — compact relative timestamp for the
 // recent-searches chip text. Falls back to a date for anything older than a
 // week so we don't end up with "63d ago" eyesores.
-function relativeAgo(ms: number): string {
+function relativeAgo(t: TFunction, ms: number): string {
   const diff = Date.now() - ms;
-  if (diff < 60_000) return 'just now';
+  if (diff < 60_000) return t('search.ago.justNow');
   const min = Math.floor(diff / 60_000);
-  if (min < 60) return `${min}m ago`;
+  if (min < 60) return t('search.ago.minutes', { count: min });
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
+  if (hr < 24) return t('search.ago.hours', { count: hr });
   const days = Math.floor(hr / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return t('search.ago.days', { count: days });
   return new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
@@ -621,7 +609,7 @@ const CareerPickerCard: React.FC<{
     }}
   >
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <CareerTierBadge tier={career.tier} tierLabel={TIER_LABEL[career.tier]} selected={selected} />
+      <CareerTierBadge tier={career.tier} selected={selected} />
       <div
         style={{
           width: 24,

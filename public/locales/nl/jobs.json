@@ -1,0 +1,195 @@
+{
+  "nav": {
+    "findRoles": "Zoek vacatures",
+    "backToDashboard": "Terug naar dashboard",
+    "pipeline": "Jouw pijplijn",
+    "backToSearch": "Terug naar zoeken"
+  },
+  "tier": {
+    "top-1": "Topcarrière #1",
+    "top-2": "Topcarrière #2",
+    "top-3": "Topcarrière #3",
+    "runner-up": "Runner-up",
+    "outside-box": "Verrassende carrière"
+  },
+  "match": {
+    "unscored": "Niet gescoord",
+    "excellent": "Uitstekende match",
+    "decent": "Redelijke match",
+    "adjacent": "Aanverwant"
+  },
+  "posted": {
+    "today": "Vandaag",
+    "days_one": "1 dag geleden",
+    "days_other": "{{count}} dagen geleden",
+    "weeks_one": "1 week geleden",
+    "weeks_other": "{{count}} weken geleden",
+    "months_one": "1 maand geleden",
+    "months_other": "{{count}} maanden geleden"
+  },
+  "badge": {
+    "fulltime": "Voltijd",
+    "parttime": "Deeltijd",
+    "contract": "Contract",
+    "temporary": "Tijdelijk",
+    "internship": "Stage",
+    "volunteer": "Vrijwilligerswerk",
+    "remote": "Remote",
+    "hybrid": "Hybride",
+    "onsite": "Op locatie"
+  },
+  "results": {
+    "eyebrow": "RESULTATEN",
+    "jobsFound_one": "{{count}} vacature gevonden",
+    "jobsFound_other": "{{count}} vacatures gevonden",
+    "editSearch": "Zoekopdracht aanpassen",
+    "savedCount": "Bewaard · {{count}}",
+    "empty": "Nog geen afgeronde zoekopdrachten.",
+    "strongMatches_one": "{{count}} sterke match",
+    "strongMatches_other": "{{count}} sterke matches",
+    "noStrongMatches": "Geen sterke matches (6+/10) gevonden. Lager scorende matches staan hieronder.",
+    "noOpenings": "Nu geen vacatures gevonden voor deze loopbaan. Probeer je locatiefilters te verbreden.",
+    "moreRoles_one": "{{count}} andere rol scoorde 3-5",
+    "moreRoles_other": "{{count}} andere rollen scoorden 3-5",
+    "hide": "verbergen",
+    "showWhy": "bekijk waarom",
+    "searching": "Live vacatures zoeken…",
+    "queued": "In de wachtrij, volgende zoekopdracht…",
+    "failed": "Zoeken mislukt voor deze loopbaan. Probeer het opnieuw."
+  },
+  "invite": {
+    "resumeAfter": "gaat open zodra je 2e uitgenodigde vriend zich aanmeldt",
+    "coverAfter": "na de 3e",
+    "cta": "Nodig een vriend uit"
+  },
+  "card": {
+    "salaryNotStated": "Salaris niet vermeld",
+    "viewApply": "Bekijk & solliciteer",
+    "tailorResume": "CV afstemmen",
+    "coverLetter": "Motivatiebrief",
+    "save": "Bewaren",
+    "saved": "Bewaard",
+    "why": "Waarom: {{reason}}...",
+    "applicants_one": "{{count}} sollicitant",
+    "applicants_other": "{{count}} sollicitanten",
+    "applicantsMax": "200+ sollicitanten",
+    "outOfTen": "/10"
+  },
+  "search": {
+    "eyebrow": "STAP 1 · ONTGRENDELD · NIVEAU 1 VAN 3",
+    "title": "Vind actuele vacatures.",
+    "intro": "Kies maximaal 3 loopbanen uit je rapport, geef aan waar je zou werken en start de zoekopdracht. Resultaten worden gerangschikt met een AI-score tegen je profiel.",
+    "careersEyebrow": "LOOPBANEN OM TE ZOEKEN",
+    "noCareers": "Je rapport heeft nog geen loopbaansuggesties. Rond eerst het coachgesprek af.",
+    "whereEyebrow": "WAAR",
+    "country": "Land",
+    "secondCountry": "+ Nog een land (optioneel)",
+    "none": "Geen",
+    "city": "Stad (optioneel)",
+    "cityPlaceholder": "Amsterdam, Berlijn…",
+    "arrangement": "Werkvorm",
+    "arrangementNote": "\"Remote\" toont remote rollen die zijn geplaatst voor de landen die je koos. We zoeken nog niet naar rollen die remote zijn",
+    "arrangementNoteEmphasis": "waar ook ter wereld",
+    "hours": "Uren / dienstverband",
+    "hoursNote": "Filteren op uren beperkt tot rollen die op LinkedIn zo zijn getagd. Deeltijd- en contractrollen zijn zeldzamer dan voltijd, dus dit kan merkbaar minder resultaten opleveren. Laat het op \"Alle uren\" staan voor de breedste zoekopdracht.",
+    "avoidTitle": "Rollen verbergen die je wilde vermijden",
+    "avoidNote": "Uit je assessment. We verlagen de score van rollen die hierop matchen, zodat ze van je lijst vallen. Vink uit wat je voor deze zoekopdracht toch zou overwegen.",
+    "timingNote": "Een zoekopdracht duurt meestal 20 tot 40 seconden. Resultaten verschijnen zodra elke loopbaan klaar is.",
+    "submit": "Zoeken",
+    "submitting": "Zoeken…",
+    "recent": "Recente zoekopdrachten",
+    "restoreTitle": "Deze filters herstellen, klik daarna op Zoeken",
+    "location": {
+      "any": "Alle locaties",
+      "remote_friendly": "Remote-vriendelijk",
+      "remote_only": "Alleen remote"
+    },
+    "commitment": {
+      "any": "Alle uren",
+      "full_time": "Voltijd",
+      "part_time": "Deeltijd",
+      "contract": "Contract / Freelance"
+    },
+    "commitmentShort": {
+      "contract": "Contract"
+    },
+    "savedRoles": "Bewaarde rollen · {{count}}",
+    "avoidActive": "{{active}} van {{total}} actief",
+    "submitCareers_one": "Zoek {{count}} loopbaan",
+    "submitCareers_other": "Zoek {{count}} loopbanen",
+    "ago": {
+      "justNow": "zojuist",
+      "minutes": "{{count}}m geleden",
+      "hours": "{{count}}u geleden",
+      "days": "{{count}}d geleden"
+    },
+    "arrangementNoteTail": "Wil je dat? Laat het weten via de knop Feedback & Support rechtsonder."
+  },
+  "summary": {
+    "careers_one": "{{count}} loopbaan",
+    "careers_other": "{{count}} loopbanen",
+    "arrangement": {
+      "remote_only": "alleen remote",
+      "remote_friendly": "remote-vriendelijk"
+    },
+    "commitment": {
+      "full_time": "voltijd",
+      "part_time": "deeltijd",
+      "contract": "contract / freelance"
+    }
+  },
+  "locked": {
+    "eyebrow": "STAP 1 · NOG 1 VRIEND",
+    "title": "Help één vriend zijn pad vinden, ontgrendel dat van jou.",
+    "body": "Vacatures worden dagelijks ververst en blijven gematcht met je top 3 loopbanen. Zodra één vriend die je uitnodigt zich aanmeldt bij Cairnly, gaat deze pagina open.",
+    "yourCode": "Jouw code",
+    "share": "Delen",
+    "whenUnlocked": "ALS HET OPEN IS · KUN JE",
+    "perk1Title": "Actuele vacatures vinden",
+    "perk2Title": "Je cv afstemmen",
+    "perk2Body": "Op elke bewaarde vacature. Gaat open zodra een tweede uitgenodigde vriend zich aanmeldt.",
+    "perk3Title": "Motivatiebrieven maken",
+    "perk3Body": "Op elke bewaarde vacature. Gaat open zodra een derde uitgenodigde vriend zich aanmeldt.",
+    "perk1Body": "Dagelijks ververst, gematcht met je top 3 loopbanen + runner-ups, gerangschikt met een AI-score tegen je profiel."
+  },
+  "pipeline": {
+    "eyebrow": "JOUW PIJPLIJN",
+    "apply": "Solliciteer",
+    "viewLetter": "Bekijk brief",
+    "createLetter": "Maak brief",
+    "interviewScheduled": "Gesprek ingepland",
+    "archived": "Gearchiveerd",
+    "columns": {
+      "saved": "Bewaard",
+      "savedBlurb": "Het bekijken waard",
+      "savedEmpty": "Bewaar vacatures vanuit de zoekresultaten.",
+      "applied": "Gesolliciteerd",
+      "appliedBlurb": "De deur uit",
+      "appliedEmpty": "Zet hier zodra je hebt gesolliciteerd.",
+      "interviewing": "In gesprek",
+      "interviewingBlurb": "Gesprekken lopen",
+      "interviewingEmpty": "Sleep vanuit Gesolliciteerd.",
+      "archived": "Gearchiveerd",
+      "archivedBlurb": "Niet verder, bewaard ter referentie",
+      "archivedEmpty": "Nog niets gearchiveerd."
+    },
+    "savedAgo": "Bewaard {{when}}",
+    "appliedAgo": "Gesolliciteerd {{when}}",
+    "fromCareer": " · uit \"{{career}}\"",
+    "resume": "CV",
+    "resumes": "{{count}} cv's",
+    "ago": {
+      "today": "vandaag",
+      "days": "{{count}}d geleden",
+      "weeks": "{{count}}w geleden"
+    },
+    "rolesActive_one": "{{count}} rol · {{active}} actief",
+    "rolesActive_other": "{{count}} rollen · {{active}} actief"
+  },
+  "toast": {
+    "openToolkit": "Open toolkit",
+    "inviteTitle": "Nodig een vriend uit om te ontgrendelen",
+    "inviteNoLink": "Nodig vrienden uit om deze tool te ontgrendelen. Open je toolkit voor je uitnodigingslink en je voortgang.",
+    "inviteCopied": "Uitnodigingslink gekopieerd. Open je toolkit om je voortgang naar de volgende ontgrendeling te volgen."
+  }
+}

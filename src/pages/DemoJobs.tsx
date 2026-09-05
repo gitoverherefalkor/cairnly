@@ -7,7 +7,7 @@ import Seo from '@/components/Seo';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { JobsResults, type JobsResultsCareer } from '@/components/jobs/v2/JobsResults';
 import { JobsSavedKanban } from '@/components/jobs/v2/JobsSavedKanban';
-import type { ApplyLinkOptions, JobsTier } from '@/components/jobs/v2/jobsV2Shared';
+import { searchSummary, type ApplyLinkOptions, type JobsTier } from '@/components/jobs/v2/jobsV2Shared';
 import type { JobListing } from '@/hooks/useJobSearch';
 import type { SavedJob, SavedJobStatus } from '@/hooks/useSavedJobs';
 import { trackSampleView, trackCtaClick } from '@/lib/analytics';
@@ -16,8 +16,20 @@ import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoToolDialog, type DemoTool } from '@/components/demo/DemoToolDialog';
 import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { demoLink, readPersonaParam } from '@/demo/links';
+import { sectionTitle } from '@/lib/sectionText';
 import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
+
+// The report section that backs each jobs sectionType, so the results header
+// can use the LOCALIZED career title instead of the fixture's canonical
+// English one (the NL dashboard says "HR Adviseur", the jobs row said
+// "HR Advisor"). Only the unambiguous single-career tiers are mapped;
+// runner-up / outside-box hold several careers per section_type.
+const SECTION_TYPE_FOR_TIER: Record<string, string> = {
+  'first-career': 'top_career_1',
+  'second-career': 'top_career_2',
+  'third-career': 'top_career_3',
+};
 
 // The Jobs page's sectionType → tier (Jobs.tsx SECTION_TO_TIER).
 const SECTION_TO_TIER: Record<string, JobsTier> = {
@@ -27,23 +39,6 @@ const SECTION_TO_TIER: Record<string, JobsTier> = {
   'runner-up': 'runner-up',
   'outside-box': 'outside-box',
 };
-
-// The results bar's one-line summary, as Jobs.tsx composes it.
-const summarize = (opts: { countryCodes: string[]; workArrangement: string; jobCommitment: string } | undefined, careers: number) =>
-  [
-    `${careers} ${careers === 1 ? 'career' : 'careers'}`,
-    (opts?.countryCodes ?? []).map((c) => c.toUpperCase()).join(' + '),
-    opts?.workArrangement === 'remote_only' ? 'remote only' : opts?.workArrangement === 'remote_friendly' ? 'remote-friendly' : null,
-    opts?.jobCommitment === 'full_time'
-      ? 'full-time'
-      : opts?.jobCommitment === 'part_time'
-        ? 'part-time'
-        : opts?.jobCommitment === 'contract'
-          ? 'contract / freelance'
-          : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
 
 /**
  * /demo/jobs — phase 4 of docs/handoff/demo-toolkit-plan.md: the persona's
@@ -66,6 +61,8 @@ const summarize = (opts: { countryCodes: string[]; workArrangement: string; jobC
  */
 const DemoJobs: React.FC = () => {
   const { t, i18n } = useTranslation('demo');
+  // The results bar is JobsResults' own copy, so it reads from 'jobs'.
+  const { t: tJobs } = useTranslation('jobs');
   const location = useLocation();
   const navigate = useNavigate();
   const audience: 'customer' | 'partner' = new URLSearchParams(location.search).has('p')
@@ -107,13 +104,21 @@ const DemoJobs: React.FC = () => {
   const results = useMemo(() => fixture?.jobs ?? [], [fixture]);
   const careersBySectionType = useMemo(() => {
     const m = new Map<string, JobsResultsCareer>();
+    const stripHtml = (html: string) => html.replace(/<[^>]*>/g, '').trim();
     for (const r of results) {
-      m.set(r.sectionType, { sectionType: r.sectionType, title: r.careerTitle, tier: SECTION_TO_TIER[r.sectionType] ?? 'top-1' });
+      const backing = SECTION_TYPE_FOR_TIER[r.sectionType];
+      const section = backing ? fixture?.sections.find((s) => s.section_type === backing) : undefined;
+      const localized = section ? sectionTitle(section, i18n.language) : null;
+      m.set(r.sectionType, {
+        sectionType: r.sectionType,
+        title: (localized && stripHtml(localized)) || r.careerTitle,
+        tier: SECTION_TO_TIER[r.sectionType] ?? 'top-1',
+      });
     }
     return m;
-  }, [results]);
+  }, [results, fixture, i18n.language]);
   const searchedAt = results[0]?.searchedAt ?? fixture?.persona.exportedAt;
-  const searchSummary = summarize(results[0]?.searchOptions, results.length);
+  const summaryLine = searchSummary(tJobs, results[0]?.searchOptions, results.length);
 
   const isJobSaved = (externalJobId: string) => savedJobs.some((j) => j.external_job_id === externalJobId);
   const saveJob = (job: JobListing, fromCareer: string) => {
@@ -229,7 +234,7 @@ const DemoJobs: React.FC = () => {
               results={results}
               careersBySectionType={careersBySectionType}
               savedCount={savedJobs.length}
-              searchSummary={searchSummary}
+              searchSummary={summaryLine}
               isJobSaved={isJobSaved}
               onSaveJob={saveJob}
               onUnsaveJob={unsaveJob}
