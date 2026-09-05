@@ -257,6 +257,8 @@ const HistogramKey: React.FC<{ color: string; count: number }> = ({ color, count
 // public page should not pass link equity) and counts the click as a CTA.
 export interface ApplyLinkOptions {
   rel: string;
-  onClick?: () => void;
+  // Receives the click so a caller can intercept it (the demo swaps the
+  // real job board for a dialog: its listings are frozen and go stale).
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 export const DEFAULT_APPLY_LINK: ApplyLinkOptions = { rel: 'noopener noreferrer' };

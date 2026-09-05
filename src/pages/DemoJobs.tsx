@@ -157,8 +157,20 @@ const DemoJobs: React.FC = () => {
       ),
     );
 
+  // "View & apply" does not leave for the job board straight away: the
+  // listings were found once and are not refreshed, so weeks later the link
+  // may be dead. The dialog says so and still offers the door.
+  const [applyHref, setApplyHref] = useState<string | undefined>(undefined);
   const applyLink: ApplyLinkOptions = useMemo(
-    () => ({ rel: 'nofollow noopener noreferrer', onClick: () => trackCtaClick('demo_job_apply') }),
+    () => ({
+      rel: 'nofollow noopener noreferrer',
+      onClick: (e) => {
+        e.preventDefault();
+        setApplyHref(e.currentTarget.href);
+        setTool('apply');
+        trackCtaClick('demo_job_apply');
+      },
+    }),
     [],
   );
 
@@ -290,7 +302,14 @@ const DemoJobs: React.FC = () => {
             </div>
           </div>
 
-          <DemoToolDialog tool={tool} onClose={() => setTool(null)} audience={audience} firstName={choice.firstName} />
+          <DemoToolDialog
+            tool={tool}
+            onClose={() => setTool(null)}
+            audience={audience}
+            firstName={choice.firstName}
+            applyHref={applyHref}
+            searchDate={dateText}
+          />
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center py-24" style={{ background: '#0F2530' }}>

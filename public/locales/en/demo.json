@@ -219,7 +219,13 @@
       "dashboard": "Back to {{name}}'s dashboard",
       "dashboardNote": "The matches this search was run for, the career map, the full report."
     },
-    "foundOn": "Found on {{date}}"
+    "foundOn": "Found on {{date}}",
+    "apply": {
+      "title": "This is where you would leave for the job board",
+      "body": "In a real account this button opens the listing on the job board in a new tab, with your tailored résumé and cover letter one click away. This search ran on {{date}} and the listings are not refreshed, so this one may have closed by now.",
+      "open": "Open the listing anyway",
+      "close": "Stay in the demo"
+    }
   },
   "surveyDemo": {
     "seo": {

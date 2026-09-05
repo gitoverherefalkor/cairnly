@@ -219,7 +219,13 @@
       "dashboard": "Terug naar het dashboard van {{name}}",
       "dashboardNote": "De matches waarvoor deze zoekopdracht liep, de carrièrekaart, het volledige rapport."
     },
-    "foundOn": "Gevonden op {{date}}"
+    "foundOn": "Gevonden op {{date}}",
+    "apply": {
+      "title": "Hier zou je naar de vacaturesite gaan",
+      "body": "In een echt account opent deze knop de vacature op de vacaturesite in een nieuw tabblad, met je aangepaste cv en motivatiebrief één klik verderop. Deze zoekopdracht liep op {{date}} en de vacatures worden niet ververst, dus deze kan inmiddels gesloten zijn.",
+      "open": "Open de vacature toch",
+      "close": "Blijf in de demo"
+    }
   },
   "surveyDemo": {
     "seo": {
