@@ -7,9 +7,8 @@
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
     "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
     "sampleCta": "Bekijk een voorbeeldrapport (2 minuten)",
-    "demoCta": "Bekijk Marcels coachsessie",
-    "stageLabel": "Marcel, 41, teamleider klantenservice · echte sessie",
-    "stageCaption": "Marcel is een fictieve kandidaat, alles wat je ziet is echte output. Klik op een scherm om zijn sessie te openen: het gesprek met de coach en het dashboard erna."
+    "demoCta": "Bekijk een echte coachsessie",
+    "stageCaption": "Marcel en Emma zijn fictieve kandidaten, alles wat je ziet is echte output. Klik op een scherm of een kaart om de sessie te openen: het gesprek met de coach en het dashboard erna."
   },
   "whoFor": {
     "title": "Voor wie",
@@ -103,5 +102,47 @@
     "download": "Download de pdf",
     "openInTab": "Open het rapport in een nieuw tabblad",
     "viewerTitle": "Cairnly voorbeeldrapport"
+  },
+  "heroDemo": {
+    "sessionLanguage": {
+      "en": "Sessie gevoerd in het Engels",
+      "nl": "Sessie gevoerd in het Nederlands"
+    },
+    "cards": {
+      "marcel": {
+        "name": "Marcel",
+        "who": "Marcel · 41 · Teamleider klantenservice, verzekeraar",
+        "intent": "Klaar met een team managen, wil dichter bij de mensen staan die hij helpt.",
+        "seeLabel": "Wat je in zijn sessie ziet",
+        "see": [
+          "van teamleider naar learning & development",
+          "een harde eis (woensdag thuis) die de matches meeweegt",
+          "chatfeedback die het rapport herschrijft"
+        ],
+        "traits": [
+          "empathisch",
+          "praktisch",
+          "loyaal"
+        ],
+        "cta": "Bekijk Marcels sessie"
+      },
+      "emma": {
+        "name": "Emma",
+        "who": "Emma · 38 · Senior marketing manager, fintech in Londen",
+        "intent": "Kan de job met haar ogen dicht, en dat is precies het probleem.",
+        "seeLabel": "Wat je in haar sessie ziet",
+        "see": [
+          "drie carrières naast elkaar op één radar",
+          "de coach die terugduwt op een aanname",
+          "een Move-pill: direct inzetbaar of eerst bijscholen"
+        ],
+        "traits": [
+          "strategisch",
+          "betekenisgever",
+          "rusteloos"
+        ],
+        "cta": "Bekijk Emma's sessie"
+      }
+    }
   }
 }

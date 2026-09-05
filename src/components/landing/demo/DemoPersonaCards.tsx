@@ -19,8 +19,16 @@ const CYCLE_MS = 3000;
  * the lit card's screens). Hovering a card swaps the stage; clicking anywhere
  * on the card opens the full replay with that persona.
  */
-const DemoPersonaCards: React.FC = () => {
-  const { t, i18n } = useTranslation('landing');
+interface DemoPersonaCardsProps {
+  /**
+   * i18n namespace holding `heroDemo.cards.*` and `heroDemo.sessionLanguage`.
+   * The partner page brings its own card copy (no job-search bullets).
+   */
+  ns?: string;
+}
+
+const DemoPersonaCards: React.FC<DemoPersonaCardsProps> = ({ ns = 'landing' }) => {
+  const { t, i18n } = useTranslation(ns);
   const { persona: active, picked, setPersona, previewPersona, demoHref } = useHeroPersona();
   const rootRef = useRef<HTMLDivElement>(null);
   // The interval reads the latest persona without restarting on every swap.

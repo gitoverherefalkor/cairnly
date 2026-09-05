@@ -50,10 +50,12 @@ const SCREENS = [
     // named sidebar and the full transcript while dropping the empty right
     // margin the (removed) notes would have filled.
     vw: 1520,
-    // The radar comparison: careers side by side on five axes is the single
-    // most "this is what you bought" moment in the transcript.
-    anchorText: ['verschilt van je andere', 'differs from your other', 'verhoudt', 'differs'],
-    pad: 40,
+    // The runner-up delivery: the coach's intro plus the career cards with
+    // their match / AI-impact / step pills. The radar comparison used to be
+    // here, but the dashboard still already shows that chart (Sjoerd,
+    // 2026-09-05), so the chat still shows something the dashboard does not.
+    anchorText: ['runner-up career matches', 'runner-up carrièrematches', 'runner-up matches'],
+    pad: 120,
     settle: 4000, // the replay renders its turns lazily
   },
   // pad 76 clears the "YOUR CAREER PROFILE / JOUW CARRIEREPROFIEL" eyebrow
@@ -62,10 +64,11 @@ const SCREENS = [
   {
     slug: 'jobs',
     path: '/demo/jobs',
-    // The first career section, whichever tier it is: Emma's frozen search
-    // ran on her #1 and Marcel's on his #2, so "#1" alone finds nothing.
+    // The first career section, whichever tier it is: Emma's frozen search ran
+    // on her #1 and Marcel's on his #2, so "#1" alone finds nothing. Anchored
+    // on the badge's data attribute rather than its text, which is localized.
     // Anchoring here also keeps the referral/lock banner above the frame.
-    anchorText: ['top career #'],
+    anchor: '[data-career-tier]',
     pad: 60,
   },
 ];
