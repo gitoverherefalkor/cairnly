@@ -169,5 +169,17 @@
       "body": "The organisation behind this link is not (or no longer) active with Cairnly. Ask your advisor for a new link, or email {{email}}.",
       "cta": "Go to the homepage"
     }
+  },
+  "candidateStart": {
+    "title": "This is where your candidate starts",
+    "body": "You send your candidate a personal link. It opens a start page with your logo and name, a short explanation and one button. The access code travels inside the link, so there is nothing to type over. After the button the candidate creates an account and the assessment begins.",
+    "points": [
+      "Your logo and name at the top, before Cairnly appears",
+      "A three-step explanation, in Dutch or English, your choice per link",
+      "No price and no paywall: the candidate only sees the start"
+    ],
+    "exampleCta": "Open the example page",
+    "urlSlug": "your-bureau",
+    "imageAlt": "The start page a candidate of Loopbaanbureau Voorbeeld sees: the bureau's logo, a three-step explanation and the Start the assessment button"
   }
 }

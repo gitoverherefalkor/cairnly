@@ -37,3 +37,10 @@ export const partnerDemoLink = (route: string = DEMO_ROUTE) =>
 
 /** Route of the specimen page, referenced from the hero CTA and the back link. */
 export const SAMPLE_ROUTE = '/partners/voorbeeldrapport';
+
+/**
+ * The live landing page of the specimen partner, linked from the "this is
+ * what your candidate sees" block. Same bureau as the sample PDF. No code on
+ * the link: a prospect should see the page, not start an assessment.
+ */
+export const CANDIDATE_START_EXAMPLE_PATH = '/p/voorbeeld';

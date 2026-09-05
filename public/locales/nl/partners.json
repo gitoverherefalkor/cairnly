@@ -169,5 +169,17 @@
       "body": "De organisatie achter deze link is niet (meer) actief bij Cairnly. Vraag je adviseur om een nieuwe link, of mail naar {{email}}.",
       "cta": "Naar de homepage"
     }
+  },
+  "candidateStart": {
+    "title": "Zo begint je kandidaat",
+    "body": "Je stuurt je kandidaat een persoonlijke link. Die opent een startpagina met jouw logo en naam, een korte uitleg en één knop. De toegangscode zit in de link, dus er valt niets over te typen. Na de knop maakt de kandidaat een account aan en begint het assessment.",
+    "points": [
+      "Jouw logo en naam bovenaan, nog voor Cairnly in beeld komt",
+      "Uitleg in drie stappen, in het Nederlands of Engels, jij kiest per link",
+      "Geen prijs, geen betaalmuur: de kandidaat ziet alleen de start"
+    ],
+    "exampleCta": "Open de voorbeeldpagina",
+    "urlSlug": "jouw-bureau",
+    "imageAlt": "De startpagina die een kandidaat van Loopbaanbureau Voorbeeld ziet: logo van het bureau, uitleg in drie stappen en de knop Start het assessment"
   }
 }

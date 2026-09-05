@@ -7,6 +7,7 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import PartnersHero from '@/components/partners/PartnersHero';
 import PartnersWhoFor from '@/components/partners/PartnersWhoFor';
 import PartnersWhatYouGet from '@/components/partners/PartnersWhatYouGet';
+import PartnersCandidateStart from '@/components/partners/PartnersCandidateStart';
 import PartnersPricing from '@/components/partners/PartnersPricing';
 import PartnersPilot from '@/components/partners/PartnersPilot';
 import PartnersFAQ from '@/components/partners/PartnersFAQ';
@@ -38,6 +39,7 @@ const PartnersIndex: React.FC = () => {
         <PartnersHero />
         <PartnersWhoFor />
         <PartnersWhatYouGet />
+        <PartnersCandidateStart />
         <PartnersPricing />
         <PartnersPilot />
         <PartnersFAQ />
