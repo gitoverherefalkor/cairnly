@@ -47,8 +47,13 @@ function decodeBase64(input: string): Uint8Array {
   return out;
 }
 
-const signupLink = (code: string, lang: string) =>
-  `${SITE}/auth?flow=signup&code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}`;
+// The link a bureau hands to a candidate: the branded landing page /p/:slug,
+// which shows the bureau's logo once and then forwards to the normal signup
+// with the code pre-filled. Mirrors partnerLandingPath in src/lib/partnerLinks.ts.
+// Links minted before the landing page existed (/auth?flow=signup&code=…)
+// keep working; the landing page hands over to exactly that URL.
+const candidateLink = (slug: string, code: string, lang: string) =>
+  `${SITE}/p/${slug}?code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}`;
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -190,7 +195,7 @@ serve(async (req) => {
 
       const codes = (data ?? []).map((r: { code: string }) => r.code);
       return ok(
-        { codes, links: codes.map((c: string) => signupLink(c, lang)) },
+        { codes, links: codes.map((c: string) => candidateLink(slug, c, lang)) },
         corsHeaders,
       );
     }

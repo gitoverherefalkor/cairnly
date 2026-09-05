@@ -6,7 +6,7 @@
 // function decodes it and uploads it with the service role.
 //
 // What the flow gives you: fill in the agency's name, pick their logo, save,
-// then mint a batch of codes and copy the ready-made signup links straight into
+// then mint a batch of codes and copy the ready-made /p/:slug landing links straight into
 // an email. The table shows how far each batch actually got.
 
 import React, { useCallback, useEffect, useState } from 'react';

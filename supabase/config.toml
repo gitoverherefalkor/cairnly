@@ -113,3 +113,9 @@ verify_jwt = false
 # is re-checked inside the function.
 [functions.render-report-pdf]
 verify_jwt = true
+
+# Partner landing page (/p/:slug). The candidate has no account yet, so this
+# is anonymous; it returns only the partner's name, logo and credit line, and
+# is rate-limited in-function.
+[functions.partner-public]
+verify_jwt = false

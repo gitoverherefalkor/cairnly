@@ -144,5 +144,30 @@
         "cta": "Bekijk Emma's sessie"
       }
     }
+  },
+  "landing": {
+    "seo": {
+      "title": "{{partner}} and Cairnly | Start your career assessment"
+    },
+    "partnership": "{{partner}} works with Cairnly",
+    "eyebrow": "Your career assessment",
+    "title": "Start your career assessment",
+    "body": "{{partner}} has set this assessment up for you. In 25 to 40 minutes you answer questions about your personality, your work history and what you are looking for in work. You then receive a report with concrete careers that fit you, each with a match score, a salary range and an honest read on what AI will do to it. You bring that report to the conversation with your advisor.",
+    "steps": [
+      "Create an account (2 minutes)",
+      "Work through the assessment at your own pace, in stages if you like",
+      "Receive your report and talk it through with the coach and with your advisor"
+    ],
+    "cta": "Start the assessment",
+    "codeReady": "Your personal access code is already filled in, nothing to type over.",
+    "codeMissing": "This link does not carry a personal access code. Ask your advisor for your link with a code, or enter the code when you create your account.",
+    "privacy": "Your answers and your report are yours. You decide what you share with your advisor.",
+    "poweredBy": "Powered by Cairnly",
+    "loading": "One moment...",
+    "notFound": {
+      "title": "This link does not work",
+      "body": "The organisation behind this link is not (or no longer) active with Cairnly. Ask your advisor for a new link, or email {{email}}.",
+      "cta": "Go to the homepage"
+    }
   }
 }

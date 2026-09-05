@@ -144,5 +144,30 @@
         "cta": "Bekijk Emma's sessie"
       }
     }
+  },
+  "landing": {
+    "seo": {
+      "title": "{{partner}} en Cairnly | Start je loopbaanassessment"
+    },
+    "partnership": "{{partner}} werkt samen met Cairnly",
+    "eyebrow": "Jouw loopbaanassessment",
+    "title": "Start je loopbaanassessment",
+    "body": "{{partner}} heeft dit assessment voor je klaargezet. In 25 tot 40 minuten beantwoord je vragen over je persoonlijkheid, je werkervaring en wat je zoekt in werk. Daarna krijg je een rapport met concrete beroepen die bij je passen, met per beroep een matchscore, salarisrange en een eerlijke inschatting van wat AI ermee gaat doen. Dat rapport neem je mee naar je gesprek met je adviseur.",
+    "steps": [
+      "Maak een account aan (2 minuten)",
+      "Doorloop het assessment in je eigen tempo, ook in etappes",
+      "Ontvang je rapport en praat erover door met de coach en met je adviseur"
+    ],
+    "cta": "Start het assessment",
+    "codeReady": "Je persoonlijke toegangscode staat al klaar, je hoeft niets over te typen.",
+    "codeMissing": "Deze link bevat geen persoonlijke toegangscode. Vraag je adviseur om je link met code, of vul de code in bij het aanmaken van je account.",
+    "privacy": "Je antwoorden en je rapport zijn van jou. Je bepaalt zelf wat je met je adviseur deelt.",
+    "poweredBy": "Powered by Cairnly",
+    "loading": "Even geduld...",
+    "notFound": {
+      "title": "Deze link werkt niet",
+      "body": "De organisatie achter deze link is niet (meer) actief bij Cairnly. Vraag je adviseur om een nieuwe link, of mail naar {{email}}.",
+      "cta": "Naar de homepage"
+    }
   }
 }
