@@ -22,6 +22,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { SavedJob, SavedJobStatus } from '@/hooks/useSavedJobs';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { DEFAULT_APPLY_LINK, JEyebrow, matchTone, type ApplyLinkOptions } from './jobsV2Shared';
 
 interface JobsSavedKanbanProps {
@@ -101,6 +102,8 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
   };
 
   const activeCount = savedJobs.filter((j) => j.status !== 'archived').length;
+  // Phones stack the four pipeline columns; drag between them still works.
+  const mobile = useIsMobile();
 
   return (
     <LakeBackground intensity="normal">
@@ -115,7 +118,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
       />
       )}
 
-      <div style={{ maxWidth: 1320, margin: '0 auto', padding: '36px 32px 80px' }}>
+      <div style={{ maxWidth: 1320, margin: '0 auto', padding: mobile ? '24px 14px 64px' : '36px 32px 80px' }}>
         <div
           style={{
             background: 'rgba(18, 46, 59, 0.62)',
@@ -160,7 +163,7 @@ export const JobsSavedKanban: React.FC<JobsSavedKanbanProps> = ({
         </div>
 
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(4, 1fr)', gap: 14 }}>
             {COLUMNS.map((col) => (
               <KanbanColumn
                 key={col.id}

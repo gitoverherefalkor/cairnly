@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { ArrowRight, FilePlus, FileText, Search } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -28,7 +29,9 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
   onShare,
   onProfile,
   onSignOut,
-}) => (
+}) => {
+  const mobile = useIsMobile();
+  return (
   <LakeBackground intensity="heavy">
     <DashboardAppNav
       firstName={firstName}
@@ -39,7 +42,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
       backLabel="Back to dashboard"
     />
 
-    <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 32px', textAlign: 'center' }}>
+    <div style={{ maxWidth: 920, margin: '0 auto', padding: mobile ? '40px 16px 64px' : '80px 32px', textAlign: 'center' }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
         <CairnGlyph kind="distant" size={96} color="rgba(236,228,210,0.92)" accent={PALETTE.goldBright} />
       </div>
@@ -172,7 +175,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           WHEN UNLOCKED · YOU CAN
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
         {(
           [
             {
@@ -248,4 +251,5 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
       </div>
     </div>
   </LakeBackground>
-);
+  );
+};

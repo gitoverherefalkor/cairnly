@@ -19,6 +19,7 @@ import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralSta
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
@@ -612,6 +613,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     onNavigate(query ? `/custom-resume?${query}` : '/custom-resume');
   };
 
+  // Phones (<768px) collapse every side-by-side grid to a single column
+  // and pull the type sizes in; the layout below is otherwise unchanged.
+  const mobile = useIsMobile();
+
   const reportDate = reportGeneratedAt
     ? formatDate(reportGeneratedAt, i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
@@ -620,7 +625,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     <LakeBackground intensity="normal">
       {nav ?? <DashboardAppNav firstName={firstName} onProfile={onProfile} onSignOut={onSignOut} />}
 
-      <div style={{ maxWidth: 1320, margin: '0 auto', padding: '48px 32px 80px' }}>
+      <div style={{ maxWidth: 1320, margin: '0 auto', padding: mobile ? '28px 16px 64px' : '48px 32px 80px' }}>
         {/* ─── Welcome ─── */}
         <div
           style={{
@@ -640,7 +645,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               style={{
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
-                fontSize: 56,
+                fontSize: mobile ? 36 : 56,
                 letterSpacing: '-0.03em',
                 color: '#fff',
                 margin: '12px 0 8px 0',
@@ -673,7 +678,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
-              alignItems: 'flex-end',
+              alignItems: mobile ? 'flex-start' : 'flex-end',
               color: 'rgba(255,255,255,0.5)',
               fontFamily: FONT_BODY,
               fontSize: 12,
@@ -704,7 +709,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: secondary.length > 0 ? '1.65fr 1fr' : '1fr',
+              gridTemplateColumns: secondary.length > 0 && !mobile ? '1.65fr 1fr' : '1fr',
               gap: 24,
               marginBottom: 24,
             }}
@@ -755,7 +760,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 {t('v4.paths.eyebrow', { defaultValue: 'MORE PATHS WORTH CONSIDERING' })}
               </Eyebrow>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 20 }}>
               {paths.runners && (
                 <PathsTile
                   slot="runnerups"
@@ -879,7 +884,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
                 display: 'grid',
                 gridTemplateColumns:
-                  radarAxes.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
+                  radarAxes.length > 0 && !mobile ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
               }}
             >
               <div style={{ minWidth: 0 }}>
@@ -952,7 +957,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                 boxShadow: '0 30px 60px -24px rgba(0,0,0,0.5)',
                 display: 'grid',
                 gridTemplateColumns:
-                  careerMapPoints.length > 0 ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
+                  careerMapPoints.length > 0 && !mobile ? 'minmax(0, 1.4fr) minmax(280px, 1fr)' : '1fr',
               }}
             >
               <div style={{ minWidth: 0 }}>
@@ -1064,6 +1069,9 @@ const HeroMatch: React.FC<{
 }) => {
   // Only render the radar when there's something to compare against.
   const showRadar = compareCareers.length >= 2;
+  // No hover on a phone, and the back face's 520px radar would not fit
+  // anyway: the flip is desktop-only, the compact radar still shows.
+  const mobile = useIsMobile();
   // Hovering the small radar panel flips the WHOLE Hero card to the detail
   // view on the back. The card stays flipped while the mouse is anywhere on
   // it; un-flips when the cursor leaves the card entirely. Scoping the flip
@@ -1105,7 +1113,7 @@ const HeroMatch: React.FC<{
             WebkitBackdropFilter: 'blur(18px)',
             border: '1px solid rgba(255, 255, 255, 0.10)',
             borderRadius: 28,
-            padding: 36,
+            padding: mobile ? 22 : 36,
             boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
             display: 'flex',
             flexDirection: 'column',
@@ -1134,7 +1142,7 @@ const HeroMatch: React.FC<{
               style={{
                 fontFamily: FONT_DISPLAY,
                 fontWeight: 700,
-                fontSize: 44,
+                fontSize: mobile ? 30 : 44,
                 letterSpacing: '-0.03em',
                 lineHeight: 1.05,
                 color: '#fff',
@@ -1291,7 +1299,9 @@ const HeroMatch: React.FC<{
 
               {showRadar && (
                 <div
-                  onMouseEnter={() => setFlipped(true)}
+                  onMouseEnter={() => {
+                    if (!mobile) setFlipped(true);
+                  }}
                   style={{
                     flex: '1 1 280px',
                     minWidth: 240,
@@ -1333,7 +1343,7 @@ const HeroMatch: React.FC<{
         </div>
 
         {/* ── BACK — full detail view, cream paper, big interactive radar ── */}
-        {showRadar && (
+        {showRadar && !mobile && (
           <div
             style={{
               gridArea: 'stack',
@@ -1711,6 +1721,7 @@ const UnlockToolkit: React.FC<{
   const { t } = useTranslation('dashboard');
   const earned = Math.min(referralCount, 6);
   const fullyRefunded = referralCount >= 6;
+  const mobile = useIsMobile();
   return (
     <section style={{ marginBottom: 28 }}>
       <div
@@ -1718,7 +1729,7 @@ const UnlockToolkit: React.FC<{
           background: 'linear-gradient(135deg, rgba(212,160,36,0.18) 0%, rgba(39,161,161,0.12) 100%)',
           border: '1px solid rgba(212,160,36,0.40)',
           borderRadius: 24,
-          padding: 28,
+          padding: mobile ? 18 : 28,
           marginBottom: 16,
           position: 'relative',
           overflow: 'hidden',
@@ -1738,8 +1749,8 @@ const UnlockToolkit: React.FC<{
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.4fr 1fr',
-            gap: 32,
+            gridTemplateColumns: mobile ? '1fr' : '1.4fr 1fr',
+            gap: mobile ? 20 : 32,
             alignItems: 'center',
             position: 'relative',
           }}
@@ -1787,7 +1798,7 @@ const UnlockToolkit: React.FC<{
               })}
             </p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 280 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: mobile ? 0 : 280 }}>
             <div
               style={{
                 display: 'flex',
@@ -1928,7 +1939,10 @@ const LadderRow: React.FC<{
   onInvite: () => void;
   onNavigate: (route: string) => void;
   pulseStepKey?: 'jobs' | 'resume' | 'cover-letter';
-}> = ({ label, items, onInvite, onNavigate, pulseStepKey }) => (
+}> = ({ label, items, onInvite, onNavigate, pulseStepKey }) => {
+  // Phones stack the three cards; the arrows between them turn to point down.
+  const mobile = useIsMobile();
+  return (
   <div>
     <div
       style={{
@@ -1944,7 +1958,7 @@ const LadderRow: React.FC<{
     >
       {label}
     </div>
-    <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+    <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: 'stretch', gap: 0 }}>
       {items.map((item, i) => (
         <React.Fragment key={`${item.step.kind}-${item.step.requiredReferrals}`}>
           <div style={{ flex: 1, minWidth: 0, display: 'flex' }}>
@@ -1955,20 +1969,23 @@ const LadderRow: React.FC<{
               pulse={item.step.kind === 'tool' && item.step.featureKey === pulseStepKey}
             />
           </div>
-          {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} />}
+          {i < items.length - 1 && <FlowArrow lit={items[i + 1].unlocked} vertical={mobile} />}
         </React.Fragment>
       ))}
     </div>
   </div>
-);
+  );
+};
 
 // Gold flow-arrow between unlock cards. Lights up once the card to its RIGHT
 // is unlocked, so the trail fills in left-to-right as the user refers friends.
-const FlowArrow: React.FC<{ lit: boolean }> = ({ lit }) => (
+const FlowArrow: React.FC<{ lit: boolean; vertical?: boolean }> = ({ lit, vertical = false }) => (
   <div
     style={{
       flexShrink: 0,
-      width: 22,
+      width: vertical ? '100%' : 22,
+      height: vertical ? 22 : undefined,
+      transform: vertical ? 'rotate(90deg)' : undefined,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -2335,6 +2352,7 @@ const SharePromoBlock: React.FC<{
   onGenerate: () => void;
 }> = ({ heroTitle, heroShape, heroPct, onGenerate }) => {
   const { t } = useTranslation('dashboard');
+  const mobile = useIsMobile();
   return (
   <section
     style={{
@@ -2347,12 +2365,12 @@ const SharePromoBlock: React.FC<{
       boxShadow: '0 24px 50px -20px rgba(0,0,0,0.4)',
       overflow: 'hidden',
       display: 'grid',
-      gridTemplateColumns: '1.1fr 1fr',
+      gridTemplateColumns: mobile ? '1fr' : '1.1fr 1fr',
     }}
   >
     <div
       style={{
-        padding: 32,
+        padding: mobile ? 22 : 32,
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
@@ -2377,7 +2395,7 @@ const SharePromoBlock: React.FC<{
         style={{
           fontFamily: FONT_DISPLAY,
           fontWeight: 700,
-          fontSize: 28,
+          fontSize: mobile ? 24 : 28,
           letterSpacing: '-0.025em',
           color: '#fff',
           margin: 0,
@@ -2673,6 +2691,7 @@ const ReportAccordionRow: React.FC<{
   const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
   // Inner-tabs state for multi-career rows (runners, outside, dream).
   const [activeCareer, setActiveCareer] = useState(0);
+  const mobile = useIsMobile();
   return (
     <div
       ref={registerRef}
@@ -2689,26 +2708,26 @@ const ReportAccordionRow: React.FC<{
         style={{
           width: '100%',
           textAlign: 'left',
-          padding: '20px 28px',
+          padding: mobile ? '16px 16px' : '20px 28px',
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          gap: 20,
+          gap: mobile ? 12 : 20,
         }}
       >
         {row.careerSlot ? (
           <CareerSlotChip slot={row.careerSlot} />
         ) : (
-          <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={72} />
+          <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={mobile ? 52 : 72} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
-              fontSize: 19,
+              fontSize: mobile ? 17 : 19,
               letterSpacing: '-0.01em',
               color: '#fff',
               marginBottom: 4,
@@ -2742,7 +2761,7 @@ const ReportAccordionRow: React.FC<{
         </div>
       </button>
       {isOpen && row.careers && row.careers.length > 0 && (
-        <div className="cairnly-accordion-body" style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}>
+        <div className="cairnly-accordion-body" style={{ padding: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px', maxWidth: 880 }}>
           <CareerTabs
             careers={row.careers}
             activeIndex={Math.min(activeCareer, row.careers.length - 1)}
@@ -2756,7 +2775,7 @@ const ReportAccordionRow: React.FC<{
       {isOpen && row.content && !row.careers && (
         <div
           className="cairnly-accordion-body"
-          style={{ padding: '0 28px 28px 120px', maxWidth: 880 }}
+          style={{ padding: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px', maxWidth: 880 }}
         >
           <AccordionContent content={row.content} />
           {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}

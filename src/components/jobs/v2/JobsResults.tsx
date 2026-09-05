@@ -14,6 +14,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { JobListing, JobSearchResult } from '@/hooks/useJobSearch';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { CoverLetterModal } from '@/components/cover-letter/CoverLetterModal';
 import {
   CareerTierBadge,
@@ -100,6 +101,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
   // Lives here so a single modal instance can be controlled from any
   // JobCardCream below.
   const [coverLetterJob, setCoverLetterJob] = useState<JobListing | null>(null);
+  const mobile = useIsMobile();
 
   return (
     <LakeBackground intensity="normal">
@@ -114,7 +116,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
       />
       )}
 
-      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '36px 32px 80px' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: mobile ? '24px 14px 64px' : '36px 32px 80px' }}>
         {/* Summary bar */}
         <div
           style={{
@@ -615,6 +617,9 @@ const JobCardCream: React.FC<{
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const postedText = fmtPostedAgo(job.posted_date);
+  // On phones the action column moves under the content instead of
+  // squeezing beside it (a 240px column left ~100px for the title).
+  const mobile = useIsMobile();
 
   return (
     <article
@@ -625,6 +630,7 @@ const JobCardCream: React.FC<{
         border: `1px solid ${PALETTE.tan}`,
         boxShadow: '0 14px 30px -16px rgba(0,0,0,0.40)',
         display: 'flex',
+        flexDirection: mobile ? 'column' : 'row',
         overflow: 'hidden',
       }}
     >
@@ -644,9 +650,9 @@ const JobCardCream: React.FC<{
       {/* LEFT — content */}
       <div
         style={{
-          flex: '1 1 60%',
+          flex: mobile ? '1 1 auto' : '1 1 60%',
           minWidth: 0,
-          padding: '20px 24px',
+          padding: mobile ? '18px 16px 16px' : '20px 24px',
           display: 'flex',
           flexDirection: 'column',
           gap: 12,
@@ -745,9 +751,10 @@ const JobCardCream: React.FC<{
       {/* RIGHT — actions */}
       <div
         style={{
-          flex: '0 0 240px',
-          borderLeft: '1px solid rgba(201, 182, 144, 0.5)',
-          padding: '20px 22px',
+          flex: mobile ? '0 0 auto' : '0 0 240px',
+          borderLeft: mobile ? 'none' : '1px solid rgba(201, 182, 144, 0.5)',
+          borderTop: mobile ? '1px solid rgba(201, 182, 144, 0.5)' : 'none',
+          padding: mobile ? '14px 16px 16px' : '20px 22px',
           display: 'flex',
           flexDirection: 'column',
           gap: 10,

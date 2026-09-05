@@ -2,8 +2,16 @@ import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
+// Reads the viewport synchronously on first render so a phone never paints
+// the desktop layout for a frame before the effect flips it. The subscription
+// keeps the value in step with rotations and window resizes.
+function readIsMobile(): boolean {
+  if (typeof window === "undefined") return false
+  return window.innerWidth < MOBILE_BREAKPOINT
+}
+
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = React.useState<boolean>(readIsMobile)
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
@@ -15,5 +23,5 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  return isMobile
 }

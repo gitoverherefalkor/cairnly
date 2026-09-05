@@ -687,7 +687,9 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
 
             {/* Footer action buttons */}
             <div
-              className={`flex ${showSkipConfirm ? 'justify-end' : 'justify-between'} items-center mt-5 pt-4`}
+              // Phones stack the two actions (primary on top) so the wide
+              // "Upload resume to continue" button never runs off the card.
+              className={`flex flex-col-reverse sm:flex-row ${showSkipConfirm ? 'sm:justify-end' : 'sm:justify-between'} items-stretch sm:items-center gap-3 mt-5 pt-4`}
               style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
             >
               {/* Skip trigger. Hidden once the "Are you sure?" confirm is open —

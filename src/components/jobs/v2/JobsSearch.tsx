@@ -14,6 +14,7 @@ import {
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier, TIER_LABEL } from './jobsV2Shared';
 import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // A previously-run search the user can replay in one click. Lives in
 // localStorage on the page side; the type is declared here so both Jobs.tsx
@@ -126,7 +127,10 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   recentSearches,
   onApplyRecentSearch,
   countryLabelByCode,
-}) => (
+}) => {
+  // Phones get one column everywhere; the desktop grids are unchanged.
+  const mobile = useIsMobile();
+  return (
   <LakeBackground intensity="normal">
     <DashboardAppNav
       firstName={firstName}
@@ -137,7 +141,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
       backLabel="Back to dashboard"
     />
 
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 32px 80px' }}>
+    <div style={{ maxWidth: 1280, margin: '0 auto', padding: mobile ? '28px 16px 64px' : '48px 32px 80px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 36, gap: 24, flexWrap: 'wrap' }}>
         <div>
           <JEyebrow>STEP 1 · UNLOCKED · TIER 1 OF 3</JEyebrow>
@@ -145,7 +149,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             style={{
               fontFamily: FONT_DISPLAY,
               fontWeight: 700,
-              fontSize: 48,
+              fontSize: mobile ? 34 : 48,
               letterSpacing: '-0.03em',
               color: '#fff',
               margin: '12px 0 8px 0',
@@ -220,7 +224,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             Your report doesn't have career suggestions yet. Finish the coach conversation first.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14 }}>
             {careers.map((c) => (
               <CareerPickerCard
                 key={c.sectionType}
@@ -248,8 +252,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             borderRadius: 18,
             padding: 20,
             display: 'grid',
-            gridTemplateColumns: avoidPreferences.length > 0 ? 'minmax(0, 1.55fr) minmax(0, 1fr)' : '1fr',
-            gap: 0,
+            gridTemplateColumns: avoidPreferences.length > 0 && !mobile ? 'minmax(0, 1.55fr) minmax(0, 1fr)' : '1fr',
+            gap: mobile ? 20 : 0,
           }}
         >
           {/* LEFT: Country/Work-arrangement/Hours */}
@@ -258,10 +262,10 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               display: 'flex',
               flexDirection: 'column',
               gap: 18,
-              paddingRight: avoidPreferences.length > 0 ? 24 : 0,
+              paddingRight: avoidPreferences.length > 0 && !mobile ? 24 : 0,
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
               <FormField label="Country">
                 <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
               </FormField>
@@ -404,8 +408,10 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           {avoidPreferences.length > 0 && (
             <div
               style={{
-                borderLeft: '1px solid rgba(255, 255, 255, 0.10)',
-                paddingLeft: 24,
+                borderLeft: mobile ? 'none' : '1px solid rgba(255, 255, 255, 0.10)',
+                borderTop: mobile ? '1px solid rgba(255, 255, 255, 0.10)' : 'none',
+                paddingLeft: mobile ? 0 : 24,
+                paddingTop: mobile ? 20 : 0,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 12,
@@ -568,7 +574,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
       )}
     </div>
   </LakeBackground>
-);
+  );
+};
 
 // "12m ago" / "3h ago" / "2d ago" — compact relative timestamp for the
 // recent-searches chip text. Falls back to a date for anything older than a
