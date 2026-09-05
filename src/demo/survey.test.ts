@@ -104,9 +104,6 @@ describe('demo survey fixture', () => {
       expect(s?.intro?.title, lang).toBeTruthy();
       expect(s?.resume?.note, lang).toContain('{{name}}');
       expect(s?.questionCard?.eyebrow, lang).toContain('{{current}}');
-      for (const key of ['happiness', 'ranking', 'schedule']) {
-        expect(s?.payoff?.[key], `${lang} payoff.${key}`).toBeTruthy();
-      }
       expect(s?.rest?.toChat, lang).toContain('{{name}}');
     }
   });

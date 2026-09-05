@@ -235,7 +235,7 @@
       "title": "De vragen waar het rapport op gebouwd is",
       "body": "Dit zijn drie echte vragen uit het assessment, ingevuld met de antwoorden van {{name}}. Je mag ze aanpassen; er wordt niets verstuurd en niets bewaard.",
       "prefilled": "Je cv levert de feiten. De vragen halen op wat een cv niet weet: hoe je je in een rol voelde, wat je zwaarder laat wegen, en waar je niet op wilt inleveren.",
-      "note": "Elk antwoord is één datapunt van de zestig. Het rapport weegt ze samen, dus geen enkele conclusie hangt aan één vraag. De links hieronder laten zien waar zo'n antwoord meewoog in het gesprek."
+      "note": "Elk antwoord is één datapunt van de zestig. Het rapport weegt ze samen, dus geen enkele conclusie hangt aan één vraag."
     },
     "resume": {
       "caption": "Zo begint het assessment",
@@ -243,11 +243,6 @@
     },
     "questionCard": {
       "eyebrow": "Vraag {{current}} van {{total}}"
-    },
-    "payoff": {
-      "happiness": "Zie waar dit patroon terugkwam",
-      "ranking": "Zie waar deze waarden meewogen",
-      "schedule": "Zie waar {{name}} dit hard maakte"
     },
     "rest": {
       "title": "Dit zijn 3 van de ongeveer 60 vragen",

@@ -235,7 +235,7 @@
       "title": "The questions the report is built on",
       "body": "These are three real questions from the assessment, filled in with {{name}}'s answers. Change them if you like; nothing is submitted and nothing is stored.",
       "prefilled": "Your CV gives us the facts. The questions get what a CV cannot know: how a role actually felt, what you weigh heaviest, and where you will not compromise.",
-      "note": "Every answer is one data point out of sixty. The report weighs them together, so no conclusion rests on a single question. The links below show where an answer like this weighed in during the conversation."
+      "note": "Every answer is one data point out of sixty. The report weighs them together, so no conclusion rests on a single question."
     },
     "resume": {
       "caption": "This is how the assessment opens",
@@ -243,11 +243,6 @@
     },
     "questionCard": {
       "eyebrow": "Question {{current}} of {{total}}"
-    },
-    "payoff": {
-      "happiness": "See where this pattern came back",
-      "ranking": "See where these values weighed in",
-      "schedule": "See where {{name}} made this non-negotiable"
     },
     "rest": {
       "title": "That is 3 of about 60 questions",

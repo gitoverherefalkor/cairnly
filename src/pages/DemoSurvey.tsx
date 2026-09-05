@@ -11,7 +11,7 @@ import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
-import { demoLink, demoQuery, readPersonaParam } from '@/demo/links';
+import { demoLink, readPersonaParam } from '@/demo/links';
 import { demoSurvey, initialResponses, resolveQuestion, surveyPersona } from '@/demo/survey';
 import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
 
@@ -25,13 +25,12 @@ import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
  * fed from a frozen fixture, pre-filled with the persona's own answers and
  * editable — nothing is submitted, nothing reaches a backend.
  *
- * Under every question a link jumps into the chat replay at the exact message
- * where that answer paid off, which is the whole argument of this page: the
- * questions are not decoration, they are what the report is built from.
+ * The visitor may change every answer, so the questions deliberately do NOT
+ * link to "where this paid off" in the chat any more: a link that lands on
+ * the persona's original moment after the visitor picked something else
+ * reads as the report ignoring their change. That the answers shape the
+ * report is implied; the close of the page hands over to the conversation.
  */
-// The three questions, in fixture order (see scripts/demo-export-survey.mjs).
-const PAYOFF_KEYS = ['happiness', 'ranking', 'schedule'] as const;
-
 const DemoSurvey: React.FC = () => {
   const { t, i18n } = useTranslation('demo');
   // The question card's eyebrow is the assessment's own string, so the demo
@@ -81,17 +80,6 @@ const DemoSurvey: React.FC = () => {
   const firstQuestionRef = useRef<HTMLDivElement>(null);
   const scrollToQuestions = () =>
     firstQuestionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // "See what this became" → the chat replay, focused on one message.
-  // The persona rides along explicitly: the message id only exists in this
-  // persona's transcript, and without it a reader whose stored language
-  // picks the other persona would land on a page where it means nothing.
-  const chatLink = (messageId?: string) => {
-    const params = new URLSearchParams(demoQuery(location.search).replace(/^\?/, ''));
-    params.set('persona', choice.personaId);
-    if (messageId) params.set('focus', messageId);
-    return `${DEMO_ROUTE}?${params.toString()}`;
-  };
 
   const onCta = demoCtaTarget(audience, navigate);
 
@@ -202,18 +190,6 @@ const DemoSurvey: React.FC = () => {
                     />
                   </div>
 
-                  {/* The payoff link: this answer, in the conversation. */}
-                  <div className="pt-1 border-t" style={{ borderColor: 'rgba(201,182,144,0.5)' }}>
-                    <Link
-                      to={chatLink(persona?.focus[question.id])}
-                      onClick={() => trackCtaClick('demo_survey_payoff')}
-                      className="mt-3 inline-flex items-center gap-2 text-[14px] font-bold text-[#1F8282] hover:underline underline-offset-4"
-                    >
-                      <MessageSquare size={16} strokeWidth={2.4} />
-                      {t(`surveyDemo.payoff.${PAYOFF_KEYS[index] ?? 'happiness'}`, { name: choice.firstName })}
-                      <ArrowRight size={15} strokeWidth={2.4} />
-                    </Link>
-                  </div>
                 </div>
               </div>
             </section>
