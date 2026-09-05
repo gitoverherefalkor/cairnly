@@ -40,21 +40,11 @@ cp partners/Cairnly-voorbeeldrapport-NL-Marloes_partner.pdf \
    public/partners/cairnly-voorbeeldrapport-nl.pdf
 ```
 
-The hero runs a small carousel of these captures, currently
-`public/partners/partner-radar-voorbeeld.png` (a straight copy of
-`radargrafiek.png`). Adding another, a shot of the dashboard for instance, is
-three steps:
-
-1. drop the file in `public/partners/`;
-2. add a line to `PARTNER_SLIDES` in `src/components/partners/constants.ts`;
-3. add `hero.slides.<key>.alt` and `.meta` to **both** partners locale files.
-
-Order in `PARTNER_SLIDES` is the order on screen. A slide whose file is missing is
-dropped at runtime, so an entry can be committed before the screenshot exists, and
-if none of them load the hero shows a dashed placeholder instead of breaking. The
-frame takes its shape from the first slide that loads and contains the rest, so
-mixing a 3:2 report page with a 16:9 dashboard shot will not make the hero jump
-height. Arrows and dots appear only once there are two or more slides.
+The hero shows the same demo deck as the homepage (`DemoStage`), pinned to Marcel
+and without the job-search screen, every click tagged `?p=partners`. Its stills are
+the homepage's, under `public/images/live/landing/demo/`, refreshed with
+`node scripts/demo-capture-stills.mjs marcel`. There is no partner-specific
+artwork any more; the branded proof is the specimen PDF above.
 
 ## How a partner report differs from a direct customer's
 

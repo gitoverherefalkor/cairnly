@@ -3,15 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
-import PartnerCarousel from './PartnerCarousel';
-import { SAMPLE_ROUTE } from './constants';
-import { DEMO_ROUTE } from '@/demo/constants';
+import DemoStage from '@/components/landing/demo/DemoStage';
+import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
+import { trackCtaClick } from '@/lib/analytics';
+import { PARTNER_DEMO_PERSONA, PARTNER_DEMO_SEARCH, partnerDemoLink, SAMPLE_ROUTE } from './constants';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 /**
  * Dark hero on the teal-navy canvas (#213F4F, the app's --background), same
  * atmospheric treatment as the Starter and Encore heroes so the partner page
  * reads as part of the site rather than a bolt-on.
+ *
+ * The proof is the same demo deck the homepage uses, pinned to Marcel (the
+ * Dutch candidate) and without the job search: a bureau buys the assessment,
+ * the coach and the report, the job-landing toolkit is the consumer's story.
+ * Every click into the deck carries `?p=partners`, so the demo's CTAs point
+ * at the pilot call and its PDF is the white-label template.
  */
 const PartnersHero: React.FC = () => {
   const { t } = useTranslation('partners');
@@ -45,18 +52,22 @@ const PartnersHero: React.FC = () => {
         </Reveal>
 
         <Reveal as="div" className="mt-12 max-w-3xl">
-          <PartnerCarousel />
+          <HeroPersonaProvider fixed={PARTNER_DEMO_PERSONA} baseSearch={PARTNER_DEMO_SEARCH}>
+            <DemoStage screens={['chat', 'dashboard']} showToggle={false} label={t('hero.stageLabel')} />
+          </HeroPersonaProvider>
+          <p className="mt-4 text-[14px] text-white/55 font-medium leading-relaxed">{t('hero.stageCaption')}</p>
         </Reveal>
 
         <Reveal as="div" className="mt-8 flex flex-wrap items-center gap-4">
-          <Link to={SAMPLE_ROUTE} className="lp-btn-primary">
+          <Link to={SAMPLE_ROUTE} onClick={() => trackCtaClick('partners_sample')} className="lp-btn-primary">
             {t('hero.sampleCta')}
             <ArrowRight size={18} strokeWidth={2.4} />
           </Link>
-          {/* The replay of a full coaching session. ?p=partners switches the
-              demo's CTAs to the pilot call and tags the visit as partner
-              traffic in the sample-view beacon. */}
-          <Link to={`${DEMO_ROUTE}?p=partners`} className="lp-btn-primary lp-btn-gold">
+          <Link
+            to={partnerDemoLink()}
+            onClick={() => trackCtaClick('partners_demo_chat')}
+            className="lp-btn-primary lp-btn-gold"
+          >
             {t('hero.demoCta')}
             <ArrowRight size={18} strokeWidth={2.4} />
           </Link>

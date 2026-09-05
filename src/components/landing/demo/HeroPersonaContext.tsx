@@ -31,25 +31,48 @@ const HeroPersonaContext = createContext<HeroPersonaValue | null>(null);
  * toggle in the hero, and feeds every demo link lower on the page so a
  * visitor who was watching Marcel keeps seeing Marcel in How it works.
  */
-export const HeroPersonaProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface HeroPersonaProviderProps {
+  children: React.ReactNode;
+  /**
+   * Pin one persona and count it as chosen (no idle cycle, no toggle
+   * effect). The partner page shows Marcel only.
+   */
+  fixed?: DemoPersonaId;
+  /**
+   * Query string every demo link starts from, e.g. `?p=partners`; the
+   * persona is appended and demoLink keeps both.
+   */
+  baseSearch?: string;
+}
+
+export const HeroPersonaProvider: React.FC<HeroPersonaProviderProps> = ({ children, fixed, baseSearch = '' }) => {
   const { i18n } = useTranslation();
   const [state, setState] = useState<{ persona: DemoPersonaId; picked: boolean }>(() => ({
-    persona: personaForLanguage(i18n.language),
-    picked: false,
+    persona: fixed ?? personaForLanguage(i18n.language),
+    picked: fixed !== undefined,
   }));
 
   // A language switch re-derives the default until the visitor has chosen.
   useEffect(() => {
+    if (fixed) return;
     setState((s) => (s.picked ? s : { ...s, persona: personaForLanguage(i18n.language) }));
-  }, [i18n.language]);
+  }, [i18n.language, fixed]);
 
-  const setPersona = useCallback((id: DemoPersonaId) => {
-    setState({ persona: id, picked: true });
-  }, []);
+  const setPersona = useCallback(
+    (id: DemoPersonaId) => {
+      if (fixed) return;
+      setState({ persona: id, picked: true });
+    },
+    [fixed],
+  );
 
-  const previewPersona = useCallback((id: DemoPersonaId) => {
-    setState((s) => (s.picked ? s : { persona: id, picked: false }));
-  }, []);
+  const previewPersona = useCallback(
+    (id: DemoPersonaId) => {
+      if (fixed) return;
+      setState((s) => (s.picked ? s : { persona: id, picked: false }));
+    },
+    [fixed],
+  );
 
   const value = useMemo<HeroPersonaValue>(
     () => ({
@@ -57,9 +80,13 @@ export const HeroPersonaProvider: React.FC<{ children: React.ReactNode }> = ({ c
       picked: state.picked,
       setPersona,
       previewPersona,
-      demoHref: (route: string) => demoLink(route, `?persona=${state.persona}`),
+      demoHref: (route: string) => {
+        const params = new URLSearchParams(baseSearch.replace(/^\?/, ''));
+        params.set('persona', state.persona);
+        return demoLink(route, `?${params.toString()}`);
+      },
     }),
-    [state, setPersona, previewPersona],
+    [state, setPersona, previewPersona, baseSearch],
   );
 
   return <HeroPersonaContext.Provider value={value}>{children}</HeroPersonaContext.Provider>;

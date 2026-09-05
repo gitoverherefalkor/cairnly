@@ -7,22 +7,9 @@
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
     "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
     "sampleCta": "Bekijk een voorbeeldrapport (2 minuten)",
-    "radarPendingLabel": "Beelden volgen",
-    "radarPendingDesc": "De schermafbeeldingen uit het voorbeeldrapport staan nog niet in de assets-map.",
-    "slides": {
-      "radar": {
-        "alt": "Pagina uit het Cairnly voorbeeldrapport met de radargrafiek die de top drie beroepen vergelijkt",
-        "meta": "Uit het rapport"
-      },
-      "dashboard": {
-        "alt": "Het dashboard waarin de kandidaat de beroepen uit het rapport bekijkt",
-        "meta": "Dashboard"
-      }
-    },
-    "prevSlide": "Vorige",
-    "nextSlide": "Volgende",
-    "goToSlide": "Ga naar beeld {{n}}",
-    "demoCta": "Bekijk een echte coachsessie"
+    "demoCta": "Bekijk Marcels coachsessie",
+    "stageLabel": "Marcel, 41, teamleider klantenservice · echte sessie",
+    "stageCaption": "Marcel is een fictieve kandidaat, alles wat je ziet is echte output. Klik op een scherm om zijn sessie te openen: het gesprek met de coach en het dashboard erna."
   },
   "whoFor": {
     "title": "Voor wie",
@@ -35,7 +22,9 @@
       "Per beroep: waarom het past bij deze persoon, salarisranges en een AI-impactscore van minimaal tot kritiek. Welke richting groeit en welke krimpt, onmisbaar bij een omscholingsvraag.",
       "Een AI-coach waarmee de kandidaat het rapport bespreekt en bijstelt waar het niet klopt. Het rapport is geen statische uitslag.",
       "Een pdf-rapport met jouw logo en naam erop, dat de kandidaat meeneemt naar het gesprek met jou."
-    ]
+    ],
+    "demoLabel": "Bekijk in de demo",
+    "sampleLabel": "Bekijk het voorbeeldrapport"
   },
   "pricing": {
     "title": "Prijzen",

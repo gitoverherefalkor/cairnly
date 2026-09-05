@@ -8,10 +8,11 @@ import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import { HERO_PERSONAS, useHeroPersona } from './HeroPersonaContext';
 
-type Slug = 'chat' | 'dashboard' | 'jobs';
+export type DemoStageSlug = 'chat' | 'dashboard' | 'jobs';
+type Slug = DemoStageSlug;
 
 /** The three demo screens in product order, each a still of the persona's demo page. */
-const SCREENS: { slug: Slug; route: string }[] = [
+const ALL_SCREENS: { slug: Slug; route: string }[] = [
   { slug: 'chat', route: DEMO_ROUTE },
   { slug: 'dashboard', route: DEMO_DASHBOARD_ROUTE },
   { slug: 'jobs', route: DEMO_JOBS_ROUTE },
@@ -42,13 +43,25 @@ const STILL_H = 800;
  * screen in the demo with the active persona; clicking a window behind
  * (or its stepper pill) brings it to the front.
  */
-const DemoStage: React.FC = () => {
+interface DemoStageProps {
+  /** Which screens to stack, in product order. Default: all three. */
+  screens?: Slug[];
+  /** Hide the Emma | Marcel toggle (a page pinned to one persona). */
+  showToggle?: boolean;
+  /** Replace the "Playing: …" label. */
+  label?: string;
+}
+
+const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label }) => {
   const { t, i18n } = useTranslation('landing');
   const { persona, setPersona, demoHref } = useHeroPersona();
   const lang = stillLang(i18n.language);
   const [front, setFront] = useState(0);
   const [broken, setBroken] = useState<Set<string>>(() => new Set());
-  const labels = tArray<string>(t, 'heroDemo.stepper');
+  const SCREENS = screens ? ALL_SCREENS.filter((s) => screens.includes(s.slug)) : ALL_SCREENS;
+  // Stepper labels are declared for all three screens, in product order.
+  const allLabels = tArray<string>(t, 'heroDemo.stepper');
+  const labels = SCREENS.map((s) => allLabels[ALL_SCREENS.findIndex((a) => a.slug === s.slug)] ?? s.slug);
 
   // A new persona starts at the chat again.
   useEffect(() => {
@@ -65,8 +78,9 @@ const DemoStage: React.FC = () => {
       {/* Label + persona toggle */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <span className="min-w-0 truncate text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-white/55">
-          {t('heroDemo.stageLabel', { name: t(`heroDemo.cards.${persona}.name`) })}
+          {label ?? t('heroDemo.stageLabel', { name: t(`heroDemo.cards.${persona}.name`) })}
         </span>
+        {showToggle && (
         <div role="group" aria-label={t('heroDemo.toggleAria')} className="inline-flex shrink-0 rounded-full bg-white/10 p-0.5">
           {HERO_PERSONAS.map((id) => (
             <button
@@ -86,6 +100,7 @@ const DemoStage: React.FC = () => {
             </button>
           ))}
         </div>
+        )}
       </div>
 
       {/* The deck. Top/right margin makes room for the offsets of the windows

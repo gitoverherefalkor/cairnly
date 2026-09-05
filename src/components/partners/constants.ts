@@ -1,3 +1,5 @@
+import { DEMO_ROUTE } from '@/demo/constants';
+
 /**
  * Single source of truth for the partner-channel pages (/partners and
  * /partners/voorbeeldrapport). Everything a human might want to swap without
@@ -23,26 +25,15 @@ export const CONTACT_EMAIL = 'info@cairnly.io';
 export const SAMPLE_PDF_PATH = '/partners/cairnly-voorbeeldrapport-nl.pdf';
 
 /**
- * Hero carousel slides. Deliberately raw screen captures rather than cropped
- * artwork: the PDF viewer's page rail around the chart is the thing that tells
- * a prospect they are looking at a real report, not a marketing graphic.
- *
- * Adding one is three steps: drop the file in `public/partners/`, add a line
- * here, and add `hero.slides.<key>.{alt,meta}` to both partners locale files.
- * A slide whose file is missing is dropped from the carousel at runtime, so
- * an entry can be declared before the screenshot exists.
+ * The demo, as the partner page links to it: always Marcel (the Dutch
+ * candidate, the persona a bureau's caseload looks like) and always tagged
+ * `?p=partners`, which switches the demo's CTAs to the pilot call, serves the
+ * white-label PDF template and attributes the visit.
  */
-export interface PartnerSlide {
-  /** Path under public/. */
-  src: string;
-  /** Key under `hero.slides` in the partners namespace. */
-  key: string;
-}
-
-export const PARTNER_SLIDES: PartnerSlide[] = [
-  { src: '/partners/partner-radar-voorbeeld.png', key: 'radar' },
-  { src: '/partners/partner-dashboard-voorbeeld.png', key: 'dashboard' },
-];
+export const PARTNER_DEMO_PERSONA = 'marcel' as const;
+export const PARTNER_DEMO_SEARCH = '?p=partners';
+export const partnerDemoLink = (route: string = DEMO_ROUTE) =>
+  `${route}${PARTNER_DEMO_SEARCH}&persona=${PARTNER_DEMO_PERSONA}`;
 
 /** Route of the specimen page, referenced from the hero CTA and the back link. */
 export const SAMPLE_ROUTE = '/partners/voorbeeldrapport';
