@@ -17,10 +17,21 @@ const SCREENS: { slug: Slug; route: string }[] = [
   { slug: 'jobs', route: DEMO_JOBS_ROUTE },
 ];
 
-const stillSrc = (persona: DemoPersonaId, slug: Slug) => `/images/live/landing/demo/${persona}-${slug}.jpg`;
+const stillSrc = (persona: DemoPersonaId, lang: StillLang, slug: Slug) =>
+  `/images/live/landing/demo/${persona}-${lang}-${slug}.jpg`;
+
+/** The languages the stills are captured in; anything else falls back to English. */
+type StillLang = 'en' | 'nl';
+const stillLang = (language: string | undefined): StillLang =>
+  (language || 'en').slice(0, 2).toLowerCase() === 'nl' ? 'nl' : 'en';
 
 /** Offset per depth step for the windows stacked behind the front one. */
 const STEP_PX = 14;
+
+/** Natural size of every still (scripts/demo-capture-stills.mjs). The frame is
+ *  sized FROM the image rather than the other way round, so nothing is cropped. */
+const STILL_W = 1200;
+const STILL_H = 800;
 
 /**
  * The hero's demo stage: three faux-browser windows stacked like a deck
@@ -32,8 +43,9 @@ const STEP_PX = 14;
  * (or its stepper pill) brings it to the front.
  */
 const DemoStage: React.FC = () => {
-  const { t } = useTranslation('landing');
+  const { t, i18n } = useTranslation('landing');
   const { persona, setPersona, demoHref } = useHeroPersona();
+  const lang = stillLang(i18n.language);
   const [front, setFront] = useState(0);
   const [broken, setBroken] = useState<Set<string>>(() => new Set());
   const labels = tArray<string>(t, 'heroDemo.stepper');
@@ -77,9 +89,10 @@ const DemoStage: React.FC = () => {
       </div>
 
       {/* The deck. Top/right margin makes room for the offsets of the windows
-          behind. On desktop the deck fills the column height, so its bottom edge
-          lines up with the bottom of the second persona card beside it. */}
-      <div className="relative aspect-[16/10] lg:aspect-auto lg:flex-1 lg:min-h-0" style={{ marginTop: STEP_PX * 2, marginRight: STEP_PX * 2 }}>
+          behind. All three windows share one grid cell, so they overlap without
+          absolute positioning and the tallest (they are all one still tall)
+          gives the deck its height. */}
+      <div className="relative grid" style={{ marginTop: STEP_PX * 2, marginRight: STEP_PX * 2 }}>
         {SCREENS.map((screen, i) => {
           const depth = (i - front + SCREENS.length) % SCREENS.length;
           const isFront = depth === 0;
@@ -99,19 +112,24 @@ const DemoStage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="relative flex-1 min-h-0">
-                {broken.has(stillSrc(persona, screen.slug)) ? (
-                  <div className="absolute inset-0 grid place-items-center text-white/35 text-[12px] font-medium">
+              <div className="relative">
+                {broken.has(stillSrc(persona, lang, screen.slug)) ? (
+                  <div
+                    className="grid place-items-center text-white/35 text-[12px] font-medium"
+                    style={{ aspectRatio: `${STILL_W} / ${STILL_H}` }}
+                  >
                     {labels[i]}
                   </div>
                 ) : (
                   <img
-                    src={stillSrc(persona, screen.slug)}
+                    src={stillSrc(persona, lang, screen.slug)}
                     alt={`${t(`heroDemo.cards.${persona}.name`)} · ${labels[i]}`}
+                    width={STILL_W}
+                    height={STILL_H}
                     loading={i === 0 ? 'eager' : 'lazy'}
                     decoding="async"
-                    onError={() => setBroken((prev) => new Set(prev).add(stillSrc(persona, screen.slug)))}
-                    className="absolute inset-0 w-full h-full object-cover object-top"
+                    onError={() => setBroken((prev) => new Set(prev).add(stillSrc(persona, lang, screen.slug)))}
+                    className="block w-full h-auto"
                   />
                 )}
                 {isFront && (
@@ -127,7 +145,7 @@ const DemoStage: React.FC = () => {
           return (
             <div
               key={screen.slug}
-              className="absolute inset-0 transition-all duration-500 ease-out"
+              className="col-start-1 row-start-1 transition-all duration-500 ease-out"
               style={{
                 transform: `translate(${depth * STEP_PX}px, ${-depth * STEP_PX}px)`,
                 zIndex: 30 - depth * 10,

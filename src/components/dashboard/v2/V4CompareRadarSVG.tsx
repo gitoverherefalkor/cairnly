@@ -52,7 +52,11 @@ export const V4CompareRadarSVG: React.FC<RadarProps> = ({
   lang,
 }) => {
   const compact = variant === 'compact';
-  const VB_W = compact ? 380 : 460;
+  // Wide enough for the LONGEST localized axis label: the left-hand axis is
+  // anchored 'end', so "Sociale belasting" (vs "Social load") ran off the
+  // viewBox and rendered clipped as "ciale belasting" on the Dutch dashboard
+  // and in the Dutch PDF.
+  const VB_W = compact ? 450 : 540;
   const VB_H = compact ? 320 : 360;
   const CX = VB_W / 2;
   const CY = VB_H / 2 - 10;

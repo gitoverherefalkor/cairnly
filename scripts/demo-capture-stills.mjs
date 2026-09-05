@@ -1,59 +1,120 @@
-// Captures the homepage hero's "screens behind the chat": one still of the
-// demo dashboard and one of the demo job search per persona, in the
-// session's own language, at the deck's proportions. Re-run after a demo
-// re-freeze or a dashboard/jobs redesign.
+// Captures the homepage hero's deck of demo screens: chat, dashboard and job
+// search, for every persona in every language the site is published in.
+// Re-run after a demo re-freeze or a dashboard/jobs redesign.
 //
-//   node scripts/demo-capture-stills.mjs marcel [emma] [--only=chat,jobs] [--base=http://localhost:8081]
+//   node scripts/demo-capture-stills.mjs                 # all 4 combos
+//   node scripts/demo-capture-stills.mjs marcel-nl emma-en
+//   node scripts/demo-capture-stills.mjs --only=chat --base=http://localhost:8081
 //
 // Needs a running dev server (or the live site via --base) and Google Chrome.
+//
+// Two things the hero depends on and this script guarantees:
+//  1. ONE aspect ratio for every file. DemoStage sizes its frame FROM the
+//     image, so a still of a different shape would change the deck's height
+//     as the visitor pages through it.
+//  2. Persona AND language in the filename. `?persona=` decouples the two, so
+//     an English page can show Marcel — and must not then show Dutch screens.
 import { mkdirSync } from 'node:fs';
 import puppeteer from 'puppeteer-core';
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const OUT = 'public/images/live/landing/demo';
-const LANG = { marcel: 'nl', emma: 'en' };
+
+/** Every published (persona, language) pair. Marcel's session was held in
+ *  Dutch and Emma's in English; the demo translates either one on request. */
+const COMBOS = [
+  { persona: 'emma', lang: 'en' },
+  { persona: 'emma', lang: 'nl' },
+  { persona: 'marcel', lang: 'nl' },
+  { persona: 'marcel', lang: 'en' },
+];
+
+// The demo page's sticky nav, once the trust banner has scrolled away. The
+// still starts right under it so the deck shows product, not demo chrome.
+const CHROME_PX = 98;
+// Every still is 1200x800 (3:2) — the contract DemoStage's STILL_W/STILL_H
+// mirror. Screens whose layout is wider than the shot are captured in a wider
+// viewport and clipped back to 1200 (see `vw` below).
+const SHOT = { width: 1200, height: 800 };
+
+// `anchorText` picks the smallest element containing any of these strings
+// (case-insensitive) and scrolls it to the top; `nudge` then scrolls back up
+// so the anchor sits just below the demo chrome instead of flush against it.
+const SCREENS = [
+  {
+    slug: 'chat',
+    path: '/demo',
+    // Demo.tsx keeps the report sidebar EXPANDED and the margin notes out of
+    // the flow at >= 1360 (its WIDE), but then gives the transcript 320px
+    // side margins. Shooting at 1520 and clipping to the left 1200 keeps the
+    // named sidebar and the full transcript while dropping the empty right
+    // margin the (removed) notes would have filled.
+    vw: 1520,
+    // The radar comparison: careers side by side on five axes is the single
+    // most "this is what you bought" moment in the transcript.
+    anchorText: ['verschilt van je andere', 'differs from your other', 'verhoudt', 'differs'],
+    pad: 40,
+    settle: 4000, // the replay renders its turns lazily
+  },
+  // pad 76 clears the "YOUR CAREER PROFILE / JOUW CARRIEREPROFIEL" eyebrow
+  // that sits just above the h1, in both languages.
+  { slug: 'dashboard', path: '/demo/dashboard', anchor: 'h1', pad: 76 },
+  {
+    slug: 'jobs',
+    path: '/demo/jobs',
+    // The first career section, whichever tier it is: Emma's frozen search
+    // ran on her #1 and Marcel's on his #2, so "#1" alone finds nothing.
+    // Anchoring here also keeps the referral/lock banner above the frame.
+    anchorText: ['top career #'],
+    pad: 60,
+  },
+];
 
 const args = process.argv.slice(2);
 const base = (args.find((a) => a.startsWith('--base='))?.slice(7) || 'http://localhost:8081').replace(/\/$/, '');
-const personas = args.filter((a) => !a.startsWith('--'));
 const only = args.find((a) => a.startsWith('--only='))?.slice(7).split(',');
-if (personas.length === 0) {
-  console.error('usage: node scripts/demo-capture-stills.mjs <persona> [persona] [--base=url]');
+const wanted = args.filter((a) => !a.startsWith('--'));
+const combos = wanted.length ? COMBOS.filter((c) => wanted.includes(`${c.persona}-${c.lang}`)) : COMBOS;
+if (!combos.length) {
+  console.error(`no combo matched. known: ${COMBOS.map((c) => `${c.persona}-${c.lang}`).join(', ')}`);
   process.exit(1);
 }
-
-// `nudge` scrolls back up past the sticky demo nav + trust banner so the
-// anchor sits just under them.
-// `anchorText` picks the first h1-h4 containing that text (case-insensitive)
-// instead of a selector: the chat still should open on the radar comparison.
-const SCREENS = [
-  { slug: 'chat', path: '/demo', anchorText: ['verschilt van je andere', 'differs from your other', 'verhoudt', 'differs'], nudge: -136 },
-  { slug: 'dashboard', path: '/demo/dashboard', anchor: 'h1', nudge: -140 },
-  { slug: 'jobs', path: '/demo/jobs', anchor: 'main section, section', nudge: -230 },
-];
-// The demo nav + trust banner occupy the top of every demo page; the still
-// starts right under them so the deck shows product, not demo chrome.
-const CHROME_PX = 96;
-const VIEWPORT = { width: 1400, height: 875 };
 
 mkdirSync(OUT, { recursive: true });
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
 try {
   const page = await browser.newPage();
-  await page.setViewport({ ...VIEWPORT, deviceScaleFactor: 1 });
-  for (const persona of personas) {
-    const lang = LANG[persona] ?? 'en';
+  await page.evaluateOnNewDocument(() => {
+    localStorage.setItem(
+      'cairnly-cookie-consent',
+      JSON.stringify({ choice: 'essential', timestamp: new Date().toISOString() }),
+    );
+  });
+  for (const { persona, lang } of combos) {
     for (const screen of SCREENS) {
       if (only && !only.includes(screen.slug)) continue;
       const url = `${base}${screen.path}?persona=${persona}&lang=${lang}`;
-      await page.evaluateOnNewDocument(() => {
-        localStorage.setItem('cairnly-cookie-consent', JSON.stringify({ choice: 'essential', timestamp: new Date().toISOString() }));
+      // Set before navigating: the demo reads innerWidth at mount to decide
+      // whether the sidebar starts collapsed.
+      await page.setViewport({
+        width: screen.vw ?? SHOT.width,
+        height: SHOT.height + CHROME_PX,
+        // 1.5x -> 1800x1200 files. The deck renders the still at ~640px CSS
+        // (~850 on a wide desktop), so 1800 stays above retina density there
+        // while costing roughly half of what a 2x capture does.
+        deviceScaleFactor: 1.5,
       });
       await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
       await page.waitForSelector(screen.anchor ?? 'h1', { timeout: 30000 });
-      if (screen.anchorText) await new Promise((r) => setTimeout(r, 4000)); // the replay renders its turns lazily
+      // The margin notes explain the demo to a visitor who is reading it; in a
+      // 640px-wide hero window they are unreadable clutter that reads as part
+      // of the product. Drop them before measuring so nothing reserves space.
+      await page.evaluate(() => {
+        document.querySelectorAll('[data-demo-annotation]').forEach((el) => el.remove());
+      });
+      if (screen.settle) await new Promise((r) => setTimeout(r, screen.settle));
       const info = await page.evaluate(
-        ({ anchor, anchorText, nudge }) => {
+        ({ anchor, anchorText, pad, chrome }) => {
           let target = anchor ? document.querySelector(anchor) : null;
           if (anchorText) {
             // The chat renders headings as styled blocks, so look at every
@@ -67,24 +128,27 @@ try {
               if (target) break;
             }
           }
+          // Land the anchor exactly `pad` below the top of the shot: scroll
+          // it to where the still's first row will be, plus the sticky nav
+          // that has to stay above the clip.
           target?.scrollIntoView({ block: 'start' });
-          window.scrollBy(0, nudge);
-          return { found: !!target, tag: target?.tagName, text: (target?.textContent || '').slice(0, 60), scrollY: window.scrollY, bodyH: document.body.scrollHeight };
+          if (target) window.scrollBy(0, target.getBoundingClientRect().top - (chrome + pad));
+          return { found: !!target, text: (target?.textContent || '').slice(0, 60), scrollY: window.scrollY };
         },
-        screen,
+        { ...screen, chrome: CHROME_PX },
       );
-      if (process.env.DEBUG) console.log(info);
+      if (!info.found) console.warn(`  ! anchor not found for ${persona}-${lang}-${screen.slug}`);
       // Let the reveal animations and lazy images settle.
       await new Promise((r) => setTimeout(r, 2500));
-      const file = `${OUT}/${persona}-${screen.slug}.jpg`;
+      const file = `${OUT}/${persona}-${lang}-${screen.slug}.jpg`;
       await page.screenshot({
         path: file,
         type: 'jpeg',
-        quality: 80,
+        quality: 82,
         // clip is page-absolute in Puppeteer, so offset by the scroll position.
-        clip: { x: 0, y: info.scrollY + CHROME_PX, width: VIEWPORT.width, height: VIEWPORT.height - CHROME_PX },
+        clip: { x: 0, y: info.scrollY + CHROME_PX, width: SHOT.width, height: SHOT.height },
       });
-      console.log('wrote', file, url);
+      console.log('wrote', file);
     }
   }
 } finally {
