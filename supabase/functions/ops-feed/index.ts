@@ -621,6 +621,7 @@ serve(async (req) => {
     openaiSpend,
     anthropicSpend,
     trafficResult,
+    funnelResult,
     supportResult,
     missesResult,
     chapterFeedbackResult,
@@ -634,6 +635,9 @@ serve(async (req) => {
     fetchOpenAISpend(),
     fetchAnthropicSpend(),
     supabase.rpc('ops_traffic_stats'),
+    // Demo funnel: sessions → demo → intake → purchase, plus depth inside
+    // the replay and which CTA led there. Null until the migration lands.
+    supabase.rpc('ops_funnel_stats', { p_days: 7 }),
     supabase
       .from('support_requests')
       .select('*')
@@ -663,6 +667,7 @@ serve(async (req) => {
   const missRows = missesResult.data ?? [];
   const chapterRows = chapterFeedbackResult.data ?? [];
   const traffic = trafficResult.data ?? null;
+  const funnel = funnelResult.error ? null : funnelResult.data ?? null;
   const aiSpend = [openaiSpend, anthropicSpend].filter(Boolean);
 
   // Build raw items from each source
@@ -705,6 +710,7 @@ serve(async (req) => {
         people,
         deploy,
         traffic,
+        funnel,
         n8n_usage: n8nUsage,
         ai_spend: aiSpend,
         fetched_at: new Date().toISOString(),
@@ -852,6 +858,7 @@ serve(async (req) => {
       people,
       deploy,
       traffic,
+      funnel,
       n8n_usage: n8nUsage,
       ai_spend: aiSpend,
       fetched_at: new Date().toISOString(),

@@ -54,8 +54,8 @@ const DemoSurvey: React.FC = () => {
   React.useEffect(() => {
     if (tracked.current) return;
     tracked.current = true;
-    trackSampleView(location.pathname, location.search);
-  }, [location.pathname, location.search]);
+    trackSampleView(location.pathname, location.search, choice.personaId);
+  }, [location.pathname, location.search, choice.personaId]);
 
   // The persona's own answers, editable and local. Nothing is persisted.
   const [responses, setResponses] = useState<Record<string, unknown>>(() =>

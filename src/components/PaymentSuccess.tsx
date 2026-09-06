@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
+import { trackConversion } from '@/lib/analytics';
 import AuthShell from '@/components/auth/AuthShell';
 
 // The "Page view" conversion action from the Ads UI, set up for exactly this
@@ -113,6 +114,11 @@ const PaymentSuccess = () => {
         clearStoredReferralCode();
 
         fireConversion(sessionId);
+        // First-party funnel: the session converted. Carries the analytics
+        // session id only — the purchase row with the name and email stays
+        // deliberately unlinked, so the pageview history is not made
+        // personally identifiable.
+        trackConversion('purchase');
         setIsComplete(true);
         toast({
           title: 'Purchase Successful!',

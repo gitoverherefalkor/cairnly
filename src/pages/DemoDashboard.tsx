@@ -64,8 +64,8 @@ const DemoDashboard: React.FC = () => {
   useEffect(() => {
     if (tracked.current) return;
     tracked.current = true;
-    trackSampleView(location.pathname, location.search);
-  }, [location.pathname, location.search]);
+    trackSampleView(location.pathname, location.search, choice.personaId);
+  }, [location.pathname, location.search, choice.personaId]);
 
   const [tool, setTool] = useState<DemoTool | null>(null);
 

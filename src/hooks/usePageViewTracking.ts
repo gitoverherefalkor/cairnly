@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { getSessionId, getCountry } from '@/lib/analytics';
+import { getSessionId, getCountry, isTrackingSuppressed } from '@/lib/analytics';
 
 // First-party page-view tracking. Fires a fire-and-forget beacon to the
 // track-view edge function on every route change. Privacy-light: a random
@@ -16,6 +16,9 @@ export function usePageViewTracking() {
   useEffect(() => {
     // Never track the internal ops dashboard — it's not real traffic.
     if (location.pathname.startsWith('/ops')) return;
+    // Dev servers, preview deploys, headless browsers and our own opted-out
+    // browsers write nothing at all — not the view, not the engage ping.
+    if (isTrackingSuppressed()) return;
 
     const sessionId = getSessionId();
 

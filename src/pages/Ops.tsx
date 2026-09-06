@@ -69,6 +69,17 @@ interface TrafficStats {
   top_pages: Array<{ path: string; views: number }>;
 }
 
+interface FunnelStats {
+  days: number;
+  sessions: number;
+  demo_sessions: number;
+  demo: { intake_started: number; purchase: number };
+  no_demo: { intake_started: number; purchase: number };
+  moments: Array<{ key: string; sessions: number }>;
+  personas: Array<{ persona: string; sessions: number }>;
+  entry_ctas: Array<{ cta_id: string; sessions: number }>;
+}
+
 interface N8nUsage {
   executions_this_month: number;
   limit: number;
@@ -88,6 +99,7 @@ interface OpsFeedResponse {
   people: Person[];
   deploy: DeployInfo | null;
   traffic: TrafficStats | null;
+  funnel: FunnelStats | null;
   n8n_usage: N8nUsage | null;
   ai_spend: ProviderSpend[];
   fetched_at: string;
@@ -690,7 +702,7 @@ function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderS
 
 // ─── Traffic ──────────────────────────────────────────────────────────────────
 
-function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
+function TrafficPanel({ traffic, funnel }: { traffic: TrafficStats | null; funnel: FunnelStats | null }) {
   if (!traffic) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-600">
@@ -738,8 +750,123 @@ function TrafficPanel({ traffic }: { traffic: TrafficStats | null }) {
         )}
       </div>
 
+      <FunnelPanel funnel={funnel} />
+
       <div className="text-xs text-gray-600">
-        First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that saw only one page and left within 10 seconds (engaged sessions don't count).
+        First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that saw only one page and left within 10 seconds (engaged sessions don't count). Dev servers, preview deploys, headless browsers and browsers carrying the internal flag (<span className="font-mono">?internal=1</span>) are not counted at all.
+      </div>
+    </div>
+  );
+}
+
+// ─── Demo funnel ──────────────────────────────────────────────────────────────
+//
+// The question the demo exists to answer: do the people who read it convert
+// more than the people who don't? Everything is counted in sessions.
+
+const MOMENT_LABELS: Record<string, string> = {
+  pushback: 'Pushback',
+  kept: 'Kept in the report',
+  pillTag: 'The button label',
+  movePill: 'The Move button',
+  radar: 'The radar',
+  askRole: 'Ask about this role',
+  dictated: 'Dictated',
+};
+const MOMENT_ORDER = ['pushback', 'kept', 'pillTag', 'movePill', 'radar', 'askRole', 'dictated'];
+
+function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
+  if (!funnel) {
+    return (
+      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 text-xs text-gray-600">
+        Demo funnel not available yet — the analytics migration hasn't been applied.
+      </div>
+    );
+  }
+
+  const rate = (n: number, total: number) => (total > 0 ? `${Math.round((100 * n) / total)}%` : '—');
+  const nonDemo = Math.max(0, funnel.sessions - funnel.demo_sessions);
+  const moments = MOMENT_ORDER.map((key) => ({
+    key,
+    sessions: funnel.moments.find((m) => m.key === key)?.sessions ?? 0,
+  }));
+  const maxMoment = Math.max(1, ...moments.map((m) => m.sessions));
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 space-y-4">
+      <div className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+        Demo funnel ({funnel.days}d)
+      </div>
+
+      {/* Did the demo move anything? */}
+      <div className="grid grid-cols-2 gap-3">
+        {[
+          { label: 'Saw the demo', sessions: funnel.demo_sessions, data: funnel.demo },
+          { label: 'Did not', sessions: nonDemo, data: funnel.no_demo },
+        ].map(({ label, sessions, data }) => (
+          <div key={label} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2.5">
+            <div className="text-[11px] uppercase tracking-wider text-gray-500">{label}</div>
+            <div className="text-xl font-bold text-gray-100 mt-0.5">{sessions}</div>
+            <div className="text-[11px] text-gray-400 mt-1.5 space-y-0.5">
+              <div>
+                Intake started <span className="text-gray-200 font-semibold">{data.intake_started}</span>{' '}
+                <span className="text-gray-600">({rate(data.intake_started, sessions)})</span>
+              </div>
+              <div>
+                Purchased <span className="text-gray-200 font-semibold">{data.purchase}</span>{' '}
+                <span className="text-gray-600">({rate(data.purchase, sessions)})</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* How far into the replay they get */}
+      <div>
+        <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">
+          Depth in the replay (sessions reaching each moment)
+        </div>
+        <div className="space-y-1">
+          {moments.map((m) => (
+            <div key={m.key} className="flex items-center gap-3">
+              <span className="text-xs text-gray-400 w-40 truncate shrink-0">{MOMENT_LABELS[m.key] ?? m.key}</span>
+              <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full bg-atlas-teal/60 rounded-full" style={{ width: `${(m.sessions / maxMoment) * 100}%` }} />
+              </div>
+              <span className="text-xs text-gray-500 w-8 text-right shrink-0">{m.sessions}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Who they read, and what sent them in */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">Persona read</div>
+          {funnel.personas.length === 0 ? (
+            <div className="text-xs text-gray-600">Nothing yet</div>
+          ) : (
+            funnel.personas.map((p) => (
+              <div key={p.persona} className="flex justify-between text-xs text-gray-400 py-0.5">
+                <span className="capitalize">{p.persona}</span>
+                <span className="text-gray-200 font-semibold">{p.sessions}</span>
+              </div>
+            ))
+          )}
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">Entry CTA</div>
+          {funnel.entry_ctas.length === 0 ? (
+            <div className="text-xs text-gray-600">Nothing yet</div>
+          ) : (
+            funnel.entry_ctas.slice(0, 6).map((c) => (
+              <div key={c.cta_id} className="flex justify-between gap-2 text-xs text-gray-400 py-0.5">
+                <span className="font-mono truncate">{c.cta_id}</span>
+                <span className="text-gray-200 font-semibold shrink-0">{c.sessions}</span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1253,7 +1380,7 @@ export default function Ops() {
               </div>
             </TabsContent>
             <TabsContent value="traffic" className="mt-4">
-              <TrafficPanel traffic={feed.traffic} />
+              <TrafficPanel traffic={feed.traffic} funnel={feed.funnel ?? null} />
             </TabsContent>
             <TabsContent value="people" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">

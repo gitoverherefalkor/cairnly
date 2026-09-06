@@ -9,6 +9,7 @@ import {
   type IntakeStage,
   type IntakeChips,
 } from './intakeApi';
+import { trackConversion } from '@/lib/analytics';
 
 const NAME_QUESTION_ID = '11111111-1111-1111-1111-11111111111a';
 
@@ -235,6 +236,9 @@ export const IntakeChatProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || !sessionId || sending) return;
+      // Funnel step: this visitor actually engaged the intake chat. Fires
+      // once per session (the helper de-dupes), session id only.
+      trackConversion('intake_started');
       setMessages((prev) => [...prev, { role: 'user', text: trimmed }]);
       setChips(null);
       setSending(true);

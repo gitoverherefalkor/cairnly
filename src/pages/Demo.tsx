@@ -9,7 +9,7 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import { Button } from '@/components/ui/button';
 import { TTSProvider } from '@/contexts/TTSContext';
 import { ReportSidebar } from '@/components/chat/ReportSidebar';
-import { trackSampleView, trackCtaClick } from '@/lib/analytics';
+import { trackSampleView, trackCtaClick, trackDemoMoment } from '@/lib/analytics';
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoReplay, messageDomId } from '@/components/demo/DemoReplay';
 import { DemoMomentsBar } from '@/components/demo/DemoMomentsBar';
@@ -74,8 +74,8 @@ const Demo: React.FC = () => {
   useEffect(() => {
     if (tracked.current) return;
     tracked.current = true;
-    trackSampleView(location.pathname, location.search);
-  }, [location.pathname, location.search]);
+    trackSampleView(location.pathname, location.search, choice.personaId);
+  }, [location.pathname, location.search, choice.personaId]);
 
   // message id → canonical section index, and the reverse (first message
   // that delivers each section) for the sidebar's jump links.
@@ -148,6 +148,7 @@ const Demo: React.FC = () => {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(-1);
   const [progress, setProgress] = useState(0);
   const [reachedIds, setReachedIds] = useState<Set<string>>(() => new Set());
+  const firedMomentsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!fixture) return;
     let raf = 0;
@@ -164,7 +165,15 @@ const Demo: React.FC = () => {
         const reached = new Set<string>();
         for (const a of annotations) {
           const el = document.getElementById(messageDomId(a.messageId));
-          if (el && el.getBoundingClientRect().top <= probe) reached.add(a.messageId);
+          if (!el || el.getBoundingClientRect().top > probe) continue;
+          reached.add(a.messageId);
+          // How deep into the replay people actually get. Once per session
+          // per moment; the ref keeps the scroll handler from re-checking
+          // storage on every frame.
+          if (!firedMomentsRef.current.has(a.key)) {
+            firedMomentsRef.current.add(a.key);
+            trackDemoMoment(a.key, choice.personaId, location.pathname);
+          }
         }
         setReachedIds((prev) =>
           prev.size === reached.size && Array.from(reached).every((id) => prev.has(id)) ? prev : reached,
@@ -186,7 +195,7 @@ const Demo: React.FC = () => {
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [fixture, sectionIndexMap, annotations]);
+  }, [fixture, sectionIndexMap, annotations, choice.personaId, location.pathname]);
 
   const onNavCta = () => {
     if (audience === 'partner') window.open(CALENDLY_URL, '_blank', 'noopener');

@@ -88,8 +88,8 @@ const DemoJobs: React.FC = () => {
   useEffect(() => {
     if (tracked.current) return;
     tracked.current = true;
-    trackSampleView(location.pathname, location.search);
-  }, [location.pathname, location.search]);
+    trackSampleView(location.pathname, location.search, choice.personaId);
+  }, [location.pathname, location.search, choice.personaId]);
 
   const [view, setView] = useState<'results' | 'saved'>('results');
   const [tool, setTool] = useState<DemoTool | null>(null);

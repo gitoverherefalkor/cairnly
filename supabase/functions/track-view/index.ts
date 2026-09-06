@@ -25,7 +25,9 @@ type Body = {
   referrer?: string;
   engaged?: boolean;
   country?: string;
-  event_type?: 'scroll_depth' | 'cta_click' | 'sample_view';
+  event_type?: 'scroll_depth' | 'cta_click' | 'sample_view' | 'demo_moment' | 'conversion';
+  event_key?: string;
+  persona?: string;
   milestone?: number;
   cta_id?: string;
   prospect?: string;
@@ -150,16 +152,53 @@ serve(async (req) => {
       session_id: sessionId,
       event_type: 'sample_view',
       path: samplePath,
+      persona: tag(body.persona),
       prospect: tag(body.prospect),
       utm_source: tag(body.utm_source),
       utm_medium: tag(body.utm_medium),
       utm_campaign: tag(body.utm_campaign),
       country,
     });
-    if (error) {
+    if (error && error.code !== '42703') {
       console.error('[track-view] sample_view insert error:', error);
       return errorResponse('Failed to record event', 500, corsHeaders);
     }
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Keyed events, each recorded at most once per session (unique index on
+  // (session_id, event_key)):
+  //   demo_moment  one of the seven annotated moments in the chat replay was
+  //                reached — how deep into the conversation people get
+  //   conversion   intake_started / purchase. Carries the session id ONLY.
+  //                The identifiable row lives in intake_sessions / purchases
+  //                and is deliberately NOT linked to it, so the pageview
+  //                history stays non-identifiable.
+  if (body.event_type === 'demo_moment' || body.event_type === 'conversion') {
+    const keyedPath = typeof body.path === 'string' ? body.path.slice(0, 300) : '';
+    const eventKey = tag(body.event_key);
+    if (!keyedPath) return errorResponse('path required', 400, corsHeaders);
+    if (!eventKey) return errorResponse('event_key required', 400, corsHeaders);
+
+    const { error } = await supabase.from('analytics_events').insert({
+      session_id: sessionId,
+      event_type: body.event_type,
+      path: keyedPath,
+      event_key: eventKey,
+      persona: tag(body.persona),
+      country,
+    });
+    // 23505 unique_violation — already recorded for this session, which is
+    // the point of the index. 23514 check_violation / 42703 undefined_column
+    // — this deploy landed before the migration; drop the event rather than
+    // hand the visitor's browser a 500 for something purely internal.
+    if (error && !['23505', '23514', '42703'].includes(error.code ?? '')) {
+      console.error(`[track-view] ${body.event_type} insert error:`, error);
+      return errorResponse('Failed to record event', 500, corsHeaders);
+    }
+    if (error) console.warn(`[track-view] ${body.event_type} dropped:`, error.code);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

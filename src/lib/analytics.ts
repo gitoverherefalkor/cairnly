@@ -8,6 +8,71 @@ import { supabase } from '@/integrations/supabase/client';
 
 const SESSION_KEY = 'cairnly_analytics_session';
 const COUNTRY_KEY = 'cairnly_analytics_country';
+// Survives tab closes on purpose: an opt-out that only lasted one tab would
+// be useless for the person it exists for.
+const OPTOUT_KEY = 'cairnly_analytics_optout';
+
+// The only host whose traffic is real. Everything else that can run this
+// bundle writes into the same production tables and pollutes every number:
+//   localhost / 127.0.0.1   `npm run dev` points at the production Supabase
+//   *.vercel.app            preview deploys of every branch
+const PRODUCTION_HOST = 'cairnly.io';
+
+/**
+ * `?internal=1` marks this browser as ours and stops every beacon until
+ * `?internal=0` clears it. Read on each call rather than once at boot, so it
+ * takes effect on the view that carries the parameter.
+ */
+function readInternalFlag(): void {
+  try {
+    const value = new URLSearchParams(window.location.search).get('internal');
+    if (value === null) return;
+    if (value === '0' || value === 'false') {
+      localStorage.removeItem(OPTOUT_KEY);
+      console.info('[analytics] internal flag cleared — this browser is counted again');
+    } else {
+      localStorage.setItem(OPTOUT_KEY, new Date().toISOString());
+      console.info('[analytics] internal flag set — nothing from this browser is tracked');
+    }
+  } catch {
+    /* private mode / storage disabled: nothing to remember */
+  }
+}
+
+/**
+ * True when this visit must not be recorded at all. Three reasons, in order
+ * of how much junk each one keeps out:
+ *   1. not the production host (dev servers and preview deploys)
+ *   2. automation — headless Chrome runs JavaScript, so puppeteer checks
+ *      DID write real rows; `navigator.webdriver` is the flag that catches
+ *      them. Real crawlers never execute this code at all, which is why
+ *      user-agent filtering is not worth it.
+ *   3. the internal opt-out flag above
+ */
+export function shouldSuppressTracking(input: {
+  hostname: string;
+  webdriver: boolean;
+  optedOut: boolean;
+}): boolean {
+  if (!input.hostname.endsWith(PRODUCTION_HOST)) return true;
+  if (input.webdriver) return true;
+  return input.optedOut;
+}
+
+export function isTrackingSuppressed(): boolean {
+  try {
+    readInternalFlag();
+    return shouldSuppressTracking({
+      hostname: window.location.hostname,
+      webdriver: navigator.webdriver === true,
+      optedOut: localStorage.getItem(OPTOUT_KEY) !== null,
+    });
+  } catch {
+    // Storage blocked or no window: record rather than silently lose a real
+    // visitor. The three reasons above are all "we know this is not one".
+    return false;
+  }
+}
 
 export function getSessionId(): string {
   try {
@@ -61,6 +126,7 @@ export function getCountry(): Promise<string | null> {
 // Fire-and-forget beacon to the track-view edge function. Analytics must
 // never break the app or surface an error to the visitor.
 function sendBeacon(body: Record<string, unknown>): void {
+  if (isTrackingSuppressed()) return;
   supabase.functions.invoke('track-view', { body }).catch(() => {
     /* swallow — analytics failures are invisible to the visitor */
   });
@@ -115,6 +181,7 @@ function sanitizeTag(value: string | null): string | null {
 export async function trackSampleView(
   path: string,
   search: string,
+  persona?: string | null,
 ): Promise<void> {
   const params = new URLSearchParams(search);
   const country = await getCountry();
@@ -122,10 +189,77 @@ export async function trackSampleView(
     session_id: getSessionId(),
     event_type: 'sample_view',
     path,
+    // The persona the page actually resolved to. page_views keeps pathname
+    // only, so without this /demo reads the same for Marcel and Emma. Passed
+    // in by the page (language + ?persona= already applied) rather than read
+    // off the URL, which is blank on a language-based pick.
+    persona: sanitizeTag(persona ?? params.get('persona')),
     prospect: sanitizeTag(params.get('p')),
     utm_source: sanitizeTag(params.get('utm_source')),
     utm_medium: sanitizeTag(params.get('utm_medium')),
     utm_campaign: sanitizeTag(params.get('utm_campaign')),
+    country,
+  });
+}
+
+
+// ─── Keyed events: fired at most once per session ────────────────────────────
+//
+// Depth inside the demo and the two conversion steps are "did this happen in
+// this session" flags, not counts, so a repeated scroll past the same moment
+// or a reloaded success page must not inflate them. Guarded here in
+// sessionStorage; the DB has a matching unique index as the backstop.
+
+const FIRED_KEY = 'cairnly_analytics_fired';
+
+function firedAlready(key: string): boolean {
+  try {
+    const raw = sessionStorage.getItem(FIRED_KEY);
+    const fired: string[] = raw ? JSON.parse(raw) : [];
+    if (fired.includes(key)) return true;
+    fired.push(key);
+    sessionStorage.setItem(FIRED_KEY, JSON.stringify(fired));
+    return false;
+  } catch {
+    // No storage: fire anyway. The unique index still de-dupes server-side.
+    return false;
+  }
+}
+
+/**
+ * One of the seven annotated moments in the chat replay was scrolled past.
+ * `moment` is the curation key (pushback, kept, pillTag, movePill, radar,
+ * askRole, dictated) — how far into the conversation people actually get.
+ */
+export async function trackDemoMoment(moment: string, persona: string, path: string): Promise<void> {
+  const key = `demo_moment:${moment}`;
+  if (firedAlready(key)) return;
+  const country = await getCountry();
+  sendBeacon({
+    session_id: getSessionId(),
+    event_type: 'demo_moment',
+    path,
+    event_key: moment,
+    persona: sanitizeTag(persona),
+    country,
+  });
+}
+
+/**
+ * A funnel step completed: the intake chat was started, or a purchase went
+ * through. Deliberately carries the session id and nothing else — the row
+ * that identifies the person lives in `intake_sessions` / `purchases` and
+ * stays unlinked, so the pageview history remains non-identifiable.
+ */
+export async function trackConversion(step: 'intake_started' | 'purchase'): Promise<void> {
+  const key = `conversion:${step}`;
+  if (firedAlready(key)) return;
+  const country = await getCountry();
+  sendBeacon({
+    session_id: getSessionId(),
+    event_type: 'conversion',
+    path: window.location.pathname,
+    event_key: step,
     country,
   });
 }
