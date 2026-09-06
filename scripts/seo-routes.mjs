@@ -76,10 +76,14 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.8',
   },
-  // Partner channel. Dutch-first: this page is aimed at NL re-integratie and
-  // outplacement bureaus, so the static shell a non-JS crawler sees carries
-  // the Dutch title/description, matching public/locales/nl/partners.json
-  // (and en/partners.json, which is still a copy of it pending translation).
+  // Partner channel. Dutch-first BY CHOICE, not for lack of a translation:
+  // en/partners.json is real English since 2026-09-06, so ?lang=en renders an
+  // English page and Helmet swaps in the English <title> once the namespace
+  // loads. What stays Dutch is the STATIC shell a non-JS crawler or a link
+  // preview sees, because one route has exactly one prerendered shell and this
+  // page is aimed at NL re-integratie and outplacement bureaus. Flipping these
+  // two strings to English trades that Dutch ranking away; only do it if the
+  // channel's target audience changes.
   {
     path: '/partners',
     title:
