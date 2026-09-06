@@ -1,147 +1,147 @@
 {
   "seo": {
-    "title": "Cairnly voor loopbaanprofessionals | loopbaanassessment voor re-integratie en outplacement",
-    "description": "Zet Cairnly in als voorwerk in je traject: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten."
+    "title": "Cairnly for career professionals | career assessment for return-to-work and outplacement",
+    "description": "Use Cairnly as prep work in your program: concrete careers with match scores, salary data and an AI-impact rating per career, under your logo. Credits never expire, no setup fees."
   },
   "hero": {
-    "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
-    "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
-    "sampleCta": "Bekijk een voorbeeldrapport (2 minuten)",
-    "demoCta": "Bekijk een echte coachsessie",
-    "stageCaption": "Marcel en Emma zijn fictieve kandidaten, alles wat je ziet is echte output. Klik op een scherm of een kaart om de sessie te openen: het gesprek met de coach en het dashboard erna."
+    "title": "Your candidate starts with direction, not a blank page",
+    "body": "Cairnly is an online career assessment that turns 25 to 40 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
+    "sampleCta": "See a sample report (2 minutes)",
+    "demoCta": "See a real coaching session",
+    "stageCaption": "Marcel and Emma are fictional candidates, everything you see is real output. Click a screen or a card to open the session: the conversation with the coach and the dashboard that follows."
   },
   "whoFor": {
-    "title": "Voor wie",
-    "body": "Voor re-integratiebureaus (spoor 2), outplacementbureaus en zelfstandige loopbaancoaches. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
+    "title": "Who it's for",
+    "body": "For return-to-work agencies (spoor 2 in the Netherlands), outplacement firms and independent career coaches. Cairnly doesn't replace your existing toolkit, it sits in front of it: the candidate works through the assessment as prep work and arrives at your advisor with a report to talk through."
   },
   "whatYouGet": {
-    "title": "Wat je kandidaat krijgt",
+    "title": "What your candidate gets",
     "items": [
-      "Een top 3 aan passende beroepen met matchscore, plus alternatieven en een aantal minder voor de hand liggende richtingen die wel kloppen met het profiel.",
-      "Per beroep: waarom het past bij deze persoon, salarisranges en een AI-impactscore van minimaal tot kritiek. Welke richting groeit en welke krimpt, onmisbaar bij een omscholingsvraag.",
-      "Een AI-coach waarmee de kandidaat het rapport bespreekt en bijstelt waar het niet klopt. Het rapport is geen statische uitslag.",
-      "Een pdf-rapport met jouw logo en naam erop, dat de kandidaat meeneemt naar het gesprek met jou."
+      "A top 3 of careers that fit, with a match score on each, plus alternatives and a few less obvious directions that still match the profile.",
+      "Per career: why it fits this person, salary ranges and an AI-impact rating from Minimal to Critical. Which direction is growing and which is shrinking, essential when retraining is on the table.",
+      "An AI coach the candidate uses to discuss the report and correct it where it is wrong. The report is not a static verdict.",
+      "A PDF report with your logo and name on it, which the candidate brings to the conversation with you."
     ],
-    "demoLabel": "Bekijk in de demo",
-    "sampleLabel": "Bekijk het voorbeeldrapport"
+    "demoLabel": "See it in the demo",
+    "sampleLabel": "See the sample report"
   },
   "pricing": {
-    "title": "Prijzen",
-    "intro": "Eén credit is één volledig assessment inclusief rapport en AI-coach. Credits verlopen nooit. Geen instapkosten, geen certificering, geen contract, geen minimum. Bij aanmelding krijg je 3 gratis credits om zelf te ervaren wat je kandidaat krijgt.",
+    "title": "Pricing",
+    "intro": "One credit is one full assessment, including the report and the AI coach. Credits never expire. No setup fees, no certification, no contract, no minimum. When you sign up you get 3 free credits to experience what your candidate gets.",
     "colCredits": "Credits",
-    "colPrice": "Prijs per stuk (ex btw)",
+    "colPrice": "Price each (excl. VAT)",
     "rows": [
       {
-        "credits": "1 t/m 9",
+        "credits": "1 to 9",
         "price": "44 euro"
       },
       {
-        "credits": "10 t/m 24",
+        "credits": "10 to 24",
         "price": "38 euro"
       },
       {
-        "credits": "25 t/m 49",
+        "credits": "25 to 49",
         "price": "33 euro"
       },
       {
-        "credits": "50 t/m 99",
+        "credits": "50 to 99",
         "price": "29 euro"
       },
       {
-        "credits": "100 t/m 249",
+        "credits": "100 to 249",
         "price": "24 euro"
       },
       {
-        "credits": "250 en meer",
+        "credits": "250 and up",
         "price": "20 euro"
       }
     ],
-    "note": "Ter vergelijking: consumenten betalen straks 59 euro per assessment. Jij bepaalt zelf of je credits doorberekent of opneemt in je traject."
+    "note": "For comparison: consumers will soon pay 59 euro per assessment. You decide whether you pass the credits on or absorb them into your program."
   },
   "pilot": {
-    "title": "Eerst zien of het werkt? Logisch.",
-    "bodyBeforeEmail": "We zoeken een handvol bureaus voor een gratis pilot: 20 kandidaten, geen voorwaarden. Wat wij terugvragen is een eerlijke mening van je adviseurs. Mail naar ",
-    "bodyAfterEmail": " of plan direct 20 minuten in.",
-    "cta": "Plan 20 minuten",
-    "mailSubject": "Cairnly pilot voor ons bureau"
+    "title": "Want to see it work first? Fair enough.",
+    "bodyBeforeEmail": "We're looking for a handful of agencies for a free pilot: 20 candidates, no strings attached. What we ask back is an honest opinion from your advisors. Email ",
+    "bodyAfterEmail": " or book 20 minutes straight away.",
+    "cta": "Book 20 minutes",
+    "mailSubject": "Cairnly pilot for our agency"
   },
   "faq": {
-    "title": "Veelgestelde vragen",
+    "title": "Frequently asked questions",
     "items": [
       {
-        "q": "Is Cairnly een psychometrisch instrument?",
-        "a": "Nee, en dat claimen we ook niet. Cairnly is arbeidsmarktorientatie: het vertaalt iemands ervaring, waarden en voorkeuren naar concrete beroepsrichtingen. Het staat naast je gevalideerde (COTAN-)instrumenten, niet in plaats daarvan."
+        "q": "Is Cairnly a psychometric instrument?",
+        "a": "No, and we don't claim it is. Cairnly is labor-market orientation: it translates someone's experience, values and preferences into concrete career directions. It sits alongside your validated instruments (COTAN-rated in the Netherlands), not in place of them."
       },
       {
-        "q": "Hoe zit het met privacy en de AVG?",
-        "a": "De kandidaat doorloopt het assessment zelf en is eigenaar van het eigen rapport. Betalingen lopen via Stripe op EU-servers. Cairnly is een zelfgestuurd orientatie-instrument dat de kandidaat over zichzelf invult, geen selectie-instrument, en we leveren geen beoordelingen aan werkgevers."
+        "q": "What about privacy and the GDPR?",
+        "a": "The candidate works through the assessment themselves and owns their own report. Payments run through Stripe on EU servers. Cairnly is a self-directed orientation tool that the candidate completes about themselves, not a selection instrument, and we don't supply assessments of candidates to employers."
       },
       {
-        "q": "Kan het rapport onder mijn eigen naam?",
-        "a": "Je logo en naam staan op het rapport en op de pagina waar jouw kandidaten het assessment starten. Volledige white-label (eigen domein, eigen betaalomgeving) bieden we nu niet aan."
+        "q": "Can the report carry my own name?",
+        "a": "Your logo and name appear on the report and on the page where your candidates start the assessment. Full white-label (your own domain, your own payment environment) is not something we offer at the moment."
       },
       {
-        "q": "Wat kost het mijn kandidaat?",
-        "a": "Niets. Jij koopt credits, de kandidaat verzilvert een code. Er staat geen prijs of betaalmuur tussen jouw kandidaat en het rapport."
+        "q": "What does it cost my candidate?",
+        "a": "Nothing. You buy credits, the candidate redeems a code. There is no price and no paywall between your candidate and the report."
       },
       {
-        "q": "In welke talen?",
-        "a": "Nederlands en Engels."
+        "q": "Which languages?",
+        "a": "Dutch and English."
       }
     ]
   },
   "closing": {
-    "body": "Cairnly is een product van Human in the Loop B.V., Utrecht. Wie tot en met 15 oktober instapt als partner, rekent het eerste creditpack af tegen het huidige betatarief."
+    "body": "Cairnly is a product of Human in the Loop B.V., Utrecht. Partners who join on or before October 15 pay the current beta rate on their first credit pack."
   },
   "sample": {
-    "seoTitle": "Voorbeeldrapport | Cairnly voor loopbaanprofessionals",
-    "seoDescription": "Een volledig Cairnly-voorbeeldrapport van een fictieve kandidaat, zoals jouw kandidaat het krijgt, met jouw logo erop.",
-    "backLead": "Meer weten over samenwerken?",
-    "backLink": "Terug naar de partnerpagina.",
-    "intro": "Dit is een volledig voorbeeldrapport van een fictieve kandidaat. Alles wat je hier ziet krijgt jouw kandidaat ook, met jouw logo erop.",
-    "download": "Download de pdf",
-    "openInTab": "Open het rapport in een nieuw tabblad",
-    "viewerTitle": "Cairnly voorbeeldrapport"
+    "seoTitle": "Sample report | Cairnly for career professionals",
+    "seoDescription": "A complete Cairnly sample report for a fictional candidate, exactly as your candidate receives it, with your logo on it.",
+    "backLead": "Want to know more about working together?",
+    "backLink": "Back to the partner page.",
+    "intro": "This is a complete sample report for a fictional candidate. Everything you see here is what your candidate gets too, with your logo on it.",
+    "download": "Download the PDF",
+    "openInTab": "Open the report in a new tab",
+    "viewerTitle": "Cairnly sample report"
   },
   "heroDemo": {
     "sessionLanguage": {
-      "en": "Sessie gevoerd in het Engels",
-      "nl": "Sessie gevoerd in het Nederlands"
+      "en": "Session held in English",
+      "nl": "Session held in Dutch"
     },
     "cards": {
       "marcel": {
         "name": "Marcel",
-        "who": "Marcel · 41 · Teamleider klantenservice, verzekeraar",
-        "intent": "Klaar met een team managen, wil dichter bij de mensen staan die hij helpt.",
-        "seeLabel": "Wat je in zijn sessie ziet",
+        "who": "Marcel · 41 · Customer service team lead, insurer",
+        "intent": "Done managing a team, wants to be closer to the people he helps.",
+        "seeLabel": "What you see in his session",
         "see": [
-          "van teamleider naar learning & development",
-          "een harde eis (woensdag thuis) die de matches meeweegt",
-          "chatfeedback die het rapport herschrijft"
+          "from team lead to learning and development",
+          "a hard requirement (Wednesdays at home) that the matches weigh in",
+          "chat feedback that rewrites the report"
         ],
         "traits": [
-          "empathisch",
-          "praktisch",
-          "loyaal"
+          "empathetic",
+          "practical",
+          "loyal"
         ],
-        "cta": "Bekijk Marcels sessie"
+        "cta": "See Marcel's session"
       },
       "emma": {
         "name": "Emma",
-        "who": "Emma · 38 · Senior marketing manager, fintech in Londen",
-        "intent": "Kan de job met haar ogen dicht, en dat is precies het probleem.",
-        "seeLabel": "Wat je in haar sessie ziet",
+        "who": "Emma · 38 · Senior marketing manager, London fintech",
+        "intent": "Can do the job with her eyes closed, and that is exactly the problem.",
+        "seeLabel": "What you see in her session",
         "see": [
-          "drie carrières naast elkaar op één radar",
-          "de coach die terugduwt op een aanname",
-          "een Move-pill: direct inzetbaar of eerst bijscholen"
+          "three careers side by side on one radar",
+          "the coach pushing back on an assumption",
+          "a Move pill: ready now, or upskill first"
         ],
         "traits": [
-          "strategisch",
-          "betekenisgever",
-          "rusteloos"
+          "strategic",
+          "sense-maker",
+          "restless"
         ],
-        "cta": "Bekijk Emma's sessie"
+        "cta": "See Emma's session"
       }
     }
   },
@@ -160,26 +160,26 @@
     ],
     "cta": "Start the assessment",
     "codeReady": "Your personal access code is already filled in, nothing to type over.",
-    "codeMissing": "This link does not carry a personal access code. Ask your advisor for your link with a code, or enter the code when you create your account.",
+    "codeMissing": "This link does not contain a personal access code. Ask your advisor for your link with the code, or enter the code when you create your account.",
     "privacy": "Your answers and your report are yours. You decide what you share with your advisor.",
     "poweredBy": "Powered by Cairnly",
     "loading": "One moment...",
     "notFound": {
-      "title": "This link does not work",
-      "body": "The organisation behind this link is not (or no longer) active with Cairnly. Ask your advisor for a new link, or email {{email}}.",
+      "title": "This link doesn't work",
+      "body": "The organization behind this link is not (or no longer) active with Cairnly. Ask your advisor for a new link, or email {{email}}.",
       "cta": "Go to the homepage"
     }
   },
   "candidateStart": {
-    "title": "This is where your candidate starts",
-    "body": "You send your candidate a personal link. It opens a start page with your logo and name, a short explanation and one button. The access code travels inside the link, so there is nothing to type over. After the button the candidate creates an account and the assessment begins.",
+    "title": "How your candidate starts",
+    "body": "You send your candidate a personal link. It opens a start page with your logo and name, a short explanation and one button. The access code sits in the link, so there is nothing to type over. After the button the candidate creates an account and starts the assessment.",
     "points": [
-      "Your logo and name at the top, before Cairnly appears",
-      "A three-step explanation, in Dutch or English, your choice per link",
-      "No price and no paywall: the candidate only sees the start"
+      "Your logo and name at the top, before Cairnly comes into view",
+      "An explanation in three steps, in Dutch or English, you choose per link",
+      "No price, no paywall: the candidate only sees the start"
     ],
     "exampleCta": "Open the example page",
-    "urlSlug": "your-bureau",
-    "imageAlt": "The start page a candidate of Loopbaanbureau Voorbeeld sees: the bureau's logo, a three-step explanation and the Start the assessment button"
+    "urlSlug": "your-agency",
+    "imageAlt": "The start page a candidate of Loopbaanbureau Voorbeeld sees: the agency's logo, an explanation in three steps and the Start the assessment button"
   }
 }
