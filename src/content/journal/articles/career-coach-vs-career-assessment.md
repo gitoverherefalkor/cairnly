@@ -2,7 +2,7 @@
 slug: career-coach-vs-career-assessment
 title: Career coach or career assessment: what the evidence says you need.
 status: published
-publishedAt: 2026-07-10
+publishedAt: 2026-09-07
 readingTime: 12
 sourceCount: 16
 topics: Research report, Career guidance
