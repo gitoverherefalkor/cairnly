@@ -43,6 +43,36 @@ const tag = (value: unknown): string | null =>
 
 const VALID_MILESTONES = new Set([25, 50, 75, 100]);
 
+/**
+ * Insert an event, and if the database does not know one of the newer
+ * columns yet (42703, i.e. this function shipped ahead of its migration),
+ * retry once without them rather than lose the row.
+ *
+ * Learned the hard way on 2026-09-06: `persona` was added to the sample_view
+ * payload while the column did not exist yet, the error was swallowed as
+ * "harmless", and every demo visit in that window recorded nothing at all.
+ * Losing one optional field is acceptable; losing the event is not.
+ */
+async function insertEvent(
+  supabase: ReturnType<typeof createClient>,
+  row: Record<string, unknown>,
+  optional: string[],
+): Promise<{ code?: string } | null> {
+  const { error } = await supabase.from('analytics_events').insert(row);
+  if (!error) return null;
+  if (error.code === '42703' && optional.some((k) => k in row)) {
+    const fallback = { ...row };
+    for (const key of optional) delete fallback[key];
+    const retry = await supabase.from('analytics_events').insert(fallback);
+    if (!retry.error) {
+      console.warn('[track-view] recorded without', optional.join('/'), '— migration not applied yet');
+      return null;
+    }
+    return retry.error;
+  }
+  return error;
+}
+
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
   if (preflight) return preflight;
@@ -148,18 +178,22 @@ serve(async (req) => {
     if (!samplePath) {
       return errorResponse('path required', 400, corsHeaders);
     }
-    const { error } = await supabase.from('analytics_events').insert({
-      session_id: sessionId,
-      event_type: 'sample_view',
-      path: samplePath,
-      persona: tag(body.persona),
-      prospect: tag(body.prospect),
-      utm_source: tag(body.utm_source),
-      utm_medium: tag(body.utm_medium),
-      utm_campaign: tag(body.utm_campaign),
-      country,
-    });
-    if (error && error.code !== '42703') {
+    const error = await insertEvent(
+      supabase,
+      {
+        session_id: sessionId,
+        event_type: 'sample_view',
+        path: samplePath,
+        persona: tag(body.persona),
+        prospect: tag(body.prospect),
+        utm_source: tag(body.utm_source),
+        utm_medium: tag(body.utm_medium),
+        utm_campaign: tag(body.utm_campaign),
+        country,
+      },
+      ['persona'],
+    );
+    if (error) {
       console.error('[track-view] sample_view insert error:', error);
       return errorResponse('Failed to record event', 500, corsHeaders);
     }
@@ -182,18 +216,22 @@ serve(async (req) => {
     if (!keyedPath) return errorResponse('path required', 400, corsHeaders);
     if (!eventKey) return errorResponse('event_key required', 400, corsHeaders);
 
-    const { error } = await supabase.from('analytics_events').insert({
-      session_id: sessionId,
-      event_type: body.event_type,
-      path: keyedPath,
-      event_key: eventKey,
-      persona: tag(body.persona),
-      country,
-    });
+    const error = await insertEvent(
+      supabase,
+      {
+        session_id: sessionId,
+        event_type: body.event_type,
+        path: keyedPath,
+        event_key: eventKey,
+        persona: tag(body.persona),
+        country,
+      },
+      ['persona'],
+    );
     // 23505 unique_violation — already recorded for this session, which is
     // the point of the index. 23514 check_violation / 42703 undefined_column
-    // — this deploy landed before the migration; drop the event rather than
-    // hand the visitor's browser a 500 for something purely internal.
+    // — the event type itself predates the migration, so there is nowhere to
+    // put it; drop it rather than hand the visitor's browser a 500.
     if (error && !['23505', '23514', '42703'].includes(error.code ?? '')) {
       console.error(`[track-view] ${body.event_type} insert error:`, error);
       return errorResponse('Failed to record event', 500, corsHeaders);
