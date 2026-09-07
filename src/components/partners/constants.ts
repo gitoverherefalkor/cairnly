@@ -22,7 +22,23 @@ export const CONTACT_EMAIL = 'info@cairnly.io';
  * ⚠️ `.gitignore` blocks `*.pdf` globally; `!public/partners/*.pdf` carves out
  * this one path. Without that negation the file never reaches Vercel.
  */
-export const SAMPLE_PDF_PATH = '/partners/cairnly-voorbeeldrapport-nl.pdf';
+const SAMPLE_PDF_BY_LANG = {
+  nl: '/partners/cairnly-voorbeeldrapport-nl.pdf',
+  en: '/partners/cairnly-sample-report-en.pdf',
+} as const;
+
+/**
+ * The specimen for the reader's language. Both files are the SAME report
+ * (Marcel, the demo the /demo replay is frozen from) rendered white-labelled
+ * for "Loopbaanbureau Voorbeeld", so the EN and NL specimens are one document
+ * in two languages rather than two different candidates.
+ *
+ * Refresh either one with (see partners/README.md):
+ *   node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io --keep-partner \
+ *     [--lang=en] --out=public/partners/<file>
+ */
+export const samplePdfPath = (language: string | undefined): string =>
+  SAMPLE_PDF_BY_LANG[(language || 'en').slice(0, 2).toLowerCase() === 'nl' ? 'nl' : 'en'];
 
 /**
  * The demo, as the partner page links to it: always Marcel (the Dutch

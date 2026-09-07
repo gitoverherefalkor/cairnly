@@ -7,7 +7,7 @@ import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { trackSampleView } from '@/lib/analytics';
-import { SAMPLE_PDF_PATH } from '@/components/partners/constants';
+import { samplePdfPath } from '@/components/partners/constants';
 
 /**
  * Inline PDF viewers are a lie on iOS: every browser there is WebKit, and
@@ -36,7 +36,10 @@ function usesNativePdfViewer(): boolean {
  * beacon (no new tracking system, see trackSampleView).
  */
 const PartnerSampleReport: React.FC = () => {
-  const { t } = useTranslation('partners');
+  const { t, i18n } = useTranslation('partners');
+  // The specimen follows the page's language, so an English prospect does not
+  // download a Dutch report from an English page.
+  const pdfPath = samplePdfPath(i18n.language);
   const location = useLocation();
   const [canEmbed] = useState(usesNativePdfViewer);
   // The beacon must fire exactly once per mount, not on every rerender and not
@@ -78,13 +81,13 @@ const PartnerSampleReport: React.FC = () => {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <a href={SAMPLE_PDF_PATH} download className="lp-btn-primary">
+            <a href={pdfPath} download className="lp-btn-primary">
               {t('sample.download')}
               <Download size={18} strokeWidth={2.4} />
             </a>
             {!canEmbed && (
               <a
-                href={SAMPLE_PDF_PATH}
+                href={pdfPath}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="lp-btn-primary lp-btn-gold"
@@ -105,7 +108,7 @@ const PartnerSampleReport: React.FC = () => {
               }}
             >
               <iframe
-                src={`${SAMPLE_PDF_PATH}#view=FitH`}
+                src={`${pdfPath}#view=FitH`}
                 title={t('sample.viewerTitle')}
                 className="w-full block"
                 style={{ height: 'min(1150px, 85vh)', border: 'none' }}

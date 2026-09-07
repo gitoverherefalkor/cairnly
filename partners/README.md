@@ -29,6 +29,28 @@ node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io \
 To publish a hand-made template instead, drop the file at that exact path and
 commit; the demo needs no code change.
 
+## The English specimen (since 2026-09-07)
+
+`public/partners/cairnly-sample-report-en.pdf` is the same document as the Dutch
+one — same candidate (Marcel), same bureau (Loopbaanbureau Voorbeeld), same
+white-label treatment — rendered in English, so `/partners/voorbeeldrapport`
+serves the reader's own language instead of handing an English prospect a Dutch
+report. `samplePdfPath(language)` in `src/components/partners/constants.ts`
+picks the file; there is no separate English persona on purpose, so the two
+specimens are one report in two languages rather than two candidates.
+
+```
+node scripts/demo-render-pdf.mjs demo.marloes@cairnly.io --keep-partner --lang=en \
+  --out=public/partners/cairnly-sample-report-en.pdf
+```
+
+`--lang=en` flips `profiles.preferred_language` for the render and restores it
+after (also on failure). Note **only `demo.marloes@cairnly.io` has a partner
+link** — `demo.emma@cairnly.io` has `partner_id = null`, so `--keep-partner` on
+Emma silently renders a plain consumer report with no logo and the referral
+closing page. That is the trap to avoid if you ever want an English-persona
+specimen: link her profile first.
+
 ## Publishing these to /partners
 
 This folder is the source. The website serves its own copies under `public/partners/`,
