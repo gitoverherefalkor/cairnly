@@ -43,36 +43,6 @@ const tag = (value: unknown): string | null =>
 
 const VALID_MILESTONES = new Set([25, 50, 75, 100]);
 
-/**
- * Insert an event, and if the database does not know one of the newer
- * columns yet (42703, i.e. this function shipped ahead of its migration),
- * retry once without them rather than lose the row.
- *
- * Learned the hard way on 2026-09-06: `persona` was added to the sample_view
- * payload while the column did not exist yet, the error was swallowed as
- * "harmless", and every demo visit in that window recorded nothing at all.
- * Losing one optional field is acceptable; losing the event is not.
- */
-async function insertEvent(
-  supabase: ReturnType<typeof createClient>,
-  row: Record<string, unknown>,
-  optional: string[],
-): Promise<{ code?: string } | null> {
-  const { error } = await supabase.from('analytics_events').insert(row);
-  if (!error) return null;
-  if (error.code === '42703' && optional.some((k) => k in row)) {
-    const fallback = { ...row };
-    for (const key of optional) delete fallback[key];
-    const retry = await supabase.from('analytics_events').insert(fallback);
-    if (!retry.error) {
-      console.warn('[track-view] recorded without', optional.join('/'), '— migration not applied yet');
-      return null;
-    }
-    return retry.error;
-  }
-  return error;
-}
-
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
   if (preflight) return preflight;
@@ -105,6 +75,33 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+
+  /**
+   * Insert an event, and if the database does not know one of the newer
+   * columns yet (42703, i.e. this function shipped ahead of its migration),
+   * retry once without them rather than lose the row.
+   *
+   * Learned the hard way on 2026-09-06: `persona` was added to the
+   * sample_view payload while the column did not exist yet, the error was
+   * swallowed as "harmless", and every demo visit in that window recorded
+   * nothing at all. Losing one optional field is acceptable; losing the
+   * event is not.
+   */
+  const insertEvent = async (row: Record<string, unknown>, optional: string[]) => {
+    const { error } = await supabase.from('analytics_events').insert(row);
+    if (!error) return null;
+    if (error.code === '42703' && optional.some((key) => key in row)) {
+      const fallback = { ...row };
+      for (const key of optional) delete fallback[key];
+      const retry = await supabase.from('analytics_events').insert(fallback);
+      if (!retry.error) {
+        console.warn('[track-view] recorded without', optional.join('/'), '— migration not applied yet');
+        return null;
+      }
+      return retry.error;
+    }
+    return error;
+  };
 
   // Engage ping — fired ~10s into a page view. Marks the session as engaged so
   // it no longer counts as a bounce.
@@ -179,7 +176,6 @@ serve(async (req) => {
       return errorResponse('path required', 400, corsHeaders);
     }
     const error = await insertEvent(
-      supabase,
       {
         session_id: sessionId,
         event_type: 'sample_view',
@@ -217,7 +213,6 @@ serve(async (req) => {
     if (!eventKey) return errorResponse('event_key required', 400, corsHeaders);
 
     const error = await insertEvent(
-      supabase,
       {
         session_id: sessionId,
         event_type: body.event_type,
