@@ -163,7 +163,7 @@ export async function trackCtaClick(id: string, path: string = window.location.p
   });
 }
 
-// Sample-report view. Fired once on mount by /partners/voorbeeldrapport so we
+// Sample-report view. Fired once on mount by /partners/sample-report so we
 // can tell which prospect opened the specimen: `?p=<slug>` is the per-prospect
 // tag baked into the link we send, and any utm_* params riding along are kept
 // so an outreach campaign can be told apart from a direct share.

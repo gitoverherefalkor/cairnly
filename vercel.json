@@ -1,6 +1,16 @@
 {
   "rewrites": [
-    { "source": "/((?!api/|assets/).*)", "destination": "/" }
+    {
+      "source": "/((?!api/|assets/).*)",
+      "destination": "/"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/partners/voorbeeldrapport",
+      "destination": "/partners/sample-report",
+      "permanent": true
+    }
   ],
   "functions": {
     "api/render-report.js": {

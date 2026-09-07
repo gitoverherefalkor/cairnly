@@ -2,7 +2,7 @@ import { DEMO_ROUTE } from '@/demo/constants';
 
 /**
  * Single source of truth for the partner-channel pages (/partners and
- * /partners/voorbeeldrapport). Everything a human might want to swap without
+ * /partners/sample-report). Everything a human might want to swap without
  * touching markup lives here.
  */
 
@@ -13,7 +13,7 @@ export const CALENDLY_URL = 'https://calendly.com/sjoerd-bethehitl/new-meeting';
 export const CONTACT_EMAIL = 'info@cairnly.io';
 
 /**
- * The specimen report served on /partners/voorbeeldrapport. This is the
+ * The specimen report served on /partners/sample-report. This is the
  * white-labelled variant (partner "Loopbaanbureau Voorbeeld", logo on the
  * cover and in every running header) rather than the `[partnernaam]`
  * template, so a prospect sees a finished document instead of a mail merge.
@@ -51,8 +51,11 @@ export const PARTNER_DEMO_SEARCH = '?p=partners';
 export const partnerDemoLink = (route: string = DEMO_ROUTE) =>
   `${route}${PARTNER_DEMO_SEARCH}&persona=${PARTNER_DEMO_PERSONA}`;
 
-/** Route of the specimen page, referenced from the hero CTA and the back link. */
-export const SAMPLE_ROUTE = '/partners/voorbeeldrapport';
+/** Route of the specimen page. Renamed from /partners/voorbeeldrapport on
+ *  2026-09-07 so an English prospect is not sent to a Dutch URL; the old path
+ *  308s here (vercel.json) and still resolves client-side, so outreach links
+ *  and anything already indexed keep working. */
+export const SAMPLE_ROUTE = '/partners/sample-report';
 
 /**
  * The live landing page of the specimen partner, linked from the "this is

@@ -33,7 +33,7 @@ commit; the demo needs no code change.
 
 `public/partners/cairnly-sample-report-en.pdf` is the same document as the Dutch
 one — same candidate (Marcel), same bureau (Loopbaanbureau Voorbeeld), same
-white-label treatment — rendered in English, so `/partners/voorbeeldrapport`
+white-label treatment — rendered in English, so `/partners/sample-report`
 serves the reader's own language instead of handing an English prospect a Dutch
 report. `samplePdfPath(language)` in `src/components/partners/constants.ts`
 picks the file; there is no separate English persona on purpose, so the two

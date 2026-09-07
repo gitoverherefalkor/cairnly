@@ -7,7 +7,7 @@ import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import { trackSampleView } from '@/lib/analytics';
-import { samplePdfPath } from '@/components/partners/constants';
+import { SAMPLE_ROUTE, samplePdfPath } from '@/components/partners/constants';
 
 /**
  * Inline PDF viewers are a lie on iOS: every browser there is WebKit, and
@@ -28,7 +28,7 @@ function usesNativePdfViewer(): boolean {
 }
 
 /**
- * /partners/voorbeeldrapport — the specimen report a prospect opens from the
+ * /partners/sample-report — the specimen report a prospect opens from the
  * partner page or straight from an outreach mail.
  *
  * `?p=<slug>` tags which prospect the link went to; utm_* params ride along.
@@ -57,7 +57,7 @@ const PartnerSampleReport: React.FC = () => {
       className="min-h-screen font-sans overflow-x-clip"
       style={{ background: '#ECE4D2', color: '#122E3B' }}
     >
-      <Seo title={t('sample.seoTitle')} description={t('sample.seoDescription')} path="/partners/voorbeeldrapport" />
+      <Seo title={t('sample.seoTitle')} description={t('sample.seoDescription')} path={SAMPLE_ROUTE} />
       <LandingNav variant="page" />
 
       <main className="pt-12 md:pt-16 pb-20 md:pb-28">

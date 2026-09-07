@@ -94,7 +94,7 @@ const STATIC_ROUTES = [
     priority: '0.8',
   },
   {
-    path: '/partners/voorbeeldrapport',
+    path: '/partners/sample-report',
     title: 'Voorbeeldrapport | Cairnly voor loopbaanprofessionals',
     description:
       'Een volledig Cairnly-voorbeeldrapport van een fictieve kandidaat, zoals jouw kandidaat het krijgt, met jouw logo erop.',
