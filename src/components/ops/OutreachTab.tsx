@@ -8,6 +8,12 @@
 // three counters, one table, two editable fields (status, notities), and a
 // collapsed raw click log to sanity-check the bot filter. No Gmail, no
 // follow-up worklist, no pixel, no charts.
+//
+// Clicks are counted CONFIRMED vs SUSPECT. A non-bot click within two minutes
+// of the mail going out is a link scanner fetching the URL on delivery, not a
+// person: enterprise mail security presents a real browser user-agent, so the
+// bot list cannot see it and only the time since sending can. Suspect clicks
+// stay visible everywhere, they just do not count as an open.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +45,8 @@ interface ClickRow {
   user_agent: string | null;
   referer: string | null;
   is_bot: boolean;
+  /** Non-bot, but landed inside 2 minutes of the mail going out. */
+  verdacht?: boolean;
   created_at: string;
 }
 
@@ -179,12 +187,21 @@ function ProspectRow({
           {savingStatus && <Loader2 className="h-3 w-3 animate-spin text-gray-500" />}
         </div>
       </td>
-      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.eerste_klik, true)}</td>
-      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.laatste_klik, true)}</td>
+      <td className="px-3 py-2 text-xs text-gray-400 whitespace-nowrap">{fmt(p.verzonden_op, true)}</td>
+      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.eerste_bevestigde_klik, true)}</td>
+      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.laatste_bevestigde_klik, true)}</td>
       <td className="px-3 py-2 text-sm text-center">
-        <span className={p.kliks_uniek_dagen > 0 ? 'text-gray-100 font-semibold' : 'text-gray-600'}>
-          {p.kliks_uniek_dagen}
+        <span className={p.dagen_bevestigd > 0 ? 'text-gray-100 font-semibold' : 'text-gray-600'}>
+          {p.dagen_bevestigd}
         </span>
+        {p.kliks_verdacht > 0 && (
+          <div
+            className="text-[10px] text-amber-400/80"
+            title="Klik binnen 2 minuten na verzenden. Vrijwel zeker een linkscanner van de mailserver, niet iemand die leest."
+          >
+            +{p.kliks_verdacht} scanner?
+          </div>
+        )}
         {p.bot_kliks > 0 && (
           <div className="text-[10px] text-gray-500" title="Bot-kliks, niet meegeteld">+{p.bot_kliks} bot</div>
         )}
@@ -218,7 +235,7 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
       >
         {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         Ruwe kliklog
-        <span className="text-xs text-gray-500">laatste {rows.length} rijen, inclusief bots</span>
+        <span className="text-xs text-gray-500">laatste {rows.length} rijen, inclusief bots en scanners</span>
       </button>
       {open && (
         <div className="overflow-x-auto border-t border-white/5">
@@ -239,7 +256,7 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className={`border-t border-white/5 ${r.is_bot ? 'text-gray-500' : 'text-gray-300'}`}>
+                  <tr key={r.id} className={`border-t border-white/5 ${r.is_bot || r.verdacht ? 'text-gray-500' : 'text-gray-300'}`}>
                     <td className="px-3 py-1.5 whitespace-nowrap">{fmt(r.created_at, true)}</td>
                     <td className="px-3 py-1.5 font-mono">{r.slug ?? '-'}</td>
                     <td className="px-3 py-1.5">{r.campaign ?? '-'}</td>
@@ -247,6 +264,13 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
                     <td className="px-3 py-1.5">
                       {r.is_bot ? (
                         <span className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px]">bot</span>
+                      ) : r.verdacht ? (
+                        <span
+                          className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px]"
+                          title="Binnen 2 minuten na verzenden"
+                        >
+                          scanner?
+                        </span>
                       ) : (
                         <span className="px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal text-[10px]">mens</span>
                       )}
@@ -307,7 +331,7 @@ export default function OutreachTab() {
     return data.prospects
       .filter((p) => tier === 'all' || p.tier === tier)
       .filter((p) => campaign === 'all' || p.campaign === campaign)
-      .filter((p) => !onlyClicked || p.kliks_totaal > 0)
+      .filter((p) => !onlyClicked || p.kliks_bevestigd > 0)
       .sort(compareProspects);
   }, [data, tier, campaign, onlyClicked]);
 
@@ -342,7 +366,7 @@ export default function OutreachTab() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {counter('Bureaus in seed', data.counters.prospects, 'rijen in outreach_prospects')}
-        {counter('Bureaus met klik', data.counters.prospects_with_click, 'minstens een niet-bot-klik')}
+        {counter('Bureaus met klik', data.counters.prospects_with_click, 'minstens een bevestigde klik')}
         {counter('Kliks vandaag', data.counters.clicks_today, 'niet-bot, Amsterdamse dag')}
       </div>
 
@@ -399,6 +423,7 @@ export default function OutreachTab() {
               <th className={`px-3 py-2 ${label}`}>Tier</th>
               <th className={`px-3 py-2 ${label}`}>Contactpersoon</th>
               <th className={`px-3 py-2 ${label}`}>Status</th>
+              <th className={`px-3 py-2 ${label}`}>Verzonden</th>
               <th className={`px-3 py-2 ${label}`}>Eerste klik</th>
               <th className={`px-3 py-2 ${label}`}>Laatste klik</th>
               <th className={`px-3 py-2 ${label} text-center`}>Kliks</th>
@@ -408,7 +433,7 @@ export default function OutreachTab() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-xs text-gray-500">Geen bureaus binnen dit filter.</td>
+                <td colSpan={9} className="px-3 py-6 text-xs text-gray-500">Geen bureaus binnen dit filter.</td>
               </tr>
             ) : (
               rows.map((p) => <ProspectRow key={p.slug} p={p} onSaved={applyPatch} />)
@@ -416,7 +441,7 @@ export default function OutreachTab() {
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-gray-600 border-t border-white/5">
-          Kliks = aantal verschillende dagen met een niet-bot-klik. Rijen met een klik en status Nog niet benaderd of Verzonden staan bovenaan.
+          Kliks = aantal verschillende dagen met een bevestigde klik. Een klik binnen 2 minuten na verzenden telt niet mee en staat als &quot;scanner?&quot;, want dat is de linkcontrole van de mailserver. Rijen met een bevestigde klik en status Nog niet benaderd of Verzonden staan bovenaan.
         </div>
       </div>
 

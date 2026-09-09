@@ -1,9 +1,11 @@
 // ops-outreach — the Outreach tab of the Ops console.
 //
 // Reads the prospect list joined with per-slug click stats, the three header
-// counters and the raw click log; writes exactly two columns (status,
-// notities). Admin-gated; everything runs through the service role because
-// outreach_prospects / outreach_clicks have RLS on with zero policies.
+// counters and the raw click log; writes the two hand-edited columns (status,
+// notities) plus verzonden_op, which is stamped automatically when a bureau is
+// flipped to 'verzonden' and feeds the scanner filter. Admin-gated; everything
+// runs through the service role because outreach_prospects / outreach_clicks
+// have RLS on with zero policies.
 //
 // Actions: list | update
 
@@ -28,6 +30,9 @@ const ok = (body: Json, corsHeaders: Record<string, string>) =>
 const STATUS_SET = new Set<string>(OUTREACH_STATUSES);
 const NOTES_MAX = 4000;
 const RAW_LOG_ROWS = 100;
+// Mirrors the interval in the outreach_prospect_stats view. A non-bot click
+// inside this window after the mail went out is treated as a link scanner.
+const SUSPECT_WINDOW_MS = 2 * 60 * 1000;
 
 /** Start of today in Europe/Amsterdam, as an ISO instant. */
 function startOfTodayAmsterdam(now = new Date()): string {
@@ -84,7 +89,7 @@ serve(async (req) => {
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -114,12 +119,19 @@ serve(async (req) => {
           eerste_klik: (s?.eerste_klik as string | null) ?? null,
           laatste_klik: (s?.laatste_klik as string | null) ?? null,
           bot_kliks: Number(s?.bot_kliks ?? 0),
+          // Split on send time: a click in the first two minutes is scanner
+          // shaped. The tab counts and sorts on the confirmed numbers.
+          kliks_verdacht: Number(s?.kliks_verdacht ?? 0),
+          kliks_bevestigd: Number(s?.kliks_bevestigd ?? 0),
+          dagen_bevestigd: Number(s?.dagen_bevestigd ?? 0),
+          eerste_bevestigde_klik: (s?.eerste_bevestigde_klik as string | null) ?? null,
+          laatste_bevestigde_klik: (s?.laatste_bevestigde_klik as string | null) ?? null,
         };
       });
 
       const counters = {
         prospects: prospects.length,
-        prospects_with_click: prospects.filter((p) => p.kliks_totaal > 0).length,
+        prospects_with_click: prospects.filter((p) => p.kliks_bevestigd > 0).length,
         clicks_today: todayRes.count ?? 0,
       };
 
@@ -127,11 +139,29 @@ serve(async (req) => {
         new Set(prospects.map((p) => p.campaign as string | null).filter(Boolean) as string[]),
       ).sort();
 
-      return ok({ prospects, counters, campaigns, log: logRes.data ?? [] }, corsHeaders);
+      // Flag each raw-log row the same way the stats view does, so the log can
+      // show WHY a click did not count without the browser knowing the rule.
+      const sentBySlug = new Map(
+        (prospectsRes.data ?? [])
+          .filter((p) => p.verzonden_op)
+          .map((p) => [p.slug as string, Date.parse(p.verzonden_op as string)]),
+      );
+      const log = (logRes.data ?? []).map((row) => {
+        const sent = sentBySlug.get(row.slug as string);
+        const at = Date.parse(row.created_at as string);
+        return {
+          ...row,
+          verdacht:
+            !row.is_bot && sent !== undefined && at >= sent && at < sent + SUSPECT_WINDOW_MS,
+        };
+      });
+
+      return ok({ prospects, counters, campaigns, log }, corsHeaders);
     }
 
     // ── update ──────────────────────────────────────────────────────────────
-    // The only two hand-edited fields. Anything else on the body is ignored.
+    // status and notities are the hand-edited fields; verzonden_op is normally
+    // stamped here rather than typed. Anything else on the body is ignored.
     if (action === 'update') {
       const slug = String(body.slug ?? '').trim();
       if (!slug) return errorResponse('slug required', 400, corsHeaders);
@@ -152,15 +182,45 @@ serve(async (req) => {
         }
         patch.notities = notes.trim() || null;
       }
-      if (!('status' in patch) && !('notities' in patch)) {
+      // An explicit send time, for backfilling a batch that went out before
+      // the auto-stamp existed. Null clears it.
+      if ('verzonden_op' in body) {
+        const raw = body.verzonden_op;
+        if (raw == null || raw === '') {
+          patch.verzonden_op = null;
+        } else {
+          const parsed = Date.parse(String(raw));
+          if (Number.isNaN(parsed)) {
+            return errorResponse('verzonden_op must be an ISO timestamp', 400, corsHeaders);
+          }
+          patch.verzonden_op = new Date(parsed).toISOString();
+        }
+      }
+
+      if (!('status' in patch) && !('notities' in patch) && !('verzonden_op' in patch)) {
         return errorResponse('Nothing to update', 400, corsHeaders);
+      }
+
+      // Flipping a bureau to 'verzonden' IS the record that the mail went out,
+      // so stamp the time then and there unless one is already known. Without
+      // it the scanner filter has nothing to measure against, and asking for a
+      // separate date entry per row is exactly the busywork this avoids.
+      if (patch.status === 'verzonden' && !('verzonden_op' in patch)) {
+        const { data: current } = await supabase
+          .from('outreach_prospects')
+          .select('verzonden_op')
+          .eq('slug', slug)
+          .maybeSingle();
+        if (current && !current.verzonden_op) {
+          patch.verzonden_op = new Date().toISOString();
+        }
       }
 
       const { data, error } = await supabase
         .from('outreach_prospects')
         .update(patch)
         .eq('slug', slug)
-        .select('slug, status, notities, updated_at')
+        .select('slug, status, notities, verzonden_op, updated_at')
         .maybeSingle();
       if (error) throw error;
       if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
