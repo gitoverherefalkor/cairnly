@@ -119,3 +119,10 @@ verify_jwt = true
 # is rate-limited in-function.
 [functions.partner-public]
 verify_jwt = false
+
+# Server-to-server hit log for outreach links: called by the Vercel Edge
+# Middleware (middleware.ts) when /demo is opened with a utm_content, so there
+# is no user JWT. The function only accepts requests that carry utm_content,
+# is rate-limited, and can do nothing but insert into outreach_clicks.
+[functions.outreach-click]
+verify_jwt = false
