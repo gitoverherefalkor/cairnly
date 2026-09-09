@@ -93,9 +93,11 @@ serve(async (req) => {
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
+        // Rows, not a head count: "clicks today" has to apply the same scanner
+        // rule as everything else, and that needs each row's slug and time.
         supabase
           .from('outreach_clicks')
-          .select('id', { count: 'exact', head: true })
+          .select('slug, created_at')
           .eq('is_bot', false)
           .gte('created_at', startOfTodayAmsterdam()),
         supabase
@@ -129,32 +131,35 @@ serve(async (req) => {
         };
       });
 
+      // Send time per slug, used by both the "today" counter and the raw log.
+      const sentBySlug = new Map(
+        (prospectsRes.data ?? [])
+          .filter((p) => p.verzonden_op)
+          .map((p) => [p.slug as string, Date.parse(p.verzonden_op as string)]),
+      );
+      const isSuspect = (slug: unknown, createdAt: unknown): boolean => {
+        const sent = sentBySlug.get(slug as string);
+        if (sent === undefined) return false;
+        const at = Date.parse(createdAt as string);
+        return at >= sent && at < sent + SUSPECT_WINDOW_MS;
+      };
+
       const counters = {
         prospects: prospects.length,
         prospects_with_click: prospects.filter((p) => p.kliks_bevestigd > 0).length,
-        clicks_today: todayRes.count ?? 0,
+        clicks_today: (todayRes.data ?? []).filter((r) => !isSuspect(r.slug, r.created_at)).length,
       };
 
       const campaigns = Array.from(
         new Set(prospects.map((p) => p.campaign as string | null).filter(Boolean) as string[]),
       ).sort();
 
-      // Flag each raw-log row the same way the stats view does, so the log can
-      // show WHY a click did not count without the browser knowing the rule.
-      const sentBySlug = new Map(
-        (prospectsRes.data ?? [])
-          .filter((p) => p.verzonden_op)
-          .map((p) => [p.slug as string, Date.parse(p.verzonden_op as string)]),
-      );
-      const log = (logRes.data ?? []).map((row) => {
-        const sent = sentBySlug.get(row.slug as string);
-        const at = Date.parse(row.created_at as string);
-        return {
-          ...row,
-          verdacht:
-            !row.is_bot && sent !== undefined && at >= sent && at < sent + SUSPECT_WINDOW_MS,
-        };
-      });
+      // Flag each raw-log row the same way, so the log shows WHY a click did
+      // not count without the browser needing to know the rule.
+      const log = (logRes.data ?? []).map((row) => ({
+        ...row,
+        verdacht: !row.is_bot && isSuspect(row.slug, row.created_at),
+      }));
 
       return ok({ prospects, counters, campaigns, log }, corsHeaders);
     }

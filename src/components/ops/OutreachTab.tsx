@@ -367,7 +367,7 @@ export default function OutreachTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {counter('Bureaus in seed', data.counters.prospects, 'rijen in outreach_prospects')}
         {counter('Bureaus met klik', data.counters.prospects_with_click, 'minstens een bevestigde klik')}
-        {counter('Kliks vandaag', data.counters.clicks_today, 'niet-bot, Amsterdamse dag')}
+        {counter('Kliks vandaag', data.counters.clicks_today, 'bevestigd, Amsterdamse dag')}
       </div>
 
       <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
