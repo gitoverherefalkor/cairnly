@@ -41,30 +41,38 @@ export function isChunkLoadError(error: unknown): boolean {
   );
 }
 
+/**
+ * The retry-then-reload-once dance, usable for any dynamic import — not just
+ * React.lazy route chunks. lazyWithRetry (below) is one caller; the demo
+ * fixture/translation loaders in src/demo/loadFixture.ts are another, since
+ * those are plain `import()` calls that React.lazy never sees.
+ */
+export async function loadChunkWithRetry<T>(factory: () => Promise<T>): Promise<T> {
+  try {
+    return await factory();
+  } catch (err) {
+    if (!isChunkLoadError(err)) throw err;
+
+    // 1. One silent retry — transient network hiccup, no reload needed.
+    try {
+      return await factory();
+    } catch {
+      // 2. Still failing → stale deploy. Reload once (guarded) to get fresh
+      //    HTML. Keep the caller's loading state up until the reload takes over.
+      const last = Number(sessionStorage.getItem(RELOAD_TS_KEY) || 0);
+      if (Date.now() - last > RELOAD_LOOP_WINDOW_MS) {
+        sessionStorage.setItem(RELOAD_TS_KEY, String(Date.now()));
+        window.location.reload();
+        return new Promise<T>(() => {}); // never resolves; reload wins
+      }
+      // 3. We already reloaded and it's still broken → let the caller handle it.
+      throw err;
+    }
+  }
+}
+
 export function lazyWithRetry<T extends ComponentType<unknown>>(
   factory: () => Promise<{ default: T }>,
 ) {
-  return lazy(async () => {
-    try {
-      return await factory();
-    } catch (err) {
-      if (!isChunkLoadError(err)) throw err;
-
-      // 1. One silent retry — transient network hiccup, no reload needed.
-      try {
-        return await factory();
-      } catch {
-        // 2. Still failing → stale deploy. Reload once (guarded) to get fresh
-        //    HTML. Keep the Suspense spinner up until the reload takes over.
-        const last = Number(sessionStorage.getItem(RELOAD_TS_KEY) || 0);
-        if (Date.now() - last > RELOAD_LOOP_WINDOW_MS) {
-          sessionStorage.setItem(RELOAD_TS_KEY, String(Date.now()));
-          window.location.reload();
-          return new Promise<{ default: T }>(() => {}); // never resolves; reload wins
-        }
-        // 3. We already reloaded and it's still broken → let the boundary show.
-        throw err;
-      }
-    }
-  });
+  return lazy(() => loadChunkWithRetry(factory));
 }

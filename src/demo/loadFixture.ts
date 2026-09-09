@@ -1,5 +1,6 @@
 // Which frozen session /demo shows, and the hand-written overlay on top.
 import type { DemoCuration, DemoFixture, DemoTranslation } from './types';
+import { loadChunkWithRetry } from '@/lib/lazyWithRetry';
 import marcelCuration from './fixtures/marcel.nl.curation.json';
 import emmaCuration from './fixtures/emma.en.curation.json';
 
@@ -133,10 +134,10 @@ export function chooseFixture(lang: string | undefined, personaOverride?: string
     firstName: persona.firstName,
     isFallback: short !== persona.language,
     load: async (uiLanguage?: string) => {
-      const fixture = await persona.load();
+      const fixture = await loadChunkWithRetry(persona.load);
       const ui = (uiLanguage || short).slice(0, 2).toLowerCase();
       const translation = ui !== persona.language ? persona.translations[ui] : undefined;
-      return translation ? applyTranslation(fixture, await translation()) : fixture;
+      return translation ? applyTranslation(fixture, await loadChunkWithRetry(translation)) : fixture;
     },
     curation: persona.curation,
     pdfLanguages: persona.pdfLanguages,
