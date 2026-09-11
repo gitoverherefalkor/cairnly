@@ -9,7 +9,7 @@ import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
 import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
-import PartnersTab from '@/components/ops/PartnersTab';
+import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 
 // Project ref for Supabase deep-links from the dashboard.
@@ -1095,6 +1095,8 @@ export default function Ops() {
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  // "Partner aanmaken" on an outreach row hands name + slug to the Partners tab.
+  const [partnerDraft, setPartnerDraft] = useState<PartnerDraft | null>(null);
 
   const isAdmin = !authLoading && !!user && isAdminEmail(user.email);
 
@@ -1431,14 +1433,20 @@ export default function Ops() {
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Onboard a white-label partner end to end: save their name and logo, mint a batch of codes, and copy the signup links straight into an email. One code is one person. Everything runs through the admin-gated ops-partners function, so nothing here touches Supabase directly.
               </div>
-              <PartnersTab />
+              <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
             </TabsContent>
 
             <TabsContent value="outreach" className="mt-4">
               <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
                 Wie van de aangeschreven bureaus heeft de demo geopend. Kliks komen binnen via de utm_content in de maillink en worden server-side gelogd (geen IP). Alleen status en notities zijn hier bewerkbaar; de rest is afgeleid.
               </div>
-              <OutreachTab />
+              <OutreachTab
+                onCreatePartner={(d) => {
+                  setPartnerDraft(d);
+                  setActiveTab('partners');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
             </TabsContent>
 
             <TabsContent value="marketing" className="mt-4">

@@ -9,6 +9,12 @@
 // comes in here as base64 on the JSON body and is decoded and uploaded here.
 //
 // Actions: list | save | mint | setActive
+//
+// Outreach hand-off: `save` may carry a `prospectSlug` (the bureau in the
+// Outreach tab this partner is for). The prospect is then linked to the
+// partner and its status moves to partner_aangemaakt; `mint` moves a linked
+// prospect to codes_gemint. Both go through outreach_advance_status, which
+// never lowers a status.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -190,7 +196,29 @@ serve(async (req) => {
         .single();
       if (saveErr) throw saveErr;
 
-      return ok({ partner: saved }, corsHeaders);
+      // Came from "Partner aanmaken" on an outreach row: link and advance.
+      const prospectSlug = body.prospectSlug ? String(body.prospectSlug).trim() : '';
+      let prospect: Json | null = null;
+      if (prospectSlug) {
+        const { data: linked, error: linkErr } = await supabase
+          .from('outreach_prospects')
+          .update({ partner_slug: slug, updated_at: new Date().toISOString() })
+          .eq('slug', prospectSlug)
+          .select('slug')
+          .maybeSingle();
+        if (linkErr) throw linkErr;
+        if (linked) {
+          const { data: status, error: advErr } = await supabase.rpc('outreach_advance_status', {
+            p_slug: prospectSlug,
+            p_status: 'partner_aangemaakt',
+            p_at: new Date().toISOString(),
+          });
+          if (advErr) throw advErr;
+          prospect = { slug: prospectSlug, status };
+        }
+      }
+
+      return ok({ partner: saved, prospect }, corsHeaders);
     }
 
     // ── mint ────────────────────────────────────────────────────────────────
@@ -213,6 +241,21 @@ serve(async (req) => {
       if (error) throw error;
 
       const codes = (data ?? []).map((r: { code: string }) => r.code);
+
+      // Any outreach bureau linked to this partner now has codes.
+      const { data: linked } = await supabase
+        .from('outreach_prospects')
+        .select('slug')
+        .eq('partner_slug', slug);
+      for (const p of linked ?? []) {
+        const { error: advErr } = await supabase.rpc('outreach_advance_status', {
+          p_slug: p.slug,
+          p_status: 'codes_gemint',
+          p_at: new Date().toISOString(),
+        });
+        if (advErr) console.error('[ops-partners] advance codes_gemint failed', p.slug, advErr);
+      }
+
       return ok(
         { codes, links: codes.map((c: string) => candidateLink(slug, c, lang)) },
         corsHeaders,

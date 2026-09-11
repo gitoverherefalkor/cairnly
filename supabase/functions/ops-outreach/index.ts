@@ -1,9 +1,11 @@
 // ops-outreach — the Outreach tab of the Ops console.
 //
-// Reads the prospect list joined with per-slug click stats, the three header
-// counters and the raw click log; writes the two hand-edited columns (status,
-// notities) plus verzonden_op, which is stamped automatically when a bureau is
-// flipped to 'verzonden' and feeds the scanner filter. Admin-gated; everything
+// Reads the prospect list joined with per-slug click stats, the mail log
+// (phase 3: what went out, what came back, the reply draft state), the linked
+// partner, the three header counters and the raw click log; writes the two
+// hand-edited columns (status, notities) plus verzonden_op, which is stamped
+// automatically when a bureau is flipped to 'verzonden' and feeds the scanner
+// filter. Admin-gated; everything
 // runs through the service role because outreach_prospects / outreach_clicks
 // have RLS on with zero policies.
 //
@@ -30,6 +32,8 @@ const ok = (body: Json, corsHeaders: Record<string, string>) =>
 const STATUS_SET = new Set<string>(OUTREACH_STATUSES);
 const NOTES_MAX = 4000;
 const RAW_LOG_ROWS = 100;
+const MAILS_MAX = 2000;
+const MAILS_PER_PROSPECT = 12;
 // Mirrors the interval in the outreach_prospect_stats view. A non-bot click
 // inside this window after the mail went out is treated as a link scanner.
 const SUSPECT_WINDOW_MS = 2 * 60 * 1000;
@@ -85,11 +89,11 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, todayRes, logRes] = await Promise.all([
+      const [prospectsRes, statsRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -105,17 +109,52 @@ serve(async (req) => {
           .select('id, slug, campaign, persona, p, utm_source, utm_medium, user_agent, referer, is_bot, created_at')
           .order('created_at', { ascending: false })
           .limit(RAW_LOG_ROWS),
+        // Mail log (phase 3): newest first, folded per bureau below.
+        supabase
+          .from('outreach_mails')
+          .select('id, slug, direction, kind, from_email, to_email, subject, snippet, sent_at, sentiment, samenvatting, draft_id, status_voor, status_na')
+          .not('slug', 'is', null)
+          .order('sent_at', { ascending: false })
+          .limit(MAILS_MAX),
+        // Linked partners and how many codes they hold.
+        supabase.from('partner_code_status').select('slug, name, codes_issued, codes_claimed, reports_completed'),
       ]);
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
       if (todayRes.error) throw todayRes.error;
       if (logRes.error) throw logRes.error;
+      if (mailsRes.error) throw mailsRes.error;
+      if (partnersRes.error) throw partnersRes.error;
+
+      const mailsBySlug = new Map<string, Json[]>();
+      for (const m of mailsRes.data ?? []) {
+        const list = mailsBySlug.get(m.slug as string) ?? [];
+        if (list.length < MAILS_PER_PROSPECT) list.push(m as Json);
+        mailsBySlug.set(m.slug as string, list);
+      }
+      const partnerBySlug = new Map((partnersRes.data ?? []).map((r) => [r.slug as string, r]));
 
       const statsBySlug = new Map((statsRes.data ?? []).map((s) => [s.slug as string, s]));
       const prospects = (prospectsRes.data ?? []).map((p) => {
         const s = statsBySlug.get(p.slug as string);
+        // Mail-derived state. `needs_reply`: their mail is the newest thing in
+        // the conversation, so Sjoerd is up (a draft usually waits in Gmail).
+        const mails = mailsBySlug.get(p.slug as string) ?? [];
+        const latest = mails[0] ?? null;
+        const latestIn = mails.find((m) => m.direction === 'in') ?? null;
+        const partner = p.partner_slug ? partnerBySlug.get(p.partner_slug as string) : undefined;
         return {
           ...p,
+          partner_naam: (partner?.name as string | null) ?? null,
+          codes_issued: Number(partner?.codes_issued ?? 0),
+          codes_claimed: Number(partner?.codes_claimed ?? 0),
+          mails,
+          laatste_mail_op: (latest?.sent_at as string | null) ?? null,
+          laatste_mail_richting: (latest?.direction as 'in' | 'out' | null) ?? null,
+          laatste_sentiment: (latestIn?.sentiment as string | null) ?? null,
+          laatste_samenvatting: (latestIn?.samenvatting as string | null) ?? null,
+          concept_klaar: Boolean(latestIn?.draft_id) && latest === latestIn,
+          needs_reply: latest !== null && latest.direction === 'in' && latest.sentiment !== 'auto',
           kliks_totaal: Number(s?.kliks_totaal ?? 0),
           kliks_uniek_dagen: Number(s?.kliks_uniek_dagen ?? 0),
           eerste_klik: (s?.eerste_klik as string | null) ?? null,

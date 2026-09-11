@@ -67,15 +67,27 @@ function fileToBase64(file: File): Promise<string> {
 
 // ─── Add / edit form ─────────────────────────────────────────────────────────
 
+export interface PartnerDraft {
+  name: string;
+  slug: string;
+  /** The outreach bureau this partner is for; saving links it and advances its status. */
+  prospectSlug: string;
+}
+
 function PartnerForm({
   onSaved,
   editing,
   onCancelEdit,
+  draft = null,
+  onDraftConsumed,
 }: {
   onSaved: () => void;
   /** Partner being edited; null means the form adds a new one. */
   editing: Partner | null;
   onCancelEdit: () => void;
+  /** Prefill from the Outreach tab ("Partner aanmaken"). */
+  draft?: PartnerDraft | null;
+  onDraftConsumed?: () => void;
 }) {
   const [slug, setSlug] = useState('');
   const [name, setName] = useState('');
@@ -91,10 +103,25 @@ function PartnerForm({
   // future /p/:slug URL) while the display name is not.
   const [slugTouched, setSlugTouched] = useState(false);
 
+  const [prospectSlug, setProspectSlug] = useState<string | null>(null);
+
   const reset = () => {
     setSlug(''); setName(''); setPoweredBy(''); setFile(null); setSlugTouched(false);
+    setProspectSlug(null);
     if (fileInput.current) fileInput.current.value = '';
   };
+
+  // Handed over from the Outreach tab: name and slug filled in, and the
+  // prospect remembered so the save can link the two.
+  useEffect(() => {
+    if (!draft) return;
+    setName(draft.name);
+    setSlug(draft.slug);
+    setSlugTouched(true);
+    setProspectSlug(draft.prospectSlug);
+    setErr(null);
+    setOkMsg(null);
+  }, [draft]);
 
   // "Edit" on a partner card lands here: prefill the form with what is stored
   // and lock the slug. The save action is the same upsert-on-slug the add
@@ -129,14 +156,16 @@ function PartnerForm({
         name,
         poweredByText: poweredBy || null,
       };
+      if (prospectSlug) payload.prospectSlug = prospectSlug;
       if (file) {
         payload.logoBase64 = await fileToBase64(file);
         payload.logoMime = file.type;
       }
       await callPartners(payload);
-      setOkMsg(editing ? `${name} updated.` : 'Saved.');
+      setOkMsg(editing ? `${name} updated.` : prospectSlug ? `Saved and linked to outreach bureau ${prospectSlug}.` : 'Saved.');
       reset();
       if (editing) onCancelEdit();
+      if (prospectSlug) onDraftConsumed?.();
       onSaved();
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to save');
@@ -207,6 +236,12 @@ function PartnerForm({
           </span>
         )}
       </label>
+
+      {prospectSlug && !editing && (
+        <div className="text-[11px] text-atlas-teal">
+          From the Outreach tab: saving links bureau <span className="font-mono">{prospectSlug}</span> to this partner and sets its status to Partner aangemaakt.
+        </div>
+      )}
 
       {err && <div className="text-xs text-red-400">{err}</div>}
       {okMsg && <div className="text-xs text-emerald-400">{okMsg}</div>}
@@ -328,7 +363,7 @@ function MintRow({ partner }: { partner: Partner }) {
 
 // ─── Tab ─────────────────────────────────────────────────────────────────────
 
-const PartnersTab: React.FC = () => {
+const PartnersTab: React.FC<{ draft?: PartnerDraft | null; onDraftConsumed?: () => void }> = ({ draft = null, onDraftConsumed }) => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -360,7 +395,7 @@ const PartnersTab: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <PartnerForm onSaved={load} editing={null} onCancelEdit={() => {}} />
+      <PartnerForm onSaved={load} editing={null} onCancelEdit={() => {}} draft={draft} onDraftConsumed={onDraftConsumed} />
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-200">Partners</h3>

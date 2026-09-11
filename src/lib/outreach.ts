@@ -8,9 +8,12 @@ export const OUTREACH_STATUSES = [
   'verzonden',
   'opvolging_1',
   'opvolging_2',
+  'gereageerd',
   'gesprek_gepland',
   'gesprek_gevoerd',
   'pilot_afgesproken',
+  'partner_aangemaakt',
+  'codes_gemint',
   'pilot_gestart',
   'founding_partner',
   'afgewezen',
@@ -24,14 +27,46 @@ export const STATUS_LABELS: Record<OutreachStatus, string> = {
   verzonden: 'Verzonden',
   opvolging_1: 'Opvolging 1',
   opvolging_2: 'Opvolging 2',
+  gereageerd: 'Gereageerd',
   gesprek_gepland: 'Gesprek gepland',
   gesprek_gevoerd: 'Gesprek gevoerd',
   pilot_afgesproken: 'Pilot afgesproken',
+  partner_aangemaakt: 'Partner aangemaakt',
+  codes_gemint: 'Codes gemint',
   pilot_gestart: 'Pilot gestart',
   founding_partner: 'Founding partner',
   afgewezen: 'Afgewezen',
   geen_fit: 'Geen fit',
 };
+
+export type MailSentiment = 'positief' | 'code' | 'vraag' | 'later' | 'afwijzing' | 'auto' | 'overig';
+
+export const SENTIMENT_LABELS: Record<MailSentiment, string> = {
+  positief: 'Positief',
+  code: 'Wil code',
+  vraag: 'Vraag',
+  later: 'Later',
+  afwijzing: 'Afwijzing',
+  auto: 'Auto-reply',
+  overig: 'Overig',
+};
+
+/** One row of outreach_mails, as the tab shows it. */
+export interface OutreachMail {
+  id: string;
+  direction: 'in' | 'out';
+  kind: 'eerste' | 'opvolging' | 'antwoord' | 'reactie';
+  from_email: string | null;
+  to_email: string | null;
+  subject: string | null;
+  snippet: string | null;
+  sent_at: string;
+  sentiment: MailSentiment | null;
+  samenvatting: string | null;
+  draft_id: string | null;
+  status_voor: string | null;
+  status_na: string | null;
+}
 
 export interface OutreachProspect {
   slug: string;
@@ -60,6 +95,21 @@ export interface OutreachProspect {
   dagen_bevestigd: number;
   eerste_bevestigde_klik: string | null;
   laatste_bevestigde_klik: string | null;
+  /** Phase 3: partner hand-off. */
+  partner_slug: string | null;
+  partner_naam: string | null;
+  codes_issued: number;
+  codes_claimed: number;
+  /** Phase 3: mail log, newest first, capped. */
+  mails: OutreachMail[];
+  laatste_mail_op: string | null;
+  laatste_mail_richting: 'in' | 'out' | null;
+  laatste_sentiment: MailSentiment | null;
+  laatste_samenvatting: string | null;
+  /** The newest mail is theirs and a Gmail draft is waiting for it. */
+  concept_klaar: boolean;
+  /** The newest mail is theirs (not an auto-reply): Sjoerd is up. */
+  needs_reply: boolean;
 }
 
 /**
@@ -77,10 +127,14 @@ export function isWarm(p: Pick<OutreachProspect, 'kliks_bevestigd' | 'status'>):
 }
 
 /**
- * Default order: warm rows first, then most recent confirmed click first (rows
- * without one last), then tier A before B before C, then name for stability.
+ * Default order: bureaus waiting for OUR reply first (their mail is the newest
+ * thing in the thread), then warm rows, then most recent confirmed click first
+ * (rows without one last), then tier A before B before C, then name.
  */
 export function compareProspects(a: OutreachProspect, b: OutreachProspect): number {
+  const reply = Number(Boolean(b.needs_reply)) - Number(Boolean(a.needs_reply));
+  if (reply !== 0) return reply;
+
   const warm = Number(isWarm(b)) - Number(isWarm(a));
   if (warm !== 0) return warm;
 

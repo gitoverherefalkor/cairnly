@@ -126,3 +126,11 @@ verify_jwt = false
 # is rate-limited, and can do nothing but insert into outreach_clicks.
 [functions.outreach-click]
 verify_jwt = false
+
+# Outreach mail sync: called by n8n WF11 (schedule + Gmail), not by a user, so
+# no JWT. Gated by the x-shared-secret header (N8N_SHARED_SECRET), same as the
+# other n8n → Supabase calls. Reads outreach_prospects, writes outreach_mails,
+# advances statuses through outreach_advance_status, mints a test code through
+# outreach_code_request when a bureau asks for one. Never sends mail.
+[functions.outreach-mail-sync]
+verify_jwt = false

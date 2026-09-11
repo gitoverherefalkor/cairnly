@@ -24,6 +24,17 @@ const base: OutreachProspect = {
   dagen_bevestigd: 0,
   eerste_bevestigde_klik: null,
   laatste_bevestigde_klik: null,
+  partner_slug: null,
+  partner_naam: null,
+  codes_issued: 0,
+  codes_claimed: 0,
+  mails: [],
+  laatste_mail_op: null,
+  laatste_mail_richting: null,
+  laatste_sentiment: null,
+  laatste_samenvatting: null,
+  concept_klaar: false,
+  needs_reply: false,
 };
 
 const make = (over: Partial<OutreachProspect>): OutreachProspect => ({ ...base, ...over });
@@ -96,5 +107,13 @@ describe('compareProspects', () => {
       kliks_totaal: 1, kliks_bevestigd: 1, laatste_bevestigde_klik: '2026-09-09T15:00:00Z',
     });
     expect([scanner, real].sort(compareProspects).map((r) => r.slug)).toEqual(['real', 'scanner']);
+  });
+});
+
+describe('needs_reply', () => {
+  it('sorts a bureau that wrote back above a warm click', () => {
+    const replied = make({ slug: 'r', needs_reply: true });
+    const warm = make({ slug: 'w', kliks_bevestigd: 2, laatste_bevestigde_klik: '2026-09-10T10:00:00Z', status: 'verzonden' });
+    expect([warm, replied].sort(compareProspects).map((p) => p.slug)).toEqual(['r', 'w']);
   });
 });
