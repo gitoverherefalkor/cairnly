@@ -9,11 +9,11 @@
 // then mint a batch of codes and copy the ready-made /p/:slug landing links straight into
 // an email. The table shows how far each batch actually got.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, Copy, Check, Building2, RefreshCw } from 'lucide-react';
+import { Loader2, Upload, Copy, Check, Building2, RefreshCw, Pencil, X } from 'lucide-react';
 
 interface Partner {
   partner_id: string;
@@ -67,7 +67,16 @@ function fileToBase64(file: File): Promise<string> {
 
 // ─── Add / edit form ─────────────────────────────────────────────────────────
 
-function PartnerForm({ onSaved }: { onSaved: () => void }) {
+function PartnerForm({
+  onSaved,
+  editing,
+  onCancelEdit,
+}: {
+  onSaved: () => void;
+  /** Partner being edited; null means the form adds a new one. */
+  editing: Partner | null;
+  onCancelEdit: () => void;
+}) {
   const [slug, setSlug] = useState('');
   const [name, setName] = useState('');
   const [poweredBy, setPoweredBy] = useState('');
@@ -75,11 +84,32 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [okMsg, setOkMsg] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   // Suggest a slug from the name so the common case needs no thought, but let
   // it be overridden: the slug is permanent (it is the storage path and the
   // future /p/:slug URL) while the display name is not.
   const [slugTouched, setSlugTouched] = useState(false);
+
+  const reset = () => {
+    setSlug(''); setName(''); setPoweredBy(''); setFile(null); setSlugTouched(false);
+    if (fileInput.current) fileInput.current.value = '';
+  };
+
+  // "Edit" on a partner card lands here: prefill the form with what is stored
+  // and lock the slug. The save action is the same upsert-on-slug the add
+  // path uses, so an edit that leaves the logo empty keeps the current logo.
+  useEffect(() => {
+    if (!editing) return;
+    setSlug(editing.slug);
+    setSlugTouched(true);
+    setName(editing.name);
+    setPoweredBy(editing.powered_by_text ?? '');
+    setFile(null);
+    if (fileInput.current) fileInput.current.value = '';
+    setErr(null);
+    setOkMsg(null);
+  }, [editing]);
   const suggestSlug = (v: string) =>
     v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
@@ -104,8 +134,9 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
         payload.logoMime = file.type;
       }
       await callPartners(payload);
-      setOkMsg('Saved.');
-      setSlug(''); setName(''); setPoweredBy(''); setFile(null); setSlugTouched(false);
+      setOkMsg(editing ? `${name} updated.` : 'Saved.');
+      reset();
+      if (editing) onCancelEdit();
       onSaved();
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to save');
@@ -117,7 +148,16 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
-        <Building2 className="h-4 w-4" /> Add or update a partner
+        {editing ? <Pencil className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
+        {editing ? `Edit partner: ${editing.name}` : 'Add a partner'}
+        {editing && (
+          <button
+            onClick={() => { reset(); onCancelEdit(); }}
+            className="ml-auto inline-flex items-center gap-1 text-[11px] font-normal text-gray-500 hover:text-gray-300"
+          >
+            <X className="h-3 w-3" /> Cancel
+          </button>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -136,7 +176,8 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
             value={slugTouched ? slug : suggestSlug(name)}
             onChange={(e) => { setSlugTouched(true); setSlug(e.target.value); }}
             placeholder="loopbaanbureau-noord"
-            className="mt-1 bg-black/30 border-white/10 font-mono text-xs"
+            disabled={Boolean(editing)}
+            className="mt-1 bg-black/30 border-white/10 font-mono text-xs disabled:opacity-60"
           />
         </label>
       </div>
@@ -154,6 +195,7 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
       <label className="block">
         <span className="text-xs text-gray-400">Logo: SVG, PNG or JPG, max 256 KB. Ask for SVG if they have it. A JPG must be drawn on a white background, since it cannot be transparent.</span>
         <input
+          ref={fileInput}
           type="file"
           accept="image/png,image/svg+xml,image/jpeg"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
@@ -171,10 +213,12 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
 
       <Button onClick={save} disabled={saving || !name} size="sm" className="bg-atlas-teal hover:bg-atlas-teal/90">
         {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
-        Save partner
+        {editing ? 'Save changes' : 'Save partner'}
       </Button>
       <p className="text-[11px] text-gray-500">
-        Saving an existing slug updates that partner. Leaving the logo empty keeps the current one.
+        {editing
+          ? 'The slug cannot change: it is the storage path and the /p/ URL already handed out. Leaving the logo empty keeps the current one.'
+          : 'Saving an existing slug updates that partner. Leaving the logo empty keeps the current one.'}
       </p>
     </div>
   );
@@ -183,7 +227,7 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
 // ─── Mint codes ──────────────────────────────────────────────────────────────
 
 function MintRow({ partner }: { partner: Partner }) {
-  const [count, setCount] = useState('10');
+  const [count, setCount] = useState('5');
   const [expires, setExpires] = useState('');
   const [lang, setLang] = useState<'nl' | 'en'>('nl');
   const [busy, setBusy] = useState(false);
@@ -309,9 +353,20 @@ const PartnersTab: React.FC = () => {
     void load();
   };
 
+  // Which partner the form at the top is editing, if any. The form scrolls
+  // into view so a click on a card further down does not appear to do nothing.
+  const [editing, setEditing] = useState<Partner | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const startEdit = (p: Partner) => {
+    setEditing(p);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className="space-y-4">
-      <PartnerForm onSaved={load} />
+      <div ref={formRef}>
+        <PartnerForm onSaved={load} editing={editing} onCancelEdit={() => setEditing(null)} />
+      </div>
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-200">Partners</h3>
@@ -336,7 +391,13 @@ const PartnersTab: React.FC = () => {
             <span className="font-mono text-[11px] text-gray-500">{p.slug}</span>
             {!p.has_logo && <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-300">no logo</span>}
             {!p.is_active && <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] text-red-300">inactive</span>}
-            <button onClick={() => toggle(p)} className="ml-auto text-[11px] text-gray-500 hover:text-gray-300">
+            <button
+              onClick={() => startEdit(p)}
+              className="ml-auto inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-200"
+            >
+              <Pencil className="h-3 w-3" /> Edit
+            </button>
+            <button onClick={() => toggle(p)} className="text-[11px] text-gray-500 hover:text-gray-300">
               {p.is_active ? 'Deactivate' : 'Activate'}
             </button>
           </div>
