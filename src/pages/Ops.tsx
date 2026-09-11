@@ -159,9 +159,9 @@ function severityColor(s: Severity) {
 }
 
 function severityLabel(s: Severity) {
-  if (s === 'blocker') return '🔴 Blocker';
-  if (s === 'needs-action') return '🟡 Needs action';
-  return '⚪ FYI';
+  if (s === 'blocker') return 'Blocker';
+  if (s === 'needs-action') return 'Needs action';
+  return 'FYI';
 }
 
 function sourceLabel(s: Source) {
@@ -178,9 +178,14 @@ function indicatorColor(i: string) {
 }
 
 function indicatorDot(i: string) {
-  if (i === 'critical' || i === 'major') return '🔴';
-  if (i === 'minor') return '🟡';
-  return '🟢';
+  if (i === 'critical' || i === 'major') return '#F87171';
+  if (i === 'minor') return '#FBBF24';
+  return '#34D399';
+}
+
+/** Status dot. Replaces the emoji circles the console used to render. */
+function Dot({ color, className = '' }: { color: string; className?: string }) {
+  return <span className={`h-[7px] w-[7px] rounded-full shrink-0 ${className}`} style={{ background: color }} />;
 }
 
 function fmtDate(ts: string) {
@@ -392,7 +397,7 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-sm hover:underline"
             >
-              <span>{data ? indicatorDot(data.indicator) : '⚫'}</span>
+              <Dot color={data ? indicatorDot(data.indicator) : 'rgba(255,255,255,0.30)'} />
               <span className={data ? indicatorColor(data.indicator) : 'text-white/60'}>
                 {name}
               </span>
@@ -427,11 +432,11 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
 
 function deployVisual(state: string): { dot: string; color: string; label: string } {
   const s = state.toUpperCase();
-  if (s === 'READY') return { dot: '🟢', color: 'text-emerald-400', label: 'Ready' };
-  if (s === 'ERROR' || s === 'CANCELED') return { dot: '🔴', color: 'text-red-400', label: s === 'ERROR' ? 'Failed' : 'Canceled' };
+  if (s === 'READY') return { dot: '#34D399', color: 'text-emerald-400', label: 'Ready' };
+  if (s === 'ERROR' || s === 'CANCELED') return { dot: '#F87171', color: 'text-red-400', label: s === 'ERROR' ? 'Failed' : 'Canceled' };
   if (s === 'BUILDING' || s === 'QUEUED' || s === 'INITIALIZING')
-    return { dot: '🟡', color: 'text-amber-400', label: s.charAt(0) + s.slice(1).toLowerCase() };
-  return { dot: '⚫', color: 'text-white/60', label: state };
+    return { dot: '#FBBF24', color: 'text-amber-400', label: s.charAt(0) + s.slice(1).toLowerCase() };
+  return { dot: 'rgba(255,255,255,0.30)', color: 'text-white/60', label: state };
 }
 
 function DeployStrip({ deploy }: { deploy: DeployInfo | null }) {
@@ -445,12 +450,12 @@ function DeployStrip({ deploy }: { deploy: DeployInfo | null }) {
       className={`flex items-center gap-2 ${GLASS} px-4 py-2.5 text-xs hover:border-white/25 transition-colors`}
     >
       <span className="font-semibold uppercase tracking-widest text-white/60">Deploy</span>
-      <span>{v.dot}</span>
+      <Dot color={v.dot} />
       <span className={v.color}>{v.label}</span>
       {deploy.commit_message && (
-        <span className="text-white/70 truncate max-w-[280px]">· {deploy.commit_message.split('\n')[0]}</span>
+        <span className="text-white/70 truncate min-w-0 max-w-[150px] xl:max-w-[240px]">· {deploy.commit_message.split('\n')[0]}</span>
       )}
-      {deploy.branch && <span className="text-white/50 font-mono hidden sm:inline">· {deploy.branch}</span>}
+      {deploy.branch && <span className="text-white/50 font-mono hidden xl:inline shrink-0">· {deploy.branch}</span>}
       {deploy.created_at && <span className="text-white/50 ml-auto shrink-0">{timeAgo(deploy.created_at)}</span>}
       <ExternalLink size={11} className="text-white/50 shrink-0" />
     </a>
@@ -1005,8 +1010,8 @@ function PeoplePanel({ people }: { people: Person[] }) {
                   <span className="font-medium text-white/[0.88] text-sm">{p.first_name}</span>
                   {p.country && <span className="text-xs text-white/60">{p.country}</span>}
                   {p.has_resume && (
-                    <span className="text-[11px] text-white/60 border border-white/10 rounded px-1.5 py-0.5">
-                      📄 resume
+                    <span className="text-[11px] text-white/60 border border-white/[0.14] rounded px-1.5 py-0.5">
+                      resume
                     </span>
                   )}
                 </div>
@@ -1555,6 +1560,7 @@ function PipelineBar({ prospects }: { prospects: OutreachProspect[] }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+
 export default function Ops() {
   const { user, isLoading: authLoading } = useAuth();
   const [feed, setFeed] = useState<OpsFeedResponse | null>(null);
@@ -1782,8 +1788,8 @@ export default function Ops() {
     !!(lastVisit && iso && new Date(iso).getTime() > new Date(lastVisit).getTime());
 
   const newBlockers = since(blockers, lastVisit);
-  const newN8n = since(n8nErrors, lastVisit);
-  const newSupport = since(support, lastVisit);
+  const newN8n = since(n8nErrors, lastVisit).filter((i) => i.severity !== 'blocker');
+  const newSupport = since(support, lastVisit).filter((i) => i.severity !== 'blocker');
   const newSignups = lastVisit
     ? people.filter((p) => newerThan(p.signed_up_at)).length
     : 0;
