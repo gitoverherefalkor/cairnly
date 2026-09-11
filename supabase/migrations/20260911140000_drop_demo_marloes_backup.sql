@@ -1,0 +1,21 @@
+-- Drop the stale demo backup table.
+--
+-- `public.demo_marloes_backup_20260828` held a snapshot of the report sections
+-- of report ff7a062b-bb97-4644-9c49-0dda5b54d2c0, taken on 2026-08-28 before a
+-- re-run of the Dutch demo persona. That report no longer exists, the persona
+-- has since been renamed (Marloes → Marcel) and re-recorded twice, and the
+-- living copy of that content is the committed fixture
+-- src/demo/fixtures/marcel.nl.json. Nothing in the codebase reads the table:
+-- its only mention was the generated entry in src/integrations/supabase/types.ts,
+-- removed in the same commit.
+--
+-- The reason to do it now rather than "whenever convenient": the table was
+-- created without RLS, so PostgREST served all 17 rows to anyone holding the
+-- publishable key (verified 2026-09-11). The content is a fabricated persona,
+-- so nothing personal leaked, but it was an open table on a public API for no
+-- reason. Every other table returns zero rows to an anonymous caller.
+--
+-- A JSON dump of the 17 rows was taken before writing this migration; the
+-- fixture in the repo is the durable copy.
+
+DROP TABLE IF EXISTS public.demo_marloes_backup_20260828;
