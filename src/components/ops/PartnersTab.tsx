@@ -152,10 +152,10 @@ function PartnerForm({ onSaved }: { onSaved: () => void }) {
       </label>
 
       <label className="block">
-        <span className="text-xs text-gray-400">Logo — PNG or SVG, max 256 KB. Ask for SVG if they have it.</span>
+        <span className="text-xs text-gray-400">Logo: SVG, PNG or JPG, max 256 KB. Ask for SVG if they have it. A JPG must be drawn on a white background, since it cannot be transparent.</span>
         <input
           type="file"
-          accept="image/png,image/svg+xml"
+          accept="image/png,image/svg+xml,image/jpeg"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="mt-1 block w-full text-xs text-gray-400 file:mr-3 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-xs file:text-gray-200"
         />

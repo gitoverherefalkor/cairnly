@@ -22,7 +22,22 @@ import { isAdminEmail } from '../_shared/admins.ts';
 
 const BUCKET = 'partner-logos';
 const MAX_LOGO_BYTES = 256 * 1024;
-const ALLOWED_MIME = new Set(['image/png', 'image/svg+xml']);
+// JPEG is allowed even though it has no transparency: both places a partner
+// logo is rendered sit on pure white (the white band on the report cover and
+// the white plate on /p/:slug), so a logo exported on a white background is
+// indistinguishable from a transparent PNG there. A logo drawn on a DARK
+// background will show as a dark rectangle; that is the one case to send back.
+// 'image/jpg' is not a real MIME type but some browsers report it, so accept
+// it and normalise below.
+const ALLOWED_MIME = new Set(['image/png', 'image/svg+xml', 'image/jpeg', 'image/jpg']);
+
+/** Canonical MIME + file extension per accepted upload. */
+const MIME_CANON: Record<string, { mime: string; ext: string }> = {
+  'image/png': { mime: 'image/png', ext: 'png' },
+  'image/svg+xml': { mime: 'image/svg+xml', ext: 'svg' },
+  'image/jpeg': { mime: 'image/jpeg', ext: 'jpg' },
+  'image/jpg': { mime: 'image/jpeg', ext: 'jpg' },
+};
 
 // The slug becomes a storage path segment and, later, the /p/:slug landing
 // route. Keep it to what is safe in both.
@@ -132,8 +147,9 @@ serve(async (req) => {
       if (body.logoBase64) {
         const mime = String(body.logoMime ?? '');
         if (!ALLOWED_MIME.has(mime)) {
-          return errorResponse('Logo must be a PNG or an SVG.', 400, corsHeaders);
+          return errorResponse('Logo must be a PNG, SVG or JPG.', 400, corsHeaders);
         }
+        const canon = MIME_CANON[mime];
         let bytes: Uint8Array;
         try {
           bytes = decodeBase64(String(body.logoBase64));
@@ -147,12 +163,15 @@ serve(async (req) => {
             corsHeaders,
           );
         }
-        logoPath = `${slug}/logo.${mime === 'image/svg+xml' ? 'svg' : 'png'}`;
-        logoMime = mime;
+        // Switching format leaves the previous logo.<ext> orphaned in the
+        // bucket. Harmless: nothing points at it any more, and the row below
+        // is what every reader resolves.
+        logoPath = `${slug}/logo.${canon.ext}`;
+        logoMime = canon.mime;
 
         const { error: upErr } = await supabase.storage
           .from(BUCKET)
-          .upload(logoPath, bytes, { contentType: mime, upsert: true });
+          .upload(logoPath, bytes, { contentType: canon.mime, upsert: true });
         if (upErr) throw upErr;
       }
 
