@@ -4,13 +4,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy, Settings, Check, X } from 'lucide-react';
+import {
+  Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy,
+  Settings, Check, X, ChevronRight, Users, Activity, BarChart3, Wrench,
+} from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
+import { isWarm, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -122,12 +125,37 @@ const SUPPORT_CATEGORIES: Record<string, string> = {
   something_else: 'Something else',
 };
 
+// ─── Surfaces ─────────────────────────────────────────────────────────────────
+//
+// The ops console used to paint `bg-black/25` panels on the app's teal-navy
+// canvas, which is why it read as a dark hole: near-black on dark, with body
+// text at text-white/70/500/600. These are the assessment dashboard's own
+// glass cards (src/components/dashboard/v2/dashboardV2Shared.tsx and
+// DashboardV4.tsx) — same rgba, same blur, same hairline, same gold eyebrow —
+// so Ops stops being a visual island and becomes legible at the same time.
+
+/** Standard panel. Sits on the photo+gradient ground. */
+const GLASS =
+  'rounded-[18px] border border-white/[0.08] bg-[rgba(18,46,59,0.55)] backdrop-blur-[14px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]';
+/** Lifted panel — used once, for the "since your last visit" bar. */
+const GLASS_RAISED =
+  'rounded-[20px] border border-white/10 bg-[rgba(18,46,59,0.62)] backdrop-blur-[18px] shadow-[0_40px_80px_-28px_rgba(0,0,0,0.55)]';
+/** A surface nested inside a panel (an AI-read box, a bar track). */
+const INNER = 'rounded-xl bg-white/[0.04] border border-white/[0.06]';
+/** Gold section label. */
+const EYEBROW = 'font-heading font-bold text-[11px] tracking-[0.24em] uppercase text-[#EFBE48]';
+/** The same, when it labels a number rather than a section. */
+const EYEBROW_QUIET = 'font-heading font-bold text-[11px] tracking-[0.24em] uppercase text-white/55';
+/** Small pill-shaped control. Nothing in Ops goes below 11px or below white/50. */
+const CHIP =
+  'inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.05] px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white';
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function severityColor(s: Severity) {
   if (s === 'blocker') return 'bg-red-500/15 text-red-400 border-red-500/30';
   if (s === 'needs-action') return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
-  return 'bg-gray-500/15 text-gray-400 border-gray-500/30';
+  return 'bg-gray-500/15 text-white/70 border-gray-500/30';
 }
 
 function severityLabel(s: Severity) {
@@ -178,7 +206,7 @@ function timeAgo(ts: string): string {
 }
 
 const STAGE_META: Record<Stage, { label: string; color: string; order: number }> = {
-  signed_up: { label: '①  Signed up', color: 'bg-gray-500/15 text-gray-300 border-gray-500/30', order: 0 },
+  signed_up: { label: '①  Signed up', color: 'bg-gray-500/15 text-white/80 border-gray-500/30', order: 0 },
   survey: { label: '②  Survey', color: 'bg-blue-500/15 text-blue-300 border-blue-500/30', order: 1 },
   processing: { label: '③  Processing', color: 'bg-purple-500/15 text-purple-300 border-purple-500/30', order: 2 },
   report_ready: { label: '④  Report ready', color: 'bg-teal-500/15 text-teal-300 border-teal-500/30', order: 3 },
@@ -196,6 +224,54 @@ function countryFlag(country: string | null): string {
     Canada: '🇨🇦', Australia: '🇦🇺', India: '🇮🇳', Portugal: '🇵🇹',
   };
   return map[country] ?? '🌐';
+}
+
+// ─── Shell config ─────────────────────────────────────────────────────────────
+
+type MainTab = 'partners' | 'platform' | 'stats';
+
+/** A single "what changed" chip in the visit bar. */
+interface Delta {
+  label: string;
+  color: string;
+  onClick?: () => void;
+}
+
+const LAST_VISIT_KEY = 'ops_last_visit';
+const OPEN_SECTIONS_KEY = 'ops_open_sections';
+const OPS_BG_URL = '/dashboard/sections/development-tilted-stone.jpg';
+
+/** Outreach and n8n errors are what you open the console for; the rest wait. */
+const DEFAULT_OPEN: Record<string, boolean> = {
+  outreach: true,
+  partners: false,
+  blockers: true,
+  n8n: true,
+  support: false,
+  feedback: false,
+  misses: false,
+  usage: false,
+  marketing: false,
+};
+
+/** Newest item in a queue, for the collapsed header line. */
+function newestLine(items: OpsItem[]): string | null {
+  if (items.length === 0) return null;
+  const newest = [...items].sort(
+    (a, b) => new Date(getItemTs(b)).getTime() - new Date(getItemTs(a)).getTime(),
+  )[0];
+  const ts = getItemTs(newest);
+  return `Newest: ${newest.summary}${ts ? ` — ${timeAgo(ts)}` : ''}`;
+}
+
+/** Items whose timestamp is newer than the given ISO string. */
+function since(items: OpsItem[], iso: string | null): OpsItem[] {
+  if (!iso) return [];
+  const cut = new Date(iso).getTime();
+  return items.filter((i) => {
+    const t = new Date(getItemTs(i) || i.analyzed_at).getTime();
+    return Number.isFinite(t) && t > cut;
+  });
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -276,7 +352,7 @@ function ActionButton({
   children: React.ReactNode;
 }) {
   const cls =
-    'inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-white/15 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/5 transition-colors';
+    'inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/5 transition-colors';
   if (href) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
@@ -302,10 +378,10 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
   ];
 
   return (
-    <Card className="border border-white/10 bg-black/25">
+    <Card className={GLASS}>
       <CardContent className="py-3 px-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+          <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
             Provider status
           </span>
           {providers.map(({ name, data, url }) => (
@@ -317,14 +393,14 @@ function ProviderBanner({ status }: { status: OpsFeedResponse['provider_status']
               className="flex items-center gap-1.5 text-sm hover:underline"
             >
               <span>{data ? indicatorDot(data.indicator) : '⚫'}</span>
-              <span className={data ? indicatorColor(data.indicator) : 'text-gray-500'}>
+              <span className={data ? indicatorColor(data.indicator) : 'text-white/60'}>
                 {name}
               </span>
               {data && data.indicator !== 'none' && (
                 <span className="text-xs text-amber-400">— {data.description}</span>
               )}
-              {!data && <span className="text-xs text-gray-600">— unreachable</span>}
-              <ExternalLink size={11} className="text-gray-600" />
+              {!data && <span className="text-xs text-white/50">— unreachable</span>}
+              <ExternalLink size={11} className="text-white/50" />
             </a>
           ))}
         </div>
@@ -355,7 +431,7 @@ function deployVisual(state: string): { dot: string; color: string; label: strin
   if (s === 'ERROR' || s === 'CANCELED') return { dot: '🔴', color: 'text-red-400', label: s === 'ERROR' ? 'Failed' : 'Canceled' };
   if (s === 'BUILDING' || s === 'QUEUED' || s === 'INITIALIZING')
     return { dot: '🟡', color: 'text-amber-400', label: s.charAt(0) + s.slice(1).toLowerCase() };
-  return { dot: '⚫', color: 'text-gray-500', label: state };
+  return { dot: '⚫', color: 'text-white/60', label: state };
 }
 
 function DeployStrip({ deploy }: { deploy: DeployInfo | null }) {
@@ -366,48 +442,18 @@ function DeployStrip({ deploy }: { deploy: DeployInfo | null }) {
       href={deploy.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-4 py-2 text-xs hover:border-white/30 transition-colors"
+      className={`flex items-center gap-2 ${GLASS} px-4 py-2.5 text-xs hover:border-white/25 transition-colors`}
     >
-      <span className="font-semibold uppercase tracking-widest text-gray-500">Deploy</span>
+      <span className="font-semibold uppercase tracking-widest text-white/60">Deploy</span>
       <span>{v.dot}</span>
       <span className={v.color}>{v.label}</span>
       {deploy.commit_message && (
-        <span className="text-gray-400 truncate max-w-[280px]">· {deploy.commit_message.split('\n')[0]}</span>
+        <span className="text-white/70 truncate max-w-[280px]">· {deploy.commit_message.split('\n')[0]}</span>
       )}
-      {deploy.branch && <span className="text-gray-600 font-mono hidden sm:inline">· {deploy.branch}</span>}
-      {deploy.created_at && <span className="text-gray-600 ml-auto shrink-0">{timeAgo(deploy.created_at)}</span>}
-      <ExternalLink size={11} className="text-gray-600 shrink-0" />
+      {deploy.branch && <span className="text-white/50 font-mono hidden sm:inline">· {deploy.branch}</span>}
+      {deploy.created_at && <span className="text-white/50 ml-auto shrink-0">{timeAgo(deploy.created_at)}</span>}
+      <ExternalLink size={11} className="text-white/50 shrink-0" />
     </a>
-  );
-}
-
-// ─── Stats row ────────────────────────────────────────────────────────────────
-
-function StatsRow({ items, onSelect }: { items: OpsItem[]; onSelect: (tab: string) => void }) {
-  const blockers = items.filter((i) => i.severity === 'blocker').length;
-  const support = items.filter((i) => i.source === 'support').length;
-  const n8n = items.filter((i) => i.source === 'n8n_error').length;
-  const misses = items.filter((i) => i.source === 'assessment_miss').length;
-  const feedback = items.filter((i) => i.source === 'chapter_feedback').length;
-
-  const stat = (label: string, count: number, color: string, tab: string) => (
-    <button
-      onClick={() => onSelect(tab)}
-      className={`text-left rounded-lg border px-4 py-3 transition-all hover:brightness-125 hover:border-white/30 ${color}`}
-    >
-      <div className="text-2xl font-bold">{count}</div>
-      <div className="text-xs text-gray-400 mt-0.5">{label}</div>
-    </button>
-  );
-
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-      {stat('Blockers', blockers, blockers > 0 ? 'border-red-500/30 bg-red-500/10' : 'border-white/10 bg-black/25', 'blockers')}
-      {stat('Support open', support, 'border-white/10 bg-black/25', 'support')}
-      {stat('n8n errors', n8n, n8n > 0 ? 'border-amber-500/30 bg-amber-500/10' : 'border-white/10 bg-black/25', 'n8n')}
-      {stat('Assessment misses', misses, 'border-white/10 bg-black/25', 'misses')}
-      {stat('Chat feedback', feedback, 'border-white/10 bg-black/25', 'feedback')}
-    </div>
   );
 }
 
@@ -428,7 +474,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
     const catLabel = SUPPORT_CATEGORIES[raw.category] ?? raw.category ?? 'Support';
     title = catLabel;
     meta = (
-      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mt-1">
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/60 mt-1">
         <span>{raw.email ?? '—'}</span>
         {raw.page && <span className="font-mono truncate max-w-[200px]">{raw.page}</span>}
         {raw.access_code && <span>code: <span className="font-mono">{raw.access_code}</span></span>}
@@ -439,7 +485,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
   if (item.source === 'n8n_error') {
     title = raw.workflow_name ?? 'n8n Error';
     meta = (
-      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mt-1">
+      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-white/60 mt-1">
         {raw.failed_node && <span>Node: <span className="font-mono">{raw.failed_node}</span></span>}
         {raw.id && <span className="font-mono">exec {raw.id}</span>}
       </div>
@@ -450,7 +496,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
     const cat = String(raw.feedback_category ?? '');
     title = cat === '2' ? 'Major AI correction' : 'Minor AI refinement';
     meta = (
-      <div className="text-xs text-gray-500 mt-1">
+      <div className="text-xs text-white/60 mt-1">
         Section: <span className="font-mono">{raw.section_type ?? '—'}</span>
       </div>
     );
@@ -469,7 +515,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
         : raw.feedback;
 
   return (
-    <Card className={`border transition-all ${item.severity === 'blocker' ? 'border-red-500/40 bg-red-500/5' : item.severity === 'needs-action' ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/10 bg-black/25'}`}>
+    <Card className={`border transition-all ${item.severity === 'blocker' ? 'border-red-500/40 bg-red-500/5' : item.severity === 'needs-action' ? 'border-amber-500/30 bg-amber-500/5' : GLASS}`}>
       <CardHeader className="pb-2 pt-4 px-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -480,11 +526,11 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
               >
                 {severityLabel(item.severity)}
               </Badge>
-              <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/20 text-gray-400">
+              <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/20 text-white/70">
                 {sourceLabel(item.source)}
               </Badge>
               {item.stage && item.stage !== 'unknown' && (
-                <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/10 text-gray-500">
+                <Badge variant="outline" className="text-xs px-2 py-0.5 border-white/10 text-white/60">
                   {item.stage}
                 </Badge>
               )}
@@ -494,18 +540,18 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
                 </Badge>
               )}
             </div>
-            <div className="font-medium text-gray-200 text-sm">{title}</div>
+            <div className="font-medium text-white/[0.88] text-sm">{title}</div>
             {meta}
           </div>
-          <div className="text-xs text-gray-600 whitespace-nowrap shrink-0">{fmtDate(ts)}</div>
+          <div className="text-xs text-white/50 whitespace-nowrap shrink-0">{fmtDate(ts)}</div>
         </div>
       </CardHeader>
 
       <CardContent className="px-4 pb-4 space-y-3">
         {/* AI summary */}
-        <div className="bg-black/25 rounded-lg px-3 py-2.5">
-          <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-1">AI read</div>
-          <div className="text-sm text-gray-200">{item.summary}</div>
+        <div className={`${INNER} px-3.5 py-3`}>
+          <div className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-1">AI read</div>
+          <div className="text-sm text-white/[0.88]">{item.summary}</div>
           {item.recommended_action && (
             <div className="text-xs text-atlas-teal mt-1.5">→ {item.recommended_action}</div>
           )}
@@ -516,12 +562,12 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
           <div>
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              className="text-xs text-white/60 hover:text-white transition-colors"
             >
               {expanded ? '▾ Hide detail' : '▸ Show detail'}
             </button>
             {expanded && (
-              <div className="mt-2 text-sm text-gray-300 bg-black/20 rounded-lg px-3 py-2.5 whitespace-pre-wrap max-h-64 overflow-y-auto">
+              <div className={`mt-2 text-sm text-white/80 ${INNER} px-3.5 py-3 whitespace-pre-wrap max-h-64 overflow-y-auto`}>
                 {bodyText}
               </div>
             )}
@@ -533,7 +579,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
           <div>
             <button
               onClick={() => setShowScreenshot((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
             >
               <Image size={12} />
               {showScreenshot ? 'Hide screenshot' : 'Show screenshot'}
@@ -599,7 +645,7 @@ function ItemCard({ item, onDismiss }: { item: OpsItem; onDismiss: (key: string)
 function Feed({ items, onDismiss }: { items: OpsItem[]; onDismiss: (key: string) => void }) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+      <div className="flex flex-col items-center justify-center py-16 text-white/50">
         <CheckCircle2 size={32} className="mb-3 text-emerald-600" />
         <div className="text-sm">Nothing here</div>
       </div>
@@ -635,9 +681,9 @@ function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderS
   return (
     <div className="space-y-4">
       {/* n8n executions */}
-      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-4">
+      <div className={`${GLASS} px-5 py-5`}>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-200">⚙️ n8n executions — {month}</span>
+          <span className="text-sm font-medium text-white/[0.88]">⚙️ n8n executions — {month}</span>
           <a
             href="https://app.n8n.cloud/dashboard"
             target="_blank"
@@ -650,31 +696,31 @@ function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderS
         {usage ? (
           <>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-gray-100">
+              <span className="text-2xl font-bold text-white/[0.92]">
                 {usage.capped ? '5,000+' : usage.executions_this_month.toLocaleString()}
               </span>
-              <span className="text-sm text-gray-500">/ {usage.limit.toLocaleString()} ({pct}%)</span>
+              <span className="text-sm text-white/60">/ {usage.limit.toLocaleString()} ({pct}%)</span>
             </div>
             <div className="mt-2 h-2 rounded-full bg-white/5 overflow-hidden">
               <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
             </div>
-            <div className="text-[11px] text-gray-600 mt-1.5">
+            <div className="text-[11px] text-white/50 mt-1.5">
               Approx from the n8n API (includes Outside Input — same instance). Exact figure on the n8n dashboard.
             </div>
           </>
         ) : (
-          <div className="text-sm text-gray-600">n8n usage unavailable.</div>
+          <div className="text-sm text-white/50">n8n usage unavailable.</div>
         )}
       </div>
 
       {/* AI spend */}
       <div>
-        <div className="text-sm font-medium text-gray-300 mb-2">💰 AI spend — {month} (month to date)</div>
+        <div className="text-sm font-medium text-white/80 mb-2">💰 AI spend — {month} (month to date)</div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {spend.map((p) => (
-            <div key={p.provider} className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
-              <div className="text-2xl font-bold text-gray-100">{fmtMoney(p)}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{p.provider}</div>
+            <div key={p.provider} className={`${GLASS} px-5 py-4`}>
+              <div className="text-2xl font-bold text-white/[0.92]">{fmtMoney(p)}</div>
+              <div className="text-xs text-white/70 mt-0.5">{p.provider}</div>
               {p.error && <div className="text-[11px] text-amber-500 mt-0.5">{p.error}</div>}
             </div>
           ))}
@@ -683,17 +729,17 @@ function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderS
             href="https://console.cloud.google.com/billing"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 hover:border-white/30 transition-colors flex flex-col justify-center"
+            className={`${GLASS} px-5 py-4 hover:border-white/25 transition-colors flex flex-col justify-center`}
           >
-            <div className="text-sm font-medium text-gray-300 flex items-center gap-1">
-              Google <ExternalLink size={11} className="text-gray-600" />
+            <div className="text-sm font-medium text-white/80 flex items-center gap-1">
+              Google <ExternalLink size={11} className="text-white/50" />
             </div>
-            <div className="text-[11px] text-gray-500 mt-0.5">View in GCP Billing</div>
+            <div className="text-[11px] text-white/60 mt-0.5">View in GCP Billing</div>
           </a>
         </div>
         {spend.length === 0 && (
-          <div className="text-xs text-gray-600 mt-2">
-            No provider keys set. Add <span className="font-mono text-gray-400">OPENAI_ADMIN_KEY</span> / <span className="font-mono text-gray-400">ANTHROPIC_ADMIN_KEY</span> as Supabase secrets to enable spend cards.
+          <div className="text-xs text-white/50 mt-2">
+            No provider keys set. Add <span className="font-mono text-white/70">OPENAI_ADMIN_KEY</span> / <span className="font-mono text-white/70">ANTHROPIC_ADMIN_KEY</span> as Supabase secrets to enable spend cards.
           </div>
         )}
       </div>
@@ -706,18 +752,18 @@ function UsagePanel({ usage, spend }: { usage: N8nUsage | null; spend: ProviderS
 function TrafficPanel({ traffic, funnel }: { traffic: TrafficStats | null; funnel: FunnelStats | null }) {
   if (!traffic) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+      <div className="flex flex-col items-center justify-center py-16 text-white/50">
         <div className="text-sm">No traffic data yet</div>
-        <div className="text-xs text-gray-700 mt-1">Collection starts once this is deployed — check back in a bit.</div>
+        <div className="text-xs text-white/50 mt-1">Collection starts once this is deployed — check back in a bit.</div>
       </div>
     );
   }
 
   const stat = (label: string, value: string, sub?: string) => (
-    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
-      <div className="text-2xl font-bold text-gray-100">{value}</div>
-      <div className="text-xs text-gray-400 mt-0.5">{label}</div>
-      {sub && <div className="text-[11px] text-gray-600 mt-0.5">{sub}</div>}
+    <div className={`${GLASS} px-5 py-4`}>
+      <div className="text-2xl font-bold text-white/[0.92]">{value}</div>
+      <div className="text-xs text-white/70 mt-0.5">{label}</div>
+      {sub && <div className="text-[11px] text-white/50 mt-0.5">{sub}</div>}
     </div>
   );
 
@@ -732,19 +778,19 @@ function TrafficPanel({ traffic, funnel }: { traffic: TrafficStats | null; funne
         {stat('Pages / visit', traffic.visits_7d > 0 ? (traffic.pageviews_7d / traffic.visits_7d).toFixed(1) : '—')}
       </div>
 
-      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
-        <div className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Top pages (7d)</div>
+      <div className={`${GLASS} px-5 py-4`}>
+        <div className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-2">Top pages (7d)</div>
         {(traffic.top_pages ?? []).length === 0 ? (
-          <div className="text-sm text-gray-600">No pages yet</div>
+          <div className="text-sm text-white/50">No pages yet</div>
         ) : (
           <div className="space-y-1.5">
             {traffic.top_pages.map((p) => (
               <div key={p.path} className="flex items-center gap-3">
-                <span className="font-mono text-xs text-gray-300 w-40 truncate shrink-0">{p.path}</span>
+                <span className="font-mono text-xs text-white/80 w-40 truncate shrink-0">{p.path}</span>
                 <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
                   <div className="h-full bg-atlas-teal/60 rounded-full" style={{ width: `${(p.views / maxViews) * 100}%` }} />
                 </div>
-                <span className="text-xs text-gray-500 w-10 text-right shrink-0">{p.views}</span>
+                <span className="text-xs text-white/60 w-10 text-right shrink-0">{p.views}</span>
               </div>
             ))}
           </div>
@@ -753,7 +799,7 @@ function TrafficPanel({ traffic, funnel }: { traffic: TrafficStats | null; funne
 
       <FunnelPanel funnel={funnel} />
 
-      <div className="text-xs text-gray-600">
+      <div className="text-xs text-white/50">
         First-party tracking — counts unique per-tab sessions, no cookies or PII. A “bounce” is a visit that saw only one page and left within 10 seconds (engaged sessions don't count). Dev servers, preview deploys, headless browsers and browsers carrying the internal flag (<span className="font-mono">?internal=1</span>) are not counted at all.
       </div>
     </div>
@@ -779,7 +825,7 @@ const MOMENT_ORDER = ['pushback', 'kept', 'pillTag', 'movePill', 'radar', 'askRo
 function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
   if (!funnel) {
     return (
-      <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 text-xs text-gray-600">
+      <div className={`${GLASS} px-5 py-4 text-xs text-white/60`}>
         Demo funnel not available yet — the analytics migration hasn't been applied.
       </div>
     );
@@ -794,8 +840,8 @@ function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
   const maxMoment = Math.max(1, ...moments.map((m) => m.sessions));
 
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3 space-y-4">
-      <div className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+    <div className={`${GLASS} px-5 py-4 space-y-4`}>
+      <div className="text-xs font-semibold uppercase tracking-widest text-white/60">
         Demo funnel ({funnel.days}d)
       </div>
 
@@ -805,17 +851,17 @@ function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
           { label: 'Saw the demo', sessions: funnel.demo_sessions, data: funnel.demo },
           { label: 'Did not', sessions: nonDemo, data: funnel.no_demo },
         ].map(({ label, sessions, data }) => (
-          <div key={label} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2.5">
-            <div className="text-[11px] uppercase tracking-wider text-gray-500">{label}</div>
-            <div className="text-xl font-bold text-gray-100 mt-0.5">{sessions}</div>
-            <div className="text-[11px] text-gray-400 mt-1.5 space-y-0.5">
+          <div key={label} className={`${INNER} px-3.5 py-3`}>
+            <div className="text-[11px] uppercase tracking-wider text-white/60">{label}</div>
+            <div className="text-xl font-bold text-white/[0.92] mt-0.5">{sessions}</div>
+            <div className="text-[11px] text-white/70 mt-1.5 space-y-0.5">
               <div>
-                Intake started <span className="text-gray-200 font-semibold">{data.intake_started}</span>{' '}
-                <span className="text-gray-600">({rate(data.intake_started, sessions)})</span>
+                Intake started <span className="text-white/[0.88] font-semibold">{data.intake_started}</span>{' '}
+                <span className="text-white/50">({rate(data.intake_started, sessions)})</span>
               </div>
               <div>
-                Purchased <span className="text-gray-200 font-semibold">{data.purchase}</span>{' '}
-                <span className="text-gray-600">({rate(data.purchase, sessions)})</span>
+                Purchased <span className="text-white/[0.88] font-semibold">{data.purchase}</span>{' '}
+                <span className="text-white/50">({rate(data.purchase, sessions)})</span>
               </div>
             </div>
           </div>
@@ -824,17 +870,17 @@ function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
 
       {/* How far into the replay they get */}
       <div>
-        <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">
+        <div className="text-[11px] uppercase tracking-wider text-white/60 mb-1.5">
           Depth in the replay (sessions reaching each moment)
         </div>
         <div className="space-y-1">
           {moments.map((m) => (
             <div key={m.key} className="flex items-center gap-3">
-              <span className="text-xs text-gray-400 w-40 truncate shrink-0">{MOMENT_LABELS[m.key] ?? m.key}</span>
+              <span className="text-xs text-white/70 w-40 truncate shrink-0">{MOMENT_LABELS[m.key] ?? m.key}</span>
               <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
                 <div className="h-full bg-atlas-teal/60 rounded-full" style={{ width: `${(m.sessions / maxMoment) * 100}%` }} />
               </div>
-              <span className="text-xs text-gray-500 w-8 text-right shrink-0">{m.sessions}</span>
+              <span className="text-xs text-white/60 w-8 text-right shrink-0">{m.sessions}</span>
             </div>
           ))}
         </div>
@@ -843,27 +889,27 @@ function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
       {/* Who they read, and what sent them in */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">Persona read</div>
+          <div className="text-[11px] uppercase tracking-wider text-white/60 mb-1.5">Persona read</div>
           {funnel.personas.length === 0 ? (
-            <div className="text-xs text-gray-600">Nothing yet</div>
+            <div className="text-xs text-white/50">Nothing yet</div>
           ) : (
             funnel.personas.map((p) => (
-              <div key={p.persona} className="flex justify-between text-xs text-gray-400 py-0.5">
+              <div key={p.persona} className="flex justify-between text-xs text-white/70 py-0.5">
                 <span className="capitalize">{p.persona}</span>
-                <span className="text-gray-200 font-semibold">{p.sessions}</span>
+                <span className="text-white/[0.88] font-semibold">{p.sessions}</span>
               </div>
             ))
           )}
         </div>
         <div>
-          <div className="text-[11px] uppercase tracking-wider text-gray-500 mb-1.5">Entry CTA</div>
+          <div className="text-[11px] uppercase tracking-wider text-white/60 mb-1.5">Entry CTA</div>
           {funnel.entry_ctas.length === 0 ? (
-            <div className="text-xs text-gray-600">Nothing yet</div>
+            <div className="text-xs text-white/50">Nothing yet</div>
           ) : (
             funnel.entry_ctas.slice(0, 6).map((c) => (
-              <div key={c.cta_id} className="flex justify-between gap-2 text-xs text-gray-400 py-0.5">
+              <div key={c.cta_id} className="flex justify-between gap-2 text-xs text-white/70 py-0.5">
                 <span className="font-mono truncate">{c.cta_id}</span>
-                <span className="text-gray-200 font-semibold shrink-0">{c.sessions}</span>
+                <span className="text-white/[0.88] font-semibold shrink-0">{c.sessions}</span>
               </div>
             ))
           )}
@@ -878,7 +924,7 @@ function FunnelPanel({ funnel }: { funnel: FunnelStats | null }) {
 function PeoplePanel({ people }: { people: Person[] }) {
   if (people.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-600">
+      <div className="flex flex-col items-center justify-center py-16 text-white/50">
         <div className="text-sm">No signups in the last 30 days</div>
       </div>
     );
@@ -924,16 +970,16 @@ function PeoplePanel({ people }: { people: Person[] }) {
           <div className="space-y-1.5">
             {stalledStages.map((s) => (
               <div key={s} className="flex items-center gap-3">
-                <span className="text-xs text-gray-300 w-32 truncate shrink-0">
+                <span className="text-xs text-white/80 w-32 truncate shrink-0">
                   {STAGE_META[s].label.replace(/^[①②③④⑤⑥]\s+/, '')}
                 </span>
-                <div className="flex-1 h-2 rounded-full bg-black/30 overflow-hidden">
+                <div className="flex-1 h-2 rounded-full bg-white/[0.07] overflow-hidden">
                   <div
                     className="h-full bg-amber-500/70 rounded-full"
                     style={{ width: `${(stalledByStage[s] / maxStalled) * 100}%` }}
                   />
                 </div>
-                <span className="text-xs text-gray-400 w-8 text-right shrink-0">{stalledByStage[s]}</span>
+                <span className="text-xs text-white/70 w-8 text-right shrink-0">{stalledByStage[s]}</span>
               </div>
             ))}
           </div>
@@ -949,22 +995,22 @@ function PeoplePanel({ people }: { people: Person[] }) {
           return (
             <div
               key={p.user_id}
-              className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-4 py-3"
+              className={`flex items-center gap-3 ${GLASS} px-4 py-3`}
             >
               <span className="text-xl shrink-0" title={p.country ?? 'Unknown country'}>
                 {countryFlag(p.country)}
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-gray-200 text-sm">{p.first_name}</span>
-                  {p.country && <span className="text-xs text-gray-500">{p.country}</span>}
+                  <span className="font-medium text-white/[0.88] text-sm">{p.first_name}</span>
+                  {p.country && <span className="text-xs text-white/60">{p.country}</span>}
                   {p.has_resume && (
-                    <span className="text-[10px] text-gray-500 border border-white/10 rounded px-1.5 py-0.5">
+                    <span className="text-[11px] text-white/60 border border-white/10 rounded px-1.5 py-0.5">
                       📄 resume
                     </span>
                   )}
                 </div>
-                <div className="text-xs text-gray-500 mt-0.5">{p.detail}</div>
+                <div className="text-xs text-white/60 mt-0.5">{p.detail}</div>
               </div>
               <div className="text-right shrink-0">
                 <Badge
@@ -973,7 +1019,7 @@ function PeoplePanel({ people }: { people: Person[] }) {
                 >
                   {STAGE_META[p.stage].label}
                 </Badge>
-                <div className={`text-[11px] mt-1 ${isStuck ? 'text-amber-400' : 'text-gray-600'}`}>
+                <div className={`text-[11px] mt-1 ${isStuck ? 'text-amber-400' : 'text-white/50'}`}>
                   joined {timeAgo(p.signed_up_at)} · active {timeAgo(p.last_activity_at)}
                 </div>
               </div>
@@ -1041,12 +1087,12 @@ function RerunReportCard() {
   };
 
   return (
-    <div className="rounded-xl border border-white/10 bg-black/25 px-4 py-4">
+    <div className={`${GLASS} px-5 py-5`}>
       <div className="flex items-center gap-2 mb-1">
         <RefreshCw size={15} className="text-emerald-400" />
-        <h2 className="text-sm font-semibold text-gray-100">Re-run a report</h2>
+        <h2 className="text-sm font-semibold text-white/[0.92]">Re-run a report</h2>
       </div>
-      <p className="text-xs text-gray-500 mb-3">
+      <p className="text-xs text-white/60 mb-3">
         Enter a user's email (uses their latest report) or a report ID. Re-fires the WF1 → WF4
         pipeline from the saved answers, clearing old sections first so nothing duplicates.
         This regenerates the report and may email the user.
@@ -1058,14 +1104,14 @@ function RerunReportCard() {
           placeholder="email or report ID"
           spellCheck={false}
           disabled={busy}
-          className="flex-1 bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 font-mono"
+          className="flex-1 bg-[#0E2531] border border-white/15 rounded-lg px-3 py-2 text-sm text-white/90 placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 font-mono"
         />
         <Button
           variant="outline"
           size="sm"
           disabled={busy}
           onClick={() => run(true)}
-          className="border-white/20 text-gray-400 hover:text-gray-100"
+          className="border-white/20 text-white/70 hover:text-white"
         >
           Dry run
         </Button>
@@ -1080,7 +1126,7 @@ function RerunReportCard() {
         </Button>
       </div>
       {result && (
-        <pre className="mt-3 text-[11px] text-gray-400 bg-black/30 rounded-lg px-3 py-2 overflow-x-auto whitespace-pre-wrap">
+        <pre className={`mt-3 text-[11px] text-white/70 ${INNER} px-3 py-2 overflow-x-auto whitespace-pre-wrap`}>
           {result}
         </pre>
       )}
@@ -1088,15 +1134,447 @@ function RerunReportCard() {
   );
 }
 
+// ─── Shell: top bar, delta bar, tabs, collapsible sections ────────────────────
+
+/**
+ * "Since your last visit" needs a previous timestamp. A single-admin console
+ * doesn't warrant a table for it, so it lives in localStorage: we read the
+ * stored value once on mount (that's the one we compare against for the whole
+ * session) and immediately stamp "now", so the next visit measures from when
+ * this one started. First ever visit → null → the bar shows nothing.
+ */
+function useLastVisit(): string | null {
+  const [since] = useState<string | null>(() => {
+    try {
+      const prev = localStorage.getItem(LAST_VISIT_KEY);
+      localStorage.setItem(LAST_VISIT_KEY, new Date().toISOString());
+      return prev;
+    } catch {
+      return null;
+    }
+  });
+  return since;
+}
+
+/** Which sections are expanded, remembered between visits. */
+function useOpenSections() {
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    try {
+      const raw = localStorage.getItem(OPEN_SECTIONS_KEY);
+      if (raw) return { ...DEFAULT_OPEN, ...JSON.parse(raw) };
+    } catch {
+      /* ignore */
+    }
+    return DEFAULT_OPEN;
+  });
+  const toggle = useCallback((key: string) => {
+    setOpen((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem(OPEN_SECTIONS_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+  return { open, toggle };
+}
+
+/** Cream bar, same spec as the assessment dashboard's DashboardAppNav. */
+function OpsTopBar({
+  lastFetched,
+  newAnalyzed,
+  loading,
+  onRefresh,
+}: {
+  lastFetched: string | null;
+  newAnalyzed: number;
+  loading: boolean;
+  onRefresh: () => void;
+}) {
+  return (
+    <header
+      className="px-4 sm:px-8 flex items-center justify-between sticky top-0 z-50"
+      style={{ background: '#ECE4D2', borderBottom: '1px solid #C9B690', paddingTop: 11, paddingBottom: 11 }}
+    >
+      <div className="flex items-center gap-3.5">
+        <span className="font-heading font-bold text-[19px] tracking-[-0.02em]" style={{ color: '#122E3B' }}>
+          Cairnly
+        </span>
+        <span
+          className="font-heading font-bold text-[11px] tracking-[0.24em] rounded-full px-2.5 py-1"
+          style={{ color: '#1F8282', border: '1px solid rgba(31,130,130,0.35)', background: 'rgba(39,161,161,0.10)' }}
+        >
+          OPS
+        </span>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="text-xs hidden sm:inline" style={{ color: '#4B6373' }}>
+          {lastFetched ? `Refreshed ${lastFetched}` : 'Loading…'}
+          {newAnalyzed ? ` · ${newAnalyzed} newly analyzed` : ''}
+          {' · auto every 5 min'}
+        </span>
+        <button
+          onClick={onRefresh}
+          disabled={loading}
+          className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[13px] font-semibold disabled:opacity-60"
+          style={{ border: '1px solid #C9B690', background: '#F5EFE2', color: '#122E3B' }}
+        >
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+          Refresh
+        </button>
+      </div>
+    </header>
+  );
+}
+
+/** One delta chip in the "since your last visit" bar. */
+function DeltaChip({ color, children, onClick }: { color: string; children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <button onClick={onClick} className={CHIP}>
+      <span className="h-[7px] w-[7px] rounded-full shrink-0" style={{ background: color }} />
+      {children}
+    </button>
+  );
+}
+
+/**
+ * The bar that answers "what happened while I was away". Present on all three
+ * tabs — it replaces the old Overview tab, whose four numbers were duplicated
+ * on the tabs they linked to.
+ */
+function VisitBar({ since, deltas }: { since: string | null; deltas: Delta[] }) {
+  if (!since) return null;
+  const when = new Date(since).toLocaleString('en-GB', {
+    weekday: 'long', hour: '2-digit', minute: '2-digit',
+  });
+  return (
+    <div className={`${GLASS_RAISED} px-6 py-5 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-7`}>
+      <div className="shrink-0">
+        <div className={EYEBROW}>Since your last visit</div>
+        <div className="text-[13px] text-white/60 mt-1.5">
+          {when} · {timeAgo(since)}
+        </div>
+      </div>
+      <div className="hidden lg:block w-px self-stretch bg-white/10 shrink-0" />
+      <div className="flex flex-wrap gap-2 flex-1">
+        {deltas.length === 0 ? (
+          <span className="text-[13px] text-white/55">Nothing new.</span>
+        ) : (
+          deltas.map((d) => (
+            <DeltaChip key={d.label} color={d.color} onClick={d.onClick}>
+              {d.label}
+            </DeltaChip>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Partners · Platform · Stats. */
+function MainTabs({
+  active,
+  onSelect,
+  partnersBadge,
+  platformBadge,
+  platformUrgent,
+}: {
+  active: MainTab;
+  onSelect: (t: MainTab) => void;
+  partnersBadge: number;
+  platformBadge: number;
+  platformUrgent: boolean;
+}) {
+  const tabs: Array<{ id: MainTab; label: string; icon: React.ReactNode; badge: number; urgent?: boolean }> = [
+    { id: 'partners', label: 'Partners', icon: <Users size={17} />, badge: partnersBadge },
+    { id: 'platform', label: 'Platform', icon: <Activity size={17} />, badge: platformBadge, urgent: platformUrgent },
+    { id: 'stats', label: 'Stats', icon: <BarChart3 size={17} />, badge: 0 },
+  ];
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tabs.map((t) => {
+        const on = active === t.id;
+        return (
+          <button
+            key={t.id}
+            onClick={() => onSelect(t.id)}
+            className={`inline-flex items-center gap-2.5 font-heading font-semibold text-[14.5px] px-5 py-2.5 rounded-xl border transition-all ${
+              on
+                ? 'bg-[rgba(236,228,210,0.95)] text-[#122E3B] border-[rgba(201,182,144,0.6)] shadow-[0_10px_26px_-12px_rgba(0,0,0,0.55)]'
+                : 'bg-[rgba(18,46,59,0.45)] text-white/65 border-white/[0.08] hover:text-white/90 hover:border-white/20'
+            }`}
+          >
+            {t.icon}
+            {t.label}
+            {t.badge > 0 && (
+              <span
+                className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-bold ${
+                  t.urgent
+                    ? 'bg-red-500 text-white'
+                    : on
+                      ? 'bg-[rgba(212,160,36,0.22)] text-[#8A6410]'
+                      : 'bg-[rgba(239,190,72,0.18)] text-[#EFBE48]'
+                }`}
+              >
+                {t.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * A tab is already an overview: the header carries the count and the newest
+ * line, and you expand the ones you want. Collapsed state is remembered.
+ */
+function SectionCard({
+  id,
+  title,
+  subtitle,
+  pills,
+  open,
+  onToggle,
+  tone = 'normal',
+  children,
+}: {
+  id: string;
+  title: string;
+  subtitle?: React.ReactNode;
+  pills?: React.ReactNode;
+  open: boolean;
+  onToggle: (id: string) => void;
+  tone?: 'normal' | 'blocker';
+  children: React.ReactNode;
+}) {
+  const shell =
+    tone === 'blocker'
+      ? 'rounded-[18px] border border-red-400/35 bg-red-500/[0.07] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]'
+      : GLASS;
+  return (
+    <div className={shell}>
+      <button
+        onClick={() => onToggle(id)}
+        aria-expanded={open}
+        className="flex items-center gap-3.5 w-full text-left px-6 py-[18px] group"
+      >
+        <ChevronRight
+          size={18}
+          className={`shrink-0 text-white/55 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
+        />
+        <div className="flex-1 min-w-0">
+          <h2 className="font-heading font-semibold text-[17px] text-white/[0.92] tracking-[-0.01em] group-hover:text-white m-0">
+            {title}
+          </h2>
+          {subtitle && <div className="text-[12.5px] text-white/55 mt-1 truncate">{subtitle}</div>}
+        </div>
+        {pills && <div className="flex items-center gap-2 shrink-0">{pills}</div>}
+      </button>
+      {open && <div className={`border-t ${tone === 'blocker' ? 'border-red-400/20' : 'border-white/[0.07]'} px-6 py-5`}>{children}</div>}
+    </div>
+  );
+}
+
+/** Count pill used in section headers. */
+function CountPill({ n, tone }: { n: number; tone: 'red' | 'amber' | 'teal' | 'gold' | 'blue' | 'quiet' }) {
+  const map: Record<string, string> = {
+    red: 'bg-red-500/20 text-red-300 border-red-400/40',
+    amber: 'bg-amber-500/16 text-amber-300 border-amber-400/35',
+    teal: 'bg-atlas-teal/16 text-[#2ABFBF] border-[#2ABFBF]/35',
+    gold: 'bg-[rgba(212,160,36,0.16)] text-[#EFBE48] border-[rgba(239,190,72,0.38)]',
+    blue: 'bg-[rgba(57,137,175,0.18)] text-[#7FBCD9] border-[#7FBCD9]/32',
+    quiet: 'bg-white/[0.06] text-white/60 border-white/[0.16]',
+  };
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${map[tone]}`}>
+      {n}
+    </span>
+  );
+}
+
+/** Headline number on a glass tile. */
+function StatTile({
+  label,
+  value,
+  sub,
+  delta,
+  tone = 'normal',
+  onClick,
+}: {
+  label: string;
+  value: React.ReactNode;
+  sub?: React.ReactNode;
+  delta?: string;
+  tone?: 'normal' | 'gold';
+  onClick?: () => void;
+}) {
+  const Tag = onClick ? 'button' : 'div';
+  return (
+    <Tag
+      onClick={onClick}
+      className={`${
+        tone === 'gold'
+          ? 'rounded-[18px] border border-[rgba(239,190,72,0.32)] bg-[rgba(212,160,36,0.09)] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]'
+          : GLASS
+      } px-5 py-5 text-left ${onClick ? 'hover:border-white/25 transition-colors' : ''}`}
+    >
+      <div className={tone === 'gold' ? EYEBROW : EYEBROW_QUIET}>{label}</div>
+      <div className="flex items-baseline gap-2.5 mt-2">
+        <span
+          className={`font-heading font-semibold text-[34px] tracking-[-0.02em] ${
+            tone === 'gold' ? 'text-[#EFBE48]' : 'text-white'
+          }`}
+        >
+          {value}
+        </span>
+        {delta && <span className="text-[12.5px] font-semibold text-emerald-400">{delta}</span>}
+      </div>
+      {sub && <div className="text-xs text-white/55 mt-1">{sub}</div>}
+    </Tag>
+  );
+}
+
+/**
+ * Blockers are the only thing allowed above the tabs, and only while there are
+ * any. No blockers → this renders nothing at all: no band, no tab, no red zero.
+ */
+function BlockerBand({
+  blockers,
+  newCount,
+  onOpen,
+}: {
+  blockers: OpsItem[];
+  newCount: number;
+  onOpen: () => void;
+}) {
+  if (blockers.length === 0) return null;
+  return (
+    <div
+      className="rounded-[20px] border border-red-400/45 px-6 py-5"
+      style={{
+        background: 'linear-gradient(180deg, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0.10) 100%)',
+        boxShadow: '0 40px 80px -28px rgba(0,0,0,0.55)',
+      }}
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-[11px] bg-red-500/20 border border-red-400/40 flex items-center justify-center shrink-0">
+          <AlertTriangle size={21} className="text-red-300" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="font-heading font-bold text-[19px] text-white tracking-[-0.01em]">
+              {newCount > 0
+                ? `${newCount} new blocker${newCount === 1 ? '' : 's'}`
+                : `${blockers.length} open blocker${blockers.length === 1 ? '' : 's'}`}
+            </span>
+            {newCount > 0 && blockers.length > newCount && (
+              <span className="inline-flex items-center rounded-full border border-red-400/40 bg-red-500/20 px-2.5 py-0.5 text-[11px] font-semibold text-red-200">
+                {blockers.length - newCount} still open from before
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-2.5 mt-4">
+            {blockers.slice(0, 3).map((b) => (
+              <div key={b.key} className="flex items-baseline gap-3 flex-wrap">
+                <span className="h-[7px] w-[7px] rounded-full bg-red-400 shrink-0 self-center" />
+                <span className="text-sm text-white/[0.92] font-semibold">{sourceLabel(b.source)}</span>
+                <span className="text-[13px] text-white/70 flex-1 min-w-0">{b.summary}</span>
+                <span className="text-xs text-white/55 shrink-0">{timeAgo(getItemTs(b))}</span>
+              </div>
+            ))}
+            {blockers.length > 3 && (
+              <div className="text-[13px] text-white/60 pl-[19px]">+ {blockers.length - 3} more</div>
+            )}
+          </div>
+          <div className="flex gap-2.5 mt-5">
+            <button
+              onClick={onOpen}
+              className="inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-[13px] font-semibold bg-red-500 text-white shadow-[0_10px_24px_-8px_rgba(239,68,68,0.55)] hover:bg-red-400 transition-colors"
+              style={{ paddingLeft: 18, paddingRight: 18 }}
+            >
+              Go to the blockers
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Partners overview ────────────────────────────────────────────────────────
+//
+// The Partners tab leads with where the outreach pipeline actually stands.
+// OutreachTab fetches its own table (unchanged); this pulls the same list once
+// at page level so the tiles, the pipeline bar and the "since your last visit"
+// deltas can be computed without reaching into that component.
+
+interface OutreachSummary {
+  prospects: OutreachProspect[];
+  withClick: number;
+  clicksToday: number;
+}
+
+/** Every status maps into exactly one bucket, so the bar always sums to the total. */
+const PIPELINE: Array<{ label: string; statuses: OutreachStatus[]; color: string; cap: 'left' | 'right' | null }> = [
+  { label: 'Not contacted', statuses: ['nog_niet_benaderd'], color: 'rgba(255,255,255,0.10)', cap: 'left' },
+  { label: 'Sent', statuses: ['verzonden', 'opvolging_1', 'opvolging_2'], color: 'rgba(39,161,161,0.32)', cap: null },
+  { label: 'Replied', statuses: ['gereageerd'], color: 'rgba(39,161,161,0.58)', cap: null },
+  { label: 'In talks', statuses: ['gesprek_gepland', 'gesprek_gevoerd', 'pilot_afgesproken'], color: 'rgba(42,191,191,0.88)', cap: null },
+  { label: 'Partner', statuses: ['partner_aangemaakt', 'codes_gemint', 'pilot_gestart', 'founding_partner'], color: '#EFBE48', cap: null },
+  { label: 'No fit', statuses: ['afgewezen', 'geen_fit'], color: 'rgba(255,255,255,0.16)', cap: 'right' },
+];
+
+function PipelineBar({ prospects }: { prospects: OutreachProspect[] }) {
+  const buckets = PIPELINE.map((b) => ({
+    ...b,
+    n: prospects.filter((p) => b.statuses.includes(p.status)).length,
+  }));
+  const total = Math.max(1, prospects.length);
+  return (
+    <div className="flex items-end gap-1.5">
+      {buckets.map((b) => (
+        <div key={b.label} style={{ flex: Math.max(0.25, (b.n / total) * 6) }}>
+          <div
+            className="h-[30px]"
+            style={{
+              background: b.color,
+              borderRadius: b.cap === 'left' ? '6px 2px 2px 6px' : b.cap === 'right' ? '2px 6px 6px 2px' : 2,
+            }}
+          />
+          <div className="text-[11.5px] text-white/55 mt-1.5 truncate">{b.label}</div>
+          <div className="font-heading font-semibold text-[15px] text-white mt-px">{b.n}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
 export default function Ops() {
   const { user, isLoading: authLoading } = useAuth();
   const [feed, setFeed] = useState<OpsFeedResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  // "Partner aanmaken" on an outreach row hands name + slug to the Partners tab.
+  const [activeTab, setActiveTab] = useState<MainTab>('partners');
+  // "Partner aanmaken" on an outreach row hands name + slug to the Partners section.
   const [partnerDraft, setPartnerDraft] = useState<PartnerDraft | null>(null);
+
+  const lastVisit = useLastVisit();
+  const { open, toggle } = useOpenSections();
+
+  // OutreachTab keeps its own fetch for the table it renders. This second,
+  // page-level read of the same admin-gated function is what lets the Partners
+  // tiles, the pipeline bar and the visit-bar deltas exist without reaching
+  // into that component's state.
+  const [outreach, setOutreach] = useState<OutreachSummary | null>(null);
+  const [outreachLoading, setOutreachLoading] = useState(true);
+  const [outreachError, setOutreachError] = useState<string | null>(null);
 
   const isAdmin = !authLoading && !!user && isAdminEmail(user.email);
 
@@ -1133,9 +1611,46 @@ export default function Ops() {
     }
   }, []);
 
+  const fetchOutreach = useCallback(async () => {
+    setOutreachLoading(true);
+    setOutreachError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const r = await fetch(`${supabaseUrl}/functions/v1/ops-outreach`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+        },
+        body: JSON.stringify({ action: 'list' }),
+      });
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}));
+        throw new Error(body.error ?? `HTTP ${r.status}`);
+      }
+      const data = await r.json();
+      setOutreach({
+        prospects: data.prospects ?? [],
+        withClick: data.counters?.prospects_with_click ?? 0,
+        clicksToday: data.counters?.clicks_today ?? 0,
+      });
+    } catch (e) {
+      setOutreachError(e instanceof Error ? e.message : 'Could not load outreach data');
+    } finally {
+      setOutreachLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAdmin) fetchFeed();
   }, [isAdmin, fetchFeed]);
+
+  useEffect(() => {
+    if (isAdmin) fetchOutreach();
+  }, [isAdmin, fetchOutreach]);
 
   // Auto-refresh every 5 minutes, but skip while the tab is hidden so we don't
   // poll in the background. The pull is light (cached AI + small queries).
@@ -1207,8 +1722,8 @@ export default function Ops() {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-sm">
-          <div className="text-lg font-semibold text-gray-200 mb-2">Sign in required</div>
-          <div className="text-sm text-gray-500 mb-5">
+          <div className="text-lg font-semibold text-white/[0.88] mb-2">Sign in required</div>
+          <div className="text-sm text-white/60 mb-5">
             The ops dashboard is for Cairnly admins. Sign in to continue.
           </div>
           <Button onClick={goToLogin} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
@@ -1224,10 +1739,10 @@ export default function Ops() {
     return (
       <div className="min-h-screen flex items-center justify-center text-center px-4">
         <div className="max-w-sm">
-          <div className="text-lg font-semibold text-gray-200 mb-2">Access restricted</div>
-          <div className="text-sm text-gray-500 mb-1">This page is for Cairnly admins only.</div>
-          <div className="text-xs text-gray-600 mb-5">
-            You're signed in as <span className="text-gray-400">{user.email}</span> — that account isn't on the admin list.
+          <div className="text-lg font-semibold text-white/[0.88] mb-2">Access restricted</div>
+          <div className="text-sm text-white/60 mb-1">This page is for Cairnly admins only.</div>
+          <div className="text-xs text-white/50 mb-5">
+            You're signed in as <span className="text-white/70">{user.email}</span> — that account isn't on the admin list.
           </div>
           <Button onClick={switchAccount} className="bg-atlas-teal hover:bg-atlas-teal/90 text-white">
             Sign in with a different account
@@ -1247,231 +1762,352 @@ export default function Ops() {
   const newThisWeek = people.filter(
     (p) => Date.now() - new Date(p.signed_up_at).getTime() < 7 * 24 * 60 * 60 * 1000,
   ).length;
-
-  const tabLabel = (label: string, count: number) =>
-    count > 0 ? `${label} (${count})` : label;
-
   const traffic = feed?.traffic ?? null;
   const stalled = people.filter(
     (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
   );
   const stuckCount = stalled.length;
-  const stalledByStage = stalled.reduce<Record<string, number>>((acc, p) => {
-    acc[p.stage] = (acc[p.stage] ?? 0) + 1;
-    return acc;
-  }, {});
-  const leakiestEntry = Object.entries(stalledByStage).sort((a, b) => b[1] - a[1])[0];
-  const leakiestLabel = leakiestEntry
-    ? STAGE_META[leakiestEntry[0] as Stage].label.replace(/^[①②③④⑤⑥]\s+/, '')
-    : null;
 
-  const heroTone: Record<string, string> = {
-    red: 'border-red-500/30 bg-red-500/10',
-    amber: 'border-amber-500/30 bg-amber-500/10',
-    teal: 'border-atlas-teal/30 bg-atlas-teal/10',
-    blue: 'border-blue-500/30 bg-blue-500/10',
-    neutral: 'border-white/10 bg-black/25',
+  // ── Outreach, summarised ────────────────────────────────────────────────
+  const prospects = outreach?.prospects ?? [];
+  const contacted = prospects.filter((p) => p.status !== 'nog_niet_benaderd').length;
+  const awaitingReply = prospects.filter((p) => p.needs_reply).length;
+  const warmCount = prospects.filter((p) => isWarm(p)).length;
+  const linkedPartners = new Set(prospects.filter((p) => p.partner_slug).map((p) => p.partner_slug)).size;
+  const codesIssued = prospects.reduce((n, p) => n + (p.codes_issued ?? 0), 0);
+  const codesClaimed = prospects.reduce((n, p) => n + (p.codes_claimed ?? 0), 0);
+
+  // ── What changed since the last visit ───────────────────────────────────
+  const newerThan = (iso: string | null | undefined) =>
+    !!(lastVisit && iso && new Date(iso).getTime() > new Date(lastVisit).getTime());
+
+  const newBlockers = since(blockers, lastVisit);
+  const newN8n = since(n8nErrors, lastVisit);
+  const newSupport = since(support, lastVisit);
+  const newSignups = lastVisit
+    ? people.filter((p) => newerThan(p.signed_up_at)).length
+    : 0;
+  const newReplies = prospects.filter((p) => p.laatste_mail_richting === 'in' && newerThan(p.laatste_mail_op)).length;
+  const newOpens = prospects.filter((p) => newerThan(p.laatste_bevestigde_klik)).length;
+
+  const deltas: Delta[] = [];
+  if (newBlockers.length)
+    deltas.push({ label: `${newBlockers.length} new blocker${newBlockers.length === 1 ? '' : 's'}`, color: '#F87171', onClick: () => setActiveTab('platform') });
+  if (awaitingReply)
+    deltas.push({ label: `${awaitingReply} waiting on you`, color: '#EFBE48', onClick: () => setActiveTab('partners') });
+  if (newReplies)
+    deltas.push({ label: `${newReplies} replied`, color: '#EFBE48', onClick: () => setActiveTab('partners') });
+  if (newOpens)
+    deltas.push({ label: `${newOpens} new demo open${newOpens === 1 ? '' : 's'}`, color: '#27A1A1', onClick: () => setActiveTab('partners') });
+  if (newSignups)
+    deltas.push({ label: `${newSignups} new signup${newSignups === 1 ? '' : 's'}`, color: '#3989AF', onClick: () => setActiveTab('stats') });
+  if (newN8n.length)
+    deltas.push({ label: `${newN8n.length} n8n error${newN8n.length === 1 ? '' : 's'}`, color: '#FBBF24', onClick: () => setActiveTab('platform') });
+  if (newSupport.length)
+    deltas.push({ label: `${newSupport.length} support ticket${newSupport.length === 1 ? '' : 's'}`, color: '#7FBCD9', onClick: () => setActiveTab('platform') });
+
+  const openBlockers = () => {
+    setActiveTab('platform');
+    if (!open.blockers) toggle('blockers');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const hero = (label: string, big: string, sub: string, tab: string, tone: string) => (
-    <button
-      onClick={() => setActiveTab(tab)}
-      className={`text-left rounded-xl border px-4 py-4 transition-all hover:brightness-125 hover:border-white/30 ${heroTone[tone]}`}
-    >
-      <div className="text-xs text-gray-400">{label}</div>
-      <div className="text-3xl font-bold text-gray-100 mt-1">{big}</div>
-      <div className="text-xs text-gray-500 mt-0.5">{sub}</div>
-    </button>
-  );
+
+  const platformBadge = blockers.length > 0 ? blockers.length : n8nErrors.length;
 
   return (
-    <div className="min-h-screen text-gray-100 px-4 py-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-100">Ops Dashboard</h1>
-          <div className="text-xs text-gray-600 mt-0.5">
-            {lastFetched ? `Last refreshed ${lastFetched}` : 'Loading…'}
-            {feed?.new_analyzed ? ` · ${feed.new_analyzed} newly analyzed` : ''}
-            {' · auto every 5 min'}
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchFeed}
-          disabled={loading}
-          className="border-white/20 text-gray-400 hover:text-gray-100 gap-1.5"
-        >
-          {loading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <RefreshCw size={14} />
+    <div className="relative min-h-screen" style={{ background: '#122E3B' }}>
+      {/* Same treatment as the assessment dashboard: a photo under a heavy
+          gradient, fixed to the viewport so it doesn't rescale as sections
+          expand. Panels sit on it instead of being holes in it. */}
+      <div
+        aria-hidden
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(33,63,79,0.72) 0%, rgba(18,46,59,0.90) 46%, #122E3B 100%), url(${OPS_BG_URL})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
+      />
+
+      <div className="relative z-10 text-white/[0.88] pb-16">
+        <OpsTopBar
+          lastFetched={lastFetched}
+          newAnalyzed={feed?.new_analyzed ?? 0}
+          loading={loading}
+          onRefresh={fetchFeed}
+        />
+
+        <div className="max-w-[1320px] mx-auto px-4 sm:px-8">
+          {error && (
+            <div className="mt-6 flex items-start gap-2 rounded-[18px] border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-300">
+              <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+              {error}
+            </div>
           )}
-          Refresh
-        </Button>
-      </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          <AlertTriangle size={16} className="shrink-0 mt-0.5" />
-          {error}
-        </div>
-      )}
+          {loading && !feed && (
+            <div className="space-y-4 mt-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={`h-28 ${GLASS} animate-pulse`} />
+              ))}
+            </div>
+          )}
 
-      {/* Loading skeleton */}
-      {loading && !feed && (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-28 rounded-xl border border-white/10 bg-black/25 animate-pulse" />
-          ))}
-        </div>
-      )}
+          {feed && (
+            <div className="space-y-4 pt-6">
+              {/* The only thing allowed above the tabs, and only when it exists. */}
+              <BlockerBand blockers={blockers} newCount={newBlockers.length} onOpen={openBlockers} />
 
-      {feed && (
-        <div className="space-y-5">
-          {/* Tabs — each tab shows only its own content. The at-a-glance summary
-              lives in its own Overview tab so it isn't repeated above everything. */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="bg-black/25 border border-white/10 w-full flex flex-wrap h-auto gap-1 p-1">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-white/10 text-xs">
-                📊 Overview
-              </TabsTrigger>
-              <TabsTrigger value="traffic" className="data-[state=active]:bg-white/10 text-xs">
-                📈 Traffic
-              </TabsTrigger>
-              <TabsTrigger value="people" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('👥 People', newThisWeek)}
-              </TabsTrigger>
-              <TabsTrigger value="n8n" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('⚙️ n8n Errors', n8nErrors.length)}
-              </TabsTrigger>
-              <TabsTrigger value="blockers" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-xs">
-                {tabLabel('🔴 Blockers', blockers.length)}
-              </TabsTrigger>
-              <TabsTrigger value="support" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('🎫 Support', support.length)}
-              </TabsTrigger>
-              <TabsTrigger value="usage" className="data-[state=active]:bg-white/10 text-xs">
-                💰 Usage
-              </TabsTrigger>
-              <TabsTrigger value="feedback" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('💬 Feedback', feedback.length)}
-              </TabsTrigger>
-              <TabsTrigger value="misses" className="data-[state=active]:bg-white/10 text-xs">
-                {tabLabel('🎯 Assessment Misses', misses.length)}
-              </TabsTrigger>
-              <TabsTrigger value="marketing" className="data-[state=active]:bg-white/10 text-xs">
-                📣 Marketing
-              </TabsTrigger>
-              <TabsTrigger value="partners" className="data-[state=active]:bg-white/10 text-xs">
-                🤝 Partners
-              </TabsTrigger>
-              <TabsTrigger value="outreach" className="data-[state=active]:bg-white/10 text-xs">
-                📬 Outreach
-              </TabsTrigger>
-            </TabsList>
+              <VisitBar since={lastVisit} deltas={deltas} />
 
-            <TabsContent value="overview" className="mt-4">
-              <div className="space-y-5">
-                {/* At-a-glance — the metrics that matter most */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {hero('📈 Traffic', traffic ? traffic.visits_7d.toLocaleString() : '—', traffic ? `visitors · ${traffic.bounce_rate_7d}% bounce (7d)` : 'no data yet', 'traffic', 'teal')}
-                  {hero('⚙️ Errors', String(n8nErrors.length), `${blockers.length} blocker${blockers.length === 1 ? '' : 's'}`, 'n8n', n8nErrors.length > 0 ? 'red' : 'neutral')}
-                  {hero('👥 New signups', String(newThisWeek), 'this week', 'people', 'blue')}
-                  {hero('📉 Drop-offs', String(stuckCount), leakiestLabel ? `mostly at ${leakiestLabel}` : 'inactive 3+ days', 'people', stuckCount > 0 ? 'amber' : 'neutral')}
+              <div className="pt-1">
+                <MainTabs
+                  active={activeTab}
+                  onSelect={setActiveTab}
+                  partnersBadge={awaitingReply}
+                  platformBadge={platformBadge}
+                  platformUrgent={blockers.length > 0}
+                />
+              </div>
+
+              {/* ══ PARTNERS ══════════════════════════════════════════════ */}
+              {activeTab === 'partners' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatTile
+                      label="Contacted"
+                      value={outreachLoading ? '—' : contacted}
+                      sub={`of ${prospects.length} agencies`}
+                    />
+                    <StatTile
+                      label="Demo opened"
+                      value={outreachLoading ? '—' : (outreach?.withClick ?? 0)}
+                      sub={contacted > 0 ? `${Math.round((100 * (outreach?.withClick ?? 0)) / contacted)}% of those contacted` : 'nobody contacted yet'}
+                      delta={newOpens ? `+${newOpens}` : undefined}
+                    />
+                    <StatTile
+                      label="Waiting on you"
+                      value={outreachLoading ? '—' : awaitingReply}
+                      sub="they wrote last"
+                      tone="gold"
+                    />
+                    <StatTile
+                      label="Linked partners"
+                      value={outreachLoading ? '—' : linkedPartners}
+                      sub={`${codesIssued} codes, ${codesClaimed} used`}
+                    />
+                  </div>
+
+                  <SectionCard
+                    id="outreach"
+                    title="Outreach"
+                    subtitle={
+                      outreachError
+                        ? outreachError
+                        : `${prospects.length} agencies · ${awaitingReply} waiting on a reply · ${warmCount} opened but not followed up`
+                    }
+                    pills={
+                      <>
+                        {awaitingReply > 0 && <CountPill n={awaitingReply} tone="gold" />}
+                        {warmCount > 0 && <CountPill n={warmCount} tone="teal" />}
+                      </>
+                    }
+                    open={open.outreach}
+                    onToggle={toggle}
+                  >
+                    {prospects.length > 0 && (
+                      <div className="mb-5">
+                        <PipelineBar prospects={prospects} />
+                      </div>
+                    )}
+                    <OutreachTab
+                      onCreatePartner={(d) => {
+                        setPartnerDraft(d);
+                        if (!open.partners) toggle('partners');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="partners"
+                    title="Partners"
+                    subtitle="Onboard a white-label partner end to end: save their name and logo, mint a batch of codes, and copy the signup links straight into an email. One code is one person."
+                    open={open.partners}
+                    onToggle={toggle}
+                  >
+                    <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
+                  </SectionCard>
                 </div>
-                {/* Action queues — clickable, jump to the matching tab */}
-                <StatsRow items={items} onSelect={setActiveTab} />
-              </div>
-            </TabsContent>
-            <TabsContent value="traffic" className="mt-4">
-              <TrafficPanel traffic={feed.traffic} funnel={feed.funnel ?? null} />
-            </TabsContent>
-            <TabsContent value="people" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                Everyone who signed up in the last 30 days and where they are in the journey. <strong className="text-gray-400">{newThisWeek}</strong> joined this week. Identified by first name + country only.
-              </div>
-              <PeoplePanel people={people} />
-            </TabsContent>
-            <TabsContent value="n8n" className="mt-4">
-              <div className="mb-3 flex items-center justify-between gap-2 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                <span>Live failed executions from n8n. Each card deep-links to its run.</span>
-                <a
-                  href={`${N8N_BASE}/home/executions`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-atlas-teal hover:underline shrink-0"
-                >
-                  All executions <ExternalLink size={11} />
-                </a>
-              </div>
-              <Feed items={n8nErrors} onDismiss={dismissItem} />
-            </TabsContent>
-            <TabsContent value="blockers" className="mt-4">
-              <Feed items={blockers} onDismiss={dismissItem} />
-            </TabsContent>
-            <TabsContent value="support" className="mt-4">
-              <Feed items={support} onDismiss={dismissItem} />
-            </TabsContent>
-            <TabsContent value="usage" className="mt-4">
-              <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
-            </TabsContent>
-            <TabsContent value="feedback" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                Mid-chat quality ratings submitted by users after each report chapter. Useful for spotting which sections consistently get poor marks.
-              </div>
-              <Feed items={feedback} onDismiss={dismissItem} />
-            </TabsContent>
-            <TabsContent value="misses" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                <strong className="text-gray-400">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
-              </div>
-              <Feed items={misses} onDismiss={dismissItem} />
-            </TabsContent>
-            <TabsContent value="partners" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                Onboard a white-label partner end to end: save their name and logo, mint a batch of codes, and copy the signup links straight into an email. One code is one person. Everything runs through the admin-gated ops-partners function, so nothing here touches Supabase directly.
-              </div>
-              <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
-            </TabsContent>
+              )}
 
-            <TabsContent value="outreach" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                Wie van de aangeschreven bureaus heeft de demo geopend. Kliks komen binnen via de utm_content in de maillink en worden server-side gelogd (geen IP). Alleen status en notities zijn hier bewerkbaar; de rest is afgeleid.
-              </div>
-              <OutreachTab
-                onCreatePartner={(d) => {
-                  setPartnerDraft(d);
-                  setActiveTab('partners');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
-            </TabsContent>
+              {/* ══ PLATFORM ══════════════════════════════════════════════ */}
+              {activeTab === 'platform' && (
+                <div className="space-y-4">
+                  {blockers.length === 0 && (
+                    <div className={`${GLASS} border-emerald-400/20 bg-emerald-500/[0.07] px-6 py-4 flex flex-wrap items-center gap-3`}>
+                      <CheckCircle2 size={19} className="text-emerald-400 shrink-0" />
+                      <span className="text-sm text-white/[0.86] font-medium">No blockers.</span>
+                      <span className="text-[13px] text-white/55">
+                        {n8nErrors.length > 0
+                          ? `The ${n8nErrors.length} n8n error${n8nErrors.length === 1 ? '' : 's'} below didn't hit a user.`
+                          : 'Nothing is failing right now.'}
+                      </span>
+                    </div>
+                  )}
 
-            <TabsContent value="marketing" className="mt-4">
-              <div className="mb-3 text-xs text-gray-500 bg-black/25 rounded-lg px-3 py-2">
-                Log every LinkedIn post (verbatim), enter reach as it climbs (snapshots, not overwrites), and read the uptick against the site traffic already tracked here. Numbers are hand-entered — LinkedIn has no personal-profile API.
-              </div>
-              <MarketingTab />
-            </TabsContent>
-          </Tabs>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <DeployStrip deploy={feed.deploy} />
+                    <div className="lg:col-span-2">
+                      <ProviderBanner status={feed.provider_status} />
+                    </div>
+                  </div>
 
-          {/* System strip — low urgency, kept out of the way at the bottom */}
-          <div className="pt-3 mt-2 border-t border-white/10 space-y-3">
-            <DeployStrip deploy={feed.deploy} />
-            <ProviderBanner status={feed.provider_status} />
-            <details className="group">
-              <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-400 select-none">
-                🛠 Admin tools (re-run a report)
-              </summary>
-              <div className="mt-3">
-                <RerunReportCard />
-              </div>
-            </details>
-          </div>
+                  {/* Only exists while there is something to show. */}
+                  {blockers.length > 0 && (
+                    <SectionCard
+                      id="blockers"
+                      title="Blockers"
+                      subtitle={newestLine(blockers)}
+                      pills={<CountPill n={blockers.length} tone="red" />}
+                      open={open.blockers}
+                      onToggle={toggle}
+                      tone="blocker"
+                    >
+                      <Feed items={blockers} onDismiss={dismissItem} />
+                    </SectionCard>
+                  )}
+
+                  <SectionCard
+                    id="n8n"
+                    title="n8n errors"
+                    subtitle={newestLine(n8nErrors) ?? 'No failed executions.'}
+                    pills={n8nErrors.length > 0 ? <CountPill n={n8nErrors.length} tone="amber" /> : undefined}
+                    open={open.n8n}
+                    onToggle={toggle}
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-2 text-xs text-white/60">
+                      <span>Live failed executions from n8n. Each card deep-links to its run.</span>
+                      <a
+                        href={`${N8N_BASE}/home/executions`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[#2ABFBF] hover:underline shrink-0"
+                      >
+                        All executions <ExternalLink size={11} />
+                      </a>
+                    </div>
+                    <Feed items={n8nErrors} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="support"
+                    title="Support"
+                    subtitle={newestLine(support) ?? 'No open tickets.'}
+                    pills={support.length > 0 ? <CountPill n={support.length} tone="blue" /> : undefined}
+                    open={open.support}
+                    onToggle={toggle}
+                  >
+                    <Feed items={support} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="feedback"
+                    title="Chat feedback"
+                    subtitle={newestLine(feedback) ?? 'No ratings yet.'}
+                    pills={feedback.length > 0 ? <CountPill n={feedback.length} tone="quiet" /> : undefined}
+                    open={open.feedback}
+                    onToggle={toggle}
+                  >
+                    <div className="mb-4 text-xs text-white/60">
+                      Mid-chat quality ratings submitted by users after each report chapter. Useful for spotting which sections consistently get poor marks.
+                    </div>
+                    <Feed items={feedback} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="misses"
+                    title="Assessment misses"
+                    subtitle={newestLine(misses) ?? 'No corrections logged.'}
+                    pills={misses.length > 0 ? <CountPill n={misses.length} tone="quiet" /> : undefined}
+                    open={open.misses}
+                    onToggle={toggle}
+                  >
+                    <div className="mb-4 text-xs text-white/60">
+                      <strong className="text-white/75">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
+                    </div>
+                    <Feed items={misses} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="admin"
+                    title="Admin tools"
+                    subtitle="Re-run a report for a user from their saved answers."
+                    pills={<Wrench size={15} className="text-white/55" />}
+                    open={!!open.admin}
+                    onToggle={toggle}
+                  >
+                    <RerunReportCard />
+                  </SectionCard>
+                </div>
+              )}
+
+              {/* ══ STATS ═════════════════════════════════════════════════ */}
+              {activeTab === 'stats' && (
+                <div className="space-y-4">
+                  {/* Traffic and people get the room; usage and marketing wait below. */}
+                  <div className={`${GLASS} px-6 py-6`}>
+                    <div className={EYEBROW}>Traffic</div>
+                    <div className="mt-4">
+                      <TrafficPanel traffic={feed.traffic} funnel={feed.funnel ?? null} />
+                    </div>
+                  </div>
+
+                  <div className={`${GLASS} px-6 py-6`}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <div className={EYEBROW}>People</div>
+                      <div className="text-[13px] text-white/60">
+                        <strong className="text-white/80">{newThisWeek}</strong> joined this week
+                        {stuckCount > 0 && <> · <strong className="text-amber-300">{stuckCount}</strong> stalled 3+ days</>}
+                      </div>
+                    </div>
+                    <div className="text-xs text-white/55 mt-2">
+                      Everyone who signed up in the last 30 days and where they are in the journey. Identified by first name + country only.
+                    </div>
+                    <div className="mt-4">
+                      <PeoplePanel people={people} />
+                    </div>
+                  </div>
+
+                  <SectionCard
+                    id="usage"
+                    title="Usage & cost"
+                    subtitle={
+                      feed.n8n_usage
+                        ? `n8n ${feed.n8n_usage.executions_this_month.toLocaleString()} / ${feed.n8n_usage.limit.toLocaleString()} runs this month`
+                        : 'n8n usage unavailable.'
+                    }
+                    open={open.usage}
+                    onToggle={toggle}
+                  >
+                    <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="marketing"
+                    title="Marketing"
+                    subtitle="LinkedIn posts logged by hand, with reach snapshots read against the site traffic above."
+                    open={open.marketing}
+                    onToggle={toggle}
+                  >
+                    <MarketingTab />
+                  </SectionCard>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
