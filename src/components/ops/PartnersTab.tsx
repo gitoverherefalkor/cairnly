@@ -149,7 +149,7 @@ function PartnerForm({
     <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 space-y-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
         {editing ? <Pencil className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
-        {editing ? `Edit partner: ${editing.name}` : 'Add a partner'}
+        {editing ? 'Edit this partner' : 'Add a partner'}
         {editing && (
           <button
             onClick={() => { reset(); onCancelEdit(); }}
@@ -353,20 +353,14 @@ const PartnersTab: React.FC = () => {
     void load();
   };
 
-  // Which partner the form at the top is editing, if any. The form scrolls
-  // into view so a click on a card further down does not appear to do nothing.
-  const [editing, setEditing] = useState<Partner | null>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-  const startEdit = (p: Partner) => {
-    setEditing(p);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  // Slug of the partner whose card is expanded into an edit form, if any.
+  // The form at the top only ever adds; editing happens in place on the card
+  // so what you clicked is what you are changing.
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
-      <div ref={formRef}>
-        <PartnerForm onSaved={load} editing={editing} onCancelEdit={() => setEditing(null)} />
-      </div>
+      <PartnerForm onSaved={load} editing={null} onCancelEdit={() => {}} />
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-200">Partners</h3>
@@ -392,10 +386,10 @@ const PartnersTab: React.FC = () => {
             {!p.has_logo && <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-300">no logo</span>}
             {!p.is_active && <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] text-red-300">inactive</span>}
             <button
-              onClick={() => startEdit(p)}
+              onClick={() => setEditingSlug(editingSlug === p.slug ? null : p.slug)}
               className="ml-auto inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-200"
             >
-              <Pencil className="h-3 w-3" /> Edit
+              <Pencil className="h-3 w-3" /> {editingSlug === p.slug ? 'Close' : 'Edit'}
             </button>
             <button onClick={() => toggle(p)} className="text-[11px] text-gray-500 hover:text-gray-300">
               {p.is_active ? 'Deactivate' : 'Activate'}
@@ -409,6 +403,16 @@ const PartnersTab: React.FC = () => {
             <span>Reports <b className="text-gray-200">{p.reports_completed}</b></span>
             {p.expired_unused > 0 && <span className="text-amber-400">Expired unused {p.expired_unused}</span>}
           </div>
+
+          {editingSlug === p.slug && (
+            <div className="mt-3">
+              <PartnerForm
+                editing={p}
+                onCancelEdit={() => setEditingSlug(null)}
+                onSaved={load}
+              />
+            </div>
+          )}
 
           <MintRow partner={p} />
         </div>
