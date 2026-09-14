@@ -580,9 +580,10 @@ async function record({ persona, lang }) {
 
   const mp4 = resolve(videosDir, `demo-hero-${name}.mp4`);
   const webm = resolve(videosDir, `demo-hero-${name}.webm`);
+  // crf 28 / 40: screen content compresses well and a hero video must stay a few MB.
   const common = ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-an', '-fps_mode', 'cfr', '-r', String(FPS), '-vf', `scale=${W}:${H}:flags=lanczos,format=yuv420p`];
-  execFileSync('ffmpeg', [...common, '-c:v', 'libx264', '-crf', DRAFT ? '30' : '23', '-preset', DRAFT ? 'veryfast' : 'slow', '-movflags', '+faststart', mp4], { stdio: 'inherit' });
-  if (!DRAFT) execFileSync('ffmpeg', [...common, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '33', '-row-mt', '1', webm], { stdio: 'inherit' });
+  execFileSync('ffmpeg', [...common, '-c:v', 'libx264', '-crf', DRAFT ? '30' : '28', '-preset', DRAFT ? 'veryfast' : 'slow', '-movflags', '+faststart', mp4], { stdio: 'inherit' });
+  if (!DRAFT) execFileSync('ffmpeg', [...common, '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '40', '-row-mt', '1', webm], { stdio: 'inherit' });
   // Poster = the first frame (the survey), so the page never flashes black.
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', frames[0].p, '-vf', `scale=${W}:${H}`, '-q:v', '4', resolve(imagesDir, `hero-poster-${name}.jpg`)], { stdio: 'inherit' });
   for (const { p, label } of stills) copyFileSync(p, resolve(imagesDir, `hero-still-${label}-${name}.jpg`));
