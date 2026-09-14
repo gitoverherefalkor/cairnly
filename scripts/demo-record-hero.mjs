@@ -11,8 +11,10 @@
 // src/lib/demoHero.generated.ts (cache-busting version). Repeatable: after a
 // redesign or a demo re-freeze, run it again and picture and product match.
 //
-// Frames are screenshots with timestamps, stitched by ffmpeg's concat
-// demuxer with real durations (Chrome's own recorder does not scale on 2x).
+// Frames come from Chrome's screencast stream (a frame whenever the screen
+// changes, up to 60 fps, at device pixels), each stamped on arrival, and are
+// stitched by ffmpeg's concat demuxer with real durations. Puppeteer's own
+// screenshot loop managed ~5 fps and Playwright's recorder does not scale on 2x.
 // Demo scaffolding is hidden via [data-demo-chrome]; the pages read
 // window.__CAIRNLY_DEMO_CAPTURE__ (src/demo/capture.ts) to skip dialogs, the
 // jobs redirect and the margin-note column, to start the survey's rider
@@ -32,6 +34,12 @@ import { execFileSync } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+// CONNECT_PORT=9222: attach to a Chrome started separately (e.g. via macOS
+// `open -na "Google Chrome" --args --headless=new --remote-debugging-port=9222
+// --user-data-dir=/tmp/x`) instead of launching one. From a Claude desktop
+// session that is the only safe way: a Chrome child of the app makes macOS
+// revoke Documents access.
+const CONNECT_PORT = process.env.CONNECT_PORT ? Number(process.env.CONNECT_PORT) : null;
 const BASE = (process.env.BASE ?? 'http://localhost:8081').replace(/\/$/, '');
 const DRAFT = process.env.DRAFT === '1';
 const SLOW = Number(process.env.SLOW ?? '1');
@@ -39,7 +47,6 @@ const W = 1440;
 const H = 900;
 const SCALE = DRAFT ? 1 : 2;
 const FPS = DRAFT ? 10 : 30;
-const MIN_FRAME_MS = DRAFT ? 90 : 0; // draft: don't burn CPU on 30 fps
 
 const CLIPS = [
   { persona: 'marcel', lang: 'nl' },
@@ -129,10 +136,13 @@ const finders = {
       .sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0];
     return el ? el.closest('section') : null;
   },
-  // Option 1 of the coach's follow-up card: the last numbered "1" row.
+  // Option 1 of the coach's follow-up card: the numbered "1" row inside the
+  // newest message (the sidebar's "1 Primary Career Match" is a button too).
   option1: () => {
-    const rows = [...document.querySelectorAll('button')].filter((b) => /^\s*1\s/.test(b.innerText) && b.innerText.length > 20);
-    return rows[rows.length - 1] ?? null;
+    const wraps = document.querySelectorAll('[id^="demo-msg-"]');
+    const last = wraps[wraps.length - 1];
+    if (!last) return null;
+    return [...last.querySelectorAll('button')].find((b) => /^\s*1\s/.test(b.innerText) && b.innerText.length > 20) ?? null;
   },
   // The first collapsed runner-up card header.
   collapsedCard: () => document.querySelector('[data-card-collapsed]'),
@@ -368,9 +378,9 @@ async function processingInterstitial(page, steps) {
       },
       { i, n: steps.length },
     );
-    await pause(500);
+    await pause(420);
   }
-  await pause(300);
+  await pause(200);
 }
 
 // ---------------------------------------------------------------------------
@@ -382,7 +392,9 @@ async function record({ persona, lang }) {
   mkdirSync(tmp, { recursive: true });
   console.log(`\n▶ ${name}${DRAFT ? ' (draft)' : ''}`);
 
-  const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+  const browser = CONNECT_PORT
+    ? await puppeteer.connect({ browserURL: `http://127.0.0.1:${CONNECT_PORT}` })
+    : await puppeteer.launch({ executablePath: CHROME, headless: true });
   const page = await browser.newPage();
   await page.setViewport({ width: W, height: H, deviceScaleFactor: SCALE });
   await page.evaluateOnNewDocument((lang) => {
@@ -391,31 +403,39 @@ async function record({ persona, lang }) {
     localStorage.setItem('cairnly-cookie-consent', JSON.stringify({ choice: 'essential', timestamp: new Date().toISOString() }));
     localStorage.setItem('cairnly_language_suggestion_dismissed', new Date().toISOString());
     const style = document.createElement('style');
-    style.textContent = '[data-demo-chrome]{display:none!important}';
+    // Hidden scaffolding leaves the pages short; the padding lets any anchor reach the top.
+    style.textContent = '[data-demo-chrome]{display:none!important} body{padding-bottom:100vh!important}';
     document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
   }, lang);
 
-  // --- frame loop ------------------------------------------------------------
+  // --- frames: Chrome's screencast, on while `recording` is true --------------
   const frames = [];
-  let recording = false; // true = capture, false = idle, null = stop
+  const gaps = []; // wall-clock moments the film was paused (page swaps)
+  let recording = false;
   let n = 0;
-  const loop = (async () => {
-    while (recording !== null) {
-      if (!recording) {
-        await sleep(20);
-        continue;
-      }
-      const p = resolve(tmp, `f${String(n++).padStart(5, '0')}.jpg`);
-      const t = performance.now();
-      try {
-        await page.screenshot({ path: p, type: 'jpeg', quality: 88, captureBeyondViewport: false });
-        frames.push({ p, t });
-      } catch {
-        break;
-      }
-      if (MIN_FRAME_MS) await sleep(MIN_FRAME_MS);
-    }
-  })();
+  const cdp = await page.createCDPSession();
+  cdp.on('Page.screencastFrame', ({ data, sessionId }) => {
+    cdp.send('Page.screencastFrameAck', { sessionId }).catch(() => {});
+    if (!recording) return;
+    const p = resolve(tmp, `f${String(n++).padStart(5, '0')}.jpg`);
+    writeFileSync(p, Buffer.from(data, 'base64'));
+    frames.push({ p, t: performance.now() });
+  });
+  const startFilm = async () => {
+    recording = true;
+    await cdp.send('Page.startScreencast', {
+      format: 'jpeg',
+      quality: DRAFT ? 70 : 90,
+      maxWidth: W * SCALE,
+      maxHeight: H * SCALE,
+      everyNthFrame: DRAFT ? 3 : 1,
+    });
+  };
+  const stopFilm = async () => {
+    recording = false;
+    gaps.push(performance.now());
+    await cdp.send('Page.stopScreencast').catch(() => {});
+  };
   const stills = [];
   const still = async (label) => {
     const p = resolve(tmp, `still-${label}.jpg`);
@@ -429,24 +449,26 @@ async function record({ persona, lang }) {
   // Black on, cut, black off: page swaps are never on film.
   const cutTo = async (path, prepare) => {
     await fade(page, 1);
-    recording = false;
+    await stopFilm();
     await goto(path);
     await prepare();
     await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
-    recording = true;
+    await startFilm();
     await fade(page, 0);
   };
 
   // 1. Survey: one question in frame, option off → pick it → tick the rider ---
   await goto('/demo/survey');
+  await sleep(1200); // fonts and the résumé step settle before we measure
   await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
-  await sleep(800);
-  recording = true;
-  await pause(900);
+  await sleep(600);
+  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
+  await startFilm();
+  await pause(600);
   await click(page, finders.text, { needle: copy.scheduleChoice, tags: 'label, button, div, span' }, 'schedule choice');
-  await pause(800);
+  await pause(600);
   await click(page, finders.text, { needle: copy.nonNegotiable, tags: 'label' }, 'non-negotiable rider');
-  await pause(1300);
+  await pause(1000);
   await still('01-survey');
 
   // 1b. "Analysing your answers", then the chat -------------------------------
@@ -460,7 +482,7 @@ async function record({ persona, lang }) {
 
   // 2. Chat: strengths → explore pill → option 1 → the answer -------------------
   await click(page, finders.text, { needle: copy.strengthsNav, tags: 'button' }, 'sidebar: strengths');
-  await pause(1600);
+  await pause(1100);
   await alignTop(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, H - 280, 'explore pill');
   let before = await messageCount(page);
   await click(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, 'explore pill', {
@@ -472,24 +494,24 @@ async function record({ persona, lang }) {
   await still('02-explore');
   before = await messageCount(page);
   await click(page, finders.option1, null, 'option 1', { reached: async () => (await messageCount(page)) > before });
-  await pause(900);
-  await alignTop(page, finders.lastMessage, null, 160, 'the answer', 900);
-  await pause(2400);
+  await pause(700);
+  await alignTop(page, finders.lastMessage, null, 160, 'the answer', 800);
+  await pause(1800);
 
   // 3. Runner-ups: the three cards, open the first, the Move pill ---------------
   await page.evaluate(() => window.__cairnlyDemoReveal?.(10000)); // everything
   await sleep(1500);
-  await alignTop(page, finders.text, { needle: copy.runnerUpHeading, tags: 'strong, h3, span, p' }, 110, 'runner-up heading', 900);
-  await pause(1500);
+  await alignTop(page, finders.text, { needle: copy.runnerUpHeading, tags: 'strong, h3, span, p' }, 110, 'runner-up heading', 800);
+  await pause(1000);
   await still('03-runner-ups');
   await click(page, finders.collapsedCard, null, 'first runner-up card');
-  await pause(1400);
-  await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, H - 340, 'move pill', 900);
-  await pause(500);
+  await pause(900);
+  await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, H - 340, 'move pill', 800);
+  await pause(400);
   await click(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, 'move pill');
-  await pause(2200); // the replay scrolls to the feasibility question and rings it
+  await pause(1600); // the replay scrolls to the feasibility question and rings it
   await still('04-move');
-  await pause(1200);
+  await pause(600);
 
   // 4. A quick run through the rest of the chat, resting on its end -------------
   const end = await page.evaluate(() => {
@@ -497,7 +519,7 @@ async function record({ persona, lang }) {
     const r = all[all.length - 1].getBoundingClientRect();
     return window.scrollY + r.bottom - window.innerHeight + 24;
   });
-  await glideTo(page, end, 2600);
+  await glideTo(page, end, 2200);
   await pause(1500);
   await still('05-chat-end');
 
@@ -531,9 +553,12 @@ async function record({ persona, lang }) {
   await pause(500);
   await fade(page, 1);
   await pause(400);
-  recording = null;
-  await loop;
-  await browser.close();
+  await stopFilm();
+  await cdp.detach().catch(() => {});
+  if (CONNECT_PORT) {
+    await page.close();
+    await browser.disconnect();
+  } else await browser.close();
 
   // --- ffmpeg ---------------------------------------------------------------------
   if (frames.length < 10) throw new Error('too few frames');
@@ -542,7 +567,12 @@ async function record({ persona, lang }) {
   for (let i = 0; i < frames.length; i++) {
     const start = (frames[i].t - t0) / 1000;
     const next = i + 1 < frames.length ? (frames[i + 1].t - t0) / 1000 : start + 0.4;
-    lines.push(`file '${frames[i].p}'`, `duration ${Math.max(next - start, 0.01).toFixed(4)}`);
+    // A hold produces no new frames, so a frame legitimately lasts seconds;
+    // but the frame before a page swap would hold for the whole load, so it
+    // is capped at 0.35 s.
+    const hasGap = gaps.some((g) => g >= frames[i].t && (i + 1 >= frames.length || g <= frames[i + 1].t));
+    const dur = Math.max(next - start, 0.01);
+    lines.push(`file '${frames[i].p}'`, `duration ${(hasGap ? Math.min(0.35, dur) : dur).toFixed(4)}`);
   }
   lines.push(`file '${frames[frames.length - 1].p}'`);
   const list = resolve(tmp, 'frames.txt');

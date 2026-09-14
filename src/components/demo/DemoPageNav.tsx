@@ -62,6 +62,7 @@ export const DemoPageNav: React.FC<DemoPageNavProps> = ({ audience, label, backT
         </div>
         {/* The honest label, always in view, as on the chat replay. */}
         <div
+          data-demo-chrome=""
           className="px-4 sm:px-6 py-1.5 flex items-center justify-end gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
           style={{ background: '#FDFBF2', color: '#122E3B', borderTop: '1px solid rgba(201,182,144,0.5)' }}
         >
