@@ -51,15 +51,19 @@ Everything the visitor should notice is a visible click.
 
 | # | Page | Beat | ~s |
 |---|------|------|----|
-| 1 | `/demo/survey?persona=…` | Résumé step already filled (fixture). Cursor picks a schedule answer, ticks the **non-negotiable** box. Scroll; the "the rest of the survey" card slides in. Fade to black. | 5 |
-| 2 | `/demo?persona=…` | Sidebar click on **Your strengths / Sterke punten**; the section comes into view. Cursor clicks one quick-reply pill under it; the coach's answer appears (fixture turn, already in the transcript). Fallback if the strengths delivery carries no pill in that persona's transcript: open one collapsed subsection instead. | 6 |
-| 3 | same | Smooth scroll to the **three collapsed runner-up cards** (match + AI-impact pills). Pause. Click the first; it opens and shows its Move / Feasibility pills. | 8 |
-| 4 | same | Hold on the coach's last line. Fade to black. | 1 |
+| 1 | `/demo/survey?persona=…` | Résumé step already filled (fixture). Cursor picks a schedule answer, ticks the **non-negotiable** box. Scroll; the "the rest of the survey" card slides in. | 5 |
+| 1b | overlay | **Processing interstitial**, script-drawn on the dark survey canvas: the cairn mark, the real processing-page steps ("Reading your responses" → "Building your personality profile", `reportProcessing.steps.*` in the run's language) ticking through in ~1.2 s, then a cross-fade into the chat. Stands in for the real `/report-processing` page, which needs a live report. | 1.5 |
+| 2 | `/demo?persona=…`, transcript cut after the Strengths delivery | Sidebar click on **Your strengths / Sterke punten**; the section scrolls into view with the coach's question under it. The real **QuickReplies** row sits under it (capture-only, see hooks). Cursor clicks **"I'd like to explore this section a bit more" / "Hier wil ik wat dieper op ingaan"**. The user bubble appears, then the coach's follow-up with the three numbered options + "Something else". Cursor clicks option 1; the persona's own pick and the coach's answer appear. | 8 |
+| 3 | same, transcript fully revealed | Smooth scroll to the **three collapsed runner-up cards** (match + AI-impact pills). Pause. Click the first; it opens. Scroll to the end of that career's text, cursor clicks the **"Move: Upskill · explore why" / "Stap: … · ontdek waarom"** pill; the replay scrolls to the persona's own "how realistic is this move" question and rings it, the coach's answer below. | 10 |
+| 4 | same | Hold on the coach's answer. Fade to black. | 1 |
 | 5 | `/demo/dashboard?persona=…` | Cursor enters the top-career tile → it **flips** to the compare radar (hover flip, desktop only). Pause. Click **See full breakdown**; the top-1 "why it fits" accordion opens and scrolls into view. | 8 |
 | 6 | same | Cursor presses **Find open roles**. Fade to black on the press; the recording stops before the jobs page renders. | 1 |
 
-Cuts between pages are fade-to-black (drawn by the script as a fixed
-overlay, 250 ms), so the page load never shows.
+Page changes other than 1→2 are fade-to-black (script-drawn fixed overlay,
+250 ms), so no page load is ever in frame. The Move pill's label per persona
+is whatever the fixture says (Upskill for Emma; Marcel's first runner-up may
+carry a different level); the script matches the pill by its "explore why"
+suffix, not the level.
 
 **End card is NOT baked into the video.** The hero overlays a real,
 translated button when the `<video>` fires `ended`, so it stays clickable,
@@ -84,7 +88,17 @@ in sync with pricing copy, and trackable. The video's last frame is black.
    - `DemoToolDialog` / any `setTool`: under the flag no dialog opens.
    Every read is `typeof window !== 'undefined' && window.__CAIRNLY_DEMO_CAPTURE__`
    behind one helper `isDemoCapture()` in `src/demo/capture.ts`.
-3. **Deep-link params already exist** (`?persona=`, `?focus=`); no new ones.
+3. **Scripted reveal in the replay** (capture-only). `DemoReplay` renders
+   the whole transcript for visitors. Under the capture flag it renders only
+   the first `revealCount` messages (state, initial = index of the Strengths
+   delivery + 1) and exposes `window.__cairnlyDemoReveal(n)` to the script.
+   While cut, the real `QuickReplies` component renders under the last bot
+   message (its normal props; `onSend` → reveal +2), and the follow-up
+   option chips of the last bot message become interactive (`onChipSend`
+   → reveal +2) instead of the replay's flash-only behaviour. So the two
+   clicks in scene 2 are real component clicks with the persona's real
+   turns appearing, not a mock. Visitors never see any of this.
+4. **Deep-link params already exist** (`?persona=`, `?focus=`); no new ones.
 
 Existing demo behaviour for visitors does not change. `npm run build` and
 vitest stay green; the capture helper has a unit test for both states.
