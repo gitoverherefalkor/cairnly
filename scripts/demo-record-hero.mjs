@@ -15,9 +15,14 @@
 // demuxer with real durations (Chrome's own recorder does not scale on 2x).
 // Demo scaffolding is hidden via [data-demo-chrome]; the pages read
 // window.__CAIRNLY_DEMO_CAPTURE__ (src/demo/capture.ts) to skip dialogs, the
-// jobs redirect and the margin-note column, and to reveal the transcript on
-// command. The cursor, the fades and the "analysing" interstitial are drawn
-// by this script; nothing here is product code.
+// jobs redirect and the margin-note column, to start the survey's rider
+// question empty, and to reveal the transcript on command. The cursor, the
+// fades and the "analysing" interstitial are drawn by this script; nothing
+// here is product code.
+//
+// Clicks are DOM clicks on the located element after the drawn cursor has
+// travelled there (and the real pointer moved, for hover states): synthetic
+// mouse clicks were lost under the screenshot loop (2026-09-14).
 //
 // ⚠️ Run from a normal Terminal, never from a Claude session inside the
 // desktop app: a Chrome child of that app makes macOS revoke Documents access.
@@ -29,7 +34,7 @@ import puppeteer from 'puppeteer-core';
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const BASE = (process.env.BASE ?? 'http://localhost:8081').replace(/\/$/, '');
 const DRAFT = process.env.DRAFT === '1';
-const SLOW = Number(process.env.SLOW ?? '2');
+const SLOW = Number(process.env.SLOW ?? '1');
 const W = 1440;
 const H = 900;
 const SCALE = DRAFT ? 1 : 2;
@@ -40,22 +45,25 @@ const CLIPS = [
   { persona: 'marcel', lang: 'nl' },
   { persona: 'emma', lang: 'en' },
 ];
-// Per-language anchors, copied from public/locales/<lang>/{survey,chat,dashboard}.json
-// (reportProcessing.steps, quickReplies.explore.label, careerPills.move,
-// v4.hero.why, v4.hero.findRole) and the survey fixture's schedule choices.
-// Every string is matched case-insensitively against element text, so a
-// copy tweak fails loudly here instead of silently recording the wrong thing.
+// Per-language anchors, copied from public/locales/<lang>/{survey,chat,dashboard,demo}.json
+// and the survey fixture's schedule choices. Every string is matched
+// case-insensitively against element text, so a copy tweak fails loudly here
+// instead of silently recording the wrong thing.
 const COPY = {
   en: {
     scheduleChoice: 'Flexible hours',
     nonNegotiable: 'This is non-negotiable for me',
     processing: ['Reading your responses', 'Building your personality profile', 'Preparing your AI career coach'],
     strengthsNav: 'Your Strengths',
-    explore: "I'd like to explore this more", // the pill LABEL (it sends a longer message)
+    explore: "I'd like to explore this more", // quickReplies.explore.label (the pill; it sends a longer message)
     runnerUpHeading: 'runner-up',
-    moveSuffix: 'explore why',
-    whyFits: 'Why this fits',
-    findRole: 'Find this role',
+    moveSuffix: 'explore why', // careerPills.move
+    welcomeEyebrow: 'YOUR CAREER PROFILE', // v4.welcome.eyebrow
+    reportEyebrow: 'YOUR FULL REPORT', // v4.reportHeader.eyebrow
+    aboutEyebrow: 'ABOUT YOU', // v4.report.aboutEyebrow
+    runnersTitle: 'Runner-up Careers', // v4.fallbackTitle.runners
+    pathsEyebrow: 'MORE PATHS WORTH CONSIDERING', // v4.paths.eyebrow
+    jobsCta: 'Open the job search', // dashboardDemo.jobsNudge.cta
   },
   nl: {
     scheduleChoice: 'Flexibele werktijden',
@@ -65,8 +73,12 @@ const COPY = {
     explore: 'Hier wil ik dieper op ingaan',
     runnerUpHeading: 'runner-up',
     moveSuffix: 'ontdek waarom',
-    whyFits: 'Waarom dit past',
-    findRole: 'Zoek deze rol',
+    welcomeEyebrow: 'JOUW CARRIÈREPROFIEL',
+    reportEyebrow: 'JE VOLLEDIGE RAPPORT',
+    aboutEyebrow: 'OVER JOU',
+    runnersTitle: 'Runner-up carrières',
+    pathsEyebrow: 'MEER PADEN OM TE OVERWEGEN',
+    jobsCta: 'Open de vacaturezoeker',
   },
 };
 // Index of the coach's Strengths delivery + 1 = how many messages are
@@ -91,9 +103,83 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const pause = (ms) => sleep(ms * SLOW);
 
 // ---------------------------------------------------------------------------
+// Finders run INSIDE the page and return one element (or null). They are
+// passed as source text so the same finder can be re-run right before the
+// click, after the cursor's travel, when the page may have moved.
+const finders = {
+  // Smallest visible element containing `needle` (case-insensitive), among
+  // `tags`; `last` takes the last match in DOM order instead (the real
+  // quick-reply row sits under the cut message, after any copies above).
+  text: ({ needle, tags, last }) => {
+    const n = needle.toLowerCase();
+    let hits = [...document.querySelectorAll(tags || 'button, a, label, span, p, h1, h2, h3, h4, strong, div')]
+      .filter((el) => (el.textContent || '').toLowerCase().includes(n))
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+    if (!last) hits = hits.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length);
+    return last ? hits[hits.length - 1] ?? null : hits[0] ?? null;
+  },
+  // The survey card that holds the given choice text.
+  questionCard: ({ needle }) => {
+    const n = needle.toLowerCase();
+    const el = [...document.querySelectorAll('label, button, div, span')]
+      .filter((e) => (e.textContent || '').toLowerCase().includes(n))
+      .sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0];
+    return el ? el.closest('section') : null;
+  },
+  // Option 1 of the coach's follow-up card: the last numbered "1" row.
+  option1: () => {
+    const rows = [...document.querySelectorAll('button')].filter((b) => /^\s*1\s/.test(b.innerText) && b.innerText.length > 20);
+    return rows[rows.length - 1] ?? null;
+  },
+  // The first collapsed runner-up card header.
+  collapsedCard: () => document.querySelector('[data-card-collapsed]'),
+  // The last message of the transcript.
+  lastMessage: () => {
+    const all = document.querySelectorAll('[id^="demo-msg-"]');
+    return all[all.length - 1] ?? null;
+  },
+  // The first big chart in view: the compare radar on the top career card.
+  radar: () =>
+    [...document.querySelectorAll('svg')].find((s) => {
+      const r = s.getBoundingClientRect();
+      return r.width > 180 && r.height > 180 && r.top > 0 && r.top < window.innerHeight;
+    }) ?? null,
+  // The n-th accordion row header after the "ABOUT YOU" eyebrow (0-based).
+  aboutRow: ({ needle, index }) => {
+    const n = needle.toLowerCase();
+    const eyebrow = [...document.querySelectorAll('div, span, p')]
+      .filter((e) => (e.textContent || '').toLowerCase().includes(n))
+      .sort((a, b) => (a.textContent || '').length - (b.textContent || '').length)[0];
+    if (!eyebrow) return null;
+    const after = [...document.querySelectorAll('button')].filter(
+      (b) => eyebrow.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING && b.innerText.trim().length > 3,
+    );
+    return after[index] ?? null;
+  },
+};
+
+async function rectOf(page, finder, arg) {
+  return page.evaluate(
+    ({ src, arg }) => {
+      const el = new Function('return ' + src)()(arg);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left + Math.min(r.width / 2, 260), y: r.top + Math.min(r.height / 2, 28), top: r.top, bottom: r.bottom };
+    },
+    { src: finder.toString(), arg },
+  );
+}
+async function mustRect(page, finder, arg, label) {
+  const r = await rectOf(page, finder, arg);
+  if (!r) throw new Error(`not found on page: ${label}`);
+  return r;
+}
+
 // Overlays drawn into the page: cursor, fades, processing interstitial.
-// All live under one fixed root with pointer-events:none, so they never
-// intercept the clicks the script sends to the page.
+// All live under one fixed root with pointer-events:none.
 async function installOverlay(page) {
   await page.evaluate(() => {
     if (document.getElementById('__rec')) return;
@@ -129,46 +215,20 @@ const cursorTo = async (page, x, y, ms = 420) => {
     },
     { x, y, ms: ms * SLOW },
   );
+  await page.mouse.move(x, y);
 };
-const cursorPress = async (page) => {
-  await page.evaluate(() => {
+const cursorPress = (page) =>
+  page.evaluate(() => {
     const cur = document.getElementById('__cur');
     cur.style.transform = 'scale(.82)';
     setTimeout(() => (cur.style.transform = ''), 120);
   });
-};
 const fade = async (page, to) => {
   await page.evaluate((o) => (document.getElementById('__fade').style.opacity = String(o)), to);
   await sleep(300);
 };
 
-// Finds the smallest visible element whose text contains `needle`
-// (case-insensitive), optionally only among `tags`. Returns its centre.
-// `last` picks the last match in DOM order instead (the real quick-reply
-// row sits under the cut message, after the coach's own copies of the text).
-async function locate(page, needle, { tags = 'button, a, label, span, p, h1, h2, h3, h4, strong, div', last = false } = {}) {
-  const box = await page.evaluate(
-    ({ needle, tags, last }) => {
-      const n = needle.toLowerCase();
-      let hits = [...document.querySelectorAll(tags)]
-        .filter((el) => (el.textContent || '').toLowerCase().includes(n))
-        .filter((el) => {
-          const r = el.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        });
-      if (!last) hits = hits.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length);
-      const el = last ? hits[hits.length - 1] : hits[0];
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2, top: r.top, bottom: r.bottom };
-    },
-    { needle, tags, last },
-  );
-  if (!box) throw new Error(`not found on page: "${needle}"`);
-  return box;
-}
-// Waits until the page has stopped scrolling (smooth scrolls run long while
-// the screenshot loop slows the page; measuring mid-scroll gives stale spots).
+// Waits until the page has stopped scrolling.
 async function settleScroll(page, max = 6000) {
   const t0 = Date.now();
   let last = -1;
@@ -184,17 +244,78 @@ async function settleScroll(page, max = 6000) {
     await sleep(100);
   }
 }
-// Scroll so the element sits `pad` px under the top, smoothly.
-async function scrollToText(page, needle, pad = 120, opts = {}) {
+// Bottom edge of any sticky/fixed nav at the top: the frame's usable top.
+const navBottom = (page) =>
+  page.evaluate(() =>
+    Math.max(
+      0,
+      ...[...document.querySelectorAll('nav')]
+        .filter((n) => ['sticky', 'fixed'].includes(getComputedStyle(n).position) && n.getBoundingClientRect().top <= 1)
+        .map((n) => n.getBoundingClientRect().bottom),
+    ),
+  );
+// In-page eased scroll to an absolute Y over `ms` (Chrome's own smooth
+// scroll is too short for a long "run through the chat").
+async function glideTo(page, y, ms) {
+  await page.evaluate(
+    async ({ y, ms }) => {
+      const from = window.scrollY;
+      const t0 = performance.now();
+      await new Promise((done) => {
+        const step = () => {
+          const p = Math.min(1, (performance.now() - t0) / ms);
+          const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+          window.scrollTo(0, from + (y - from) * e);
+          if (p < 1) requestAnimationFrame(step);
+          else done();
+        };
+        requestAnimationFrame(step);
+      });
+    },
+    { y, ms: ms * SLOW },
+  );
+}
+// Scrolls so the element's top sits `pad` px under the nav. `ms` = glide
+// time; 0 = instant (used before a scene is on film).
+async function alignTop(page, finder, arg, pad, label, ms = 700) {
   await settleScroll(page);
-  const box = await locate(page, needle, opts);
-  await page.evaluate((dy) => window.scrollBy({ top: dy, behavior: 'smooth' }), box.top - pad);
-  await pause(700);
+  const r = await mustRect(page, finder, arg, label);
+  const top = await navBottom(page);
+  const y = await page.evaluate(() => window.scrollY);
+  const target = Math.max(0, y + r.top - top - pad);
+  if (ms === 0) await page.evaluate((t) => window.scrollTo(0, t), target);
+  else await glideTo(page, target, ms);
   await settleScroll(page);
 }
-// On a failed click: what was under the pointer, plus a screenshot next to
-// the frames, so the next run does not need guesswork.
-async function explainMiss(page, needle, x, y) {
+
+// Cursor travels to the element, presses, and the element is clicked
+// (DOM click). Re-tries while the expected state stays away.
+async function click(page, finder, arg, label, { reached = null, tries = 3 } = {}) {
+  let last = { x: 0, y: 0 };
+  for (let i = 0; i < tries; i++) {
+    await settleScroll(page);
+    const aim = await mustRect(page, finder, arg, label);
+    await cursorTo(page, aim.x, aim.y);
+    const box = await mustRect(page, finder, arg, label);
+    last = box;
+    if (Math.abs(box.y - aim.y) > 2) await cursorTo(page, box.x, box.y, 120);
+    await cursorPress(page);
+    await page.evaluate(
+      ({ src, arg }) => {
+        const el = new Function('return ' + src)()(arg);
+        el.click();
+      },
+      { src: finder.toString(), arg },
+    );
+    if (!reached) return;
+    for (let t = 0; t < 12; t++) {
+      await sleep(250);
+      if (await reached()) return;
+    }
+  }
+  throw new Error(`state not reached: ${await explainMiss(page, label, last.x, last.y)}`);
+}
+async function explainMiss(page, label, x, y) {
   const under = await page.evaluate(
     ({ x, y }) => {
       const el = document.elementFromPoint(x, y);
@@ -204,37 +325,23 @@ async function explainMiss(page, needle, x, y) {
   );
   const shot = resolve(root, '.demo-capture', 'last-miss.jpg');
   await page.screenshot({ path: shot, type: 'jpeg', quality: 80, captureBeyondViewport: false });
-  return `clicked "${needle}" at (${Math.round(x)}, ${Math.round(y)}); under the pointer: ${under}; screenshot: ${shot}`;
+  return `clicked ${label} at (${Math.round(x)}, ${Math.round(y)}); under the pointer: ${under}; screenshot: ${shot}`;
 }
-// Move the cursor to the text, press, and click it. Re-clicks while the
-// expected state stays away (the screenshot loop slows the page; a click
-// can land mid-animation and be lost).
-async function clickText(page, needle, { reached = null, tries = 3, ...opts } = {}) {
-  let last = { x: 0, y: 0 };
-  for (let i = 0; i < tries; i++) {
-    await settleScroll(page);
-    const aim = await locate(page, needle, opts);
-    await cursorTo(page, aim.x, aim.y);
-    // Re-measure after the cursor's travel: the page may still have moved.
-    const box = await locate(page, needle, opts);
-    last = box;
-    await cursorPress(page);
-    await page.mouse.click(box.x, box.y);
-    if (!reached) return;
-    for (let t = 0; t < 12; t++) {
-      await sleep(250);
-      if (await reached()) return;
-    }
-  }
-  throw new Error(`state not reached: ${await explainMiss(page, needle, last.x, last.y)}`);
+// Hover: cursor travels there, the real pointer follows, and a mouseover is
+// dispatched too (React's onMouseEnter listens to mouseover).
+async function hover(page, finder, arg, label) {
+  await settleScroll(page);
+  const r = await mustRect(page, finder, arg, label);
+  await cursorTo(page, r.x, r.y, 600);
+  await page.evaluate(
+    ({ src, arg }) => {
+      const el = new Function('return ' + src)()(arg);
+      el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, relatedTarget: document.body }));
+    },
+    { src: finder.toString(), arg },
+  );
 }
 const messageCount = (page) => page.evaluate(() => document.querySelectorAll('[id^="demo-msg-"]').length);
-const clickPoint = async (page, pt) => {
-  await settleScroll(page);
-  await cursorTo(page, pt.x, pt.y);
-  await cursorPress(page);
-  await page.mouse.click(pt.x, pt.y);
-};
 
 // The real /report-processing page needs a live report; this is its look
 // for a second and a half: dark canvas, logo, steps ticking through.
@@ -284,7 +391,7 @@ async function record({ persona, lang }) {
     localStorage.setItem('cairnly-cookie-consent', JSON.stringify({ choice: 'essential', timestamp: new Date().toISOString() }));
     localStorage.setItem('cairnly_language_suggestion_dismissed', new Date().toISOString());
     const style = document.createElement('style');
-    style.textContent = '[data-demo-chrome]{display:none!important} html{scroll-behavior:smooth}';
+    style.textContent = '[data-demo-chrome]{display:none!important}';
     document.addEventListener('DOMContentLoaded', () => document.head.appendChild(style));
   }, lang);
 
@@ -319,127 +426,108 @@ async function record({ persona, lang }) {
     await page.goto(`${BASE}${path}?persona=${persona}&lang=${lang}`, { waitUntil: 'networkidle2', timeout: 60000 });
     await installOverlay(page);
   };
+  // Black on, cut, black off: page swaps are never on film.
+  const cutTo = async (path, prepare) => {
+    await fade(page, 1);
+    recording = false;
+    await goto(path);
+    await prepare();
+    await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
+    recording = true;
+    await fade(page, 0);
+  };
 
-  // 1. Survey ------------------------------------------------------------------
+  // 1. Survey: one question in frame, option off → pick it → tick the rider ---
   await goto('/demo/survey');
-  await page.evaluate(() => window.scrollTo(0, 0));
+  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
   await sleep(800);
   recording = true;
   await pause(900);
-  await scrollToText(page, copy.scheduleChoice, 200, { tags: 'label, button, div, span' });
-  await clickText(page, copy.scheduleChoice, { tags: 'label, button, div, span' });
-  await pause(700);
-  await clickText(page, copy.nonNegotiable, { tags: 'label' });
-  await pause(900);
+  await click(page, finders.text, { needle: copy.scheduleChoice, tags: 'label, button, div, span' }, 'schedule choice');
+  await pause(800);
+  await click(page, finders.text, { needle: copy.nonNegotiable, tags: 'label' }, 'non-negotiable rider');
+  await pause(1300);
   await still('01-survey');
-  await page.evaluate(() => window.scrollBy({ top: 420, behavior: 'smooth' }));
-  await pause(1200);
 
-  // 1b. Processing interstitial, then straight into the chat under it ---------
+  // 1b. "Analysing your answers", then the chat -------------------------------
   await processingInterstitial(page, copy.processing);
-  await fade(page, 1);
-  recording = false; // the page swap must not be in the film
-  await goto('/demo');
-  await page.evaluate((n) => window.__cairnlyDemoReveal?.(n), STRENGTHS_REVEAL);
-  await sleep(1200);
-  if ((await messageCount(page)) !== STRENGTHS_REVEAL) throw new Error('replay did not cut at the Strengths delivery');
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
-  recording = true;
-  await fade(page, 0);
-
-  // 2. Chat: strengths + explore pill ----------------------------------------
-  await clickText(page, copy.strengthsNav, { tags: 'button' });
-  await pause(1600);
-  await settleScroll(page);
-  await scrollToText(page, copy.explore, 620, { tags: 'button', last: true });
-  await pause(400);
-  const before = await messageCount(page);
-  await clickText(page, copy.explore, { tags: 'button', last: true, reached: async () => (await messageCount(page)) > before });
-  await pause(1400);
-  await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
-  await pause(900);
-  await still('02-explore');
-  // Option 1 of the coach's follow-up card: the last numbered "1" row.
-  await settleScroll(page);
-  const opt1 = await page.evaluate(() => {
-    const rows = [...document.querySelectorAll('button')].filter((b) => /^\s*1\s/.test(b.innerText) && b.innerText.length > 20);
-    const b = rows[rows.length - 1];
-    if (!b) return null;
-    const r = b.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  await cutTo('/demo', async () => {
+    await page.evaluate((n) => window.__cairnlyDemoReveal?.(n), STRENGTHS_REVEAL);
+    await sleep(1200);
+    if ((await messageCount(page)) !== STRENGTHS_REVEAL) throw new Error('replay did not cut at the Strengths delivery');
+    await page.evaluate(() => window.scrollTo(0, 0));
   });
-  if (!opt1) throw new Error('follow-up option 1 not found');
-  await clickPoint(page, opt1);
-  await pause(1500);
-  await page.evaluate(() => window.scrollBy({ top: 420, behavior: 'smooth' }));
-  await pause(1600);
 
-  // 3. Chat: runner-ups, open the first, Move pill ------------------------------
+  // 2. Chat: strengths → explore pill → option 1 → the answer -------------------
+  await click(page, finders.text, { needle: copy.strengthsNav, tags: 'button' }, 'sidebar: strengths');
+  await pause(1600);
+  await alignTop(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, H - 280, 'explore pill');
+  let before = await messageCount(page);
+  await click(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, 'explore pill', {
+    reached: async () => (await messageCount(page)) > before,
+  });
+  await pause(900);
+  // The option card is the newest message: bring it into frame, then straight to option 1.
+  await alignTop(page, finders.option1, null, H - 420, 'option 1');
+  await still('02-explore');
+  before = await messageCount(page);
+  await click(page, finders.option1, null, 'option 1', { reached: async () => (await messageCount(page)) > before });
+  await pause(900);
+  await alignTop(page, finders.lastMessage, null, 160, 'the answer', 900);
+  await pause(2400);
+
+  // 3. Runner-ups: the three cards, open the first, the Move pill ---------------
   await page.evaluate(() => window.__cairnlyDemoReveal?.(10000)); // everything
   await sleep(1500);
-  await scrollToText(page, copy.runnerUpHeading, 110, { tags: 'strong, h3, span, p' });
+  await alignTop(page, finders.text, { needle: copy.runnerUpHeading, tags: 'strong, h3, span, p' }, 110, 'runner-up heading', 900);
   await pause(1500);
   await still('03-runner-ups');
-  // The first collapsed card header.
-  await settleScroll(page);
-  const card = await page.evaluate(() => {
-    const el = document.querySelector('[data-card-collapsed]');
-    if (!el) return null;
-    const r = el.getBoundingClientRect();
-    return { x: r.left + Math.min(r.width / 2, 260), y: r.top + Math.min(r.height / 2, 28) };
-  });
-  if (!card) throw new Error('no collapsed runner-up card');
-  await clickPoint(page, card);
+  await click(page, finders.collapsedCard, null, 'first runner-up card');
   await pause(1400);
-  await scrollToText(page, copy.moveSuffix, 560, { tags: 'button' });
-  await pause(600);
-  await clickText(page, copy.moveSuffix, { tags: 'button' });
+  await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, H - 340, 'move pill', 900);
+  await pause(500);
+  await click(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, 'move pill');
   await pause(2200); // the replay scrolls to the feasibility question and rings it
   await still('04-move');
   await pause(1200);
 
-  // 4. wrap: fade -----------------------------------------------------------------
-  await fade(page, 1);
-  recording = false;
-
-  // 5. Dashboard ---------------------------------------------------------------------
-  await goto('/demo/dashboard');
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await sleep(1500);
-  await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
-  recording = true;
-  await fade(page, 0);
-  await pause(800);
-  // Hover the compare radar on the top card: the card flips to its back.
-  const why = await locate(page, copy.whyFits, { tags: 'button' });
-  const flipTarget = await page.evaluate(() => {
-    const svg = [...document.querySelectorAll('svg')].find((s) => {
-      const r = s.getBoundingClientRect();
-      return r.width > 180 && r.height > 180 && r.top > 0 && r.top < window.innerHeight;
-    });
-    if (!svg) return null;
-    const r = svg.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  // 4. A quick run through the rest of the chat, resting on its end -------------
+  const end = await page.evaluate(() => {
+    const all = document.querySelectorAll('[id^="demo-msg-"]');
+    const r = all[all.length - 1].getBoundingClientRect();
+    return window.scrollY + r.bottom - window.innerHeight + 24;
   });
-  if (!flipTarget) throw new Error('compare radar not found on the top card');
-  await cursorTo(page, flipTarget.x, flipTarget.y, 600);
-  await page.mouse.move(flipTarget.x, flipTarget.y);
-  await pause(2600); // flip + read
-  await still('05-flip');
-  // Leave the card so it flips back, then "Why this fits".
-  await cursorTo(page, 40, why.y, 500);
-  await page.mouse.move(40, why.y);
-  await pause(1100);
-  await clickText(page, copy.whyFits, { tags: 'button' });
-  await pause(2200);
-  await still('06-why');
-  await pause(600);
+  await glideTo(page, end, 2600);
+  await pause(1500);
+  await still('05-chat-end');
 
-  // 6. Find this role → fade out --------------------------------------------------
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  await pause(900);
-  await clickText(page, copy.findRole, { tags: 'button' });
+  // 5. Dashboard, four frames ------------------------------------------------------
+  await cutTo('/demo/dashboard', async () => {
+    await sleep(1200);
+    await alignTop(page, finders.text, { needle: copy.welcomeEyebrow }, 50, 'welcome eyebrow', 0);
+  });
+  await pause(700);
+  // 5.1 the top card flips when the pointer reaches its radar
+  await hover(page, finders.radar, null, 'compare radar');
+  await pause(1700); // flip + one second of reading
+  await still('06-flip');
+  // 5.2 the full report, with the values section open
+  await alignTop(page, finders.text, { needle: copy.reportEyebrow }, 30, 'report eyebrow', 1100);
+  await click(page, finders.aboutRow, { needle: copy.aboutEyebrow, index: 4 }, 'values row');
+  await pause(2000);
+  await still('07-values');
+  // 5.3 runner-up careers, opened
+  // Shortest button match = the accordion row header (title + subtitle).
+  await click(page, finders.text, { needle: copy.runnersTitle, tags: 'button' }, 'runner-up row');
+  await pause(600);
+  await alignTop(page, finders.text, { needle: copy.runnersTitle, tags: 'button' }, 30, 'runner-up row', 1100);
+  await pause(2000);
+  await still('08-runner-ups');
+  // 5.4 back up to the paths and the toolkit, then the job search press
+  await alignTop(page, finders.text, { needle: copy.pathsEyebrow }, 40, 'paths eyebrow', 1100);
+  await pause(2000);
+  await still('09-paths');
+  await click(page, finders.text, { needle: copy.jobsCta, tags: 'a, button' }, 'open the job search');
   await pause(500);
   await fade(page, 1);
   await pause(400);
