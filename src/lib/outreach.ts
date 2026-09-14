@@ -114,6 +114,110 @@ export interface OutreachProspect {
   needs_reply: boolean;
 }
 
+// ─── Follow-up cadence ───────────────────────────────────────────────────────
+//
+// Four working days after the first mail, six after follow-up 1. Four is long
+// enough not to read as nagging and short enough that our mail is still in
+// their memory, and because it is not a whole week the follow-up lands on a
+// different weekday than the first mail: a Wednesday send is chased on a
+// Tuesday, a Friday send on a Thursday. Nobody gets "this guy again, every
+// Wednesday".
+//
+// Three touches total. After follow-up 2 the pipeline stops nudging; a fourth
+// mail to someone who never answered twice costs more goodwill than it buys.
+export const FOLLOW_UP_1_WORKING_DAYS = 4;
+export const FOLLOW_UP_2_WORKING_DAYS = 6;
+
+const AMSTERDAM = 'Europe/Amsterdam';
+const DAY_MS = 86_400_000;
+
+/**
+ * The Amsterdam calendar day an instant falls on, as a UTC-midnight stamp.
+ * Everything below counts in whole days, so working in day stamps avoids both
+ * DST and "sent at 23:50" edge cases.
+ */
+export function amsterdamDay(at: string | Date): number {
+  const d = typeof at === 'string' ? new Date(at) : at;
+  const ymd = new Intl.DateTimeFormat('en-CA', {
+    timeZone: AMSTERDAM,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+  return Date.parse(`${ymd}T00:00:00Z`);
+}
+
+const isWeekend = (dayStamp: number): boolean => {
+  const wd = new Date(dayStamp).getUTCDay();
+  return wd === 0 || wd === 6;
+};
+
+/** The day stamp `days` working days after `dayStamp`. Saturdays and Sundays do not count. */
+export function addWorkingDays(dayStamp: number, days: number): number {
+  let stamp = dayStamp;
+  let left = days;
+  while (left > 0) {
+    stamp += DAY_MS;
+    if (!isWeekend(stamp)) left--;
+  }
+  return stamp;
+}
+
+/** Working days strictly after `from`, up to and including `to`. Zero when `to` is not later. */
+export function workingDaysBetween(from: number, to: number): number {
+  if (to <= from) return 0;
+  let count = 0;
+  for (let stamp = from + DAY_MS; stamp <= to; stamp += DAY_MS) {
+    if (!isWeekend(stamp)) count++;
+  }
+  return count;
+}
+
+export interface FollowUp {
+  /** 1 = first chase, 2 = last chase. */
+  step: 1 | 2;
+  /** UTC-midnight stamp of the Amsterdam day it is (or was) due. */
+  dueDay: number;
+  /** Working days past due. 0 means today, negative means still waiting. */
+  daysLate: number;
+  due: boolean;
+}
+
+/**
+ * The next follow-up for an agency, or null when chasing is not the right move:
+ * they wrote last (answer them first), they already had both chases, or the
+ * conversation moved on (call booked, declined, pilot running).
+ *
+ * The clock runs from the last mail WE sent, not from the status change, so a
+ * chase that went out today does not immediately look overdue again.
+ */
+export function followUp(
+  p: Pick<OutreachProspect, 'status' | 'needs_reply' | 'verzonden_op' | 'mails'>,
+  now: Date = new Date(),
+): FollowUp | null {
+  if (p.needs_reply) return null;
+
+  const step: 1 | 2 | null =
+    p.status === 'verzonden' ? 1 : p.status === 'opvolging_1' ? 2 : null;
+  if (!step) return null;
+
+  const lastOut = p.mails.find((m) => m.direction === 'out');
+  const anchor = lastOut?.sent_at ?? p.verzonden_op;
+  if (!anchor) return null;
+
+  const wait = step === 1 ? FOLLOW_UP_1_WORKING_DAYS : FOLLOW_UP_2_WORKING_DAYS;
+  const dueDay = addWorkingDays(amsterdamDay(anchor), wait);
+  const today = amsterdamDay(now);
+  const due = today >= dueDay;
+
+  return {
+    step,
+    dueDay,
+    daysLate: due ? workingDaysBetween(dueDay, today) : -workingDaysBetween(today, dueDay),
+    due,
+  };
+}
+
 /**
  * "Warm": someone opened the demo but the pipeline says we have not followed
  * up yet. These go to the top of the table, that is the whole reason to
@@ -149,4 +253,24 @@ export function compareProspects(a: OutreachProspect, b: OutreachProspect): numb
 
   // Agency names are Dutch even though the console is English.
   return (a.naam ?? '').localeCompare(b.naam ?? '', 'nl');
+}
+
+/**
+ * The order the tab actually uses: answer-me first, then chase-me (longest
+ * overdue at the top, so the queue drains oldest first), then the click-based
+ * order above. Both top buckets are work Sjoerd owes someone; everything below
+ * is browsing.
+ */
+export function compareWorkFirst(a: OutreachProspect, b: OutreachProspect, now: Date): number {
+  const reply = Number(Boolean(b.needs_reply)) - Number(Boolean(a.needs_reply));
+  if (reply !== 0) return reply;
+
+  const fa = followUp(a, now);
+  const fb = followUp(b, now);
+  const dueA = fa?.due ? 1 : 0;
+  const dueB = fb?.due ? 1 : 0;
+  if (dueA !== dueB) return dueB - dueA;
+  if (dueA === 1 && fa && fb && fa.daysLate !== fb.daysLate) return fb.daysLate - fa.daysLate;
+
+  return compareProspects(a, b);
 }
