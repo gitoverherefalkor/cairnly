@@ -99,6 +99,10 @@ export interface OutreachProspect {
   laatste_bevestigde_klik: string | null;
   /** Phase 3: partner hand-off. */
   partner_slug: string | null;
+  /** Set by the "Draft follow-up" button; cleared once the mail actually goes out. */
+  followup_requested_at: string | null;
+  /** The Gmail draft id, once WF11 created the queued chase. */
+  followup_draft_id: string | null;
   partner_naam: string | null;
   codes_issued: number;
   codes_claimed: number;
@@ -171,6 +175,20 @@ export function workingDaysBetween(from: number, to: number): number {
     if (!isWeekend(stamp)) count++;
   }
   return count;
+}
+
+/**
+ * Where a requested chase stands. 'queued' means Sjoerd asked for it and WF11
+ * has not been round yet; 'ready' means the draft is sitting in Gmail.
+ */
+export type FollowUpDraftState = 'none' | 'queued' | 'ready';
+
+export function followUpDraftState(
+  p: Pick<OutreachProspect, 'followup_requested_at' | 'followup_draft_id'>,
+): FollowUpDraftState {
+  if (p.followup_draft_id) return 'ready';
+  if (p.followup_requested_at) return 'queued';
+  return 'none';
 }
 
 export interface FollowUp {

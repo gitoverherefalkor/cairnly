@@ -13,6 +13,12 @@
 //     → { processed, skipped, drafts: [{ mail_id, thread_id, to, subject, body }] }
 //   { action: 'draft_created', mail_id, draft_id }
 //     → { ok: true }
+//
+// A `sync` response also carries the follow-up drafts /ops asked for, mixed in
+// with the reply drafts. n8n creates whatever is in `drafts` and hands the id
+// back under the same `mail_id` it was given, so the follow-up leg needed no
+// workflow change at all: its handle is the string `followup:<slug>` instead
+// of an outreach_mails uuid. See draftTarget() below.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -37,6 +43,14 @@ import {
   SYSTEM_PROMPT,
   type Classification,
 } from '../_shared/outreachReply.ts';
+import {
+  buildFollowUpMessage,
+  FOLLOW_UP_SYSTEM_PROMPT,
+  FOLLOW_UP_TOOL,
+  parseFollowUp,
+  renderFollowUp,
+  type FollowUpInput,
+} from '../_shared/outreachFollowUp.ts';
 
 const MODEL = 'claude-sonnet-5'; // never send `temperature` to sonnet-5
 const SNIPPET_MAX = 400;
@@ -66,16 +80,24 @@ interface DraftOut {
 
 // ─── Claude ──────────────────────────────────────────────────────────────────
 
-async function classifyWithClaude(userMessage: string): Promise<Classification | null> {
+type ClaudeResponse = { content?: Array<{ type: string; name?: string; input?: unknown }> };
+
+/** One forced tool call, retried once on a transient failure. */
+async function claudeToolCall(
+  system: string,
+  userMessage: string,
+  tool: { name: string },
+  maxTokens: number,
+): Promise<ClaudeResponse> {
   const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) throw new Error('ANTHROPIC_API_KEY not configured');
   const body = {
     model: MODEL,
-    max_tokens: 1200,
-    system: SYSTEM_PROMPT,
+    max_tokens: maxTokens,
+    system,
     messages: [{ role: 'user', content: userMessage }],
-    tools: [CLASSIFY_TOOL],
-    tool_choice: { type: 'tool', name: CLASSIFY_TOOL.name },
+    tools: [tool],
+    tool_choice: { type: 'tool', name: tool.name },
     // sonnet-5 runs adaptive thinking by default and it shares max_tokens
     // with the answer; a forced tool call does not need it.
     thinking: { type: 'disabled' },
@@ -96,15 +118,37 @@ async function classifyWithClaude(userMessage: string): Promise<Classification |
     }
     return await r.json();
   };
-  let resp;
   try {
-    resp = await attempt();
+    return await attempt();
   } catch (e) {
     if ((e as { retryable?: boolean }).retryable === false) throw e;
     await new Promise((res) => setTimeout(res, 1500));
-    resp = await attempt();
+    return await attempt();
   }
-  return parseClassification(resp);
+}
+
+async function classifyWithClaude(userMessage: string): Promise<Classification | null> {
+  return parseClassification(await claudeToolCall(SYSTEM_PROMPT, userMessage, CLASSIFY_TOOL, 1200));
+}
+
+/**
+ * The chase itself. Claude fits the approved skeleton to this agency; if it is
+ * unavailable or returns something malformed, the plain skeleton goes out. A
+ * template in the Drafts folder beats an empty Drafts folder.
+ */
+async function writeFollowUp(input: FollowUpInput): Promise<string> {
+  try {
+    const resp = await claudeToolCall(
+      FOLLOW_UP_SYSTEM_PROMPT,
+      buildFollowUpMessage(input),
+      FOLLOW_UP_TOOL,
+      800,
+    );
+    return parseFollowUp(resp) ?? renderFollowUp(input);
+  } catch (e) {
+    console.error('[outreach-mail-sync] follow-up generation failed for', input.slug, e);
+    return renderFollowUp(input);
+  }
 }
 
 // ─── Sync ────────────────────────────────────────────────────────────────────
@@ -221,6 +265,15 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
         if (error) throw error;
         statusAfter = (data as string | null) ?? statusBefore;
       }
+      // A mail actually went out to this agency, so any chase we had queued or
+      // drafted for them is spent. Gmail drafts never reach this branch (sync
+      // drops DRAFT-labelled messages), so this only fires on a real send.
+      const { error: clearErr } = await supabase
+        .from('outreach_prospects')
+        .update({ followup_requested_at: null, followup_draft_id: null })
+        .eq('slug', slug)
+        .not('followup_requested_at', 'is', null);
+      if (clearErr) console.error('[outreach-mail-sync] could not clear the follow-up flag for', slug, clearErr);
     } else {
       row.kind = 'reactie';
       const ourLast = [...history].reverse().find((h) => h.direction === 'out')?.snippet ?? null;
@@ -324,6 +377,105 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
   return { processed, skipped, drafts };
 }
 
+// ─── Follow-up drafts ────────────────────────────────────────────────────────
+
+/** The handle n8n carries for a queued chase. Not a uuid, on purpose: see the file header. */
+const FOLLOW_UP_PREFIX = 'followup:';
+const draftTarget = (slug: string) => `${FOLLOW_UP_PREFIX}${slug}`;
+
+/** Agencies we may still chase. Anything else that asked for one has moved on. */
+const CHASEABLE = new Set(['verzonden', 'opvolging_1']);
+
+/**
+ * Turn every "Draft follow-up" click in /ops into a draft for n8n to create.
+ *
+ * Runs on every sync, including the many runs with no new mail, because the
+ * queue is filled by the dashboard rather than by Gmail. A request on an agency
+ * that has meanwhile replied or been closed is dropped rather than written: by
+ * the time Sjoerd reads the draft the situation would already have changed.
+ */
+async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftOut[]> {
+  const { data: pending, error } = await supabase
+    .from('outreach_prospects')
+    .select('slug, naam, contactpersoon, to_email, status, campaign, openingshaak, partner_slug')
+    .not('followup_requested_at', 'is', null)
+    .is('followup_draft_id', null);
+  if (error) throw error;
+  if (!pending?.length) return [];
+
+  const slugs = pending.map((p) => p.slug as string);
+  const [statsRes, mailsRes] = await Promise.all([
+    supabase.from('outreach_prospect_stats').select('slug, kliks_bevestigd').in('slug', slugs),
+    supabase
+      .from('outreach_mails')
+      .select('slug, gmail_thread_id, subject, to_email, direction, sent_at')
+      .in('slug', slugs)
+      .order('sent_at', { ascending: false }),
+  ]);
+  if (statsRes.error) throw statsRes.error;
+  if (mailsRes.error) throw mailsRes.error;
+
+  const clicksBySlug = new Map((statsRes.data ?? []).map((r) => [r.slug as string, Number(r.kliks_bevestigd ?? 0)]));
+  const lastMail = new Map<string, Record<string, unknown>>();
+  for (const m of mailsRes.data ?? []) {
+    if (!lastMail.has(m.slug as string)) lastMail.set(m.slug as string, m as Record<string, unknown>);
+  }
+
+  const drafts: DraftOut[] = [];
+  const stale: string[] = [];
+
+  for (const p of pending) {
+    const slug = p.slug as string;
+    const status = String(p.status ?? '');
+    if (!CHASEABLE.has(status)) {
+      stale.push(slug);
+      continue;
+    }
+    const last = lastMail.get(slug);
+    if (!last) {
+      // Nothing to thread onto. The status says a mail went out, so this is a
+      // data problem rather than a normal state; leave the flag for a human.
+      console.error('[outreach-mail-sync] follow-up requested but no mail logged for', slug);
+      continue;
+    }
+    const to = (p.to_email as string | null) ?? (last.to_email as string | null);
+    if (!to) {
+      console.error('[outreach-mail-sync] follow-up requested but no address for', slug);
+      continue;
+    }
+
+    const subject = String(last.subject ?? 'Vraagje over jullie spoor 2-trajecten');
+    const body = await writeFollowUp({
+      slug,
+      bureau: (p.naam as string | null) ?? slug,
+      contactpersoon: (p.contactpersoon as string | null) ?? null,
+      step: status === 'verzonden' ? 1 : 2,
+      clicks: clicksBySlug.get(slug) ?? 0,
+      openingshaak: (p.openingshaak as string | null) ?? null,
+      campaign: (p.campaign as string | null) ?? null,
+      codeIssued: Boolean(p.partner_slug),
+    });
+
+    drafts.push({
+      mail_id: draftTarget(slug),
+      thread_id: String(last.gmail_thread_id),
+      to,
+      subject: /^re:/i.test(subject) ? subject : `Re: ${subject}`,
+      body,
+    });
+  }
+
+  if (stale.length) {
+    const { error: clearErr } = await supabase
+      .from('outreach_prospects')
+      .update({ followup_requested_at: null })
+      .in('slug', stale);
+    if (clearErr) console.error('[outreach-mail-sync] could not clear stale follow-ups', clearErr);
+  }
+
+  return drafts;
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -344,13 +496,35 @@ serve(async (req) => {
   try {
     if (action === 'sync') {
       const messages = Array.isArray(body.messages) ? body.messages : [];
-      return json(await sync(supabase, messages));
+      const result = await sync(supabase, messages);
+      // Outside sync() on purpose: the queue is filled by /ops, so it has to be
+      // drained on the many runs where Gmail brought nothing new and sync()
+      // returns early.
+      const followUps = await composePendingFollowUps(supabase);
+      const drafts = [...((result.drafts as DraftOut[]) ?? []), ...followUps];
+      return json({ ...result, drafts, follow_ups: followUps.length });
     }
 
     if (action === 'draft_created') {
       const mailId = String(body.mail_id ?? '');
       const draftId = String(body.draft_id ?? '');
       if (!mailId || !draftId) return json({ error: 'mail_id and draft_id required' }, 400);
+
+      // Two kinds of draft come back through this one door. A reply hangs off
+      // the mail it answers; a chase hangs off the agency itself.
+      if (mailId.startsWith(FOLLOW_UP_PREFIX)) {
+        const slug = mailId.slice(FOLLOW_UP_PREFIX.length);
+        const { data, error } = await supabase
+          .from('outreach_prospects')
+          .update({ followup_draft_id: draftId, updated_at: new Date().toISOString() })
+          .eq('slug', slug)
+          .select('slug')
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) return json({ error: 'Unknown prospect' }, 404);
+        return json({ ok: true, slug });
+      }
+
       const { error } = await supabase.from('outreach_mails').update({ draft_id: draftId }).eq('id', mailId);
       if (error) throw error;
       return json({ ok: true });

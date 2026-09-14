@@ -9,7 +9,7 @@
 // runs through the service role because outreach_prospects / outreach_clicks
 // have RLS on with zero policies.
 //
-// Actions: list | update
+// Actions: list | update | queue_followup
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -33,6 +33,10 @@ const STATUS_SET = new Set<string>(OUTREACH_STATUSES);
 const NOTES_MAX = 4000;
 const RAW_LOG_ROWS = 100;
 const MAILS_MAX = 2000;
+/** One click on "Draft all due" should never become a hundred Gmail drafts. */
+const QUEUE_MAX = 40;
+/** Statuses where a chase is still the right move; mirrors CHASEABLE in outreach-mail-sync. */
+const CHASEABLE_STATUSES = ['verzonden', 'opvolging_1'];
 const MAILS_PER_PROSPECT = 12;
 // Mirrors the interval in the outreach_prospect_stats view. A non-bot click
 // inside this window after the mail went out is treated as a link scanner.
@@ -93,7 +97,7 @@ serve(async (req) => {
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -270,6 +274,41 @@ serve(async (req) => {
       if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
 
       return ok({ prospect: data }, corsHeaders);
+    }
+
+    // ── queue_followup ──────────────────────────────────────────────────────
+    // The "Draft follow-up" button. It writes a flag and nothing else: the next
+    // WF11 run asks outreach-mail-sync for work, Claude fits the approved
+    // template to this agency, and the draft lands in the Gmail thread. Nothing
+    // is ever sent from here, and no mail is composed in this function.
+    if (action === 'queue_followup') {
+      const slugs = Array.isArray(body.slugs)
+        ? body.slugs.map((s) => String(s)).filter(Boolean)
+        : body.slug
+          ? [String(body.slug)]
+          : [];
+      if (slugs.length === 0) return errorResponse('slug or slugs required', 400, corsHeaders);
+      if (slugs.length > QUEUE_MAX) {
+        return errorResponse(`Queue at most ${QUEUE_MAX} follow-ups at a time.`, 400, corsHeaders);
+      }
+
+      // Only agencies that are actually due a chase. Asking for one on a bureau
+      // that replied would put a chase on top of their unanswered mail.
+      const { data, error } = await supabase
+        .from('outreach_prospects')
+        .update({
+          followup_requested_at: new Date().toISOString(),
+          followup_draft_id: null,
+          updated_at: new Date().toISOString(),
+        })
+        .in('slug', slugs)
+        .in('status', CHASEABLE_STATUSES)
+        .select('slug, followup_requested_at, followup_draft_id');
+      if (error) throw error;
+
+      const queued = data ?? [];
+      const rejected = slugs.filter((s) => !queued.some((q) => q.slug === s));
+      return ok({ queued, rejected }, corsHeaders);
     }
 
     return errorResponse(`Unknown action: ${action}`, 400, corsHeaders);

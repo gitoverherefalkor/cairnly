@@ -23,7 +23,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine } from 'lucide-react';
 import {
   FOLLOW_UP_1_WORKING_DAYS,
   FOLLOW_UP_2_WORKING_DAYS,
@@ -32,8 +32,10 @@ import {
   SENTIMENT_LABELS,
   compareWorkFirst,
   followUp,
+  followUpDraftState,
   isWarm,
   type FollowUp,
+  type FollowUpDraftState,
   type OutreachMail,
   type OutreachProspect,
   type OutreachStatus,
@@ -66,6 +68,11 @@ interface ClickRow {
   /** Non-bot, but landed inside 2 minutes of the mail going out. */
   verdacht?: boolean;
   created_at: string;
+}
+
+interface QueueResponse {
+  queued: Array<Pick<OutreachProspect, 'slug' | 'followup_requested_at' | 'followup_draft_id'>>;
+  rejected: string[];
 }
 
 interface UpdateResponse {
@@ -149,10 +156,42 @@ async function callOutreach<T = unknown>(body: Record<string, unknown>): Promise
 // ─── One row ──────────────────────────────────────────────────────────────────
 
 /**
- * The nudge. Gold and loud once a chase is due, quiet grey while the clock is
- * still running, nothing at all when chasing is not the move.
+ * The nudge, and the one-click way to act on it. Gold and loud once a chase is
+ * due, quiet grey while the clock is still running, and once asked for, it
+ * reports where the draft is. Nothing at all when chasing is not the move.
  */
-function FollowUpBadge({ fu }: { fu: FollowUp | null }) {
+function FollowUpBadge({
+  fu,
+  draftState,
+  onDraft,
+  queueing,
+}: {
+  fu: FollowUp | null;
+  draftState: FollowUpDraftState;
+  onDraft?: () => void;
+  queueing?: boolean;
+}) {
+  if (draftState === 'ready') {
+    return (
+      <div>
+        <span
+          className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal"
+          title="The follow-up is written and waiting in Gmail under Drafts. Read it, change what you want, send it."
+        >
+          <Mail className="h-3 w-3" /> Follow-up draft in Gmail
+        </span>
+      </div>
+    );
+  }
+
+  if (draftState === 'queued') {
+    return (
+      <div className="text-[11px] text-white/60 inline-flex items-center gap-1" title="WF11 runs every 15 minutes and writes the draft into the Gmail thread.">
+        <Clock className="h-3 w-3" /> Draft queued
+      </div>
+    );
+  }
+
   if (!fu) return null;
 
   if (!fu.due) {
@@ -167,13 +206,24 @@ function FollowUpBadge({ fu }: { fu: FollowUp | null }) {
     ? 'due today'
     : `${fu.daysLate} working day${fu.daysLate === 1 ? '' : 's'} late`;
   return (
-    <div>
+    <div className="flex flex-wrap items-center gap-1.5">
       <span
         className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-atlas-gold/40 bg-atlas-gold/15 text-atlas-gold"
         title={`Follow-up ${fu.step} was due ${fmtDay(fu.dueDay)}. Sending it moves the status by itself once WF11 picks the mail up.`}
       >
         <Clock className="h-3 w-3" /> Follow-up {fu.step}, {late}
       </span>
+      {onDraft && (
+        <button
+          onClick={onDraft}
+          disabled={queueing}
+          className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-white/15 text-white/70 hover:text-white hover:border-atlas-gold/40 disabled:opacity-50"
+          title="Write the follow-up for this agency and put it in the Gmail thread as a draft. Nothing is sent."
+        >
+          {queueing ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
+          Draft it
+        </button>
+      )}
     </div>
   );
 }
@@ -183,17 +233,30 @@ function ProspectRow({
   fu,
   onSaved,
   onCreatePartner,
+  onDraftFollowUp,
 }: {
   p: OutreachProspect;
   /** The next chase for this agency, or null when chasing is not the move. */
   fu: FollowUp | null;
   onSaved: (patch: Pick<OutreachProspect, 'slug'> & Partial<OutreachProspect>) => void;
   onCreatePartner?: (draft: PartnerDraft) => void;
+  onDraftFollowUp: (slug: string) => Promise<void>;
 }) {
   const [notes, setNotes] = useState(p.notities ?? '');
   const [savingStatus, setSavingStatus] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [showMails, setShowMails] = useState(false);
+  const [queueing, setQueueing] = useState(false);
+
+  const draftState = followUpDraftState(p);
+  const draftFollowUp = async () => {
+    setQueueing(true);
+    try {
+      await onDraftFollowUp(p.slug);
+    } finally {
+      setQueueing(false);
+    }
+  };
 
   // Keep the local draft in step if a refresh brings newer notes in and the
   // field is not being edited.
@@ -303,7 +366,7 @@ function ProspectRow({
               <span className="text-white/55" title={`First sent ${fmt(p.verzonden_op, true)}`}>
                 Sent {fmt(p.verzonden_op, true)}
               </span>
-              <FollowUpBadge fu={fu} />
+              <FollowUpBadge fu={fu} draftState={draftState} onDraft={draftFollowUp} queueing={queueing} />
             </div>
           ) : (
             <span className="text-white/45">Not sent</span>
@@ -339,7 +402,7 @@ function ProspectRow({
             {p.laatste_samenvatting && (
               <div className="text-[11px] text-white/70 leading-snug" title={p.laatste_samenvatting}>{p.laatste_samenvatting}</div>
             )}
-            <FollowUpBadge fu={fu} />
+            <FollowUpBadge fu={fu} draftState={draftState} onDraft={draftFollowUp} queueing={queueing} />
           </div>
         )}
       </td>
@@ -555,6 +618,45 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     );
   }, []);
 
+  /**
+   * Ask for a follow-up draft on one or many agencies. This writes a flag and
+   * nothing else: the mail is written by outreach-mail-sync on the next WF11
+   * run and lands in the Gmail thread as a draft, never sent.
+   */
+  const queueFollowUps = useCallback(async (slugs: string | string[]) => {
+    const list = Array.isArray(slugs) ? slugs : [slugs];
+    if (list.length === 0) return;
+    try {
+      const res = await callOutreach<QueueResponse>({ action: 'queue_followup', slugs: list });
+      const queued = new Map(res.queued.map((q) => [q.slug, q]));
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              prospects: prev.prospects.map((p) => {
+                const q = queued.get(p.slug);
+                return q
+                  ? { ...p, followup_requested_at: q.followup_requested_at, followup_draft_id: q.followup_draft_id }
+                  : p;
+              }),
+            }
+          : prev,
+      );
+      if (res.queued.length > 0) {
+        toast.success(
+          res.queued.length === 1
+            ? 'Follow-up queued. The draft lands in Gmail within 15 minutes.'
+            : `${res.queued.length} follow-ups queued. The drafts land in Gmail within 15 minutes.`,
+        );
+      }
+      if (res.rejected.length > 0) {
+        toast.warning(`Skipped ${res.rejected.length}: they are no longer waiting on a chase.`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not queue the follow-up');
+    }
+  }, []);
+
   // One clock for the whole render pass, refreshed when the data is: a `new
   // Date()` per row would make the sort non-deterministic across a tick.
   const now = useMemo(() => new Date(), [data]);
@@ -570,6 +672,16 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     () => (data?.prospects ?? []).filter((p) => followUps.get(p.slug)?.due).length,
     [data, followUps],
   );
+
+  /** Due, and nobody has asked for a draft yet. This is what "Draft all due" acts on. */
+  const undrafted = useMemo(
+    () =>
+      (data?.prospects ?? [])
+        .filter((p) => followUps.get(p.slug)?.due && followUpDraftState(p) === 'none')
+        .map((p) => p.slug),
+    [data, followUps],
+  );
+  const [draftingAll, setDraftingAll] = useState(false);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -691,6 +803,24 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           />
           Only follow-up due
         </label>
+        {undrafted.length > 0 && (
+          <button
+            onClick={async () => {
+              setDraftingAll(true);
+              try {
+                await queueFollowUps(undrafted);
+              } finally {
+                setDraftingAll(false);
+              }
+            }}
+            disabled={draftingAll}
+            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-atlas-gold/40 bg-atlas-gold/10 text-atlas-gold hover:bg-atlas-gold/20 disabled:opacity-50"
+            title="Write a follow-up for every agency whose chase is due, into their own Gmail thread. Drafts only, nothing is sent."
+          >
+            {draftingAll ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PenLine className="h-3.5 w-3.5" />}
+            Draft all due ({undrafted.length})
+          </button>
+        )}
         <div className="ml-auto flex items-center gap-2 text-xs text-white/60">
           {rows.length} of {data.prospects.length}
           <button onClick={load} disabled={loading} className="inline-flex items-center gap-1 text-white/80 hover:text-white">
@@ -726,13 +856,14 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
                   fu={followUps.get(p.slug) ?? null}
                   onSaved={applyPatch}
                   onCreatePartner={onCreatePartner}
+                  onDraftFollowUp={queueFollowUps}
                 />
               ))
             )}
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 

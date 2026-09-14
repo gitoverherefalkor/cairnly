@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   addWorkingDays,
+  followUpDraftState,
   amsterdamDay,
   compareProspects,
   compareWorkFirst,
@@ -35,6 +36,8 @@ const base: OutreachProspect = {
   eerste_bevestigde_klik: null,
   laatste_bevestigde_klik: null,
   partner_slug: null,
+  followup_requested_at: null,
+  followup_draft_id: null,
   partner_naam: null,
   codes_issued: 0,
   codes_claimed: 0,
@@ -216,5 +219,15 @@ describe('compareWorkFirst', () => {
     const quiet = make({ slug: 'quiet', status: 'afgewezen' });
     const order = [quiet, dueFri, lateWed, replied].sort((a, b) => compareWorkFirst(a, b, now));
     expect(order.map((p) => p.slug)).toEqual(['replied', 'wed', 'fri', 'quiet']);
+  });
+});
+
+describe('followUpDraftState', () => {
+  it('reads the two columns as one state', () => {
+    expect(followUpDraftState(make({}))).toBe('none');
+    expect(followUpDraftState(make({ followup_requested_at: '2026-09-15T08:00:00Z' }))).toBe('queued');
+    expect(
+      followUpDraftState(make({ followup_requested_at: '2026-09-15T08:00:00Z', followup_draft_id: 'r-123' })),
+    ).toBe('ready');
   });
 });
