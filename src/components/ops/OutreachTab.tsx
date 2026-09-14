@@ -194,10 +194,25 @@ function FollowUpBadge({
 
   if (!fu) return null;
 
+  // Not due yet, but chasing early is Sjoerd's call to make, so the button is
+  // here too, just quiet.
   if (!fu.due) {
     return (
-      <div className="text-[11px] text-white/45" title={`Follow-up ${fu.step} is due ${fmtDay(fu.dueDay)}`}>
-        Follow-up {fu.step} {fmtDay(fu.dueDay)}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[11px] text-white/45" title={`Follow-up ${fu.step} is due ${fmtDay(fu.dueDay)}`}>
+          Follow-up {fu.step} {fmtDay(fu.dueDay)}
+        </span>
+        {onDraft && (
+          <button
+            onClick={onDraft}
+            disabled={queueing}
+            className="inline-flex items-center gap-1 text-[11px] text-white/40 hover:text-white/80 disabled:opacity-50"
+            title="Draft it now anyway. The mail waits in Gmail until you send it."
+          >
+            {queueing ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
+            Draft early
+          </button>
+        )}
       </div>
     );
   }
