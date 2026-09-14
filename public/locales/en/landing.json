@@ -619,6 +619,13 @@
         ],
         "cta": "See Marcel's session"
       }
+    },
+    "endCard": {
+      "title": "That was three minutes of a two-hour session.",
+      "body": "Your own report starts with the survey. Cancel any time before you submit it.",
+      "cta": "Start your session now",
+      "replay": "Replay",
+      "fullDemo": "Watch the full demo"
     }
   },
   "intakeSection": {

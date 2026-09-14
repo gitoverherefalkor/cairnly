@@ -619,6 +619,13 @@
         ],
         "cta": "Bekijk Marcels sessie"
       }
+    },
+    "endCard": {
+      "title": "Dat waren drie minuten uit een sessie van twee uur.",
+      "body": "Je eigen rapport begint bij de vragenlijst. Stoppen kan tot je hem verstuurt.",
+      "cta": "Start nu je sessie",
+      "replay": "Opnieuw",
+      "fullDemo": "Bekijk de hele demo"
     }
   },
   "intakeSection": {
