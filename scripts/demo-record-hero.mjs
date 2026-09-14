@@ -58,6 +58,8 @@ const CLIPS = [
 // instead of silently recording the wrong thing.
 const COPY = {
   en: {
+    resumeContinue: 'Continue to Assessment', // preSurveyUpload.cta.continue
+    rankAdd: 'Creativity', // a "tap to add" career value
     scheduleChoice: 'Flexible hours',
     nonNegotiable: 'This is non-negotiable for me',
     processing: ['Reading your responses', 'Building your personality profile', 'Preparing your AI career coach'],
@@ -73,6 +75,8 @@ const COPY = {
     jobsCta: 'Open the job search', // dashboardDemo.jobsNudge.cta
   },
   nl: {
+    resumeContinue: 'Doorgaan naar het assessment',
+    rankAdd: 'Creativiteit',
     scheduleChoice: 'Flexibele werktijden',
     nonNegotiable: 'Dit is voor mij niet onderhandelbaar',
     processing: ['Je antwoorden worden gelezen', 'Je persoonlijkheidsprofiel wordt opgebouwd', 'Je AI-carrièrecoach wordt voorbereid'],
@@ -117,7 +121,7 @@ const finders = {
   // Smallest visible element containing `needle` (case-insensitive), among
   // `tags`; `last` takes the last match in DOM order instead (the real
   // quick-reply row sits under the cut message, after any copies above).
-  text: ({ needle, tags, last }) => {
+  text: ({ needle, tags, last, nth }) => {
     const n = needle.toLowerCase();
     let hits = [...document.querySelectorAll(tags || 'button, a, label, span, p, h1, h2, h3, h4, strong, div')]
       .filter((el) => (el.textContent || '').toLowerCase().includes(n))
@@ -125,9 +129,14 @@ const finders = {
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0;
       });
+    if (nth !== undefined) return hits[nth] ?? null; // DOM order
     if (!last) hits = hits.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length);
     return last ? hits[hits.length - 1] ?? null : hits[0] ?? null;
   },
+  // The résumé step: the first section of the survey page.
+  resumeStep: () => document.querySelector('main section'),
+  // The n-th drag handle of the ranking question (0-based).
+  grip: ({ index }) => document.querySelectorAll('button.cursor-grab')[index] ?? null,
   // The survey card that holds the given choice text.
   questionCard: ({ needle }) => {
     const n = needle.toLowerCase();
@@ -351,6 +360,41 @@ async function hover(page, finder, arg, label) {
     { src: finder.toString(), arg },
   );
 }
+// DOM click with no cursor travel: for set-up off screen (open a row before scrolling to it).
+const tap = (page, finder, arg) =>
+  page.evaluate(
+    ({ src, arg }) => {
+      const el = new Function('return ' + src)()(arg);
+      if (!el) throw new Error('tap target missing');
+      el.click();
+    },
+    { src: finder.toString(), arg },
+  );
+// Drag one element onto another with the real pointer (dnd-kit's
+// PointerSensor needs a 6 px move before it picks the item up).
+async function drag(page, fromFinder, fromArg, toFinder, toArg, label) {
+  await settleScroll(page);
+  const a = await mustRect(page, fromFinder, fromArg, label);
+  const b = await mustRect(page, toFinder, toArg, label);
+  await cursorTo(page, a.x, a.y);
+  await page.mouse.move(a.x, a.y);
+  await page.mouse.down();
+  await cursorPress(page);
+  const steps = 18;
+  for (let i = 1; i <= steps; i++) {
+    const p = i / steps;
+    const e = 1 - Math.pow(1 - p, 2);
+    const x = a.x + (b.x - a.x) * e;
+    const y = a.y + (b.y - a.y) * e;
+    await page.mouse.move(x, y);
+    await page.evaluate(({ x, y }) => { const c = document.getElementById('__cur'); c.style.left = x + 'px'; c.style.top = y + 'px'; window.__recCursor = { x, y }; }, { x, y });
+    await sleep(45 * SLOW);
+  }
+  await sleep(150);
+  await page.mouse.up();
+}
+const rankingOrder = (page) =>
+  page.evaluate(() => [...document.querySelectorAll('button.cursor-grab')].map((g) => (g.parentElement?.innerText || '').split('\n')[1] || '').filter(Boolean));
 const messageCount = (page) => page.evaluate(() => document.querySelectorAll('[id^="demo-msg-"]').length);
 
 // The real /report-processing page needs a live report; this is its look
@@ -457,19 +501,36 @@ async function record({ persona, lang }) {
     await fade(page, 0);
   };
 
-  // 1. Survey: one question in frame, option off → pick it → tick the rider ---
+  // 1. Survey: résumé step → ranking (tap one, drag it up) → schedule + rider --
   await goto('/demo/survey');
   await sleep(1200); // fonts and the résumé step settle before we measure
-  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
+  await alignTop(page, finders.resumeStep, null, 40, 'résumé step', 0);
   await sleep(600);
-  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
+  await alignTop(page, finders.resumeStep, null, 40, 'résumé step', 0);
   await startFilm();
+  await pause(1400);
+  await still('01-resume');
+  await click(page, finders.text, { needle: copy.resumeContinue, tags: 'button' }, 'continue to assessment');
+  await pause(900);
+  await alignTop(page, finders.questionCard, { needle: copy.rankAdd }, 40, 'ranking question', 700);
   await pause(600);
+  const before1 = (await rankingOrder(page)).length;
+  await click(page, finders.text, { needle: copy.rankAdd, tags: 'button' }, 'tap to add', {
+    reached: async () => (await rankingOrder(page)).length > before1,
+  });
+  await pause(900);
+  // The item just added is last; drag it up into second place.
+  const ranked = (await rankingOrder(page)).length;
+  await drag(page, finders.grip, { index: ranked - 1 }, finders.grip, { index: 1 }, 'ranking drag');
+  await pause(1100);
+  await still('02-ranking');
+  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 900);
+  await pause(500);
   await click(page, finders.text, { needle: copy.scheduleChoice, tags: 'label, button, div, span' }, 'schedule choice');
   await pause(600);
   await click(page, finders.text, { needle: copy.nonNegotiable, tags: 'label' }, 'non-negotiable rider');
   await pause(1000);
-  await still('01-survey');
+  await still('03-survey');
 
   // 1b. "Analysing your answers", then the chat -------------------------------
   await processingInterstitial(page, copy.processing);
@@ -491,27 +552,22 @@ async function record({ persona, lang }) {
   await pause(900);
   // The option card is the newest message: bring it into frame, then straight to option 1.
   await alignTop(page, finders.option1, null, H - 420, 'option 1');
-  await still('02-explore');
+  await still('04-explore');
   before = await messageCount(page);
   await click(page, finders.option1, null, 'option 1', { reached: async () => (await messageCount(page)) > before });
   await pause(700);
   await alignTop(page, finders.lastMessage, null, 160, 'the answer', 800);
   await pause(1800);
 
-  // 3. Runner-ups: the three cards, open the first, the Move pill ---------------
+  // 3. Straight to career 2's Move pill (the second visible one in the transcript)
   await page.evaluate(() => window.__cairnlyDemoReveal?.(10000)); // everything
   await sleep(1500);
-  await alignTop(page, finders.text, { needle: copy.runnerUpHeading, tags: 'strong, h3, span, p' }, 110, 'runner-up heading', 800);
-  await pause(1000);
-  await still('03-runner-ups');
-  await click(page, finders.collapsedCard, null, 'first runner-up card');
-  await pause(900);
-  await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, H - 340, 'move pill', 800);
-  await pause(400);
-  await click(page, finders.text, { needle: copy.moveSuffix, tags: 'button' }, 'move pill');
-  await pause(1600); // the replay scrolls to the feasibility question and rings it
-  await still('04-move');
-  await pause(600);
+  await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button', nth: 1 }, H - 340, 'career 2 move pill', 1100);
+  await pause(500);
+  await click(page, finders.text, { needle: copy.moveSuffix, tags: 'button', nth: 1 }, 'career 2 move pill');
+  await pause(1800); // the replay scrolls to the feasibility question and rings it
+  await still('05-move');
+  await pause(800);
 
   // 4. A quick run through the rest of the chat, resting on its end -------------
   const end = await page.evaluate(() => {
@@ -519,9 +575,9 @@ async function record({ persona, lang }) {
     const r = all[all.length - 1].getBoundingClientRect();
     return window.scrollY + r.bottom - window.innerHeight + 24;
   });
-  await glideTo(page, end, 2200);
+  await glideTo(page, end, 4400);
   await pause(1500);
-  await still('05-chat-end');
+  await still('06-chat-end');
 
   // 5. Dashboard, four frames ------------------------------------------------------
   await cutTo('/demo/dashboard', async () => {
@@ -532,23 +588,24 @@ async function record({ persona, lang }) {
   // 5.1 the top card flips when the pointer reaches its radar
   await hover(page, finders.radar, null, 'compare radar');
   await pause(1700); // flip + one second of reading
-  await still('06-flip');
-  // 5.2 the full report, with the values section open
+  await still('07-flip');
+  // 5.2 the full report, with the values section already open when it comes into frame
+  await tap(page, finders.aboutRow, { needle: copy.aboutEyebrow, index: 4 });
+  await sleep(400);
   await alignTop(page, finders.text, { needle: copy.reportEyebrow }, 30, 'report eyebrow', 1100);
-  await click(page, finders.aboutRow, { needle: copy.aboutEyebrow, index: 4 }, 'values row');
   await pause(2000);
-  await still('07-values');
+  await still('08-values');
   // 5.3 runner-up careers, opened
   // Shortest button match = the accordion row header (title + subtitle).
   await click(page, finders.text, { needle: copy.runnersTitle, tags: 'button' }, 'runner-up row');
   await pause(600);
   await alignTop(page, finders.text, { needle: copy.runnersTitle, tags: 'button' }, 30, 'runner-up row', 1100);
   await pause(2000);
-  await still('08-runner-ups');
+  await still('09-runner-ups');
   // 5.4 back up to the paths and the toolkit, then the job search press
   await alignTop(page, finders.text, { needle: copy.pathsEyebrow }, 40, 'paths eyebrow', 1100);
   await pause(2000);
-  await still('09-paths');
+  await still('10-paths');
   await click(page, finders.text, { needle: copy.jobsCta, tags: 'a, button' }, 'open the job search');
   await pause(500);
   await fade(page, 1);
