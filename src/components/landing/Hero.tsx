@@ -4,18 +4,18 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from './Reveal';
 import PriceCountdown from './PriceCountdown';
 import CompareLink from './CompareLink';
-import DemoPersonaCards from './demo/DemoPersonaCards';
-import DemoStage from './demo/DemoStage';
+import DemoVideoStage from './demo/DemoVideoStage';
 import { INTAKE_SECTION_ANCHOR } from './intake/IntakeSection';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
 
 /**
- * Hero on the app's nature background. The proof is the public demo: two
- * persona cards (left) open a real coaching session, and the stage beside
- * them (right) plays an excerpt of the active persona's chat in front of the
- * dashboard and job screens that follow it. The intake chat that used to
- * live here has its own section above Pricing (IntakeSection).
+ * Hero on the app's nature background. The proof is the public demo: one
+ * browser window plays a recording of the persona whose session was held
+ * in the visitor's language (survey → coach chat → dashboard) and ends on
+ * the real "Start your session" button. The persona cards and the deck of
+ * stills left the hero on 2026-09-14 (the deck still serves /partners); the
+ * intake chat lives in IntakeSection above Pricing.
  */
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -80,39 +80,27 @@ const Hero: React.FC = () => {
           </p>
         </Reveal>
 
-        {/* Content band. DOM order (stage, cards) is the mobile order: the
-            moving picture first, the choice right under it. Desktop puts the
-            cards left and the stage right; the stage stretches to the cards'
-            height so both columns end on the same line. */}
-        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
-          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1 lg:self-stretch">
-            <Reveal as="div" className="lg:h-full">
-              <DemoStage />
-            </Reveal>
-          </div>
+        {/* Content band: the recording of the demo, then the price deadline
+            and the reassurance line under it. */}
+        <div className="grid gap-y-8">
+          <Reveal as="div" className="w-full max-w-[1100px] mx-auto">
+            <DemoVideoStage />
+          </Reveal>
 
-          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1">
-            <Reveal as="div">
-              <DemoPersonaCards />
-              <p className="mt-5 text-[14px] text-white/55 font-medium">
-                {t('hero.neitherLine')}{' '}
-                <a
-                  href={`#${INTAKE_SECTION_ANCHOR}`}
-                  onClick={scrollToIntake}
-                  className="inline-flex items-center gap-1 text-white/85 font-semibold underline decoration-[#D4A024]/60 underline-offset-4 hover:text-white hover:decoration-[#D4A024]"
-                >
-                  {t('hero.neitherCta')}
-                  <ArrowRight size={13} strokeWidth={2.4} />
-                </a>
-              </p>
-            </Reveal>
-          </div>
-
-          {/* Price deadline, the free-alternatives link and the reassurance line, under both columns. */}
-          <Reveal as="div" className="lg:col-span-12 mt-4 md:mt-6 flex flex-col items-center gap-3">
+          <Reveal as="div" className="mt-2 md:mt-4 flex flex-col items-center gap-3">
             <PriceCountdown tone="gold" leadWithPrice href="#pricing" />
             <CompareLink label={t('hero.compareLink')} />
-            <p className="text-sm text-white/45 font-medium text-center">{t('hero.reassurance')}</p>
+            <p className="text-sm text-white/45 font-medium text-center">
+              {t('hero.reassurance')}{' '}
+              <a
+                href={`#${INTAKE_SECTION_ANCHOR}`}
+                onClick={scrollToIntake}
+                className="inline-flex items-center gap-1 text-white/85 font-semibold underline decoration-[#D4A024]/60 underline-offset-4 hover:text-white hover:decoration-[#D4A024]"
+              >
+                {t('hero.neitherCta')}
+                <ArrowRight size={13} strokeWidth={2.4} />
+              </a>
+            </p>
           </Reveal>
         </div>
       </div>
