@@ -23,13 +23,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react';
 import {
+  FOLLOW_UP_1_WORKING_DAYS,
+  FOLLOW_UP_2_WORKING_DAYS,
   OUTREACH_STATUSES,
   STATUS_LABELS,
   SENTIMENT_LABELS,
-  compareProspects,
+  compareWorkFirst,
+  followUp,
   isWarm,
+  type FollowUp,
   type OutreachMail,
   type OutreachProspect,
   type OutreachStatus,
@@ -110,6 +114,16 @@ function fmt(iso: string | null, withTime = false): string {
   });
 }
 
+/** A due day (UTC-midnight stamp) as "Tue 15 Sep". */
+function fmtDay(dayStamp: number): string {
+  return new Date(dayStamp).toLocaleDateString('en-GB', {
+    timeZone: 'UTC',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 async function callOutreach<T = unknown>(body: Record<string, unknown>): Promise<T> {
@@ -134,12 +148,45 @@ async function callOutreach<T = unknown>(body: Record<string, unknown>): Promise
 
 // ─── One row ──────────────────────────────────────────────────────────────────
 
+/**
+ * The nudge. Gold and loud once a chase is due, quiet grey while the clock is
+ * still running, nothing at all when chasing is not the move.
+ */
+function FollowUpBadge({ fu }: { fu: FollowUp | null }) {
+  if (!fu) return null;
+
+  if (!fu.due) {
+    return (
+      <div className="text-[11px] text-white/45" title={`Follow-up ${fu.step} is due ${fmtDay(fu.dueDay)}`}>
+        Follow-up {fu.step} {fmtDay(fu.dueDay)}
+      </div>
+    );
+  }
+
+  const late = fu.daysLate === 0
+    ? 'due today'
+    : `${fu.daysLate} working day${fu.daysLate === 1 ? '' : 's'} late`;
+  return (
+    <div>
+      <span
+        className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-atlas-gold/40 bg-atlas-gold/15 text-atlas-gold"
+        title={`Follow-up ${fu.step} was due ${fmtDay(fu.dueDay)}. Sending it moves the status by itself once WF11 picks the mail up.`}
+      >
+        <Clock className="h-3 w-3" /> Follow-up {fu.step}, {late}
+      </span>
+    </div>
+  );
+}
+
 function ProspectRow({
   p,
+  fu,
   onSaved,
   onCreatePartner,
 }: {
   p: OutreachProspect;
+  /** The next chase for this agency, or null when chasing is not the move. */
+  fu: FollowUp | null;
   onSaved: (patch: Pick<OutreachProspect, 'slug'> & Partial<OutreachProspect>) => void;
   onCreatePartner?: (draft: PartnerDraft) => void;
 }) {
@@ -182,7 +229,13 @@ function ProspectRow({
   };
 
   const warm = isWarm(p);
-  const rowBg = p.needs_reply ? 'bg-atlas-gold/[0.07]' : warm ? 'bg-atlas-teal/[0.06]' : '';
+  const rowBg = p.needs_reply
+    ? 'bg-atlas-gold/[0.07]'
+    : fu?.due
+      ? 'bg-atlas-gold/[0.035]'
+      : warm
+        ? 'bg-atlas-teal/[0.06]'
+        : '';
 
   // "Clicked?" replaces the old first-click / last-click / count columns: the
   // question you actually ask of a row is whether anyone opened the demo, not
@@ -246,9 +299,12 @@ function ProspectRow({
       <td className="px-3 py-2.5 text-xs min-w-[11rem] max-w-[18rem]">
         {p.mails.length === 0 ? (
           p.verzonden_op ? (
-            <span className="text-white/55" title={`First sent ${fmt(p.verzonden_op, true)}`}>
-              Sent {fmt(p.verzonden_op, true)}
-            </span>
+            <div className="space-y-1">
+              <span className="text-white/55" title={`First sent ${fmt(p.verzonden_op, true)}`}>
+                Sent {fmt(p.verzonden_op, true)}
+              </span>
+              <FollowUpBadge fu={fu} />
+            </div>
           ) : (
             <span className="text-white/45">Not sent</span>
           )
@@ -283,6 +339,7 @@ function ProspectRow({
             {p.laatste_samenvatting && (
               <div className="text-[11px] text-white/70 leading-snug" title={p.laatste_samenvatting}>{p.laatste_samenvatting}</div>
             )}
+            <FollowUpBadge fu={fu} />
           </div>
         )}
       </td>
@@ -469,6 +526,7 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
   const [tier, setTier] = useState<'all' | 'A' | 'B' | 'C'>('all');
   const [campaign, setCampaign] = useState<string>('all');
   const [onlyClicked, setOnlyClicked] = useState(false);
+  const [onlyDue, setOnlyDue] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -497,14 +555,31 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     );
   }, []);
 
+  // One clock for the whole render pass, refreshed when the data is: a `new
+  // Date()` per row would make the sort non-deterministic across a tick.
+  const now = useMemo(() => new Date(), [data]);
+
+  /** slug -> next chase, so the sort and the badges agree on one answer. */
+  const followUps = useMemo(() => {
+    const map = new Map<string, FollowUp | null>();
+    for (const p of data?.prospects ?? []) map.set(p.slug, followUp(p, now));
+    return map;
+  }, [data, now]);
+
+  const dueCount = useMemo(
+    () => (data?.prospects ?? []).filter((p) => followUps.get(p.slug)?.due).length,
+    [data, followUps],
+  );
+
   const rows = useMemo(() => {
     if (!data) return [];
     return data.prospects
       .filter((p) => tier === 'all' || p.tier === tier)
       .filter((p) => campaign === 'all' || p.campaign === campaign)
       .filter((p) => !onlyClicked || p.kliks_bevestigd > 0)
-      .sort(compareProspects);
-  }, [data, tier, campaign, onlyClicked]);
+      .filter((p) => !onlyDue || followUps.get(p.slug)?.due)
+      .sort((a, b) => compareWorkFirst(a, b, now));
+  }, [data, tier, campaign, onlyClicked, onlyDue, followUps, now]);
 
   if (loading && !data) {
     return (
@@ -525,21 +600,49 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
 
   if (!data) return null;
 
-  const counter = (lbl: string, big: number, sub: string) => (
-    <div className={`${card} px-4 py-4`}>
-      <div className="text-xs text-white/70">{lbl}</div>
-      <div className="text-3xl font-bold text-white/[0.92] mt-1">{big}</div>
-      <div className="text-xs text-white/60 mt-0.5">{sub}</div>
-    </div>
-  );
+  // A counter with an onToggle is a button: clicking it filters the table down
+  // to exactly what it counts, which is the whole point of counting it.
+  const counter = (
+    lbl: string,
+    big: number,
+    sub: string,
+    toggle?: { on: boolean; onToggle: () => void },
+  ) => {
+    const body = (
+      <>
+        <div className="text-xs text-white/70">{lbl}</div>
+        <div className={`text-3xl font-bold mt-1 ${toggle?.on ? 'text-atlas-gold' : 'text-white/[0.92]'}`}>{big}</div>
+        <div className="text-xs text-white/60 mt-0.5">{sub}</div>
+      </>
+    );
+    if (!toggle) return <div className={`${card} px-4 py-4`}>{body}</div>;
+    return (
+      <button
+        onClick={toggle.onToggle}
+        aria-pressed={toggle.on}
+        title={toggle.on ? 'Show every agency again' : 'Show only these'}
+        className={`${card} px-4 py-4 text-left transition-colors hover:border-atlas-gold/40 ${
+          toggle.on ? 'border-atlas-gold/50 bg-atlas-gold/[0.06]' : ''
+        }`}
+      >
+        {body}
+      </button>
+    );
+  };
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {counter('Agencies in seed', data.counters.prospects, 'rows in outreach_prospects')}
         {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click')}
         {counter('Clicks today', data.counters.clicks_today, 'confirmed, Amsterdam day')}
         {counter('Waiting on you', data.prospects.filter((p) => p.needs_reply).length, 'they wrote last')}
+        {counter(
+          'Follow-up due',
+          dueCount,
+          onlyDue ? 'showing only these' : `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`,
+          { on: onlyDue, onToggle: () => setOnlyDue((v) => !v) },
+        )}
       </div>
 
       <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
@@ -579,6 +682,15 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           />
           Only with a click
         </label>
+        <label className="flex items-center gap-2 text-xs text-white/80 pb-1 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={onlyDue}
+            onChange={(e) => setOnlyDue(e.target.checked)}
+            className="accent-atlas-gold"
+          />
+          Only follow-up due
+        </label>
         <div className="ml-auto flex items-center gap-2 text-xs text-white/60">
           {rows.length} of {data.prospects.length}
           <button onClick={load} disabled={loading} className="inline-flex items-center gap-1 text-white/80 hover:text-white">
@@ -607,12 +719,20 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
                 <td colSpan={8} className="px-3 py-6 text-xs text-white/55">No agencies match this filter.</td>
               </tr>
             ) : (
-              rows.map((p) => <ProspectRow key={p.slug} p={p} onSaved={applyPatch} onCreatePartner={onCreatePartner} />)
+              rows.map((p) => (
+                <ProspectRow
+                  key={p.slug}
+                  p={p}
+                  fu={followUps.get(p.slug) ?? null}
+                  onSaved={applyPatch}
+                  onCreatePartner={onCreatePartner}
+                />
+              ))
             )}
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then ones who clicked but haven&apos;t been followed up (teal). Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 
