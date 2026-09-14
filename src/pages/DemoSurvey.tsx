@@ -106,7 +106,7 @@ const DemoSurvey: React.FC = () => {
         <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
           {/* Editorial opening on the canvas, not a card: three stacked cream
               boxes (intro, résumé step, questions) read as a wall. */}
-          <header className="mb-9 sm:mb-11 max-w-[62ch]">
+          <header data-demo-chrome="" className="mb-9 sm:mb-11 max-w-[62ch]">
             <div className="lp-eyebrow text-[#2ABFBF] mb-3">{t('surveyDemo.intro.eyebrow')}</div>
             <h1
               className="font-heading text-white"
@@ -233,7 +233,7 @@ const DemoSurvey: React.FC = () => {
         </div>
       </main>
 
-      <div className="relative z-10">
+      <div data-demo-chrome="" className="relative z-10">
         <LandingFooter />
       </div>
     </div>

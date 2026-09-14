@@ -69,6 +69,7 @@ export const DemoAnnotation: React.FC<{ annotation: ResolvedAnnotation }> = ({ a
     <aside
       ref={ref}
       data-demo-annotation=""
+      data-demo-chrome=""
       className={`relative ${inline} min-[1360px]:absolute min-[1360px]:left-full min-[1360px]:ml-8 min-[1360px]:w-[248px] min-[1360px]:m-0 ${wide}`}
       aria-label={title}
     >

@@ -19,7 +19,7 @@ const noop = () => {};
  * message. Both are the real components; the pills are just not clickable.
  */
 export const DemoWelcome: React.FC<DemoWelcomeProps> = ({ onReady, caption, pillsCaption }) => (
-  <div className="mb-6">
+  <div data-demo-chrome="" className="mb-6">
     <WelcomeCard onReady={onReady} />
     <p className="mt-1 mb-5 px-1 text-[13px] leading-relaxed font-medium text-blue-100/80">{caption}</p>
 

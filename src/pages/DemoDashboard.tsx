@@ -11,6 +11,7 @@ import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoPageNav, demoCtaTarget } from '@/components/demo/DemoPageNav';
 import { DemoToolDialog, type DemoTool } from '@/components/demo/DemoToolDialog';
+import { isDemoCapture } from '@/demo/capture';
 import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { demoLink, readPersonaParam } from '@/demo/links';
 import { DEMO_DASHBOARD_ROUTE, DEMO_JOBS_ROUTE, DEMO_ROUTE, demoPdfPath } from '@/demo/constants';
@@ -76,6 +77,9 @@ const DemoDashboard: React.FC = () => {
   // Every in-app route the dashboard would navigate to is a signed-in tool,
   // except the job search: that one has a frozen twin at /demo/jobs.
   const handleNavigate = (route: string) => {
+    // The recording ends on the "Find this role" press; the jobs page must
+    // never render in frame, and no dialog may open over the dashboard.
+    if (isDemoCapture()) return;
     if (route.startsWith('/jobs')) {
       trackCtaClick('demo_dashboard_to_jobs');
       navigate(jobsHref);
@@ -173,7 +177,7 @@ const DemoDashboard: React.FC = () => {
 
           {/* Intro sits UNDER the dashboard, deliberately: the page should
               open on the product, the explanation is for whoever scrolls. */}
-          <div className="relative" style={{ background: '#0F2530' }}>
+          <div data-demo-chrome="" className="relative" style={{ background: '#0F2530' }}>
             <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-10 pb-16">
               <section
                 className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7"
@@ -229,7 +233,7 @@ const DemoDashboard: React.FC = () => {
             </div>
           </div>
 
-          <DemoToolDialog tool={tool} onClose={() => setTool(null)} audience={audience} firstName={choice.firstName} />
+          <DemoToolDialog tool={isDemoCapture() ? null : tool} onClose={() => setTool(null)} audience={audience} firstName={choice.firstName} />
         </>
       ) : (
         <div className="flex-1 flex items-center justify-center py-24" style={{ background: '#0F2530' }}>
@@ -237,7 +241,7 @@ const DemoDashboard: React.FC = () => {
         </div>
       )}
 
-      <div className="relative z-10">
+      <div data-demo-chrome="" className="relative z-10">
         <LandingFooter />
       </div>
     </div>

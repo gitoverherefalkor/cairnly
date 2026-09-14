@@ -65,7 +65,7 @@ export const DemoHighlightsCard: React.FC<DemoHighlightsCardProps> = ({
   const text = sectionText(section, lang);
   if (!text) return null;
   return (
-    <div className="flex justify-start mb-4">
+    <div data-demo-chrome="" className="flex justify-start mb-4">
       <div
         className="relative overflow-hidden w-full max-w-[85%] rounded-[20px] border px-5 py-5 text-[15px] leading-[1.6]"
         style={{

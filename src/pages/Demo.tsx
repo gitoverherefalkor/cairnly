@@ -13,6 +13,7 @@ import { trackSampleView, trackCtaClick, trackDemoMoment } from '@/lib/analytics
 import { CALENDLY_URL } from '@/components/partners/constants';
 import { DemoReplay, messageDomId } from '@/components/demo/DemoReplay';
 import { DemoMomentsBar } from '@/components/demo/DemoMomentsBar';
+import { isDemoCapture } from '@/demo/capture';
 import { DemoHighlightsCard } from '@/components/demo/DemoHighlightsCard';
 import { DemoFooter } from '@/components/demo/DemoFooter';
 import { DemoWelcome } from '@/components/demo/DemoWelcome';
@@ -220,7 +221,7 @@ const Demo: React.FC = () => {
               <Link to="/" className="flex items-center shrink-0">
                 <img src="/logos/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto" />
               </Link>
-              <span className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy truncate">
+              <span data-demo-chrome="" className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy truncate">
                 <span className="h-4 w-px bg-gray-200" aria-hidden="true" />
                 {t('nav.label')}
               </span>
@@ -237,14 +238,16 @@ const Demo: React.FC = () => {
             </div>
           </div>
         </div>
-        <DemoMomentsBar
-          items={annotations}
-          reachedIds={reachedIds}
-          onSelect={flash}
-          title={t('legend.title')}
-          honestLabel={t('nav.honest')}
-        />
-        <div className="h-[3px] bg-gray-100">
+        <div data-demo-chrome="">
+          <DemoMomentsBar
+            items={annotations}
+            reachedIds={reachedIds}
+            onSelect={flash}
+            title={t('legend.title')}
+            honestLabel={t('nav.honest')}
+          />
+        </div>
+        <div data-demo-chrome="" className="h-[3px] bg-gray-100">
           <div
             className="h-full bg-atlas-teal transition-all duration-300 ease-out"
             style={{ width: `${Math.round(progress * 100)}%` }}
@@ -257,12 +260,16 @@ const Demo: React.FC = () => {
           fixed panel on the left from md up and a drawer below that. */}
       <main className="relative z-10 flex-1 flex">
         <div
+          // The 320px right margin exists for the margin notes. The recording
+          // hides them, so under capture the transcript keeps only the
+          // sidebar's margin on the left and a narrow one on the right.
           className={`flex-1 flex flex-col min-w-0 transition-all ${
-            sidebarCollapsed ? 'md:mx-20' : 'md:mx-80'
+            sidebarCollapsed ? 'md:mx-20' : isDemoCapture() ? 'md:ml-80 md:mr-20' : 'md:mx-80'
           }`}
         >
           <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
             <section
+              data-demo-chrome=""
               className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7 mb-8"
               style={{
                 background: '#FDFBF2',
@@ -400,7 +407,7 @@ const Demo: React.FC = () => {
       {/* Above the sidebar's fixed panel (z-40) so the footer covers it as
           you scroll to the end, instead of the panel floating over the
           footer. Below the sticky nav (z-50). */}
-      <div className="relative z-[45]">
+      <div data-demo-chrome="" className="relative z-[45]">
         <LandingFooter />
       </div>
     </div>
