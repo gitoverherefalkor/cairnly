@@ -600,13 +600,35 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
 
   if (!data) return null;
 
-  const counter = (lbl: string, big: number, sub: string) => (
-    <div className={`${card} px-4 py-4`}>
-      <div className="text-xs text-white/70">{lbl}</div>
-      <div className="text-3xl font-bold text-white/[0.92] mt-1">{big}</div>
-      <div className="text-xs text-white/60 mt-0.5">{sub}</div>
-    </div>
-  );
+  // A counter with an onToggle is a button: clicking it filters the table down
+  // to exactly what it counts, which is the whole point of counting it.
+  const counter = (
+    lbl: string,
+    big: number,
+    sub: string,
+    toggle?: { on: boolean; onToggle: () => void },
+  ) => {
+    const body = (
+      <>
+        <div className="text-xs text-white/70">{lbl}</div>
+        <div className={`text-3xl font-bold mt-1 ${toggle?.on ? 'text-atlas-gold' : 'text-white/[0.92]'}`}>{big}</div>
+        <div className="text-xs text-white/60 mt-0.5">{sub}</div>
+      </>
+    );
+    if (!toggle) return <div className={`${card} px-4 py-4`}>{body}</div>;
+    return (
+      <button
+        onClick={toggle.onToggle}
+        aria-pressed={toggle.on}
+        title={toggle.on ? 'Show every agency again' : 'Show only these'}
+        className={`${card} px-4 py-4 text-left transition-colors hover:border-atlas-gold/40 ${
+          toggle.on ? 'border-atlas-gold/50 bg-atlas-gold/[0.06]' : ''
+        }`}
+      >
+        {body}
+      </button>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -615,7 +637,12 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
         {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click')}
         {counter('Clicks today', data.counters.clicks_today, 'confirmed, Amsterdam day')}
         {counter('Waiting on you', data.prospects.filter((p) => p.needs_reply).length, 'they wrote last')}
-        {counter('Follow-up due', dueCount, `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`)}
+        {counter(
+          'Follow-up due',
+          dueCount,
+          onlyDue ? 'showing only these' : `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`,
+          { on: onlyDue, onToggle: () => setOnlyDue((v) => !v) },
+        )}
       </div>
 
       <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
