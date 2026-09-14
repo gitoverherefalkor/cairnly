@@ -88,16 +88,16 @@ const SENTIMENTS: Array<{ value: NonNullable<Post['comment_sentiment']>; label: 
   { value: 'positive', label: '😊 Positive', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
   { value: 'mixed', label: '😐 Mixed', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
   { value: 'critical', label: '😬 Critical', cls: 'bg-red-500/20 text-red-300 border-red-500/40' },
-  { value: 'quiet', label: '🤫 Quiet', cls: 'bg-white/10 text-gray-400 border-white/20' },
+  { value: 'quiet', label: '🤫 Quiet', cls: 'bg-white/10 text-white/70 border-white/20' },
 ];
 const GUT_READS: Array<{ value: NonNullable<Post['gut_read']>; label: string; cls: string }> = [
   { value: 'win', label: '🏆 Win', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
-  { value: 'neutral', label: '➖ Neutral', cls: 'bg-white/10 text-gray-400 border-white/20' },
+  { value: 'neutral', label: '➖ Neutral', cls: 'bg-white/10 text-white/70 border-white/20' },
   { value: 'miss', label: '📉 Miss', cls: 'bg-red-500/20 text-red-300 border-red-500/40' },
 ];
 
 const STATUS_CLS: Record<Post['status'], string> = {
-  draft: 'bg-white/10 text-gray-400 border-white/20',
+  draft: 'bg-white/10 text-white/70 border-white/20',
   scheduled: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
   posted: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
 };
@@ -106,10 +106,11 @@ const STATUS_CLS: Record<Post['status'], string> = {
 
 // Cairnly card language, adapted to the dark ops console: soft rounded-2xl
 // surfaces, Poppins (font-heading) titles, atlas brand palette for accents.
-const card = 'rounded-2xl border border-white/10 bg-black/25 shadow-sm';
+const card =
+  'rounded-[18px] border border-white/[0.08] bg-[rgba(18,46,59,0.55)] backdrop-blur-[14px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]';
 const input =
-  'bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-sm text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-atlas-teal/60 w-full';
-const label = 'text-[11px] uppercase tracking-wider font-semibold text-gray-500 mb-1 block';
+  'bg-[#0E2531] border border-white/[0.14] rounded-lg px-2.5 py-1.5 text-sm text-white/[0.92] placeholder:text-white/40 focus:outline-none focus:border-atlas-teal/60 w-full';
+const label = 'text-[11px] uppercase tracking-wider font-semibold text-white/60 mb-1 block';
 const heading = 'font-heading font-semibold';
 
 function fmtDate(iso: string | null, withTime = false): string {
@@ -220,7 +221,7 @@ function PostForm({
 
   return (
     <div className={`${card} p-4 space-y-3`}>
-      <div className={`text-sm text-gray-100 ${heading}`}>{initial?.id ? 'Edit post' : 'Add post'}</div>
+      <div className={`text-sm text-white/[0.92] ${heading}`}>{initial?.id ? 'Edit post' : 'Add post'}</div>
 
       <div>
         <label className={label}>Verbatim post text</label>
@@ -286,7 +287,7 @@ function PostForm({
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
-        <label className="flex items-center gap-2 text-sm text-gray-300">
+        <label className="flex items-center gap-2 text-sm text-white/80">
           <input type="checkbox" checked={!!f.has_image} onChange={(e) => set('has_image', e.target.checked)} />
           Has image
         </label>
@@ -294,7 +295,7 @@ function PostForm({
           <label className={label}>Image type</label>
           <input className={input} placeholder="photo, chart…" value={f.image_type ?? ''} disabled={!f.has_image} onChange={(e) => set('image_type', e.target.value)} />
         </div>
-        <label className="flex items-center gap-2 text-sm text-gray-300">
+        <label className="flex items-center gap-2 text-sm text-white/80">
           <input type="checkbox" checked={!!f.is_series} onChange={(e) => set('is_series', e.target.checked)} />
           Part of a series
         </label>
@@ -318,7 +319,7 @@ function PostForm({
           {saving && <Loader2 size={13} className="animate-spin" />}
           {initial?.id ? 'Save changes' : 'Add post'}
         </button>
-        <button onClick={onCancel} className="px-3 py-1.5 rounded border border-white/10 text-gray-400 hover:text-gray-200 text-sm">
+        <button onClick={onCancel} className="px-3 py-1.5 rounded border border-white/10 text-white/70 hover:text-white/[0.88] text-sm">
           Cancel
         </button>
       </div>
@@ -400,7 +401,7 @@ function PillGroup<T extends string>({
           key={o.value}
           onClick={() => onPick(o.value)}
           className={`text-[11px] px-2 py-0.5 rounded-full border transition-all ${
-            value === o.value ? o.cls : 'bg-black/20 text-gray-500 border-white/10 hover:border-white/20'
+            value === o.value ? o.cls : 'bg-white/[0.05] text-white/60 border-white/[0.14] hover:border-white/25'
           }`}
         >
           {o.label}
@@ -452,31 +453,31 @@ function PostCard({ post, onChanged, onEdit }: { post: Post; onChanged: () => vo
     <div className={`${card} p-3`}>
       <div className="flex items-start justify-between gap-3">
         <button onClick={() => setOpen((o) => !o)} className="flex items-start gap-2 text-left min-w-0 flex-1">
-          {open ? <ChevronDown size={15} className="text-gray-500 mt-0.5 shrink-0" /> : <ChevronRight size={15} className="text-gray-500 mt-0.5 shrink-0" />}
+          {open ? <ChevronDown size={15} className="text-white/60 mt-0.5 shrink-0" /> : <ChevronRight size={15} className="text-white/60 mt-0.5 shrink-0" />}
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 mb-1">
               <span className={`text-[11px] px-2 py-0.5 rounded-full border ${STATUS_CLS[post.status]}`}>{post.status}</span>
-              <span className={`text-xs text-gray-100 ${heading}`}>{typeLabel(post.post_type)}</span>
-              {post.has_image && <ImageIcon size={12} className="text-gray-500" />}
-              {post.is_series && <span className="text-[10px] text-atlas-teal">series{post.series_name ? `: ${post.series_name}` : ''}</span>}
+              <span className={`text-xs text-white/[0.92] ${heading}`}>{typeLabel(post.post_type)}</span>
+              {post.has_image && <ImageIcon size={12} className="text-white/60" />}
+              {post.is_series && <span className="text-[11px] text-atlas-teal">series{post.series_name ? `: ${post.series_name}` : ''}</span>}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-white/60">
               {post.author} · {post.profile === 'company' ? 'Company' : 'Personal'} · {fmtDate(post.posted_at, true)}
             </div>
-            {!open && <div className="text-xs text-gray-400 mt-1 line-clamp-1">{preview || <span className="text-gray-700">no body pasted yet</span>}</div>}
+            {!open && <div className="text-xs text-white/70 mt-1 line-clamp-1">{preview || <span className="text-white/50">no body pasted yet</span>}</div>}
           </div>
         </button>
 
         <div className="text-right shrink-0">
           {L ? (
-            <div className="text-xs text-gray-300 tabular-nums">
-              <span className="text-gray-100 font-semibold">{L.impressions.toLocaleString()}</span> 👁
+            <div className="text-xs text-white/80 tabular-nums">
+              <span className="text-white/[0.92] font-semibold">{L.impressions.toLocaleString()}</span> 👁
             </div>
           ) : (
-            <div className="text-[11px] text-gray-600">no stats</div>
+            <div className="text-[11px] text-white/50">no stats</div>
           )}
           {L && (
-            <div className="text-[11px] text-gray-500 tabular-nums">
+            <div className="text-[11px] text-white/60 tabular-nums">
               {L.reactions} 👍 · {L.comments} 💬 · {L.reposts} 🔁
             </div>
           )}
@@ -487,9 +488,9 @@ function PostCard({ post, onChanged, onEdit }: { post: Post; onChanged: () => vo
         <div className="mt-3 pl-6 space-y-4">
           {/* Verbatim body */}
           {post.body ? (
-            <pre className="whitespace-pre-wrap font-mono text-xs text-gray-300 bg-black/30 rounded p-3 border border-white/5 max-h-64 overflow-auto">{post.body}</pre>
+            <pre className="whitespace-pre-wrap font-mono text-xs text-white/80 bg-white/[0.04] rounded p-3 border border-white/5 max-h-64 overflow-auto">{post.body}</pre>
           ) : (
-            <div className="text-xs text-gray-600 italic">No post text pasted yet — hit edit to add it.</div>
+            <div className="text-xs text-white/50 italic">No post text pasted yet — hit edit to add it.</div>
           )}
 
           {/* Soft calls */}
@@ -511,14 +512,14 @@ function PostCard({ post, onChanged, onEdit }: { post: Post; onChanged: () => vo
               <div className="space-y-1">
                 {post.snapshots.map((s) => (
                   <div key={s.id} className="flex items-center gap-2 text-xs group">
-                    <span className="text-gray-500 w-24 shrink-0">{fmtDate(s.captured_at, true)}</span>
+                    <span className="text-white/60 w-24 shrink-0">{fmtDate(s.captured_at, true)}</span>
                     <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden min-w-[40px]">
                       <div className="h-full bg-atlas-teal/60" style={{ width: `${(s.impressions / maxImpr) * 100}%` }} />
                     </div>
-                    <span className="text-gray-300 tabular-nums w-40 text-right shrink-0">
+                    <span className="text-white/80 tabular-nums w-40 text-right shrink-0">
                       {s.impressions.toLocaleString()} 👁 · {s.reactions} 👍 · {s.comments} 💬 · {s.reposts} 🔁
                     </span>
-                    <button onClick={() => delSnapshot(s.id)} className="text-gray-700 hover:text-red-400 opacity-0 group-hover:opacity-100">
+                    <button onClick={() => delSnapshot(s.id)} className="text-white/50 hover:text-red-400 opacity-0 group-hover:opacity-100">
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -533,13 +534,13 @@ function PostCard({ post, onChanged, onEdit }: { post: Post; onChanged: () => vo
             <StatEntry postId={post.id} onSaved={onChanged} />
           </div>
 
-          {post.notes && <div className="text-xs text-gray-500">📝 {post.notes}</div>}
+          {post.notes && <div className="text-xs text-white/60">📝 {post.notes}</div>}
 
           <div className="flex gap-2 pt-1">
-            <button onClick={onEdit} className="text-xs text-gray-400 hover:text-gray-200 inline-flex items-center gap-1">
+            <button onClick={onEdit} className="text-xs text-white/70 hover:text-white/[0.88] inline-flex items-center gap-1">
               <Pencil size={12} /> Edit
             </button>
-            <button onClick={del} className="text-xs text-gray-600 hover:text-red-400 inline-flex items-center gap-1">
+            <button onClick={del} className="text-xs text-white/50 hover:text-red-400 inline-flex items-center gap-1">
               <Trash2 size={12} /> Delete
             </button>
           </div>
@@ -569,16 +570,16 @@ function TrafficOverlay({ series, posts }: { series: TrafficPoint[]; posts: Post
 
   if (data.length === 0) {
     return (
-      <div className={`${card} py-14 text-center text-gray-600`}>
+      <div className={`${card} py-14 text-center text-white/50`}>
         <div className="text-sm">No traffic in the last 14 days yet</div>
-        <div className="text-xs text-gray-700 mt-1">Once visits come in, post markers will overlay here.</div>
+        <div className="text-xs text-white/50 mt-1">Once visits come in, post markers will overlay here.</div>
       </div>
     );
   }
 
   return (
     <div className={`${card} p-4`}>
-      <div className="text-xs text-gray-500 mb-3">
+      <div className="text-xs text-white/60 mb-3">
         Site visits per hour (last 14 days). Vertical lines mark when a post went live — look for an uptick in the hours after.
       </div>
       <ResponsiveContainer width="100%" height={280}>
@@ -680,12 +681,12 @@ function Patterns({ posts }: { posts: Post[] }) {
   return (
     <div className={`${card} p-4 space-y-4`}>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-gray-500">Break outcome down by</span>
+        <span className="text-xs text-white/60">Break outcome down by</span>
         {DIMS.map((d) => (
           <button
             key={d.value}
             onClick={() => setDim(d.value)}
-            className={`text-xs px-2.5 py-1 rounded-full border ${dim === d.value ? 'bg-atlas-teal/20 text-atlas-teal border-atlas-teal/40' : 'border-white/10 text-gray-400 hover:text-gray-200'}`}
+            className={`text-xs px-2.5 py-1 rounded-full border ${dim === d.value ? 'bg-atlas-teal/20 text-atlas-teal border-atlas-teal/40' : 'border-white/10 text-white/70 hover:text-white/[0.88]'}`}
           >
             {d.label}
           </button>
@@ -693,32 +694,32 @@ function Patterns({ posts }: { posts: Post[] }) {
       </div>
 
       {groups.length === 0 ? (
-        <div className="text-sm text-gray-600 py-6 text-center">No posted posts with stats yet.</div>
+        <div className="text-sm text-white/50 py-6 text-center">No posted posts with stats yet.</div>
       ) : (
         <div className="space-y-2">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-[11px] uppercase tracking-wider text-gray-600 px-1">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 text-[11px] uppercase tracking-wider text-white/50 px-1">
             <span>Group</span><span className="text-right">Avg reach</span><span className="text-right">Avg react.</span><span className="text-right">Gut</span>
           </div>
           {groups.map((g) => (
             <div key={g.key} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center px-1">
               <div className="min-w-0">
-                <div className="text-sm text-gray-200 truncate">{g.key} <span className="text-gray-600">· {g.count}</span></div>
+                <div className="text-sm text-white/[0.88] truncate">{g.key} <span className="text-white/50">· {g.count}</span></div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden mt-1">
                   <div className="h-full bg-atlas-teal/60" style={{ width: `${(g.avgImpr / maxImpr) * 100}%` }} />
                 </div>
               </div>
-              <span className="text-sm text-gray-100 tabular-nums text-right">{g.avgImpr.toLocaleString()}</span>
-              <span className="text-sm text-gray-400 tabular-nums text-right">{g.avgReact}</span>
+              <span className="text-sm text-white/[0.92] tabular-nums text-right">{g.avgImpr.toLocaleString()}</span>
+              <span className="text-sm text-white/70 tabular-nums text-right">{g.avgReact}</span>
               <span className="text-xs tabular-nums text-right whitespace-nowrap">
                 <span className="text-emerald-400">{g.wins}</span>
-                <span className="text-gray-700">/</span>
+                <span className="text-white/50">/</span>
                 <span className="text-red-400">{g.misses}</span>
               </span>
             </div>
           ))}
         </div>
       )}
-      <div className="text-[11px] text-gray-600">Reach = latest snapshot per post, averaged across the group. Gut = wins / misses.</div>
+      <div className="text-[11px] text-white/50">Reach = latest snapshot per post, averaged across the group. Gut = wins / misses.</div>
     </div>
   );
 }
@@ -802,7 +803,7 @@ export default function MarketingTab() {
           ].map(([l, v]) => (
             <div key={l} className={`${card} px-3.5 py-2.5`}>
               <div className={`text-xl text-atlas-teal tabular-nums leading-none ${heading}`}>{v}</div>
-              <div className="text-[11px] text-gray-500 mt-1">{l}</div>
+              <div className="text-[11px] text-white/60 mt-1">{l}</div>
             </div>
           ))}
         </div>
@@ -810,10 +811,10 @@ export default function MarketingTab() {
           <button onClick={() => setEditing('new')} className="px-3 py-1.5 rounded bg-atlas-teal/80 hover:bg-atlas-teal text-black text-sm font-semibold inline-flex items-center gap-1.5">
             <Plus size={14} /> Add post
           </button>
-          <button onClick={() => exportCsv(posts)} disabled={!posts.length} className="px-3 py-1.5 rounded border border-white/10 text-gray-400 hover:text-gray-200 text-sm inline-flex items-center gap-1.5 disabled:opacity-40">
+          <button onClick={() => exportCsv(posts)} disabled={!posts.length} className="px-3 py-1.5 rounded border border-white/10 text-white/70 hover:text-white/[0.88] text-sm inline-flex items-center gap-1.5 disabled:opacity-40">
             <Download size={14} /> CSV
           </button>
-          <button onClick={load} className="p-1.5 rounded border border-white/10 text-gray-400 hover:text-gray-200" title="Refresh">
+          <button onClick={load} className="p-1.5 rounded border border-white/10 text-white/70 hover:text-white/[0.88]" title="Refresh">
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
@@ -829,12 +830,12 @@ export default function MarketingTab() {
       )}
 
       {/* View switch */}
-      <div className="flex gap-1 p-1 rounded-lg bg-black/25 border border-white/10 w-fit">
+      <div className="flex gap-1 p-1 rounded-lg bg-white/[0.05] border border-white/[0.12] w-fit">
         {([['log', '📋 Log'], ['overlay', '📈 Traffic overlay'], ['patterns', '🔍 Patterns']] as const).map(([v, l]) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${view === v ? 'bg-atlas-teal/15 text-atlas-teal font-medium' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${view === v ? 'bg-atlas-teal/15 text-atlas-teal font-medium' : 'text-white/60 hover:text-white/80'}`}
           >
             {l}
           </button>
@@ -849,9 +850,9 @@ export default function MarketingTab() {
         <>
           {view === 'log' && (
             posts.length === 0 ? (
-              <div className={`${card} py-14 text-center text-gray-600`}>
+              <div className={`${card} py-14 text-center text-white/50`}>
                 <div className="text-sm">No posts logged yet</div>
-                <div className="text-xs text-gray-700 mt-1">Hit “Add post”, paste the verbatim post, then add its numbers as they climb.</div>
+                <div className="text-xs text-white/50 mt-1">Hit “Add post”, paste the verbatim post, then add its numbers as they climb.</div>
               </div>
             ) : (
               <div className="space-y-2">

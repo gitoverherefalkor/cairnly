@@ -1,13 +1,18 @@
-// OutreachTab — who opened the demo, per bureau.
+// OutreachTab — who opened the demo, per agency.
 //
 // Phase 2 of the outreach dashboard: first-party click tracking on the
 // partner demo, read back here. Everything comes through the admin-gated
 // ops-outreach edge function; the browser never touches the outreach tables.
 //
 // Deliberately small (see docs/handoff/cairnly-ops-outreach-fase2-prompt.md):
-// three counters, one table, two editable fields (status, notities), and a
-// collapsed raw click log to sanity-check the bot filter. No Gmail, no
-// follow-up worklist, no pixel, no charts.
+// four counters, one table, two editable fields (status, notes), and a
+// collapsed raw click log to sanity-check the bot filter.
+//
+// The table carries eight columns, not eleven: "sent", "first click" and "last
+// click" were three date columns answering a question nobody asks of a row.
+// The send date lives on the mail cell's tooltip and the click timestamps on
+// the "Clicked?" cell's, which leaves every column that drives a decision
+// visible at once without scrolling sideways.
 //
 // Clicks are counted CONFIRMED vs SUSPECT. A non-bot click within two minutes
 // of the mail going out is a link scanner fetching the URL on delivery, not a
@@ -30,7 +35,7 @@ import {
   type OutreachStatus,
 } from '@/lib/outreach';
 
-/** What the Outreach tab hands the Partners tab when "Partner aanmaken" is clicked. */
+/** What the Outreach tab hands the Partners tab when "create partner" is clicked. */
 export interface PartnerDraft {
   name: string;
   slug: string;
@@ -72,10 +77,11 @@ interface ListResponse {
 
 // ─── Shared styles (same language as MarketingTab / PartnersTab) ─────────────
 
-const card = 'rounded-2xl border border-white/10 bg-black/25 shadow-sm';
+const card =
+  'rounded-[18px] border border-white/[0.08] bg-[rgba(18,46,59,0.55)] backdrop-blur-[14px] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]';
 const select =
-  'bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-100 focus:outline-none focus:border-atlas-teal/60';
-const label = 'text-[11px] uppercase tracking-wider font-semibold text-gray-500';
+  'bg-[#0E2531] border border-white/[0.14] rounded-lg px-2 py-1 text-xs text-white/[0.92] focus:outline-none focus:border-atlas-teal/60';
+const label = "font-heading font-bold text-[11px] uppercase tracking-[0.16em] text-white/50";
 
 const SENTIMENT_CLS: Record<string, string> = {
   positief: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
@@ -83,19 +89,20 @@ const SENTIMENT_CLS: Record<string, string> = {
   vraag: 'bg-sky-500/15 text-sky-300 border-sky-500/40',
   later: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
   afwijzing: 'bg-red-500/15 text-red-300 border-red-500/40',
-  auto: 'bg-white/10 text-gray-400 border-white/20',
-  overig: 'bg-white/10 text-gray-300 border-white/20',
+  auto: 'bg-white/10 text-white/70 border-white/20',
+  overig: 'bg-white/10 text-white/80 border-white/20',
 };
 
 const TIER_CLS: Record<string, string> = {
   A: 'bg-atlas-teal/20 text-atlas-teal border-atlas-teal/40',
   B: 'bg-amber-500/15 text-amber-300 border-amber-500/40',
-  C: 'bg-white/10 text-gray-400 border-white/20',
+  C: 'bg-white/10 text-white/70 border-white/20',
 };
 
 function fmt(iso: string | null, withTime = false): string {
   if (!iso) return '-';
-  return new Date(iso).toLocaleString('nl-NL', {
+  // English console, Amsterdam clock.
+  return new Date(iso).toLocaleString('en-GB', {
     timeZone: 'Europe/Amsterdam',
     day: '2-digit',
     month: 'short',
@@ -154,7 +161,7 @@ function ProspectRow({
       const res = await callOutreach<UpdateResponse>({ action: 'update', slug: p.slug, status });
       onSaved({ slug: p.slug, status: res.prospect.status });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Status niet opgeslagen');
+      toast.error(e instanceof Error ? e.message : 'Status not saved');
     } finally {
       setSavingStatus(false);
     }
@@ -168,7 +175,7 @@ function ProspectRow({
       const res = await callOutreach<UpdateResponse>({ action: 'update', slug: p.slug, notities: next });
       onSaved({ slug: p.slug, notities: res.prospect.notities });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Notitie niet opgeslagen');
+      toast.error(e instanceof Error ? e.message : 'Note not saved');
     } finally {
       setSavingNotes(false);
     }
@@ -177,30 +184,49 @@ function ProspectRow({
   const warm = isWarm(p);
   const rowBg = p.needs_reply ? 'bg-atlas-gold/[0.07]' : warm ? 'bg-atlas-teal/[0.06]' : '';
 
+  // "Clicked?" replaces the old first-click / last-click / count columns: the
+  // question you actually ask of a row is whether anyone opened the demo, not
+  // on which minute. The detail moves into the cell's tooltip.
+  const clicked = p.kliks_bevestigd > 0;
+  const scannerOnly = !clicked && p.kliks_verdacht > 0;
+  const clickTitle = clicked
+    ? [
+        `First ${fmt(p.eerste_bevestigde_klik, true)}`,
+        `last ${fmt(p.laatste_bevestigde_klik, true)}`,
+        `${p.dagen_bevestigd} ${p.dagen_bevestigd === 1 ? 'day' : 'days'} with a confirmed click`,
+        p.kliks_verdacht > 0 ? `${p.kliks_verdacht} more look like a scanner` : '',
+        p.bot_kliks > 0 ? `${p.bot_kliks} bot click${p.bot_kliks === 1 ? '' : 's'} ignored` : '',
+      ].filter(Boolean).join(' · ')
+    : scannerOnly
+      ? `${p.kliks_verdacht} click${p.kliks_verdacht === 1 ? '' : 's'} within 2 minutes of sending — almost certainly the mail server checking the link, not a person`
+      : p.bot_kliks > 0
+        ? `No confirmed clicks. ${p.bot_kliks} bot click${p.bot_kliks === 1 ? '' : 's'} ignored.`
+        : 'No confirmed clicks yet';
+
   return (
     <>
-    <tr className={`border-t border-white/5 align-top ${rowBg}`}>
-      <td className="px-3 py-2">
+    <tr className={`border-t border-white/[0.06] align-top ${rowBg}`}>
+      <td className="px-3 py-2.5">
         <div className="flex items-center gap-1.5">
           {p.needs_reply ? (
-            <span className="h-1.5 w-1.5 rounded-full bg-atlas-gold shrink-0" title="Zij schreven als laatste, jij bent aan zet" />
+            <span className="h-1.5 w-1.5 rounded-full bg-atlas-gold shrink-0" title="They wrote last — you're up" />
           ) : warm ? (
-            <span className="h-1.5 w-1.5 rounded-full bg-atlas-teal shrink-0" title="Klik, nog niet opgevolgd" />
+            <span className="h-1.5 w-1.5 rounded-full bg-atlas-teal shrink-0" title="Opened the demo, not followed up yet" />
           ) : null}
-          <span className="text-sm text-gray-100">{p.naam ?? p.slug}</span>
+          <span className="text-sm text-white/[0.92]">{p.naam ?? p.slug}</span>
         </div>
-        <div className="text-[11px] text-gray-500 font-mono">{p.slug}</div>
+        <div className="text-[11px] text-white/50 font-mono">{p.slug}</div>
       </td>
-      <td className="px-3 py-2">
+      <td className="px-3 py-2.5">
         <span className={`text-[11px] px-1.5 py-0.5 rounded border ${TIER_CLS[p.tier ?? ''] ?? TIER_CLS.C}`}>
           {p.tier ?? '-'}
         </span>
       </td>
-      <td className="px-3 py-2 text-xs text-gray-300 max-w-[12rem]">
+      <td className="px-3 py-2.5 text-xs text-white/80 max-w-[12rem]">
         <div className="truncate" title={p.contactpersoon ?? ''}>{p.contactpersoon ?? '-'}</div>
-        {p.plaats && <div className="text-[11px] text-gray-500 truncate" title={p.plaats}>{p.plaats}</div>}
+        {p.plaats && <div className="text-[11px] text-white/55 truncate" title={p.plaats}>{p.plaats}</div>}
       </td>
-      <td className="px-3 py-2">
+      <td className="px-3 py-2.5">
         <div className="flex items-center gap-1.5">
           <select
             value={p.status}
@@ -212,105 +238,107 @@ function ProspectRow({
               <option key={s} value={s}>{STATUS_LABELS[s]}</option>
             ))}
           </select>
-          {savingStatus && <Loader2 className="h-3 w-3 animate-spin text-gray-500" />}
+          {savingStatus && <Loader2 className="h-3 w-3 animate-spin text-white/55" />}
         </div>
       </td>
-      <td className="px-3 py-2 text-xs min-w-[11rem] max-w-[16rem]">
+      {/* The mail cell carries the send date too, so there is no separate
+          "sent" column: the first outbound is on the tooltip. */}
+      <td className="px-3 py-2.5 text-xs min-w-[11rem] max-w-[18rem]">
         {p.mails.length === 0 ? (
-          <span className="text-gray-600">-</span>
+          p.verzonden_op ? (
+            <span className="text-white/55" title={`First sent ${fmt(p.verzonden_op, true)}`}>
+              Sent {fmt(p.verzonden_op, true)}
+            </span>
+          ) : (
+            <span className="text-white/45">Not sent</span>
+          )
         ) : (
           <div className="space-y-1">
             <button
               onClick={() => setShowMails((v) => !v)}
-              className="inline-flex items-center gap-1 text-gray-300 hover:text-gray-100"
-              title="Mailhistorie tonen"
+              className="inline-flex items-center gap-1 text-white/80 hover:text-white"
+              title={p.verzonden_op ? `First sent ${fmt(p.verzonden_op, true)} · click to show the mail history` : 'Show mail history'}
             >
               {p.laatste_mail_richting === 'in' ? (
                 <ArrowDownLeft className="h-3 w-3 text-atlas-gold" />
               ) : (
-                <ArrowUpRight className="h-3 w-3 text-gray-500" />
+                <ArrowUpRight className="h-3 w-3 text-white/55" />
               )}
               <span className="whitespace-nowrap">{fmt(p.laatste_mail_op, true)}</span>
-              <span className="text-gray-600">· {p.mails.length}</span>
+              <span className="text-white/50">· {p.mails.length}</span>
               {showMails ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             </button>
             {p.laatste_sentiment && (
               <div className="flex flex-wrap items-center gap-1">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded border ${SENTIMENT_CLS[p.laatste_sentiment] ?? SENTIMENT_CLS.overig}`}>
+                <span className={`text-[11px] px-1.5 py-0.5 rounded border ${SENTIMENT_CLS[p.laatste_sentiment] ?? SENTIMENT_CLS.overig}`}>
                   {SENTIMENT_LABELS[p.laatste_sentiment]}
                 </span>
                 {p.concept_klaar && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal" title="Er staat een conceptantwoord klaar in Gmail (Concepten)">
-                    concept klaar
+                  <span className="text-[11px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal" title="A draft reply is waiting in Gmail (Drafts)">
+                    draft ready
                   </span>
                 )}
               </div>
             )}
             {p.laatste_samenvatting && (
-              <div className="text-[11px] text-gray-400 leading-snug" title={p.laatste_samenvatting}>{p.laatste_samenvatting}</div>
+              <div className="text-[11px] text-white/70 leading-snug" title={p.laatste_samenvatting}>{p.laatste_samenvatting}</div>
             )}
           </div>
         )}
       </td>
-      <td className="px-3 py-2 text-xs text-gray-400 whitespace-nowrap">{fmt(p.verzonden_op, true)}</td>
-      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.eerste_bevestigde_klik, true)}</td>
-      <td className="px-3 py-2 text-xs text-gray-300 whitespace-nowrap">{fmt(p.laatste_bevestigde_klik, true)}</td>
-      <td className="px-3 py-2 text-sm text-center">
-        <span className={p.dagen_bevestigd > 0 ? 'text-gray-100 font-semibold' : 'text-gray-600'}>
-          {p.dagen_bevestigd}
+      <td className="px-3 py-2.5 whitespace-nowrap">
+        <span
+          className={`text-[11px] px-2 py-0.5 rounded-full border ${
+            clicked
+              ? 'bg-atlas-teal/15 text-atlas-teal border-atlas-teal/40'
+              : scannerOnly
+                ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
+                : 'bg-white/[0.05] text-white/55 border-white/[0.14]'
+          }`}
+          title={clickTitle}
+        >
+          {clicked ? 'Yes' : scannerOnly ? 'Scanner?' : 'Not yet'}
         </span>
-        {p.kliks_verdacht > 0 && (
-          <div
-            className="text-[10px] text-amber-400/80"
-            title="Klik binnen 2 minuten na verzenden. Vrijwel zeker een linkscanner van de mailserver, niet iemand die leest."
-          >
-            +{p.kliks_verdacht} scanner?
-          </div>
-        )}
-        {p.bot_kliks > 0 && (
-          <div className="text-[10px] text-gray-500" title="Bot-kliks, niet meegeteld">+{p.bot_kliks} bot</div>
-        )}
       </td>
-      <td className="px-3 py-2 text-xs whitespace-nowrap">
+      <td className="px-3 py-2.5 whitespace-nowrap">
         {p.partner_slug ? (
-          <div>
-            <div className="flex items-center gap-1 text-gray-200">
-              <Building2 className="h-3 w-3 text-gray-500" />
-              <span title={p.partner_slug}>{p.partner_naam ?? p.partner_slug}</span>
-            </div>
-            <div className="text-[11px] text-gray-500">
-              {p.codes_issued} codes{p.codes_claimed > 0 ? `, ${p.codes_claimed} gebruikt` : ''}
-            </div>
+          <div
+            className="inline-flex items-center gap-1 text-xs text-white/[0.88]"
+            title={`${p.partner_naam ?? p.partner_slug} · ${p.codes_issued} codes${p.codes_claimed > 0 ? `, ${p.codes_claimed} used` : ''}`}
+          >
+            <Building2 className="h-3.5 w-3.5 text-atlas-teal shrink-0" />
+            <span className="truncate max-w-[7rem]">{p.partner_naam ?? p.partner_slug}</span>
           </div>
         ) : onCreatePartner ? (
           <button
             onClick={() => onCreatePartner({ name: p.naam ?? p.slug, slug: p.slug, prospectSlug: p.slug })}
-            className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-atlas-teal"
-            title="Opent het Partners-tabblad met naam en slug ingevuld; opslaan koppelt dit bureau"
+            aria-label="Create partner"
+            title="Create a partner account with this name and slug prefilled"
+            className="inline-flex items-center justify-center h-7 w-7 rounded-lg border border-white/[0.14] text-white/60 hover:text-atlas-teal hover:border-atlas-teal/40 transition-colors"
           >
-            <Building2 className="h-3 w-3" /> Partner aanmaken
+            <Building2 className="h-3.5 w-3.5" />
           </button>
         ) : (
-          <span className="text-gray-600">-</span>
+          <span className="text-white/45">-</span>
         )}
       </td>
-      <td className="px-3 py-2 min-w-[14rem]">
+      <td className="px-3 py-2.5 min-w-[12rem]">
         <div className="relative">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             onBlur={saveNotes}
             rows={2}
-            placeholder="Notities"
-            className="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-xs text-gray-100 placeholder:text-gray-600 focus:outline-none focus:border-atlas-teal/60 resize-y"
+            placeholder="Notes"
+            className="w-full bg-[#0E2531] border border-white/[0.14] rounded-lg px-2 py-1 text-xs text-white/[0.92] placeholder:text-white/40 focus:outline-none focus:border-atlas-teal/60 resize-y"
           />
-          {savingNotes && <Loader2 className="absolute right-1.5 top-1.5 h-3 w-3 animate-spin text-gray-500" />}
+          {savingNotes && <Loader2 className="absolute right-1.5 top-1.5 h-3 w-3 animate-spin text-white/55" />}
         </div>
       </td>
     </tr>
     {showMails && p.mails.length > 0 && (
       <tr className={`${rowBg}`}>
-        <td colSpan={11} className="px-3 pb-3 pt-0">
+        <td colSpan={8} className="px-3 pb-3 pt-0">
           <MailHistory mails={p.mails} />
         </td>
       </tr>
@@ -322,43 +350,43 @@ function ProspectRow({
 // ─── Mail history under a row ─────────────────────────────────────────────────
 
 const KIND_LABEL: Record<OutreachMail['kind'], string> = {
-  eerste: 'eerste mail',
-  opvolging: 'opvolging',
-  antwoord: 'ons antwoord',
-  reactie: 'hun reactie',
+  eerste: 'first mail',
+  opvolging: 'follow-up',
+  antwoord: 'our reply',
+  reactie: 'their reply',
 };
 
 function MailHistory({ mails }: { mails: OutreachMail[] }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-black/30 divide-y divide-white/5">
+    <div className="rounded-lg border border-white/[0.08] bg-[#0E2531] divide-y divide-white/5">
       {mails.map((m) => (
         <div key={m.id} className="px-3 py-2 text-xs flex gap-3">
-          <div className="shrink-0 w-28 text-gray-500 whitespace-nowrap">{fmt(m.sent_at, true)}</div>
-          <div className="shrink-0 w-24 text-gray-400 inline-flex items-center gap-1">
-            {m.direction === 'in' ? <ArrowDownLeft className="h-3 w-3 text-atlas-gold" /> : <ArrowUpRight className="h-3 w-3 text-gray-500" />}
+          <div className="shrink-0 w-28 text-white/60 whitespace-nowrap">{fmt(m.sent_at, true)}</div>
+          <div className="shrink-0 w-24 text-white/70 inline-flex items-center gap-1">
+            {m.direction === 'in' ? <ArrowDownLeft className="h-3 w-3 text-atlas-gold" /> : <ArrowUpRight className="h-3 w-3 text-white/60" />}
             {KIND_LABEL[m.kind]}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-gray-300 truncate" title={m.subject ?? ''}>{m.subject ?? '(geen onderwerp)'}</span>
+              <span className="text-white/80 truncate" title={m.subject ?? ''}>{m.subject ?? '(no subject)'}</span>
               {m.sentiment && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded border ${SENTIMENT_CLS[m.sentiment] ?? SENTIMENT_CLS.overig}`}>
+                <span className={`text-[11px] px-1.5 py-0.5 rounded border ${SENTIMENT_CLS[m.sentiment] ?? SENTIMENT_CLS.overig}`}>
                   {SENTIMENT_LABELS[m.sentiment]}
                 </span>
               )}
               {m.draft_id && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal inline-flex items-center gap-1">
-                  <Mail className="h-2.5 w-2.5" /> concept in Gmail
+                <span className="text-[11px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal inline-flex items-center gap-1">
+                  <Mail className="h-2.5 w-2.5" /> draft in Gmail
                 </span>
               )}
               {m.status_voor && m.status_na && m.status_voor !== m.status_na && (
-                <span className="text-[10px] text-gray-500">
+                <span className="text-[11px] text-white/60">
                   {STATUS_LABELS[m.status_voor as OutreachStatus] ?? m.status_voor} → {STATUS_LABELS[m.status_na as OutreachStatus] ?? m.status_na}
                 </span>
               )}
             </div>
-            {m.samenvatting && <div className="text-gray-300 mt-0.5">{m.samenvatting}</div>}
-            {m.snippet && <div className="text-gray-500 mt-0.5 line-clamp-2" title={m.snippet}>{m.snippet}</div>}
+            {m.samenvatting && <div className="text-white/80 mt-0.5">{m.samenvatting}</div>}
+            {m.snippet && <div className="text-white/60 mt-0.5 line-clamp-2" title={m.snippet}>{m.snippet}</div>}
           </div>
         </div>
       ))}
@@ -374,21 +402,21 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
     <div className={card}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-gray-300 hover:text-gray-100"
+        className="w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-white/80 hover:text-white"
       >
         {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        Ruwe kliklog
-        <span className="text-xs text-gray-500">laatste {rows.length} rijen, inclusief bots en scanners</span>
+        Raw click log
+        <span className="text-xs text-white/60">last {rows.length} rows, bots and scanners included</span>
       </button>
       {open && (
         <div className="overflow-x-auto border-t border-white/5">
           {rows.length === 0 ? (
-            <div className="px-4 py-6 text-xs text-gray-500">Nog geen kliks gelogd.</div>
+            <div className="px-4 py-6 text-xs text-white/60">No clicks logged yet.</div>
           ) : (
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-left text-gray-500">
-                  <th className="px-3 py-2 font-semibold">Tijd</th>
+                <tr className="text-left text-white/60">
+                  <th className="px-3 py-2 font-semibold">Time</th>
                   <th className="px-3 py-2 font-semibold">Slug</th>
                   <th className="px-3 py-2 font-semibold">Campaign</th>
                   <th className="px-3 py-2 font-semibold">Persona / p</th>
@@ -399,23 +427,23 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className={`border-t border-white/5 ${r.is_bot || r.verdacht ? 'text-gray-500' : 'text-gray-300'}`}>
+                  <tr key={r.id} className={`border-t border-white/5 ${r.is_bot || r.verdacht ? 'text-white/60' : 'text-white/80'}`}>
                     <td className="px-3 py-1.5 whitespace-nowrap">{fmt(r.created_at, true)}</td>
                     <td className="px-3 py-1.5 font-mono">{r.slug ?? '-'}</td>
                     <td className="px-3 py-1.5">{r.campaign ?? '-'}</td>
                     <td className="px-3 py-1.5">{[r.persona, r.p].filter(Boolean).join(' / ') || '-'}</td>
                     <td className="px-3 py-1.5">
                       {r.is_bot ? (
-                        <span className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px]">bot</span>
+                        <span className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[11px]">bot</span>
                       ) : r.verdacht ? (
                         <span
-                          className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px]"
-                          title="Binnen 2 minuten na verzenden"
+                          className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[11px]"
+                          title="Within 2 minutes of sending"
                         >
                           scanner?
                         </span>
                       ) : (
-                        <span className="px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal text-[10px]">mens</span>
+                        <span className="px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal text-[11px]">human</span>
                       )}
                     </td>
                     <td className="px-3 py-1.5 max-w-[22rem] truncate" title={r.user_agent ?? ''}>{r.user_agent ?? '-'}</td>
@@ -449,7 +477,7 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
       const res = await callOutreach<ListResponse>({ action: 'list' });
       setData(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kon outreach-data niet laden');
+      setError(e instanceof Error ? e.message : 'Could not load outreach data');
     } finally {
       setLoading(false);
     }
@@ -480,8 +508,8 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
 
   if (loading && !data) {
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-400 py-8">
-        <Loader2 className="h-4 w-4 animate-spin" /> Laden...
+      <div className="flex items-center gap-2 text-sm text-white/70 py-8">
+        <Loader2 className="h-4 w-4 animate-spin" /> Loading…
       </div>
     );
   }
@@ -490,7 +518,7 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     return (
       <div className="text-sm text-red-400 py-4">
         {error}{' '}
-        <button onClick={load} className="underline text-gray-300">opnieuw</button>
+        <button onClick={load} className="underline text-white/80">try again</button>
       </div>
     );
   }
@@ -499,19 +527,19 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
 
   const counter = (lbl: string, big: number, sub: string) => (
     <div className={`${card} px-4 py-4`}>
-      <div className="text-xs text-gray-400">{lbl}</div>
-      <div className="text-3xl font-bold text-gray-100 mt-1">{big}</div>
-      <div className="text-xs text-gray-500 mt-0.5">{sub}</div>
+      <div className="text-xs text-white/70">{lbl}</div>
+      <div className="text-3xl font-bold text-white/[0.92] mt-1">{big}</div>
+      <div className="text-xs text-white/60 mt-0.5">{sub}</div>
     </div>
   );
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {counter('Bureaus in seed', data.counters.prospects, 'rijen in outreach_prospects')}
-        {counter('Bureaus met klik', data.counters.prospects_with_click, 'minstens een bevestigde klik')}
-        {counter('Kliks vandaag', data.counters.clicks_today, 'bevestigd, Amsterdamse dag')}
-        {counter('Wacht op jou', data.prospects.filter((p) => p.needs_reply).length, 'zij schreven als laatste')}
+        {counter('Agencies in seed', data.counters.prospects, 'rows in outreach_prospects')}
+        {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click')}
+        {counter('Clicks today', data.counters.clicks_today, 'confirmed, Amsterdam day')}
+        {counter('Waiting on you', data.prospects.filter((p) => p.needs_reply).length, 'they wrote last')}
       </div>
 
       <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
@@ -523,10 +551,10 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
                 key={t}
                 onClick={() => setTier(t)}
                 className={`text-[11px] px-2 py-0.5 rounded-full border transition-all ${
-                  tier === t ? 'bg-atlas-teal/20 text-atlas-teal border-atlas-teal/40' : 'bg-black/20 text-gray-500 border-white/10 hover:border-white/20'
+                  tier === t ? 'bg-atlas-teal/20 text-atlas-teal border-atlas-teal/40' : 'bg-white/[0.05] text-white/60 border-white/[0.14] hover:border-white/25'
                 }`}
               >
-                {t === 'all' ? 'Alle' : t}
+                {t === 'all' ? 'All' : t}
               </button>
             ))}
           </div>
@@ -535,26 +563,26 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           <span className={label}>Campaign</span>
           <div className="mt-1">
             <select value={campaign} onChange={(e) => setCampaign(e.target.value)} className={select}>
-              <option value="all">Alle</option>
+              <option value="all">All</option>
               {data.campaigns.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
         </label>
-        <label className="flex items-center gap-2 text-xs text-gray-300 pb-1 cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-white/80 pb-1 cursor-pointer">
           <input
             type="checkbox"
             checked={onlyClicked}
             onChange={(e) => setOnlyClicked(e.target.checked)}
             className="accent-atlas-teal"
           />
-          Alleen met klik
+          Only with a click
         </label>
-        <div className="ml-auto flex items-center gap-2 text-xs text-gray-500">
-          {rows.length} van {data.prospects.length}
-          <button onClick={load} disabled={loading} className="inline-flex items-center gap-1 text-gray-300 hover:text-gray-100">
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> Ververs
+        <div className="ml-auto flex items-center gap-2 text-xs text-white/60">
+          {rows.length} of {data.prospects.length}
+          <button onClick={load} disabled={loading} className="inline-flex items-center gap-1 text-white/80 hover:text-white">
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh
           </button>
         </div>
       </div>
@@ -562,32 +590,29 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
       <div className={`${card} overflow-x-auto`}>
         <table className="w-full">
           <thead>
-            <tr className="text-left text-gray-500">
-              <th className={`px-3 py-2 ${label}`}>Naam</th>
+            <tr className="text-left">
+              <th className={`px-3 py-2 ${label}`}>Agency</th>
               <th className={`px-3 py-2 ${label}`}>Tier</th>
-              <th className={`px-3 py-2 ${label}`}>Contactpersoon</th>
+              <th className={`px-3 py-2 ${label}`}>Contact</th>
               <th className={`px-3 py-2 ${label}`}>Status</th>
               <th className={`px-3 py-2 ${label}`}>Mail</th>
-              <th className={`px-3 py-2 ${label}`}>Verzonden</th>
-              <th className={`px-3 py-2 ${label}`}>Eerste klik</th>
-              <th className={`px-3 py-2 ${label}`}>Laatste klik</th>
-              <th className={`px-3 py-2 ${label} text-center`}>Kliks</th>
+              <th className={`px-3 py-2 ${label}`}>Clicked?</th>
               <th className={`px-3 py-2 ${label}`}>Partner</th>
-              <th className={`px-3 py-2 ${label}`}>Notities</th>
+              <th className={`px-3 py-2 ${label}`}>Notes</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-3 py-6 text-xs text-gray-500">Geen bureaus binnen dit filter.</td>
+                <td colSpan={8} className="px-3 py-6 text-xs text-white/55">No agencies match this filter.</td>
               </tr>
             ) : (
               rows.map((p) => <ProspectRow key={p.slug} p={p} onSaved={applyPatch} onCreatePartner={onCreatePartner} />)
             )}
           </tbody>
         </table>
-        <div className="px-3 py-2 text-[11px] text-gray-600 border-t border-white/5">
-          Kliks = aantal verschillende dagen met een bevestigde klik. Een klik binnen 2 minuten na verzenden telt niet mee en staat als &quot;scanner?&quot;, want dat is de linkcontrole van de mailserver. Bovenaan staan bureaus die als laatste schreven (goud, jij bent aan zet), dan bureaus met een bevestigde klik die nog niet zijn opgevolgd (teal). Mail en statussen komen automatisch uit Gmail via WF11; een conceptantwoord staat in Gmail onder Concepten en wordt nooit vanzelf verstuurd.
+        <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then ones who clicked but haven&apos;t been followed up (teal). Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 

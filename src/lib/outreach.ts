@@ -1,7 +1,9 @@
 // Outreach tab helpers: status vocabulary and the default row order.
 //
 // The status list mirrors the check constraint on outreach_prospects.status
-// (and supabase/functions/_shared/outreach.ts, which Vite cannot import).
+// (and supabase/functions/_shared/outreach.ts, which Vite cannot import), so the
+// KEYS stay as they are. Only STATUS_LABELS / SENTIMENT_LABELS are display text,
+// and /ops reads English — renaming a key here breaks the DB write.
 
 export const OUTREACH_STATUSES = [
   'nog_niet_benaderd',
@@ -23,32 +25,32 @@ export const OUTREACH_STATUSES = [
 export type OutreachStatus = (typeof OUTREACH_STATUSES)[number];
 
 export const STATUS_LABELS: Record<OutreachStatus, string> = {
-  nog_niet_benaderd: 'Nog niet benaderd',
-  verzonden: 'Verzonden',
-  opvolging_1: 'Opvolging 1',
-  opvolging_2: 'Opvolging 2',
-  gereageerd: 'Gereageerd',
-  gesprek_gepland: 'Gesprek gepland',
-  gesprek_gevoerd: 'Gesprek gevoerd',
-  pilot_afgesproken: 'Pilot afgesproken',
-  partner_aangemaakt: 'Partner aangemaakt',
-  codes_gemint: 'Codes gemint',
-  pilot_gestart: 'Pilot gestart',
+  nog_niet_benaderd: 'Not contacted',
+  verzonden: 'Sent',
+  opvolging_1: 'Follow-up 1',
+  opvolging_2: 'Follow-up 2',
+  gereageerd: 'Replied',
+  gesprek_gepland: 'Call booked',
+  gesprek_gevoerd: 'Call done',
+  pilot_afgesproken: 'Pilot agreed',
+  partner_aangemaakt: 'Partner created',
+  codes_gemint: 'Codes minted',
+  pilot_gestart: 'Pilot started',
   founding_partner: 'Founding partner',
-  afgewezen: 'Afgewezen',
-  geen_fit: 'Geen fit',
+  afgewezen: 'Declined',
+  geen_fit: 'No fit',
 };
 
 export type MailSentiment = 'positief' | 'code' | 'vraag' | 'later' | 'afwijzing' | 'auto' | 'overig';
 
 export const SENTIMENT_LABELS: Record<MailSentiment, string> = {
-  positief: 'Positief',
-  code: 'Wil code',
-  vraag: 'Vraag',
+  positief: 'Positive',
+  code: 'Wants a code',
+  vraag: 'Question',
   later: 'Later',
-  afwijzing: 'Afwijzing',
+  afwijzing: 'Rejection',
   auto: 'Auto-reply',
-  overig: 'Overig',
+  overig: 'Other',
 };
 
 /** One row of outreach_mails, as the tab shows it. */
@@ -145,5 +147,6 @@ export function compareProspects(a: OutreachProspect, b: OutreachProspect): numb
   const tier = (a.tier ?? 'Z').localeCompare(b.tier ?? 'Z');
   if (tier !== 0) return tier;
 
+  // Agency names are Dutch even though the console is English.
   return (a.naam ?? '').localeCompare(b.naam ?? '', 'nl');
 }

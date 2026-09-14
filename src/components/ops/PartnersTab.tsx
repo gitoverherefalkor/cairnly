@@ -176,13 +176,13 @@ function PartnerForm({
 
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 space-y-3">
-      <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+      <div className="flex items-center gap-2 text-sm font-semibold text-white/[0.88]">
         {editing ? <Pencil className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
         {editing ? 'Edit this partner' : 'Add a partner'}
         {editing && (
           <button
             onClick={() => { reset(); onCancelEdit(); }}
-            className="ml-auto inline-flex items-center gap-1 text-[11px] font-normal text-gray-500 hover:text-gray-300"
+            className="ml-auto inline-flex items-center gap-1 text-[11px] font-normal text-white/60 hover:text-white/80"
           >
             <X className="h-3 w-3" /> Cancel
           </button>
@@ -191,47 +191,47 @@ function PartnerForm({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="text-xs text-gray-400">Name (shown on the report)</span>
+          <span className="text-xs text-white/70">Name (shown on the report)</span>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Loopbaanbureau Noord"
-            className="mt-1 bg-black/30 border-white/10"
+            className="mt-1 bg-[#0E2531] border-white/[0.14]"
           />
         </label>
         <label className="block">
-          <span className="text-xs text-gray-400">Slug (permanent, used in the URL)</span>
+          <span className="text-xs text-white/70">Slug (permanent, used in the URL)</span>
           <Input
             value={slugTouched ? slug : suggestSlug(name)}
             onChange={(e) => { setSlugTouched(true); setSlug(e.target.value); }}
             placeholder="loopbaanbureau-noord"
             disabled={Boolean(editing)}
-            className="mt-1 bg-black/30 border-white/10 font-mono text-xs disabled:opacity-60"
+            className="mt-1 bg-[#0E2531] border-white/[0.14] font-mono text-xs disabled:opacity-60"
           />
         </label>
       </div>
 
       <label className="block">
-        <span className="text-xs text-gray-400">Credit line (optional — blank renders “Powered by Cairnly”)</span>
+        <span className="text-xs text-white/70">Credit line (optional — blank renders “Powered by Cairnly”)</span>
         <Input
           value={poweredBy}
           onChange={(e) => setPoweredBy(e.target.value)}
           placeholder=""
-          className="mt-1 bg-black/30 border-white/10"
+          className="mt-1 bg-[#0E2531] border-white/[0.14]"
         />
       </label>
 
       <label className="block">
-        <span className="text-xs text-gray-400">Logo: SVG, PNG or JPG, max 256 KB. Ask for SVG if they have it. A JPG must be drawn on a white background, since it cannot be transparent.</span>
+        <span className="text-xs text-white/70">Logo: SVG, PNG or JPG, max 256 KB. Ask for SVG if they have it. A JPG must be drawn on a white background, since it cannot be transparent.</span>
         <input
           ref={fileInput}
           type="file"
           accept="image/png,image/svg+xml,image/jpeg"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="mt-1 block w-full text-xs text-gray-400 file:mr-3 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-xs file:text-gray-200"
+          className="mt-1 block w-full text-xs text-white/70 file:mr-3 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-xs file:text-white/[0.88]"
         />
         {file && (
-          <span className="mt-1 block text-[11px] text-gray-500">
+          <span className="mt-1 block text-[11px] text-white/60">
             {file.name} · {Math.round(file.size / 1024)} KB
           </span>
         )}
@@ -250,7 +250,7 @@ function PartnerForm({
         {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
         {editing ? 'Save changes' : 'Save partner'}
       </Button>
-      <p className="text-[11px] text-gray-500">
+      <p className="text-[11px] text-white/60">
         {editing
           ? 'The slug cannot change: it is the storage path and the /p/ URL already handed out. Leaving the logo empty keeps the current one.'
           : 'Saving an existing slug updates that partner. Leaving the logo empty keeps the current one.'}
@@ -302,28 +302,28 @@ function MintRow({ partner }: { partner: Partner }) {
     <div className="mt-2 space-y-2 border-t border-white/5 pt-2">
       <div className="flex flex-wrap items-end gap-2">
         <label className="block">
-          <span className="text-[11px] text-gray-500">Codes</span>
+          <span className="text-[11px] text-white/60">Codes</span>
           <Input
             value={count}
             onChange={(e) => setCount(e.target.value)}
-            className="mt-0.5 h-8 w-20 bg-black/30 border-white/10 text-xs"
+            className="mt-0.5 h-8 w-20 bg-[#0E2531] border-white/[0.14] text-xs"
           />
         </label>
         <label className="block">
-          <span className="text-[11px] text-gray-500">Expires (optional)</span>
+          <span className="text-[11px] text-white/60">Expires (optional)</span>
           <Input
             type="date"
             value={expires}
             onChange={(e) => setExpires(e.target.value)}
-            className="mt-0.5 h-8 bg-black/30 border-white/10 text-xs"
+            className="mt-0.5 h-8 bg-[#0E2531] border-white/[0.14] text-xs"
           />
         </label>
         <label className="block">
-          <span className="text-[11px] text-gray-500">Link language</span>
+          <span className="text-[11px] text-white/60">Link language</span>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as 'nl' | 'en')}
-            className="mt-0.5 h-8 rounded border border-white/10 bg-black/30 px-2 text-xs text-gray-200"
+            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
           >
             <option value="nl">Nederlands</option>
             <option value="en">English</option>
@@ -350,9 +350,9 @@ function MintRow({ partner }: { partner: Partner }) {
             readOnly
             value={links.join('\n')}
             rows={Math.min(6, links.length)}
-            className="w-full rounded border border-white/10 bg-black/40 p-2 font-mono text-[10px] text-gray-400"
+            className="w-full rounded-lg border border-white/[0.14] bg-[#0E2531] p-2 font-mono text-[11px] text-white/80"
           />
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-white/60">
             One link is one person. Copy these now — the codes stay in the database, but this list is not shown again.
           </p>
         </div>
@@ -398,17 +398,17 @@ const PartnersTab: React.FC<{ draft?: PartnerDraft | null; onDraftConsumed?: () 
       <PartnerForm onSaved={load} editing={null} onCancelEdit={() => {}} draft={draft} onDraftConsumed={onDraftConsumed} />
 
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-200">Partners</h3>
-        <Button onClick={load} size="sm" variant="ghost" className="h-7 px-2 text-xs text-gray-400">
+        <h3 className="text-sm font-semibold text-white/[0.88]">Partners</h3>
+        <Button onClick={load} size="sm" variant="ghost" className="h-7 px-2 text-xs text-white/70">
           <RefreshCw className="h-3 w-3 mr-1" /> Refresh
         </Button>
       </div>
 
       {err && <div className="text-xs text-red-400">{err}</div>}
-      {loading && <div className="flex items-center gap-2 text-xs text-gray-500"><Loader2 className="h-3 w-3 animate-spin" /> Loading…</div>}
+      {loading && <div className="flex items-center gap-2 text-xs text-white/60"><Loader2 className="h-3 w-3 animate-spin" /> Loading…</div>}
 
       {!loading && partners.length === 0 && (
-        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-6 text-center text-xs text-gray-500">
+        <div className="rounded-lg border border-white/10 bg-white/[0.02] p-6 text-center text-xs text-white/60">
           No partners yet. Add one above.
         </div>
       )}
@@ -416,26 +416,26 @@ const PartnersTab: React.FC<{ draft?: PartnerDraft | null; onDraftConsumed?: () 
       {partners.map((p) => (
         <div key={p.slug} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="font-semibold text-gray-100">{p.name}</span>
-            <span className="font-mono text-[11px] text-gray-500">{p.slug}</span>
-            {!p.has_logo && <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-300">no logo</span>}
-            {!p.is_active && <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] text-red-300">inactive</span>}
+            <span className="font-semibold text-white/[0.92]">{p.name}</span>
+            <span className="font-mono text-[11px] text-white/60">{p.slug}</span>
+            {!p.has_logo && <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] text-amber-300">no logo</span>}
+            {!p.is_active && <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[11px] text-red-300">inactive</span>}
             <button
               onClick={() => setEditingSlug(editingSlug === p.slug ? null : p.slug)}
-              className="ml-auto inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-200"
+              className="ml-auto inline-flex items-center gap-1 text-[11px] text-white/70 hover:text-white/[0.88]"
             >
               <Pencil className="h-3 w-3" /> {editingSlug === p.slug ? 'Close' : 'Edit'}
             </button>
-            <button onClick={() => toggle(p)} className="text-[11px] text-gray-500 hover:text-gray-300">
+            <button onClick={() => toggle(p)} className="text-[11px] text-white/60 hover:text-white/80">
               {p.is_active ? 'Deactivate' : 'Activate'}
             </button>
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-gray-400">
-            <span>Issued <b className="text-gray-200">{p.codes_issued}</b></span>
-            <span>Claimed <b className="text-gray-200">{p.codes_claimed}</b></span>
-            <span>Started <b className="text-gray-200">{p.surveys_started}</b></span>
-            <span>Reports <b className="text-gray-200">{p.reports_completed}</b></span>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-white/70">
+            <span>Issued <b className="text-white/[0.88]">{p.codes_issued}</b></span>
+            <span>Claimed <b className="text-white/[0.88]">{p.codes_claimed}</b></span>
+            <span>Started <b className="text-white/[0.88]">{p.surveys_started}</b></span>
+            <span>Reports <b className="text-white/[0.88]">{p.reports_completed}</b></span>
             {p.expired_unused > 0 && <span className="text-amber-400">Expired unused {p.expired_unused}</span>}
           </div>
 
