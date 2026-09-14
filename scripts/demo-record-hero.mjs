@@ -167,19 +167,57 @@ async function locate(page, needle, { tags = 'button, a, label, span, p, h1, h2,
   if (!box) throw new Error(`not found on page: "${needle}"`);
   return box;
 }
+// Waits until the page has stopped scrolling (smooth scrolls run long while
+// the screenshot loop slows the page; measuring mid-scroll gives stale spots).
+async function settleScroll(page, max = 6000) {
+  const t0 = Date.now();
+  let last = -1;
+  let stable = 0;
+  while (Date.now() - t0 < max) {
+    const y = await page.evaluate(() => window.scrollY);
+    if (y === last) {
+      if (++stable >= 3) return;
+    } else {
+      stable = 0;
+      last = y;
+    }
+    await sleep(100);
+  }
+}
 // Scroll so the element sits `pad` px under the top, smoothly.
 async function scrollToText(page, needle, pad = 120, opts = {}) {
+  await settleScroll(page);
   const box = await locate(page, needle, opts);
   await page.evaluate((dy) => window.scrollBy({ top: dy, behavior: 'smooth' }), box.top - pad);
   await pause(700);
+  await settleScroll(page);
+}
+// On a failed click: what was under the pointer, plus a screenshot next to
+// the frames, so the next run does not need guesswork.
+async function explainMiss(page, needle, x, y) {
+  const under = await page.evaluate(
+    ({ x, y }) => {
+      const el = document.elementFromPoint(x, y);
+      return el ? `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''} "${(el.textContent || '').trim().slice(0, 40)}"` : 'nothing';
+    },
+    { x, y },
+  );
+  const shot = resolve(root, '.demo-capture', 'last-miss.jpg');
+  await page.screenshot({ path: shot, type: 'jpeg', quality: 80, captureBeyondViewport: false });
+  return `clicked "${needle}" at (${Math.round(x)}, ${Math.round(y)}); under the pointer: ${under}; screenshot: ${shot}`;
 }
 // Move the cursor to the text, press, and click it. Re-clicks while the
 // expected state stays away (the screenshot loop slows the page; a click
 // can land mid-animation and be lost).
 async function clickText(page, needle, { reached = null, tries = 3, ...opts } = {}) {
+  let last = { x: 0, y: 0 };
   for (let i = 0; i < tries; i++) {
+    await settleScroll(page);
+    const aim = await locate(page, needle, opts);
+    await cursorTo(page, aim.x, aim.y);
+    // Re-measure after the cursor's travel: the page may still have moved.
     const box = await locate(page, needle, opts);
-    await cursorTo(page, box.x, box.y);
+    last = box;
     await cursorPress(page);
     await page.mouse.click(box.x, box.y);
     if (!reached) return;
@@ -188,10 +226,11 @@ async function clickText(page, needle, { reached = null, tries = 3, ...opts } = 
       if (await reached()) return;
     }
   }
-  throw new Error(`state not reached after clicking "${needle}"`);
+  throw new Error(`state not reached: ${await explainMiss(page, needle, last.x, last.y)}`);
 }
 const messageCount = (page) => page.evaluate(() => document.querySelectorAll('[id^="demo-msg-"]').length);
 const clickPoint = async (page, pt) => {
+  await settleScroll(page);
   await cursorTo(page, pt.x, pt.y);
   await cursorPress(page);
   await page.mouse.click(pt.x, pt.y);
@@ -262,7 +301,7 @@ async function record({ persona, lang }) {
       const p = resolve(tmp, `f${String(n++).padStart(5, '0')}.jpg`);
       const t = performance.now();
       try {
-        await page.screenshot({ path: p, type: 'jpeg', quality: 88 });
+        await page.screenshot({ path: p, type: 'jpeg', quality: 88, captureBeyondViewport: false });
         frames.push({ p, t });
       } catch {
         break;
@@ -273,7 +312,7 @@ async function record({ persona, lang }) {
   const stills = [];
   const still = async (label) => {
     const p = resolve(tmp, `still-${label}.jpg`);
-    await page.screenshot({ path: p, type: 'jpeg', quality: 90 });
+    await page.screenshot({ path: p, type: 'jpeg', quality: 90, captureBeyondViewport: false });
     stills.push({ p, label });
   };
   const goto = async (path) => {
@@ -312,6 +351,7 @@ async function record({ persona, lang }) {
   // 2. Chat: strengths + explore pill ----------------------------------------
   await clickText(page, copy.strengthsNav, { tags: 'button' });
   await pause(1600);
+  await settleScroll(page);
   await scrollToText(page, copy.explore, 620, { tags: 'button', last: true });
   await pause(400);
   const before = await messageCount(page);
@@ -321,6 +361,7 @@ async function record({ persona, lang }) {
   await pause(900);
   await still('02-explore');
   // Option 1 of the coach's follow-up card: the last numbered "1" row.
+  await settleScroll(page);
   const opt1 = await page.evaluate(() => {
     const rows = [...document.querySelectorAll('button')].filter((b) => /^\s*1\s/.test(b.innerText) && b.innerText.length > 20);
     const b = rows[rows.length - 1];
@@ -341,6 +382,7 @@ async function record({ persona, lang }) {
   await pause(1500);
   await still('03-runner-ups');
   // The first collapsed card header.
+  await settleScroll(page);
   const card = await page.evaluate(() => {
     const el = document.querySelector('[data-card-collapsed]');
     if (!el) return null;
