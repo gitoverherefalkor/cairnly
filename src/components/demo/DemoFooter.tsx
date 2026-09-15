@@ -38,6 +38,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
 
   return (
     <section
+      data-demo-chrome=""
       className="rounded-[20px] border px-5 py-6 sm:px-7 sm:py-8 mt-10"
       style={{
         background: '#FDFBF2',

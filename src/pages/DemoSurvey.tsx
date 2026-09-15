@@ -13,6 +13,7 @@ import { trackSampleView, trackCtaClick } from '@/lib/analytics';
 import { chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { demoLink, readPersonaParam } from '@/demo/links';
 import { demoSurvey, initialResponses, resolveQuestion, surveyPersona } from '@/demo/survey';
+import { isDemoCapture } from '@/demo/capture';
 import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
 
 /**
@@ -58,15 +59,27 @@ const DemoSurvey: React.FC = () => {
   }, [location.pathname, location.search, choice.personaId]);
 
   // The persona's own answers, editable and local. Nothing is persisted.
+  // Capture-only (the hero recording): the script answers the question that
+  // carries the non-negotiable rider itself, so that answer and the rider
+  // start empty and the visitor sees the option picked, then the box ticked.
+  const startingResponses = useCallback((personaId: typeof choice.personaId) => {
+    const answers = initialResponses(personaId);
+    if (!isDemoCapture()) return answers;
+    delete answers['__non_negotiables'];
+    for (const q of demoSurvey.questions as { id: string; config?: { non_negotiable_rider?: string } }[]) {
+      if (q.config?.non_negotiable_rider) delete answers[q.id];
+    }
+    return answers;
+  }, []);
   const [responses, setResponses] = useState<Record<string, unknown>>(() =>
-    initialResponses(choice.personaId),
+    startingResponses(choice.personaId),
   );
   const personaRef = useRef(choice.personaId);
   React.useEffect(() => {
     if (personaRef.current === choice.personaId) return;
     personaRef.current = choice.personaId;
-    setResponses(initialResponses(choice.personaId));
-  }, [choice.personaId]);
+    setResponses(startingResponses(choice.personaId));
+  }, [choice.personaId, startingResponses]);
 
   const setAnswer = useCallback((id: string, value: unknown) => {
     setResponses((prev) => ({ ...prev, [id]: value }));
@@ -106,7 +119,7 @@ const DemoSurvey: React.FC = () => {
         <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-16">
           {/* Editorial opening on the canvas, not a card: three stacked cream
               boxes (intro, résumé step, questions) read as a wall. */}
-          <header className="mb-9 sm:mb-11 max-w-[62ch]">
+          <header data-demo-chrome="" className="mb-9 sm:mb-11 max-w-[62ch]">
             <div className="lp-eyebrow text-[#2ABFBF] mb-3">{t('surveyDemo.intro.eyebrow')}</div>
             <h1
               className="font-heading text-white"
@@ -197,6 +210,7 @@ const DemoSurvey: React.FC = () => {
 
           {/* The honest close: three of about sixty. */}
           <section
+            data-demo-chrome=""
             className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-6 mb-2"
             style={{
               background: '#FDFBF2',
@@ -233,7 +247,7 @@ const DemoSurvey: React.FC = () => {
         </div>
       </main>
 
-      <div className="relative z-10">
+      <div data-demo-chrome="" className="relative z-10">
         <LandingFooter />
       </div>
     </div>

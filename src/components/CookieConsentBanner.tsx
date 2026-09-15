@@ -51,7 +51,7 @@ const CookieConsentBanner = () => {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t shadow-lg">
+    <div data-demo-chrome="" className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t shadow-lg">
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="flex-1 text-sm text-gray-700">
           <p>

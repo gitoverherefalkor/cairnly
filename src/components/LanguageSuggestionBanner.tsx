@@ -102,6 +102,7 @@ const LanguageSuggestionBanner = () => {
 
   return (
     <div
+      data-demo-chrome=""
       className="relative z-50 border-b"
       style={{ background: '#FDFBF2', borderColor: 'rgba(201,182,144,0.6)' }}
       role="region"

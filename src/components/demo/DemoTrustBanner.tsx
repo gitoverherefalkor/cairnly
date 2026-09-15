@@ -34,6 +34,7 @@ export const DemoTrustBanner: React.FC = () => {
 
   return (
     <div
+      data-demo-chrome=""
       aria-hidden={hidden}
       // relative + z-index: the demo page paints a `fixed inset-0` canvas
       // behind everything, and a plain block sibling ends up under it (the

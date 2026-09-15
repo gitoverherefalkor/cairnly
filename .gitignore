@@ -53,3 +53,6 @@ handoff/*.pdf
 
 # TypeScript incremental build output — never source.
 tsconfig*.tsbuildinfo
+
+# Frames of the hero recording (scripts/demo-record-hero.mjs)
+.demo-capture/

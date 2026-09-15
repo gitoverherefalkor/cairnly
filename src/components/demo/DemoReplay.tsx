@@ -1,5 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChatMessage } from '@/components/chat/ChatMessage';
+import { QuickReplies } from '@/components/chat/QuickReplies';
+import { isDemoCapture } from '@/demo/capture';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { DemoMessage } from '@/demo/types';
 import { DemoAnnotation, type ResolvedAnnotation } from './DemoAnnotation';
@@ -63,6 +65,28 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
   // they were requested from. Rendered right after that message.
   const [inserted, setInserted] = useState<Record<string, DemoMessage>>({});
 
+  // Capture-only (scripts/demo-record-hero.mjs): the transcript is cut at
+  // `revealCount` messages and grows when the script, a quick-reply pill or
+  // an option chip asks for the next turns. `null` = everything, which is
+  // what every visitor gets.
+  const capture = isDemoCapture();
+  const [revealCount, setRevealCount] = useState<number | null>(null);
+  useEffect(() => {
+    if (!capture) return;
+    window.__cairnlyDemoReveal = (count: number) => setRevealCount(Math.max(0, count));
+    return () => {
+      delete window.__cairnlyDemoReveal;
+    };
+  }, [capture]);
+  const revealMore = useCallback(
+    (n: number) => setRevealCount((c) => (c ?? messages.length) + n),
+    [messages.length],
+  );
+  const visibleMessages = useMemo(
+    () => (revealCount === null ? messages : messages.slice(0, revealCount)),
+    [messages, revealCount],
+  );
+
   const toggleKept = useCallback((id: string) => {
     setKept((prev) => {
       const next = new Set(prev);
@@ -74,13 +98,13 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
 
   const rendered = useMemo(() => {
     const out: DemoMessage[] = [];
-    for (const m of messages) {
+    for (const m of visibleMessages) {
       out.push(m);
       const extra = inserted[m.id];
       if (extra) out.push(extra);
     }
     return out;
-  }, [messages, inserted]);
+  }, [visibleMessages, inserted]);
 
   const userTurns = useMemo(() => messages.filter((m) => m.sender === 'user'), [messages]);
   // The read-aloud speed control is easy to miss and most people want it:
@@ -155,6 +179,10 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
         const next = arr[idx + 1];
         const notes = annotationsByMessage[msg.id] ?? [];
         const sectionIndex = sectionIndexByMessage[msg.id];
+        // Under capture the last visible coach message behaves like the live
+        // chat's latest message: interactive option chips and the real
+        // quick-reply row underneath.
+        const isCut = capture && revealCount !== null && idx === arr.length - 1 && isBot;
         return (
           <div
             key={msg.id}
@@ -178,10 +206,10 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
               defaultAllCollapsed={isMultiCard}
               showOpenCardsHint={isMultiCard && msg.id === firstMultiCardId}
               sections={sections}
-              isLatestBotMessage={false}
+              isLatestBotMessage={isCut}
               forceFullReveal
               onAskAboutRole={isBot ? handleAskAboutRole : undefined}
-              onChipSend={isBot ? handleChipSend : undefined}
+              onChipSend={isBot ? (isCut ? () => revealMore(2) : handleChipSend) : undefined}
               onComparisonExplain={isBot ? (content) => handleExplain(msg.id, content) : undefined}
               bookmarkable={isBot && !isSectionReveal && savedSet.has(msg.id)}
               bookmarked={kept.has(msg.id)}
@@ -189,6 +217,9 @@ export const DemoReplay: React.FC<DemoReplayProps> = ({
               alreadyInReport={isSectionReveal}
               voiceSettingsHint={isBot && msg.id === firstBotId}
             />
+            {isCut && (
+              <QuickReplies onSend={() => revealMore(2)} onFocusInput={() => revealMore(2)} visible />
+            )}
             {notes
               .filter((a) => a.placement === 'bottom')
               .map((a) => (

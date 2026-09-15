@@ -8,13 +8,14 @@
     "bodyEmphasis": "Cairnly is één assessment om die keuze echt te bekijken: hoe zou verandering er voor jou uitzien, en zou het dat waard zijn?",
     "ctaPrimary": "Aan de slag",
     "ctaSecondary": "Bekijk hoe het werkt",
-    "reassurance": "Klaar in één sessie. Geen abonnement. Geen slapend account dat blijft hangen.",
-    "compareLink": "Hoe dit zich verhoudt tot gratis tests en coaches",
+    "reassurance": "Klaar in één sessie. Geen abonnement.",
+    "compareLink": "Hoe dit zich verhoudt tot gratis tests en andere tools",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
     "screenshotAlt": "Cairnly AI-coachsessie",
     "eyebrowDemo": "01 · Bekijk een echte sessie",
     "neitherLine": "Herken je je in geen van beide?",
-    "neitherCta": "Vertel wat jou hier brengt"
+    "neitherCta": "Vertel wat jou hier brengt",
+    "scrollCue": "Waarom Cairnly anders is"
   },
   "pillars": {
     "eyebrow": "Waarom Cairnly anders is",
@@ -619,6 +620,19 @@
         ],
         "cta": "Bekijk Marcels sessie"
       }
+    },
+    "endCard": {
+      "title": "Dat was een korte blik op wat je kunt verwachten van Cairnly's complete platform voor loopbaanverandering.",
+      "toolkitLabel": "Het dashboard met je resultaten biedt ook:",
+      "toolkit": [
+        "Download je profiel als pdf",
+        "Vind actuele vacatures voor de voorgestelde rollen",
+        "Pas je cv aan om ze binnen te halen",
+        "Motivatiebrieven op basis van je profiel"
+      ],
+      "fullDemo": "Klik zelf door de demo",
+      "cta": "Of start nu je eigen sessie",
+      "replay": "Opnieuw"
     }
   },
   "intakeSection": {

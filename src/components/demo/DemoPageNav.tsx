@@ -35,7 +35,7 @@ export const DemoPageNav: React.FC<DemoPageNavProps> = ({ audience, label, backT
               <Link to="/" className="flex items-center shrink-0">
                 <img src="/logos/cairnly-logo.png" alt="Cairnly" className="h-12 w-auto" />
               </Link>
-              <span className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy truncate">
+              <span data-demo-chrome="" className="hidden sm:flex items-center gap-3 text-sm font-medium text-atlas-navy truncate">
                 <span className="h-4 w-px bg-gray-200" aria-hidden="true" />
                 {label}
               </span>
@@ -43,6 +43,7 @@ export const DemoPageNav: React.FC<DemoPageNavProps> = ({ audience, label, backT
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <Link
                 to={backTo}
+                data-demo-chrome=""
                 className="hidden md:inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#1F8282] hover:underline underline-offset-4 mr-2"
               >
                 <ArrowLeft size={14} strokeWidth={2.4} />
@@ -61,6 +62,7 @@ export const DemoPageNav: React.FC<DemoPageNavProps> = ({ audience, label, backT
         </div>
         {/* The honest label, always in view, as on the chat replay. */}
         <div
+          data-demo-chrome=""
           className="px-4 sm:px-6 py-1.5 flex items-center justify-end gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em]"
           style={{ background: '#FDFBF2', color: '#122E3B', borderTop: '1px solid rgba(201,182,144,0.5)' }}
         >

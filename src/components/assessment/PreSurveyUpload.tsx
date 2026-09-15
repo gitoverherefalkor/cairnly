@@ -721,7 +721,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     {t('preSurveyUpload.cta.processing')}
                   </>
-                ) : hasUploadedResume ? (
+                ) : shownFile ? (
                   <>
                     {t('preSurveyUpload.cta.continue')}
                     <ArrowRight className="h-4 w-4 ml-2" />
