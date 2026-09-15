@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, Lock, Play, RotateCcw } from 'lucide-react';
 import { DEMO_ROUTE } from '@/demo/constants';
 import { DEMO_HERO_VERSION } from '@/lib/demoHero.generated';
 import { trackCtaClick } from '@/lib/analytics';
+import { tArray } from '@/lib/i18nArray';
 import { heroVideoClip, heroVideoSources } from './heroVideo';
 import { useDemoHref } from './HeroPersonaContext';
 
@@ -156,6 +157,20 @@ const DemoVideoStage: React.FC = () => {
             <p className="mt-2 text-white/70 text-[14px] md:text-[15px] font-medium max-w-[42ch]">
               {t('heroDemo.endCard.body')}
             </p>
+            {/* The job-hunt toolkit, listed here rather than in the film: readable, translated, next to the button. */}
+            <div className="mt-4 hidden sm:block">
+              <p className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
+                {t('heroDemo.endCard.toolkitLabel')}
+              </p>
+              <ul className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-1 text-left text-[13px] text-white/80 font-medium">
+                {tArray<string>(t, 'heroDemo.endCard.toolkit').map((item) => (
+                  <li key={item} className="flex items-start gap-1.5">
+                    <span aria-hidden="true" className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#D4A024]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <Link
               to="/payment"
               onClick={() => trackCtaClick('hero_video_cta')}

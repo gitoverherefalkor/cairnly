@@ -625,7 +625,14 @@
       "body": "Je eigen rapport begint bij de vragenlijst. Stoppen kan tot je hem verstuurt.",
       "cta": "Start nu je sessie",
       "replay": "Opnieuw",
-      "fullDemo": "Bekijk de hele demo"
+      "fullDemo": "Bekijk de hele demo",
+      "toolkitLabel": "Na het rapport",
+      "toolkit": [
+        "Download je profiel als pdf",
+        "Vind actuele vacatures voor de voorgestelde rollen",
+        "Pas je cv aan om ze binnen te halen",
+        "Motivatiebrieven op basis van je profiel"
+      ]
     }
   },
   "intakeSection": {

@@ -129,13 +129,8 @@ const DemoDashboard: React.FC = () => {
       <span style={{ flex: '1 1 320px' }}>{t('dashboardDemo.jobsNudge.body', { name: choice.firstName })}</span>
       <Link
         to={jobsHref}
-        onClick={(e) => {
-          // The hero recording ends on this press; the jobs page never renders in frame.
-          if (isDemoCapture()) {
-            e.preventDefault();
-            return;
-          }
-          trackCtaClick('demo_dashboard_jobs_nudge');
+        onClick={() => {
+          if (!isDemoCapture()) trackCtaClick('demo_dashboard_jobs_nudge');
         }}
         className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold"
         style={{ background: '#27A1A1', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}

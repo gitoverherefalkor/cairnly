@@ -251,7 +251,7 @@ const DemoJobs: React.FC = () => {
           )}
 
           {/* Intro sits UNDER the page, as on the dashboard demo. */}
-          <div className="relative" style={{ background: '#0F2530' }}>
+          <div data-demo-chrome="" className="relative" style={{ background: '#0F2530' }}>
             <div className="w-full max-w-[800px] mx-auto px-3 sm:px-6 pt-10 pb-16">
               <section
                 className="rounded-[20px] border px-5 py-5 sm:px-7 sm:py-7"

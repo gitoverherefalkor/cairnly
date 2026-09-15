@@ -73,6 +73,11 @@ const COPY = {
     runnersTitle: 'Runner-up Careers', // v4.fallbackTitle.runners
     pathsEyebrow: 'MORE PATHS WORTH CONSIDERING', // v4.paths.eyebrow
     jobsCta: 'Open the job search', // dashboardDemo.jobsNudge.cta
+    titles: [
+      ['Step 1 of 3', 'A survey built for career change'],
+      ['Step 2 of 3', 'Your analysis, delivered in a live AI coaching session'],
+      ['Step 3 of 3', 'Outcomes and your chat feedback, on one dashboard'],
+    ],
   },
   nl: {
     resumeContinue: 'Doorgaan naar het assessment',
@@ -90,6 +95,11 @@ const COPY = {
     runnersTitle: 'Runner-up carrières',
     pathsEyebrow: 'MEER PADEN OM TE OVERWEGEN',
     jobsCta: 'Open de vacaturezoeker',
+    titles: [
+      ['Stap 1 van 3', 'Een vragenlijst gebouwd voor carrièreswitches'],
+      ['Stap 2 van 3', 'Je analyse, in een live AI-coachingsessie'],
+      ['Stap 3 van 3', 'Uitkomsten en je chatfeedback, op één dashboard'],
+    ],
   },
 };
 // Index of the coach's Strengths delivery + 1 = how many messages are
@@ -397,6 +407,51 @@ const rankingOrder = (page) =>
   page.evaluate(() => [...document.querySelectorAll('button.cursor-grab')].map((g) => (g.parentElement?.innerText || '').split('\n')[1] || '').filter(Boolean));
 const messageCount = (page) => page.evaluate(() => document.querySelectorAll('[id^="demo-msg-"]').length);
 
+// Survey beats are shown one per "page": every other section is hidden
+// while the beat plays, so the frame reads as a single question.
+const showOnly = (page, finder, arg) =>
+  page.evaluate(
+    ({ src, arg }) => {
+      const keep = new Function('return ' + src)()(arg);
+      document.querySelectorAll('main section').forEach((s) => {
+        s.style.display = s === keep || (keep && keep.contains(s)) || (keep && s.contains(keep)) ? '' : 'none';
+      });
+    },
+    { src: finder.toString(), arg },
+  );
+// A title card over a darkened frame at the start of each stage.
+async function titleCard(page, [eyebrow, title]) {
+  await page.evaluate(
+    ({ eyebrow, title }) => {
+      const el = document.createElement('div');
+      el.id = '__title';
+      el.style.cssText =
+        'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;' +
+        'background:rgba(15,37,48,.86);color:#fff;text-align:center;padding:0 12%;opacity:0;transition:opacity 280ms ease';
+      el.innerHTML =
+        `<div style="font-size:13px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#D4A024">${eyebrow}</div>` +
+        `<div style="font-size:44px;font-weight:700;line-height:1.15;letter-spacing:-.01em;max-width:22ch">${title}</div>`;
+      document.getElementById('__rec').appendChild(el);
+      requestAnimationFrame(() => (el.style.opacity = '1'));
+    },
+    { eyebrow, title },
+  );
+  await pause(1700);
+  await page.evaluate(() => {
+    const el = document.getElementById('__title');
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 320);
+  });
+  await sleep(340);
+}
+// Fade to black, change something, fade back: a cut without leaving the page.
+async function cutWithin(page, change) {
+  await fade(page, 1);
+  await change();
+  await sleep(150);
+  await fade(page, 0);
+}
+
 // The real /report-processing page needs a live report; this is its look
 // for a second and a half: dark canvas, logo, steps ticking through.
 async function processingInterstitial(page, steps) {
@@ -504,15 +559,20 @@ async function record({ persona, lang }) {
   // 1. Survey: résumé step → ranking (tap one, drag it up) → schedule + rider --
   await goto('/demo/survey');
   await sleep(1200); // fonts and the résumé step settle before we measure
+  await showOnly(page, finders.resumeStep, null);
   await alignTop(page, finders.resumeStep, null, 40, 'résumé step', 0);
   await sleep(600);
   await alignTop(page, finders.resumeStep, null, 40, 'résumé step', 0);
   await startFilm();
-  await pause(1400);
+  await titleCard(page, copy.titles[0]);
+  await pause(1200);
   await still('01-resume');
   await click(page, finders.text, { needle: copy.resumeContinue, tags: 'button' }, 'continue to assessment');
-  await pause(900);
-  await alignTop(page, finders.questionCard, { needle: copy.rankAdd }, 40, 'ranking question', 700);
+  await pause(500);
+  await cutWithin(page, async () => {
+    await showOnly(page, finders.questionCard, { needle: copy.rankAdd });
+    await alignTop(page, finders.questionCard, { needle: copy.rankAdd }, 40, 'ranking question', 0);
+  });
   await pause(600);
   const before1 = (await rankingOrder(page)).length;
   await click(page, finders.text, { needle: copy.rankAdd, tags: 'button' }, 'tap to add', {
@@ -524,7 +584,10 @@ async function record({ persona, lang }) {
   await drag(page, finders.grip, { index: ranked - 1 }, finders.grip, { index: 1 }, 'ranking drag');
   await pause(1100);
   await still('02-ranking');
-  await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 900);
+  await cutWithin(page, async () => {
+    await showOnly(page, finders.questionCard, { needle: copy.scheduleChoice });
+    await alignTop(page, finders.questionCard, { needle: copy.scheduleChoice }, 40, 'schedule question', 0);
+  });
   await pause(500);
   await click(page, finders.text, { needle: copy.scheduleChoice, tags: 'label, button, div, span' }, 'schedule choice');
   await pause(600);
@@ -542,6 +605,7 @@ async function record({ persona, lang }) {
   });
 
   // 2. Chat: strengths → explore pill → option 1 → the answer -------------------
+  await titleCard(page, copy.titles[1]);
   await click(page, finders.text, { needle: copy.strengthsNav, tags: 'button' }, 'sidebar: strengths');
   await pause(1100);
   await alignTop(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, H - 280, 'explore pill');
@@ -565,9 +629,8 @@ async function record({ persona, lang }) {
   await alignTop(page, finders.text, { needle: copy.moveSuffix, tags: 'button', nth: 1 }, H - 340, 'career 2 move pill', 1100);
   await pause(500);
   await click(page, finders.text, { needle: copy.moveSuffix, tags: 'button', nth: 1 }, 'career 2 move pill');
-  await pause(1800); // the replay scrolls to the feasibility question and rings it
+  await pause(1000); // the replay scrolls to the feasibility question and rings it
   await still('05-move');
-  await pause(800);
 
   // 4. A quick run through the rest of the chat, resting on its end -------------
   const end = await page.evaluate(() => {
@@ -584,7 +647,8 @@ async function record({ persona, lang }) {
     await sleep(1200);
     await alignTop(page, finders.text, { needle: copy.welcomeEyebrow }, 50, 'welcome eyebrow', 0);
   });
-  await pause(700);
+  await titleCard(page, copy.titles[2]);
+  await pause(500);
   // 5.1 the top card flips when the pointer reaches its radar
   await hover(page, finders.radar, null, 'compare radar');
   await pause(1700); // flip + one second of reading
@@ -607,9 +671,22 @@ async function record({ persona, lang }) {
   await pause(2000);
   await still('10-paths');
   await click(page, finders.text, { needle: copy.jobsCta, tags: 'a, button' }, 'open the job search');
-  await pause(500);
+  // 6. One second of the jobs page, then out --------------------------------------
+  await stopFilm();
+  for (let t = 0; t < 40; t++) {
+    await sleep(250);
+    if (await page.evaluate(() => location.pathname.includes('/demo/jobs') && !!document.querySelector('[data-career-tier]'))) break;
+  }
+  await sleep(800);
+  await installOverlay(page);
+  await alignTop(page, () => document.querySelector('[data-career-tier]'), null, 60, 'jobs: first career', 0);
+  await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
+  await startFilm();
+  await fade(page, 0);
+  await pause(1000);
+  await still('11-jobs');
   await fade(page, 1);
-  await pause(400);
+  await pause(300);
   await stopFilm();
   await cdp.detach().catch(() => {});
   if (CONNECT_PORT) {
