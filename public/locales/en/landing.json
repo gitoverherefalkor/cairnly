@@ -8,13 +8,14 @@
     "bodyEmphasis": "Cairnly is one assessment to look at that choice properly: what would change actually look like for you, and would it be worth it?",
     "ctaPrimary": "Get Started",
     "ctaSecondary": "See how it works",
-    "reassurance": "Done in one sitting. No subscription. No account left dangling.",
-    "compareLink": "How this compares to free tests and coaches",
+    "reassurance": "Done in one sitting. No subscription.",
+    "compareLink": "How this compares to free tests and other tools",
     "screenshotMeta": "5 : 4 · AI coach session",
     "screenshotAlt": "Cairnly AI coaching session",
     "eyebrowDemo": "01 · See a real session",
     "neitherLine": "Neither of these sounds like you?",
-    "neitherCta": "Tell us what brings you here"
+    "neitherCta": "Tell us what brings you here",
+    "scrollCue": "Why Cairnly is different"
   },
   "pillars": {
     "eyebrow": "Why Cairnly is different",
@@ -621,18 +622,17 @@
       }
     },
     "endCard": {
-      "title": "That was one minute of a two-hour session.",
-      "body": "Your own report starts with the survey. Cancel any time before you submit it.",
-      "cta": "Start your session now",
-      "replay": "Replay",
-      "fullDemo": "Watch the full demo",
-      "toolkitLabel": "After the report",
+      "title": "That was a quick glance of what you can expect from Cairnly's comprehensive career change guidance platform.",
+      "toolkitLabel": "The dashboard with your results also offers:",
       "toolkit": [
         "Download your profile as a PDF",
         "Find live openings for the suggested roles",
         "Tailor your CV to land them",
-        "Cover letters written from your profile"
-      ]
+        "Cover letters based on your profile"
+      ],
+      "fullDemo": "Click through the demo yourself",
+      "cta": "Or start your own session now",
+      "replay": "Replay"
     }
   },
   "intakeSection": {

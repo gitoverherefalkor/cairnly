@@ -151,18 +151,13 @@ const DemoVideoStage: React.FC = () => {
             style={{ background: 'rgba(15,37,48,0.88)' }}
             aria-hidden={!showCard}
           >
-            <p className="font-heading font-bold text-white text-[clamp(18px,2.2vw,28px)] leading-tight max-w-[26ch]">
+            <p className="font-heading font-bold text-white text-[clamp(15px,1.5vw,21px)] leading-snug max-w-[40ch]">
               {t('heroDemo.endCard.title')}
             </p>
-            <p className="mt-2 text-white/70 text-[14px] md:text-[15px] font-medium max-w-[42ch]">
-              {t('heroDemo.endCard.body')}
-            </p>
-            {/* The job-hunt toolkit, listed here rather than in the film: readable, translated, next to the button. */}
-            <div className="mt-4 hidden sm:block">
-              <p className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-                {t('heroDemo.endCard.toolkitLabel')}
-              </p>
-              <ul className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-1 text-left text-[13px] text-white/80 font-medium">
+            {/* The job-hunt toolkit, listed here rather than in the film: readable, translated, next to the buttons. */}
+            <div className="mt-3 hidden sm:block">
+              <p className="text-[12px] md:text-[13px] font-semibold text-white/75">{t('heroDemo.endCard.toolkitLabel')}</p>
+              <ul className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-1 text-left text-[12px] md:text-[13px] text-white/85 font-medium">
                 {tArray<string>(t, 'heroDemo.endCard.toolkit').map((item) => (
                   <li key={item} className="flex items-start gap-1.5">
                     <span aria-hidden="true" className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#D4A024]" />
@@ -171,30 +166,30 @@ const DemoVideoStage: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <Link
-              to="/payment"
-              onClick={() => trackCtaClick('hero_video_cta')}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#D4A024] text-[#122E3B] px-6 py-3 text-[15px] font-bold hover:bg-[#E0B03A] transition-colors"
-            >
-              {t('heroDemo.endCard.cta')}
-              <ArrowRight size={16} strokeWidth={2.6} />
-            </Link>
-            <div className="mt-4 flex items-center gap-5 text-[13px] font-semibold text-white/70">
-              {phase !== 'unavailable' && (
-                <button type="button" onClick={replay} className="inline-flex items-center gap-1.5 hover:text-white">
-                  {reduced && phase !== 'ended' ? <Play size={14} /> : <RotateCcw size={14} />}
-                  {t('heroDemo.endCard.replay')}
-                </button>
-              )}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to={demoHref(DEMO_ROUTE)}
                 onClick={() => trackCtaClick('hero_video_open_demo')}
-                className="inline-flex items-center gap-1.5 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full border border-white/35 px-5 py-2.5 text-[14px] font-bold text-white hover:border-white transition-colors"
               >
                 {t('heroDemo.endCard.fullDemo')}
-                <ArrowUpRight size={14} strokeWidth={2.6} />
+                <ArrowUpRight size={15} strokeWidth={2.6} />
+              </Link>
+              <Link
+                to="/payment"
+                onClick={() => trackCtaClick('hero_video_cta')}
+                className="inline-flex items-center gap-2 rounded-full bg-[#D4A024] text-[#122E3B] px-5 py-2.5 text-[14px] font-bold hover:bg-[#E0B03A] transition-colors"
+              >
+                {t('heroDemo.endCard.cta')}
+                <ArrowRight size={15} strokeWidth={2.6} />
               </Link>
             </div>
+            {phase !== 'unavailable' && (
+              <button type="button" onClick={replay} className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-white/60 hover:text-white">
+                {reduced && phase !== 'ended' ? <Play size={13} /> : <RotateCcw size={13} />}
+                {t('heroDemo.endCard.replay')}
+              </button>
+            )}
           </div>
         </div>
       </div>

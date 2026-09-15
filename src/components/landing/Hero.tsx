@@ -1,11 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import Reveal from './Reveal';
-import PriceCountdown from './PriceCountdown';
 import CompareLink from './CompareLink';
 import DemoVideoStage from './demo/DemoVideoStage';
-import { INTAKE_SECTION_ANCHOR } from './intake/IntakeSection';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
 
@@ -20,9 +18,9 @@ import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.p
 const Hero: React.FC = () => {
   const { t } = useTranslation('landing');
 
-  const scrollToIntake = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const scrollToNext = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    document.getElementById(INTAKE_SECTION_ANCHOR)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('why-cairnly')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
@@ -72,36 +70,38 @@ const Hero: React.FC = () => {
           <span className="h-px flex-1 bg-[#D4A024]/50" />
         </Reveal>
 
-        {/* Lead paragraph, full width under the rule. */}
-        <Reveal as="div" className="max-w-3xl mb-8 md:mb-10">
-          <p className="text-base md:text-lg text-white/65 font-medium leading-relaxed">
-            {t('hero.body')}{' '}
-            <span className="text-white font-semibold">{t('hero.bodyEmphasis')}</span>
-          </p>
-        </Reveal>
+        {/* Content band: intro text and the small CTAs on the left, the
+            recording on the right. DOM order (video, text) is the phone order:
+            the moving picture first, the words under it. */}
+        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
+          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
+            <Reveal as="div">
+              <DemoVideoStage />
+            </Reveal>
+          </div>
 
-        {/* Content band: the recording of the demo, then the price deadline
-            and the reassurance line under it. */}
-        <div className="grid gap-y-8">
-          <Reveal as="div" className="w-full max-w-[1100px] mx-auto">
-            <DemoVideoStage />
-          </Reveal>
-
-          <Reveal as="div" className="mt-2 md:mt-4 flex flex-col items-center gap-3">
-            <PriceCountdown tone="gold" leadWithPrice href="#pricing" />
-            <CompareLink label={t('hero.compareLink')} />
-            <p className="text-sm text-white/45 font-medium text-center">
-              {t('hero.reassurance')}{' '}
+          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:pt-8">
+            <Reveal as="div">
+              <p className="text-base md:text-lg text-white/65 font-medium leading-relaxed">
+                {t('hero.body')}{' '}
+                <span className="text-white font-semibold">{t('hero.bodyEmphasis')}</span>
+              </p>
+              <div className="mt-7 flex flex-col items-start gap-3">
+                <CompareLink label={t('hero.compareLink')} />
+                <p className="text-sm text-white/45 font-medium">{t('hero.reassurance')}</p>
+              </div>
               <a
-                href={`#${INTAKE_SECTION_ANCHOR}`}
-                onClick={scrollToIntake}
-                className="inline-flex items-center gap-1 text-white/85 font-semibold underline decoration-[#D4A024]/60 underline-offset-4 hover:text-white hover:decoration-[#D4A024]"
+                href="#why-cairnly"
+                onClick={scrollToNext}
+                className="group mt-10 inline-flex items-center gap-2.5 text-[13px] font-semibold text-white/70 hover:text-white"
               >
-                {t('hero.neitherCta')}
-                <ArrowRight size={13} strokeWidth={2.4} />
+                <span className="grid h-9 w-9 place-items-center rounded-full border border-white/25 transition-colors group-hover:border-[#D4A024] group-hover:text-[#D4A024]">
+                  <ArrowDown size={15} strokeWidth={2.4} className="animate-bounce" />
+                </span>
+                {t('hero.scrollCue')}
               </a>
-            </p>
-          </Reveal>
+            </Reveal>
+          </div>
         </div>
       </div>
     </section>
