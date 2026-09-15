@@ -92,7 +92,7 @@ export function templateClicked(input: FollowUpInput): string {
     '',
     `Korte opvolging op mijn mail van vorige week. ${seen}`,
     '',
-    'Mag ik vragen wat je ervan vond? Ook als het niet bij jullie kandidaten past, hoor ik dat graag. Daar heb ik meer aan dan aan een beleefd ja.',
+    'Mag ik vragen wat je ervan vond? Ook als het niet bij jullie kandidaten past, hoor ik dat graag!',
     '',
     code,
     '',
