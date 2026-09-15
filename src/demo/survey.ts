@@ -14,6 +14,7 @@ interface QuestionTranslation {
   label?: string;
   description?: string;
   non_negotiable_rider?: string;
+  hours_field?: { label: string; placeholder?: string };
   choices?: Record<string, string>;
   languages_presets?: Record<string, string>;
   languages_other?: Record<string, string>;
@@ -81,6 +82,7 @@ export function resolveQuestion(row: DemoQuestionRow, lang: string | undefined):
       ...baseConfig,
       description: qt.description || baseConfig.description,
       non_negotiable_rider: qt.non_negotiable_rider || baseConfig.non_negotiable_rider,
+      hours_field: qt.hours_field || baseConfig.hours_field,
     },
     choiceLabels: qt.choices ?? {},
     langLabels: useTranslations

@@ -28,6 +28,15 @@ export interface Question {
      */
     non_negotiable_rider?: string;
     /**
+     * When set, a single-select question shows a small numeric box for a weekly
+     * hours ceiling. Unlike the non-negotiable flag this is NOT a sidecar: it is
+     * folded into the answer itself ("Part-time work (max 24 hours/week)") so
+     * the whole n8n chain picks it up without a schema change. The suffix stays
+     * English in every locale; only `label`/`placeholder` are localizable via
+     * translations.<lang>.hours_field. See utils/hoursCeiling.ts.
+     */
+    hours_field?: { label: string; placeholder?: string };
+    /**
      * career_happiness only: the career_history question whose roles it rates.
      * Read by QuestionRenderer through `allResponses`; the seeded question
      * carries it, so it belongs on the type (a plain `tsc --noEmit` at the
@@ -73,6 +82,7 @@ interface QuestionTranslation {
   description?: string;
   choices?: Record<string, string>;
   non_negotiable_rider?: string;
+  hours_field?: { label: string; placeholder?: string };
   languages_presets?: Record<string, string>;
   languages_other?: Record<string, string>;
   languages_proficiency_levels?: Record<string, string>;
@@ -146,6 +156,9 @@ export const useSurvey = (surveyId: string) => {
                     description: qt.description || baseConfig.description,
                     // Display-only override; the flag itself lives in the EN config.
                     non_negotiable_rider: qt.non_negotiable_rider || baseConfig.non_negotiable_rider,
+                    // Display-only override too: the label is translated, but the
+                    // "(max N hours/week)" suffix written into the answer is not.
+                    hours_field: qt.hours_field || baseConfig.hours_field,
                   },
                   choiceLabels: qt.choices ?? {},
                   langLabels: useTranslations

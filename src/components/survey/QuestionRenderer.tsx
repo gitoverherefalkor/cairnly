@@ -30,6 +30,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useSpeechRecognition, useHasTriedVoiceInput } from '@/hooks/useSpeechRecognition';
 import { CAREER_HAPPINESS_MIN_REASON_CHARS, isQuestionAnswered } from './questionValidation';
+import { splitHoursCeiling, joinHoursCeiling, sanitizeHours } from './utils/hoursCeiling';
 import {
   resolveRoleAchievementTexts,
   applyRoleAchievementEdit,
@@ -350,13 +351,19 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   const { t } = useTranslation('survey');
   const [otherValue, setOtherValue] = useState('');
   const [showOther, setShowOther] = useState(false);
+  // Weekly hours ceiling for questions that offer one (config.hours_field).
+  // Held locally so a number typed before a choice is picked isn't lost — the
+  // stored answer can only carry the suffix once there is a choice to hang it on.
+  const [hoursDraft, setHoursDraft] = useState('');
 
   // Initialize "Other" value from stored response.
   // Array may contain either 'Other: <text>' (filled) or 'other' (sentinel:
   // checked but empty — present so the validator can block Continue).
   React.useEffect(() => {
-    if (typeof value === 'string' && value.startsWith('Other: ')) {
-      const extractedValue = value.replace('Other: ', '');
+    // Strip any hours suffix first, otherwise it lands inside the "Other" text.
+    const singleChoice = splitHoursCeiling(value).choice;
+    if (typeof value === 'string' && singleChoice.startsWith('Other: ')) {
+      const extractedValue = singleChoice.replace('Other: ', '');
       setOtherValue(extractedValue);
     } else if (Array.isArray(value)) {
       const otherResponse = value.find((v: string) => typeof v === 'string' && v.startsWith('Other: '));
@@ -368,6 +375,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         setShowOther(true);
       }
     }
+  }, [value]);
+
+  // Rehydrate the hours box when returning to a question that already has one
+  // stored (resumed survey, or navigating back through the sections).
+  React.useEffect(() => {
+    const { hours } = splitHoursCeiling(value);
+    if (hours) setHoursDraft(hours);
   }, [value]);
 
   // Clean stale values that no longer match current choices (e.g. after choice labels are renamed)
@@ -637,11 +651,23 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
       const useTwoCol = mcChoices.length >= 8 && mcChoices.every((c) => c.length <= 50);
       const mcListClass = useTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-2' : 'space-y-2';
       if (!question.allow_multiple) {
+        // Questions with config.hours_field fold a weekly hours ceiling into the
+        // answer string ("Part-time work (max 24 hours/week)"), so every read of
+        // the answer — here and downstream in n8n — has to go through
+        // split/join rather than comparing the raw value to a choice.
+        const hoursField = question.config?.hours_field;
+        const baseValue = hoursField
+          ? splitHoursCeiling(value).choice
+          : typeof value === 'string'
+            ? value
+            : '';
+        const emit = (choice: string) =>
+          onChange(hoursField ? joinHoursCeiling(choice, hoursDraft) : choice);
+
         // Single selection with enhanced interaction.
         // "Other" stays active once selected even after the value becomes
         // `Other: <text>` — otherwise the text box unmounts on first keystroke.
-        const isOtherActive =
-          value === 'other' || (typeof value === 'string' && value.startsWith('Other: '));
+        const isOtherActive = baseValue === 'other' || baseValue.startsWith('Other: ');
         return (
           <div>
             <div
@@ -649,13 +675,13 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
               dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
             />
             {renderDescription()}
-            <RadioGroup value={isOtherActive ? 'other' : (value || '')} onValueChange={onChange} className={`${mcListClass} ${invalidOutline}`}>
+            <RadioGroup value={isOtherActive ? 'other' : (baseValue || '')} onValueChange={emit} className={`${mcListClass} ${invalidOutline}`}>
               {question.config?.choices?.map((choice) => {
-                const isSelected = value === choice;
+                const isSelected = baseValue === choice;
                 return (
-                  <div 
-                    key={choice} 
-                    onClick={() => onChange(choice)}
+                  <div
+                    key={choice}
+                    onClick={() => emit(choice)}
                     className={`
                       group relative flex items-center p-4 rounded-lg border cursor-pointer
                       transition-all duration-200 hover:shadow-md
@@ -695,8 +721,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 );
               })}
               {question.allow_other && (
-                <div 
-                  onClick={() => onChange('other')}
+                <div
+                  onClick={() => emit('other')}
                   className={`
                     group relative flex items-center p-4 rounded-lg border cursor-pointer
                     transition-all duration-200 hover:shadow-md
@@ -742,11 +768,39 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   onChange={(e) => {
                     const newValue = e.target.value;
                     setOtherValue(newValue);
-                    onChange(newValue ? `Other: ${newValue}` : 'other');
+                    emit(newValue ? `Other: ${newValue}` : 'other');
                   }}
                   placeholder={t('inputs.otherPlaceholder')}
                   className="w-full bg-gray-50 border-0 focus:ring-0 focus:outline-none px-4 py-3 rounded-md mt-2"
                   autoFocus
+                />
+              </div>
+            )}
+            {/* bg-white, not bg-gray-50: index.css remaps .bg-gray-50 to the
+                dark teal-navy canvas in dark mode, which swallows the label. */}
+            {hoursField && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <Label
+                  htmlFor={`hours-${question.id}`}
+                  className="text-sm font-light leading-relaxed text-gray-700"
+                >
+                  {hoursField.label}
+                </Label>
+                <Input
+                  id={`hours-${question.id}`}
+                  type="text"
+                  inputMode="numeric"
+                  value={hoursDraft}
+                  onChange={(e) => {
+                    const next = sanitizeHours(e.target.value);
+                    setHoursDraft(next);
+                    // Only the base choice can carry the suffix; with nothing
+                    // picked yet the draft simply waits until one is.
+                    if (baseValue) onChange(joinHoursCeiling(baseValue, next));
+                  }}
+                  placeholder={hoursField.placeholder || ''}
+                  className="w-20 bg-white text-center"
+                  aria-label={hoursField.label}
                 />
               </div>
             )}

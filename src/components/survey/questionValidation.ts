@@ -1,3 +1,5 @@
+import { splitHoursCeiling } from './utils/hoursCeiling';
+
 /**
  * Whether a survey question is satisfied: either it is not required, or it has
  * a valid answer for its type.
@@ -24,9 +26,13 @@ export const CAREER_HAPPINESS_MIN_REASON_CHARS = 15;
 
 function isOtherValueComplete(value: unknown): boolean {
   if (typeof value !== 'string') return true;
-  if (value === 'other') return false;
-  if (value.startsWith('Other: ')) {
-    return value.slice('Other: '.length).trim().length >= OTHER_MIN_CHARS;
+  // An hours ceiling ("... (max 24 hours/week)") rides along on the answer of
+  // questions that offer one. Strip it first, or a bare `other` plus an hours
+  // value would sneak past both checks below as a filled-in "Other".
+  const { choice } = splitHoursCeiling(value);
+  if (choice === 'other') return false;
+  if (choice.startsWith('Other: ')) {
+    return choice.slice('Other: '.length).trim().length >= OTHER_MIN_CHARS;
   }
   return true; // a regular choice, not an "Other" value
 }
