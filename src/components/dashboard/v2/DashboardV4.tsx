@@ -21,6 +21,7 @@ import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLett
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { FREE_SEARCH_LIMIT } from '@/hooks/useJobSearchCredits';
 import { useDismissedCareers, type DismissReason } from '@/hooks/useDismissedCareers';
+import { filterDismissed } from '@/lib/dismissed';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
@@ -561,7 +562,25 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   // Derivations live in reportChartData.ts so the print/PDF document
   // builds identical payloads from the same sections.
   const radarAxes = useMemo(() => buildRadarAxes(sections), [sections]);
-  const careerMapPoints = useMemo(() => buildCareerMapPoints(sections, lang), [sections, lang]);
+  // The career map reads the FILTERED list, matching the PDF. Plotting the
+  // unfiltered one left a set-aside runner-up as a bubble on the map with its
+  // title in the legend directly underneath, while its tab was struck through
+  // and the PDF had dropped it — and the map is what the user is looking at
+  // when they click, so the disagreement was visible immediately.
+  //
+  // filterDismissed only drops the repeating groups (runner_ups, outside_box,
+  // dream_jobs). A set-aside top-3 career stays plotted and keeps its rank,
+  // which is the same rule the accordion and the PDF follow: the top 3 are
+  // marked, never removed, and no dismissal ever promotes career 2 into the
+  // hero slot.
+  const keptForCharts = useMemo(
+    () => filterDismissed(sections, dismissal.dismissed),
+    [sections, dismissal.dismissed],
+  );
+  const careerMapPoints = useMemo(
+    () => buildCareerMapPoints(keptForCharts, lang),
+    [keptForCharts, lang],
+  );
   const compareCareers = useMemo(() => buildCompareCareers(sections, lang), [sections, lang]);
   const compareCareersRich = useMemo(() => buildCompareCareersRich(sections, lang), [sections, lang]);
 

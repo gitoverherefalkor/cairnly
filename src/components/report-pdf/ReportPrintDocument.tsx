@@ -11,7 +11,7 @@ import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
 import { PrintClosing } from './PrintClosing';
 import { isGroupType, breaksPage } from './printSectionMeta';
-import { filterDismissed, isSetAside, type DismissedRef } from './dismissed';
+import { filterDismissed, isSetAside, type DismissedRef } from '@/lib/dismissed';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
 import { stripHtml, PALETTE, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';

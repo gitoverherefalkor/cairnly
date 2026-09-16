@@ -1,3 +1,18 @@
+// Which careers a "Not for me" dismissal removes from a rendering of the
+// report, and which it only marks. Pure functions over ReportSection[] — no
+// React, no Supabase, no PDF.
+//
+// Lives in lib/ rather than components/report-pdf/ because BOTH renderings
+// need it: the printed document and the dashboard's career map have to agree
+// about which careers exist, or a runner-up you set aside vanishes from the
+// PDF while staying a bubble on the dashboard map. It started in report-pdf/
+// when the PDF was the only caller; the dashboard could not import it from
+// there without pointing components/dashboard/ at components/report-pdf/,
+// and every dependency between those two runs the other way today
+// (ReportPrintDocument imports reportChartData, dashboardV2Shared and the
+// V4*SVG components from the dashboard). lib/ is where the codebase already
+// keeps helpers shared across both, e.g. sectionText.
+
 import type { ReportSection } from '@/hooks/useReportSections';
 
 // What report-print-data sends alongside the sections: one entry per career
