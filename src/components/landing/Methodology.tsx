@@ -124,7 +124,11 @@ const Methodology: React.FC = () => {
               className="font-heading font-bold text-white leading-[1.15]"
               style={{ fontSize: 'clamp(21px, 2vw, 28px)', letterSpacing: '-0.012em' }}
             >
-              {t('chatRefine.titleA')}{' '}
+              {/* Hard break at the clause boundary: the gold half is its own
+                  sentence and must start its own line, never trail one or two
+                  words onto the end of the line above. */}
+              {t('chatRefine.titleA')}
+              <br />
               <span className="lp-text-gold-grad">{t('chatRefine.titleHighlight')}</span>
             </h3>
             <p className="mt-4 text-[16px] text-white/65 font-medium leading-relaxed">

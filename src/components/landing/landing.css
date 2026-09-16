@@ -563,3 +563,29 @@ button.lp-screenshot-slot {
   .lp-fit-card { transition: none; }
   .lp-fit-card:hover { transform: none; }
 }
+
+/* ── Headline line breaking ──────────────────────────────────────────────
+   House rule: a headline never drops one or two words onto a line of their
+   own. `balance` distributes a heading evenly across its lines instead of
+   filling each one to the edge and letting the remainder orphan, and it is
+   what makes a heading survive translation — the same box holds a Dutch line
+   that is 20% longer, and Dutch is where the orphans showed up first.
+
+   It respects explicit <br />, so a two-clause headline still breaks where
+   the copy says it should and only balances within each clause. The browser
+   caps it at a handful of lines, which is more than any headline here needs.
+
+   Body copy is deliberately left alone: balancing paragraphs makes ragged
+   right edges and costs layout time on long text. `pretty` on paragraphs
+   only forbids a single-word last line, which is the same idea one notch
+   weaker, and is cheap enough to apply everywhere.                        */
+.lp-container h1,
+.lp-container h2,
+.lp-container h3,
+.lp-container h4 {
+  text-wrap: balance;
+}
+
+.lp-container p {
+  text-wrap: pretty;
+}
