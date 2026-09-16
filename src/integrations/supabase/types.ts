@@ -154,10 +154,12 @@ export type Database = {
           country: string | null
           created_at: string
           cta_id: string | null
+          event_key: string | null
           event_type: string
           id: string
           milestone: number | null
           path: string
+          persona: string | null
           prospect: string | null
           session_id: string
           utm_campaign: string | null
@@ -168,10 +170,12 @@ export type Database = {
           country?: string | null
           created_at?: string
           cta_id?: string | null
+          event_key?: string | null
           event_type: string
           id?: string
           milestone?: number | null
           path: string
+          persona?: string | null
           prospect?: string | null
           session_id: string
           utm_campaign?: string | null
@@ -182,10 +186,12 @@ export type Database = {
           country?: string | null
           created_at?: string
           cta_id?: string | null
+          event_key?: string | null
           event_type?: string
           id?: string
           milestone?: number | null
           path?: string
+          persona?: string | null
           prospect?: string | null
           session_id?: string
           utm_campaign?: string | null
@@ -501,6 +507,64 @@ export type Database = {
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dismissed_careers: {
+        Row: {
+          career_title: string
+          created_at: string
+          id: string
+          note: string | null
+          reason: string | null
+          report_id: string
+          section_id: string
+          section_type: string
+          user_id: string
+        }
+        Insert: {
+          career_title: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          reason?: string | null
+          report_id: string
+          section_id: string
+          section_type: string
+          user_id: string
+        }
+        Update: {
+          career_title?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          reason?: string | null
+          report_id?: string
+          section_id?: string
+          section_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dismissed_careers_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dismissed_careers_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "report_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dismissed_careers_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "report_sections_with_user"
             referencedColumns: ["id"]
           },
         ]
@@ -956,6 +1020,195 @@ export type Database = {
           summary?: string
         }
         Relationships: []
+      }
+      outreach_clicks: {
+        Row: {
+          campaign: string | null
+          created_at: string
+          id: string
+          is_bot: boolean
+          p: string | null
+          persona: string | null
+          referer: string | null
+          slug: string | null
+          user_agent: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          campaign?: string | null
+          created_at?: string
+          id?: string
+          is_bot?: boolean
+          p?: string | null
+          persona?: string | null
+          referer?: string | null
+          slug?: string | null
+          user_agent?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          campaign?: string | null
+          created_at?: string
+          id?: string
+          is_bot?: boolean
+          p?: string | null
+          persona?: string | null
+          referer?: string | null
+          slug?: string | null
+          user_agent?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      outreach_mails: {
+        Row: {
+          created_at: string
+          direction: string
+          draft_id: string | null
+          from_email: string | null
+          gmail_message_id: string
+          gmail_thread_id: string
+          id: string
+          kind: string
+          samenvatting: string | null
+          sent_at: string
+          sentiment: string | null
+          slug: string | null
+          snippet: string | null
+          status_na: string | null
+          status_voor: string | null
+          subject: string | null
+          to_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          draft_id?: string | null
+          from_email?: string | null
+          gmail_message_id: string
+          gmail_thread_id: string
+          id?: string
+          kind: string
+          samenvatting?: string | null
+          sent_at: string
+          sentiment?: string | null
+          slug?: string | null
+          snippet?: string | null
+          status_na?: string | null
+          status_voor?: string | null
+          subject?: string | null
+          to_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          draft_id?: string | null
+          from_email?: string | null
+          gmail_message_id?: string
+          gmail_thread_id?: string
+          id?: string
+          kind?: string
+          samenvatting?: string | null
+          sent_at?: string
+          sentiment?: string | null
+          slug?: string | null
+          snippet?: string | null
+          status_na?: string | null
+          status_voor?: string | null
+          subject?: string | null
+          to_email?: string | null
+        }
+        Relationships: []
+      }
+      outreach_prospects: {
+        Row: {
+          alt_domain: string | null
+          bow_slug: string | null
+          campaign: string | null
+          categorie: string | null
+          contactpersoon: string | null
+          created_at: string
+          domain: string | null
+          followup_draft_id: string | null
+          followup_requested_at: string | null
+          id: string
+          naam: string | null
+          notities: string | null
+          openingshaak: string | null
+          partner_slug: string | null
+          plaats: string | null
+          slug: string
+          status: string
+          tier: string | null
+          to_email: string | null
+          updated_at: string
+          verzonden_op: string | null
+        }
+        Insert: {
+          alt_domain?: string | null
+          bow_slug?: string | null
+          campaign?: string | null
+          categorie?: string | null
+          contactpersoon?: string | null
+          created_at?: string
+          domain?: string | null
+          followup_draft_id?: string | null
+          followup_requested_at?: string | null
+          id?: string
+          naam?: string | null
+          notities?: string | null
+          openingshaak?: string | null
+          partner_slug?: string | null
+          plaats?: string | null
+          slug: string
+          status?: string
+          tier?: string | null
+          to_email?: string | null
+          updated_at?: string
+          verzonden_op?: string | null
+        }
+        Update: {
+          alt_domain?: string | null
+          bow_slug?: string | null
+          campaign?: string | null
+          categorie?: string | null
+          contactpersoon?: string | null
+          created_at?: string
+          domain?: string | null
+          followup_draft_id?: string | null
+          followup_requested_at?: string | null
+          id?: string
+          naam?: string | null
+          notities?: string | null
+          openingshaak?: string | null
+          partner_slug?: string | null
+          plaats?: string | null
+          slug?: string
+          status?: string
+          tier?: string | null
+          to_email?: string | null
+          updated_at?: string
+          verzonden_op?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_prospects_partner_slug_fkey"
+            columns: ["partner_slug"]
+            isOneToOne: false
+            referencedRelation: "partner_code_status"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "outreach_prospects_partner_slug_fkey"
+            columns: ["partner_slug"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["slug"]
+          },
+        ]
       }
       page_views: {
         Row: {
@@ -1928,6 +2181,22 @@ export type Database = {
       }
     }
     Views: {
+      outreach_prospect_stats: {
+        Row: {
+          bot_kliks: number | null
+          dagen_bevestigd: number | null
+          eerste_bevestigde_klik: string | null
+          eerste_klik: string | null
+          kliks_bevestigd: number | null
+          kliks_totaal: number | null
+          kliks_uniek_dagen: number | null
+          kliks_verdacht: number | null
+          laatste_bevestigde_klik: string | null
+          laatste_klik: string | null
+          slug: string | null
+        }
+        Relationships: []
+      }
       partner_code_status: {
         Row: {
           codes_claimed: number | null
@@ -2155,8 +2424,18 @@ export type Database = {
           code: string
         }[]
       }
+      ops_funnel_stats: { Args: { p_days?: number }; Returns: Json }
       ops_traffic_series: { Args: { p_days?: number }; Returns: Json }
       ops_traffic_stats: { Args: never; Returns: Json }
+      outreach_advance_status: {
+        Args: { p_at?: string; p_slug: string; p_status: string }
+        Returns: string
+      }
+      outreach_code_request: {
+        Args: { p_lang?: string; p_slug: string }
+        Returns: Json
+      }
+      outreach_status_rank: { Args: { p_status: string }; Returns: number }
       purge_expired_assessment_data: { Args: never; Returns: Json }
       rerun_report: {
         Args: {
@@ -2194,12 +2473,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2223,11 +2502,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2248,11 +2527,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2273,11 +2552,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2290,11 +2569,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
