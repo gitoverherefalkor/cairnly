@@ -122,6 +122,14 @@ interface DashboardV4Props {
   /** One line rendered directly above the toolkit (the demo's explainer
    *  that the job search is switched on). */
   toolkitBanner?: React.ReactNode;
+  /** Hides affordances that would write to the database. The public demo
+   *  (/demo/dashboard) renders this dashboard from a frozen fixture with no
+   *  session, so "Not for me" has nothing valid to write: an anonymous
+   *  visitor would only get a destructive error toast, and a signed-in one
+   *  would file a dismissal against the fixture's report_id — a real report
+   *  belonging to somebody else — polluting the /ops aggregate with
+   *  demo-browsing noise. The career simply does not offer the control. */
+  readOnly?: boolean;
 }
 
 /** Download-the-PDF action, sitting beside the full-report header.
@@ -333,6 +341,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   savedResponses,
   pulseStepKey,
   toolkitBanner,
+  readOnly = false,
 }) => {
   const { t, i18n } = useTranslation('dashboard');
   // Language for report prose/titles: after login this converges with
@@ -934,6 +943,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                       accordionRowRefs.current[row.id] = node;
                     }}
                     dismissal={dismissal}
+                    readOnly={readOnly}
                   />
                 ))}
               </div>
@@ -1011,6 +1021,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                       accordionRowRefs.current[row.id] = node;
                     }}
                     dismissal={dismissal}
+                    readOnly={readOnly}
                   />
                 ))}
               </div>
@@ -2732,7 +2743,9 @@ const ReportAccordionRow: React.FC<{
   onToggle: () => void;
   registerRef: (node: HTMLDivElement | null) => void;
   dismissal: ReturnType<typeof useDismissedCareers>;
-}> = ({ row, isOpen, isLast, onToggle, registerRef, dismissal }) => {
+  /** Suppresses "Not for me" — see DashboardV4Props.readOnly. */
+  readOnly?: boolean;
+}> = ({ row, isOpen, isLast, onToggle, registerRef, dismissal, readOnly = false }) => {
   const { t } = useTranslation('dashboard');
   const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
   // Inner-tabs state for multi-career rows (runners, outside, dream). Keyed by
@@ -2881,8 +2894,9 @@ const ReportAccordionRow: React.FC<{
         </div>
       )}
       {/* Career rows only — careerSlot is undefined on About-You rows, which
-          are not dismissible. */}
-      {isOpen && activeSectionId && row.careerSlot && (
+          are not dismissible. Hidden entirely under readOnly (the public
+          demo): there is no session to write the dismissal against. */}
+      {isOpen && activeSectionId && row.careerSlot && !readOnly && (
         <div
           style={{
             // Same horizontal inset as the accordion body above, so the
