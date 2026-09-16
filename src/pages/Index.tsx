@@ -7,6 +7,7 @@ import Pillars from '@/components/landing/Pillars';
 import WhoFor from '@/components/landing/WhoFor';
 import Methodology from '@/components/landing/Methodology';
 import ComparisonTable from '@/components/landing/ComparisonTable';
+import Testimonial from '@/components/landing/Testimonial';
 import PricingSection from '@/components/landing/PricingSection';
 import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
 import FAQ from '@/components/landing/FAQ';
@@ -62,6 +63,7 @@ const Index: React.FC = () => (
       <WhoFor />
       <Methodology />
       <ComparisonTable />
+      <Testimonial />
       <PricingSection />
       <WhyWeBuiltThis />
       <FAQ />

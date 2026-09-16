@@ -9,6 +9,7 @@ import PartnersWhoFor from '@/components/partners/PartnersWhoFor';
 import PartnersWhatYouGet from '@/components/partners/PartnersWhatYouGet';
 import PartnersCandidateStart from '@/components/partners/PartnersCandidateStart';
 import PartnersPricing from '@/components/partners/PartnersPricing';
+import Testimonial from '@/components/landing/Testimonial';
 import PartnersPilot from '@/components/partners/PartnersPilot';
 import PartnersFAQ from '@/components/partners/PartnersFAQ';
 import PartnersClosing from '@/components/partners/PartnersClosing';
@@ -40,6 +41,9 @@ const PartnersIndex: React.FC = () => {
         <PartnersWhoFor />
         <PartnersWhatYouGet />
         <PartnersCandidateStart />
+        {/* A peer vouching, straight before the price. Full quote here: this
+            reader knows what Career Anchors is. */}
+        <Testimonial variant="full" />
         <PartnersPricing />
         <PartnersPilot />
         <PartnersFAQ />

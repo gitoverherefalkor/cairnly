@@ -267,6 +267,11 @@
     "titleHighlight": "Not a monthly bill, forever.",
     "body": "A subscription pays for ongoing access. Cairnly pays for a finished answer."
   },
+  "testimonial": {
+    "eyebrow": "From a career professional",
+    "role": "Career coach, 25 years advising on careers",
+    "linkedin": "LinkedIn"
+  },
   "pricing": {
     "eyebrow": "The package",
     "titleA": "Everything you need to find your",
