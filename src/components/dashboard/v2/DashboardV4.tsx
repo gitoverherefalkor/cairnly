@@ -2734,34 +2734,28 @@ const ReportAccordionRow: React.FC<{
   dismissal: ReturnType<typeof useDismissedCareers>;
 }> = ({ row, isOpen, isLast, onToggle, registerRef, dismissal }) => {
   const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
-  // Inner-tabs state for multi-career rows (runners, outside, dream).
-  const [activeCareer, setActiveCareer] = useState(0);
+  // Inner-tabs state for multi-career rows (runners, outside, dream). Keyed by
+  // section id rather than position: dismissing a career sinks it to the bottom
+  // of its group, so row.careers re-orders under the tab strip and a positional
+  // index would silently select a different career. findIndex returns -1 both
+  // on first render (activeKey null) and when the key is no longer in the row;
+  // Math.max collapses both to the first tab, which is the right fallback.
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const activeCareer = Math.max(
+    0,
+    row.careers?.findIndex((c) => c.sectionId === activeKey) ?? 0,
+  );
   const mobile = useIsMobile();
 
   // Which career "Not for me" acts on: the selected tab for grouped rows
   // (runners / outside / dream), the row's own section for the top 3.
   const isGrouped = !!row.careers && row.careers.length > 0;
-  const activeEntry = isGrouped
-    ? row.careers![Math.min(activeCareer, row.careers!.length - 1)]
-    : undefined;
+  const activeEntry = isGrouped ? row.careers![activeCareer] : undefined;
   const activeSectionId = isGrouped ? activeEntry?.sectionId : row.sectionId;
   const activeSectionType = isGrouped ? activeEntry?.sectionType : row.sectionType;
   const activeTitle = isGrouped ? activeEntry?.title : row.title;
   const dismissedRow = activeSectionId ? dismissal.bySectionId.get(activeSectionId) : undefined;
   const isDismissed = !!dismissedRow;
-
-  // Dismissing or restoring re-sorts the group (dismissed careers sink), so a
-  // bare tab index would silently start pointing at a different career than
-  // the one the user was reading. Remember the id we acted on and chase it to
-  // its new position once the re-ordered row arrives.
-  const followSectionId = useRef<string | null>(null);
-  useEffect(() => {
-    const target = followSectionId.current;
-    if (!target || !row.careers) return;
-    followSectionId.current = null;
-    const next = row.careers.findIndex((c) => c.sectionId === target);
-    if (next >= 0) setActiveCareer(next);
-  }, [row.careers]);
 
   return (
     <div
@@ -2840,12 +2834,10 @@ const ReportAccordionRow: React.FC<{
         <div className="cairnly-accordion-body" style={{ padding: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px', maxWidth: 880 }}>
           <CareerTabs
             careers={row.careers}
-            activeIndex={Math.min(activeCareer, row.careers.length - 1)}
-            onSelect={setActiveCareer}
+            activeIndex={activeCareer}
+            onSelect={(i) => setActiveKey(row.careers![i].sectionId)}
           />
-          <AccordionContent
-            content={row.careers[Math.min(activeCareer, row.careers.length - 1)].content}
-          />
+          <AccordionContent content={row.careers[activeCareer].content} />
         </div>
       )}
       {isOpen && row.content && !row.careers && (
@@ -2875,7 +2867,6 @@ const ReportAccordionRow: React.FC<{
             reason={dismissedRow?.reason ?? null}
             busy={dismissal.isDismissing || dismissal.isRestoring}
             onDismiss={() => {
-              followSectionId.current = activeSectionId;
               dismissal.dismiss({
                 sectionId: activeSectionId,
                 sectionType: activeSectionType ?? '',
@@ -2883,7 +2874,6 @@ const ReportAccordionRow: React.FC<{
               });
             }}
             onRestore={() => {
-              followSectionId.current = activeSectionId;
               dismissal.restore(activeSectionId);
             }}
             onReason={(reason: DismissReason) =>
