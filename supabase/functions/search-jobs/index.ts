@@ -1,7 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders, handleCorsPreFlight, checkRateLimit, errorResponse } from "../_shared/cors.ts";
+import { getCorsHeaders, handleCorsPreFlight, checkRateLimit, errorResponse, getAuthenticatedUser } from "../_shared/cors.ts";
+import { decideSearchCharge, FREE_SEARCH_LIMIT } from "../_shared/searchCredits.ts";
 
 // Cache duration: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -17,6 +18,14 @@ serve(async (req) => {
   const rateLimited = checkRateLimit(req, 10, corsHeaders);
   if (rateLimited) return rateLimited;
 
+  // Until now this function had verify_jwt = false AND no in-function auth
+  // check, so anyone with the URL could trigger paid Apify scrapes. The
+  // referral gate lived only in React and protected nothing here. Auth is also
+  // a hard requirement for the per-user free-tier cap below.
+  const authed = await getAuthenticatedUser(req, corsHeaders);
+  if (authed instanceof Response) return authed;
+  const userId = authed.userId;
+
   try {
     const body = await req.json();
     const { career_title, location, alternate_titles, work_arrangement, job_commitment, report_id } = body;
@@ -26,6 +35,15 @@ serve(async (req) => {
     const careerOverview: string = typeof body.career_overview === 'string'
       ? body.career_overview.slice(0, 600)
       : '';
+
+    // Which report section this career came from. user_job_searches.section_type
+    // is NOT NULL, and section_type was only added to the request body alongside
+    // the free tier, so read it defensively: an older client (a tab open across
+    // the deploy) falls back to 'unknown' instead of failing the ledger insert,
+    // which would silently hand out an uncounted search.
+    const sectionType: string = typeof body.section_type === 'string' && body.section_type
+      ? body.section_type
+      : 'unknown';
 
     // Survey-derived "avoid" preferences (industries + career aspects the user
     // wants to steer clear of). Forwarded to n8n's scorer as a penalty signal.
@@ -90,6 +108,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('NEW_N8N_SERVICE_ROLE_KEY')!
     );
+
+    // The free-tier cap is counted per report, so report_id is now required and
+    // must belong to the caller. Without this check a user could spend someone
+    // else's allowance, or dodge their own by borrowing a stranger's report id.
+    if (!report_id) {
+      return errorResponse('report_id is required', 400, corsHeaders);
+    }
+    const { data: ownedReport } = await supabase
+      .from('reports')
+      .select('id')
+      .eq('id', report_id)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (!ownedReport) {
+      return errorResponse('Report not found', 404, corsHeaders);
+    }
 
     // Look up alternate_titles for this career upfront. n8n's anon-keyed
     // Supabase node would be blocked by RLS, so we pre-fetch here using the
@@ -167,7 +201,66 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
+    const cacheHit = !!cached;
+
+    // --- Free-tier gate ---------------------------------------------------
+    // Unlimited if the user earned a referral or we comped them the tools.
+    // Mirrors useReferralStatus.ts, where the 'jobs' tool unlocks at
+    // max(referralCount, comp_tool_unlocks) >= 1.
+    // comp_tool_unlocks is service-role-writable only as of 20260916110000.
+    const [{ count: referralCount }, { data: profileRow }] = await Promise.all([
+      supabase
+        .from('referrals')
+        .select('id', { count: 'exact', head: true })
+        .eq('referrer_user_id', userId),
+      supabase.from('profiles').select('comp_tool_unlocks').eq('id', userId).maybeSingle(),
+    ]);
+    const unlimited = (referralCount ?? 0) >= 1 || (profileRow?.comp_tool_unlocks ?? 0) >= 1;
+
+    // How much of this report's allowance is already spent. Only searches that
+    // actually reached n8n ('charged') count — cache hits cost us nothing.
+    const { count: chargedCount } = await supabase
+      .from('user_job_searches')
+      .select('id', { count: 'exact', head: true })
+      .eq('report_id', report_id)
+      .eq('search_status', 'charged');
+
+    const decision = decideSearchCharge({
+      cacheHit,
+      unlimited,
+      chargedCount: chargedCount ?? 0,
+    });
+
+    if (!decision.allow) {
+      // 429, not 402: the frontend branches on the `error` string, and 402
+      // trips payment-required handling in some proxies.
+      return new Response(
+        JSON.stringify({
+          error: 'search_limit_reached',
+          used: chargedCount ?? 0,
+          limit: FREE_SEARCH_LIMIT,
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     if (cached) {
+      // Free: job_search_cache answered, so no Apify scrape and no AI scoring
+      // happened. Logged anyway ('cached' never counts against the cap) so the
+      // user's search history is complete.
+      const { error: cachedLedgerError } = await supabase.from('user_job_searches').insert({
+        user_id: userId,
+        report_id,
+        career_title,
+        section_type: sectionType,
+        country_code: countryNormalized,
+        location: location || null,
+        search_status: 'cached',
+      });
+      if (cachedLedgerError) {
+        console.error('user_job_searches insert (cached) failed:', cachedLedgerError);
+      }
+
       return new Response(JSON.stringify({
         jobs: cached.results,
         total_count: cached.result_count,
@@ -257,6 +350,23 @@ serve(async (req) => {
       result_count: jobs.length,
       expires_at: expiresAt,
     });
+
+    // Burn the credit only now. Every failure path above — missing/invalid
+    // webhook URL, the 150s timeout, any fetch error, a non-2xx from n8n —
+    // returns before this line, so a search that produced nothing never costs
+    // the user one of their four.
+    const { error: ledgerError } = await supabase.from('user_job_searches').insert({
+      user_id: userId,
+      report_id,
+      career_title,
+      section_type: sectionType,
+      country_code: countryNormalized,
+      location: location || null,
+      search_status: decision.log,
+    });
+    if (ledgerError) {
+      console.error('user_job_searches insert (charged) failed:', ledgerError);
+    }
 
     return new Response(JSON.stringify({
       jobs,

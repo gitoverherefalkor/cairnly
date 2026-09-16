@@ -55,12 +55,17 @@ verify_jwt = false
 [functions.send-reminder-email]
 verify_jwt = false
 
+# search-jobs: called by logged-in users only. The JWT is verified INSIDE the
+# function via getAuthenticatedUser, which also re-checks that report_id belongs
+# to the caller before spending any of their free searches. Gateway verify_jwt
+# stays off to avoid the publishable-key rejection issue noted on
+# signup-with-access-code above — it is NOT an anonymous endpoint.
 [functions.search-jobs]
 verify_jwt = false
 
-# Called by logged-in users only. JWT is verified inside the function via
-# getAuthenticatedUser; gateway verify_jwt stays off to avoid the
-# publishable-key rejection issue noted on signup-with-access-code above.
+# ensure-referral-code: called by logged-in users only. Same pattern as
+# search-jobs above — JWT verified in-function via getAuthenticatedUser, gateway
+# verify_jwt off only because of the publishable-key rejection issue.
 [functions.ensure-referral-code]
 verify_jwt = false
 

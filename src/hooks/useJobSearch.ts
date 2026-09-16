@@ -113,6 +113,10 @@ export const useJobSearch = () => {
         const { data, error } = await supabase.functions.invoke('search-jobs', {
           body: {
             career_title: careers[i].careerTitle,
+            // Which report section this career came from. The edge function
+            // writes it to user_job_searches.section_type (NOT NULL) when it
+            // logs the search against the free-tier allowance.
+            section_type: careers[i].sectionType,
             country_codes: countryCodes,
             work_arrangement: workArrangement || 'any',
             job_commitment: jobCommitment || 'any',
