@@ -15,7 +15,7 @@ import {
   LakeBackground,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
-import type { JobListing, JobSearchResult } from '@/hooks/useJobSearch';
+import { LIMIT_ERROR, type JobListing, type JobSearchResult } from '@/hooks/useJobSearch';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CoverLetterModal } from '@/components/cover-letter/CoverLetterModal';
 import {
@@ -555,9 +555,16 @@ const CareerSearching: React.FC<{
         }}
       >
         {isError ? (
-          <span style={{ color: 'rgba(255,180,180,0.9)' }}>
-            {error || t('results.failed')}
-          </span>
+          // LIMIT_ERROR is a sentinel, not a message — the free tier running
+          // out isn't a failure, so it gets its own copy and the gold
+          // treatment rather than the red "something broke" one.
+          error === LIMIT_ERROR ? (
+            <span style={{ color: PALETTE.goldBright }}>{t('results.limitReached')}</span>
+          ) : (
+            <span style={{ color: 'rgba(255,180,180,0.9)' }}>
+              {error || t('results.failed')}
+            </span>
+          )
         ) : (
           <>
             <Loader2 size={16} className="animate-spin" style={{ color: PALETTE.goldBright }} />
