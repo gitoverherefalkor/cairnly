@@ -126,7 +126,8 @@
     },
     "arrangementNoteTail": "Wil je dat? Laat het weten via de knop Feedback & Support rechtsonder.",
     "creditsLeft": "Nog {{count}} van 4 gratis zoekopdrachten",
-    "creditsShort": "Je koos {{selected}} loopbanen maar hebt nog {{remaining}} zoekopdrachten. Alleen de eerste {{remaining}} worden uitgevoerd."
+    "creditsShort_one": "Je koos {{selected}} loopbanen maar hebt nog 1 zoekopdracht. Alleen de eerste wordt uitgevoerd.",
+    "creditsShort_other": "Je koos {{selected}} loopbanen maar hebt nog {{count}} zoekopdrachten. Alleen de eerste {{count}} worden uitgevoerd."
   },
   "summary": {
     "careers_one": "{{count}} loopbaan",

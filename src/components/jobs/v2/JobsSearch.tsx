@@ -538,7 +538,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
             maxWidth: 620,
           }}
         >
-          {t('search.creditsShort', { selected: selected.length, remaining: creditsRemaining })}
+          {t('search.creditsShort', { selected: selected.length, count: creditsRemaining })}
         </div>
       )}
 
