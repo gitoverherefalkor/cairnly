@@ -19,9 +19,9 @@
   },
   "pillars": {
     "eyebrow": "Why Cairnly is different",
-    "titleA": "Four things we got tired of",
-    "titleHighlight": "not",
-    "titleB": "seeing anywhere else.",
+    "titleA": "Four things every other career test",
+    "titleHighlight": "leaves out.",
+    "titleB": "",
     "cards": [
       {
         "title": "Not another personality test",
@@ -33,7 +33,7 @@
       },
       {
         "title": "Future-aware",
-        "body": "Every suggested role includes an honest read on how AI is set to reshape it. We tell you what's likely to grow and what's likely to shrink."
+        "body": "Every suggested role carries an estimated AI impact, rated Minimal to Critical. Nobody can call this with certainty, so where the signals are mixed we assume AI reshapes more rather than less."
       },
       {
         "title": "Honest, not flattering",
@@ -94,8 +94,8 @@
   },
   "methodology": {
     "eyebrow": "Chapter 03 · Methodology",
-    "titleA": "Not a formula. Not freestyle AI.",
-    "titleHighlight": "Something in between.",
+    "titleA": "Built on what psychometrics gets right,",
+    "titleHighlight": "and what it can't reach.",
     "intro": "Most personality frameworks sort you into a box, then tell you what people in that box typically do. Generic AI tools skip the science entirely and improvise. Cairnly does neither.",
     "oldCard": {
       "pill": "Box, then label",
@@ -312,7 +312,7 @@
     "notItems": [
       "You're not looking to make a change.",
       "You're focused on getting promoted within your current field.",
-      "You don't have an 'office job'.",
+      "Your work is hands-on or shift-based, like care, trades, hospitality or logistics.",
       "You already know exactly what you want, and nothing will change your mind."
     ]
   },
@@ -327,7 +327,7 @@
     "titleA": "The direction you'd choose now, with the life you've",
     "titleHighlight": "lived in mind.",
     "cta": "Get Started",
-    "footer": "Built with career coaches. Backed by frontier AI. Honest about both."
+    "footer": "Built with career coaches. Honest about what AI can and can't tell you."
   },
   "whyBuilt": {
     "eyebrow": "Why we built this",
@@ -610,7 +610,7 @@
       }
     },
     "endCard": {
-      "title": "That was a quick glance of what you can expect from Cairnly's comprehensive career change guidance platform.",
+      "title": "That's a glance at what Cairnly gives you.",
       "toolkitLabel": "The dashboard with your results also offers:",
       "toolkit": [
         "Download your profile as a PDF",

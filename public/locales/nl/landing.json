@@ -19,9 +19,9 @@
   },
   "pillars": {
     "eyebrow": "Waarom Cairnly anders is",
-    "titleA": "Vier dingen die we",
-    "titleHighlight": "nergens anders",
-    "titleB": "konden vinden en waar we klaar mee waren.",
+    "titleA": "Vier dingen die elke andere loopbaantest",
+    "titleHighlight": "weglaat.",
+    "titleB": "",
     "cards": [
       {
         "title": "Niet nóg een persoonlijkheidstest",
@@ -33,7 +33,7 @@
       },
       {
         "title": "Toekomstbewust",
-        "body": "Elke voorgestelde rol bevat een eerlijke analyse van hoe AI deze gaat herdefiniëren. We vertellen je wat waarschijnlijk gaat groeien en wat gaat krimpen."
+        "body": "Elke voorgestelde rol krijgt een geschatte AI-impact, op een schaal van minimaal tot kritiek. Niemand kan dit met zekerheid voorspellen, dus waar de signalen gemengd zijn gaan we ervan uit dat AI meer verandert in plaats van minder."
       },
       {
         "title": "Eerlijk, niet vleiend",
@@ -94,8 +94,8 @@
   },
   "methodology": {
     "eyebrow": "Chapter 03 · Methodologie",
-    "titleA": "Geen formule. Geen freestyle AI.",
-    "titleHighlight": "Iets daar tussenin.",
+    "titleA": "Gebouwd op wat psychometrie goed doet,",
+    "titleHighlight": "en op wat het niet bereikt.",
     "intro": "De meeste persoonlijkheidstesten stoppen je in een hokje en vertellen je vervolgens wat mensen in dat hokje meestal doen. Generieke AI-tools negeren de wetenschap volledig en improviseren maar wat. Cairnly doet geen van beide.",
     "oldCard": {
       "pill": "Eerst het hokje, dan het label",
@@ -312,7 +312,7 @@
     "notItems": [
       "Je niet op zoek bent naar verandering.",
       "Je richt je op promotie binnen je huidige vakgebied.",
-      "Je geen 'kantoorbaan' hebt.",
+      "Je werk praktisch is of in roosterdiensten, zoals zorg, techniek, horeca of logistiek.",
       "Je weet al precies wat je wilt, en niets zal je van gedachten doen veranderen."
     ]
   },
@@ -327,7 +327,7 @@
     "titleA": "De richting die je nu zou kiezen, met het leven dat je",
     "titleHighlight": "geleefd hebt in gedachten.",
     "cta": "Aan de slag",
-    "footer": "Gebouwd met carrièrecoaches. Aangedreven door frontier AI. Eerlijk over allebei."
+    "footer": "Gebouwd met carrièrecoaches. Eerlijk over wat AI wel en niet kan zeggen."
   },
   "whyBuilt": {
     "eyebrow": "Waarom we dit hebben gebouwd",
@@ -610,7 +610,7 @@
       }
     },
     "endCard": {
-      "title": "Dat was een korte blik op wat je kunt verwachten van Cairnly's complete platform voor loopbaanverandering.",
+      "title": "Dat is een blik op wat Cairnly je geeft.",
       "toolkitLabel": "Het dashboard met je resultaten biedt ook:",
       "toolkit": [
         "Download je profiel als pdf",
