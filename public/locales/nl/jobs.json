@@ -77,7 +77,8 @@
     "outOfTen": "/10"
   },
   "search": {
-    "eyebrow": "STAP 1 · ONTGRENDELD · NIVEAU 1 VAN 3",
+    "eyebrow": "STAP 1 VAN 3 · GRATIS ZOEKOPDRACHTEN",
+    "eyebrowUnlimited": "STAP 1 VAN 3 · ONBEPERKTE ZOEKOPDRACHTEN",
     "title": "Vind actuele vacatures.",
     "intro": "Kies maximaal 3 loopbanen uit je rapport, geef aan waar je zou werken en start de zoekopdracht. Resultaten worden gerangschikt met een AI-score tegen je profiel.",
     "careersEyebrow": "LOOPBANEN OM TE ZOEKEN",

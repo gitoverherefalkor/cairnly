@@ -147,7 +147,13 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
     <div style={{ maxWidth: 1280, margin: '0 auto', padding: mobile ? '28px 16px 64px' : '48px 32px 80px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 36, gap: 24, flexWrap: 'wrap' }}>
         <div>
-          <JEyebrow>{t('search.eyebrow')}</JEyebrow>
+          {/* The eyebrow used to read "STEP 1 · UNLOCKED · TIER 1 OF 3" for
+              everyone, which told a free-tier user they had unlocked something
+              they hadn't — right above a "2 of 4 free searches left" counter.
+              It now names the tier the user is actually on. */}
+          <JEyebrow>
+            {creditsUnlimited ? t('search.eyebrowUnlimited') : t('search.eyebrow')}
+          </JEyebrow>
           <h1
             style={{
               fontFamily: FONT_DISPLAY,

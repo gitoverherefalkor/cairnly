@@ -77,7 +77,8 @@
     "outOfTen": "/10"
   },
   "search": {
-    "eyebrow": "STEP 1 · UNLOCKED · TIER 1 OF 3",
+    "eyebrow": "STEP 1 OF 3 · FREE SEARCHES",
+    "eyebrowUnlimited": "STEP 1 OF 3 · UNLIMITED SEARCHES",
     "title": "Find live openings.",
     "intro": "Pick up to 3 careers from your report, set where you'd work, then run the search. Results are ranked by an AI score against your profile.",
     "careersEyebrow": "CAREERS TO SEARCH",
