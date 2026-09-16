@@ -108,15 +108,18 @@ const Card: React.FC<{ person: Person; variant: 'short' | 'full' }> = ({ person,
         size={64}
         strokeWidth={1.25}
         aria-hidden="true"
-        className="pointer-events-none absolute top-6 right-6 hidden text-[#D4A024]/12 sm:block"
+        className="pointer-events-none absolute top-6 right-6 hidden text-[#D4A024]/70 fill-[#D4A024]/25 sm:block"
       />
 
       <figure className="relative flex h-full flex-col">
         <div className="lp-eyebrow text-[#1F8282] mb-5 sm:pr-20">{t(`testimonial.${person.eyebrowKey}`)}</div>
 
+        {/* Deliberately NOT font-heading: Poppins made the quote read as a
+            heading, out of step with every other paragraph on the page. This
+            is prose, so it is Inter at the weight the rest of the body uses. */}
         <blockquote
-          className="font-heading text-[#122E3B] leading-[1.45] space-y-4"
-          style={{ fontSize: 'clamp(17px, 1.35vw, 21px)', letterSpacing: '-0.006em' }}
+          className="text-[#122E3B] font-medium leading-relaxed space-y-4"
+          style={{ fontSize: 'clamp(16px, 1.25vw, 19px)' }}
         >
           {paragraphs.map((p) => (
             <p key={p}>{p}</p>
@@ -183,7 +186,7 @@ const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' 
   const people = audience === 'partner' ? [BRAD, VALENTINA] : [VALENTINA, BRAD];
 
   return (
-    <section className="bg-[#ECE4D2] pb-20 md:pb-28">
+    <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
         <Reveal className="mx-auto grid max-w-5xl items-stretch gap-6 lg:grid-cols-2">
           {people.map((person) => (
