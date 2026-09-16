@@ -371,6 +371,20 @@
       "heading_one": "How it differs from your other top role",
       "heading_other": "How it differs from your other top roles"
     },
+    "notForMe": {
+      "dismiss": "Not for me",
+      "restore": "Bring it back",
+      "whyOptional": "Why? (optional)",
+      "setAside": "Set aside",
+      "reason": {
+        "not_interested": "Not interested",
+        "wrong_level": "Wrong level",
+        "pay_too_low": "Pay too low",
+        "already_did": "Already did this",
+        "location": "Location",
+        "other": "Something else"
+      }
+    },
     "toolkit": {
       "eyebrow": "JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK",
       "title": "Six friends, and your assessment paid for itself.",
