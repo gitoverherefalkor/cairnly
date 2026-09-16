@@ -13,7 +13,7 @@ import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
 import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { companyContext } from '@/lib/companyContext';
-import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
+import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, EyeOff, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
@@ -2733,6 +2733,7 @@ const ReportAccordionRow: React.FC<{
   registerRef: (node: HTMLDivElement | null) => void;
   dismissal: ReturnType<typeof useDismissedCareers>;
 }> = ({ row, isOpen, isLast, onToggle, registerRef, dismissal }) => {
+  const { t } = useTranslation('dashboard');
   const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
   // Inner-tabs state for multi-career rows (runners, outside, dream). Keyed by
   // section id rather than position: dismissing a career sinks it to the bottom
@@ -2763,12 +2764,15 @@ const ReportAccordionRow: React.FC<{
       style={{
         borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
         background: isOpen ? 'rgba(212,160,36,0.06)' : 'transparent',
-        // A dismissed career recedes in place. It is never removed, and never
-        // promotes another career into its slot — the hero, radar, map and
-        // comparison all keep reading the original ranking.
-        opacity: isDismissed ? 0.45 : 1,
-        filter: isDismissed ? 'grayscale(0.7)' : 'none',
-        transition: 'background 200ms ease, opacity 200ms ease, filter 200ms ease',
+        // A dismissed career is marked, never dimmed: opacity/grayscale on this
+        // wrapper dropped the body prose to ~3.4:1 and the "Bring it back"
+        // button to ~2.8:1 against the canvas, both under WCAG AA, and it
+        // greyed the whole group (header, chevron, every sibling tab) because
+        // isDismissed follows the active tab. The signal now lives in the slot
+        // chip, the header pill and the tab marks below. A dismissal still
+        // never removes a career or promotes another into its slot — the hero,
+        // radar, map and comparison all keep reading the original ranking.
+        transition: 'background 200ms ease',
         scrollMarginTop: 80,
       }}
     >
@@ -2788,22 +2792,45 @@ const ReportAccordionRow: React.FC<{
         }}
       >
         {row.careerSlot ? (
-          <CareerSlotChip slot={row.careerSlot} />
+          <CareerSlotChip slot={row.careerSlot} dimmed={isDismissed} />
         ) : (
           <SectionPhoto src={photo?.src} position={photo?.position} hue={photo?.hue} size={mobile ? 52 : 72} />
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: FONT_DISPLAY,
-              fontWeight: 700,
-              fontSize: mobile ? 17 : 19,
-              letterSpacing: '-0.01em',
-              color: '#fff',
-              marginBottom: 4,
-            }}
-          >
-            {row.title}
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 4 }}>
+            <div
+              style={{
+                fontFamily: FONT_DISPLAY,
+                fontWeight: 700,
+                fontSize: mobile ? 17 : 19,
+                letterSpacing: '-0.01em',
+                color: '#fff',
+              }}
+            >
+              {row.title}
+            </div>
+            {isDismissed && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  flexShrink: 0,
+                  padding: '3px 10px',
+                  borderRadius: 9999,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  color: 'rgba(255,255,255,0.75)',
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600,
+                  fontSize: 11,
+                  letterSpacing: '0.02em',
+                }}
+              >
+                <EyeOff size={11} aria-hidden="true" />
+                {t('v4.notForMe.setAside', { defaultValue: 'Set aside' })}
+              </span>
+            )}
           </div>
           <div style={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 500, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
             {row.oneLiner}
@@ -2836,6 +2863,7 @@ const ReportAccordionRow: React.FC<{
             careers={row.careers}
             activeIndex={activeCareer}
             onSelect={(i) => setActiveKey(row.careers![i].sectionId)}
+            isDismissed={(id) => dismissal.bySectionId.has(id)}
           />
           <AccordionContent content={row.careers[activeCareer].content} />
         </div>
@@ -2973,13 +3001,19 @@ const CareerComparisonPanel: React.FC<{
 
 // Cream chip carrying a cairn-glyph career icon — replaces the nature
 // photograph for Career Suggestion rows.
-const CareerSlotChip: React.FC<{ slot: CareerSlot }> = ({ slot }) => (
+// `dimmed` marks a set-aside career. Safe to desaturate here and nowhere else
+// in the row: this tile is a decorative glyph with no text, so it carries no
+// contrast obligation.
+const CareerSlotChip: React.FC<{ slot: CareerSlot; dimmed?: boolean }> = ({ slot, dimmed }) => (
   <div
     style={{
       width: 72,
       height: 72,
       borderRadius: 12,
       flexShrink: 0,
+      filter: dimmed ? 'grayscale(1)' : 'none',
+      opacity: dimmed ? 0.55 : 1,
+      transition: 'filter 200ms ease, opacity 200ms ease',
       background: PALETTE.cream,
       border: `1px solid ${PALETTE.tan}`,
       display: 'flex',
@@ -2998,7 +3032,10 @@ const CareerTabs: React.FC<{
   careers: CareerEntry[];
   activeIndex: number;
   onSelect: (i: number) => void;
-}> = ({ careers, activeIndex, onSelect }) => (
+  // Marks a tab whose career has been set aside. Deliberately an icon plus a
+  // strikethrough rather than reduced opacity: the label has to stay readable.
+  isDismissed: (sectionId: string) => boolean;
+}> = ({ careers, activeIndex, onSelect, isDismissed }) => (
   <div
     style={{
       display: 'flex',
@@ -3011,6 +3048,7 @@ const CareerTabs: React.FC<{
   >
     {careers.map((c, i) => {
       const active = i === activeIndex;
+      const dismissed = isDismissed(c.sectionId);
       return (
         <button
           key={i}
@@ -3043,7 +3081,8 @@ const CareerTabs: React.FC<{
           >
             {i + 1}
           </span>
-          {c.title}
+          {dismissed && <EyeOff size={12} aria-hidden="true" />}
+          <span style={{ textDecoration: dismissed ? 'line-through' : 'none' }}>{c.title}</span>
         </button>
       );
     })}
