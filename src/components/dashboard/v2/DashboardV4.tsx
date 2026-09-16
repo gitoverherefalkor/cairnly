@@ -20,11 +20,13 @@ import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomR
 import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { FREE_SEARCH_LIMIT } from '@/hooks/useJobSearchCredits';
+import { useDismissedCareers, type DismissReason } from '@/hooks/useDismissedCareers';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
+import { NotForMeControl } from './NotForMeControl';
 import { V4SavedResponses } from './V4SavedResponses';
 import type { SavedChatResponse } from '@/hooks/useSavedChatResponses';
 import { V4ChartBanner } from './V4ChartBanner';
@@ -428,6 +430,11 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sections, lang, t]);
 
+  // "Not for me" dismissals for this report. Declared here, unconditionally
+  // and above every return, because the rows memo below sinks dismissed
+  // careers to the bottom of their group.
+  const dismissal = useDismissedCareers(reportId);
+
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
     // Top 3 — one accordion row per career so hero/secondary "Open" buttons
@@ -515,11 +522,18 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     for (const { id, type, slot } of groups) {
       const matches = sections.filter((x) => x.section_type === type);
       if (matches.length === 0) continue;
+      // Dismissed careers sink to the bottom of their group; everything else
+      // keeps its original order (Array#sort is stable).
+      const ordered = [...matches].sort((a, b) => {
+        const ad = dismissal.bySectionId.has(a.id) ? 1 : 0;
+        const bd = dismissal.bySectionId.has(b.id) ? 1 : 0;
+        return ad - bd;
+      });
       rows.push({
         id,
         title: fallbackTitleFor(id),
         oneLiner: oneLinerFor(id),
-        careers: matches.map((s) => ({
+        careers: ordered.map((s) => ({
           title: stripHtml(
             sectionTitle(s, lang) || t('v4.fallback.career', { defaultValue: 'Career' }),
           ),
@@ -532,7 +546,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     }
     return rows;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sections, lang, t]);
+  }, [sections, lang, t, dismissal.bySectionId]);
 
   // ── Chart data builders ──────────────────────────────────────
   // Derivations live in reportChartData.ts so the print/PDF document
@@ -919,6 +933,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                     registerRef={(node) => {
                       accordionRowRefs.current[row.id] = node;
                     }}
+                    dismissal={dismissal}
                   />
                 ))}
               </div>
@@ -995,6 +1010,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                     registerRef={(node) => {
                       accordionRowRefs.current[row.id] = node;
                     }}
+                    dismissal={dismissal}
                   />
                 ))}
               </div>
@@ -2715,18 +2731,50 @@ const ReportAccordionRow: React.FC<{
   isLast: boolean;
   onToggle: () => void;
   registerRef: (node: HTMLDivElement | null) => void;
-}> = ({ row, isOpen, isLast, onToggle, registerRef }) => {
+  dismissal: ReturnType<typeof useDismissedCareers>;
+}> = ({ row, isOpen, isLast, onToggle, registerRef, dismissal }) => {
   const photo = !row.careerSlot ? SECTION_VISUALS[row.visualKey || row.id] : null;
   // Inner-tabs state for multi-career rows (runners, outside, dream).
   const [activeCareer, setActiveCareer] = useState(0);
   const mobile = useIsMobile();
+
+  // Which career "Not for me" acts on: the selected tab for grouped rows
+  // (runners / outside / dream), the row's own section for the top 3.
+  const isGrouped = !!row.careers && row.careers.length > 0;
+  const activeEntry = isGrouped
+    ? row.careers![Math.min(activeCareer, row.careers!.length - 1)]
+    : undefined;
+  const activeSectionId = isGrouped ? activeEntry?.sectionId : row.sectionId;
+  const activeSectionType = isGrouped ? activeEntry?.sectionType : row.sectionType;
+  const activeTitle = isGrouped ? activeEntry?.title : row.title;
+  const dismissedRow = activeSectionId ? dismissal.bySectionId.get(activeSectionId) : undefined;
+  const isDismissed = !!dismissedRow;
+
+  // Dismissing or restoring re-sorts the group (dismissed careers sink), so a
+  // bare tab index would silently start pointing at a different career than
+  // the one the user was reading. Remember the id we acted on and chase it to
+  // its new position once the re-ordered row arrives.
+  const followSectionId = useRef<string | null>(null);
+  useEffect(() => {
+    const target = followSectionId.current;
+    if (!target || !row.careers) return;
+    followSectionId.current = null;
+    const next = row.careers.findIndex((c) => c.sectionId === target);
+    if (next >= 0) setActiveCareer(next);
+  }, [row.careers]);
+
   return (
     <div
       ref={registerRef}
       style={{
         borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.06)',
         background: isOpen ? 'rgba(212,160,36,0.06)' : 'transparent',
-        transition: 'background 200ms ease',
+        // A dismissed career recedes in place. It is never removed, and never
+        // promotes another career into its slot — the hero, radar, map and
+        // comparison all keep reading the original ranking.
+        opacity: isDismissed ? 0.45 : 1,
+        filter: isDismissed ? 'grayscale(0.7)' : 'none',
+        transition: 'background 200ms ease, opacity 200ms ease, filter 200ms ease',
         scrollMarginTop: 80,
       }}
     >
@@ -2807,6 +2855,41 @@ const ReportAccordionRow: React.FC<{
         >
           <AccordionContent content={row.content} />
           {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}
+        </div>
+      )}
+      {/* Career rows only — careerSlot is undefined on About-You rows, which
+          are not dismissible. */}
+      {isOpen && activeSectionId && row.careerSlot && (
+        <div
+          style={{
+            // Same horizontal inset as the accordion body above, so the
+            // control lines up with the prose rather than the card edge.
+            margin: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px',
+            maxWidth: 880,
+            paddingTop: 14,
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <NotForMeControl
+            isDismissed={isDismissed}
+            reason={dismissedRow?.reason ?? null}
+            busy={dismissal.isDismissing || dismissal.isRestoring}
+            onDismiss={() => {
+              followSectionId.current = activeSectionId;
+              dismissal.dismiss({
+                sectionId: activeSectionId,
+                sectionType: activeSectionType ?? '',
+                careerTitle: activeTitle ?? '',
+              });
+            }}
+            onRestore={() => {
+              followSectionId.current = activeSectionId;
+              dismissal.restore(activeSectionId);
+            }}
+            onReason={(reason: DismissReason) =>
+              dismissal.setReason({ sectionId: activeSectionId, reason })
+            }
+          />
         </div>
       )}
     </div>
