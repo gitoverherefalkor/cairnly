@@ -47,6 +47,9 @@ const W = 1440;
 const H = 900;
 const SCALE = DRAFT ? 1 : 2;
 const FPS = DRAFT ? 10 : 30;
+// Frames Chrome sends in the first moments of a restarted screencast can still
+// be the surface from BEFORE the cut; they are thrown away for this long.
+const FILM_SETTLE = 220;
 
 const CLIPS = [
   { persona: 'marcel', lang: 'nl' },
@@ -461,6 +464,30 @@ async function titleCard(page, copyPair) {
   await pause(1400);
   await titleOut(page);
 }
+// page.evaluate resolving means the DOM changed, NOT that the renderer has
+// composited it. Page.startScreencast hands over the last COMPOSITED surface,
+// so filming before that paint lands puts a stale frame at the head of every
+// cut: the bare new page, carrying neither the black cover nor the title card.
+// That was the flash between the title card and the fade to black.
+const painted = (page) =>
+  page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))),
+  );
+// Force one new compositor frame. The screencast only emits on change, so
+// after the settle window throws frames away we need a guaranteed fresh one,
+// or the held black-and-title state would never be filmed at all. Nudging the
+// overlay root's transform is invisible (it already spans the viewport and its
+// children are inset:0 against it) and always produces a frame.
+const repaint = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((done) => {
+        const el = document.getElementById('__rec');
+        el.style.transform = el.style.transform === 'translateZ(0px)' ? 'none' : 'translateZ(0px)';
+        requestAnimationFrame(() => done());
+      }),
+  );
+
 // Snap the black cover on with no transition. installOverlay rebuilds #__fade
 // at opacity 0 on every load, and the inline 250 ms transition would animate
 // it — showing a quarter-second of the freshly loaded page.
@@ -539,17 +566,23 @@ async function record({ persona, lang }) {
   const frames = [];
   const gaps = []; // wall-clock moments the film was paused (page swaps)
   let recording = false;
+  let discardUntil = 0; // frames before this are stale surfaces from before a cut
   let n = 0;
   const cdp = await page.createCDPSession();
   cdp.on('Page.screencastFrame', ({ data, sessionId }) => {
     cdp.send('Page.screencastFrameAck', { sessionId }).catch(() => {});
     if (!recording) return;
+    // Belt and braces with painted(): anything Chrome hands us in the first
+    // moments of a restarted screencast may still be the pre-cut surface.
+    if (performance.now() < discardUntil) return;
     const p = resolve(tmp, `f${String(n++).padStart(5, '0')}.jpg`);
     writeFileSync(p, Buffer.from(data, 'base64'));
     frames.push({ p, t: performance.now() });
   });
   const startFilm = async () => {
+    await painted(page); // whatever we just covered the page with is on screen
     recording = true;
+    discardUntil = performance.now() + FILM_SETTLE;
     await cdp.send('Page.startScreencast', {
       format: 'jpeg',
       quality: DRAFT ? 70 : 90,
@@ -557,6 +590,9 @@ async function record({ persona, lang }) {
       maxHeight: H * SCALE,
       everyNthFrame: DRAFT ? 3 : 1,
     });
+    await sleep(FILM_SETTLE);
+    discardUntil = 0;
+    await repaint(page); // one clean frame of the state we actually want
   };
   const stopFilm = async () => {
     recording = false;
