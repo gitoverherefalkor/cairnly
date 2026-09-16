@@ -112,7 +112,7 @@
     },
     "engineEyebrow": "Inside the engine",
     "engineTitle": "Multiple AI steps, orchestrated and tuned.",
-    "engineSubtitle": "Every step has a purpose, and every one was tuned with working career coaches, so what comes out reads like advice from a pro.",
+    "engineSubtitle": "Every step has a purpose: built on the validated parts of psychometric research, tuned by working career coaches, and run by modern AI that can hold all of it in mind at once. What comes out reads like advice from a pro, actually about you.",
     "trust": {
       "gdpr": "GDPR compliant",
       "gdprDetail": "EU-hosted data",
@@ -120,8 +120,7 @@
       "stripeDetail": "We never see your card",
       "delete": "One-click delete",
       "deleteDetail": "Your data is yours"
-    },
-    "closer": "The validated parts of psychometric research, the practical instincts of real career coaches, and modern AI that can hold all of it in mind at once. So you get advice that's actually about you."
+    }
   },
   "chatRefine": {
     "eyebrow": "The chat that comes with your dashboard",

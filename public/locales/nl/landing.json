@@ -112,7 +112,7 @@
     },
     "engineEyebrow": "Achter de schermen",
     "engineTitle": "Meerdere AI-stappen, georkestreerd en bijgesteld.",
-    "engineSubtitle": "Elke stap heeft een doel, en elke stap is bijgesteld met actieve carrièrecoaches, zodat het resultaat leest als advies van een pro.",
+    "engineSubtitle": "Elke stap heeft een doel: gebouwd op de gevalideerde delen van psychometrisch onderzoek, bijgesteld met actieve carrièrecoaches, en uitgevoerd door moderne AI die dit allemaal tegelijk in gedachten kan houden. Het resultaat leest als advies van een pro, dat écht over jou gaat.",
     "trust": {
       "gdpr": "GDPR compliant",
       "gdprDetail": "Data in de EU",
@@ -120,8 +120,7 @@
       "stripeDetail": "Wij zien je kaart nooit",
       "delete": "One-click delete",
       "deleteDetail": "Je data is van jou"
-    },
-    "closer": "De gevalideerde delen van psychometrisch onderzoek, de praktische intuïtie van echte carrièrecoaches, en moderne AI die dit allemaal tegelijk in gedachten kan houden. Zo krijg je advies dat écht over jou gaat."
+    }
   },
   "chatRefine": {
     "eyebrow": "De chat die bij je dashboard hoort",

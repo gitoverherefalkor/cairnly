@@ -170,10 +170,6 @@ const Methodology: React.FC = () => {
         </Reveal>
 
         <Reveal as="div" className="max-w-3xl mx-auto mt-16 md:mt-20">
-          <p className="text-center text-base md:text-lg text-white/55 italic font-medium leading-relaxed">
-            {t('methodology.closer')}
-          </p>
-
           {/* Trust row: one line on desktop, stacked on phones. flex-nowrap
               plus whitespace-nowrap on each item, so it never breaks into the
               ragged two-and-one arrangement it had before. */}
