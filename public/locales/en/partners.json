@@ -1,7 +1,7 @@
 {
   "seo": {
     "title": "Cairnly for career professionals | career assessment for return-to-work and outplacement",
-    "description": "Use Cairnly as prep work in your program: concrete careers with match scores, salary data and an AI-impact rating per career, under your logo. Credits never expire, no setup fees."
+    "description": "Use Cairnly as prep work in your return-to-work (spoor 2) or outplacement program: concrete careers with match scores, salary data and AI-impact per career, under your logo. Credits never expire."
   },
   "hero": {
     "title": "Your candidate starts with direction, not a blank page",
@@ -71,6 +71,10 @@
       {
         "q": "Is Cairnly a psychometric instrument?",
         "a": "No, and we don't claim it is. Cairnly is labor-market orientation: it translates someone's experience, values and preferences into concrete career directions. It sits alongside your validated instruments (COTAN-rated in the Netherlands), not in place of them."
+      },
+      {
+        "q": "Does Cairnly account for what someone can sustain (spoor 2)?",
+        "a": "Not medically, but practically. The candidate states the conditions under which work is sustainable for them: a maximum number of hours per week that counts as a hard requirement, and in a free-text field things like a calm environment, control over their own pace or little deadline pressure. Careers that clearly do not fit are pushed down the ranking. The medical judgement about capacity stays with the occupational physician and with you."
       },
       {
         "q": "What about privacy and the GDPR?",
