@@ -52,7 +52,11 @@ export function useDismissedCareers(reportId?: string) {
   const queryClient = useQueryClient();
   const queryKey = ['dismissed-careers', reportId];
 
-  const { data: dismissed = [], isLoading } = useQuery({
+  const {
+    data: dismissed = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey,
     queryFn: async (): Promise<DismissedCareer[]> => {
       if (!reportId) return [];
@@ -90,7 +94,18 @@ export function useDismissedCareers(reportId?: string) {
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
-    onError: (error: unknown) => {
+    onError: (error: any) => {
+      // A double-click/double-tap can fire two inserts before the first
+      // round-trip completes; UNIQUE(report_id, section_id) rejects the
+      // second with 23505. The dismissal already succeeded (the first insert
+      // landed), so treat this as success rather than an error: refresh the
+      // query and skip the destructive toast. Unlike useSavedJobs' "Already
+      // saved" info toast, we show nothing here — the card is already
+      // greyed out from the first insert, so a toast would just be noise.
+      if (error?.code === '23505') {
+        queryClient.invalidateQueries({ queryKey });
+        return;
+      }
       console.error('Error dismissing career:', error);
       toast({
         title: 'Could not set that aside',
@@ -102,7 +117,7 @@ export function useDismissedCareers(reportId?: string) {
 
   const restoreMutation = useMutation({
     mutationFn: async (sectionId: string) => {
-      if (!reportId) throw new Error('No report');
+      if (!user?.id || !reportId) throw new Error('No user or report');
       const { error } = await supabase
         .from('dismissed_careers')
         .delete()
@@ -123,7 +138,7 @@ export function useDismissedCareers(reportId?: string) {
 
   const setReasonMutation = useMutation({
     mutationFn: async ({ sectionId, reason }: { sectionId: string; reason: DismissReason }) => {
-      if (!reportId) throw new Error('No report');
+      if (!user?.id || !reportId) throw new Error('No user or report');
       const { error } = await supabase
         .from('dismissed_careers')
         .update({ reason })
@@ -141,9 +156,12 @@ export function useDismissedCareers(reportId?: string) {
     dismissed,
     bySectionId,
     isLoading,
+    error,
     isDismissed: (sectionId: string) => bySectionId.has(sectionId),
     dismiss: dismissMutation.mutate,
+    isDismissing: dismissMutation.isPending,
     restore: restoreMutation.mutate,
+    isRestoring: restoreMutation.isPending,
     setReason: setReasonMutation.mutate,
   };
 }
