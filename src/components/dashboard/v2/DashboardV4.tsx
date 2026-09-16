@@ -24,6 +24,7 @@ import { useDismissedCareers, type DismissReason } from '@/hooks/useDismissedCar
 import { filterDismissed } from '@/lib/dismissed';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
+import { iconForSubsection } from '@/components/chat/subsectionIcons';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
 import { CareerComparisonRadar, type RadarCareer } from '@/components/career/CareerComparisonRadar';
 import { DashboardAppNav } from './DashboardAppNav';
@@ -79,6 +80,12 @@ function htmlToMarkdown(text: string): string {
   r = r.replace(/<ul[^>]*>/gi, '\n\n').replace(/<\/ul>/gi, '\n\n');
   r = r.replace(/<ol[^>]*>/gi, '\n\n').replace(/<\/ol>/gi, '\n\n');
   r = r.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n');
+  // Runner-up / outside-the-box / Reality-Check items are prefixed with ✓ or ⚠
+  // and separated by SINGLE newlines. Markdown treats consecutive single-newline
+  // lines as one paragraph, so without this they collapse into a run-on wall of
+  // text. Forcing a blank line before each item renders them as separate lines,
+  // the way the coach chat shows them. (Same rule as ChatMessage's converter.)
+  r = r.replace(/([^\n])\n(✓|⚠)/g, '$1\n\n$2');
   // Collapse runs of 3+ blank lines back to 2 so the output stays clean.
   r = r.replace(/\n{3,}/g, '\n\n');
   return r;
@@ -202,6 +209,32 @@ function readSalary(meta: unknown): string | null {
   return null;
 }
 
+// Derive the accordion's at-a-glance strip for one career section.
+// Every field is optional in the data (outside-the-box and dream-job rows
+// have no score, older reports have no alternate_titles), so each pill is
+// rendered only when its value exists — never a placeholder.
+function bodyMetaFor(s: ReportSection, lang: string): CareerBodyMeta {
+  const score = s.score != null ? Number(s.score) : NaN;
+  // `alternate_titles` comes in two shapes: legacy rows bake the caption into
+  // the value ("<strong>Alternate titles:</strong> A, B"), newer rows store
+  // the bare list. Strip the caption so we render exactly one label.
+  const rawAlt = stripHtml(s.alternate_titles || '').trim();
+  const altTitles =
+    rawAlt.replace(/^(Alternate titles|Alternatieve functietitels)\s*:\s*/i, '').trim() || null;
+  return {
+    // Company size / type is free WF4 prose, translated at the display
+    // boundary by the same helper the hero cards use.
+    shape: s.company_size_type ? companyContext(stripHtml(s.company_size_type), lang) : null,
+    altTitles,
+    matchPct: Number.isFinite(score) ? Math.round(score) : null,
+    move: (s.metadata?.move as MoveLevel | undefined) ?? null,
+    // Machine metadata is ALWAYS parsed from the canonical English content —
+    // that is what keeps this regex reliable (language contract).
+    aiImpact: extractAIImpact(s.content || ''),
+    salary: readSalary(s.metadata),
+  };
+}
+
 function getMatch(
   sections: ReportSection[],
   type: string,
@@ -256,6 +289,20 @@ function getMatch(
 }
 
 // ── Report accordion model ────────────────────────────────────
+// The at-a-glance strip that sits above a career's prose, matching the coach
+// chat's career card: company shape, the metric pills, and the alternate
+// titles. These live in dedicated report_sections columns / metadata, NOT in
+// `content`, which is why the accordion never showed them before — the chat
+// gets them baked into its message markdown instead.
+interface CareerBodyMeta {
+  shape: string | null;
+  altTitles: string | null;
+  matchPct: number | null;
+  move: MoveLevel | null;
+  aiImpact: AIImpactLevel | null;
+  salary: string | null;
+}
+
 interface CareerEntry {
   title: string;
   content: string;
@@ -263,6 +310,7 @@ interface CareerEntry {
   // dismissal — see useDismissedCareers.
   sectionId: string;
   sectionType: string;
+  meta?: CareerBodyMeta;
 }
 
 interface ReportRow {
@@ -272,6 +320,9 @@ interface ReportRow {
   // Single-section rows carry `content`; multi-career groupings (runners,
   // outside, dream) carry `careers` instead and render as tabs.
   content?: string;
+  // Meta strip for single-career rows (the top 3). Grouped rows carry it
+  // per-career on `careers[n].meta` instead, since each tab has its own.
+  meta?: CareerBodyMeta;
   careers?: CareerEntry[];
   // report_sections.id for single-section rows (the top 3). Multi-career rows
   // carry the id per CareerEntry instead. Undefined for About-You rows, which
@@ -517,6 +568,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         comparison,
         sectionId: s.id,
         sectionType: s.section_type,
+        meta: bodyMetaFor(s, lang),
       });
     }
 
@@ -550,6 +602,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           content: sectionText(s, lang),
           sectionId: s.id,
           sectionType: s.section_type,
+          meta: bodyMetaFor(s, lang),
         })),
         careerSlot: slot,
       });
@@ -677,6 +730,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 
   return (
     <LakeBackground intensity="normal">
+      {/* Accordion prose rules the inline style prop can't express
+          (:first-child, ::marker). Mounted once for the whole page. */}
+      <style>{ACCORDION_BODY_CSS}</style>
       {nav ?? <DashboardAppNav firstName={firstName} onProfile={onProfile} onSignOut={onSignOut} />}
 
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: mobile ? '28px 16px 64px' : '48px 32px 80px' }}>
@@ -2900,6 +2956,7 @@ const ReportAccordionRow: React.FC<{
             onSelect={(i) => setActiveKey(row.careers![i].sectionId)}
             isDismissed={(id) => dismissal.bySectionId.has(id)}
           />
+          <CareerBodyHeader meta={row.careers[activeCareer].meta} />
           <AccordionContent content={row.careers[activeCareer].content} />
         </div>
       )}
@@ -2908,6 +2965,7 @@ const ReportAccordionRow: React.FC<{
           className="cairnly-accordion-body"
           style={{ padding: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px', maxWidth: 880 }}
         >
+          <CareerBodyHeader meta={row.meta} />
           <AccordionContent content={row.content} />
           {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}
         </div>
@@ -3128,6 +3186,35 @@ const CareerTabs: React.FC<{
 // Render the section content the same way ExpandedSectionView used to —
 // HTML → markdown → DOMPurify → react-markdown. Styled for the dark-glass
 // accordion (white type on rgba(18,46,59) background).
+//
+// The layout mirrors the coach chat's career cards (ChatMessage's
+// markdownComponents): Title Case sub-headers with a matching icon, generous
+// prose rhythm, breathing room between blocks. Only the palette differs —
+// gold-on-dark here, teal-on-cream there — so the same report reads the same
+// way in both places. See src/components/chat/subsectionIcons.ts for the
+// header → icon dictionary (EN + NL), shared with the chat.
+
+// Bold a short leading "Label:" at the start of a paragraph or bullet
+// ("Money: €65k–90k…"). Ported from the chat's renderer so identical prose
+// gets identical emphasis in both surfaces. Only fires on short labels
+// (≤4 words, ≤44 chars) so ordinary sentences containing a colon are left
+// alone; paragraphs that already start with **bold** are untouched.
+function boldLeadLabel(children: React.ReactNode): React.ReactNode {
+  const arr = React.Children.toArray(children);
+  const first = arr[0];
+  if (typeof first !== 'string') return children;
+  const match = first.match(/^([^:\n]{1,44}):(\s|$)/);
+  if (!match) return children;
+  const label = match[1].trim();
+  if (label.split(/\s+/).length > 4) return children;
+  const after = first.slice(match[1].length + 1);
+  return [
+    <strong key="lead-label" style={{ color: '#fff', fontWeight: 700 }}>{`${label}:`}</strong>,
+    after,
+    ...arr.slice(1),
+  ];
+}
+
 const ACCORDION_MD_COMPONENTS = {
   h3: ({ children, ...p }: any) => (
     <h3
@@ -3135,67 +3222,85 @@ const ACCORDION_MD_COMPONENTS = {
       style={{
         fontFamily: FONT_DISPLAY,
         fontWeight: 700,
-        fontSize: 18,
-        letterSpacing: '-0.015em',
+        fontSize: 21,
+        letterSpacing: '-0.018em',
+        lineHeight: 1.2,
         color: '#fff',
-        margin: '18px 0 8px 0',
+        margin: '28px 0 10px 0',
       }}
     >
       {children}
     </h3>
   ),
   h4: ({ children, ...p }: any) => (
+    // The generators use #### only for the company size/type line under a
+    // career title. Small, quiet, gold — same role the chat gives it.
     <h4
       {...p}
       style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 15,
-        letterSpacing: '-0.01em',
-        color: '#fff',
-        margin: '14px 0 6px 0',
+        fontFamily: FONT_BODY,
+        fontWeight: 600,
+        fontSize: 12.5,
+        letterSpacing: '0.01em',
+        color: PALETTE.goldWarm,
+        margin: '2px 0 14px 0',
       }}
     >
       {children}
     </h4>
   ),
-  h5: ({ children, ...p }: any) => (
-    <h5
-      {...p}
-      style={{
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 11,
-        letterSpacing: '0.18em',
-        textTransform: 'uppercase',
-        color: PALETTE.goldBright,
-        margin: '14px 0 6px 0',
-      }}
-    >
-      {children}
-    </h5>
-  ),
+  h5: ({ children, ...p }: any) => {
+    // ##### carries the standardized sub-headers ("Overview", "Why this role
+    // fits you", "The Reality Check"…). These are what the reader actually
+    // navigates by, so they get real presence: Title Case at 17px with the
+    // matching icon, not an 11px uppercase label.
+    const text = React.Children.toArray(children)
+      .map((c) => (typeof c === 'string' ? c : ''))
+      .join('')
+      .trim();
+    const Icon = iconForSubsection(text);
+    return (
+      <h5
+        {...p}
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 600,
+          fontSize: 17,
+          letterSpacing: '-0.005em',
+          lineHeight: 1.3,
+          color: PALETTE.goldBright,
+          margin: '30px 0 12px 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        {Icon && <Icon size={19} strokeWidth={2.25} style={{ flexShrink: 0 }} aria-hidden="true" />}
+        <span>{children}</span>
+      </h5>
+    );
+  },
   p: ({ children, ...p }: any) => (
     <p
       {...p}
       style={{
         fontFamily: FONT_BODY,
-        fontSize: 14.5,
-        fontWeight: 500,
-        lineHeight: 1.6,
-        color: 'rgba(255,255,255,0.85)',
-        margin: '0 0 12px 0',
+        fontSize: 15.5,
+        fontWeight: 400,
+        lineHeight: 1.7,
+        color: 'rgba(255,255,255,0.86)',
+        margin: '0 0 14px 0',
       }}
     >
-      {children}
+      {boldLeadLabel(children)}
     </p>
   ),
   ul: ({ children, ...p }: any) => (
     <ul
       {...p}
       style={{
-        paddingLeft: 22,
-        margin: '6px 0 14px 0',
+        paddingLeft: 20,
+        margin: '10px 0 18px 0',
         listStyleType: 'disc',
         listStylePosition: 'outside',
       }}
@@ -3207,8 +3312,8 @@ const ACCORDION_MD_COMPONENTS = {
     <ol
       {...p}
       style={{
-        paddingLeft: 22,
-        margin: '6px 0 14px 0',
+        paddingLeft: 20,
+        margin: '10px 0 18px 0',
         listStyleType: 'decimal',
         listStylePosition: 'outside',
       }}
@@ -3221,14 +3326,15 @@ const ACCORDION_MD_COMPONENTS = {
       {...p}
       style={{
         fontFamily: FONT_BODY,
-        fontSize: 14,
-        fontWeight: 500,
-        lineHeight: 1.55,
-        color: 'rgba(255,255,255,0.85)',
-        marginBottom: 6,
+        fontSize: 15,
+        fontWeight: 400,
+        lineHeight: 1.65,
+        color: 'rgba(255,255,255,0.86)',
+        marginBottom: 10,
+        paddingLeft: 4,
       }}
     >
-      {children}
+      {boldLeadLabel(children)}
     </li>
   ),
   strong: ({ children, ...p }: any) => (
@@ -3257,10 +3363,81 @@ const ACCORDION_MD_COMPONENTS = {
       style={{
         border: 'none',
         borderTop: '1px solid rgba(255,255,255,0.10)',
-        margin: '18px 0',
+        margin: '24px 0',
       }}
     />
   ),
+};
+
+// Scoped CSS the inline style prop can't express: the first sub-header in a
+// body shouldn't push a 30px gap against the card padding, and list bullets
+// read better in gold than in the body's white.
+const ACCORDION_BODY_CSS = `
+.cairnly-accordion-body > *:first-child { margin-top: 0 !important; }
+.cairnly-career-meta + * { margin-top: 0 !important; }
+.cairnly-accordion-body li::marker { color: ${PALETTE.goldWarm}; }
+`;
+
+// At-a-glance strip above a career's prose: company shape, the metric pills,
+// and the alternate titles — the same three lines the coach chat shows at the
+// top of a career card. Renders nothing when a section carries none of them
+// (dream jobs and older outside-the-box rows), so the prose still starts flush.
+const CareerBodyHeader: React.FC<{ meta?: CareerBodyMeta }> = ({ meta }) => {
+  const { t } = useTranslation('dashboard');
+  if (!meta) return null;
+  const hasPills =
+    meta.matchPct != null || !!meta.move || !!meta.aiImpact || !!meta.salary;
+  if (!hasPills && !meta.shape && !meta.altTitles) return null;
+  return (
+    <div
+      className="cairnly-career-meta"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        paddingBottom: 18,
+        marginBottom: 20,
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+      }}
+    >
+      {meta.shape && (
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontWeight: 600,
+            fontSize: 12.5,
+            color: PALETTE.goldWarm,
+          }}
+        >
+          {meta.shape}
+        </div>
+      )}
+      {hasPills && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+          {meta.matchPct != null && <MatchPill pct={meta.matchPct} />}
+          {meta.move && <MovePill level={meta.move} />}
+          {meta.aiImpact && <AIImpactPill label={meta.aiImpact} />}
+          {meta.salary && <SalaryPill range={meta.salary} />}
+        </div>
+      )}
+      {meta.altTitles && (
+        <div
+          style={{
+            fontFamily: FONT_BODY,
+            fontSize: 13.5,
+            fontWeight: 400,
+            lineHeight: 1.55,
+            color: 'rgba(255,255,255,0.7)',
+          }}
+        >
+          <strong style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>
+            {t('v4.career.alternateTitles', { defaultValue: 'Alternate titles' })}:
+          </strong>{' '}
+          {meta.altTitles}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const AccordionContent: React.FC<{ content: string }> = ({ content }) => (
