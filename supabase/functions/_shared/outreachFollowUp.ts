@@ -30,6 +30,15 @@ export interface FollowUpInput {
 
 const SITE = 'https://cairnly.io';
 
+/**
+ * Brad Gentry's verdict, mailed 16 September 2026 and used with his permission.
+ * The Dutch lead-in carries the 25 years so the English fragment does not have
+ * to repeat them; the ellipsis marks where his sentence continues. Quoted in
+ * English on purpose: a translated testimonial is a sentence he never wrote.
+ */
+const COACH_QUOTE =
+  'Een loopbaancoach die al 25 jaar mensen adviseert schreef me er dit over: "by far the best career tool I have come across..."';
+
 /** The demo link for this agency, carrying the slug so a click still lands on their row. */
 export function demoLink(slug: string, campaign: string | null): string {
   const params = new URLSearchParams({
@@ -92,6 +101,8 @@ export function templateClicked(input: FollowUpInput): string {
     '',
     `Korte opvolging op mijn mail van vorige week. ${seen}`,
     '',
+    COACH_QUOTE,
+    '',
     'Mag ik vragen wat je ervan vond? Ook als het niet bij jullie kandidaten past, hoor ik dat graag!',
     '',
     code,
@@ -107,6 +118,8 @@ export function templateQuiet(input: FollowUpInput): string {
     salutation(input),
     '',
     'Korte opvolging op mijn mail van vorige week. Die kan er makkelijk tussendoor zijn geschoten, dus hierbij nog één keer, en dan laat ik het rusten.',
+    '',
+    COACH_QUOTE,
     '',
     'De vraag die erachter zit: doen jullie het loopbaanonderzoek in spoor 2 helemaal zelf, of zou het schelen als een kandidaat al met richting bij de adviseur binnenkomt?',
     '',
@@ -152,6 +165,7 @@ Je krijgt een SKELET dat Sjoerd heeft goedgekeurd. Dat skelet is de mail. Jouw w
 - Je mag ALLEEN de aanhef en de openingszin aanpassen, en alleen als de aanleiding uit het bureau-profiel dat echt beter maakt. Verwerk de openingshaak hooguit in één korte bijzin, nooit als losse alinea.
 - Verzin geen nieuwe beloftes, geen prijzen, geen cijfers, geen namen van klanten.
 - Laat de slotzin en de ondertekening exact staan.
+- Het citaat van de loopbaancoach staat tussen aanhalingstekens en blijft Engels en woordelijk. Niet vertalen, niet inkorten, niet herschrijven.
 
 HUISREGELS: Nederlands, je-vorm, warm maar zakelijk. Maximaal 120 woorden. Stel precies één vraag aan de lezer (een vraagteken in een link telt niet mee). Geen opsommingen, geen onderwerpregel, geen bijlagen. Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y". Eindig met "Groet," en op de volgende regel "Sjoerd", zonder verdere handtekening.
 
