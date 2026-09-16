@@ -20,9 +20,13 @@ interface SectionLink {
 }
 
 // Stable hash/route targets — labels come from i18n at render time.
+// "How it works" points at #methodology: the five-step #how-it-works section
+// was retired on 2026-09-16 (the hero video covers the same ground), and
+// methodology is now where the page explains how it works. Keeping the
+// friendlier label and dropping the separate "Methodology" item keeps the nav
+// at three items without stranding a link on a section that no longer exists.
 const SECTION_LINKS: SectionLink[] = [
-  { labelKey: 'nav.howItWorks', hash: '#how-it-works' },
-  { labelKey: 'nav.methodology', hash: '#methodology' },
+  { labelKey: 'nav.howItWorks', hash: '#methodology' },
   { labelKey: 'nav.journal', hash: '/journal', route: true },
   { labelKey: 'nav.pricing', hash: '#pricing' },
 ];

@@ -3,7 +3,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse } from "../_shared/cors.ts";
-import { proPriceAt } from "../_shared/pricing.ts";
+import { PRO_PRICE } from "../_shared/pricing.ts";
 import {
   renderEmail,
   bodyRow,
@@ -544,9 +544,8 @@ serve(async (req) => {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
     // Extract pricing information from session. Stripe is authoritative here —
-    // the fallback only covers a session that somehow carries no total, and
-    // tracks the pro price in effect so a receipt never quotes a stale amount.
-    const amountTotal = session.amount_total ? session.amount_total / 100 : proPriceAt();
+    // the fallback only covers a session that somehow carries no total.
+    const amountTotal = session.amount_total ? session.amount_total / 100 : PRO_PRICE;
     const currency = session.currency?.toUpperCase() || 'EUR';
 
     // Flavor threaded from create-checkout via Stripe session metadata.

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
-import { DISPLAY_CURRENCY, PRO_PRICE_REGULAR } from '@/lib/pricing';
+import { DISPLAY_CURRENCY, PRO_PRICE } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 
 interface Row {
@@ -36,10 +36,10 @@ const renderBoldMarkdown = (text: string): React.ReactNode => {
 const ComparisonTable: React.FC = () => {
   const { t, i18n } = useTranslation('landing');
 
-  // The "what it costs" row always quotes the standing regular price, not the
-  // live intro price — this is a value-comparison section, not the sales
-  // pitch, so it stays stable rather than tracking the countdown above it.
-  const price = formatCurrency(PRO_PRICE_REGULAR, i18n.language, DISPLAY_CURRENCY);
+  // The "what it costs" row quotes the same flat price as the pricing panel.
+  // Before 2026-09-16 this row deliberately showed the regular price while the
+  // panel showed the intro price, which put two different numbers on one page.
+  const price = formatCurrency(PRO_PRICE, i18n.language, DISPLAY_CURRENCY);
 
   const rows = tArray<Row>(t, 'comparison.rows', { price });
   const cairnlyItems = tArray<string>(t, 'comparison.mobile.cairnlyItems', { price });

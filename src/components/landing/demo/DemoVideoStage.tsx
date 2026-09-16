@@ -155,9 +155,9 @@ const DemoVideoStage: React.FC = () => {
               {t('heroDemo.endCard.title')}
             </p>
             {/* The job-hunt toolkit, listed here rather than in the film: readable, translated, next to the buttons. */}
-            <div className="mt-3 hidden sm:block">
+            <div className="mt-6 hidden sm:block">
               <p className="text-[12px] md:text-[13px] font-semibold text-white/75">{t('heroDemo.endCard.toolkitLabel')}</p>
-              <ul className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-1 text-left text-[12px] md:text-[13px] text-white/85 font-medium">
+              <ul className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2 text-left text-[12px] md:text-[13px] text-white/85 font-medium">
                 {tArray<string>(t, 'heroDemo.endCard.toolkit').map((item) => (
                   <li key={item} className="flex items-start gap-1.5">
                     <span aria-hidden="true" className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[#D4A024]" />
@@ -166,7 +166,7 @@ const DemoVideoStage: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to={demoHref(DEMO_ROUTE)}
                 onClick={() => trackCtaClick('hero_video_open_demo')}
@@ -185,7 +185,7 @@ const DemoVideoStage: React.FC = () => {
               </Link>
             </div>
             {phase !== 'unavailable' && (
-              <button type="button" onClick={replay} className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-white/60 hover:text-white">
+              <button type="button" onClick={replay} className="mt-5 inline-flex items-center gap-1.5 text-[12px] font-semibold text-white/60 hover:text-white">
                 {reduced && phase !== 'ended' ? <Play size={13} /> : <RotateCcw size={13} />}
                 {t('heroDemo.endCard.replay')}
               </button>

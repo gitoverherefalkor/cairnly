@@ -4,8 +4,6 @@ import { CheckCircle2, Sparkles, ArrowRight, Lock, Shield, ClipboardCheck } from
 import { useNavigate } from 'react-router-dom';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
-import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
-import PriceCountdown from './PriceCountdown';
 import { getProPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 import { trackCtaClick } from '@/lib/analytics';
@@ -16,10 +14,9 @@ const PricingSection: React.FC = () => {
   const features = tArray<string>(t, 'pricing.features');
   const bonusItems = tArray<string>(t, 'pricing.bonusItems');
 
-  // Price and anchor come from the shared source, so the switch to the regular
-  // price on 15 Oct 2026 happens here, in the checkout and in the intake chat
-  // at the same moment. `anchor` goes null at the switch: no invented discount.
-  const { core, anchor, isIntro, currency } = getProPricing();
+  // One flat price from the shared source, so the panel, the checkout and the
+  // intake chat can never quote different numbers.
+  const { core, currency } = getProPricing();
   const price = formatCurrency(core, i18n.language, currency);
 
   return (
@@ -36,13 +33,9 @@ const PricingSection: React.FC = () => {
         >
           {/* Value list */}
           <div className="lg:col-span-7 p-10 md:p-14 text-[#122E3B]">
-            <div className="lp-eyebrow text-[#1F8282] mb-5">{t('pricing.eyebrow')}</div>
-            <h2
-              className="font-heading font-bold leading-[1.1] mb-10"
-              style={{ fontSize: 'clamp(24px, 2.6vw, 36px)', letterSpacing: '-0.012em' }}
-            >
-              {t('pricing.titleA')} <span className="lp-text-teal-grad">{t('pricing.titleHighlight')}</span>
-            </h2>
+            {/* The heading moved to the price panel on 2026-09-16 so the
+                tagline sits directly above the number it is arguing for. */}
+            <div className="lp-eyebrow text-[#1F8282] mb-7">{t('pricing.eyebrow')}</div>
             <ul className="space-y-3.5">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-4 text-[15px] font-bold text-[#374151]">
@@ -52,18 +45,9 @@ const PricingSection: React.FC = () => {
               ))}
             </ul>
 
-            {/* Live example of the rating pills shown on every suggested role in the report */}
-            <div className="mt-6 rounded-2xl p-5" style={{ background: '#122E3B' }}>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50 mb-3">
-                {t('pricing.pillPreviewLabel')}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <MatchPill pct={87} />
-                <MovePill level="Reframe" />
-                <AIImpactPill label="Minimal" />
-              </div>
-            </div>
-
+            {/* The rated-role pills moved to Methodology on 2026-09-16: a dark
+                box inside this cream column read as pasted in, and the pills
+                belong next to the description of what the engine produces. */}
             <ul className="space-y-3.5 mt-6">
               {bonusItems.map((item, i) => (
                 <li key={i} className="flex items-start gap-4 text-[15px] font-bold" style={{ color: '#D4A024' }}>
@@ -79,25 +63,20 @@ const PricingSection: React.FC = () => {
             className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center items-center text-center"
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
-            {/* Flex gap rather than a margin on the pill: the countdown renders
-                nothing once the deadline passes, and a gap collapses with it. */}
-            <div className="flex flex-col items-center gap-4 mb-8">
-              <div
-                className="px-5 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.22em]"
-                style={{ background: '#D4A024', color: '#1A1A1A' }}
-              >
-                {t(isIntro ? 'pricing.betaPill' : 'pricing.regularPill')}
-              </div>
+            <h2
+              className="font-heading font-bold leading-[1.15] mb-7 text-[#122E3B]"
+              style={{ fontSize: 'clamp(21px, 1.9vw, 27px)', letterSpacing: '-0.012em' }}
+            >
+              {t('pricing.titleA')} <span className="lp-text-teal-grad">{t('pricing.titleHighlight')}</span>
+            </h2>
 
-              <PriceCountdown tone="light" />
-            </div>
-
-            <div className="flex items-end gap-4 mb-3">
-              {anchor !== null && (
-                <span style={{ color: '#9CA3AF', textDecoration: 'line-through', fontSize: 22, fontWeight: 600 }}>
-                  {formatCurrency(anchor, i18n.language, currency)}
-                </span>
-              )}
+            {/* Just the price. The "limited offer" pill, the countdown and the
+                strike-through anchor were retired with the intro price on
+                2026-09-16 — three urgency devices on one panel read as an
+                infomercial to an audience weighing a real decision, and an
+                anchor with no higher price behind it is an invented discount.
+                The "no subscription" chip below carries the reassurance. */}
+            <div className="flex items-end mb-8">
               <span
                 className="font-heading text-[#122E3B]"
                 style={{ fontSize: 64, lineHeight: 1, fontWeight: 600, letterSpacing: '-0.02em' }}
@@ -105,9 +84,6 @@ const PricingSection: React.FC = () => {
                 {price}
               </span>
             </div>
-            <p className="text-[#6B7F8B] font-bold uppercase tracking-[0.22em] text-[10px] mb-10">
-              {t('pricing.oneOff')}
-            </p>
 
             <button
               onClick={() => { trackCtaClick('pricing'); navigate('/payment'); }}

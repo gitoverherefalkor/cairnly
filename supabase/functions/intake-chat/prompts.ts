@@ -12,12 +12,7 @@
 // dream job, and the near-term next step. Background facts (history, education,
 // years) stay with the post-payment resume upload.
 
-import {
-  isIntroPriceActive,
-  PRO_PRICE_ANCHOR,
-  PRO_PRICE_INTRO,
-  PRO_PRICE_REGULAR,
-} from '../_shared/pricing.ts';
+import { PRO_PRICE } from '../_shared/pricing.ts';
 
 export type Lang = 'en' | 'nl';
 // 'other' = the visitor typed their own reason instead of tapping a preset pill.
@@ -463,15 +458,12 @@ export function beatLabels(intent: IntentKey, lang: Lang): string[] {
 const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
 
 /**
- * The price line, resolved per request. The intake chat quotes the price to
- * visitors, so it has to follow the same switch as the checkout — otherwise the
- * bot keeps promising the intro price after it has expired. The strike-through
- * anchor is dropped at the switch, matching the landing page.
+ * The price line the intake chat is allowed to quote. One flat price: the
+ * introductory rate and its deadline were retired on 2026-09-16, so the bot
+ * must never promise a discount or an expiring offer.
  */
 function priceFact(): string {
-  return isIntroPriceActive()
-    ? `- Price: ${PRO_PRICE_INTRO} euros (introductory price, normally ${PRO_PRICE_ANCHOR} euros). One-off payment, no subscription. The introductory price ends on 15 October 2026.`
-    : `- Price: ${PRO_PRICE_REGULAR} euros. One-off payment, no subscription.`;
+  return `- Price: ${PRO_PRICE} euros. One-off payment, no subscription.`;
 }
 
 /** Facts the model may state. Everything not listed here is off-limits to claim. */

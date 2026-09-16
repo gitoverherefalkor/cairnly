@@ -82,9 +82,14 @@ const Hero: React.FC = () => {
 
           <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:pt-8">
             <Reveal as="div">
+              {/* Two paragraphs, not one block: the emphasis line is the turn
+                  from "here is the problem" to "here is what Cairnly does",
+                  and run together they read as one unbroken wall of text. */}
               <p className="text-base md:text-lg text-white/65 font-medium leading-relaxed">
-                {t('hero.body')}{' '}
-                <span className="text-white font-semibold">{t('hero.bodyEmphasis')}</span>
+                {t('hero.body')}
+              </p>
+              <p className="mt-5 text-base md:text-lg text-white font-semibold leading-relaxed">
+                {t('hero.bodyEmphasis')}
               </p>
               <div className="mt-7 flex flex-col items-start gap-3">
                 <CompareLink label={t('hero.compareLink')} />

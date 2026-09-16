@@ -14,7 +14,7 @@ The Cairnly Referral Programme lets existing paying Cairnly users invite others 
 
 You may participate in the Referral Programme if all of the following apply:
 
-- You hold a paid Cairnly account purchased for the standard price (currently EUR 59, or EUR 39 during applicable promotional periods).
+- You hold a paid Cairnly account purchased for the standard price (currently EUR 59, or any reduced price offered during an applicable promotional period).
 - You are at least 18 years of age.
 - Your original purchase was made less than six (6) months ago.
 - Your account is in good standing and has not been suspended or terminated.

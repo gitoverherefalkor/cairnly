@@ -4,16 +4,10 @@ import { describe, expect, it } from "vitest";
 import {
   DISPLAY_CURRENCY,
   ENCORE_PRICE,
-  PRICE_SWITCH_AT,
-  PRO_PRICE_ANCHOR,
-  PRO_PRICE_INTRO,
-  PRO_PRICE_REGULAR,
+  PRO_PRICE,
   STARTER_PRICE,
   STARTER_PRICE_ANCHOR,
   getProPricing,
-  introPriceTimeLeft,
-  isIntroPriceActive,
-  proPriceAt,
 } from "./pricing";
 
 /**
@@ -36,9 +30,7 @@ const edgeNumber = (name: string): number => {
 
 describe("pricing stays in sync with the edge function", () => {
   it.each([
-    ["PRO_PRICE_INTRO", PRO_PRICE_INTRO],
-    ["PRO_PRICE_REGULAR", PRO_PRICE_REGULAR],
-    ["PRO_PRICE_ANCHOR", PRO_PRICE_ANCHOR],
+    ["PRO_PRICE", PRO_PRICE],
     ["STARTER_PRICE", STARTER_PRICE],
     ["STARTER_PRICE_ANCHOR", STARTER_PRICE_ANCHOR],
     ["ENCORE_PRICE", ENCORE_PRICE],
@@ -57,63 +49,45 @@ describe("pricing stays in sync with the edge function", () => {
     expect(checkout).toContain('currency: "eur"');
     expect(DISPLAY_CURRENCY).toBe("EUR");
   });
+});
 
-  it("switches at the same moment", () => {
-    const match = EDGE_PRICING.match(/PRICE_SWITCH_AT = new Date\("([^"]+)"\)/);
-    expect(match).not.toBeNull();
-    expect(new Date(match![1]).getTime()).toBe(PRICE_SWITCH_AT.getTime());
+describe("the pro assessment is a single flat price", () => {
+  it("charges 59 euros", () => {
+    expect(PRO_PRICE).toBe(59);
+    expect(getProPricing().core).toBe(59);
+  });
+
+  /**
+   * The €39 introductory price was retired on 2026-09-16. Nothing may quote a
+   * struck-through "was" price for the pro assessment: with no higher price
+   * ever charged, an anchor would be an invented discount.
+   */
+  it("exposes no strike-through anchor", () => {
+    expect(getProPricing()).not.toHaveProperty("anchor");
+  });
+
+  it("leaves no intro-price machinery behind in either copy", () => {
+    const frontend = readFileSync(resolve(process.cwd(), "src/lib/pricing.ts"), "utf8");
+    for (const gone of [
+      "PRO_PRICE_INTRO",
+      "PRO_PRICE_ANCHOR",
+      "PRICE_SWITCH_AT",
+      "isIntroPriceActive",
+      "introPriceTimeLeft",
+    ]) {
+      expect(frontend).not.toContain(`export const ${gone}`);
+      expect(EDGE_PRICING).not.toContain(`export const ${gone}`);
+    }
   });
 });
 
-describe("the pro price flips on the switch date", () => {
-  const dayBefore = new Date(PRICE_SWITCH_AT.getTime() - 1000);
-  const theMoment = new Date(PRICE_SWITCH_AT.getTime());
-  const dayAfter = new Date(PRICE_SWITCH_AT.getTime() + 24 * 60 * 60 * 1000);
-
-  it("charges the intro price right up to the deadline", () => {
-    expect(proPriceAt(dayBefore)).toBe(39);
-    expect(isIntroPriceActive(dayBefore)).toBe(true);
+describe("the other flavors are untouched by the pro price", () => {
+  it("keeps starter at its own price and anchor", () => {
+    expect(STARTER_PRICE).toBe(39);
+    expect(STARTER_PRICE_ANCHOR).toBe(79);
   });
 
-  it("charges the regular price from the deadline onwards", () => {
-    expect(proPriceAt(theMoment)).toBe(59);
-    expect(proPriceAt(dayAfter)).toBe(59);
-    expect(isIntroPriceActive(theMoment)).toBe(false);
-  });
-
-  it("drops the strike-through anchor once the intro price ends", () => {
-    expect(getProPricing(dayBefore).anchor).toBe(59);
-    expect(getProPricing(dayAfter).anchor).toBeNull();
-  });
-
-  it("keeps the deadline at 23:59 Amsterdam time", () => {
-    // 15 Oct 2026 23:59 CEST is 15 Oct 21:59 UTC. If summer time were applied
-    // wrongly this would land an hour off and the price would flip early.
-    expect(PRICE_SWITCH_AT.toISOString()).toBe("2026-10-15T21:59:00.000Z");
-  });
-
-  it("keeps the intro price for the whole of 15 October", () => {
-    const lateOnTheFifteenth = new Date("2026-10-15T23:00:00+02:00");
-    expect(proPriceAt(lateOnTheFifteenth)).toBe(39);
-  });
-});
-
-describe("the countdown runs until the deadline", () => {
-  const daysBefore = (n: number) =>
-    new Date(PRICE_SWITCH_AT.getTime() - n * 24 * 60 * 60 * 1000);
-
-  it("runs from months out, not just the final days", () => {
-    expect(introPriceTimeLeft(daysBefore(65))).not.toBeNull();
-    expect(introPriceTimeLeft(daysBefore(65))?.days).toBe(65);
-  });
-
-  it("disappears once the deadline passes", () => {
-    expect(introPriceTimeLeft(new Date(PRICE_SWITCH_AT.getTime()))).toBeNull();
-    expect(introPriceTimeLeft(daysBefore(-1))).toBeNull();
-  });
-
-  it("reports whole days and hours left", () => {
-    const now = new Date(PRICE_SWITCH_AT.getTime() - (6 * 24 + 14) * 60 * 60 * 1000);
-    expect(introPriceTimeLeft(now)).toEqual({ days: 6, hours: 14 });
+  it("keeps encore at its own price", () => {
+    expect(ENCORE_PRICE).toBe(79);
   });
 });

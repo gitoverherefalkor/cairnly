@@ -1,9 +1,9 @@
 {
   "hero": {
     "eyebrow": "01 · De vraag",
-    "titleA": "Veranderen is eng.",
-    "titleHighlight": "Niet veranderen",
-    "titleB": "is alleen maar stiller.",
+    "titleA": "Duidelijkheid over je loopbaan.",
+    "titleHighlight": "Vind werk",
+    "titleB": "dat bij je past.",
     "body": "Elke carrièrestap weegt twee soorten ongemak tegen elkaar af: de spanning van wat er mis kan gaan, en de trage teleurstelling van blijven waar je niet meer past. De meesten kiezen de teleurstelling, één jaar per keer.",
     "bodyEmphasis": "Cairnly is één assessment om die keuze echt te bekijken: hoe zou verandering er voor jou uitzien, en zou het dat waard zijn?",
     "ctaPrimary": "Aan de slag",
@@ -19,9 +19,9 @@
   },
   "pillars": {
     "eyebrow": "Waarom Cairnly anders is",
-    "titleA": "Vier dingen die we",
-    "titleHighlight": "nergens anders",
-    "titleB": "konden vinden en waar we klaar mee waren.",
+    "titleA": "Vier dingen die elke andere loopbaantest",
+    "titleHighlight": "weglaat.",
+    "titleB": "",
     "cards": [
       {
         "title": "Niet nóg een persoonlijkheidstest",
@@ -33,7 +33,7 @@
       },
       {
         "title": "Toekomstbewust",
-        "body": "Elke voorgestelde rol bevat een eerlijke analyse van hoe AI deze gaat herdefiniëren. We vertellen je wat waarschijnlijk gaat groeien en wat gaat krimpen."
+        "body": "Elke voorgestelde rol krijgt een geschatte AI-impact, op een schaal van minimaal tot kritiek. Niemand kan dit met zekerheid voorspellen, dus waar de signalen gemengd zijn gaan we ervan uit dat AI meer verandert in plaats van minder."
       },
       {
         "title": "Eerlijk, niet vleiend",
@@ -84,18 +84,18 @@
       {
         "eyebrow": "Land de baan",
         "body": "Kies de rollen die je aanspreken. Cairnly vindt er actuele vacatures bij. Wanneer je solliciteert, worden je cv en motivatiebrief op maat gemaakt met alles wat Cairnly al over je weet. Geen prompting nodig.",
-        "extra": "De job-landing features zijn momenteel in bèta en gratis te ontgrendelen.",
+        "extra": "De job-landing features zijn gratis te ontgrendelen.",
         "screenshotMeta": "4 : 3 · Job match",
         "screenshotLabel": "Live vacatures, op maat gemaakte materialen",
-        "screenshotDesc": "Komt eraan zodra de bèta job-landing flow live gaat."
+        "screenshotDesc": "Actuele vacatures, passend bij de rollen die je koos."
       }
     ],
     "demoLabel": "Bekijk in de demo"
   },
   "methodology": {
     "eyebrow": "Chapter 03 · Methodologie",
-    "titleA": "Geen formule. Geen freestyle AI.",
-    "titleHighlight": "Iets daar tussenin.",
+    "titleA": "Gebouwd op wat psychometrie goed doet,",
+    "titleHighlight": "en op wat het niet bereikt.",
     "intro": "De meeste persoonlijkheidstesten stoppen je in een hokje en vertellen je vervolgens wat mensen in dat hokje meestal doen. Generieke AI-tools negeren de wetenschap volledig en improviseren maar wat. Cairnly doet geen van beide.",
     "oldCard": {
       "pill": "Eerst het hokje, dan het label",
@@ -111,8 +111,8 @@
       "p2": "Daarbovenop leggen we de laag die formules niet kunnen vangen: je echte carrièregeschiedenis, wat je energie heeft gegeven, wat je heeft leeggezogen en waar je naartoe wilt. Frontier AI, aangestuurd door actieve carrièrecoaches, leest dit allemaal in samenhang en bouwt een concreet plan voor déze persoon. Niet voor een type."
     },
     "engineEyebrow": "Achter de schermen",
-    "engineTitle": "Zeven AI-workflows. Eén coach-getunede pipeline.",
-    "engineSubtitle": "Elke stap heeft een doel. Elke prompt is co-geschreven met actieve carrièrecoaches, zodat het resultaat leest als advies van een pro, niet van een chatbot.",
+    "engineTitle": "Meerdere AI-stappen, georkestreerd en bijgesteld.",
+    "engineSubtitle": "Elke stap heeft een doel, en elke stap is bijgesteld met actieve carrièrecoaches, zodat het resultaat leest als advies van een pro.",
     "trust": {
       "gdpr": "GDPR compliant",
       "gdprDetail": "Data in de EU",
@@ -127,7 +127,7 @@
     "eyebrow": "De chat die bij je dashboard hoort",
     "titleA": "Klopt er iets niet? Zeg het gewoon.",
     "titleHighlight": "Het plan past zich aan.",
-    "intro": "Elk Cairnly-assessment komt met een interactieve coaching chat, maar niet het soort dat je maandelijks factureert om je vriend te zijn. Het is een refinement loop. Een manier om de AI uit te dagen wanneer iets niet helemaal klopt, zodat het eindresultaat dat wel doet.",
+    "intro": "Elk Cairnly-assessment komt met een coaching chat met één taak: het antwoord scherper maken. Duw terug. Zeg “die zou ik juist verschrikkelijk vinden” of “vertel me meer over runner-up #2”. Je dashboard verwerkt je feedback, en daarna neem je het mee en ga je aan de slag.",
     "staticPdf": {
       "title": "Een statische PDF",
       "body": "Leest je één keer, print een antwoord en loopt weg. Als een aanbeveling verkeerd voelt, is je enige optie om deze te negeren."
@@ -155,7 +155,7 @@
     "cols": {
       "quizTop": "Persoonlijkheids-",
       "quizBottom": "tests",
-      "quizSub": "16Personalities, MBTI",
+      "quizSub": "Insights, DISC, MBTI",
       "aiTop": "AI-carrière-",
       "aiBottom": "abonnementen",
       "aiSub": "Maandelijkse platforms",
@@ -208,7 +208,7 @@
       },
       {
         "name": "Wat het kost",
-        "quiz": "Gratis tot €50. Eenmalig.",
+        "quiz": "Ongeveer €150. Eenmalig.",
         "ai": "€20 tot €30 per maand. Ongeveer €240 tot €360 per jaar.",
         "coach": "€80 tot €280 per maand. Of €80 tot €150 per sessie.",
         "cairnlyEmphasis": "{{price}}.",
@@ -229,13 +229,13 @@
       "othersHint": "Bekijk de vergelijking",
       "others": [
         {
-          "title": "Persoonlijkheidstests (MBTI, 16Personalities)",
+          "title": "Persoonlijkheidstests (Insights, DISC, MBTI)",
           "items": [
             "Een persoonlijkheidstype, brede categorie.",
             "Een korte, formule-gestuurde quiz.",
             "\"Je houdt ervan om mensen te helpen.\" Op trait-niveau.",
             "Een PDF. Zoek het zelf maar uit.",
-            "10 minuten. Gratis tot €50."
+            "10 minuten. Ongeveer €150."
           ]
         },
         {
@@ -260,7 +260,7 @@
         }
       ]
     },
-    "closer": "Betaal één keer voor een duidelijk antwoord, niet elke maand om ernaar te blijven zoeken."
+    "closer": "Één assessment, en je loopt weg met concrete rollen waar je maandag al naar kunt kijken."
   },
   "costMath": {
     "eyebrow": "De rekensom",
@@ -283,20 +283,8 @@
       "Droombaan-haalbaarheidsassessment",
       "Interactief dashboard met je resultaten"
     ],
-    "betaPill": "Tijdelijk aanbod · Bèta-toegang",
-    "regularPill": "Bèta-toegang",
-    "countdown": {
-      "prefix": "Introprijs loopt af over",
-      "prefixWithPrice": "Introprijs van {{price}} loopt af over",
-      "days_one": "{{count}} dag",
-      "days_other": "{{count}} dagen",
-      "hours_one": "{{count}} uur",
-      "hours_other": "{{count}} uur",
-      "lastHour": "minder dan een uur",
-      "then": "daarna {{price}}"
-    },
     "oneOff": "Een eenmalige betaling",
-    "cta": "Krijg Bèta-toegang",
+    "cta": "Aan de slag",
     "trust": {
       "stripe": "Stripe",
       "gdpr": "GDPR",
@@ -324,7 +312,7 @@
     "notItems": [
       "Je niet op zoek bent naar verandering.",
       "Je richt je op promotie binnen je huidige vakgebied.",
-      "Je geen 'kantoorbaan' hebt.",
+      "Je werk praktisch is of in roosterdiensten, zoals zorg, techniek, horeca of logistiek.",
       "Je weet al precies wat je wilt, en niets zal je van gedachten doen veranderen."
     ]
   },
@@ -336,19 +324,20 @@
     "footer": "Een wegwijzer, geen roadmap."
   },
   "finalCTA": {
-    "titleA": "De richting die je nu zou kiezen, met het leven dat je",
+    "titleA": "De richting die je nu zou kiezen,",
     "titleHighlight": "geleefd hebt in gedachten.",
-    "cta": "Krijg Bèta-toegang",
-    "footer": "Gebouwd met carrièrecoaches. Aangedreven door frontier AI. Eerlijk over allebei."
+    "cta": "Aan de slag",
+    "footer": "Gebouwd met carrièrecoaches. Eerlijk over wat AI wel en niet kan zeggen.",
+    "titleB": "met het leven dat je"
   },
   "whyBuilt": {
     "eyebrow": "Waarom we dit hebben gebouwd",
-    "titleA": "De meeste carrières",
-    "titleB": "worden niet echt",
-    "titleHighlight": "bewust gekozen",
+    "titleA": "Je bent",
+    "titleB": "niet",
+    "titleHighlight": "alleen",
     "titleC": ".",
-    "p1": "Ze zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
-    "p2": "We hebben Cairnly gebouwd omdat de tools om die vraag op een goede manier te stellen simpelweg niet bestonden. Persoonlijkheidstesten geven je een label. Coaching duurt maanden en kost duizenden euro's. Gratis quizzen geven je waarvoor je betaalt. Daarom hebben we één enkel assessment gebouwd, transparant over de methodes, dat kijkt naar wie je nu écht bent en je specifieke rollen geeft waar je maandag al naar kunt gaan kijken. Geen abonnement, geen waslijst aan upsells. Eén duidelijk antwoord, en daarna gaan we weer uit de weg.",
+    "p1": "De meeste loopbanen zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
+    "p2": "We hebben Cairnly gebouwd omdat het gereedschap om die vraag serieus te stellen niet bestond. Persoonlijkheidstests geven je een label. Coaching kost maanden en duizenden euro's. Gratis quizzen geven je waar je voor betaald hebt. Dus bouwden we één assessment, eerlijk over de methode, dat uitgaat van wie je nu werkelijk bent en je concrete rollen geeft waar je maandag al naar kunt gaan kijken. Geen waslijst aan upsells. Één duidelijk antwoord, en daarna gaan we weer uit de weg.",
     "signature": "Het Cairnly team, Utrecht",
     "report": {
       "eyebrow": "Het onderzoek",
@@ -459,7 +448,7 @@
         "ctaPrimary": "Begrijp de impact"
       },
       "whyBuilt": {
-        "p1": "Ze zijn gebouwd op aannames die niet meer vanzelfsprekend zijn. Je koos een vakgebied, werd er goed in, en rekende erop dat het je decennia zou dragen. Toen begon de grond te schuiven. Sommige rollen groeien, sommige krimpen, de meeste veranderen van vorm, en het eerlijke antwoord voor jouw rol ligt begraven onder evenveel hype als doemdenken. Dat uitzoeken verdient meer dan een krantenkop."
+        "p1": "De meeste loopbanen zijn gebouwd op aannames die niet meer vanzelfsprekend zijn. Je koos een vakgebied, werd er goed in, en rekende erop dat het je decennia zou dragen. Toen begon de grond te schuiven. Sommige rollen groeien, sommige krimpen, de meeste veranderen van vorm, en het eerlijke antwoord voor jouw rol ligt begraven onder evenveel hype als doemdenken. Dat uitzoeken verdient meer dan een krantenkop."
       }
     },
     "lifeChanged": {
@@ -472,7 +461,7 @@
         "ctaPrimary": "Vind wat nu past"
       },
       "whyBuilt": {
-        "p1": "Ze worden één keer gekozen, en daarna wordt aangenomen dat ze voor altijd blijven passen. Maar een leven staat niet stil. Er komen kinderen, gezondheid grijpt in, prioriteiten verschuiven, en wat een baan je op je veertigste moet geven is zelden wat je er op je 25e van vroeg. De meeste mensen dragen een carrière die is gevormd rond een leven dat ze niet meer leiden, en de tools om die vraag opnieuw eerlijk te stellen bestonden niet voor ze."
+        "p1": "De meeste loopbanen worden één keer gekozen, en daarna wordt aangenomen dat ze voor altijd blijven passen. Maar een leven staat niet stil. Er komen kinderen, gezondheid grijpt in, prioriteiten verschuiven, en wat een baan je op je veertigste moet geven is zelden wat je er op je 25e van vroeg. De meeste mensen dragen een carrière die is gevormd rond een leven dat ze niet meer leiden, en de tools om die vraag opnieuw eerlijk te stellen bestonden niet voor ze."
       }
     },
     "understandMyself": {
@@ -485,7 +474,7 @@
         "ctaPrimary": "Begin bij jezelf"
       },
       "whyBuilt": {
-        "p1": "Ze worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
+        "p1": "De meeste loopbanen worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
       }
     },
     "chose16": {
@@ -554,7 +543,7 @@
       ],
       "footer": "Klaar in ~5 minuten",
       "footerSub": "verfijnd door je coachgesprek",
-      "priceLine": "{{price}} eenmalig · geen abonnement"
+      "priceLine": "{{price}}, eenmalig"
     },
     "pickHint": "Kies er maximaal {{max}}",
     "pickCounter": "{{count}} van {{max}} gekozen",
@@ -567,7 +556,7 @@
       "ai": "AI-risico"
     },
     "compare": {
-      "lead": "{{price}}, eenmalig.",
+      "lead": "{{price}}.",
       "body": "Een loopbaancoach rekent €80 tot €150 per sessie. Een gratis test geeft je een vierletterig label en laat de rest aan jou.",
       "link": "Bekijk de volledige vergelijking"
     }
@@ -622,7 +611,7 @@
       }
     },
     "endCard": {
-      "title": "Dat was een korte blik op wat je kunt verwachten van Cairnly's complete platform voor loopbaanverandering.",
+      "title": "Dat is een blik op wat Cairnly je geeft.",
       "toolkitLabel": "Het dashboard met je resultaten biedt ook:",
       "toolkit": [
         "Download je profiel als pdf",

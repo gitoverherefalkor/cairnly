@@ -1,6 +1,6 @@
 # Algemene Voorwaarden
 
-Laatst bijgewerkt: 30 mei 2026
+Laatst bijgewerkt: 16 september 2026
 
 ## 1. Aanvaarding van de voorwaarden
 
@@ -18,7 +18,7 @@ Cairnly biedt AI-ondersteunde carrière-assessmentdiensten die zijn ontworpen om
 - Veilige gegevensopslag en accountbeheer
 - LinkedIn-integratie voor uitgebreide profielanalyse (optioneel)
 
-Ons platform bevindt zich op dit moment in de Beta-fase en wij verbeteren onze diensten doorlopend op basis van gebruikersfeedback en technologische ontwikkelingen.
+Wij verbeteren onze diensten doorlopend op basis van gebruikersfeedback en technologische ontwikkelingen.
 
 ## 3. Gebruikersaccounts en registratie
 
@@ -39,7 +39,7 @@ Voor toegang tot onze assessmentdiensten is een geldige toegangscode vereist. De
 
 - Directe aankoop via ons platform
 - Externe aanbieders of partners
-- Promotionele acties of beta-toegangsprogramma’s
+- Promotionele acties of programma’s voor vroege toegang
 
 ### 4.2 Betalingsvoorwaarden
 
@@ -99,9 +99,9 @@ Cairnly biedt loopbaanbegeleiding en inzichten op basis van assessment-antwoorde
 - Geen garantie voor specifieke loopbaanuitkomsten
 - Gebaseerd op AI-analyse die beperkingen kan hebben
 
-### 8.2 Mededeling Beta-dienst
+### 8.2 Mededeling over de dienst
 
-Ons platform bevindt zich op dit moment in de Beta-fase. Dit betekent:
+Ons platform is doorlopend in ontwikkeling. Dit betekent:
 
 - Diensten kunnen worden aangepast of beëindigd
 - Functies zijn mogelijk niet volledig ontwikkeld

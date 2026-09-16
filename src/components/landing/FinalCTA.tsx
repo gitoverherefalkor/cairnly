@@ -15,12 +15,19 @@ const FinalCTA: React.FC = () => {
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(circle at 50% 50%, rgba(212,160,36,0.10), transparent 60%)' }}
       />
-      <Reveal className="lp-container relative z-10 text-center max-w-3xl mx-auto">
+      {/* max-w-4xl: at 3xl the first clause wrapped before reaching the
+          comma, which put the explicit break in the wrong place. */}
+      <Reveal className="lp-container relative z-10 text-center max-w-4xl mx-auto">
         <h2
           className="font-heading font-bold leading-[1.15]"
           style={{ fontSize: 'clamp(28px, 3.4vw, 44px)', letterSpacing: '-0.015em' }}
         >
-          {t('finalCTA.titleA')}{' '}
+          {/* Explicit break after the comma: the two clauses are the two
+              halves of the promise, and letting them wrap wherever the box
+              happens to end split them mid-phrase. */}
+          {t('finalCTA.titleA')}
+          <br />
+          {t('finalCTA.titleB')}{' '}
           <span className="lp-text-gold-grad">{t('finalCTA.titleHighlight')}</span>
         </h2>
         <div className="mt-12 inline-flex flex-col items-center gap-5">

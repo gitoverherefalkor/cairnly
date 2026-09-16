@@ -11,7 +11,6 @@ import {
   FONT_DISPLAY,
   FONT_BODY,
 } from '@/components/dashboard/v2/dashboardV2Shared';
-import PriceCountdown from '@/components/landing/PriceCountdown';
 import { getProPricing } from '@/lib/pricing';
 import { trackCtaClick } from '@/lib/analytics';
 import { formatCurrency } from '@/lib/format';
@@ -32,7 +31,7 @@ const ReportDeliverablesCard: React.FC = () => {
   const bonusItems = tArray<string>(t, 'pricing.bonusItems');
 
   // Same shared source as the pricing section, so both cards flip together.
-  const { core, anchor, isIntro, currency } = getProPricing();
+  const { core, currency } = getProPricing();
   const price = formatCurrency(core, i18n.language, currency);
 
   return (
@@ -146,37 +145,10 @@ const ReportDeliverablesCard: React.FC = () => {
             className="flex flex-col items-center justify-center gap-1 border-t pt-5 sm:w-[220px] sm:shrink-0 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0"
             style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
-            {/* Beta chip on two centered rows — the one-line version overflows
-                the narrow price panel */}
-            <span
-              className="rounded-2xl px-4 py-1.5 text-center"
-              style={{
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700,
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                background: '#D4A024',
-                color: '#1A1A1A',
-                lineHeight: 1.7,
-              }}
-            >
-              {t(isIntro ? 'pricing.betaPill' : 'pricing.regularPill')
-                .split('·')
-                .map((line) => (
-                  <span key={line} className="block">{line.trim()}</span>
-                ))}
-            </span>
-
-            {/* Renders nothing once the deadline passes. */}
-            <PriceCountdown tone="dark" className="mt-3" />
-
-            <div className="mt-3 flex items-end gap-3">
-              {anchor !== null && (
-                <span style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontSize: 18, fontWeight: 600 }}>
-                  {formatCurrency(anchor, i18n.language, currency)}
-                </span>
-              )}
+            {/* One flat price: no chip, no countdown, no strike-through. The
+                intro price and its deadline were retired on 2026-09-16, and an
+                anchor with no higher price behind it is an invented discount. */}
+            <div className="flex items-end">
               <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 44, lineHeight: 1, letterSpacing: '-0.02em', color: '#fff' }}>
                 {price}
               </span>
