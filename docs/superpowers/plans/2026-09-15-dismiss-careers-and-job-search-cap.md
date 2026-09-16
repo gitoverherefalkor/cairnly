@@ -1391,7 +1391,7 @@ And inside the `activeTab === 'platform'` block, after the existing `n8n errors`
 
 Add `dismissals: false` to the `open` state object's initial value so the toggle has a key.
 
-**Note on access:** /ops is admin-gated, but `dismissed_careers` RLS scopes `SELECT` to `auth.uid() = user_id`, so this query returns only Sjoerd's own rows. Check how the other /ops tabs read cross-user data (`ops-feed` uses a service-role edge function). If they go through an edge function, this card must too: add the aggregate to `ops-feed` rather than querying from the browser. Verify before shipping, and prefer the edge-function route.
+**Access — SETTLED 2026-09-16, do NOT query from the browser.** `dismissed_careers` RLS scopes `SELECT` to `auth.uid() = user_id`, so a browser query returns only Sjoerd's own rows and the card would always look empty. Verified how the rest of /ops does it: `src/pages/Ops.tsx` makes **no** direct `from('…')` calls at all. Every tab reads through an admin edge function — `ops-feed` calls `getAuthenticatedUser`, checks `isAdminEmail` from `_shared/admins.ts`, then reads with `SUPABASE_SERVICE_ROLE_KEY`. So the aggregate goes into `ops-feed`'s response object (alongside its existing `traffic`, `funnel`, `n8n_usage`, `ai_spend` keys) and `DismissalsCard` takes it as a PROP rather than fetching. That makes `ops-feed` a third existing edge function needing a redeploy — batch that approval with `report-print-data` (Task 12) and `search-jobs` (Task 18) rather than asking three times.
 
 - [ ] **Step 3: Verify**
 
