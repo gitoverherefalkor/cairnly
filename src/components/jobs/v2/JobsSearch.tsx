@@ -178,8 +178,7 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               maxWidth: 620,
             }}
           >
-            Pick up to 3 careers from your report, set where you'd work, then run the search. Results are
-            ranked by an AI score against your profile.
+            {t('search.intro')}
           </p>
         </div>
         {savedCount > 0 && (
