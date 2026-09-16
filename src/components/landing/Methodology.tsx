@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Shield, Lock, Trash2, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
-import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
+import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
 import { DEMO_ROUTE } from '@/demo/constants';
 import { useDemoHref } from './demo/HeroPersonaContext';
@@ -144,10 +144,12 @@ const Methodology: React.FC = () => {
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
               {t('pricing.pillPreviewLabel')}
             </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              <MatchPill pct={87} />
-              <MovePill level="Reframe" />
-              <AIImpactPill label="Minimal" />
+            {/* The real per-career pill row (score gauge, AI impact, move
+                effort) — the exact component every report renders, not a
+                landing-only restyle, so a visitor sees precisely what they'd
+                get. */}
+            <div className="flex justify-center">
+              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
             </div>
           </div>
         </Reveal>
