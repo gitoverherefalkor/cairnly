@@ -689,6 +689,8 @@ const Jobs = () => {
         referralCode={referralStatus.referralCode}
         used={credits.used}
         limit={credits.limit}
+        savedCount={savedCount}
+        onOpenSaved={() => setView('saved')}
         onBack={() => navigate('/dashboard')}
         onShare={handleInvite}
         onProfile={() => navigate('/profile')}

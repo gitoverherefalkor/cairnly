@@ -148,6 +148,8 @@
     "title": "You've used your 4 free searches",
     "body": "Invite one person who buys an assessment and job search becomes unlimited, for good.",
     "yourCode": "Your code",
+    "seeSaved_one": "See your 1 saved job",
+    "seeSaved_other": "See your {{count}} saved jobs",
     "whenUnlocked": "WITH ONE INVITE · YOU GET",
     "perk1Title": "Unlimited job searches",
     "perk2Title": "Tailor your resume",

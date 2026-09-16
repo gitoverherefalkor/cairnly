@@ -148,6 +148,8 @@
     "title": "Je 4 gratis zoekopdrachten zijn op",
     "body": "Nodig één persoon uit die een assessment koopt en zoeken naar vacatures wordt onbeperkt, voorgoed.",
     "yourCode": "Jouw code",
+    "seeSaved_one": "Bekijk je 1 bewaarde vacature",
+    "seeSaved_other": "Bekijk je {{count}} bewaarde vacatures",
     "whenUnlocked": "MET ÉÉN UITNODIGING · KRIJG JE",
     "perk1Title": "Onbeperkt vacatures zoeken",
     "perk2Title": "Je cv afstemmen",

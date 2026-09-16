@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowRight, FilePlus, FileText, Search } from 'lucide-react';
+import { ArrowRight, FilePlus, FileText, Heart, Search } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   PALETTE,
@@ -23,6 +23,11 @@ interface JobsLockedProps {
   // eyebrow so the user sees the actual number, not just "you're out".
   used: number;
   limit: number;
+  // Saved jobs live in the database, unlike search results (sessionStorage).
+  // When there are any, this screen offers a route back to them so running
+  // out of searches isn't a dead end.
+  savedCount: number;
+  onOpenSaved: () => void;
   onBack: () => void;
   onShare: () => void;
   onProfile: () => void;
@@ -34,6 +39,8 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
   referralCode,
   used,
   limit,
+  savedCount,
+  onOpenSaved,
   onBack,
   onShare,
   onProfile,
@@ -107,7 +114,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           alignItems: 'center',
           gap: 12,
           maxWidth: 540,
-          margin: '0 auto 56px',
+          margin: savedCount > 0 ? '0 auto 18px' : '0 auto 56px',
         }}
       >
         <div
@@ -169,6 +176,35 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           {t('locked.cta')} <ArrowRight size={15} />
         </button>
       </div>
+
+      {/* Secondary way out. Search results only survive in sessionStorage, so
+          closing the tab loses them; the saved kanban is DB-backed and always
+          there. Only shown when there's actually something saved. */}
+      {savedCount > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 56 }}>
+          <button
+            type="button"
+            onClick={onOpenSaved}
+            style={{
+              background: 'transparent',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.22)',
+              padding: '12px 20px',
+              borderRadius: 9999,
+              fontFamily: FONT_BODY,
+              fontWeight: 700,
+              fontSize: 13.5,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              cursor: 'pointer',
+            }}
+          >
+            <Heart size={14} fill="#fff" />
+            {t('locked.seeSaved', { count: savedCount })}
+          </button>
+        </div>
+      )}
 
       <div style={{ marginBottom: 16 }}>
         <span
