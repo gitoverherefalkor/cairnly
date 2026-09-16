@@ -3,6 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface ReferralFeature {
+  // NOTE on `jobs`: this feature is no longer a wall. Job search is open to
+  // everyone with a 4-search free tier per report (see useJobSearchCredits +
+  // supabase/functions/_shared/searchCredits.ts), so for `jobs` specifically
+  // `unlocked` means UNCAPPED, not "can use the tool at all". `resume` and
+  // `cover-letter` are still true unlock gates.
   key: 'jobs' | 'resume' | 'cover-letter';
   title: string;
   description: string;
@@ -22,8 +27,9 @@ export interface ResolvedFeature extends ReferralFeature {
 export const REFERRAL_FEATURES: ReferralFeature[] = [
   {
     key: 'jobs',
-    title: 'Find Job Openings',
-    description: 'Search live job openings matched to your top career recommendations.',
+    // `unlocked` here = uncapped, not gated. Everyone can already search.
+    title: 'Unlimited Job Searches',
+    description: 'Everyone gets 4 free searches. One referral removes the cap for good.',
     requiredReferrals: 1,
     builtYet: true,
     // mode=search ensures clicking the toolkit CTA always lands on the filter
@@ -82,7 +88,10 @@ export interface ResolvedUnlockStep {
 }
 
 export const UNLOCK_LADDER: UnlockStep[] = [
-  { kind: 'tool', featureKey: 'jobs', requiredReferrals: 1, title: 'Find Job Openings', description: 'Search live job openings matched to your top career recommendations.', builtYet: true, route: '/jobs?mode=search' },
+  // `jobs` is the odd one out: the tool is already open to everyone with 4
+  // free searches per report, so this step removes the cap rather than
+  // unlocking access. See the note on ReferralFeature['key'] above.
+  { kind: 'tool', featureKey: 'jobs', requiredReferrals: 1, title: 'Unlimited Job Searches', description: 'Everyone gets 4 free searches. One referral removes the cap for good.', builtYet: true, route: '/jobs?mode=search' },
   { kind: 'tool', featureKey: 'resume', requiredReferrals: 2, title: 'Tailor Your Resume', description: 'Rewrite your uploaded resume to fit the specific jobs you want to apply for.', builtYet: true, route: '/custom-resume' },
   { kind: 'tool', featureKey: 'cover-letter', requiredReferrals: 3, title: 'Tailor Cover Letters', description: 'Generate a tailored cover letter for each role, written to the specific posting.', builtYet: true, route: '/jobs?mode=saved' },
   { kind: 'refund', requiredReferrals: 4, refundPct: 25, title: '25% refund', description: 'Get a quarter of what you paid back to your card.' },
