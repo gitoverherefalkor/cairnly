@@ -41,6 +41,12 @@ export function indexBySectionId(rows: DismissedCareer[]): Map<string, Dismissed
   return map;
 }
 
+// Stable reference for the empty case. A `= []` destructuring default would
+// allocate a new array on every render while react-query's data is undefined
+// (loading, or disabled), which would make the useMemo below recompute every
+// render and defeat every consumer that depends on bySectionId.
+const EMPTY: DismissedCareer[] = [];
+
 interface DismissInput {
   sectionId: string;
   sectionType: string;
@@ -54,7 +60,7 @@ export function useDismissedCareers(reportId?: string) {
   const queryKey = ['dismissed-careers', reportId];
 
   const {
-    data: dismissed = [],
+    data: dismissed = EMPTY,
     isLoading,
     error,
   } = useQuery({
