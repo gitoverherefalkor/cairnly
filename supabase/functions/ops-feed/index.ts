@@ -428,7 +428,7 @@ async function fetchDismissals(
     const reasonCounts = new Map<string, number>();
 
     for (const row of rows) {
-      const careerKey = `${row.section_type} ${row.career_title}`;
+      const careerKey = `${row.section_type}\u0000${row.career_title}`;
       const existing = careerCounts.get(careerKey);
       if (existing) {
         existing.n++;
