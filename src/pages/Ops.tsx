@@ -13,6 +13,7 @@ import {
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
+import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
 import { isWarm, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
@@ -106,6 +107,7 @@ interface OpsFeedResponse {
   funnel: FunnelStats | null;
   n8n_usage: N8nUsage | null;
   ai_spend: ProviderSpend[];
+  dismissals: DismissalsAggregate;
   fetched_at: string;
   new_analyzed: number;
 }
@@ -255,6 +257,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {
   support: false,
   feedback: false,
   misses: false,
+  dismissals: false,
   usage: false,
   marketing: false,
 };
@@ -2004,6 +2007,21 @@ export default function Ops() {
                       </a>
                     </div>
                     <Feed items={n8nErrors} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="dismissals"
+                    title="Careers set aside"
+                    subtitle="What users rejected, and why"
+                    pills={
+                      feed.dismissals.total > 0 ? (
+                        <CountPill n={feed.dismissals.total} tone="quiet" />
+                      ) : undefined
+                    }
+                    open={open.dismissals}
+                    onToggle={toggle}
+                  >
+                    <DismissalsCard dismissals={feed.dismissals} />
                   </SectionCard>
 
                   <SectionCard
