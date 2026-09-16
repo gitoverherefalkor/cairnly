@@ -1,5 +1,7 @@
-// Jobs · Locked — gate shown to users who haven't earned the tier-1 referral.
-// Mirrors the dashboard's invite-to-unlock vocabulary.
+// Jobs · Out of searches — shown once a report has spent its 4 free job
+// searches. Not a wall any more: job search is open to everyone, this is the
+// end of the free tier, and one referral removes the cap for good. Mirrors the
+// dashboard's invite vocabulary.
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +19,10 @@ import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 interface JobsLockedProps {
   firstName: string;
   referralCode: string | null;
+  // Free searches spent / the cap they were measured against. Rendered in the
+  // eyebrow so the user sees the actual number, not just "you're out".
+  used: number;
+  limit: number;
   onBack: () => void;
   onShare: () => void;
   onProfile: () => void;
@@ -26,6 +32,8 @@ interface JobsLockedProps {
 export const JobsLocked: React.FC<JobsLockedProps> = ({
   firstName,
   referralCode,
+  used,
+  limit,
   onBack,
   onShare,
   onProfile,
@@ -58,7 +66,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           color: PALETTE.goldBright,
         }}
       >
-        {t('locked.eyebrow')}
+        {t('locked.eyebrow', { used, limit })}
       </span>
       <h1
         style={{
@@ -158,7 +166,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
             whiteSpace: 'nowrap',
           }}
         >
-          {t('locked.share')} <ArrowRight size={15} />
+          {t('locked.cta')} <ArrowRight size={15} />
         </button>
       </div>
 

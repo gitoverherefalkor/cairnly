@@ -77,6 +77,12 @@ interface JobsSearchProps {
   onToggleAvoid: (item: string) => void;
   isSearching: boolean;
   onSearch: () => void;
+  // Free-tier allowance shown next to the CTA. One search = one career that
+  // reaches n8n, so picking 3 careers spends 3. Purely informational: the
+  // edge function is the enforcer, and spending your last 2 credits on the
+  // first 2 of 3 picks is a legitimate choice, so this never blocks Search.
+  creditsRemaining: number;
+  creditsUnlimited: boolean;
   onBack: () => void;
   onProfile: () => void;
   onSignOut: () => void;
@@ -113,6 +119,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onToggleAvoid,
   isSearching,
   onSearch,
+  creditsRemaining,
+  creditsUnlimited,
   onBack,
   onProfile,
   onSignOut,
@@ -496,10 +504,43 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
           {isSearching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
           {isSearching ? t('search.submitting') : t('search.submitCareers', { count: selected.length })}
         </button>
-        <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
-          {t('search.timingNote')}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {!creditsUnlimited && (
+            <div
+              style={{
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.72)',
+              }}
+            >
+              {t('search.creditsLeft', { count: creditsRemaining })}
+            </div>
+          )}
+          <div style={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)' }}>
+            {t('search.timingNote')}
+          </div>
         </div>
       </div>
+
+      {/* Heads-up when the selection outruns the allowance. Informational
+          only — the user may well want to spend what's left on their first
+          picks, so the CTA stays enabled. */}
+      {!creditsUnlimited && selected.length > creditsRemaining && (
+        <div
+          style={{
+            marginTop: 14,
+            fontFamily: FONT_BODY,
+            fontSize: 13,
+            fontWeight: 600,
+            color: PALETTE.goldBright,
+            lineHeight: 1.5,
+            maxWidth: 620,
+          }}
+        >
+          {t('search.creditsShort', { selected: selected.length, remaining: creditsRemaining })}
+        </div>
+      )}
 
       {/* Recent searches — replay a previous configuration with one click.
           Backend cache makes the re-run effectively free. */}
