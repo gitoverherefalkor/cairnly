@@ -34,13 +34,9 @@ const PricingSection: React.FC = () => {
         >
           {/* Value list */}
           <div className="lg:col-span-7 p-10 md:p-14 text-[#122E3B]">
-            <div className="lp-eyebrow text-[#1F8282] mb-5">{t('pricing.eyebrow')}</div>
-            <h2
-              className="font-heading font-bold leading-[1.1] mb-10"
-              style={{ fontSize: 'clamp(24px, 2.6vw, 36px)', letterSpacing: '-0.012em' }}
-            >
-              {t('pricing.titleA')} <span className="lp-text-teal-grad">{t('pricing.titleHighlight')}</span>
-            </h2>
+            {/* The heading moved to the price panel on 2026-09-16 so the
+                tagline sits directly above the number it is arguing for. */}
+            <div className="lp-eyebrow text-[#1F8282] mb-7">{t('pricing.eyebrow')}</div>
             <ul className="space-y-3.5">
               {features.map((f, i) => (
                 <li key={i} className="flex items-start gap-4 text-[15px] font-bold text-[#374151]">
@@ -77,13 +73,20 @@ const PricingSection: React.FC = () => {
             className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center items-center text-center"
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
+            <h2
+              className="font-heading font-bold leading-[1.15] mb-7 text-[#122E3B]"
+              style={{ fontSize: 'clamp(21px, 1.9vw, 27px)', letterSpacing: '-0.012em' }}
+            >
+              {t('pricing.titleA')} <span className="lp-text-teal-grad">{t('pricing.titleHighlight')}</span>
+            </h2>
+
             {/* Just the price. The "limited offer" pill, the countdown and the
                 strike-through anchor were retired with the intro price on
                 2026-09-16 — three urgency devices on one panel read as an
                 infomercial to an audience weighing a real decision, and an
                 anchor with no higher price behind it is an invented discount.
                 The "no subscription" chip below carries the reassurance. */}
-            <div className="flex items-end mb-10">
+            <div className="flex items-end mb-8">
               <span
                 className="font-heading text-[#122E3B]"
                 style={{ fontSize: 64, lineHeight: 1, fontWeight: 600, letterSpacing: '-0.02em' }}

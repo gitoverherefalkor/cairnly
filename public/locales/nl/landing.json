@@ -155,7 +155,7 @@
     "cols": {
       "quizTop": "Persoonlijkheids-",
       "quizBottom": "tests",
-      "quizSub": "16Personalities, MBTI",
+      "quizSub": "Insights, DISC, MBTI",
       "aiTop": "AI-carrière-",
       "aiBottom": "abonnementen",
       "aiSub": "Maandelijkse platforms",
@@ -208,7 +208,7 @@
       },
       {
         "name": "Wat het kost",
-        "quiz": "Gratis tot €50. Eenmalig.",
+        "quiz": "Ongeveer €150. Eenmalig.",
         "ai": "€20 tot €30 per maand. Ongeveer €240 tot €360 per jaar.",
         "coach": "€80 tot €280 per maand. Of €80 tot €150 per sessie.",
         "cairnlyEmphasis": "{{price}}.",
@@ -229,13 +229,13 @@
       "othersHint": "Bekijk de vergelijking",
       "others": [
         {
-          "title": "Persoonlijkheidstests (MBTI, 16Personalities)",
+          "title": "Persoonlijkheidstests (Insights, DISC, MBTI)",
           "items": [
             "Een persoonlijkheidstype, brede categorie.",
             "Een korte, formule-gestuurde quiz.",
             "\"Je houdt ervan om mensen te helpen.\" Op trait-niveau.",
             "Een PDF. Zoek het zelf maar uit.",
-            "10 minuten. Gratis tot €50."
+            "10 minuten. Ongeveer €150."
           ]
         },
         {
@@ -324,18 +324,19 @@
     "footer": "Een wegwijzer, geen roadmap."
   },
   "finalCTA": {
-    "titleA": "De richting die je nu zou kiezen, met het leven dat je",
+    "titleA": "De richting die je nu zou kiezen,",
     "titleHighlight": "geleefd hebt in gedachten.",
     "cta": "Aan de slag",
-    "footer": "Gebouwd met carrièrecoaches. Eerlijk over wat AI wel en niet kan zeggen."
+    "footer": "Gebouwd met carrièrecoaches. Eerlijk over wat AI wel en niet kan zeggen.",
+    "titleB": "met het leven dat je"
   },
   "whyBuilt": {
     "eyebrow": "Waarom we dit hebben gebouwd",
-    "titleA": "De meeste carrières",
-    "titleB": "worden niet echt",
-    "titleHighlight": "bewust gekozen",
+    "titleA": "Je bent",
+    "titleB": "niet",
+    "titleHighlight": "alleen",
     "titleC": ".",
-    "p1": "Ze zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
+    "p1": "De meeste loopbanen zijn het resultaat van een beslissing die iemand op zijn zestiende nam, nog voordat diegene zichzelf goed genoeg kende om die keuze te kunnen maken. Een algemene richting bepaalde de studie. De studie bepaalde de eerste baan. De eerste baan bepaalde de volgende tien. Tegen de tijd dat je omhoog kijkt, ben je misschien afdelingsmanager, terwijl je een betere ondernemer had kunnen zijn, of een maker, of iets wat je nog nooit hebt overwogen.",
     "p2": "We hebben Cairnly gebouwd omdat het gereedschap om die vraag serieus te stellen niet bestond. Persoonlijkheidstests geven je een label. Coaching kost maanden en duizenden euro's. Gratis quizzen geven je waar je voor betaald hebt. Dus bouwden we één assessment, eerlijk over de methode, dat uitgaat van wie je nu werkelijk bent en je concrete rollen geeft waar je maandag al naar kunt gaan kijken. Geen waslijst aan upsells. Één duidelijk antwoord, en daarna gaan we weer uit de weg.",
     "signature": "Het Cairnly team, Utrecht",
     "report": {
@@ -447,7 +448,7 @@
         "ctaPrimary": "Begrijp de impact"
       },
       "whyBuilt": {
-        "p1": "Ze zijn gebouwd op aannames die niet meer vanzelfsprekend zijn. Je koos een vakgebied, werd er goed in, en rekende erop dat het je decennia zou dragen. Toen begon de grond te schuiven. Sommige rollen groeien, sommige krimpen, de meeste veranderen van vorm, en het eerlijke antwoord voor jouw rol ligt begraven onder evenveel hype als doemdenken. Dat uitzoeken verdient meer dan een krantenkop."
+        "p1": "De meeste loopbanen zijn gebouwd op aannames die niet meer vanzelfsprekend zijn. Je koos een vakgebied, werd er goed in, en rekende erop dat het je decennia zou dragen. Toen begon de grond te schuiven. Sommige rollen groeien, sommige krimpen, de meeste veranderen van vorm, en het eerlijke antwoord voor jouw rol ligt begraven onder evenveel hype als doemdenken. Dat uitzoeken verdient meer dan een krantenkop."
       }
     },
     "lifeChanged": {
@@ -460,7 +461,7 @@
         "ctaPrimary": "Vind wat nu past"
       },
       "whyBuilt": {
-        "p1": "Ze worden één keer gekozen, en daarna wordt aangenomen dat ze voor altijd blijven passen. Maar een leven staat niet stil. Er komen kinderen, gezondheid grijpt in, prioriteiten verschuiven, en wat een baan je op je veertigste moet geven is zelden wat je er op je 25e van vroeg. De meeste mensen dragen een carrière die is gevormd rond een leven dat ze niet meer leiden, en de tools om die vraag opnieuw eerlijk te stellen bestonden niet voor ze."
+        "p1": "De meeste loopbanen worden één keer gekozen, en daarna wordt aangenomen dat ze voor altijd blijven passen. Maar een leven staat niet stil. Er komen kinderen, gezondheid grijpt in, prioriteiten verschuiven, en wat een baan je op je veertigste moet geven is zelden wat je er op je 25e van vroeg. De meeste mensen dragen een carrière die is gevormd rond een leven dat ze niet meer leiden, en de tools om die vraag opnieuw eerlijk te stellen bestonden niet voor ze."
       }
     },
     "understandMyself": {
@@ -473,7 +474,7 @@
         "ctaPrimary": "Begin bij jezelf"
       },
       "whyBuilt": {
-        "p1": "Ze worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
+        "p1": "De meeste loopbanen worden gekozen voordat de kiezer zichzelf goed kent. Je koos een richting voordat je je eigen sterke punten kende, je patronen, wat je energie geeft en wat er stilletjes aan vreet. Twintig jaar leven levert enorm veel zelfkennis op, maar bijna niemand gaat zitten om daar een eerlijk beeld van te maken van wie je bent geworden. Zonder dat beeld is elke carrièrevraag een gok."
       }
     },
     "chose16": {

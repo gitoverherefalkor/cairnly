@@ -153,14 +153,14 @@ const IntakeChatPanel: React.FC = () => {
       {/* Header: one-line promise; numbered stepper circles were dropped in
           favour of a light "check-in" line (less form, same finiteness cue) */}
       <div className="mb-5">
-        <p className="text-[17px] font-bold text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
+        <p className="text-[17px] font-bold text-[#122E3B]" style={{ fontFamily: "'Poppins', sans-serif" }}>
           {t('intake.title')}
         </p>
         {chat.started && chat.stage === 'chat' && (
-          <p className="mt-2 text-[12px] font-semibold text-white/60">
+          <p className="mt-2 text-[12px] font-semibold text-[#6B7F8B]">
             {t('intake.checkin')} · {Math.min(currentBeat, totalBeats)}/{totalBeats}
             {currentBeat <= totalBeats && chat.beatLabels[currentBeat - 1] && (
-              <span className="text-white/80"> · {chat.beatLabels[currentBeat - 1]}</span>
+              <span className="text-[#122E3B]"> · {chat.beatLabels[currentBeat - 1]}</span>
             )}
           </p>
         )}
@@ -196,7 +196,7 @@ const IntakeChatPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowHistory(true)}
-                className="flex items-center gap-1.5 text-[12px] font-semibold text-white/50 transition-colors hover:text-white/80"
+                className="flex items-center gap-1.5 text-[12px] font-semibold text-[#6B7F8B] transition-colors hover:text-[#122E3B]"
               >
                 <ChevronDown size={13} />
                 {t('intake.earlier', { count: hiddenMessages.length })}
@@ -206,7 +206,7 @@ const IntakeChatPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowHistory(false)}
-                className="flex items-center gap-1.5 text-[12px] font-semibold text-white/50 transition-colors hover:text-white/80"
+                className="flex items-center gap-1.5 text-[12px] font-semibold text-[#6B7F8B] transition-colors hover:text-[#122E3B]"
               >
                 <ChevronDown size={13} className="rotate-180" />
                 {t('intake.collapse')}
@@ -376,7 +376,7 @@ const IntakeChatPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/payment')}
-                className="mt-2 text-[12px] text-white/50 underline underline-offset-2"
+                className="mt-2 text-[12px] text-[#6B7F8B] underline underline-offset-2 hover:text-[#122E3B]"
               >
                 {t('intake.skip')}
               </button>

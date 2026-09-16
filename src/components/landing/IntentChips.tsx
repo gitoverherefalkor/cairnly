@@ -79,13 +79,17 @@ const IntentChips: React.FC = () => {
     intakeChat?.requestInputFocus();
   };
 
+  // Tinted for cream: IntakeSection moved off the photographic background on
+  // 2026-09-16, and the old white/25 borders were invisible there. This
+  // component is only ever rendered inside that block, so there is no dark
+  // placement left to keep working.
   const chipBase =
     'rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
   const chipSelected = 'bg-[#D4A024] border-[#D4A024] text-[#122E3B]';
-  const chipIdle = 'border-white/25 text-white/65 hover:border-[#D4A024]/60 hover:text-white';
+  const chipIdle = 'border-[#C9B690] text-[#4B6373] hover:border-[#D4A024] hover:text-[#122E3B]';
   // Resting state: nothing picked, so the open input IS the live route; the
   // "Something else" pill wears a gold outline to say so without the full fill.
-  const chipOutlined = 'border-[#D4A024] text-white/85 hover:text-white';
+  const chipOutlined = 'border-[#D4A024] text-[#122E3B] hover:bg-[#D4A024]/10';
 
   return (
     <div>

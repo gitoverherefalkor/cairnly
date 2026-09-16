@@ -520,20 +520,22 @@ button.lp-screenshot-slot {
    test will do. Sits under the hero's price deadline and under the intake
    pitch, both on the navy hero, so it has to read as a link without competing
    with the chat beside it: muted text on a hairline, no fill, no button. */
+/* Gold, not white-on-white: this is the one link in the hero's text column,
+   so it has to read as clickable against the photograph behind it. */
 .lp-compare-link {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 13px; font-weight: 600;
-  color: rgba(255,255,255,0.55);
+  color: #D4A024;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.22);
+  border-bottom: 1px solid rgba(212,160,36,0.45);
   padding-bottom: 2px;
   transition: color 200ms ease, border-color 200ms ease;
   cursor: pointer;
 }
 .lp-compare-link:hover {
-  color: rgba(255,255,255,0.9);
-  border-color: rgba(255,255,255,0.6);
+  color: #E9BC4E;
+  border-color: #E9BC4E;
 }
 .lp-compare-link:focus-visible {
   outline: 2px solid #D4A024;
@@ -541,3 +543,23 @@ button.lp-screenshot-slot {
 }
 .lp-compare-link svg { transition: transform 200ms ease; }
 .lp-compare-link:hover svg { transform: translateX(2px); }
+
+/* "Is Cairnly for you?" — the two fit cards sit side by side and lift on
+   hover, so the pair reads as a choice between two answers rather than a
+   list. Transform and shadow only: no layout property animates, so neither
+   card nudges the other. Honoured only where hover is a real pointer, and
+   skipped entirely under prefers-reduced-motion. */
+.lp-fit-card {
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .lp-fit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 44px 80px -26px rgba(18, 46, 59, 0.28);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-fit-card { transition: none; }
+  .lp-fit-card:hover { transform: none; }
+}

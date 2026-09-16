@@ -12,17 +12,20 @@ const Methodology: React.FC = () => {
       className="bg-[#213F4F] text-white py-24 md:py-32 scroll-mt-32 relative overflow-hidden"
     >
       <div className="lp-container relative z-10">
-        <Reveal className="text-center max-w-3xl mx-auto mb-16">
+        {/* max-w-4xl, not 3xl: at 3xl the first line wrapped and left "right,"
+            stranded on a line of its own. The explicit <br /> is the only
+            break this heading should take. */}
+        <Reveal className="text-center max-w-4xl mx-auto mb-16">
           <div className="lp-eyebrow text-[#D4A024] mb-5">{t('methodology.eyebrow')}</div>
           <h2
-            className="font-heading font-bold leading-[1.12]"
+            className="font-heading font-bold leading-[1.12] text-balance"
             style={{ fontSize: 'clamp(26px, 3vw, 44px)', letterSpacing: '-0.012em' }}
           >
-            {t('methodology.titleA')}{' '}
+            {t('methodology.titleA')}
             <br />
             <span className="lp-text-gold-grad">{t('methodology.titleHighlight')}</span>
           </h2>
-          <p className="mt-7 text-lg text-white/65 font-medium leading-relaxed">
+          <p className="mt-7 text-lg text-white/65 font-medium leading-relaxed max-w-3xl mx-auto">
             {t('methodology.intro')}
           </p>
         </Reveal>
@@ -79,29 +82,19 @@ const Methodology: React.FC = () => {
           </Reveal>
         </div>
 
-        {/* How the engine works, stated rather than drawn */}
-        <Reveal as="div" className="max-w-3xl mx-auto mt-20 md:mt-24">
-          <div className="text-center">
-            <div className="lp-eyebrow text-[#D4A024] mb-4">{t('methodology.engineEyebrow')}</div>
-            <h3
-              className="font-heading font-bold text-white leading-[1.15]"
-              style={{ fontSize: 'clamp(22px, 2.4vw, 34px)', letterSpacing: '-0.012em' }}
-            >
-              {t('methodology.engineTitle')}
-            </h3>
-            <p className="mt-4 text-base md:text-lg text-white/60 font-medium leading-relaxed max-w-2xl mx-auto">
-              {t('methodology.engineSubtitle')}
-            </p>
-          </div>
-          {/* The engine diagram that used to sit here was retired on
-              2026-09-16 (src/unused/landing/WorkflowDiagramV2.tsx): it
-              published the pipeline step by step, and its labels were
-              hardcoded English in a page that ships in two languages. The
-              frame around it — this eyebrow, title and subtitle, plus the
-              trust row below — is the part that was doing the work. */}
+        {/* The engine diagram was retired on 2026-09-16
+            (src/unused/landing/WorkflowDiagramV2.tsx), and its eyebrow/title/
+            subtitle moved to the cream section below (CoachCards) on the same
+            day: a second centred eyebrow-title-subtitle stack under the first
+            one made this section read as a pile of headings. What is left
+            here is the closer and the trust row, as a quiet footer. */}
+        <Reveal as="div" className="max-w-3xl mx-auto mt-16 md:mt-20">
+          <p className="text-center text-base md:text-lg text-white/55 italic font-medium leading-relaxed">
+            {t('methodology.closer')}
+          </p>
 
           {/* Trust statements */}
-          <div className="mt-8 md:mt-10 flex items-center justify-center gap-x-8 gap-y-3 flex-wrap text-[12px] font-medium text-white/65">
+          <div className="mt-10 md:mt-12 flex items-center justify-center gap-x-8 gap-y-3 flex-wrap text-[12px] font-medium text-white/65">
             <div className="flex items-center gap-2">
               <Shield size={14} strokeWidth={2} className="text-[#D4A024]" />
               <span><strong className="text-white font-semibold">{t('methodology.trust.gdpr')}</strong> · {t('methodology.trust.gdprDetail')}</span>
@@ -117,12 +110,6 @@ const Methodology: React.FC = () => {
               <span><strong className="text-white font-semibold">{t('methodology.trust.delete')}</strong> · {t('methodology.trust.deleteDetail')}</span>
             </div>
           </div>
-        </Reveal>
-
-        <Reveal as="div" className="max-w-3xl mx-auto mt-14">
-          <p className="text-center text-base md:text-lg text-white/55 italic font-medium leading-relaxed">
-            {t('methodology.closer')}
-          </p>
         </Reveal>
       </div>
     </section>

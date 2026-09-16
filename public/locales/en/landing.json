@@ -155,7 +155,7 @@
     "cols": {
       "quizTop": "Personality",
       "quizBottom": "quizzes",
-      "quizSub": "16Personalities, MBTI",
+      "quizSub": "Insights, DISC, MBTI",
       "aiTop": "AI career",
       "aiBottom": "subscriptions",
       "aiSub": "Monthly platforms",
@@ -208,7 +208,7 @@
       },
       {
         "name": "What it costs",
-        "quiz": "Free–€50. One-off.",
+        "quiz": "~€150. One-off.",
         "ai": "€20–€30 per month. ~€240–€360 per year.",
         "coach": "€80–€280 per month. Or €80–€150 per session.",
         "cairnlyEmphasis": "{{price}}.",
@@ -229,13 +229,13 @@
       "othersHint": "See how it compares",
       "others": [
         {
-          "title": "Personality quizzes (MBTI, 16Personalities)",
+          "title": "Personality quizzes (Insights, DISC, MBTI)",
           "items": [
             "A personality type, broad category.",
             "A short formula-driven quiz.",
             "\"You like helping people.\" Trait-level.",
             "A PDF. Figure it out.",
-            "10 minutes. Free–€50."
+            "10 minutes. ~€150."
           ]
         },
         {
@@ -324,18 +324,19 @@
     "footer": "A way-marker, not a roadmap."
   },
   "finalCTA": {
-    "titleA": "The direction you'd choose now, with the life you've",
+    "titleA": "The direction you’d choose now,",
     "titleHighlight": "lived in mind.",
     "cta": "Get Started",
-    "footer": "Built with career coaches. Honest about what AI can and can't tell you."
+    "footer": "Built with career coaches. Honest about what AI can and can't tell you.",
+    "titleB": "with the life you’ve"
   },
   "whyBuilt": {
     "eyebrow": "Why we built this",
-    "titleA": "Most careers",
-    "titleB": "aren't really",
-    "titleHighlight": "chosen",
+    "titleA": "You are",
+    "titleB": "not",
+    "titleHighlight": "alone",
     "titleC": ".",
-    "p1": "They're inherited from a decision someone made at 16, before they knew themselves well enough to make it. A general direction shaped a major. A major shaped a first job. A first job shaped the next ten. By the time you look up, you might be a department manager when you'd have made a better entrepreneur, or a builder, or something you've never even considered.",
+    "p1": "Most careers are inherited from a decision someone made at 16, before they knew themselves well enough to make it. A general direction shaped a major. A major shaped a first job. A first job shaped the next ten. By the time you look up, you might be a department manager when you'd have made a better entrepreneur, or a builder, or something you've never even considered.",
     "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No roster of upsells. One clear answer, then we get out of your way.",
     "signature": "The Cairnly team, Utrecht",
     "report": {
@@ -447,7 +448,7 @@
         "ctaPrimary": "Understand the impact"
       },
       "whyBuilt": {
-        "p1": "They're built on assumptions that stopped being safe. You picked a field, got good at it, and planned on it carrying you for decades. Then the ground started moving. Some roles will grow, some will shrink, most will change shape, and the honest answer for yours is buried under equal parts hype and doom. Sorting that out deserves better than a headline."
+        "p1": "Most careers are built on assumptions that stopped being safe. You picked a field, got good at it, and planned on it carrying you for decades. Then the ground started moving. Some roles will grow, some will shrink, most will change shape, and the honest answer for yours is buried under equal parts hype and doom. Sorting that out deserves better than a headline."
       }
     },
     "lifeChanged": {
@@ -460,7 +461,7 @@
         "ctaPrimary": "Find what fits now"
       },
       "whyBuilt": {
-        "p1": "They're chosen once and then assumed to keep fitting forever. But lives don't hold still. Kids arrive, health interrupts, priorities shift, and what a job needs to give you at 40 is rarely what you asked of it at 25. Most people carry a career shaped around a life they no longer live, and the tools to re-ask the question honestly were never built for them."
+        "p1": "Most careers are chosen once and then assumed to keep fitting forever. But lives don't hold still. Kids arrive, health interrupts, priorities shift, and what a job needs to give you at 40 is rarely what you asked of it at 25. Most people carry a career shaped around a life they no longer live, and the tools to re-ask the question honestly were never built for them."
       }
     },
     "understandMyself": {
@@ -473,7 +474,7 @@
         "ctaPrimary": "Start with you"
       },
       "whyBuilt": {
-        "p1": "They're chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
+        "p1": "Most careers are chosen before the chooser is fully formed. You picked a direction before you knew your own strengths, your patterns, what gives you energy and what quietly drains it. Twenty years of living generates a lot of self-knowledge, but almost nobody sits down to turn it into an honest picture of who they've become. Without that picture, every career question is a guess."
       }
     },
     "chose16": {

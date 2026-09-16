@@ -10,7 +10,7 @@ import { useIntakeChatOptional } from './IntakeChatContext';
 import { useDemoHref } from '../demo/HeroPersonaContext';
 import { DEMO_SURVEY_ROUTE } from '@/demo/constants';
 import { trackCtaClick } from '@/lib/analytics';
-import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
+import CairnSymbol from '@/logos/live/cairnly_logo_symbol_only.png';
 
 /** Anchor for the hero's "tell us what brings you here" link (block top, not the panel). */
 export const INTAKE_SECTION_ANCHOR = 'intake';
@@ -21,6 +21,10 @@ export const INTAKE_SECTION_ANCHOR = 'intake';
  * (and reorder the fit bullets right above), whose pitch ends in the report
  * deliverables card and its checkout button. Moved out of the hero on
  * 2026-09-03 so the hero can show the demo instead.
+ *
+ * On cream since 2026-09-16: the photographic background made this read as a
+ * block pasted onto the page rather than part of it, and the section it sits
+ * in ("Is Cairnly for you?") is cream.
  */
 const IntakeSection: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -31,23 +35,28 @@ const IntakeSection: React.FC = () => {
   return (
     <div
       id={INTAKE_SECTION_ANCHOR}
-      className="survey-bg relative text-white rounded-[28px] overflow-hidden px-6 py-10 md:px-12 md:py-14 scroll-mt-24"
-      style={{ boxShadow: '0 40px 80px -30px rgba(18,46,59,0.55)' }}
+      className="relative rounded-[28px] overflow-hidden px-6 py-10 md:px-12 md:py-14 scroll-mt-24"
+      style={{
+        background: '#FBF6E8',
+        border: '1px solid #C9B690',
+        color: '#122E3B',
+        boxShadow: '0 32px 60px -28px rgba(18,46,59,0.18)',
+      }}
     >
       <div className="absolute bottom-4 right-[-20px] pointer-events-none z-0 hidden lg:block">
-        <img src={CairnSymbolInvert} alt="" aria-hidden="true" className="w-[240px] h-auto opacity-[0.08]" />
+        <img src={CairnSymbol} alt="" aria-hidden="true" className="w-[240px] h-auto opacity-[0.07]" />
       </div>
 
       <div className="relative z-10">
         <Reveal className="max-w-3xl mb-8 md:mb-10">
-          <div className="lp-eyebrow text-[#D4A024] mb-4">{t('intakeSection.eyebrow')}</div>
+          <div className="lp-eyebrow text-[#1F8282] mb-4">{t('intakeSection.eyebrow')}</div>
           <h3
-            className="font-heading font-bold text-white leading-[1.12]"
+            className="font-heading font-bold text-[#122E3B] leading-[1.12]"
             style={{ fontSize: 'clamp(24px, 2.6vw, 34px)', letterSpacing: '-0.012em' }}
           >
             {t('intakeSection.title')}
           </h3>
-          <p className="mt-4 text-[17px] text-white/65 font-medium leading-relaxed max-w-2xl">
+          <p className="mt-4 text-[17px] text-[#4B6373] font-medium leading-relaxed max-w-2xl">
             {t('intakeSection.subtitle')}
           </p>
         </Reveal>
@@ -65,11 +74,14 @@ const IntakeSection: React.FC = () => {
             {pitched ? (
               <ReportDeliverablesCard />
             ) : (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-                <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[#D4A024]">
+              <div
+                className="rounded-2xl p-6"
+                style={{ background: 'rgba(18,46,59,0.04)', border: '1px solid rgba(201,182,144,0.7)' }}
+              >
+                <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[#1F8282]">
                   {t('intakeSection.asideTitle')}
                 </p>
-                <p className="mt-3 text-[15px] text-white/70 font-medium leading-relaxed">
+                <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-relaxed">
                   {t('intakeSection.asideBody')}
                 </p>
               </div>
@@ -77,7 +89,7 @@ const IntakeSection: React.FC = () => {
             <Link
               to={demoHref(DEMO_SURVEY_ROUTE)}
               onClick={() => trackCtaClick('intake_survey_link')}
-              className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold text-white/75 hover:text-white underline decoration-[#D4A024]/60 underline-offset-4 hover:decoration-[#D4A024] transition-colors"
+              className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#1F8282] hover:text-[#122E3B] underline decoration-[#1F8282]/40 underline-offset-4 hover:decoration-[#122E3B] transition-colors"
             >
               {t('intakeSection.surveyLink')}
               <ArrowRight size={14} strokeWidth={2.4} />

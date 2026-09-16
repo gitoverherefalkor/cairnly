@@ -38,11 +38,14 @@ const WhoFor: React.FC = () => {
           </h2>
         </Reveal>
 
-        <div className="flex flex-col gap-6 md:gap-8 max-w-3xl mx-auto">
+        {/* Side by side on desktop, stacked on phones. Each card lifts on
+            hover so the pair reads as a choice rather than a list; the lift is
+            a transform, which the compositor handles without reflow. */}
+        <div className="grid gap-6 md:gap-8 md:grid-cols-2 items-start max-w-5xl mx-auto">
           {/* Right place — elevated */}
-          <Reveal>
+          <Reveal className="h-full">
             <div
-              className="relative rounded-3xl overflow-hidden"
+              className="lp-fit-card relative h-full rounded-3xl overflow-hidden"
               style={{
                 background: '#FBF6E8',
                 border: '1px solid #D4A024',
@@ -78,9 +81,9 @@ const WhoFor: React.FC = () => {
           </Reveal>
 
           {/* Not for you — muted, same footprint as the "right place" card */}
-          <Reveal>
+          <Reveal className="h-full">
             <div
-              className="rounded-3xl overflow-hidden"
+              className="lp-fit-card h-full rounded-3xl overflow-hidden"
               style={{ background: 'rgba(18, 46, 59, 0.04)', border: '1px solid rgba(107, 127, 139, 0.25)' }}
             >
               <div style={{ height: 5, background: 'rgba(107, 127, 139, 0.35)' }} />
