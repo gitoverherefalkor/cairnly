@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { getCorsHeaders, handleCorsPreFlight, errorResponse, checkRateLimit } from "../_shared/cors.ts";
-import { ENCORE_PRICE, proPriceAt, STARTER_PRICE, toCents } from "../_shared/pricing.ts";
+import { ENCORE_PRICE, PRO_PRICE, STARTER_PRICE, toCents } from "../_shared/pricing.ts";
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -45,13 +45,12 @@ serve(async (req) => {
 
     // Per-flavor product presentation and price. Amounts come from
     // _shared/pricing.ts, which src/lib/pricing.ts mirrors for the marketing
-    // pages. The pro price is resolved per request: it moves from the intro
-    // price to the regular one at PRICE_SWITCH_AT without a deploy on the day.
+    // pages.
     const FLAVOR_PRODUCTS = {
       pro: {
         name: "Cairnly Assessment",
         description: "Complete assessment with personalized career insights",
-        unitAmount: toCents(proPriceAt()),
+        unitAmount: toCents(PRO_PRICE),
         cancelPath: "/payment",
       },
       starter: {

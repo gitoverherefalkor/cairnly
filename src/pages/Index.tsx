@@ -4,13 +4,11 @@ import LandingNav from '@/components/landing/LandingNav';
 import Hero from '@/components/landing/Hero';
 import NoPurchaseBanner from '@/components/landing/NoPurchaseBanner';
 import Pillars from '@/components/landing/Pillars';
-import HowItWorks from '@/components/landing/HowItWorks';
+import WhoFor from '@/components/landing/WhoFor';
 import Methodology from '@/components/landing/Methodology';
 import CoachCards from '@/components/landing/CoachCards';
 import ComparisonTable from '@/components/landing/ComparisonTable';
-import CostMath from '@/components/landing/CostMath';
 import PricingSection from '@/components/landing/PricingSection';
-import WhoFor from '@/components/landing/WhoFor';
 import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
 import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
@@ -22,11 +20,29 @@ import Seo from '@/components/Seo';
 import { organizationSchema, websiteSchema } from '@/lib/seo';
 
 /**
- * Cairnly homepage (v2) — an editorial, cairn-as-way-marker landing page.
+ * Cairnly homepage (v3) — an editorial, cairn-as-way-marker landing page.
  * Assembled from self-contained sections under src/components/landing/.
  * The hero sells with the public demo (HeroPersonaProvider carries the
- * chosen persona into every demo link on the page); the intake chat lives
- * inside "Is Cairnly for you?" (WhoFor).
+ * chosen persona into every demo link on the page).
+ *
+ * Section order, and why (reordered 2026-09-16):
+ *   Hero        the video does the showing
+ *   Pillars     what makes this different
+ *   WhoFor      qualify BEFORE the ask, not after — this section also holds
+ *               the intake chat, which is the objection-handler for people
+ *               who are not sure yet. Below the price it never reached them.
+ *   Methodology the "is this just ChatGPT?" answer, once desire exists
+ *   CoachCards  the chat that sharpens the answer, plus the demo CTA
+ *   Comparison  the side-by-side, ending on the cost row
+ *   Pricing     the ask
+ *   WhyWeBuilt  the founder story, which supports the price rather than
+ *               trailing behind it
+ *   FAQ         last objections
+ *   FinalCTA    close
+ *
+ * Retired in the same pass (see src/unused/landing/README.md): HowItWorks,
+ * which re-told the hero video in static screenshots, and CostMath, which
+ * repeated the comparison table's closing line 40px below it.
  */
 const Index: React.FC = () => (
   <IntentProvider>
@@ -42,14 +58,11 @@ const Index: React.FC = () => (
     <main>
       <Hero />
       <Pillars />
-      <HowItWorks />
+      <WhoFor />
       <Methodology />
       <CoachCards />
       <ComparisonTable />
-      <CostMath />
       <PricingSection />
-      <WhoFor />
-      {/* ForkDivider hidden — the same-path/different-path diagram wasn't landing well */}
       <WhyWeBuiltThis />
       <FAQ />
       <FinalCTA />

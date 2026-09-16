@@ -2,7 +2,7 @@
 //
 // Trade-off: this is intentionally a SIMPLE, near-stock Word layout. The
 // designed PDF templates use react-pdf primitives that don't map cleanly to
-// Word styles (multi-column, custom fonts, absolute positioning). For a beta
+// Word styles (multi-column, custom fonts, absolute positioning). For a
 // "let users edit the content" path, a clean single-column docx that opens in
 // any version of Word / Pages / Google Docs is more valuable than a fragile
 // pixel-perfect clone.

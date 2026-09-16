@@ -14,7 +14,7 @@ Het Cairnly Referral Programma stelt bestaande betalende Cairnly-gebruikers in s
 
 Je kunt deelnemen aan het Referral Programma als aan alle onderstaande voorwaarden is voldaan:
 
-- Je hebt een betaald Cairnly-account aangeschaft tegen het standaardtarief (op dit moment EUR 59, of EUR 39 tijdens een lopende actie).
+- Je hebt een betaald Cairnly-account aangeschaft tegen het standaardtarief (op dit moment EUR 59, of een lagere prijs tijdens een lopende actie).
 - Je bent 18 jaar of ouder.
 - Jouw oorspronkelijke aankoop is minder dan zes (6) maanden geleden gedaan.
 - Jouw account is in goede staat en is niet opgeschort of beëindigd.

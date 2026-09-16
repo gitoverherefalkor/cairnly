@@ -244,7 +244,7 @@ export const AssessmentWelcome: React.FC<AssessmentWelcomeProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
             {/* 15-20 minutes was not achievable on any flavor: the pro survey
                 alone is 61 questions, including five work experiences that each
-                want a written answer. Beta testers consistently ran far over and
+                want a written answer. Early testers consistently ran far over and
                 said the low estimate undersold the depth. This screen renders
                 before the access code is verified, so it cannot know the flavor
                 (pro 61 / encore 41 / starter 40 questions) and has to hold one

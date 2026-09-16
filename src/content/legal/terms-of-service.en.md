@@ -1,6 +1,6 @@
 # Terms of Service
 
-Last updated: May 30, 2026
+Last updated: September 16, 2026
 
 ## 1. Acceptance of Terms
 
@@ -18,7 +18,7 @@ Cairnly provides AI-enhanced career assessment services designed to deliver pers
 - Secure data storage and user account management
 - LinkedIn integration for enhanced profile analysis (optional)
 
-Our platform is currently in Beta phase, and we continuously improve our services based on user feedback and technological advances.
+We continuously improve our services based on user feedback and technological advances.
 
 ## 3. User Accounts and Registration
 
@@ -39,7 +39,7 @@ Access to our assessment services requires a valid access code, which can be obt
 
 - Direct purchase through our platform
 - Third-party providers or partners
-- Promotional offers or beta access programs
+- Promotional offers or early access programmes
 
 ### 4.2 Payment Terms
 
@@ -99,9 +99,9 @@ Cairnly provides career guidance and insights based on assessment responses. Our
 - Not guaranteed to result in specific career outcomes
 - Based on AI analysis that may have limitations
 
-### 8.2 Beta Service Notice
+### 8.2 Service Notice
 
-Our platform is currently in Beta. This means:
+Our platform is under continuous development. This means:
 
 - Services may be modified or discontinued
 - Features may not be fully developed

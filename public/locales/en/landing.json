@@ -1,9 +1,9 @@
 {
   "hero": {
     "eyebrow": "01 · The question",
-    "titleA": "Changing is scary.",
-    "titleHighlight": "Not changing",
-    "titleB": "is just quieter.",
+    "titleA": "Career change clarity.",
+    "titleHighlight": "Find a career",
+    "titleB": "that fits.",
     "body": "Every career change weighs two discomforts against each other: the anxiety of what could go wrong, and the slow disappointment of staying where you no longer fit. Most people pick the disappointment, one year at a time.",
     "bodyEmphasis": "Cairnly is one assessment to look at that choice properly: what would change actually look like for you, and would it be worth it?",
     "ctaPrimary": "Get Started",
@@ -84,10 +84,10 @@
       {
         "eyebrow": "Land the job",
         "body": "Pick the roles that resonate. Cairnly finds live openings for them. When you apply, your resume and cover letter are tailored using everything Cairnly already knows about you. No prompting required.",
-        "extra": "The job-landing features are in beta and free to unlock.",
+        "extra": "The job-landing features are free to unlock.",
         "screenshotMeta": "4 : 3 · Job match",
         "screenshotLabel": "Live openings, tailored materials",
-        "screenshotDesc": "Coming once the beta job-landing flow ships."
+        "screenshotDesc": "Live openings, matched to the roles you picked."
       }
     ],
     "demoLabel": "See it in the demo"
@@ -111,8 +111,8 @@
       "p2": "On top of that, we layer the part formulas can't capture: your actual career history, what's energized you, what's drained you, where you're trying to go. Frontier AI, guided by working career coaches, reads all of it together and builds an actionable plan for this person. Not for a type."
     },
     "engineEyebrow": "Inside the engine",
-    "engineTitle": "Seven AI workflows. One coach-tuned pipeline.",
-    "engineSubtitle": "Every step has a purpose. Every prompt was co-written with working career coaches, so the output reads like advice from a pro, not a chatbot.",
+    "engineTitle": "Multiple AI steps, orchestrated and tuned.",
+    "engineSubtitle": "Every step has a purpose, and every one was tuned with working career coaches, so what comes out reads like advice from a pro.",
     "trust": {
       "gdpr": "GDPR compliant",
       "gdprDetail": "EU-hosted data",
@@ -127,7 +127,7 @@
     "eyebrow": "The chat that comes with your dashboard",
     "titleA": "If something doesn't fit, tell it.",
     "titleHighlight": "The plan adapts.",
-    "intro": "Every Cairnly assessment comes with an interactive coaching chat, but not the kind that bills you monthly to be your friend. It's a refinement loop. A way to challenge the AI when something doesn't ring true, so the final result actually does.",
+    "intro": "Every Cairnly assessment comes with a coaching chat that has one job: sharpen the answer. Push back. Say “actually, I’d hate that one” or “tell me more about runner-up #2”. Your dashboard takes the feedback on board, and then you take it and go.",
     "staticPdf": {
       "title": "A static PDF",
       "body": "Reads you once, prints an answer, walks away. If a recommendation feels wrong, your only option is to ignore it."
@@ -260,7 +260,7 @@
         }
       ]
     },
-    "closer": "Pay once for a clear answer, not every month to keep looking for one."
+    "closer": "One assessment, and you leave with named roles you could go look at on Monday."
   },
   "costMath": {
     "eyebrow": "The math",
@@ -283,20 +283,8 @@
       "Dream-job feasibility assessment",
       "Interactive dashboard with your results"
     ],
-    "betaPill": "Limited offer · Beta Access",
-    "regularPill": "Beta Access",
-    "countdown": {
-      "prefix": "Intro price ends in",
-      "prefixWithPrice": "{{price}} intro price ends in",
-      "days_one": "{{count}} day",
-      "days_other": "{{count}} days",
-      "hours_one": "{{count}} hour",
-      "hours_other": "{{count}} hours",
-      "lastHour": "less than an hour",
-      "then": "then {{price}}"
-    },
     "oneOff": "A one-off payment",
-    "cta": "Get Beta Access",
+    "cta": "Get Started",
     "trust": {
       "stripe": "Stripe",
       "gdpr": "GDPR",
@@ -338,7 +326,7 @@
   "finalCTA": {
     "titleA": "The direction you'd choose now, with the life you've",
     "titleHighlight": "lived in mind.",
-    "cta": "Get Beta Access",
+    "cta": "Get Started",
     "footer": "Built with career coaches. Backed by frontier AI. Honest about both."
   },
   "whyBuilt": {
@@ -348,7 +336,7 @@
     "titleHighlight": "chosen",
     "titleC": ".",
     "p1": "They're inherited from a decision someone made at 16, before they knew themselves well enough to make it. A general direction shaped a major. A major shaped a first job. A first job shaped the next ten. By the time you look up, you might be a department manager when you'd have made a better entrepreneur, or a builder, or something you've never even considered.",
-    "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No subscription, no roster of upsells. One clear answer, then we get out of your way.",
+    "p2": "We built Cairnly because the tools for asking that question properly didn't exist. Personality tests give you a label. Coaching takes months and costs thousands. Free quizzes give you what you paid for. So we built one assessment, honest about its methods, that takes who you actually are now and gives you specific roles to go look at on Monday. No roster of upsells. One clear answer, then we get out of your way.",
     "signature": "The Cairnly team, Utrecht",
     "report": {
       "eyebrow": "The research",
@@ -554,7 +542,7 @@
       ],
       "footer": "Ready in ~5 minutes",
       "footerSub": "refined by your coaching chat",
-      "priceLine": "{{price}} one-off · no subscription"
+      "priceLine": "{{price}}, one-off"
     },
     "pickHint": "Pick up to {{max}}",
     "pickCounter": "{{count}} of {{max}} picked",
@@ -567,7 +555,7 @@
       "ai": "AI risk"
     },
     "compare": {
-      "lead": "{{price}}, once.",
+      "lead": "{{price}}.",
       "body": "A career coach charges €80 to €150 per session. A free quiz hands you a four-letter label and leaves the rest to you.",
       "link": "See the full side-by-side"
     }

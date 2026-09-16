@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
 import { trackConversion } from '@/lib/analytics';
+import { PRO_PRICE } from '@/lib/pricing';
 import AuthShell from '@/components/auth/AuthShell';
 
 // The "Page view" conversion action from the Ads UI, set up for exactly this
@@ -27,7 +28,7 @@ const fireConversion = (sessionId: string) => {
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'conversion', {
         send_to: GOOGLE_ADS_CONVERSION_SEND_TO,
-        value: 39.0,
+        value: PRO_PRICE,
         currency: 'EUR',
         transaction_id: sessionId,
       });

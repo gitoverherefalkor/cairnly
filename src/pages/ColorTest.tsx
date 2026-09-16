@@ -118,7 +118,7 @@ const ColorTest = () => {
                       className="px-8 py-4 rounded-full font-bold text-white text-lg transition-all hover:-translate-y-0.5 active:scale-95 shadow-lg"
                       style={{ backgroundColor: p.accent, boxShadow: `0 10px 25px -5px ${p.accent}66` }}
                     >
-                      Get Started - €39
+                      Get Started - €59
                     </button>
                     <button className="px-8 py-4 rounded-full font-bold text-white text-lg transition-all active:scale-95 border border-white/10 backdrop-blur-sm" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
                       See How It Works
@@ -190,10 +190,10 @@ const ColorTest = () => {
                 className="px-12 py-6 rounded-full font-bold text-white text-xl uppercase tracking-widest transition-all hover:-translate-y-0.5 active:scale-95"
                 style={{ backgroundColor: p.accent, boxShadow: `0 0 50px ${p.accent}4d` }}
               >
-                Get Your Cairnly Assessment - €39
+                Get Your Cairnly Assessment - €59
               </button>
               <p className="text-[10px] font-bold uppercase tracking-[0.4em] mt-6" style={{ color: `${p.textMuted}50` }}>
-                Beta access. Full refund if you're not satisfied.
+                Full refund if you're not satisfied.
               </p>
             </div>
           </section>

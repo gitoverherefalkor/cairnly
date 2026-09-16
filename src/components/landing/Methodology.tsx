@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shield, Lock, Trash2 } from 'lucide-react';
 import Reveal from './Reveal';
-import WorkflowDiagramV2 from './WorkflowDiagramV2';
 
 const Methodology: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -80,9 +79,9 @@ const Methodology: React.FC = () => {
           </Reveal>
         </div>
 
-        {/* Engine diagram - the methodology made visible */}
-        <Reveal as="div" className="max-w-7xl mx-auto mt-20 md:mt-24">
-          <div className="text-center mb-8 md:mb-10">
+        {/* How the engine works, stated rather than drawn */}
+        <Reveal as="div" className="max-w-3xl mx-auto mt-20 md:mt-24">
+          <div className="text-center">
             <div className="lp-eyebrow text-[#D4A024] mb-4">{t('methodology.engineEyebrow')}</div>
             <h3
               className="font-heading font-bold text-white leading-[1.15]"
@@ -94,9 +93,12 @@ const Methodology: React.FC = () => {
               {t('methodology.engineSubtitle')}
             </p>
           </div>
-          <div className="rounded-3xl overflow-hidden" style={{ border: '1px solid rgba(212,160,36,0.25)', boxShadow: '0 40px 80px -30px rgba(0,0,0,0.5)' }}>
-            <WorkflowDiagramV2 />
-          </div>
+          {/* The engine diagram that used to sit here was retired on
+              2026-09-16 (src/unused/landing/WorkflowDiagramV2.tsx): it
+              published the pipeline step by step, and its labels were
+              hardcoded English in a page that ships in two languages. The
+              frame around it — this eyebrow, title and subtitle, plus the
+              trust row below — is the part that was doing the work. */}
 
           {/* Trust statements */}
           <div className="mt-8 md:mt-10 flex items-center justify-center gap-x-8 gap-y-3 flex-wrap text-[12px] font-medium text-white/65">

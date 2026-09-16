@@ -1,4 +1,4 @@
-// Build an editable .docx version of a cover letter. Same beta logic as
+// Build an editable .docx version of a cover letter. Same reasoning as
 // resumeToDocx: clean, single-column, easily editable in Word.
 
 import {

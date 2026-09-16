@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import Reveal from '@/components/landing/Reveal';
 
 /**
- * Closing footnote: legal entity plus the beta-rate deadline. Small type on
- * cream, sitting just above the site footer.
+ * Closing footnote: the legal entity behind Cairnly. Small type on cream,
+ * sitting just above the site footer. The beta-rate deadline that used to
+ * share this line was retired with the intro price on 2026-09-16.
  */
 const PartnersClosing: React.FC = () => {
   const { t } = useTranslation('partners');

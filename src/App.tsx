@@ -16,7 +16,7 @@ import Seo from "@/components/Seo";
 
 // Eagerly load the landing page, payment route, and global components.
 // Payment is eagerly loaded because it's the primary conversion route — a
-// slow lazy-chunk fetch on first click ("Get Beta Access") was causing
+// slow lazy-chunk fetch on first click ("Get Started") was causing
 // blank-page reports for first-time visitors.
 import Index from "./pages/Index";
 import Payment from "./pages/Payment";
