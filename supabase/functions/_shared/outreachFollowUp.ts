@@ -32,12 +32,19 @@ const SITE = 'https://cairnly.io';
 
 /**
  * Brad Gentry's verdict, mailed 16 September 2026 and used with his permission.
- * The Dutch lead-in carries the 25 years so the English fragment does not have
- * to repeat them; the ellipsis marks where his sentence continues. Quoted in
- * English on purpose: a translated testimonial is a sentence he never wrote.
+ *
+ * The Career Anchors sentence is in here on purpose and it is the reason this
+ * quote belongs in a mail to Dutch agencies: Schein's model is standard
+ * material here, sold and taught as "de loopbaanankers van Schein", so the
+ * reader knows exactly what is being ranked below what. The Dutch lead-in
+ * carries the 25 years so the English does not have to repeat them, and the
+ * ellipsis marks the clause left out of his first sentence.
+ *
+ * Quoted in English on purpose: a translated testimonial is a sentence he
+ * never wrote.
  */
 const COACH_QUOTE =
-  'Een loopbaancoach die al 25 jaar mensen adviseert schreef me er dit over: "by far the best career tool I have come across..."';
+  'Een loopbaancoach met 25 jaar ervaring schreef me dit over Cairnly: "by far the best career tool I have come across... Career Anchors was always my go to process, but this has taken career planning to another level."';
 
 /** The demo link for this agency, carrying the slug so a click still lands on their row. */
 export function demoLink(slug: string, campaign: string | null): string {

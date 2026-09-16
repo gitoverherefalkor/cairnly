@@ -22,6 +22,9 @@ import { trackCtaClick } from '@/lib/analytics';
  *   to use my LI picture and to make a quote from the message I sent you", and
  *   explicitly to use sentences from her earlier messages. She wrote a summary
  *   quote herself; what stands below is that text, trimmed, never reworded.
+ *   She is shown as "Valentina C.": permission covered her full name, but she
+ *   is a private individual talking about her own career, and the link proves
+ *   she is real for anyone who wants to check.
  *
  * Two edits against the originals, marked here so nobody has to wonder:
  * - Brad's "The A.I. Aspects" is lowercased to "aspects". A stray capital
@@ -68,10 +71,13 @@ const BRAD: Person = {
 };
 
 const VALENTINA: Person = {
-  name: 'Valentina Constenla Kasat',
+  // Her first name and an initial, at Sjoerd's request. The link goes to the
+  // full profile, so anyone who wants to check she is real still can.
+  name: 'Valentina C.',
   roleKey: 'roleCandidate',
   eyebrowKey: 'eyebrowCandidate',
-  photo: '/images/live/valentina-constenla-kasat.jpeg',
+  photo: '/images/live/valentina-c-192.jpeg',
+  linkedIn: 'https://www.linkedin.com/in/valentina-constenla-kasat/',
   full: [
     'The results were very meaningful to me and allowed me to understand myself in a new, valuable way. Nobody teaches us to know ourselves.',
     'Before using Cairnly, I felt like I was made of pieces of different puzzles, like an odd Frankenstein. After completing the assessment I can see the image these pieces form, and it is not odd or weird, it actually makes a lot of sense and I trust it will help me aim for what truly suits me.',
