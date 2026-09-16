@@ -161,7 +161,7 @@ const ANSWERS = {
   '55555555-5555-5555-5555-555555555558': pick('Voice concerns openly'),
 
   // Section 6 — emotional intelligence
-  '66666666-6666-6666-6666-666666666661': pick('actively seek it'),
+  '66666666-6666-6666-6666-666666666661': "Two things come back in every review. The praise: I make complicated things simple, and people trust me in a room with senior stakeholders. The critique: I sit on work too long polishing it, and I can be sharp when someone's thinking is sloppy, which lands as impatience. I'll take the first one. The second I only half agree with: I'm not impatient with people, I'm impatient with vagueness, and nobody has ever told me which of the two they meant.",
   '66666666-6666-6666-6666-666666666662': pick('encouraging but are careful not to offend'),
   '66666666-6666-6666-6666-666666666663': pick('Offer support and listen empathetically'),
   '66666666-6666-6666-6666-666666666664': pick('Remain calm and control your emotions'),

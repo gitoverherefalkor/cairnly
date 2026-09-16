@@ -150,7 +150,7 @@ const ANSWERS = {
   '55555555-5555-5555-5555-555555555558': pick('Approach them privately'),
 
   // Section 6 — emotional intelligence
-  '66666666-6666-6666-6666-666666666661': pick('actively seek it'),
+  '66666666-6666-6666-6666-666666666661': 'Wat ik steeds terughoor: dat ik de rust in het team ben en dat mensen bij mij durven te zeggen dat het niet goed gaat. De kritiek is al jaren dezelfde: dat ik te veel zelf oppak en te weinig doorpak als iemand niet levert. Met dat eerste ben ik het eens. Met het tweede minder: ik kies mijn momenten, en dat ziet mijn manager niet altijd.',
   '66666666-6666-6666-6666-666666666662': pick('encouraging but are careful not to offend'),
   '66666666-6666-6666-6666-666666666663': pick('Offer support and listen empathetically'),
   '66666666-6666-6666-6666-666666666664': pick('Remain calm and control your emotions'),
