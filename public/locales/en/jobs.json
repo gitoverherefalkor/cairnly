@@ -55,7 +55,8 @@
     "showWhy": "show why",
     "searching": "Searching live openings…",
     "queued": "Queued — searching next…",
-    "failed": "Search failed for this career. Try again."
+    "failed": "Search failed for this career. Try again.",
+    "limitReached": "You're out of free searches, so this career wasn't searched. Invite one person to remove the cap."
   },
   "invite": {
     "resumeAfter": "opens after your 2nd invited friend joins",
@@ -76,7 +77,8 @@
     "outOfTen": "/10"
   },
   "search": {
-    "eyebrow": "STEP 1 · UNLOCKED · TIER 1 OF 3",
+    "eyebrow": "STEP 1 OF 3 · FREE SEARCHES",
+    "eyebrowUnlimited": "STEP 1 OF 3 · UNLIMITED SEARCHES",
     "title": "Find live openings.",
     "intro": "Pick up to 3 careers from your report, set where you'd work, then run the search. Results are ranked by an AI score against your profile.",
     "careersEyebrow": "CAREERS TO SEARCH",
@@ -123,7 +125,10 @@
       "hours": "{{count}}h ago",
       "days": "{{count}}d ago"
     },
-    "arrangementNoteTail": "Want that? Let us know via the Feedback & Support button, bottom-right."
+    "arrangementNoteTail": "Want that? Let us know via the Feedback & Support button, bottom-right.",
+    "creditsLeft": "{{count}} of 4 free searches left",
+    "creditsShort_one": "You picked {{selected}} careers but have 1 search left. Only the first one will run.",
+    "creditsShort_other": "You picked {{selected}} careers but have {{count}} searches left. Only the first {{count}} will run."
   },
   "summary": {
     "careers_one": "{{count}} career",
@@ -139,18 +144,20 @@
     }
   },
   "locked": {
-    "eyebrow": "STEP 1 · 1 FRIEND TO UNLOCK",
-    "title": "Help one friend find their path, unlock yours.",
-    "body": "Job openings refresh daily and stay matched to your top 3 careers. As soon as one friend you invite joins Cairnly, this page opens.",
+    "eyebrow": "{{used}} OF {{limit}} FREE SEARCHES USED",
+    "title": "You've used your 4 free searches",
+    "body": "Invite one person who buys an assessment and job search becomes unlimited, for good.",
     "yourCode": "Your code",
-    "share": "Share",
-    "whenUnlocked": "WHEN UNLOCKED · YOU CAN",
-    "perk1Title": "Find live openings",
+    "seeSaved_one": "See your 1 saved job",
+    "seeSaved_other": "See your {{count}} saved jobs",
+    "whenUnlocked": "WITH ONE INVITE · YOU GET",
+    "perk1Title": "Unlimited job searches",
     "perk2Title": "Tailor your resume",
     "perk2Body": "On any saved job. Opens after a second invited friend joins.",
     "perk3Title": "Generate cover letters",
     "perk3Body": "On any saved job. Opens after a third invited friend joins.",
-    "perk1Body": "Refreshed daily, matched to your top 3 careers + runner-ups, ranked by an AI score against your profile."
+    "perk1Body": "No cap, ever. Refreshed daily, matched to your top 3 careers + runner-ups, ranked by an AI score against your profile.",
+    "cta": "Get your invite link"
   },
   "pipeline": {
     "eyebrow": "YOUR PIPELINE",

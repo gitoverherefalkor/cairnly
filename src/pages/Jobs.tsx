@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
+import { useJobSearchCredits } from '@/hooks/useJobSearchCredits';
 import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
 import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
@@ -122,10 +124,17 @@ const Jobs = () => {
   const referralStatus = useReferralStatus();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
 
   const latestReport = reports?.length ? reports[0] : null;
   const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
+
+  // Free-tier allowance for this report (4 charged searches, uncapped once the
+  // user has a referral/comp). Declared UP HERE with the other hooks — above
+  // every early return below — so the hook order can never change between
+  // renders (React error #310).
+  const credits = useJobSearchCredits(latestReport?.id);
 
   const { results, isSearching, searchJobs, restoreResults } = useJobSearch();
   const { savedJobs, saveJob, unsaveJob, updateStatus, isJobSaved } = useSavedJobs();
@@ -456,7 +465,7 @@ const Jobs = () => {
     { job: JobListing; existingId: string | null } | null
   >(null);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const careers = selectedCareers
       .map((st) => {
         const option = careerOptions.find((c) => c.sectionType === st);
@@ -483,7 +492,12 @@ const Jobs = () => {
         jobCommitment,
       }),
     );
-    searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
+    await searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
+    // Each career that actually reached n8n spent a credit, so re-read the
+    // ledger and let the counter (and the out-of-searches screen) catch up.
+    if (latestReport?.id) {
+      queryClient.invalidateQueries({ queryKey: ['job-search-credits', latestReport.id] });
+    }
   };
 
   // Clicking a recent-search chip restores the inputs (selection + filters).
@@ -529,8 +543,16 @@ const Jobs = () => {
   };
 
   // ── Loading / no-report / auth gates ─────────────────────────
+  // credits.isLoading is in here on purpose: without it the page would render
+  // the search UI for a frame before the ledger comes back and flips a spent
+  // user to the out-of-searches screen.
   const isPageLoading =
-    authLoading || profileLoading || reportsLoading || sectionsLoading || referralStatus.isLoading;
+    authLoading ||
+    profileLoading ||
+    reportsLoading ||
+    sectionsLoading ||
+    referralStatus.isLoading ||
+    credits.isLoading;
 
   if (isPageLoading) {
     return (
@@ -549,22 +571,12 @@ const Jobs = () => {
     return null;
   }
 
-  // ── Tier-1 referral gate → Locked screen ─────────────────────
-  const jobsFeature = referralStatus.features.find((f) => f.key === 'jobs');
+  // Job search itself is no longer behind a referral — everyone gets 4 free
+  // searches per report and a referral (or a comp) removes the cap. The
+  // résumé / cover-letter tools below keep their referral gates unchanged.
   const resumeFeature = referralStatus.features.find((f) => f.key === 'resume');
   const coverFeature = referralStatus.features.find((f) => f.key === 'cover-letter');
-  if (jobsFeature && !jobsFeature.unlocked) {
-    return (
-      <JobsLocked
-        firstName={firstName}
-        referralCode={referralStatus.referralCode}
-        onBack={() => navigate('/dashboard')}
-        onShare={handleInvite}
-        onProfile={() => navigate('/profile')}
-        onSignOut={() => navigate('/auth')}
-      />
-    );
-  }
+  const outOfSearches = !credits.unlimited && credits.remaining === 0;
 
   const resumeUnlocked = !!resumeFeature?.unlocked;
   const coverUnlocked = !!coverFeature?.unlocked;
@@ -665,6 +677,28 @@ const Jobs = () => {
     );
   }
 
+  // ── Out of free searches → the invite-for-unlimited screen ───
+  // Deliberately placed AFTER the saved + results branches: running out means
+  // "you can't start another search", not "you lose what you already have".
+  // Gating earlier would bounce a user off the results of the very search
+  // that spent their last credit.
+  if (outOfSearches) {
+    return (
+      <JobsLocked
+        firstName={firstName}
+        referralCode={referralStatus.referralCode}
+        used={credits.used}
+        limit={credits.limit}
+        savedCount={savedCount}
+        onOpenSaved={() => setView('saved')}
+        onBack={() => navigate('/dashboard')}
+        onShare={handleInvite}
+        onProfile={() => navigate('/profile')}
+        onSignOut={() => navigate('/auth')}
+      />
+    );
+  }
+
   // ── Search (default) ─────────────────────────────────────────
   return (
     <JobsSearch
@@ -688,6 +722,8 @@ const Jobs = () => {
       onToggleAvoid={toggleAvoid}
       isSearching={isSearching}
       onSearch={handleSearch}
+      creditsRemaining={credits.remaining}
+      creditsUnlimited={credits.unlimited}
       onBack={() => navigate('/dashboard')}
       onProfile={() => navigate('/profile')}
       onSignOut={() => navigate('/auth')}

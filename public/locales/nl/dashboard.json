@@ -325,7 +325,6 @@
       "alignment": "AANSLUITING BIJ JE AMBITIES",
       "why": "Waarom dit past",
       "findRole": "Zoek deze rol",
-      "findRoleLocked": "Zoek deze rol · vergrendeld",
       "tailorCv": "CV afstemmen op deze rol",
       "tailorCvLocked": "CV afstemmen · vergrendeld",
       "compare": "Hoe dit zich verhoudt · beweeg voor detail",
@@ -336,8 +335,7 @@
     "secondary": {
       "eyebrow": "CARRIÈRE #{{rank}}",
       "open": "Openen",
-      "findRoles": "Zoek rollen",
-      "findRolesLocked": "Zoek rollen · vergrendeld"
+      "findRoles": "Zoek rollen"
     },
     "paths": {
       "eyebrow": "MEER PADEN OM TE OVERWEGEN",
@@ -388,6 +386,8 @@
     },
     "step": {
       "unlocked": "Ontgrendeld!",
+      "jobsFree": "{{n}} gratis zoekopdrachten",
+      "jobsUnlimited": "Onbeperkt!",
       "unlockedSoon": "Ontgrendeld · binnenkort",
       "friend": "Referentie #{{n}}",
       "comingSoon": "Binnenkort",
@@ -412,8 +412,8 @@
     "unlock": {
       "tool": {
         "jobs": {
-          "title": "Vacatures zoeken",
-          "description": "Zoek actuele vacatures die aansluiten op je beste carrièrematches."
+          "title": "Onbeperkt vacatures zoeken",
+          "description": "Iedereen krijgt 4 gratis zoekopdrachten. Eén aanbeveling haalt de limiet er voorgoed af."
         },
         "resume": {
           "title": "CV afstemmen",

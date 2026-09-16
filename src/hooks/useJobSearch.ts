@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,7 +32,37 @@ export interface JobSearchResult {
   totalCount: number;
   cached: boolean;
   status: 'idle' | 'searching' | 'done' | 'error';
+  // Free-form failure message, EXCEPT for the sentinel LIMIT_ERROR below,
+  // which the results UI swaps for its own localized "out of free searches"
+  // copy instead of printing verbatim.
   error?: string;
+}
+
+// Sentinel written into JobSearchResult.error when the edge function refused
+// the search because the report's 4 free searches are spent. Not user-facing
+// text — JobsResults maps it to t('results.limitReached').
+export const LIMIT_ERROR = 'limit';
+
+/**
+ * True when an invoke() failure is the edge function's 429
+ * `{ error: 'search_limit_reached' }` refusal rather than a real fault.
+ *
+ * supabase-js does NOT hand a non-2xx body back as `data`: FunctionsClient
+ * throws a FunctionsHttpError internally and surfaces it on `error`, so the
+ * body never reaches the success branch. The Response lives on `error.context`
+ * and is still unread at this point, so .json() is safe to call once.
+ */
+async function isSearchLimitError(err: unknown): Promise<boolean> {
+  if (!(err instanceof FunctionsHttpError)) return false;
+  const res = err.context as Response | undefined;
+  if (!res || typeof res.json !== 'function') return false;
+  try {
+    const body = await res.json();
+    return body?.error === 'search_limit_reached';
+  } catch {
+    // Non-JSON or already-consumed body — treat as a generic failure.
+    return false;
+  }
 }
 
 interface SearchCareer {
@@ -113,6 +144,10 @@ export const useJobSearch = () => {
         const { data, error } = await supabase.functions.invoke('search-jobs', {
           body: {
             career_title: careers[i].careerTitle,
+            // Which report section this career came from. The edge function
+            // writes it to user_job_searches.section_type (NOT NULL) when it
+            // logs the search against the free-tier allowance.
+            section_type: careers[i].sectionType,
             country_codes: countryCodes,
             work_arrangement: workArrangement || 'any',
             job_commitment: jobCommitment || 'any',
@@ -139,6 +174,20 @@ export const useJobSearch = () => {
           } : r
         ));
       } catch (err) {
+        // The free-tier refusal (HTTP 429) is not a fault — every remaining
+        // career would be refused identically, so stop the loop instead of
+        // firing N more requests we already know will bounce. Mark this
+        // career AND everything still queued so nothing is left spinning on
+        // an 'idle' placeholder forever.
+        if (await isSearchLimitError(err)) {
+          setResults(prev => prev.map((r, idx) =>
+            idx >= i && r.status !== 'done'
+              ? { ...r, status: 'error', error: LIMIT_ERROR }
+              : r
+          ));
+          break;
+        }
+
         console.error(`Job search failed for "${careers[i].careerTitle}":`, err);
 
         setResults(prev => prev.map((r, idx) =>

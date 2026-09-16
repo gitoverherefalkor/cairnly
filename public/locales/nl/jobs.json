@@ -55,7 +55,8 @@
     "showWhy": "bekijk waarom",
     "searching": "Live vacatures zoeken…",
     "queued": "In de wachtrij, volgende zoekopdracht…",
-    "failed": "Zoeken mislukt voor deze loopbaan. Probeer het opnieuw."
+    "failed": "Zoeken mislukt voor deze loopbaan. Probeer het opnieuw.",
+    "limitReached": "Je gratis zoekopdrachten zijn op, dus deze loopbaan is niet doorzocht. Nodig één persoon uit om de limiet eraf te halen."
   },
   "invite": {
     "resumeAfter": "gaat open zodra je 2e uitgenodigde vriend zich aanmeldt",
@@ -76,7 +77,8 @@
     "outOfTen": "/10"
   },
   "search": {
-    "eyebrow": "STAP 1 · ONTGRENDELD · NIVEAU 1 VAN 3",
+    "eyebrow": "STAP 1 VAN 3 · GRATIS ZOEKOPDRACHTEN",
+    "eyebrowUnlimited": "STAP 1 VAN 3 · ONBEPERKTE ZOEKOPDRACHTEN",
     "title": "Vind actuele vacatures.",
     "intro": "Kies maximaal 3 loopbanen uit je rapport, geef aan waar je zou werken en start de zoekopdracht. Resultaten worden gerangschikt met een AI-score tegen je profiel.",
     "careersEyebrow": "LOOPBANEN OM TE ZOEKEN",
@@ -123,7 +125,10 @@
       "hours": "{{count}}u geleden",
       "days": "{{count}}d geleden"
     },
-    "arrangementNoteTail": "Wil je dat? Laat het weten via de knop Feedback & Support rechtsonder."
+    "arrangementNoteTail": "Wil je dat? Laat het weten via de knop Feedback & Support rechtsonder.",
+    "creditsLeft": "Nog {{count}} van 4 gratis zoekopdrachten",
+    "creditsShort_one": "Je koos {{selected}} loopbanen maar hebt nog 1 zoekopdracht. Alleen de eerste wordt uitgevoerd.",
+    "creditsShort_other": "Je koos {{selected}} loopbanen maar hebt nog {{count}} zoekopdrachten. Alleen de eerste {{count}} worden uitgevoerd."
   },
   "summary": {
     "careers_one": "{{count}} loopbaan",
@@ -139,18 +144,20 @@
     }
   },
   "locked": {
-    "eyebrow": "STAP 1 · NOG 1 VRIEND",
-    "title": "Help één vriend zijn pad vinden, ontgrendel dat van jou.",
-    "body": "Vacatures worden dagelijks ververst en blijven gematcht met je top 3 loopbanen. Zodra één vriend die je uitnodigt zich aanmeldt bij Cairnly, gaat deze pagina open.",
+    "eyebrow": "{{used}} VAN {{limit}} GRATIS ZOEKOPDRACHTEN GEBRUIKT",
+    "title": "Je 4 gratis zoekopdrachten zijn op",
+    "body": "Nodig één persoon uit die een assessment koopt en zoeken naar vacatures wordt onbeperkt, voorgoed.",
     "yourCode": "Jouw code",
-    "share": "Delen",
-    "whenUnlocked": "ALS HET OPEN IS · KUN JE",
-    "perk1Title": "Actuele vacatures vinden",
+    "seeSaved_one": "Bekijk je 1 bewaarde vacature",
+    "seeSaved_other": "Bekijk je {{count}} bewaarde vacatures",
+    "whenUnlocked": "MET ÉÉN UITNODIGING · KRIJG JE",
+    "perk1Title": "Onbeperkt vacatures zoeken",
     "perk2Title": "Je cv afstemmen",
     "perk2Body": "Op elke bewaarde vacature. Gaat open zodra een tweede uitgenodigde vriend zich aanmeldt.",
     "perk3Title": "Motivatiebrieven maken",
     "perk3Body": "Op elke bewaarde vacature. Gaat open zodra een derde uitgenodigde vriend zich aanmeldt.",
-    "perk1Body": "Dagelijks ververst, gematcht met je top 3 loopbanen + runner-ups, gerangschikt met een AI-score tegen je profiel."
+    "perk1Body": "Nooit meer een limiet. Dagelijks ververst, gematcht met je top 3 loopbanen + runner-ups, gerangschikt met een AI-score tegen je profiel.",
+    "cta": "Haal je uitnodigingslink"
   },
   "pipeline": {
     "eyebrow": "JOUW PIJPLIJN",

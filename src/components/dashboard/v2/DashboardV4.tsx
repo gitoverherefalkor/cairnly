@@ -19,6 +19,7 @@ import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralSta
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
+import { FREE_SEARCH_LIMIT } from '@/hooks/useJobSearchCredits';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
 import { CareerSlotIcon, type CareerSlot } from '@/components/dashboard/CareerSlotIcon';
@@ -578,9 +579,6 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     [careerMapPoints],
   );
 
-  const jobsFeature = features.find((f) => f.key === 'jobs');
-  const jobsUnlocked = jobsFeature?.unlocked ?? false;
-
   const resumeFeature = features.find((f) => f.key === 'resume');
   const resumeUnlocked = resumeFeature?.unlocked ?? false;
 
@@ -589,11 +587,12 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   // results that may not even include the role they just clicked. When a
   // careerTitle is provided (per-card click), the filter page pre-selects that
   // career and clears any previous picks for a focused start.
+  //
+  // No referral gate: job search is open to every report (4 free searches,
+  // see useJobSearchCredits). The referral removes the cap, it does not grant
+  // access — so this must never bounce to the invite modal. The Jobs page
+  // itself handles the out-of-searches case.
   const handleFindRoles = (careerTitle?: string) => {
-    if (!jobsUnlocked) {
-      onInvite();
-      return;
-    }
     const params = new URLSearchParams({ mode: 'search' });
     if (careerTitle) params.set('career', careerTitle);
     onNavigate(`/jobs?${params.toString()}`);
@@ -719,7 +718,6 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
               onOpenBreakdown={() => handleOpenSection('top-1')}
               onFindRoles={handleFindRoles}
               onTailorCV={handleTailorCV}
-              jobsUnlocked={jobsUnlocked}
               resumeUnlocked={resumeUnlocked}
               compareCareers={compareCareers}
               compareCareersRich={compareCareersRich}
@@ -733,7 +731,6 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
                     match={m}
                     onOpen={() => handleOpenSection(`top-${m.rank}`)}
                     onFindRoles={handleFindRoles}
-                    jobsUnlocked={jobsUnlocked}
                   />
                 ))}
               </div>
@@ -1040,11 +1037,11 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
 // ── Hero match (#1) ──────────────────────────────────────────
 // Front-facing card with a permanent comparison radar in the bottom-right
 // (no flip). Three actions stacked on the left: Why this fits / Find this
-// role / Tailor CV to this role. The two right-hand actions gate on their
-// respective feature flags and bounce to the invite modal when locked.
+// role / Tailor CV to this role. "Tailor CV" gates on the resume feature flag
+// and bounces to the invite modal when locked; "Find this role" never does —
+// job search is open to everyone.
 const HeroMatch: React.FC<{
   match: CareerMatch;
-  jobsUnlocked: boolean;
   resumeUnlocked: boolean;
   onOpenBreakdown: () => void;
   onFindRoles: (careerTitle?: string) => void;
@@ -1058,7 +1055,6 @@ const HeroMatch: React.FC<{
   lang: string;
 }> = ({
   match,
-  jobsUnlocked,
   resumeUnlocked,
   onOpenBreakdown,
   onFindRoles,
@@ -1265,10 +1261,8 @@ const HeroMatch: React.FC<{
                         cursor: 'pointer',
                       }}
                     >
-                      {jobsUnlocked ? <Briefcase size={14} /> : <Lock size={14} />}
-                      {jobsUnlocked
-                        ? t('v4.hero.findRole', { defaultValue: 'Find this role' })
-                        : t('v4.hero.findRoleLocked', { defaultValue: 'Find this role · locked' })}
+                      <Briefcase size={14} />
+                      {t('v4.hero.findRole', { defaultValue: 'Find this role' })}
                     </button>
                     <button
                       type="button"
@@ -1451,8 +1445,7 @@ const SecondaryMatch: React.FC<{
   match: CareerMatch;
   onOpen: () => void;
   onFindRoles: (careerTitle?: string) => void;
-  jobsUnlocked: boolean;
-}> = ({ match, onOpen, onFindRoles, jobsUnlocked }) => {
+}> = ({ match, onOpen, onFindRoles }) => {
   const { t } = useTranslation('dashboard');
   return (
   <article
@@ -1555,10 +1548,8 @@ const SecondaryMatch: React.FC<{
           cursor: 'pointer',
         }}
       >
-        {jobsUnlocked ? <Briefcase size={13} /> : <Lock size={13} />}
-        {jobsUnlocked
-          ? t('v4.secondary.findRoles', { defaultValue: 'Find roles' })
-          : t('v4.secondary.findRolesLocked', { defaultValue: 'Find roles · locked' })}
+        <Briefcase size={13} />
+        {t('v4.secondary.findRoles', { defaultValue: 'Find roles' })}
       </button>
     </div>
   </article>
@@ -2012,7 +2003,16 @@ const StepCard: React.FC<{
   const isTool = step.kind === 'tool';
   const builtYet = isTool ? step.builtYet : true;
   const route = isTool ? step.route : undefined;
-  const actionable = isTool && unlocked && builtYet && !!route;
+  // `jobs` is the odd step out: the tool is already open to everyone (4 free
+  // searches per report) and the referral removes the cap, so this card never
+  // wears a padlock and never bounces to the invite modal. It presents as
+  // available; the status line says which tier the user is on. `resume` and
+  // `cover-letter` are real unlock gates and keep the locked treatment, so
+  // every `unlocked` below that drives a TOOL's lock treatment reads
+  // `toolOpen` instead. Refund cards still read `unlocked` directly.
+  const isJobs = isTool && step.featureKey === 'jobs';
+  const toolOpen = isTool && (unlocked || isJobs);
+  const actionable = toolOpen && builtYet && !!route;
 
   // Step title + blurb live in useReferralStatus as English literals (that
   // catalogue is also read by the Jobs gate). Translate at the display layer,
@@ -2033,7 +2033,7 @@ const StepCard: React.FC<{
   let summaryCount = 0;
   let summaryNoun = '';
   let summaryRoute: string | null = null;
-  if (isTool && unlocked && builtYet) {
+  if (toolOpen && builtYet) {
     if (step.featureKey === 'resume') {
       summaryCount = savedResumes?.length ?? 0;
       summaryNoun = t('v4.step.noun.resume', {
@@ -2060,21 +2060,30 @@ const StepCard: React.FC<{
   const showSummary = summaryCount > 0 && !!summaryRoute;
 
   // Status line under the title.
-  const statusText = unlocked
-    ? builtYet
-      ? t('v4.step.unlocked', { defaultValue: 'Unlocked!' })
-      : t('v4.step.unlockedSoon', { defaultValue: 'Unlocked · soon' })
-    : t('v4.step.friend', {
-        n: step.requiredReferrals,
-        defaultValue: 'Friend #{{n}}',
-      });
+  // Jobs names the tier instead: "Unlocked!" would be a lie to a capped user
+  // and "Friend #1" would imply they can't search yet, which they can.
+  const statusText = isJobs
+    ? unlocked
+      ? t('v4.step.jobsUnlimited', { defaultValue: 'Unlimited!' })
+      : t('v4.step.jobsFree', {
+          n: FREE_SEARCH_LIMIT,
+          defaultValue: '{{n}} free searches',
+        })
+    : unlocked
+      ? builtYet
+        ? t('v4.step.unlocked', { defaultValue: 'Unlocked!' })
+        : t('v4.step.unlockedSoon', { defaultValue: 'Unlocked · soon' })
+      : t('v4.step.friend', {
+          n: step.requiredReferrals,
+          defaultValue: 'Friend #{{n}}',
+        });
 
   // Refund cards get a prominent gold outline + glow so the money tier draws
   // the eye, locked or not. Tool cards keep the quieter teal/tan treatment.
   const isRefund = step.kind === 'refund';
   const border = isRefund
     ? `1.5px solid ${PALETTE.goldBright}`
-    : `1px solid ${unlocked ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`;
+    : `1px solid ${toolOpen ? 'rgba(39,161,161,0.35)' : PALETTE.tan}`;
   const boxShadow = isRefund
     ? '0 14px 28px -16px rgba(0,0,0,0.32), 0 0 0 3px rgba(212,160,36,0.16)'
     : '0 14px 28px -16px rgba(0,0,0,0.32)';
@@ -2120,7 +2129,7 @@ const StepCard: React.FC<{
         width: '100%',
         minWidth: 0,
         // Refund cards stay full-opacity even when locked — they're the carrot.
-        opacity: isRefund ? 1 : unlocked ? 1 : 0.92,
+        opacity: isRefund ? 1 : toolOpen ? 1 : 0.92,
       }}
     >
       {/* Icon / % badge + title + status — single compact header row */}
@@ -2140,14 +2149,14 @@ const StepCard: React.FC<{
             // Tools: gold when unlocked, grey when locked. Refunds: always a
             // teal "money" tint when unlocked, soft gold-tint coin when locked.
             background: isTool
-              ? unlocked
+              ? toolOpen
                 ? 'rgba(212,160,36,0.18)'
                 : 'rgba(18,46,59,0.08)'
               : unlocked
                 ? 'rgba(39,161,161,0.16)'
                 : 'rgba(212,160,36,0.12)',
             color: isTool
-              ? unlocked
+              ? toolOpen
                 ? PALETTE.gold
                 : PALETTE.inkSoft
               : unlocked
@@ -2155,7 +2164,7 @@ const StepCard: React.FC<{
                 : PALETTE.gold,
             border: `1px solid ${
               isTool
-                ? unlocked
+                ? toolOpen
                   ? 'rgba(212,160,36,0.45)'
                   : 'rgba(18,46,59,0.10)'
                 : unlocked
@@ -2166,7 +2175,7 @@ const StepCard: React.FC<{
           }}
         >
           {isTool ? (
-            unlocked ? TOOL_ICON[step.featureKey] : <Lock size={14} />
+            toolOpen ? TOOL_ICON[step.featureKey] : <Lock size={14} />
           ) : (
             // Refund steps: coins icon in both states (the % is in the title;
             // the lock lives in the button below, no need to double up).
@@ -2193,7 +2202,13 @@ const StepCard: React.FC<{
               fontFamily: FONT_BODY,
               fontWeight: 700,
               fontSize: 10,
-              color: unlocked ? (isTool ? PALETTE.gold : PALETTE.tealDeep) : PALETTE.inkMuted,
+              color: isTool
+                ? toolOpen
+                  ? PALETTE.gold
+                  : PALETTE.inkMuted
+                : unlocked
+                  ? PALETTE.tealDeep
+                  : PALETTE.inkMuted,
               marginTop: 1,
               letterSpacing: '0.03em',
               textTransform: 'uppercase',
@@ -2268,42 +2283,42 @@ const StepCard: React.FC<{
       {isTool ? (
         <button
           type="button"
-          disabled={unlocked && !builtYet}
+          disabled={toolOpen && !builtYet}
           onClick={() => {
             if (actionable) onNavigate(route!);
-            else if (!unlocked) onInvite();
+            else if (!toolOpen) onInvite();
           }}
           style={{
             marginTop: 'auto',
             background: actionable ? PALETTE.gold : 'transparent',
             color: actionable
               ? PALETTE.canvasDeep
-              : unlocked && !builtYet
+              : toolOpen && !builtYet
                 ? PALETTE.inkSoft
                 : PALETTE.tealDeep,
             border: actionable
               ? '1px solid transparent'
-              : `1px solid ${unlocked ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
+              : `1px solid ${toolOpen ? 'rgba(39, 161, 161, 0.45)' : PALETTE.teal}`,
             padding: '8px 10px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
-            fontWeight: actionable ? 800 : 700,
+            fontWeight: 700,
             fontSize: 11.5,
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 6,
-            cursor: unlocked && !builtYet ? 'default' : 'pointer',
+            cursor: toolOpen && !builtYet ? 'default' : 'pointer',
             boxShadow: actionable ? '0 10px 24px -8px rgba(212,160,36,0.55)' : undefined,
-            opacity: unlocked && !builtYet ? 0.7 : 1,
+            opacity: toolOpen && !builtYet ? 0.7 : 1,
           }}
         >
-          {!unlocked && <Lock size={12} />}
+          {!toolOpen && <Lock size={12} />}
           {actionable
             ? t(`v4.step.cta.${step.featureKey}`, {
                 defaultValue: TOOL_CTA_EN[step.featureKey],
               })
-            : unlocked
+            : toolOpen
               ? t('v4.step.comingSoon', { defaultValue: 'Coming soon' })
               : t('v4.step.inviteToUnlock', { defaultValue: 'Invite to unlock' })}
           {actionable && <ArrowRight size={12} />}
