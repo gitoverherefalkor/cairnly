@@ -5,41 +5,81 @@ import Reveal from './Reveal';
 import { trackCtaClick } from '@/lib/analytics';
 
 /**
- * Brad Gentry on Cairnly. Sent by mail on 16 September 2026 and used with his
- * permission, photo included.
+ * Two voices, side by side: the person who did the assessment and the
+ * professional who judges such tools for a living. Peer proof and expert proof
+ * answer different doubts, so both pages carry both, in the order that suits
+ * the reader.
  *
- * The quote lives in this file as a constant and NOT in public/locales, on
- * purpose. These are a real person's words: a translator, or the language
- * contract, would cheerfully produce a Dutch sentence he never said. Only the
- * labels around the quote are translated. If the wording here ever needs to
- * change, it changes because Brad said so.
+ * Every quote here lives in this file as a constant and NOT in public/locales,
+ * on purpose. These are real people's words: a translator, or the language
+ * contract, would cheerfully produce a Dutch sentence neither of them ever
+ * said. Only the labels around a quote are translated. If the wording here
+ * changes, it changes because they said so.
  *
- * The one edit against his mail is "The A.I. Aspects" -> "aspects". A stray
- * capital reads as our typo on our own page; the meaning is untouched.
+ * Permission:
+ * - Brad Gentry, by mail 16 September 2026: quote, name, photo, LinkedIn.
+ * - Valentina Constenla Kasat, by LinkedIn message 20 August 2026: "feel free
+ *   to use my LI picture and to make a quote from the message I sent you", and
+ *   explicitly to use sentences from her earlier messages. She wrote a summary
+ *   quote herself; what stands below is that text, trimmed, never reworded.
+ *
+ * Two edits against the originals, marked here so nobody has to wonder:
+ * - Brad's "The A.I. Aspects" is lowercased to "aspects". A stray capital
+ *   reads as our typo on our own page.
+ * - Valentina's quote opens "To summarize… thank you.", which is addressed to
+ *   Sjoerd rather than to a reader, so the excerpt starts at the next
+ *   sentence. Every passage kept is verbatim and free of second-person
+ *   address, so nothing had to be reworded to make it read on a page.
  */
 
-const LINKEDIN_URL = 'https://www.linkedin.com/in/brad-gentry-1227856/';
-const NAME = 'Brad Gentry';
-/** Drop a square headshot here and it appears; until then the initials show. */
-const PHOTO_URL = '/testimonials/brad-gentry.jpg';
+interface Person {
+  name: string;
+  /** i18n key under `testimonial` for the line under the name. */
+  roleKey: string;
+  /** i18n key for the label above the quote. */
+  eyebrowKey: string;
+  /** Public path. A missing file falls back to the initials, no code change. */
+  photo: string;
+  /** Only when a PUBLIC profile URL exists: a LinkedIn member URN is useless to a visitor. */
+  linkedIn?: string;
+  /** The whole review, for a reader who wants the detail. */
+  full: string[];
+  /** The passage that carries it, for a page that cannot spare the room. */
+  short: string[];
+}
 
-/** The whole review, for readers who are career professionals themselves. */
-const QUOTE_FULL = [
-  'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers. Career Anchors was always my go to process, but this has taken career planning to another level.',
-  "Comprehensive, a proper deep dive into gaining clarity around one's future career choices.",
-  'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people. The A.I. aspects have been thoughtfully woven into the format.',
-];
+const BRAD: Person = {
+  name: 'Brad Gentry',
+  roleKey: 'roleCoach',
+  eyebrowKey: 'eyebrowCoach',
+  photo: '/images/live/brad-gentry-192.jpeg',
+  linkedIn: 'https://www.linkedin.com/in/brad-gentry-1227856/',
+  full: [
+    'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers. Career Anchors was always my go to process, but this has taken career planning to another level.',
+    "Comprehensive, a proper deep dive into gaining clarity around one's future career choices.",
+    'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people. The A.I. aspects have been thoughtfully woven into the format.',
+  ],
+  // The consumer page drops the Career Anchors sentence: outside the
+  // profession that name carries nothing.
+  short: [
+    'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers.',
+    'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people.',
+  ],
+};
 
-/**
- * Two sentences from the same review for the consumer page, where "Career
- * Anchors" is jargon nobody outside the profession knows. Kept as two
- * paragraphs rather than spliced into one, so it reads as what it is: two
- * passages from a longer note.
- */
-const QUOTE_SHORT = [
-  'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers.',
-  'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people.',
-];
+const VALENTINA: Person = {
+  name: 'Valentina Constenla Kasat',
+  roleKey: 'roleCandidate',
+  eyebrowKey: 'eyebrowCandidate',
+  photo: '/images/live/valentina-constenla-kasat.jpeg',
+  full: [
+    'The results were very meaningful to me and allowed me to understand myself in a new, valuable way. Nobody teaches us to know ourselves.',
+    'Before using Cairnly, I felt like I was made of pieces of different puzzles, like an odd Frankenstein. After completing the assessment I can see the image these pieces form, and it is not odd or weird, it actually makes a lot of sense and I trust it will help me aim for what truly suits me.',
+  ],
+  short: [
+    'Before using Cairnly, I felt like I was made of pieces of different puzzles, like an odd Frankenstein. After completing the assessment I can see the image these pieces form, and I trust it will help me aim for what truly suits me.',
+  ],
+};
 
 const initials = (name: string): string =>
   name
@@ -49,80 +89,100 @@ const initials = (name: string): string =>
     .join('')
     .toUpperCase();
 
-const Testimonial: React.FC<{ variant?: 'short' | 'full' }> = ({ variant = 'short' }) => {
+const Card: React.FC<{ person: Person; variant: 'short' | 'full' }> = ({ person, variant }) => {
   const { t } = useTranslation('landing');
   const [photoFailed, setPhotoFailed] = useState(false);
-  const paragraphs = variant === 'full' ? QUOTE_FULL : QUOTE_SHORT;
+  const paragraphs = variant === 'full' ? person.full : person.short;
+
+  return (
+    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#122E3B]/10 bg-[#FAF5E8] px-7 py-8 md:px-9 md:py-10 shadow-[0_1px_2px_rgba(18,46,59,0.04),0_12px_32px_-12px_rgba(18,46,59,0.12)]">
+      {/* Decoration only, so it steps aside on a phone rather than sitting on
+          top of the label. The eyebrow keeps its right margin regardless. */}
+      <Quote
+        size={64}
+        strokeWidth={1.25}
+        aria-hidden="true"
+        className="pointer-events-none absolute top-6 right-6 hidden text-[#D4A024]/12 sm:block"
+      />
+
+      <figure className="relative flex h-full flex-col">
+        <div className="lp-eyebrow text-[#1F8282] mb-5 sm:pr-20">{t(`testimonial.${person.eyebrowKey}`)}</div>
+
+        <blockquote
+          className="font-heading text-[#122E3B] leading-[1.45] space-y-4"
+          style={{ fontSize: 'clamp(17px, 1.35vw, 21px)', letterSpacing: '-0.006em' }}
+        >
+          {paragraphs.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+        </blockquote>
+
+        {/* mt-auto pins both cards' attributions to the same baseline, however
+            unevenly the quotes above them run. */}
+        <figcaption className="mt-auto flex items-center gap-3.5 border-t border-[#122E3B]/10 pt-7">
+          {photoFailed ? (
+            <span
+              aria-hidden="true"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#D4A024]/18 font-heading text-[14px] font-bold text-[#8A6414]"
+            >
+              {initials(person.name)}
+            </span>
+          ) : (
+            <img
+              src={person.photo}
+              alt={person.name}
+              width={44}
+              height={44}
+              loading="lazy"
+              onError={() => setPhotoFailed(true)}
+              className="h-11 w-11 shrink-0 rounded-full object-cover"
+            />
+          )}
+
+          <div className="min-w-0">
+            <div className="font-heading font-bold text-[#122E3B] leading-tight">{person.name}</div>
+            <div className="text-[13px] text-[#122E3B]/65">{t(`testimonial.${person.roleKey}`)}</div>
+          </div>
+
+          {person.linkedIn && (
+            /* Below sm the label is display:none, which hides it from screen
+               readers as well and would leave the link with no name. */
+            <a
+              href={person.linkedIn}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${person.name} ${t('testimonial.linkedin')}`}
+              onClick={() => trackCtaClick('testimonial-linkedin')}
+              className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#122E3B]/55 transition-colors hover:text-[#1F8282]"
+            >
+              <Linkedin size={16} strokeWidth={2} />
+              <span className="hidden sm:inline">{t('testimonial.linkedin')}</span>
+            </a>
+          )}
+        </figcaption>
+      </figure>
+    </div>
+  );
+};
+
+/**
+ * `audience` decides who speaks first, not who speaks. A career professional
+ * reading the partner page wants to hear from a peer; someone weighing the
+ * assessment for themselves wants to hear from someone who took it.
+ */
+const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' | 'partner' }> = ({
+  variant = 'short',
+  audience = 'consumer',
+}) => {
+  const people = audience === 'partner' ? [BRAD, VALENTINA] : [VALENTINA, BRAD];
 
   return (
     <section className="bg-[#ECE4D2] pb-20 md:pb-28">
       <div className="lp-container">
-        <Reveal className="mx-auto max-w-3xl">
-          <div className="relative overflow-hidden rounded-2xl border border-[#122E3B]/10 bg-[#FAF5E8] px-7 py-9 md:px-12 md:py-12 shadow-[0_1px_2px_rgba(18,46,59,0.04),0_12px_32px_-12px_rgba(18,46,59,0.12)]">
-            {/* Oversized quote mark, decorative only. */}
-            <Quote
-              size={88}
-              strokeWidth={1.25}
-              aria-hidden="true"
-              className="pointer-events-none absolute top-6 right-6 text-[#D4A024]/15"
-            />
-
-            <div className="relative">
-              <div className="lp-eyebrow text-[#1F8282] mb-6">{t('testimonial.eyebrow')}</div>
-
-              <figure>
-                <blockquote
-                  cite={LINKEDIN_URL}
-                  className="font-heading text-[#122E3B] leading-[1.45] space-y-5"
-                  style={{ fontSize: 'clamp(19px, 1.9vw, 25px)', letterSpacing: '-0.008em' }}
-                >
-                  {paragraphs.map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </blockquote>
-
-                <figcaption className="mt-9 flex items-center gap-4 border-t border-[#122E3B]/10 pt-7">
-                  {photoFailed ? (
-                    <span
-                      aria-hidden="true"
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#D4A024]/18 font-heading text-[15px] font-bold text-[#8A6414]"
-                    >
-                      {initials(NAME)}
-                    </span>
-                  ) : (
-                    <img
-                      src={PHOTO_URL}
-                      alt={NAME}
-                      width={48}
-                      height={48}
-                      loading="lazy"
-                      onError={() => setPhotoFailed(true)}
-                      className="h-12 w-12 shrink-0 rounded-full object-cover"
-                    />
-                  )}
-
-                  <div className="min-w-0">
-                    <div className="font-heading font-bold text-[#122E3B]">{NAME}</div>
-                    <div className="text-sm text-[#122E3B]/65">{t('testimonial.role')}</div>
-                  </div>
-
-                  {/* Below sm the label is display:none, which hides it from screen
-                      readers as well and would leave the link with no name. */}
-                  <a
-                    href={LINKEDIN_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${NAME} ${t('testimonial.linkedin')}`}
-                    onClick={() => trackCtaClick('testimonial-linkedin')}
-                    className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#122E3B]/55 transition-colors hover:text-[#1F8282]"
-                  >
-                    <Linkedin size={16} strokeWidth={2} />
-                    <span className="hidden sm:inline">{t('testimonial.linkedin')}</span>
-                  </a>
-                </figcaption>
-              </figure>
-            </div>
-          </div>
+        <Reveal className="mx-auto grid max-w-5xl items-stretch gap-6 lg:grid-cols-2">
+          {people.map((person) => (
+            <Card key={person.name} person={person} variant={variant} />
+          ))}
         </Reveal>
       </div>
     </section>

@@ -268,8 +268,10 @@
     "body": "A subscription pays for ongoing access. Cairnly pays for a finished answer."
   },
   "testimonial": {
-    "eyebrow": "From a career professional",
-    "role": "Career coach, 25 years advising on careers",
+    "eyebrowCoach": "From a career professional",
+    "eyebrowCandidate": "From someone who did it",
+    "roleCoach": "Career coach, 25 years",
+    "roleCandidate": "Did the assessment in August 2026",
     "linkedin": "LinkedIn"
   },
   "pricing": {

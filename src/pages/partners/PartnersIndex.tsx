@@ -41,9 +41,9 @@ const PartnersIndex: React.FC = () => {
         <PartnersWhoFor />
         <PartnersWhatYouGet />
         <PartnersCandidateStart />
-        {/* A peer vouching, straight before the price. Full quote here: this
-            reader knows what Career Anchors is. */}
-        <Testimonial variant="full" />
+        {/* Straight before the price. Full quotes here: this reader knows what
+            Career Anchors is, and wants to hear a peer before a candidate. */}
+        <Testimonial variant="full" audience="partner" />
         <PartnersPricing />
         <PartnersPilot />
         <PartnersFAQ />

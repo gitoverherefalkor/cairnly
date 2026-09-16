@@ -268,8 +268,10 @@
     "body": "Met een abonnement betaal je voor doorlopende toegang. Met Cairnly betaal je voor een concreet antwoord."
   },
   "testimonial": {
-    "eyebrow": "Van een loopbaanprofessional",
-    "role": "Loopbaancoach, 25 jaar ervaring in loopbaanadvies",
+    "eyebrowCoach": "Van een loopbaanprofessional",
+    "eyebrowCandidate": "Van iemand die het deed",
+    "roleCoach": "Loopbaancoach, 25 jaar",
+    "roleCandidate": "Deed het assessment in augustus 2026",
     "linkedin": "LinkedIn"
   },
   "pricing": {
