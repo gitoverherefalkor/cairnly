@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -74,7 +75,10 @@ export function useDismissedCareers(reportId?: string) {
     enabled: !!reportId && !!user?.id,
   });
 
-  const bySectionId = indexBySectionId(dismissed);
+  // Memoized: consumers (the dashboard's rows useMemo) list this Map in their
+  // own dependency arrays. Rebuilding it every render would make those memos
+  // re-run every render and defeat the point.
+  const bySectionId = useMemo(() => indexBySectionId(dismissed), [dismissed]);
 
   const dismissMutation = useMutation({
     mutationFn: async (input: DismissInput) => {
