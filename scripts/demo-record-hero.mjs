@@ -419,31 +419,59 @@ const showOnly = (page, finder, arg) =>
     },
     { src: finder.toString(), arg },
   );
-// A title card over a darkened frame at the start of each stage.
-async function titleCard(page, [eyebrow, title]) {
+// A title card over a darkened frame. Split into in/out so a stage change can
+// hold the SAME card across the page swap: the card rises over the frame we
+// are leaving, the new page loads behind it, and it only clears once that page
+// is already underneath. Raising it after the cut (what stageCut used to do)
+// put the next section on screen for a beat before its own caption — it gave
+// the reveal away. `instant` skips the fade, for re-creating the card on the
+// freshly loaded page so the filmed frames stay continuous across the swap.
+async function titleIn(page, [eyebrow, title], instant = false) {
   await page.evaluate(
-    ({ eyebrow, title }) => {
+    ({ eyebrow, title, instant }) => {
       const el = document.createElement('div');
       el.id = '__title';
       el.style.cssText =
         'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;' +
-        'background:rgba(15,37,48,.86);color:#fff;text-align:center;padding:0 12%;opacity:0;transition:opacity 280ms ease';
+        'background:rgba(15,37,48,.86);color:#fff;text-align:center;padding:0 12%;' +
+        (instant ? 'opacity:1' : 'opacity:0;transition:opacity 280ms ease');
       el.innerHTML =
         `<div style="font-size:13px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#D4A024">${eyebrow}</div>` +
         `<div style="font-size:44px;font-weight:700;line-height:1.15;letter-spacing:-.01em;max-width:22ch">${title}</div>`;
       document.getElementById('__rec').appendChild(el);
-      requestAnimationFrame(() => (el.style.opacity = '1'));
+      if (!instant) requestAnimationFrame(() => (el.style.opacity = '1'));
     },
-    { eyebrow, title },
+    { eyebrow, title, instant },
   );
-  await pause(1700);
+  if (!instant) await sleep(300);
+}
+async function titleOut(page) {
   await page.evaluate(() => {
     const el = document.getElementById('__title');
+    if (!el) return;
+    el.style.transition = 'opacity 280ms ease';
     el.style.opacity = '0';
     setTimeout(() => el.remove(), 320);
   });
   await sleep(340);
 }
+// The opening card: no previous scene to hold, so it plays over the first one.
+async function titleCard(page, copyPair) {
+  await titleIn(page, copyPair);
+  await pause(1400);
+  await titleOut(page);
+}
+// Snap the black cover on with no transition. installOverlay rebuilds #__fade
+// at opacity 0 on every load, and the inline 250 ms transition would animate
+// it — showing a quarter-second of the freshly loaded page.
+const blackout = (page) =>
+  page.evaluate(() => {
+    const el = document.getElementById('__fade');
+    el.style.transition = 'none';
+    el.style.opacity = '1';
+    void el.offsetWidth; // flush the value before the transition comes back
+    el.style.transition = 'opacity 250ms ease';
+  });
 // Fade to black, change something, fade back: a cut without leaving the page.
 async function cutWithin(page, change) {
   await fade(page, 1);
@@ -545,14 +573,23 @@ async function record({ persona, lang }) {
     await page.goto(`${BASE}${path}?persona=${persona}&lang=${lang}`, { waitUntil: 'networkidle2', timeout: 60000 });
     await installOverlay(page);
   };
-  // Black on, cut, black off: page swaps are never on film.
-  const cutTo = async (path, prepare) => {
-    await fade(page, 1);
+  // A stage change. The order is the point: the frame we are leaving holds,
+  // the title card comes up over it, the page swaps behind the card, and only
+  // then does the card clear onto the new scene. So the running order is
+  //   last frame of the old stage → title → first frame of the new stage,
+  // never a glimpse of the new stage before its caption.
+  const stageCut = async (path, title, prepare) => {
+    await titleIn(page, title);
+    await pause(1400);
+    await fade(page, 1); // to black, under the card
     await stopFilm();
-    await goto(path);
+    await goto(path); // installOverlay rebuilds #__rec, so both covers are gone
     await prepare();
-    await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
+    await blackout(page);
+    await titleIn(page, title, true);
     await startFilm();
+    await pause(320);
+    await titleOut(page);
     await fade(page, 0);
   };
 
@@ -597,15 +634,14 @@ async function record({ persona, lang }) {
 
   // 1b. "Analysing your answers", then the chat -------------------------------
   await processingInterstitial(page, copy.processing);
-  await cutTo('/demo', async () => {
+
+  // 2. Chat: strengths → explore pill → option 1 → the answer -------------------
+  await stageCut('/demo', copy.titles[1], async () => {
     await page.evaluate((n) => window.__cairnlyDemoReveal?.(n), STRENGTHS_REVEAL);
     await sleep(1200);
     if ((await messageCount(page)) !== STRENGTHS_REVEAL) throw new Error('replay did not cut at the Strengths delivery');
     await page.evaluate(() => window.scrollTo(0, 0));
   });
-
-  // 2. Chat: strengths → explore pill → option 1 → the answer -------------------
-  await titleCard(page, copy.titles[1]);
   await click(page, finders.text, { needle: copy.strengthsNav, tags: 'button' }, 'sidebar: strengths');
   await pause(1100);
   await alignTop(page, finders.text, { needle: copy.explore, tags: 'button', last: true }, H - 280, 'explore pill');
@@ -643,11 +679,10 @@ async function record({ persona, lang }) {
   await still('06-chat-end');
 
   // 5. Dashboard, four frames ------------------------------------------------------
-  await cutTo('/demo/dashboard', async () => {
+  await stageCut('/demo/dashboard', copy.titles[2], async () => {
     await sleep(1200);
     await alignTop(page, finders.text, { needle: copy.welcomeEyebrow }, 50, 'welcome eyebrow', 0);
   });
-  await titleCard(page, copy.titles[2]);
   await pause(500);
   // 5.1 the top card flips when the pointer reaches its radar
   await hover(page, finders.radar, null, 'compare radar');
@@ -680,7 +715,7 @@ async function record({ persona, lang }) {
   await sleep(800);
   await installOverlay(page);
   await alignTop(page, () => document.querySelector('[data-career-tier]'), null, 60, 'jobs: first career', 0);
-  await page.evaluate(() => (document.getElementById('__fade').style.opacity = '1'));
+  await blackout(page);
   await startFilm();
   await fade(page, 0);
   await pause(1000);

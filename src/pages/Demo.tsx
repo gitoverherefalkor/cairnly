@@ -22,7 +22,7 @@ import type { ResolvedAnnotation } from '@/components/demo/DemoAnnotation';
 import { applyCuration, chooseFixture, demoPdfLanguage } from '@/demo/loadFixture';
 import { demoLink, readPersonaParam } from '@/demo/links';
 import { sectionIndexByMessage } from '@/demo/chapters';
-import { DEMO_ROUTE, DEMO_SURVEY_ROUTE } from '@/demo/constants';
+import { DEMO_ROUTE, DEMO_SURVEY_ROUTE, DEMO_DASHBOARD_ROUTE } from '@/demo/constants';
 import type { DemoFixture } from '@/demo/types';
 
 // Below this width the sidebar starts collapsed (the transcript would get
@@ -245,6 +245,9 @@ const Demo: React.FC = () => {
             onSelect={flash}
             title={t('legend.title')}
             honestLabel={t('nav.honest')}
+            dashboardHref={demoLink(DEMO_DASHBOARD_ROUTE, location.search)}
+            dashboardLabel={t('nav.dashboard', { name: choice.firstName })}
+            onDashboardClick={() => trackCtaClick('demo_dashboard_nav')}
           />
         </div>
         <div data-demo-chrome="" className="h-[3px] bg-gray-100">

@@ -7,7 +7,8 @@
     "label": "Demo: a real coaching session",
     "honest": "Demo account. Real analysis and responses.",
     "ctaCustomer": "Start yours",
-    "ctaPartner": "Book 20 minutes"
+    "ctaPartner": "Book 20 minutes",
+    "dashboard": "{{name}}'s dashboard"
   },
   "personas": {
     "marcel": {
