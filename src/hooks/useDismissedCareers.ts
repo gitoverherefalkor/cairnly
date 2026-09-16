@@ -94,7 +94,7 @@ export function useDismissedCareers(reportId?: string) {
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       // A double-click/double-tap can fire two inserts before the first
       // round-trip completes; UNIQUE(report_id, section_id) rejects the
       // second with 23505. The dismissal already succeeded (the first insert
@@ -102,7 +102,7 @@ export function useDismissedCareers(reportId?: string) {
       // query and skip the destructive toast. Unlike useSavedJobs' "Already
       // saved" info toast, we show nothing here — the card is already
       // greyed out from the first insert, so a toast would just be noise.
-      if (error?.code === '23505') {
+      if ((error as { code?: string } | null)?.code === '23505') {
         queryClient.invalidateQueries({ queryKey });
         return;
       }
