@@ -248,6 +248,10 @@ function getMatch(
 interface CareerEntry {
   title: string;
   content: string;
+  // report_sections.id for this specific career. Keys the "Not for me"
+  // dismissal — see useDismissedCareers.
+  sectionId: string;
+  sectionType: string;
 }
 
 interface ReportRow {
@@ -258,6 +262,11 @@ interface ReportRow {
   // outside, dream) carry `careers` instead and render as tabs.
   content?: string;
   careers?: CareerEntry[];
+  // report_sections.id for single-section rows (the top 3). Multi-career rows
+  // carry the id per CareerEntry instead. Undefined for About-You rows, which
+  // are not dismissible.
+  sectionId?: string;
+  sectionType?: string;
   // Photo-chip key into SECTION_VISUALS for About-You rows.
   visualKey?: string;
   // Cairn-glyph slot for Career Suggestion rows — uses CareerSlotIcon on a
@@ -489,6 +498,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         content: sectionText(s, lang),
         careerSlot: slot,
         comparison,
+        sectionId: s.id,
+        sectionType: s.section_type,
       });
     }
 
@@ -513,6 +524,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             sectionTitle(s, lang) || t('v4.fallback.career', { defaultValue: 'Career' }),
           ),
           content: sectionText(s, lang),
+          sectionId: s.id,
+          sectionType: s.section_type,
         })),
         careerSlot: slot,
       });
