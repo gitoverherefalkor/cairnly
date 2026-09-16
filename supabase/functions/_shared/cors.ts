@@ -11,13 +11,32 @@ const ALLOWED_ORIGINS = [
 const DEV_ORIGIN_PATTERN = /^http:\/\/localhost(:\d+)?$/;
 
 /**
+ * Vercel preview deployments of this project.
+ *
+ * Previews get a generated hostname per branch and per commit
+ * (atlas-career-chat-git-<branch>-<team>.vercel.app,
+ * atlas-career-chat-<hash>-<team>.vercel.app), so they cannot be listed one
+ * by one. Without this, every browser-called function fails CORS on a preview
+ * URL — which is why the landing page's intake chat appeared dead on previews
+ * while working on localhost and on production.
+ *
+ * Deliberately scoped to this project's name prefix rather than all of
+ * *.vercel.app: these functions call paid model APIs, and any site hosted on
+ * vercel.app could otherwise invoke them from a browser.
+ */
+const PREVIEW_ORIGIN_PATTERN =
+  /^https:\/\/atlas-career-chat-[a-z0-9-]+\.vercel\.app$/;
+
+/**
  * Returns CORS headers with the origin restricted to known domains.
- * In development, localhost origins are also allowed.
+ * Localhost and this project's Vercel previews are also allowed.
  */
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get('origin') || '';
   const isAllowed =
-    ALLOWED_ORIGINS.includes(origin) || DEV_ORIGIN_PATTERN.test(origin);
+    ALLOWED_ORIGINS.includes(origin) ||
+    DEV_ORIGIN_PATTERN.test(origin) ||
+    PREVIEW_ORIGIN_PATTERN.test(origin);
 
   return {
     'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
