@@ -2331,7 +2331,7 @@ const StepCard: React.FC<{
             padding: '8px 10px',
             borderRadius: 9999,
             fontFamily: FONT_BODY,
-            fontWeight: 700,
+            fontWeight: actionable ? 700 : 600,
             fontSize: 11.5,
             display: 'inline-flex',
             alignItems: 'center',
@@ -2809,7 +2809,10 @@ const ReportAccordionRow: React.FC<{
             >
               {row.title}
             </div>
-            {isDismissed && (
+            {/* Single-career rows only. On a grouped row the title is the group
+                name, so this would read "Runner-up careers · Set aside" as if the
+                whole group were dismissed; the per-tab marker carries it there. */}
+            {isDismissed && !isGrouped && (
               <span
                 style={{
                   display: 'inline-flex',
