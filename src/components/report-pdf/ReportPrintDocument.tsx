@@ -11,6 +11,7 @@ import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
 import { PrintClosing } from './PrintClosing';
 import { isGroupType, breaksPage } from './printSectionMeta';
+import { filterDismissed, isSetAside, type DismissedRef } from './dismissed';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
 import { stripHtml, PALETTE, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
@@ -197,8 +198,22 @@ export const ReportPrintDocument: React.FC<{
   partner?: PartnerBrand | null;
   /** profiles.preferred_language, shipped by report-print-data. */
   preferredLanguage?: string | null;
-}> = ({ firstName, lastName, sections, generatedAt, partner, preferredLanguage, sample = false }) => {
-  const ordered = orderSections(sections);
+  /** Careers the user set aside, shipped by report-print-data. Optional: a
+   *  payload written before this shipped carries no such key. */
+  dismissed?: DismissedRef[];
+}> = ({
+  firstName,
+  lastName,
+  sections,
+  generatedAt,
+  partner,
+  preferredLanguage,
+  dismissed = [],
+  sample = false,
+}) => {
+  // Dismissed runner-ups / outside-box / dream jobs never reach the document.
+  // A dismissed top-3 career survives here and is marked below instead.
+  const ordered = orderSections(filterDismissed(sections, dismissed));
   const lang = resolveLang(sections, preferredLanguage);
   const radarAxes = buildRadarAxes(sections);
   const mapPoints = buildCareerMapPoints(sections, lang);
@@ -456,6 +471,7 @@ export const ReportPrintDocument: React.FC<{
                 level={grouped ? 'nested' : 'top'}
                 showIntro={showIntro}
                 breakBefore={startsPage}
+                setAside={isSetAside(s, dismissed)}
               />
 
             </React.Fragment>

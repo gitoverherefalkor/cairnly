@@ -115,6 +115,10 @@ function buildFooterHtml(): string {
 interface PrintData {
   report: { id: string; title: string | null; updated_at: string | null; created_at: string };
   sections: ReportSection[];
+  // Careers the user set aside via the dashboard "Not for me" control. Absent
+  // from any payload written before this shipped, so it is read defensively
+  // below — a re-render of an old report must not fall over on a missing key.
+  dismissed: { section_id: string; section_type: string }[];
   // `last_name` is NOT selected by report-print-data yet, so it is read
   // defensively: the cover falls back to the first name alone until that
   // function's select list gains it.
@@ -262,6 +266,7 @@ const ReportPrint: React.FC = () => {
         firstName={data.profile.first_name}
         lastName={(data.profile as { last_name?: string | null }).last_name ?? null}
         sections={data.sections}
+        dismissed={data.dismissed ?? []}
         generatedAt={data.report.updated_at ?? data.report.created_at}
         sample={sample}
         partner={
