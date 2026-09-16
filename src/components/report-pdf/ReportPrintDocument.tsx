@@ -11,6 +11,7 @@ import { PrintGroupHeader } from './PrintGroupHeader';
 import { PrintPullQuote, shareQuoteFor } from './PrintPullQuote';
 import { PrintClosing } from './PrintClosing';
 import { isGroupType, breaksPage } from './printSectionMeta';
+import { filterDismissed, isSetAside, type DismissedRef } from '@/lib/dismissed';
 import { chapterFor, type Chapter, type PrintLang } from './printIntros';
 import { stripHtml, PALETTE, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
@@ -197,12 +198,43 @@ export const ReportPrintDocument: React.FC<{
   partner?: PartnerBrand | null;
   /** profiles.preferred_language, shipped by report-print-data. */
   preferredLanguage?: string | null;
-}> = ({ firstName, lastName, sections, generatedAt, partner, preferredLanguage, sample = false }) => {
-  const ordered = orderSections(sections);
+  /** Careers the user set aside, shipped by report-print-data. Optional: a
+   *  payload written before this shipped carries no such key. */
+  dismissed?: DismissedRef[];
+}> = ({
+  firstName,
+  lastName,
+  sections,
+  generatedAt,
+  partner,
+  preferredLanguage,
+  dismissed = [],
+  sample = false,
+}) => {
+  // Dismissed runner-ups / outside-box / dream jobs never reach the document.
+  // A dismissed top-3 career survives here and is marked below instead.
+  //
+  // Computed ONCE and shared with the career charts. Filtering only the prose
+  // left a dropped runner-up plotted on the career map and named in its
+  // legend — removed from the narrative but still on the picture, which reads
+  // as a bug in the report.
+  const kept = filterDismissed(sections, dismissed);
+  const ordered = orderSections(kept);
+  // Deliberately the UNFILTERED list: language completeness is a property of
+  // the report, not of what this render chose to show, and erring toward
+  // English is the safe direction under the language contract.
   const lang = resolveLang(sections, preferredLanguage);
+  // Also unfiltered, and for a different reason: the radar reads the
+  // `approach` section's personality scores. Setting a career aside says
+  // nothing about how you work, so careers are simply not its input.
   const radarAxes = buildRadarAxes(sections);
-  const mapPoints = buildCareerMapPoints(sections, lang);
-  const compare = buildCompareCareers(sections, lang);
+  // Both career charts read `kept`, so no chart can name a role the prose
+  // dropped. For the top-three comparison this is a no-op today (top-3 rows
+  // are never droppable) — it is written this way so the rule is "career
+  // charts follow the document", with no exception to remember if the
+  // droppable set ever changes.
+  const mapPoints = buildCareerMapPoints(kept, lang);
+  const compare = buildCompareCareers(kept, lang);
   const t = STRINGS[lang];
 
   const dateLabel = generatedAt
@@ -456,6 +488,7 @@ export const ReportPrintDocument: React.FC<{
                 level={grouped ? 'nested' : 'top'}
                 showIntro={showIntro}
                 breakBefore={startsPage}
+                setAside={isSetAside(s, dismissed)}
               />
 
             </React.Fragment>

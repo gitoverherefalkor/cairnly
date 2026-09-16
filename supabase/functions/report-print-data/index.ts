@@ -7,7 +7,7 @@
 // minted only by render-report-pdf for a report the authenticated user owns.
 //
 // Input:  { token: string (uuid) }
-// Output: { report, sections, profile, partner }
+// Output: { report, sections, dismissed, profile, partner }
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -64,23 +64,31 @@ serve(async (req) => {
     return errorResponse('Invalid or expired token', 403, corsHeaders);
   }
 
-  const [{ data: report }, { data: sections }, { data: profile }] = await Promise.all([
-    supabase
-      .from('reports')
-      .select('id, title, status, created_at, updated_at')
-      .eq('id', burned.report_id)
-      .maybeSingle(),
-    supabase
-      .from('report_sections')
-      .select('*')
-      .eq('report_id', burned.report_id)
-      .order('order_number', { ascending: true, nullsFirst: false }),
-    supabase
-      .from('profiles')
-      .select('first_name, last_name, country, partner_id, preferred_language')
-      .eq('id', burned.user_id)
-      .maybeSingle(),
-  ]);
+  const [{ data: report }, { data: sections }, { data: profile }, { data: dismissed }] =
+    await Promise.all([
+      supabase
+        .from('reports')
+        .select('id, title, status, created_at, updated_at')
+        .eq('id', burned.report_id)
+        .maybeSingle(),
+      supabase
+        .from('report_sections')
+        .select('*')
+        .eq('report_id', burned.report_id)
+        .order('order_number', { ascending: true, nullsFirst: false }),
+      supabase
+        .from('profiles')
+        .select('first_name, last_name, country, partner_id, preferred_language')
+        .eq('id', burned.user_id)
+        .maybeSingle(),
+      // Careers the user set aside via the dashboard "Not for me" control.
+      // Service-role read: the render token has already been burned and proves
+      // this request is for this report.
+      supabase
+        .from('dismissed_careers')
+        .select('section_id, section_type')
+        .eq('report_id', burned.report_id),
+    ]);
 
   if (!report) {
     return errorResponse('Report not found', 404, corsHeaders);
@@ -141,6 +149,11 @@ serve(async (req) => {
     JSON.stringify({
       report,
       sections: sections ?? [],
+      // One entry per career the user set aside. The print document drops
+      // dismissed runner-ups / outside-box / dream jobs entirely and marks a
+      // dismissed top-3 career "set aside" instead, because the prose refers
+      // to the top three by number.
+      dismissed: dismissed ?? [],
       // last_name is used only by the printed cover's "Prepared for …" line.
       profile: {
         first_name: profile?.first_name ?? '',

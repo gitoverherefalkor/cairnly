@@ -380,6 +380,85 @@ async function fetchPeople(
   );
 }
 
+// ─── Dismissed careers aggregate ──────────────────────────────────────────────
+// The dashboard "Not for me" control (public.dismissed_careers). RLS scopes
+// SELECT to auth.uid() = user_id, so the browser can only ever see its own
+// rows — this is the one place that reads it cross-user, with the service
+// role. Aggregated here rather than shipped as raw rows: this is founder-
+// facing analytics and the table only grows, so the browser only ever sees
+// counts, never who dismissed what.
+
+interface DismissalsByCareer {
+  career_title: string;
+  section_type: string;
+  n: number;
+}
+
+interface DismissalsByReason {
+  reason: string;
+  n: number;
+}
+
+interface DismissalsAggregate {
+  total: number;
+  by_career: DismissalsByCareer[];
+  by_reason: DismissalsByReason[];
+}
+
+const EMPTY_DISMISSALS: DismissalsAggregate = { total: 0, by_career: [], by_reason: [] };
+
+async function fetchDismissals(
+  supabase: ReturnType<typeof createClient>,
+): Promise<DismissalsAggregate> {
+  try {
+    const { data, error } = await supabase
+      .from('dismissed_careers')
+      .select('career_title, section_type, reason');
+    if (error) {
+      console.error('[ops-feed] dismissed_careers fetch failed:', error);
+      return EMPTY_DISMISSALS;
+    }
+    const rows = (data ?? []) as Array<{
+      career_title: string;
+      section_type: string;
+      reason: string | null;
+    }>;
+
+    const careerCounts = new Map<string, DismissalsByCareer>();
+    const reasonCounts = new Map<string, number>();
+
+    for (const row of rows) {
+      const careerKey = `${row.section_type}\u0000${row.career_title}`;
+      const existing = careerCounts.get(careerKey);
+      if (existing) {
+        existing.n++;
+      } else {
+        careerCounts.set(careerKey, {
+          career_title: row.career_title,
+          section_type: row.section_type,
+          n: 1,
+        });
+      }
+
+      const reasonKey = row.reason ?? 'unstated';
+      reasonCounts.set(reasonKey, (reasonCounts.get(reasonKey) ?? 0) + 1);
+    }
+
+    const by_career = Array.from(careerCounts.values())
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 10);
+
+    const by_reason = Array.from(reasonCounts.entries())
+      .map(([reason, n]) => ({ reason, n }))
+      .sort((a, b) => b.n - a.n);
+
+    return { total: rows.length, by_career, by_reason };
+  } catch (e) {
+    console.error('[ops-feed] dismissed_careers aggregate failed:', e);
+    return EMPTY_DISMISSALS;
+  }
+}
+
 // ─── AI analysis ─────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `You are triaging operational signals for Cairnly, a B2C/B2B career-guidance SaaS.
@@ -620,6 +699,7 @@ serve(async (req) => {
     deploy,
     openaiSpend,
     anthropicSpend,
+    dismissals,
     trafficResult,
     funnelResult,
     supportResult,
@@ -634,6 +714,7 @@ serve(async (req) => {
     fetchVercelDeploy(),
     fetchOpenAISpend(),
     fetchAnthropicSpend(),
+    fetchDismissals(supabase),
     supabase.rpc('ops_traffic_stats'),
     // Demo funnel: sessions → demo → intake → purchase, plus depth inside
     // the replay and which CTA led there. Null until the migration lands.
@@ -713,6 +794,7 @@ serve(async (req) => {
         funnel,
         n8n_usage: n8nUsage,
         ai_spend: aiSpend,
+        dismissals,
         fetched_at: new Date().toISOString(),
         new_analyzed: 0,
       }),
@@ -861,6 +943,7 @@ serve(async (req) => {
       funnel,
       n8n_usage: n8nUsage,
       ai_spend: aiSpend,
+      dismissals,
       fetched_at: new Date().toISOString(),
       new_analyzed: newAnalyzedCount,
     }),

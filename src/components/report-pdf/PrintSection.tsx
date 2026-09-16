@@ -226,7 +226,18 @@ export const PrintSection: React.FC<{
   showIntro?: boolean;
   /** Start this section on a fresh page. */
   breakBefore?: boolean;
-}> = ({ section, lang, first = false, level = 'top', showIntro = true, breakBefore = false }) => {
+  /** A top-3 career the user set aside. It stays in the document (the prose
+   *  refers to the top three by number) and carries a marker instead. */
+  setAside?: boolean;
+}> = ({
+  section,
+  lang,
+  first = false,
+  level = 'top',
+  showIntro = true,
+  breakBefore = false,
+  setAside = false,
+}) => {
   const nested = level === 'nested';
   const isCareer = CAREER_TYPES.includes(section.section_type);
   const score = section.score != null ? Number(section.score) : NaN;
@@ -338,6 +349,28 @@ export const PrintSection: React.FC<{
         >
           {stripHtml(sectionTitle(section, lang) || '')}
         </TitleTag>
+
+        {/* The print document does not run i18next — it renders in headless
+            Chromium from a service-role payload — so the two strings are
+            inline, same as the rest of src/components/report-pdf/. */}
+        {setAside && (
+          <div
+            style={{
+              display: 'inline-block',
+              marginBottom: 10,
+              padding: '3px 10px',
+              borderRadius: 9999,
+              border: '1px solid rgba(0,0,0,0.18)',
+              fontSize: 9.5,
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'rgba(0,0,0,0.5)',
+            }}
+          >
+            {lang === 'nl' ? 'Opzij gezet' : 'Set aside'}
+          </div>
+        )}
 
         {sizeType && (
           <div

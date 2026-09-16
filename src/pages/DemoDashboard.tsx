@@ -36,7 +36,13 @@ const DEMO_REFERRAL_COUNT = 1;
  *    which says what they do and points at the CTA;
  *  - "Download PDF" serves the pre-rendered demo PDF (a real render of this
  *    report) instead of paying for a fresh Chromium render;
- *  - the saved coach replies come from the fixture rather than a query.
+ *  - the saved coach replies come from the fixture rather than a query;
+ *  - readOnly hides the "Not for me" control. Unlike the tools above it gets
+ *    no DemoToolDialog: it is not a toolkit tile a visitor came here to try,
+ *    and a career card that quietly does not offer it reads better than a
+ *    popup. It has to go, not just fail politely — the fixture's reportId is
+ *    a REAL report id, so a signed-in visitor clicking it would write a
+ *    dismissal against somebody else's report.
  */
 const DemoDashboard: React.FC = () => {
   const { t, i18n } = useTranslation('demo');
@@ -166,6 +172,7 @@ const DemoDashboard: React.FC = () => {
             pulseStepKey="jobs"
             toolkitBanner={toolkitBanner}
             savedResponses={fixture.savedResponses ?? []}
+            readOnly
             onNavigate={handleNavigate}
             onProfile={() => setTool('generic')}
             onSignOut={() => setTool('generic')}

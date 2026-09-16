@@ -13,6 +13,7 @@ import {
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
+import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
 import { isWarm, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
@@ -106,9 +107,22 @@ interface OpsFeedResponse {
   funnel: FunnelStats | null;
   n8n_usage: N8nUsage | null;
   ai_spend: ProviderSpend[];
+  // Optional on purpose: the frontend and the ops-feed function deploy
+  // independently, so a browser running this build can meet a function that
+  // predates the dismissals aggregate. Read it through EMPTY_DISMISSALS.
+  dismissals?: DismissalsAggregate;
   fetched_at: string;
   new_analyzed: number;
 }
+
+/** Stand-in while ops-feed has not shipped the aggregate yet. Frozen and
+ *  declared once so the fallback read below never allocates a fresh object
+ *  (and never drifts from the real shape in two places). */
+const EMPTY_DISMISSALS: DismissalsAggregate = {
+  total: 0,
+  by_career: [],
+  by_reason: [],
+};
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -255,6 +269,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {
   support: false,
   feedback: false,
   misses: false,
+  dismissals: false,
   usage: false,
   marketing: false,
 };
@@ -1769,6 +1784,7 @@ export default function Ops() {
     (p) => Date.now() - new Date(p.signed_up_at).getTime() < 7 * 24 * 60 * 60 * 1000,
   ).length;
   const traffic = feed?.traffic ?? null;
+  const dismissals = feed?.dismissals ?? EMPTY_DISMISSALS;
   const stalled = people.filter(
     (p) => p.stage !== 'done' && Date.now() - new Date(p.last_activity_at).getTime() > 3 * 24 * 60 * 60 * 1000,
   );
@@ -2004,6 +2020,21 @@ export default function Ops() {
                       </a>
                     </div>
                     <Feed items={n8nErrors} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="dismissals"
+                    title="Careers set aside"
+                    subtitle="What users rejected, and why"
+                    pills={
+                      dismissals.total > 0 ? (
+                        <CountPill n={dismissals.total} tone="quiet" />
+                      ) : undefined
+                    }
+                    open={open.dismissals}
+                    onToggle={toggle}
+                  >
+                    <DismissalsCard dismissals={dismissals} />
                   </SectionCard>
 
                   <SectionCard

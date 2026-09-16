@@ -371,6 +371,20 @@
       "heading_one": "Hoe deze verschilt van je andere toprol",
       "heading_other": "Hoe deze verschilt van je andere toprollen"
     },
+    "notForMe": {
+      "dismiss": "Niets voor mij",
+      "restore": "Toch weer tonen",
+      "whyOptional": "Waarom? (optioneel)",
+      "setAside": "Opzij gezet",
+      "reason": {
+        "not_interested": "Niet interessant",
+        "wrong_level": "Verkeerd niveau",
+        "pay_too_low": "Betaalt te weinig",
+        "already_did": "Dit heb ik al gedaan",
+        "location": "Locatie",
+        "other": "Iets anders"
+      }
+    },
     "toolkit": {
       "eyebrow": "SOLLICITATIE-TOOLKIT · VERDIEN JE GELD TERUG",
       "title": "Zes referenties en je assessment heeft zichzelf terugverdiend.",
