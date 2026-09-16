@@ -282,10 +282,10 @@ const REFERRAL_UNLOCK_TIERS: Array<{
 }> = [
   {
     count: 1,
-    toolLabel: "Find Open Roles",
+    toolLabel: "Unlimited Job Searches",
     toolBody: {
-      en: "live job openings matched to your top career recommendations",
-      nl: "live vacatures die passen bij je beste loopbaanaanbevelingen",
+      en: "the 4-search limit is gone, so you can search live job openings as often as you like",
+      nl: "de limiet van 4 zoekopdrachten is weg, dus je kunt zo vaak zoeken naar vacatures als je wilt",
     },
     next: { count: 2, toolLabel: "Tailor Your Resume" },
     cta: { label: { en: "Find open roles now", nl: "Vind nu vacatures" }, href: "https://cairnly.io/jobs" },

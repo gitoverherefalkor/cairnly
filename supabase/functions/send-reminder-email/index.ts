@@ -137,6 +137,15 @@ const COPY = {
       cta: "Explore Your Report",
       footnote: "Saved permanently in your dashboard, access it anytime.",
     },
+    // WARNING - STALE COPY. This nudge predates the job-search free tier
+    // (2026-09-16). Job search is NOT locked any more: everyone gets 4 free
+    // searches per report and a referral removes the cap. "Unlock your job
+    // search" and "your job search unlocks, free" are both false now, in this
+    // block and in the nl one below.
+    //
+    // Left unrewritten because the path is DORMANT: user_engagement_tracking
+    // has no unlock_nudge_*_sent_at columns and no cron job calls it. Rewrite
+    // the copy in BOTH languages before reviving it.
     unlockNudge: {
       subject: (role: string) => `Let Cairnly find open roles for ${role}`,
       title: "Unlock your job search",
