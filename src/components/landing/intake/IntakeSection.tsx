@@ -43,7 +43,9 @@ const IntakeSection: React.FC = () => {
         boxShadow: '0 32px 60px -28px rgba(18,46,59,0.18)',
       }}
     >
-      <div className="absolute bottom-4 right-[-20px] pointer-events-none z-0 hidden lg:block">
+      {/* Top right, not bottom: the bottom corner is where the aside card
+          sits, and the empty space is level with the heading. */}
+      <div className="absolute top-6 right-[-20px] pointer-events-none z-0 hidden lg:block">
         <img src={CairnSymbol} alt="" aria-hidden="true" className="w-[240px] h-auto opacity-[0.07]" />
       </div>
 

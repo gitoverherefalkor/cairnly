@@ -28,6 +28,10 @@ const WhoFor: React.FC = () => {
   return (
     <section className="bg-[#FAF5E8] py-24 md:py-32">
       <div className="lp-container">
+        <div className="lp-chapter-rule mb-14">
+          <span className="lp-chapter-rule__dot" />
+        </div>
+
         <Reveal className="text-center max-w-3xl mx-auto mb-16">
           <div className="lp-eyebrow text-[#1F8282] mb-5">{t('whoFor.eyebrow')}</div>
           <h2
@@ -41,7 +45,7 @@ const WhoFor: React.FC = () => {
         {/* Side by side on desktop, stacked on phones. Each card lifts on
             hover so the pair reads as a choice rather than a list; the lift is
             a transform, which the compositor handles without reflow. */}
-        <div className="grid gap-6 md:gap-8 md:grid-cols-2 items-start max-w-5xl mx-auto">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-2 items-stretch">
           {/* Right place — elevated */}
           <Reveal className="h-full">
             <div

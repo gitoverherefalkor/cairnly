@@ -27,5 +27,11 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  /* src/unused holds retired components kept for reference. Nothing imports
+     them, so Vite never bundles them, but their relative imports (./Reveal)
+     no longer resolve from that folder and some reference APIs that have
+     since been removed. Typechecking them reports failures for code that is
+     deliberately out of service. See src/unused/landing/README.md. */
+  "exclude": ["src/unused"]
 }

@@ -4,7 +4,6 @@ import { CheckCircle2, Sparkles, ArrowRight, Lock, Shield, ClipboardCheck } from
 import { useNavigate } from 'react-router-dom';
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
-import { MatchPill, MovePill, AIImpactPill } from '@/components/dashboard/v2/dashboardV2Shared';
 import { getProPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
 import { trackCtaClick } from '@/lib/analytics';
@@ -46,18 +45,9 @@ const PricingSection: React.FC = () => {
               ))}
             </ul>
 
-            {/* Live example of the rating pills shown on every suggested role in the report */}
-            <div className="mt-6 rounded-2xl p-5" style={{ background: '#122E3B' }}>
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50 mb-3">
-                {t('pricing.pillPreviewLabel')}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <MatchPill pct={87} />
-                <MovePill level="Reframe" />
-                <AIImpactPill label="Minimal" />
-              </div>
-            </div>
-
+            {/* The rated-role pills moved to Methodology on 2026-09-16: a dark
+                box inside this cream column read as pasted in, and the pills
+                belong next to the description of what the engine produces. */}
             <ul className="space-y-3.5 mt-6">
               {bonusItems.map((item, i) => (
                 <li key={i} className="flex items-start gap-4 text-[15px] font-bold" style={{ color: '#D4A024' }}>

@@ -27,9 +27,10 @@ const WhyWeBuiltThis: React.FC = () => {
               className="font-heading font-bold leading-[1.1]"
               style={{ fontSize: 'clamp(28px, 3.5vw, 52px)', letterSpacing: '-0.015em' }}
             >
-              {t('whyBuilt.titleA')}{' '}
-              <br />
-              {t('whyBuilt.titleB')} <span className="lp-text-gold-grad">{t('whyBuilt.titleHighlight')}</span>{t('whyBuilt.titleC')}
+              {/* One row: the heading is four words now, and the old <br />
+                  was placed for "Most careers / aren't really chosen." */}
+              {t('whyBuilt.titleA')} {t('whyBuilt.titleB')}{' '}
+              <span className="lp-text-gold-grad">{t('whyBuilt.titleHighlight')}</span>{t('whyBuilt.titleC')}
             </h2>
             <div className="mt-10 space-y-6 text-lg text-white/75 font-medium leading-relaxed">
               {/* p1 flexes with the visitor's intent; p2 is universal */}

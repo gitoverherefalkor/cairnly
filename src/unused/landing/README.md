@@ -73,11 +73,30 @@ Note that it depends on `isIntroPriceActive` / `introPriceTimeLeft` /
 `PRICE_SWITCH_AT` in `src/lib/pricing.ts`, which were removed in the same
 change. Restoring this component means restoring those first.
 
+### `CoachCards.tsx` — the chat-refinement section
+Held the "If something doesn't fit, tell it. The plan adapts." block and the
+demo CTA, on cream. Its content moved into `Methodology` on 2026-09-16: the
+engine block, the chat block and the methodology cards were one argument told
+across two sections with four separate eyebrow-title-subtitle stacks. The copy
+keys (`chatRefine.*`) are still live — Methodology reads them.
+
+An earlier version also carried a three-card device (a static PDF, a Cairnly
+dashboard, a subscription chat). Those cards are not in this file: the outer
+two repeated the comparison table's columns and were deleted, and the middle
+card's point became `chatRefine.intro`.
+
 ### `ForkDivider.tsx` — same-path / different-path diagram
 Already disabled before this cleanup (commented out in `Index.tsx` with the
 note "the same-path/different-path diagram wasn't landing well").
 
 ---
+
+## Typechecking
+
+`tsconfig.app.json` excludes this folder. These files reference APIs that have
+since been removed (`PriceCountdown` wants the intro-price helpers) and use
+relative imports that no longer resolve from here, so typechecking them reports
+failures for code that is deliberately out of service.
 
 ## Import paths
 
