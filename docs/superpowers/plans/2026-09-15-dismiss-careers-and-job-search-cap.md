@@ -203,9 +203,14 @@ Note the surrounding `DELETE FROM public.<table> WHERE user_id = p_user_id;` blo
 -- the migration that last defined each function; do not reconstruct it from
 -- memory.
 
--- 1. delete_user_personal_data  (20260529120000, later revised)
--- 2. handle_auth_user_delete    (20260616130000)
--- 3. purge_expired_reports      (20260708170000 / 20260710120000)
+-- Live function names, confirmed against pg_proc on 2026-09-16. Two of them
+-- are NOT what the migration filenames suggest:
+-- 1. delete_user_personal_data      (the real work; the auth trigger delegates here)
+-- 2. handle_auth_user_deleted       (trailing "d"; body is only a PERFORM of #1,
+--                                    enumerates NO tables, so it needs no edit)
+-- 3. purge_expired_assessment_data  (not "purge_expired_reports"; selects via a
+--                                    user-scoped _purge_eligible_users temp table,
+--                                    NOT a report-scoped join)
 --
 -- For each: add
 --     DELETE FROM public.dismissed_careers WHERE user_id = p_user_id;
@@ -220,7 +225,9 @@ Note the surrounding `DELETE FROM public.<table> WHERE user_id = p_user_id;` blo
 select p.proname, pg_get_functiondef(p.oid)
 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public'
-  and p.proname in ('delete_user_personal_data', 'handle_auth_user_delete', 'purge_expired_reports');
+  and p.prokind = 'f'   -- public has a custom array_agg AGGREGATE; functiondef errors on it
+  and p.proname in ('delete_user_personal_data', 'handle_auth_user_deleted',
+                    'purge_expired_assessment_data');
 ```
 
 Write the migration as three `CREATE OR REPLACE FUNCTION` statements, each being the fetched body with the single extra DELETE added. Do not drop and recreate.
@@ -236,7 +243,11 @@ where n.nspname='public'
   and pg_get_functiondef(p.oid) like '%dismissed_careers%';
 ```
 
-Expected: all three function names.
+Expected: **two** names — `delete_user_personal_data` and
+`purge_expired_assessment_data`. `handle_auth_user_deleted` is deliberately
+NOT in the list: its whole body is a `PERFORM delete_user_personal_data(OLD.id)`,
+so it enumerates no tables and adding a delete there would create a second
+hand-enumeration site, which is the failure mode this task exists to close.
 
 - [ ] **Step 5: Commit**
 

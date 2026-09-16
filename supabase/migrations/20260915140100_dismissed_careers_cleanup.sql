@@ -13,8 +13,12 @@
 --    Deletes a user's personal data while the auth.users row SURVIVES (the
 --    GDPR "erase my data" flow, and the account-deletion edge function calls
 --    it before removing the auth user). Because auth.users is still there when
---    it runs, the user_id -> auth.users ON DELETE CASCADE never fires. Without
---    an explicit delete the dismissals would simply stay.
+--    it runs, the user_id -> auth.users ON DELETE CASCADE never fires. The rows
+--    would in fact still go, via report_id -> reports, because this same
+--    function deletes the user's reports a few lines further down. The explicit
+--    delete is here so the GDPR path does not depend on that ordering holding:
+--    it states the intent, and it survives report_id ever becoming nullable or
+--    the reports delete moving.
 --
 -- 2. handle_auth_user_deleted()            -- DELIBERATELY UNCHANGED
 --    The BEFORE DELETE trigger on auth.users. Its entire body is a PERFORM of
