@@ -55,7 +55,7 @@ const picks = (...a) => ({ __picks: a });
 const ANSWERS = {
   // Section 1 — about her
   [Q('name')]: 'Marcel de Vries',
-  [Q('pronoun')]: pick('She / Her'),
+  [Q('pronoun')]: pick('He / Him'),
   [Q('age')]: 41,
   [Q('country')]: pick('Northern and Western Europe'),
   [Q('goals')]: picks('new career path', 'better work-life balance'),
