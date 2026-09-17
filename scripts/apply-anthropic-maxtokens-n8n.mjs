@@ -41,7 +41,8 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const TARGETS = {
   WF1: { id: '0Z8WxV5tVFMJqIZt', file: 'WF1 - Profile Insert EN_NL.json', nodes: ['Anthropic Chat Model1'] },
   WF3: { id: 'zhgJuiDp60PS5ZKJ', file: 'WF3 - scoring careers NL_EN.json', nodes: ['Anthropic Chat Model'] },
-  WF4: { id: 'seWmQPFQqIe60TkU', file: 'WF4 - Career selection NL_EN.json', nodes: ['Anthropic Chat Model', 'Anthropic Chat Model1', 'Anthropic Chat Model2'] },
+  // WF4's Top-3 call is an HTTP Request node since 2026-09-17 (apply-wf4-top3-http-n8n.mjs); only runner-ups and dream jobs remain LangChain nodes.
+  WF4: { id: 'seWmQPFQqIe60TkU', file: 'WF4 - Career selection NL_EN.json', nodes: ['Anthropic Chat Model1', 'Anthropic Chat Model2'] },
   WF5: { id: 'h7ie9zN080IM2g7N', file: 'WF5 - Cairnly Coach.json', nodes: ['Anthropic Chat Model1'] },
   WF7: { id: 'ohNbCw7pVqvjCZHT', file: 'WF7 - ExecSummary NL_EN.json', nodes: ['Anthropic Chat Model'] },
   WF9: { id: 'IFhL4Lno0hyMJ1Jc', file: 'WF9 - Custom Resume.json', nodes: ['Anthropic Sonnet (Content)', 'Anthropic Sonnet (ATS)'] },
