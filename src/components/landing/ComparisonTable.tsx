@@ -57,7 +57,8 @@ const ComparisonTable: React.FC = () => {
             style={{ fontSize: 'clamp(26px, 3vw, 40px)', letterSpacing: '-0.012em' }}
           >
             {t('comparison.titleA')}{' '}
-            <br />"<span className="lp-text-teal-grad">{t('comparison.titleQuote')}</span>"
+            <br />
+            <span className="lp-text-gold-grad">&quot;{t('comparison.titleQuote')}&quot;</span>
           </h2>
           <p className="mt-6 text-lg text-[#4B6373] font-medium leading-relaxed max-w-2xl">
             {t('comparison.intro')}

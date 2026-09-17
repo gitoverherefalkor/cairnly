@@ -27,8 +27,7 @@ const FinalCTA: React.FC = () => {
               happens to end split them mid-phrase. */}
           {t('finalCTA.titleA')}
           <br />
-          {t('finalCTA.titleB')}{' '}
-          <span className="lp-text-gold-grad">{t('finalCTA.titleHighlight')}</span>
+          <span className="lp-text-gold-grad">{t('finalCTA.titleB')} {t('finalCTA.titleHighlight')}</span>
         </h2>
         <div className="mt-12 inline-flex flex-col items-center gap-5">
           <button onClick={() => { trackCtaClick('footer'); getStarted(); }} className="lp-btn-primary" style={{ fontSize: 18, padding: '18px 30px' }}>

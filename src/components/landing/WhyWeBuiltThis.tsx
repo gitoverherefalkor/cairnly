@@ -29,7 +29,7 @@ const WhyWeBuiltThis: React.FC = () => {
             >
               {/* One row: the heading is four words now, and the old <br />
                   was placed for "Most careers / aren't really chosen." */}
-              {t('whyBuilt.titleA')} {t('whyBuilt.titleB')}{' '}
+              {t('whyBuilt.titleA')} <span className="lp-text-gold-grad">{t('whyBuilt.titleB')}</span>{' '}
               <span className="lp-text-gold-grad">{t('whyBuilt.titleHighlight')}</span>{t('whyBuilt.titleC')}
             </h2>
             <div className="mt-10 space-y-6 text-lg text-white/75 font-medium leading-relaxed">

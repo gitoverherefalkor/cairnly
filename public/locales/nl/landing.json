@@ -19,8 +19,8 @@
   },
   "pillars": {
     "eyebrow": "Waarom Cairnly anders is",
-    "titleA": "Vier dingen die elke andere loopbaantest",
-    "titleHighlight": "weglaat.",
+    "titleA": "Vier dingen die andere loopbaantests",
+    "titleHighlight": "missen",
     "titleB": "",
     "cards": [
       {
@@ -93,7 +93,7 @@
     "demoLabel": "Bekijk in de demo"
   },
   "methodology": {
-    "eyebrow": "Chapter 03 · Methodologie",
+    "eyebrow": "Methodologie",
     "titleA": "Gebouwd op wat psychometrie goed doet,",
     "titleHighlight": "en op wat het niet bereikt.",
     "intro": "De meeste persoonlijkheidstesten stoppen je in een hokje en vertellen je vervolgens wat mensen in dat hokje meestal doen. Generieke AI-tools negeren de wetenschap volledig en improviseren maar wat. Cairnly doet geen van beide.",
@@ -112,6 +112,8 @@
     },
     "engineEyebrow": "Achter de schermen",
     "engineTitle": "Meerdere AI-stappen, georkestreerd en bijgesteld.",
+    "engineTitleA": "Meerdere AI-stappen,",
+    "engineTitleHighlight": "georkestreerd en bijgesteld.",
     "engineSubtitle": "Elke stap heeft een doel: gebouwd op de gevalideerde delen van psychometrisch onderzoek, bijgesteld met actieve carrièrecoaches, en uitgevoerd door moderne AI die dit allemaal tegelijk in gedachten kan houden. Het resultaat leest als advies van een pro, dat écht over jou gaat.",
     "trust": {
       "gdpr": "GDPR compliant",
@@ -148,7 +150,7 @@
   },
   "comparison": {
     "eyebrow": "Een directe vergelijking",
-    "titleA": "Gebouwd voor de vraag",
+    "titleA": "Gebouwd om te antwoorden op",
     "titleQuote": "wat moet ik nu écht gaan doen?",
     "intro": "Sommige tools stoppen je in een hokje op basis van je persoonlijkheidstype. Andere vragen een maandelijks bedrag om te blijven zoeken. Cairnly is gebouwd voor één ding: vertalen wie je écht bent naar specifieke rollen die je kunt gaan bemachtigen. Eenmalig. Klaar.",
     "cols": {

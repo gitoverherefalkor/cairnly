@@ -19,7 +19,7 @@ const Pillars: React.FC = () => {
   const cards = tArray<{ title: string; body: string }>(t, 'pillars.cards');
 
   return (
-    <section id="why-cairnly" className="bg-[#FAF5E8] py-24 md:py-32">
+    <section id="why-cairnly" className="bg-[#FAF5E8] pt-24 md:pt-32 pb-12 md:pb-16">
       <div className="lp-container">
         <div className="lp-chapter-rule mb-14">
           <span className="lp-chapter-rule__dot" />

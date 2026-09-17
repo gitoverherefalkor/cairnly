@@ -22,7 +22,7 @@ const FAQ: React.FC = () => {
             className="font-heading font-bold text-[#122E3B] leading-[1.12]"
             style={{ fontSize: 'clamp(26px, 3vw, 40px)', letterSpacing: '-0.012em' }}
           >
-            {t('faq.titleA')} <span className="lp-text-teal-grad">{t('faq.titleHighlight')}</span>
+            {t('faq.titleA')} {t('faq.titleHighlight')}
           </h2>
         </Reveal>
 

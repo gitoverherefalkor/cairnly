@@ -46,7 +46,7 @@ const Methodology: React.FC = () => {
             <br />
             <span className="lp-text-gold-grad">{t('methodology.titleHighlight')}</span>
           </h2>
-          <p className="mt-7 text-lg text-white/65 font-medium leading-relaxed max-w-3xl mx-auto">
+          <p className="mt-7 text-lg text-white/65 font-medium leading-relaxed max-w-4xl mx-auto">
             {t('methodology.intro')}
           </p>
         </Reveal>
@@ -112,7 +112,8 @@ const Methodology: React.FC = () => {
               className="font-heading font-bold text-white leading-[1.15]"
               style={{ fontSize: 'clamp(21px, 2vw, 28px)', letterSpacing: '-0.012em' }}
             >
-              {t('methodology.engineTitle')}
+              {t('methodology.engineTitleA')}{' '}
+              <span className="lp-text-teal-grad">{t('methodology.engineTitleHighlight')}</span>
             </h3>
             <p className="mt-4 text-[16px] text-white/65 font-medium leading-relaxed">
               {t('methodology.engineSubtitle')}

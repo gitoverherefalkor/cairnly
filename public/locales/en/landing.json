@@ -19,8 +19,8 @@
   },
   "pillars": {
     "eyebrow": "Why Cairnly is different",
-    "titleA": "Four things every other career test",
-    "titleHighlight": "leaves out.",
+    "titleA": "Four things other",
+    "titleHighlight": "career tests leave out",
     "titleB": "",
     "cards": [
       {
@@ -93,7 +93,7 @@
     "demoLabel": "See it in the demo"
   },
   "methodology": {
-    "eyebrow": "Chapter 03 · Methodology",
+    "eyebrow": "Methodology",
     "titleA": "Built on what psychometrics gets right,",
     "titleHighlight": "and what it can't reach.",
     "intro": "Most personality frameworks sort you into a box, then tell you what people in that box typically do. Generic AI tools skip the science entirely and improvise. Cairnly does neither.",
@@ -112,6 +112,8 @@
     },
     "engineEyebrow": "Inside the engine",
     "engineTitle": "Multiple AI steps, orchestrated and tuned.",
+    "engineTitleA": "Multiple AI steps,",
+    "engineTitleHighlight": "orchestrated and tuned.",
     "engineSubtitle": "Every step has a purpose: built on the validated parts of psychometric research, tuned by working career coaches, and run by modern AI that can hold all of it in mind at once. What comes out reads like advice from a pro, actually about you.",
     "trust": {
       "gdpr": "GDPR compliant",
@@ -148,7 +150,7 @@
   },
   "comparison": {
     "eyebrow": "A side-by-side",
-    "titleA": "Built for the question",
+    "titleA": "Built to answer",
     "titleQuote": "what should I actually do next?",
     "intro": "Some tools box you into a personality type. Others charge you monthly to keep exploring. Cairnly is built for one job: turn who you actually are into specific roles you could go land. Once. Done.",
     "cols": {
