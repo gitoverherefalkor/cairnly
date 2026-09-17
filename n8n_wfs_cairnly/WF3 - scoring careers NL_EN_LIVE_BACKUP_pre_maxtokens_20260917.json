@@ -3,25 +3,16 @@
   "name": "WF3 - scoring careers NL/EN",
   "description": null,
   "active": true,
-  "activeVersionId": "3a912000-e029-4b29-99e7-c665697bec2c",
+  "activeVersionId": "061a8b18-fa44-4119-ba0f-022bcddb9a86",
   "createdAt": "2026-05-30T21:50:10.877Z",
-  "updatedAt": "2026-09-17T08:18:31.561Z",
+  "updatedAt": "2026-09-16T07:12:00.451Z",
   "isArchived": false,
-  "versionId": "3a912000-e029-4b29-99e7-c665697bec2c",
-  "versionCounter": 73,
+  "versionId": "061a8b18-fa44-4119-ba0f-022bcddb9a86",
+  "versionCounter": 72,
   "sourceWorkflowId": null,
   "triggerCount": 0,
   "nodes": [
     {
-      "id": "15f94de6-b716-4407-b754-187ca1d2f589",
-      "name": "Set Outside Box Prompt",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "executeOnce": true,
-      "position": [
-        832,
-        2448
-      ],
       "parameters": {
         "options": {},
         "assignments": {
@@ -34,38 +25,47 @@
             }
           ]
         }
-      }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        2448
+      ],
+      "id": "15f94de6-b716-4407-b754-187ca1d2f589",
+      "name": "Set Outside Box Prompt",
+      "executeOnce": true
     },
     {
-      "id": "3ee92643-6b6c-4d5d-a388-5c72db0eef76",
-      "name": "When Executed by Another Workflow",
+      "parameters": {
+        "inputSource": "passthrough"
+      },
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
         -3008,
         2128
       ],
-      "parameters": {
-        "inputSource": "passthrough"
-      }
+      "id": "3ee92643-6b6c-4d5d-a388-5c72db0eef76",
+      "name": "When Executed by Another Workflow"
     },
     {
-      "id": "61bd120c-d124-475e-bd2e-a987c50ab0c9",
-      "name": "Pull enriched",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "executeOnce": false,
-      "alwaysOutputData": true,
-      "position": [
-        -1824,
-        1712
-      ],
       "parameters": {
         "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Pull Init Summary').first().json.report_id }}&select=*",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {}
       },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1824,
+        1712
+      ],
+      "id": "61bd120c-d124-475e-bd2e-a987c50ab0c9",
+      "name": "Pull enriched",
+      "alwaysOutputData": true,
+      "executeOnce": false,
       "credentials": {
         "supabaseApi": {
           "id": "jYr9UcuCbwO8Um80",
@@ -74,34 +74,34 @@
       }
     },
     {
-      "id": "3ac567ef-ba95-4127-9351-e8f749e9c9fe",
-      "name": "Add structure",
+      "parameters": {
+        "jsCode": "// Get all input items\nconst allItems = $input.all();\n\n// Debug the structure\nconsole.log(\"Total items:\", allItems.length);\n\n// Extract data from the complex nested structure\nlet careersData = [];\nlet reportId = \"\";\nlet initialSummary = \"\";\n\n// Process each item to find our data\nallItems.forEach((item, index) => {\n  console.log(`Item ${index} keys:`, Object.keys(item.json || {}));\n  \n  // Look for careers data\n  if (item.json?.Tit_co_RID_data) {\n    if (typeof item.json.Tit_co_RID_data === 'string') {\n      try {\n        careersData = JSON.parse(item.json.Tit_co_RID_data);\n      } catch (e) {\n        console.log(\"Error parsing careers data:\", e);\n      }\n    } else if (Array.isArray(item.json.Tit_co_RID_data)) {\n      careersData = item.json.Tit_co_RID_data;\n    }\n  }\n  \n  // Look for report ID\n  if (item.json?.[\"report id\"]) {\n    reportId = item.json[\"report id\"];\n  }\n  \n  // Look for initial summary\n  if (item.json?.[\"Initial Summary (output)\"]) {\n    initialSummary = item.json[\"Initial Summary (output)\"];\n  }\n});\n\n// Structure the final output with original field names\nconst result = {\n  \"report id\": reportId,\n  \"Initial Summary (output)\": initialSummary,\n  Tit_co_RID_data: careersData\n};\n\nconsole.log(\"Final result structure:\", {\n  has_report_id: !!result[\"report id\"],\n  has_summary: !!result[\"Initial Summary (output)\"],\n  careers_count: result.Tit_co_RID_data.length\n});\n\nreturn [{ json: result }];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -2784,
         2128
       ],
-      "parameters": {
-        "jsCode": "// Get all input items\nconst allItems = $input.all();\n\n// Debug the structure\nconsole.log(\"Total items:\", allItems.length);\n\n// Extract data from the complex nested structure\nlet careersData = [];\nlet reportId = \"\";\nlet initialSummary = \"\";\n\n// Process each item to find our data\nallItems.forEach((item, index) => {\n  console.log(`Item ${index} keys:`, Object.keys(item.json || {}));\n  \n  // Look for careers data\n  if (item.json?.Tit_co_RID_data) {\n    if (typeof item.json.Tit_co_RID_data === 'string') {\n      try {\n        careersData = JSON.parse(item.json.Tit_co_RID_data);\n      } catch (e) {\n        console.log(\"Error parsing careers data:\", e);\n      }\n    } else if (Array.isArray(item.json.Tit_co_RID_data)) {\n      careersData = item.json.Tit_co_RID_data;\n    }\n  }\n  \n  // Look for report ID\n  if (item.json?.[\"report id\"]) {\n    reportId = item.json[\"report id\"];\n  }\n  \n  // Look for initial summary\n  if (item.json?.[\"Initial Summary (output)\"]) {\n    initialSummary = item.json[\"Initial Summary (output)\"];\n  }\n});\n\n// Structure the final output with original field names\nconst result = {\n  \"report id\": reportId,\n  \"Initial Summary (output)\": initialSummary,\n  Tit_co_RID_data: careersData\n};\n\nconsole.log(\"Final result structure:\", {\n  has_report_id: !!result[\"report id\"],\n  has_summary: !!result[\"Initial Summary (output)\"],\n  careers_count: result.Tit_co_RID_data.length\n});\n\nreturn [{ json: result }];"
-      }
+      "id": "3ac567ef-ba95-4127-9351-e8f749e9c9fe",
+      "name": "Add structure"
     },
     {
-      "id": "bf53055d-b1d6-4a49-9808-b0e01f309e76",
-      "name": "Pull Profile Sections",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "executeOnce": false,
-      "position": [
-        -1824,
-        2128
-      ],
       "parameters": {
         "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(approach,strengths,development,values)&select=report_id,section_type,content,language\n",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {}
       },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1824,
+        2128
+      ],
+      "id": "bf53055d-b1d6-4a49-9808-b0e01f309e76",
+      "name": "Pull Profile Sections",
+      "executeOnce": false,
       "credentials": {
         "supabaseApi": {
           "id": "jYr9UcuCbwO8Um80",
@@ -110,86 +110,86 @@
       }
     },
     {
-      "id": "1e62814e-9d6c-4a6f-9b67-9ba195449e96",
-      "name": "Combine Profile sections",
+      "parameters": {
+        "jsCode": "// Get profile items from current input (5 items from Pull Profile Sections)\nconst profileItems = $input.all();\n\n// Define the desired order of sections\nconst sectionOrder = ['approach', 'strengths', 'development', 'values'];\n\n// Create a map for quick lookup of items by section_type\nconst itemMap = {};\nprofileItems.forEach(item => {\n  itemMap[item.json.section_type] = item.json.content;\n});\n\n// Combine content in the specified order\nconst combinedContent = sectionOrder\n  .filter(sectionType => itemMap[sectionType]) // Only include sections that exist\n  .map(sectionType => itemMap[sectionType])\n  .join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    personality_profile: combinedContent\n  }\n}];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -1472,
         2128
       ],
-      "parameters": {
-        "jsCode": "// Get profile items from current input (5 items from Pull Profile Sections)\nconst profileItems = $input.all();\n\n// Define the desired order of sections\nconst sectionOrder = ['approach', 'strengths', 'development', 'values'];\n\n// Create a map for quick lookup of items by section_type\nconst itemMap = {};\nprofileItems.forEach(item => {\n  itemMap[item.json.section_type] = item.json.content;\n});\n\n// Combine content in the specified order\nconst combinedContent = sectionOrder\n  .filter(sectionType => itemMap[sectionType]) // Only include sections that exist\n  .map(sectionType => itemMap[sectionType])\n  .join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    personality_profile: combinedContent\n  }\n}];"
-      }
+      "id": "1e62814e-9d6c-4a6f-9b67-9ba195449e96",
+      "name": "Combine Profile sections"
     },
     {
-      "id": "15533bf0-f1cf-4aa7-8700-660e08a6244b",
-      "name": "Ranking",
+      "parameters": {
+        "jsCode": "// Career Ranking Code Node - Step 2 Compatible Version (with title dedup)\nconst allCareers = [];\n\n// Extract scored careers from Step 2 output\nfor (const item of $input.all()) {\n  const data = item.json;\n\n  if (data.scored_careers && Array.isArray(data.scored_careers)) {\n    allCareers.push(...data.scored_careers);\n  }\n  else if (data.text) {\n    try {\n      const cleanText = data.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n      const parsed = JSON.parse(cleanText);\n      if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n        allCareers.push(...parsed.scored_careers);\n      }\n    } catch (e) {\n      console.error('Failed to parse text field:', e);\n      continue;\n    }\n  }\n  else if (data.CAI_scored_careers && Array.isArray(data.CAI_scored_careers)) {\n    for (const entry of data.CAI_scored_careers) {\n      if (entry.text) {\n        try {\n          const cleanText = entry.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n          const parsed = JSON.parse(cleanText);\n          if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n            allCareers.push(...parsed.scored_careers);\n          }\n        } catch (e) {\n          continue;\n        }\n      } else if (entry.scored_careers && Array.isArray(entry.scored_careers)) {\n        allCareers.push(...entry.scored_careers);\n      } else if (entry.career_title) {\n        allCareers.push(entry);\n      }\n    }\n  }\n}\n\n// Extract final score (Step 2 structure, normalized to /100)\nconst getScore = (career) => {\n  let score = 0;\n  if (career.final_compatibility_score !== undefined) {\n    score = parseInt(career.final_compatibility_score, 10);\n    score = isNaN(score) ? 0 : score;\n  } else if (career.compatibility_score !== undefined) {\n    score = typeof career.compatibility_score === 'number'\n      ? career.compatibility_score\n      : parseInt(career.compatibility_score, 10);\n  }\n  return Math.round((score / 108) * 100);\n};\n\nconst getSummary = (career) => {\n  if (career.summary) {\n    return {\n      key_strengths: career.summary.key_strengths || '',\n      key_concerns: career.summary.key_concerns || ''\n    };\n  }\n  return {\n    key_strengths: career.key_strengths || '',\n    key_concerns: career.key_concerns || ''\n  };\n};\n\n// Score and sort\nconst sortedCareers = allCareers\n  .map(career => {\n    const summary = getSummary(career);\n    return {\n      ...career,\n      normalized_score: getScore(career),\n      extracted_strengths: summary.key_strengths,\n      extracted_concerns: summary.key_concerns\n    };\n  })\n  .sort((a, b) => b.normalized_score - a.normalized_score);\n\n// Title dedup pass — keep only the highest-scoring entry per unique title\nfunction normalizeTitle(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenTitles = new Set();\nconst dedupedCareers = [];\nconst droppedDuplicates = [];\n\nfor (const career of sortedCareers) {\n  const titleKey = normalizeTitle(career.career_title);\n  if (!titleKey) continue;\n\n  if (seenTitles.has(titleKey)) {\n    droppedDuplicates.push({\n      career_title: career.career_title,\n      company_size_type: career.company_size_type,\n      score: career.normalized_score\n    });\n    continue;\n  }\n\n  seenTitles.add(titleKey);\n  dedupedCareers.push(career);\n}\n\n// Assign ranks on the deduped list\nconst rankedCareers = dedupedCareers.map((career, index) => ({\n  ...career,\n  rank: index + 1\n}));\n\n// Slice Top 3 and Runner-ups (55+ threshold)\nconst top3 = rankedCareers.slice(0, 3);\nconst runnerUps = rankedCareers\n  .slice(3, 10)\n  .filter(career => career.normalized_score >= 55)\n  .slice(0, 3);\n\n// Stretch slot: give the 3rd runner-up seat to the highest-scoring genuine\n// pivot (\"lane\":\"stretch\" from Step 2) when the candidate signalled pivot\n// appetite. Guards: only replace when we already have a FULL set of 3\n// score-qualified runner-ups (never reduces anyone's runner-up count),\n// only when no stretch career surfaced naturally in top3/runner-ups, and\n// the stretch pick must clear the same 55 threshold. Missing lane tags\n// degrade to exactly the old behavior.\nconst isStretch = (c) => String(c.lane || '').toLowerCase() === 'stretch';\nif (runnerUps.length === 3 && !top3.some(isStretch) && !runnerUps.some(isStretch)) {\n  const surfaced = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  const stretchPick = rankedCareers.find(c =>\n    isStretch(c) && c.normalized_score >= 55 && !surfaced.has(normalizeTitle(c.career_title)));\n  if (stretchPick) {\n    runnerUps[2] = { ...stretchPick, rank: runnerUps[2].rank };\n  }\n}\n\n// Runner-up backfill — never ship an empty or half-empty runner-up section.\n// The 55 threshold above wipes the list out when a non-negotiable (salary,\n// schedule, or an hours ceiling) floors the pool: Step 1 overrides\n// objective_total to 5/64, which caps the final score at 45/100, so a floored\n// career can never clear 55 on its own. Top 3 is a plain slice(0, 3) and is\n// never empty, but runner-ups could come back as 0.\n//\n// So top up from the next best remaining careers, flagged so WF4 can say\n// plainly that these are harder matches rather than presenting them as equals.\n// Runs AFTER the stretch-slot logic above, so a healthy report is untouched.\nconst FLOORED_STEP1 = 5; // Step 1's hard floor for objective_total on a violation\nconst step1Of = (career) => {\n  const m = String(career.step1_objective_score ?? '').match(/\\d+/);\n  return m ? parseInt(m[0], 10) : null;\n};\n\nif (runnerUps.length < 3) {\n  const taken = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  for (const career of rankedCareers.slice(3)) {\n    if (runnerUps.length >= 3) break;\n    const titleKey = normalizeTitle(career.career_title);\n    if (!titleKey || taken.has(titleKey)) continue;\n    taken.add(titleKey);\n    runnerUps.push({\n      ...career,\n      below_threshold: true,\n      below_threshold_reason:\n        step1Of(career) === FLOORED_STEP1 ? 'non_negotiable' : 'low_compatibility'\n    });\n  }\n}\n\n// Format Top 3\nconst formattedTop3 = top3.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  step1_objective_score: career.step1_objective_score || \"N/A\",\n  pattern_analysis: career.step2_pattern_analysis || {},\n  penalties: career.penalties || {},\n  key_insights_applied: career.key_insights_applied || \"\",\n  key_strengths: career.extracted_strengths,\n  key_concerns: career.extracted_concerns,\n  justification: career.extracted_strengths && career.extracted_concerns\n    ? `${career.extracted_strengths} ${career.extracted_concerns}`\n    : `Strong alignment with ${career.normalized_score}% compatibility score.`\n}));\n\n// Format Runner-ups\nconst formattedRunnerUps = runnerUps.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  key_strengths: career.extracted_strengths,\n  brief_justification: career.extracted_strengths\n    ? career.extracted_strengths.substring(0, 200)\n    : `Strong alignment with ${career.normalized_score}% compatibility.`,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  // Backfilled picks that did not clear the 55 threshold. WF4 reads these to\n  // flag them as harder matches instead of presenting them as equal options.\n  below_threshold: career.below_threshold === true,\n  below_threshold_reason: career.below_threshold_reason || null\n}));\n\n// All ranked for context (Outside Box & Dream Job prompts) — also deduped\nconst allRankedForContext = rankedCareers.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type,\n  compatibility_score: career.normalized_score,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  key_strengths: career.extracted_strengths?.substring(0, 100) || \"\"\n}));\n\nreturn [{\n  json: {\n    career_recommendations: {\n      report_generated: new Date().toISOString(),\n      top_3_careers: formattedTop3,\n      runner_up_careers: formattedRunnerUps,\n      all_ranked_careers: allRankedForContext,\n      summary: {\n        total_careers_evaluated: sortedCareers.length,\n        unique_titles_after_dedup: rankedCareers.length,\n        duplicates_dropped: droppedDuplicates.length,\n        dropped_duplicates: droppedDuplicates,\n        top_tier_count: top3.length,\n        runner_up_count: runnerUps.length,\n        careers_above_threshold: rankedCareers.filter(c => c.normalized_score >= 55).length,\n        runner_ups_backfilled: runnerUps.filter(c => c.below_threshold).length,\n        careers_discarded: rankedCareers.length - rankedCareers.filter(c => c.normalized_score >= 55).length,\n        discarded_reason: \"Careers ranked 11+ or scoring below 55 have been excluded due to insufficient compatibility.\"\n      }\n    }\n  }\n}];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2160,
         2112
       ],
-      "parameters": {
-        "jsCode": "// Career Ranking Code Node - Step 2 Compatible Version (with title dedup)\nconst allCareers = [];\n\n// Extract scored careers from Step 2 output\nfor (const item of $input.all()) {\n  const data = item.json;\n\n  if (data.scored_careers && Array.isArray(data.scored_careers)) {\n    allCareers.push(...data.scored_careers);\n  }\n  else if (data.text) {\n    try {\n      const cleanText = data.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n      const parsed = JSON.parse(cleanText);\n      if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n        allCareers.push(...parsed.scored_careers);\n      }\n    } catch (e) {\n      console.error('Failed to parse text field:', e);\n      continue;\n    }\n  }\n  else if (data.CAI_scored_careers && Array.isArray(data.CAI_scored_careers)) {\n    for (const entry of data.CAI_scored_careers) {\n      if (entry.text) {\n        try {\n          const cleanText = entry.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n          const parsed = JSON.parse(cleanText);\n          if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n            allCareers.push(...parsed.scored_careers);\n          }\n        } catch (e) {\n          continue;\n        }\n      } else if (entry.scored_careers && Array.isArray(entry.scored_careers)) {\n        allCareers.push(...entry.scored_careers);\n      } else if (entry.career_title) {\n        allCareers.push(entry);\n      }\n    }\n  }\n}\n\n// Extract final score (Step 2 structure, normalized to /100)\nconst getScore = (career) => {\n  let score = 0;\n  if (career.final_compatibility_score !== undefined) {\n    score = parseInt(career.final_compatibility_score, 10);\n    score = isNaN(score) ? 0 : score;\n  } else if (career.compatibility_score !== undefined) {\n    score = typeof career.compatibility_score === 'number'\n      ? career.compatibility_score\n      : parseInt(career.compatibility_score, 10);\n  }\n  return Math.round((score / 108) * 100);\n};\n\nconst getSummary = (career) => {\n  if (career.summary) {\n    return {\n      key_strengths: career.summary.key_strengths || '',\n      key_concerns: career.summary.key_concerns || ''\n    };\n  }\n  return {\n    key_strengths: career.key_strengths || '',\n    key_concerns: career.key_concerns || ''\n  };\n};\n\n// Score and sort\nconst sortedCareers = allCareers\n  .map(career => {\n    const summary = getSummary(career);\n    return {\n      ...career,\n      normalized_score: getScore(career),\n      extracted_strengths: summary.key_strengths,\n      extracted_concerns: summary.key_concerns\n    };\n  })\n  .sort((a, b) => b.normalized_score - a.normalized_score);\n\n// Title dedup pass — keep only the highest-scoring entry per unique title\nfunction normalizeTitle(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenTitles = new Set();\nconst dedupedCareers = [];\nconst droppedDuplicates = [];\n\nfor (const career of sortedCareers) {\n  const titleKey = normalizeTitle(career.career_title);\n  if (!titleKey) continue;\n\n  if (seenTitles.has(titleKey)) {\n    droppedDuplicates.push({\n      career_title: career.career_title,\n      company_size_type: career.company_size_type,\n      score: career.normalized_score\n    });\n    continue;\n  }\n\n  seenTitles.add(titleKey);\n  dedupedCareers.push(career);\n}\n\n// Assign ranks on the deduped list\nconst rankedCareers = dedupedCareers.map((career, index) => ({\n  ...career,\n  rank: index + 1\n}));\n\n// Slice Top 3 and Runner-ups (55+ threshold)\nconst top3 = rankedCareers.slice(0, 3);\nconst runnerUps = rankedCareers\n  .slice(3, 10)\n  .filter(career => career.normalized_score >= 55)\n  .slice(0, 3);\n\n// Stretch slot: give the 3rd runner-up seat to the highest-scoring genuine\n// pivot (\"lane\":\"stretch\" from Step 2) when the candidate signalled pivot\n// appetite. Guards: only replace when we already have a FULL set of 3\n// score-qualified runner-ups (never reduces anyone's runner-up count),\n// only when no stretch career surfaced naturally in top3/runner-ups, and\n// the stretch pick must clear the same 55 threshold. Missing lane tags\n// degrade to exactly the old behavior.\nconst isStretch = (c) => String(c.lane || '').toLowerCase() === 'stretch';\nif (runnerUps.length === 3 && !top3.some(isStretch) && !runnerUps.some(isStretch)) {\n  const surfaced = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  const stretchPick = rankedCareers.find(c =>\n    isStretch(c) && c.normalized_score >= 55 && !surfaced.has(normalizeTitle(c.career_title)));\n  if (stretchPick) {\n    runnerUps[2] = { ...stretchPick, rank: runnerUps[2].rank };\n  }\n}\n\n// Runner-up backfill — never ship an empty or half-empty runner-up section.\n// The 55 threshold above wipes the list out when a non-negotiable (salary,\n// schedule, or an hours ceiling) floors the pool: Step 1 overrides\n// objective_total to 5/64, which caps the final score at 45/100, so a floored\n// career can never clear 55 on its own. Top 3 is a plain slice(0, 3) and is\n// never empty, but runner-ups could come back as 0.\n//\n// So top up from the next best remaining careers, flagged so WF4 can say\n// plainly that these are harder matches rather than presenting them as equals.\n// Runs AFTER the stretch-slot logic above, so a healthy report is untouched.\nconst FLOORED_STEP1 = 5; // Step 1's hard floor for objective_total on a violation\nconst step1Of = (career) => {\n  const m = String(career.step1_objective_score ?? '').match(/\\d+/);\n  return m ? parseInt(m[0], 10) : null;\n};\n\nif (runnerUps.length < 3) {\n  const taken = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  for (const career of rankedCareers.slice(3)) {\n    if (runnerUps.length >= 3) break;\n    const titleKey = normalizeTitle(career.career_title);\n    if (!titleKey || taken.has(titleKey)) continue;\n    taken.add(titleKey);\n    runnerUps.push({\n      ...career,\n      below_threshold: true,\n      below_threshold_reason:\n        step1Of(career) === FLOORED_STEP1 ? 'non_negotiable' : 'low_compatibility'\n    });\n  }\n}\n\n// Format Top 3\nconst formattedTop3 = top3.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  step1_objective_score: career.step1_objective_score || \"N/A\",\n  pattern_analysis: career.step2_pattern_analysis || {},\n  penalties: career.penalties || {},\n  key_insights_applied: career.key_insights_applied || \"\",\n  key_strengths: career.extracted_strengths,\n  key_concerns: career.extracted_concerns,\n  justification: career.extracted_strengths && career.extracted_concerns\n    ? `${career.extracted_strengths} ${career.extracted_concerns}`\n    : `Strong alignment with ${career.normalized_score}% compatibility score.`\n}));\n\n// Format Runner-ups\nconst formattedRunnerUps = runnerUps.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  key_strengths: career.extracted_strengths,\n  brief_justification: career.extracted_strengths\n    ? career.extracted_strengths.substring(0, 200)\n    : `Strong alignment with ${career.normalized_score}% compatibility.`,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  // Backfilled picks that did not clear the 55 threshold. WF4 reads these to\n  // flag them as harder matches instead of presenting them as equal options.\n  below_threshold: career.below_threshold === true,\n  below_threshold_reason: career.below_threshold_reason || null\n}));\n\n// All ranked for context (Outside Box & Dream Job prompts) — also deduped\nconst allRankedForContext = rankedCareers.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type,\n  compatibility_score: career.normalized_score,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  key_strengths: career.extracted_strengths?.substring(0, 100) || \"\"\n}));\n\nreturn [{\n  json: {\n    career_recommendations: {\n      report_generated: new Date().toISOString(),\n      top_3_careers: formattedTop3,\n      runner_up_careers: formattedRunnerUps,\n      all_ranked_careers: allRankedForContext,\n      summary: {\n        total_careers_evaluated: sortedCareers.length,\n        unique_titles_after_dedup: rankedCareers.length,\n        duplicates_dropped: droppedDuplicates.length,\n        dropped_duplicates: droppedDuplicates,\n        top_tier_count: top3.length,\n        runner_up_count: runnerUps.length,\n        careers_above_threshold: rankedCareers.filter(c => c.normalized_score >= 55).length,\n        runner_ups_backfilled: runnerUps.filter(c => c.below_threshold).length,\n        careers_discarded: rankedCareers.length - rankedCareers.filter(c => c.normalized_score >= 55).length,\n        discarded_reason: \"Careers ranked 11+ or scoring below 55 have been excluded due to insufficient compatibility.\"\n      }\n    }\n  }\n}];"
-      }
+      "id": "15533bf0-f1cf-4aa7-8700-660e08a6244b",
+      "name": "Ranking"
     },
     {
-      "id": "56b47afe-3527-412d-bdce-0880d1ad1876",
-      "name": "content in order",
+      "parameters": {
+        "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -1472,
         1712
       ],
-      "parameters": {
-        "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
-      }
+      "id": "56b47afe-3527-412d-bdce-0880d1ad1876",
+      "name": "content in order"
     },
     {
-      "id": "0c966a09-e11c-4b97-ad67-f9d91f431d04",
-      "name": "Outside Of Box Analysis",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "retryOnFail": true,
-      "position": [
-        1200,
-        2448
-      ],
       "parameters": {
         "promptType": "define",
         "text": "={{ $json.outside_box_prompt }}",
         "batching": {}
-      }
+      },
+      "id": "0c966a09-e11c-4b97-ad67-f9d91f431d04",
+      "name": "Outside Of Box Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1200,
+        2448
+      ],
+      "retryOnFail": true
     },
     {
-      "id": "51a564b2-8ad7-4770-b506-aa3204a6c0f7",
-      "name": "Parse OOB",
+      "parameters": {
+        "jsCode": "// Get report_id from upstream node\nconst reportId = $node[\"Pull Profile Sections\"].json.report_id;\n// Get the outside box careers text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst OUTSIDE_BOX_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this might be a fit\", \"Path Type & Reality\", \"AI Impact on this role\"],\n  nl: [\"Overzicht\", \"Waarom dit bij je past\", \"Type pad & realiteit\", \"AI-impact op deze rol\"]\n};\nconst OUTSIDE_BOX_SUBHEADERS = OUTSIDE_BOX_SUBHEADERS_ALL[__lang];\n\n// Function to format subheaders to h5 tags and bold AI rating\nfunction formatSubheaders(content) {\n  let formatted = content;\n  \n  // Convert subheaders to h5 tags\n  OUTSIDE_BOX_SUBHEADERS.forEach(subheader => {\n    // Match subheader with optional markdown bold (**), colon, or newline\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Bold the AI impact rating (e.g., \"Augmented -\", \"At Risk -\", \"Displaced -\")\n  formatted = formatted.replace(/\\n(Minimal|Moderate|High|Severe|Critical|Augmented|At Risk|Displaced|Enhanced|Transformed)(\\s*-)/gi, '\\n<strong>$1</strong>$2');\n  \n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  \n  return formatted.trim();\n}\n\n// Function to extract title and return cleaned content\nfunction parseCareer(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  // Look for title patterns\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    // Match \"1. Title Name\" or \"#### 1. Title\" patterns\n    if (line.match(/^#{0,4}\\s*\\d+\\.\\s+.+$/)) {\n      title = line.replace(/^#{0,4}\\s*\\d+\\.\\s+/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  // Strip any markdown bold/italic markers the model wrapped the title in\n  // (e.g. \"**Game Designer**\" -> \"Game Designer\") so they don't leak into\n  // the <strong> tag and render as literal asterisks. Titles never contain *.\n  title = title.replace(/\\*/g, '').trim();\n  \n  // Skip empty lines after title\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  // Get remaining content (everything after title)\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n  \n  return {\n    title: title || 'Outside Box Career',\n    content: formattedContent\n  };\n}\n\n// Split the content by career sections - matches \"1.\", \"2.\", \"3.\" at start of line\n// Uses lookahead to keep the delimiter with the following section\nconst careerSections = fullText.split(/(?=^\\d+\\.\\s+)/m);\n\n// Filter out empty sections and trim whitespace\nconst cleanSections = careerSections.filter(section => section.trim().length > 0);\n\n// Map each section to the required Supabase format\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseCareer(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const companyMatch = section.match(/<!--company:(.*?)-->/i);\n  const company_size_type = companyMatch ? companyMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').replace(/<!--company:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      title: `<h3><strong>${parsed.title}</strong></h3>`,\n      company_size_type: company_size_type || null,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      section_type: \"outside_box\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         1712,
         2448
       ],
-      "parameters": {
-        "jsCode": "// Get report_id from upstream node\nconst reportId = $node[\"Pull Profile Sections\"].json.report_id;\n// Get the outside box careers text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst OUTSIDE_BOX_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this might be a fit\", \"Path Type & Reality\", \"AI Impact on this role\"],\n  nl: [\"Overzicht\", \"Waarom dit bij je past\", \"Type pad & realiteit\", \"AI-impact op deze rol\"]\n};\nconst OUTSIDE_BOX_SUBHEADERS = OUTSIDE_BOX_SUBHEADERS_ALL[__lang];\n\n// Function to format subheaders to h5 tags and bold AI rating\nfunction formatSubheaders(content) {\n  let formatted = content;\n  \n  // Convert subheaders to h5 tags\n  OUTSIDE_BOX_SUBHEADERS.forEach(subheader => {\n    // Match subheader with optional markdown bold (**), colon, or newline\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Bold the AI impact rating (e.g., \"Augmented -\", \"At Risk -\", \"Displaced -\")\n  formatted = formatted.replace(/\\n(Minimal|Moderate|High|Severe|Critical|Augmented|At Risk|Displaced|Enhanced|Transformed)(\\s*-)/gi, '\\n<strong>$1</strong>$2');\n  \n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  \n  return formatted.trim();\n}\n\n// Function to extract title and return cleaned content\nfunction parseCareer(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  // Look for title patterns\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    // Match \"1. Title Name\" or \"#### 1. Title\" patterns\n    if (line.match(/^#{0,4}\\s*\\d+\\.\\s+.+$/)) {\n      title = line.replace(/^#{0,4}\\s*\\d+\\.\\s+/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  // Strip any markdown bold/italic markers the model wrapped the title in\n  // (e.g. \"**Game Designer**\" -> \"Game Designer\") so they don't leak into\n  // the <strong> tag and render as literal asterisks. Titles never contain *.\n  title = title.replace(/\\*/g, '').trim();\n  \n  // Skip empty lines after title\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  // Get remaining content (everything after title)\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n  \n  return {\n    title: title || 'Outside Box Career',\n    content: formattedContent\n  };\n}\n\n// Split the content by career sections - matches \"1.\", \"2.\", \"3.\" at start of line\n// Uses lookahead to keep the delimiter with the following section\nconst careerSections = fullText.split(/(?=^\\d+\\.\\s+)/m);\n\n// Filter out empty sections and trim whitespace\nconst cleanSections = careerSections.filter(section => section.trim().length > 0);\n\n// Map each section to the required Supabase format\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseCareer(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const companyMatch = section.match(/<!--company:(.*?)-->/i);\n  const company_size_type = companyMatch ? companyMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').replace(/<!--company:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      title: `<h3><strong>${parsed.title}</strong></h3>`,\n      company_size_type: company_size_type || null,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      section_type: \"outside_box\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
-      }
+      "id": "51a564b2-8ad7-4770-b506-aa3204a6c0f7",
+      "name": "Parse OOB"
     },
     {
-      "id": "773f2ffa-5c45-4a4d-a654-1b14804f91b8",
-      "name": "Insert OOB ",
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
         2000,
         2448
       ],
-      "parameters": {
-        "tableId": "report_sections",
-        "dataToSend": "autoMapInputData"
-      },
+      "id": "773f2ffa-5c45-4a4d-a654-1b14804f91b8",
+      "name": "Insert OOB ",
       "credentials": {
         "supabaseApi": {
           "id": "jYr9UcuCbwO8Um80",
@@ -198,18 +198,18 @@
       }
     },
     {
-      "id": "a304f9a2-9ca5-4e8a-9610-3863f98acb0b",
-      "name": "Google Gemini Chat Model1",
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
         -192,
         2624
       ],
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {}
-      },
+      "id": "a304f9a2-9ca5-4e8a-9610-3863f98acb0b",
+      "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
           "id": "Q653Teuy9nP6VLoE",
@@ -218,17 +218,6 @@
       }
     },
     {
-      "id": "4f000ecf-3392-49c0-8a16-71f8a0ff5a3e",
-      "name": "shortlist_careers",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "executeOnce": true,
-      "retryOnFail": true,
-      "waitBetweenTries": 3000,
-      "position": [
-        -2176,
-        1952
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -241,23 +230,34 @@
           ]
         },
         "options": {}
-      }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2176,
+        1952
+      ],
+      "id": "4f000ecf-3392-49c0-8a16-71f8a0ff5a3e",
+      "name": "shortlist_careers",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "executeOnce": true
     },
     {
-      "id": "c89f1d76-fe12-430a-9984-286d45828e23",
-      "name": "Google Gemini Chat Model",
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {
+          "temperature": 0.1
+        }
+      },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
         -16,
         1872
       ],
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {
-          "temperature": 0.1
-        }
-      },
+      "id": "c89f1d76-fe12-430a-9984-286d45828e23",
+      "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
           "id": "Q653Teuy9nP6VLoE",
@@ -266,36 +266,36 @@
       }
     },
     {
-      "id": "ec1a541e-8ef2-49d3-8efa-fcf7b6e4a0bf",
-      "name": "Extract Interests and history",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "executeOnce": true,
-      "position": [
-        -240,
-        2448
-      ],
       "parameters": {
         "promptType": "define",
         "text": "=# ROLE\nYou are an expert data synthesizer.\n\n# TASK\nSynthesize the candidate's initial summary into a concise, narrative profile. Organize the profile using the provided headers. For each section, write a brief, insightful paragraph that weaves together the specified data points from the input.\n\nThe goal is to create a rich, human-readable summary that captures the story behind the data, not just the data itself.\n\n# PROFILE STRUCTURE\n\n### Personal Context\n\nWeave together the candidate's age (1c), current/most recent company size and culture (1j), and their role satisfaction (1k). Incorporate the \"reasons\" for their happiness score from 1k if provided to explain their current professional sentiment.\n\n### Previous Careers\n\nExtract and list the job titles held by the candidate from their Career History (1j) in a numbered list format. This serves as a record of roles to be excluded from future suggestions.\n\n### Personal Interests & Strengths\n\nSynthesize their proudest achievements (1l), personal hobbies (1m), professional interests (4a), and what others naturally rely on them for (4g) to paint a picture of what drives and engages them both in and out of work, and the strengths people see in them.\n\n### Career Goals & Aspirations\n\nCombine their short-term (7a) and long-term (7b) goals with their primary reason for the assessment (1e) and current career barriers (7c). Incorporate their attitude towards skill development (7d, 7e) to describe their overall career trajectory and ambition.\n\n### Career Constraints & Avoidances\n\nSummarize the specific work aspects (3h) the candidate wants to avoid. Frame this as their professional boundaries or \"non-negotiables.\"\n\n### Compensation & Work Preferences\n\nDescribe their ideal work arrangement by combining their schedule preference (3d) and work environment preference (2g) with their views on salary. Explain the relationship between salary's importance (3e), their desired range (3f), and what aspect of compensation matters most to them (3g).\n\n### Dream Jobs\n\nState their dream job aspirations (4h) directly and briefly connect them to their broader interests or values if relevant.\n\n### Report ID\n{{ $('Pull Init Summary').item.json.report_id }}\n\n---\n\n# EXAMPLE OUTPUT\n\n### Personal Context\n\nNatasha is a 35-year-old executive currently operating in high-impact leadership roles, including a Fractional VP People position at a boutique HR consultancy. While she currently rates her happiness at an 8/10 due to the autonomy and exciting nature of her new challenges, her overall sentiment is shaped by a history of demanding roles in the Startup and Corporate sectors.\n\n### Previous Careers\n\n* Fractional VP People\n* Supervisory Board Member\n* Strategic Finance\n* VP, Chief of Staff - CEO & Founder\n* Head of Operations, Finance & People\n\n### Personal Interests & Strengths\n\nHer professional identity is anchored in strategic execution, notably evidenced by leading a successful $30M Series B fundraising round. She possesses a unique blend of skills in Strategic Planning, Finance, and HR Department Start-ups. Outside the office, Natasha recharges through bouldering and reading, while her professional interests in Social Sciences and Executive Education highlight a deep commitment to understanding organizational culture and human behavior. Colleagues consistently turn to her to untangle messy organizational problems and bring calm structure to chaos.\n\n### Career Goals & Aspirations\n\nCurrently, Natasha is at a pivotal crossroads, seeking a career change to address burnout and re-establish a healthy work-life balance. Her short-term focus is on gaining experience in new industries or exploring entrepreneurial ventures. Long-term, she is driven by a quest for complete autonomy and financial independence. While she is an avid learner—targeting development in Leadership, Communication, and Entrepreneurship—her primary barrier remains uncertainty regarding the specific \"next step\" in her trajectory.\n\n### Career Constraints & Avoidances\n\nNatasha has established firm professional boundaries, explicitly seeking to avoid finance-heavy tasks like budgeting and analysis, as well as sales-driven roles. She moves away from highly structured or repetitive environments.\n\n### Compensation & Work Preferences\n\nEfficiency and structure are central to Natasha's ideal environment; she prefers a standard 9-to-5 schedule within a structured organization that provides clear guidelines. She views salary as a moderate priority, targeting a range of 100,000–150,000, with a strong preference for a high base salary that reflects her level of seniority and impact.\n\n### Dream Jobs\n\nYoga instructor, Non-Fiction Writer, Academic / Lecturer\n\n### Report ID\nf3ba4b05-xxxx etc\n\n---\n\n# INPUT:\n\n{{ $('Pull Init Summary').item.json.content }}\n\n\n",
         "batching": {}
-      }
+      },
+      "id": "ec1a541e-8ef2-49d3-8efa-fcf7b6e4a0bf",
+      "name": "Extract Interests and history",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -240,
+        2448
+      ],
+      "executeOnce": true
     },
     {
-      "id": "a736bad7-e4a4-49eb-8018-254357c3c3ca",
-      "name": "Google Gemini Chat Model2",
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {
+          "temperature": 0.1
+        }
+      },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
         1744,
         2272
       ],
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {
-          "temperature": 0.1
-        }
-      },
+      "id": "a736bad7-e4a4-49eb-8018-254357c3c3ca",
+      "name": "Google Gemini Chat Model2",
       "credentials": {
         "googlePalmApi": {
           "id": "Q653Teuy9nP6VLoE",
@@ -304,15 +304,6 @@
       }
     },
     {
-      "id": "63547852-a131-4409-bf29-53a904e1adcf",
-      "name": "Objective Compat score",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "executeOnce": false,
-      "position": [
-        -224,
-        1712
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -325,38 +316,47 @@
           ]
         },
         "options": {}
-      }
-    },
-    {
-      "id": "c04b252a-ff91-433d-bf81-32e69de48acd",
-      "name": "OC Score",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "executeOnce": false,
-      "retryOnFail": true,
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        -16,
+        -224,
         1712
       ],
+      "id": "63547852-a131-4409-bf29-53a904e1adcf",
+      "name": "Objective Compat score",
+      "executeOnce": false
+    },
+    {
       "parameters": {
         "promptType": "define",
         "text": "={{ $json.cai_score_prompt }}",
         "batching": {}
-      }
+      },
+      "id": "c04b252a-ff91-433d-bf81-32e69de48acd",
+      "name": "OC Score",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -16,
+        1712
+      ],
+      "executeOnce": false,
+      "retryOnFail": true
     },
     {
-      "id": "77ec0bdf-cece-4ebc-9992-349c00146c4e",
-      "name": "Google Gemini Chat Model3",
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
         -1808,
         2592
       ],
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {}
-      },
+      "id": "77ec0bdf-cece-4ebc-9992-349c00146c4e",
+      "name": "Google Gemini Chat Model3",
       "credentials": {
         "googlePalmApi": {
           "id": "Q653Teuy9nP6VLoE",
@@ -365,38 +365,38 @@
       }
     },
     {
-      "id": "ff96e0fa-3c32-431d-8234-db46db426e45",
-      "name": "Extract 1k-n",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "executeOnce": false,
-      "retryOnFail": true,
-      "position": [
-        -1824,
-        2448
-      ],
       "parameters": {
         "promptType": "define",
         "text": "=Extract content for [1k], [1j], [1n] and nothing else\n\nInput:\n{{ $json.content }}\n",
         "batching": {}
-      }
+      },
+      "id": "ff96e0fa-3c32-431d-8234-db46db426e45",
+      "name": "Extract 1k-n",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -1824,
+        2448
+      ],
+      "executeOnce": false,
+      "retryOnFail": true
     },
     {
-      "id": "8713939b-1ff6-48ba-8b95-780cf68dee72",
-      "name": "Pull Init Summary",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "executeOnce": true,
-      "position": [
-        -2560,
-        2128
-      ],
       "parameters": {
         "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(init_summary)&select=report_id,section_type,content\n",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "options": {}
       },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2560,
+        2128
+      ],
+      "id": "8713939b-1ff6-48ba-8b95-780cf68dee72",
+      "name": "Pull Init Summary",
+      "executeOnce": true,
       "credentials": {
         "supabaseApi": {
           "id": "jYr9UcuCbwO8Um80",
@@ -405,28 +405,20 @@
       }
     },
     {
-      "id": "835adc2a-f45e-40fd-8ad3-f4515918b1f1",
-      "name": "BatchingOC",
+      "parameters": {
+        "jsCode": "// Get careers from direct input\nconst careers = $input.all().map(item => item.json);\n\n// Get init summary from the other node (no direct connection needed)\nconst initSummaryContent = $(\"Pull Init Summary\").first().json.content || '';\n\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  const careerBatch = careers.slice(i, i + batchSize);\n\n  batches.push({\n    json: {\n      careers: careerBatch,\n      init_summary: initSummaryContent,\n      batch_info: {\n        batch_number: Math.floor(i / batchSize) + 1,\n        total_batches: Math.ceil(careers.length / batchSize),\n        careers_in_batch: careerBatch.length\n      }\n    }\n  });\n}\n\nreturn batches;"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "alwaysOutputData": true,
       "position": [
         -448,
         1712
       ],
-      "parameters": {
-        "jsCode": "// Get careers from direct input\nconst careers = $input.all().map(item => item.json);\n\n// Get init summary from the other node (no direct connection needed)\nconst initSummaryContent = $(\"Pull Init Summary\").first().json.content || '';\n\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  const careerBatch = careers.slice(i, i + batchSize);\n\n  batches.push({\n    json: {\n      careers: careerBatch,\n      init_summary: initSummaryContent,\n      batch_info: {\n        batch_number: Math.floor(i / batchSize) + 1,\n        total_batches: Math.ceil(careers.length / batchSize),\n        careers_in_batch: careerBatch.length\n      }\n    }\n  });\n}\n\nreturn batches;"
-      }
+      "id": "835adc2a-f45e-40fd-8ad3-f4515918b1f1",
+      "name": "BatchingOC",
+      "alwaysOutputData": true
     },
     {
-      "id": "1062795f-cb9d-4724-a5dc-66482a00118e",
-      "name": "Renaming 1k-1n",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1472,
-        2448
-      ],
       "parameters": {
         "assignments": {
           "assignments": [
@@ -439,50 +431,49 @@
           ]
         },
         "options": {}
-      }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1472,
+        2448
+      ],
+      "id": "1062795f-cb9d-4724-a5dc-66482a00118e",
+      "name": "Renaming 1k-1n"
     },
     {
-      "id": "e98a01a4-2ee9-49c7-9b0e-1f27c841ad2f",
-      "name": "Step 1 scores",
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "Step 1 scores",
+        "options": {}
+      },
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
         320,
         1712
       ],
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "destinationFieldName": "Step 1 scores",
-        "options": {}
-      }
+      "id": "e98a01a4-2ee9-49c7-9b0e-1f27c841ad2f",
+      "name": "Step 1 scores"
     },
     {
-      "id": "db50f294-fc05-4b56-9178-4f7f00f22e74",
-      "name": "Step 2 - Final Score",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.7,
-      "executeOnce": false,
-      "retryOnFail": true,
-      "position": [
-        1712,
-        2112
-      ],
       "parameters": {
         "promptType": "define",
         "text": "={{ $json['Step 2 analysis (patterns)'] }}",
         "batching": {}
-      }
-    },
-    {
-      "id": "01dfe58b-74e6-46ba-bf64-c5efa8a216da",
-      "name": "Step 2 analysis",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "executeOnce": true,
+      },
+      "id": "db50f294-fc05-4b56-9178-4f7f00f22e74",
+      "name": "Step 2 - Final Score",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
       "position": [
-        1376,
+        1712,
         2112
       ],
+      "executeOnce": false,
+      "retryOnFail": true
+    },
+    {
       "parameters": {
         "assignments": {
           "assignments": [
@@ -495,41 +486,42 @@
           ]
         },
         "options": {}
-      }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        2112
+      ],
+      "id": "01dfe58b-74e6-46ba-bf64-c5efa8a216da",
+      "name": "Step 2 analysis",
+      "executeOnce": true
     },
     {
-      "id": "d5255cfc-44a1-4529-9831-9f5b6249f00d",
-      "name": "ShortHisProf",
+      "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
         -976,
         1968
       ],
-      "parameters": {}
+      "id": "d5255cfc-44a1-4529-9831-9f5b6249f00d",
+      "name": "ShortHisProf"
     },
     {
-      "id": "c2036f73-53f7-4345-be56-5aa562d4374d",
-      "name": "Prep WF4 data",
+      "parameters": {
+        "jsCode": "// Combine all data WF4 needs and pass directly (no Supabase intermediary)\nconst ranking = $('Ranking').first().json;\nconst reportId = $('Add structure').first().json['report id'];\nconst initSummaryContent = $('Pull Init Summary').first().json.content;\nconst interestsText = $('Extract Interests and history').first().json.text;\nconst oobText = $('Outside Of Box Analysis').first().json.text || '';\n\nconst top3 = ranking.career_recommendations?.top_3_careers || [];\nconst runnerUps = ranking.career_recommendations?.runner_up_careers || [];\nconst allRanked = ranking.career_recommendations?.all_ranked_careers || [];\n\nreturn [{\n  json: {\n    report_id: reportId,\n    top_3_careers: top3,\n    runner_up_careers: runnerUps,\n    all_ranked_careers: allRanked,\n    interests_history_text: interestsText,\n    top_3_careers_str: JSON.stringify(top3, null, 2),\n    runner_up_careers_str: JSON.stringify(runnerUps, null, 2),\n    outside_box_careers_str: oobText,\n    init_summary_content: initSummaryContent\n  }\n}];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2688,
         2112
       ],
-      "parameters": {
-        "jsCode": "// Combine all data WF4 needs and pass directly (no Supabase intermediary)\nconst ranking = $('Ranking').first().json;\nconst reportId = $('Add structure').first().json['report id'];\nconst initSummaryContent = $('Pull Init Summary').first().json.content;\nconst interestsText = $('Extract Interests and history').first().json.text;\nconst oobText = $('Outside Of Box Analysis').first().json.text || '';\n\nconst top3 = ranking.career_recommendations?.top_3_careers || [];\nconst runnerUps = ranking.career_recommendations?.runner_up_careers || [];\nconst allRanked = ranking.career_recommendations?.all_ranked_careers || [];\n\nreturn [{\n  json: {\n    report_id: reportId,\n    top_3_careers: top3,\n    runner_up_careers: runnerUps,\n    all_ranked_careers: allRanked,\n    interests_history_text: interestsText,\n    top_3_careers_str: JSON.stringify(top3, null, 2),\n    runner_up_careers_str: JSON.stringify(runnerUps, null, 2),\n    outside_box_careers_str: oobText,\n    init_summary_content: initSummaryContent\n  }\n}];"
-      }
+      "id": "c2036f73-53f7-4345-be56-5aa562d4374d",
+      "name": "Prep WF4 data"
     },
     {
-      "id": "edaf00ae-eb59-4d44-96eb-4edd425aa90e",
-      "name": "Execute WF4 Content Gen",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        2960,
-        2112
-      ],
       "parameters": {
         "workflowId": {
           "__rl": true,
@@ -548,72 +540,72 @@
         "options": {
           "waitForSubWorkflow": false
         }
-      }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2960,
+        2112
+      ],
+      "id": "edaf00ae-eb59-4d44-96eb-4edd425aa90e",
+      "name": "Execute WF4 Content Gen"
     },
     {
-      "id": "6b579609-a928-4499-af3c-1087eb7db8e3",
-      "name": "Wait for Ranking + OOB",
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
         2464,
         2112
       ],
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "options": {}
-      }
+      "id": "6b579609-a928-4499-af3c-1087eb7db8e3",
+      "name": "Wait for Ranking + OOB"
     },
     {
-      "id": "997039cd-a8bc-4805-8010-1dc0d10ccc28",
-      "name": "Code in JavaScript",
+      "parameters": {
+        "jsCode": "// Pull all four inputs explicitly. n8n waits for each referenced\n// node to finish before this code runs, so we get them all in sync.\n\nconst enrichedCareers = $('content in order').all().map(i => i.json);\nconst step1Output = $('Step 1 scores').first().json['Step 1 scores'] || [];\nconst personality = $('Combine Profile sections').first().json;\nconst sentimentExtract = $('Renaming 1k-1n').first().json;\n\nreturn [{\n  json: {\n    \"Step 2 input\": [\n      { \"1k-1n extract\": sentimentExtract.text || sentimentExtract['1k-1n extract'] || sentimentExtract },\n      { \"Step 1 scores\": step1Output },\n      { \"personality_profile\": personality.personality_profile || personality },\n      { \"enriched_careers\": enrichedCareers }\n    ]\n  }\n}];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "executeOnce": true,
       "position": [
         976,
         2112
       ],
-      "parameters": {
-        "jsCode": "// Pull all four inputs explicitly. n8n waits for each referenced\n// node to finish before this code runs, so we get them all in sync.\n\nconst enrichedCareers = $('content in order').all().map(i => i.json);\nconst step1Output = $('Step 1 scores').first().json['Step 1 scores'] || [];\nconst personality = $('Combine Profile sections').first().json;\nconst sentimentExtract = $('Renaming 1k-1n').first().json;\n\nreturn [{\n  json: {\n    \"Step 2 input\": [\n      { \"1k-1n extract\": sentimentExtract.text || sentimentExtract['1k-1n extract'] || sentimentExtract },\n      { \"Step 1 scores\": step1Output },\n      { \"personality_profile\": personality.personality_profile || personality },\n      { \"enriched_careers\": enrichedCareers }\n    ]\n  }\n}];"
-      }
+      "id": "997039cd-a8bc-4805-8010-1dc0d10ccc28",
+      "name": "Code in JavaScript",
+      "executeOnce": true
     },
     {
-      "id": "15266004-d0d2-4b6a-a895-df614f4d11ca",
-      "name": "Merge",
+      "parameters": {
+        "numberInputs": 4
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
         640,
         2080
       ],
-      "parameters": {
-        "numberInputs": 4
-      }
+      "id": "15266004-d0d2-4b6a-a895-df614f4d11ca",
+      "name": "Merge"
     },
     {
-      "id": "331012c7-2bd9-4bd0-8759-232ad350286a",
-      "name": "Build covered titles",
+      "parameters": {
+        "jsCode": "// \"Already considered\" namespace for the OOB prompt: each suitable-15 career's\n// main title + its alternate titles, so OOB can't echo a presented role's alt\n// (e.g. \"Program Director\" is an alt of \"Senior Program Manager, Social Impact\").\nconst enriched = $('Pull enriched').all().map(i => i.json);\nconst covered = enriched\n  .filter(c => c && c.career_title)\n  .map(c => {\n    let alts = c.alternate_titles;\n    if (typeof alts === 'string') { try { alts = JSON.parse(alts); } catch { alts = []; } }\n    if (!Array.isArray(alts)) alts = [];\n    return { title: c.career_title, alternate_titles: alts };\n  });\nreturn [{ json: { covered_titles: JSON.stringify(covered, null, 2) } }];"
+      },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -1472,
         1392
       ],
-      "parameters": {
-        "jsCode": "// \"Already considered\" namespace for the OOB prompt: each suitable-15 career's\n// main title + its alternate titles, so OOB can't echo a presented role's alt\n// (e.g. \"Program Director\" is an alt of \"Senior Program Manager, Social Impact\").\nconst enriched = $('Pull enriched').all().map(i => i.json);\nconst covered = enriched\n  .filter(c => c && c.career_title)\n  .map(c => {\n    let alts = c.alternate_titles;\n    if (typeof alts === 'string') { try { alts = JSON.parse(alts); } catch { alts = []; } }\n    if (!Array.isArray(alts)) alts = [];\n    return { title: c.career_title, alternate_titles: alts };\n  });\nreturn [{ json: { covered_titles: JSON.stringify(covered, null, 2) } }];"
-      }
+      "id": "331012c7-2bd9-4bd0-8759-232ad350286a",
+      "name": "Build covered titles"
     },
     {
-      "id": "f680328e-be2a-442d-b9ca-a1a5058dc4a2",
-      "name": "Anthropic Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.5,
-      "position": [
-        1200,
-        2624
-      ],
       "parameters": {
         "model": {
           "__rl": true,
@@ -621,10 +613,16 @@
           "mode": "list",
           "cachedResultName": "Claude Sonnet 5"
         },
-        "options": {
-          "maxTokensToSample": 16000
-        }
+        "options": {}
       },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        2624
+      ],
+      "id": "f680328e-be2a-442d-b9ca-a1a5058dc4a2",
+      "name": "Anthropic Chat Model",
       "credentials": {
         "anthropicApi": {
           "id": "RhTKhZPWZ6gcGD13",
@@ -1068,19 +1066,10 @@
     }
   ],
   "activeVersion": {
-    "versionId": "3a912000-e029-4b29-99e7-c665697bec2c",
+    "versionId": "061a8b18-fa44-4119-ba0f-022bcddb9a86",
     "workflowId": "zhgJuiDp60PS5ZKJ",
     "nodes": [
       {
-        "id": "15f94de6-b716-4407-b754-187ca1d2f589",
-        "name": "Set Outside Box Prompt",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "executeOnce": true,
-        "position": [
-          832,
-          2448
-        ],
         "parameters": {
           "options": {},
           "assignments": {
@@ -1093,38 +1082,47 @@
               }
             ]
           }
-        }
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          832,
+          2448
+        ],
+        "id": "15f94de6-b716-4407-b754-187ca1d2f589",
+        "name": "Set Outside Box Prompt",
+        "executeOnce": true
       },
       {
-        "id": "3ee92643-6b6c-4d5d-a388-5c72db0eef76",
-        "name": "When Executed by Another Workflow",
+        "parameters": {
+          "inputSource": "passthrough"
+        },
         "type": "n8n-nodes-base.executeWorkflowTrigger",
         "typeVersion": 1.1,
         "position": [
           -3008,
           2128
         ],
-        "parameters": {
-          "inputSource": "passthrough"
-        }
+        "id": "3ee92643-6b6c-4d5d-a388-5c72db0eef76",
+        "name": "When Executed by Another Workflow"
       },
       {
-        "id": "61bd120c-d124-475e-bd2e-a987c50ab0c9",
-        "name": "Pull enriched",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "executeOnce": false,
-        "alwaysOutputData": true,
-        "position": [
-          -1824,
-          1712
-        ],
         "parameters": {
           "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Pull Init Summary').first().json.report_id }}&select=*",
           "authentication": "predefinedCredentialType",
           "nodeCredentialType": "supabaseApi",
           "options": {}
         },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1824,
+          1712
+        ],
+        "id": "61bd120c-d124-475e-bd2e-a987c50ab0c9",
+        "name": "Pull enriched",
+        "alwaysOutputData": true,
+        "executeOnce": false,
         "credentials": {
           "supabaseApi": {
             "id": "jYr9UcuCbwO8Um80",
@@ -1133,34 +1131,34 @@
         }
       },
       {
-        "id": "3ac567ef-ba95-4127-9351-e8f749e9c9fe",
-        "name": "Add structure",
+        "parameters": {
+          "jsCode": "// Get all input items\nconst allItems = $input.all();\n\n// Debug the structure\nconsole.log(\"Total items:\", allItems.length);\n\n// Extract data from the complex nested structure\nlet careersData = [];\nlet reportId = \"\";\nlet initialSummary = \"\";\n\n// Process each item to find our data\nallItems.forEach((item, index) => {\n  console.log(`Item ${index} keys:`, Object.keys(item.json || {}));\n  \n  // Look for careers data\n  if (item.json?.Tit_co_RID_data) {\n    if (typeof item.json.Tit_co_RID_data === 'string') {\n      try {\n        careersData = JSON.parse(item.json.Tit_co_RID_data);\n      } catch (e) {\n        console.log(\"Error parsing careers data:\", e);\n      }\n    } else if (Array.isArray(item.json.Tit_co_RID_data)) {\n      careersData = item.json.Tit_co_RID_data;\n    }\n  }\n  \n  // Look for report ID\n  if (item.json?.[\"report id\"]) {\n    reportId = item.json[\"report id\"];\n  }\n  \n  // Look for initial summary\n  if (item.json?.[\"Initial Summary (output)\"]) {\n    initialSummary = item.json[\"Initial Summary (output)\"];\n  }\n});\n\n// Structure the final output with original field names\nconst result = {\n  \"report id\": reportId,\n  \"Initial Summary (output)\": initialSummary,\n  Tit_co_RID_data: careersData\n};\n\nconsole.log(\"Final result structure:\", {\n  has_report_id: !!result[\"report id\"],\n  has_summary: !!result[\"Initial Summary (output)\"],\n  careers_count: result.Tit_co_RID_data.length\n});\n\nreturn [{ json: result }];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           -2784,
           2128
         ],
-        "parameters": {
-          "jsCode": "// Get all input items\nconst allItems = $input.all();\n\n// Debug the structure\nconsole.log(\"Total items:\", allItems.length);\n\n// Extract data from the complex nested structure\nlet careersData = [];\nlet reportId = \"\";\nlet initialSummary = \"\";\n\n// Process each item to find our data\nallItems.forEach((item, index) => {\n  console.log(`Item ${index} keys:`, Object.keys(item.json || {}));\n  \n  // Look for careers data\n  if (item.json?.Tit_co_RID_data) {\n    if (typeof item.json.Tit_co_RID_data === 'string') {\n      try {\n        careersData = JSON.parse(item.json.Tit_co_RID_data);\n      } catch (e) {\n        console.log(\"Error parsing careers data:\", e);\n      }\n    } else if (Array.isArray(item.json.Tit_co_RID_data)) {\n      careersData = item.json.Tit_co_RID_data;\n    }\n  }\n  \n  // Look for report ID\n  if (item.json?.[\"report id\"]) {\n    reportId = item.json[\"report id\"];\n  }\n  \n  // Look for initial summary\n  if (item.json?.[\"Initial Summary (output)\"]) {\n    initialSummary = item.json[\"Initial Summary (output)\"];\n  }\n});\n\n// Structure the final output with original field names\nconst result = {\n  \"report id\": reportId,\n  \"Initial Summary (output)\": initialSummary,\n  Tit_co_RID_data: careersData\n};\n\nconsole.log(\"Final result structure:\", {\n  has_report_id: !!result[\"report id\"],\n  has_summary: !!result[\"Initial Summary (output)\"],\n  careers_count: result.Tit_co_RID_data.length\n});\n\nreturn [{ json: result }];"
-        }
+        "id": "3ac567ef-ba95-4127-9351-e8f749e9c9fe",
+        "name": "Add structure"
       },
       {
-        "id": "bf53055d-b1d6-4a49-9808-b0e01f309e76",
-        "name": "Pull Profile Sections",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "executeOnce": false,
-        "position": [
-          -1824,
-          2128
-        ],
         "parameters": {
           "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(approach,strengths,development,values)&select=report_id,section_type,content,language\n",
           "authentication": "predefinedCredentialType",
           "nodeCredentialType": "supabaseApi",
           "options": {}
         },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -1824,
+          2128
+        ],
+        "id": "bf53055d-b1d6-4a49-9808-b0e01f309e76",
+        "name": "Pull Profile Sections",
+        "executeOnce": false,
         "credentials": {
           "supabaseApi": {
             "id": "jYr9UcuCbwO8Um80",
@@ -1169,86 +1167,86 @@
         }
       },
       {
-        "id": "1e62814e-9d6c-4a6f-9b67-9ba195449e96",
-        "name": "Combine Profile sections",
+        "parameters": {
+          "jsCode": "// Get profile items from current input (5 items from Pull Profile Sections)\nconst profileItems = $input.all();\n\n// Define the desired order of sections\nconst sectionOrder = ['approach', 'strengths', 'development', 'values'];\n\n// Create a map for quick lookup of items by section_type\nconst itemMap = {};\nprofileItems.forEach(item => {\n  itemMap[item.json.section_type] = item.json.content;\n});\n\n// Combine content in the specified order\nconst combinedContent = sectionOrder\n  .filter(sectionType => itemMap[sectionType]) // Only include sections that exist\n  .map(sectionType => itemMap[sectionType])\n  .join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    personality_profile: combinedContent\n  }\n}];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           -1472,
           2128
         ],
-        "parameters": {
-          "jsCode": "// Get profile items from current input (5 items from Pull Profile Sections)\nconst profileItems = $input.all();\n\n// Define the desired order of sections\nconst sectionOrder = ['approach', 'strengths', 'development', 'values'];\n\n// Create a map for quick lookup of items by section_type\nconst itemMap = {};\nprofileItems.forEach(item => {\n  itemMap[item.json.section_type] = item.json.content;\n});\n\n// Combine content in the specified order\nconst combinedContent = sectionOrder\n  .filter(sectionType => itemMap[sectionType]) // Only include sections that exist\n  .map(sectionType => itemMap[sectionType])\n  .join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    personality_profile: combinedContent\n  }\n}];"
-        }
+        "id": "1e62814e-9d6c-4a6f-9b67-9ba195449e96",
+        "name": "Combine Profile sections"
       },
       {
-        "id": "15533bf0-f1cf-4aa7-8700-660e08a6244b",
-        "name": "Ranking",
+        "parameters": {
+          "jsCode": "// Career Ranking Code Node - Step 2 Compatible Version (with title dedup)\nconst allCareers = [];\n\n// Extract scored careers from Step 2 output\nfor (const item of $input.all()) {\n  const data = item.json;\n\n  if (data.scored_careers && Array.isArray(data.scored_careers)) {\n    allCareers.push(...data.scored_careers);\n  }\n  else if (data.text) {\n    try {\n      const cleanText = data.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n      const parsed = JSON.parse(cleanText);\n      if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n        allCareers.push(...parsed.scored_careers);\n      }\n    } catch (e) {\n      console.error('Failed to parse text field:', e);\n      continue;\n    }\n  }\n  else if (data.CAI_scored_careers && Array.isArray(data.CAI_scored_careers)) {\n    for (const entry of data.CAI_scored_careers) {\n      if (entry.text) {\n        try {\n          const cleanText = entry.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n          const parsed = JSON.parse(cleanText);\n          if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n            allCareers.push(...parsed.scored_careers);\n          }\n        } catch (e) {\n          continue;\n        }\n      } else if (entry.scored_careers && Array.isArray(entry.scored_careers)) {\n        allCareers.push(...entry.scored_careers);\n      } else if (entry.career_title) {\n        allCareers.push(entry);\n      }\n    }\n  }\n}\n\n// Extract final score (Step 2 structure, normalized to /100)\nconst getScore = (career) => {\n  let score = 0;\n  if (career.final_compatibility_score !== undefined) {\n    score = parseInt(career.final_compatibility_score, 10);\n    score = isNaN(score) ? 0 : score;\n  } else if (career.compatibility_score !== undefined) {\n    score = typeof career.compatibility_score === 'number'\n      ? career.compatibility_score\n      : parseInt(career.compatibility_score, 10);\n  }\n  return Math.round((score / 108) * 100);\n};\n\nconst getSummary = (career) => {\n  if (career.summary) {\n    return {\n      key_strengths: career.summary.key_strengths || '',\n      key_concerns: career.summary.key_concerns || ''\n    };\n  }\n  return {\n    key_strengths: career.key_strengths || '',\n    key_concerns: career.key_concerns || ''\n  };\n};\n\n// Score and sort\nconst sortedCareers = allCareers\n  .map(career => {\n    const summary = getSummary(career);\n    return {\n      ...career,\n      normalized_score: getScore(career),\n      extracted_strengths: summary.key_strengths,\n      extracted_concerns: summary.key_concerns\n    };\n  })\n  .sort((a, b) => b.normalized_score - a.normalized_score);\n\n// Title dedup pass — keep only the highest-scoring entry per unique title\nfunction normalizeTitle(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenTitles = new Set();\nconst dedupedCareers = [];\nconst droppedDuplicates = [];\n\nfor (const career of sortedCareers) {\n  const titleKey = normalizeTitle(career.career_title);\n  if (!titleKey) continue;\n\n  if (seenTitles.has(titleKey)) {\n    droppedDuplicates.push({\n      career_title: career.career_title,\n      company_size_type: career.company_size_type,\n      score: career.normalized_score\n    });\n    continue;\n  }\n\n  seenTitles.add(titleKey);\n  dedupedCareers.push(career);\n}\n\n// Assign ranks on the deduped list\nconst rankedCareers = dedupedCareers.map((career, index) => ({\n  ...career,\n  rank: index + 1\n}));\n\n// Slice Top 3 and Runner-ups (55+ threshold)\nconst top3 = rankedCareers.slice(0, 3);\nconst runnerUps = rankedCareers\n  .slice(3, 10)\n  .filter(career => career.normalized_score >= 55)\n  .slice(0, 3);\n\n// Stretch slot: give the 3rd runner-up seat to the highest-scoring genuine\n// pivot (\"lane\":\"stretch\" from Step 2) when the candidate signalled pivot\n// appetite. Guards: only replace when we already have a FULL set of 3\n// score-qualified runner-ups (never reduces anyone's runner-up count),\n// only when no stretch career surfaced naturally in top3/runner-ups, and\n// the stretch pick must clear the same 55 threshold. Missing lane tags\n// degrade to exactly the old behavior.\nconst isStretch = (c) => String(c.lane || '').toLowerCase() === 'stretch';\nif (runnerUps.length === 3 && !top3.some(isStretch) && !runnerUps.some(isStretch)) {\n  const surfaced = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  const stretchPick = rankedCareers.find(c =>\n    isStretch(c) && c.normalized_score >= 55 && !surfaced.has(normalizeTitle(c.career_title)));\n  if (stretchPick) {\n    runnerUps[2] = { ...stretchPick, rank: runnerUps[2].rank };\n  }\n}\n\n// Runner-up backfill — never ship an empty or half-empty runner-up section.\n// The 55 threshold above wipes the list out when a non-negotiable (salary,\n// schedule, or an hours ceiling) floors the pool: Step 1 overrides\n// objective_total to 5/64, which caps the final score at 45/100, so a floored\n// career can never clear 55 on its own. Top 3 is a plain slice(0, 3) and is\n// never empty, but runner-ups could come back as 0.\n//\n// So top up from the next best remaining careers, flagged so WF4 can say\n// plainly that these are harder matches rather than presenting them as equals.\n// Runs AFTER the stretch-slot logic above, so a healthy report is untouched.\nconst FLOORED_STEP1 = 5; // Step 1's hard floor for objective_total on a violation\nconst step1Of = (career) => {\n  const m = String(career.step1_objective_score ?? '').match(/\\d+/);\n  return m ? parseInt(m[0], 10) : null;\n};\n\nif (runnerUps.length < 3) {\n  const taken = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  for (const career of rankedCareers.slice(3)) {\n    if (runnerUps.length >= 3) break;\n    const titleKey = normalizeTitle(career.career_title);\n    if (!titleKey || taken.has(titleKey)) continue;\n    taken.add(titleKey);\n    runnerUps.push({\n      ...career,\n      below_threshold: true,\n      below_threshold_reason:\n        step1Of(career) === FLOORED_STEP1 ? 'non_negotiable' : 'low_compatibility'\n    });\n  }\n}\n\n// Format Top 3\nconst formattedTop3 = top3.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  step1_objective_score: career.step1_objective_score || \"N/A\",\n  pattern_analysis: career.step2_pattern_analysis || {},\n  penalties: career.penalties || {},\n  key_insights_applied: career.key_insights_applied || \"\",\n  key_strengths: career.extracted_strengths,\n  key_concerns: career.extracted_concerns,\n  justification: career.extracted_strengths && career.extracted_concerns\n    ? `${career.extracted_strengths} ${career.extracted_concerns}`\n    : `Strong alignment with ${career.normalized_score}% compatibility score.`\n}));\n\n// Format Runner-ups\nconst formattedRunnerUps = runnerUps.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  key_strengths: career.extracted_strengths,\n  brief_justification: career.extracted_strengths\n    ? career.extracted_strengths.substring(0, 200)\n    : `Strong alignment with ${career.normalized_score}% compatibility.`,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  // Backfilled picks that did not clear the 55 threshold. WF4 reads these to\n  // flag them as harder matches instead of presenting them as equal options.\n  below_threshold: career.below_threshold === true,\n  below_threshold_reason: career.below_threshold_reason || null\n}));\n\n// All ranked for context (Outside Box & Dream Job prompts) — also deduped\nconst allRankedForContext = rankedCareers.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type,\n  compatibility_score: career.normalized_score,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  key_strengths: career.extracted_strengths?.substring(0, 100) || \"\"\n}));\n\nreturn [{\n  json: {\n    career_recommendations: {\n      report_generated: new Date().toISOString(),\n      top_3_careers: formattedTop3,\n      runner_up_careers: formattedRunnerUps,\n      all_ranked_careers: allRankedForContext,\n      summary: {\n        total_careers_evaluated: sortedCareers.length,\n        unique_titles_after_dedup: rankedCareers.length,\n        duplicates_dropped: droppedDuplicates.length,\n        dropped_duplicates: droppedDuplicates,\n        top_tier_count: top3.length,\n        runner_up_count: runnerUps.length,\n        careers_above_threshold: rankedCareers.filter(c => c.normalized_score >= 55).length,\n        runner_ups_backfilled: runnerUps.filter(c => c.below_threshold).length,\n        careers_discarded: rankedCareers.length - rankedCareers.filter(c => c.normalized_score >= 55).length,\n        discarded_reason: \"Careers ranked 11+ or scoring below 55 have been excluded due to insufficient compatibility.\"\n      }\n    }\n  }\n}];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           2160,
           2112
         ],
-        "parameters": {
-          "jsCode": "// Career Ranking Code Node - Step 2 Compatible Version (with title dedup)\nconst allCareers = [];\n\n// Extract scored careers from Step 2 output\nfor (const item of $input.all()) {\n  const data = item.json;\n\n  if (data.scored_careers && Array.isArray(data.scored_careers)) {\n    allCareers.push(...data.scored_careers);\n  }\n  else if (data.text) {\n    try {\n      const cleanText = data.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n      const parsed = JSON.parse(cleanText);\n      if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n        allCareers.push(...parsed.scored_careers);\n      }\n    } catch (e) {\n      console.error('Failed to parse text field:', e);\n      continue;\n    }\n  }\n  else if (data.CAI_scored_careers && Array.isArray(data.CAI_scored_careers)) {\n    for (const entry of data.CAI_scored_careers) {\n      if (entry.text) {\n        try {\n          const cleanText = entry.text.replace(/```json/gi, '').replace(/```/g, '').trim();\n          const parsed = JSON.parse(cleanText);\n          if (parsed.scored_careers && Array.isArray(parsed.scored_careers)) {\n            allCareers.push(...parsed.scored_careers);\n          }\n        } catch (e) {\n          continue;\n        }\n      } else if (entry.scored_careers && Array.isArray(entry.scored_careers)) {\n        allCareers.push(...entry.scored_careers);\n      } else if (entry.career_title) {\n        allCareers.push(entry);\n      }\n    }\n  }\n}\n\n// Extract final score (Step 2 structure, normalized to /100)\nconst getScore = (career) => {\n  let score = 0;\n  if (career.final_compatibility_score !== undefined) {\n    score = parseInt(career.final_compatibility_score, 10);\n    score = isNaN(score) ? 0 : score;\n  } else if (career.compatibility_score !== undefined) {\n    score = typeof career.compatibility_score === 'number'\n      ? career.compatibility_score\n      : parseInt(career.compatibility_score, 10);\n  }\n  return Math.round((score / 108) * 100);\n};\n\nconst getSummary = (career) => {\n  if (career.summary) {\n    return {\n      key_strengths: career.summary.key_strengths || '',\n      key_concerns: career.summary.key_concerns || ''\n    };\n  }\n  return {\n    key_strengths: career.key_strengths || '',\n    key_concerns: career.key_concerns || ''\n  };\n};\n\n// Score and sort\nconst sortedCareers = allCareers\n  .map(career => {\n    const summary = getSummary(career);\n    return {\n      ...career,\n      normalized_score: getScore(career),\n      extracted_strengths: summary.key_strengths,\n      extracted_concerns: summary.key_concerns\n    };\n  })\n  .sort((a, b) => b.normalized_score - a.normalized_score);\n\n// Title dedup pass — keep only the highest-scoring entry per unique title\nfunction normalizeTitle(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenTitles = new Set();\nconst dedupedCareers = [];\nconst droppedDuplicates = [];\n\nfor (const career of sortedCareers) {\n  const titleKey = normalizeTitle(career.career_title);\n  if (!titleKey) continue;\n\n  if (seenTitles.has(titleKey)) {\n    droppedDuplicates.push({\n      career_title: career.career_title,\n      company_size_type: career.company_size_type,\n      score: career.normalized_score\n    });\n    continue;\n  }\n\n  seenTitles.add(titleKey);\n  dedupedCareers.push(career);\n}\n\n// Assign ranks on the deduped list\nconst rankedCareers = dedupedCareers.map((career, index) => ({\n  ...career,\n  rank: index + 1\n}));\n\n// Slice Top 3 and Runner-ups (55+ threshold)\nconst top3 = rankedCareers.slice(0, 3);\nconst runnerUps = rankedCareers\n  .slice(3, 10)\n  .filter(career => career.normalized_score >= 55)\n  .slice(0, 3);\n\n// Stretch slot: give the 3rd runner-up seat to the highest-scoring genuine\n// pivot (\"lane\":\"stretch\" from Step 2) when the candidate signalled pivot\n// appetite. Guards: only replace when we already have a FULL set of 3\n// score-qualified runner-ups (never reduces anyone's runner-up count),\n// only when no stretch career surfaced naturally in top3/runner-ups, and\n// the stretch pick must clear the same 55 threshold. Missing lane tags\n// degrade to exactly the old behavior.\nconst isStretch = (c) => String(c.lane || '').toLowerCase() === 'stretch';\nif (runnerUps.length === 3 && !top3.some(isStretch) && !runnerUps.some(isStretch)) {\n  const surfaced = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  const stretchPick = rankedCareers.find(c =>\n    isStretch(c) && c.normalized_score >= 55 && !surfaced.has(normalizeTitle(c.career_title)));\n  if (stretchPick) {\n    runnerUps[2] = { ...stretchPick, rank: runnerUps[2].rank };\n  }\n}\n\n// Runner-up backfill — never ship an empty or half-empty runner-up section.\n// The 55 threshold above wipes the list out when a non-negotiable (salary,\n// schedule, or an hours ceiling) floors the pool: Step 1 overrides\n// objective_total to 5/64, which caps the final score at 45/100, so a floored\n// career can never clear 55 on its own. Top 3 is a plain slice(0, 3) and is\n// never empty, but runner-ups could come back as 0.\n//\n// So top up from the next best remaining careers, flagged so WF4 can say\n// plainly that these are harder matches rather than presenting them as equals.\n// Runs AFTER the stretch-slot logic above, so a healthy report is untouched.\nconst FLOORED_STEP1 = 5; // Step 1's hard floor for objective_total on a violation\nconst step1Of = (career) => {\n  const m = String(career.step1_objective_score ?? '').match(/\\d+/);\n  return m ? parseInt(m[0], 10) : null;\n};\n\nif (runnerUps.length < 3) {\n  const taken = new Set([...top3, ...runnerUps].map(c => normalizeTitle(c.career_title)));\n  for (const career of rankedCareers.slice(3)) {\n    if (runnerUps.length >= 3) break;\n    const titleKey = normalizeTitle(career.career_title);\n    if (!titleKey || taken.has(titleKey)) continue;\n    taken.add(titleKey);\n    runnerUps.push({\n      ...career,\n      below_threshold: true,\n      below_threshold_reason:\n        step1Of(career) === FLOORED_STEP1 ? 'non_negotiable' : 'low_compatibility'\n    });\n  }\n}\n\n// Format Top 3\nconst formattedTop3 = top3.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  step1_objective_score: career.step1_objective_score || \"N/A\",\n  pattern_analysis: career.step2_pattern_analysis || {},\n  penalties: career.penalties || {},\n  key_insights_applied: career.key_insights_applied || \"\",\n  key_strengths: career.extracted_strengths,\n  key_concerns: career.extracted_concerns,\n  justification: career.extracted_strengths && career.extracted_concerns\n    ? `${career.extracted_strengths} ${career.extracted_concerns}`\n    : `Strong alignment with ${career.normalized_score}% compatibility score.`\n}));\n\n// Format Runner-ups\nconst formattedRunnerUps = runnerUps.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type || \"Unknown\",\n  compatibility_score: career.normalized_score,\n  key_strengths: career.extracted_strengths,\n  brief_justification: career.extracted_strengths\n    ? career.extracted_strengths.substring(0, 200)\n    : `Strong alignment with ${career.normalized_score}% compatibility.`,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  // Backfilled picks that did not clear the 55 threshold. WF4 reads these to\n  // flag them as harder matches instead of presenting them as equal options.\n  below_threshold: career.below_threshold === true,\n  below_threshold_reason: career.below_threshold_reason || null\n}));\n\n// All ranked for context (Outside Box & Dream Job prompts) — also deduped\nconst allRankedForContext = rankedCareers.map(career => ({\n  rank: career.rank,\n  career_title: career.career_title,\n  company_size_type: career.company_size_type,\n  compatibility_score: career.normalized_score,\n  happiness_pattern: career.step2_pattern_analysis?.happiness_pattern_match?.pattern || \"N/A\",\n  burnout_risk: career.penalties?.burnout_risk?.risk_level || \"N/A\",\n  key_strengths: career.extracted_strengths?.substring(0, 100) || \"\"\n}));\n\nreturn [{\n  json: {\n    career_recommendations: {\n      report_generated: new Date().toISOString(),\n      top_3_careers: formattedTop3,\n      runner_up_careers: formattedRunnerUps,\n      all_ranked_careers: allRankedForContext,\n      summary: {\n        total_careers_evaluated: sortedCareers.length,\n        unique_titles_after_dedup: rankedCareers.length,\n        duplicates_dropped: droppedDuplicates.length,\n        dropped_duplicates: droppedDuplicates,\n        top_tier_count: top3.length,\n        runner_up_count: runnerUps.length,\n        careers_above_threshold: rankedCareers.filter(c => c.normalized_score >= 55).length,\n        runner_ups_backfilled: runnerUps.filter(c => c.below_threshold).length,\n        careers_discarded: rankedCareers.length - rankedCareers.filter(c => c.normalized_score >= 55).length,\n        discarded_reason: \"Careers ranked 11+ or scoring below 55 have been excluded due to insufficient compatibility.\"\n      }\n    }\n  }\n}];"
-        }
+        "id": "15533bf0-f1cf-4aa7-8700-660e08a6244b",
+        "name": "Ranking"
       },
       {
-        "id": "56b47afe-3527-412d-bdce-0880d1ad1876",
-        "name": "content in order",
+        "parameters": {
+          "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           -1472,
           1712
         ],
-        "parameters": {
-          "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
-        }
+        "id": "56b47afe-3527-412d-bdce-0880d1ad1876",
+        "name": "content in order"
       },
       {
-        "id": "0c966a09-e11c-4b97-ad67-f9d91f431d04",
-        "name": "Outside Of Box Analysis",
-        "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.7,
-        "retryOnFail": true,
-        "position": [
-          1200,
-          2448
-        ],
         "parameters": {
           "promptType": "define",
           "text": "={{ $json.outside_box_prompt }}",
           "batching": {}
-        }
+        },
+        "id": "0c966a09-e11c-4b97-ad67-f9d91f431d04",
+        "name": "Outside Of Box Analysis",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          1200,
+          2448
+        ],
+        "retryOnFail": true
       },
       {
-        "id": "51a564b2-8ad7-4770-b506-aa3204a6c0f7",
-        "name": "Parse OOB",
+        "parameters": {
+          "jsCode": "// Get report_id from upstream node\nconst reportId = $node[\"Pull Profile Sections\"].json.report_id;\n// Get the outside box careers text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst OUTSIDE_BOX_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this might be a fit\", \"Path Type & Reality\", \"AI Impact on this role\"],\n  nl: [\"Overzicht\", \"Waarom dit bij je past\", \"Type pad & realiteit\", \"AI-impact op deze rol\"]\n};\nconst OUTSIDE_BOX_SUBHEADERS = OUTSIDE_BOX_SUBHEADERS_ALL[__lang];\n\n// Function to format subheaders to h5 tags and bold AI rating\nfunction formatSubheaders(content) {\n  let formatted = content;\n  \n  // Convert subheaders to h5 tags\n  OUTSIDE_BOX_SUBHEADERS.forEach(subheader => {\n    // Match subheader with optional markdown bold (**), colon, or newline\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Bold the AI impact rating (e.g., \"Augmented -\", \"At Risk -\", \"Displaced -\")\n  formatted = formatted.replace(/\\n(Minimal|Moderate|High|Severe|Critical|Augmented|At Risk|Displaced|Enhanced|Transformed)(\\s*-)/gi, '\\n<strong>$1</strong>$2');\n  \n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  \n  return formatted.trim();\n}\n\n// Function to extract title and return cleaned content\nfunction parseCareer(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  // Look for title patterns\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    // Match \"1. Title Name\" or \"#### 1. Title\" patterns\n    if (line.match(/^#{0,4}\\s*\\d+\\.\\s+.+$/)) {\n      title = line.replace(/^#{0,4}\\s*\\d+\\.\\s+/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  // Strip any markdown bold/italic markers the model wrapped the title in\n  // (e.g. \"**Game Designer**\" -> \"Game Designer\") so they don't leak into\n  // the <strong> tag and render as literal asterisks. Titles never contain *.\n  title = title.replace(/\\*/g, '').trim();\n  \n  // Skip empty lines after title\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  // Get remaining content (everything after title)\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n  \n  return {\n    title: title || 'Outside Box Career',\n    content: formattedContent\n  };\n}\n\n// Split the content by career sections - matches \"1.\", \"2.\", \"3.\" at start of line\n// Uses lookahead to keep the delimiter with the following section\nconst careerSections = fullText.split(/(?=^\\d+\\.\\s+)/m);\n\n// Filter out empty sections and trim whitespace\nconst cleanSections = careerSections.filter(section => section.trim().length > 0);\n\n// Map each section to the required Supabase format\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseCareer(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const companyMatch = section.match(/<!--company:(.*?)-->/i);\n  const company_size_type = companyMatch ? companyMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').replace(/<!--company:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      title: `<h3><strong>${parsed.title}</strong></h3>`,\n      company_size_type: company_size_type || null,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      section_type: \"outside_box\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           1712,
           2448
         ],
-        "parameters": {
-          "jsCode": "// Get report_id from upstream node\nconst reportId = $node[\"Pull Profile Sections\"].json.report_id;\n// Get the outside box careers text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst OUTSIDE_BOX_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this might be a fit\", \"Path Type & Reality\", \"AI Impact on this role\"],\n  nl: [\"Overzicht\", \"Waarom dit bij je past\", \"Type pad & realiteit\", \"AI-impact op deze rol\"]\n};\nconst OUTSIDE_BOX_SUBHEADERS = OUTSIDE_BOX_SUBHEADERS_ALL[__lang];\n\n// Function to format subheaders to h5 tags and bold AI rating\nfunction formatSubheaders(content) {\n  let formatted = content;\n  \n  // Convert subheaders to h5 tags\n  OUTSIDE_BOX_SUBHEADERS.forEach(subheader => {\n    // Match subheader with optional markdown bold (**), colon, or newline\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Bold the AI impact rating (e.g., \"Augmented -\", \"At Risk -\", \"Displaced -\")\n  formatted = formatted.replace(/\\n(Minimal|Moderate|High|Severe|Critical|Augmented|At Risk|Displaced|Enhanced|Transformed)(\\s*-)/gi, '\\n<strong>$1</strong>$2');\n  \n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  \n  return formatted.trim();\n}\n\n// Function to extract title and return cleaned content\nfunction parseCareer(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  // Look for title patterns\n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    // Match \"1. Title Name\" or \"#### 1. Title\" patterns\n    if (line.match(/^#{0,4}\\s*\\d+\\.\\s+.+$/)) {\n      title = line.replace(/^#{0,4}\\s*\\d+\\.\\s+/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  // Strip any markdown bold/italic markers the model wrapped the title in\n  // (e.g. \"**Game Designer**\" -> \"Game Designer\") so they don't leak into\n  // the <strong> tag and render as literal asterisks. Titles never contain *.\n  title = title.replace(/\\*/g, '').trim();\n  \n  // Skip empty lines after title\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  // Get remaining content (everything after title)\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n  \n  return {\n    title: title || 'Outside Box Career',\n    content: formattedContent\n  };\n}\n\n// Split the content by career sections - matches \"1.\", \"2.\", \"3.\" at start of line\n// Uses lookahead to keep the delimiter with the following section\nconst careerSections = fullText.split(/(?=^\\d+\\.\\s+)/m);\n\n// Filter out empty sections and trim whitespace\nconst cleanSections = careerSections.filter(section => section.trim().length > 0);\n\n// Map each section to the required Supabase format\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseCareer(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const companyMatch = section.match(/<!--company:(.*?)-->/i);\n  const company_size_type = companyMatch ? companyMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').replace(/<!--company:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      title: `<h3><strong>${parsed.title}</strong></h3>`,\n      company_size_type: company_size_type || null,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      section_type: \"outside_box\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
-        }
+        "id": "51a564b2-8ad7-4770-b506-aa3204a6c0f7",
+        "name": "Parse OOB"
       },
       {
-        "id": "773f2ffa-5c45-4a4d-a654-1b14804f91b8",
-        "name": "Insert OOB ",
+        "parameters": {
+          "tableId": "report_sections",
+          "dataToSend": "autoMapInputData"
+        },
         "type": "n8n-nodes-base.supabase",
         "typeVersion": 1,
         "position": [
           2000,
           2448
         ],
-        "parameters": {
-          "tableId": "report_sections",
-          "dataToSend": "autoMapInputData"
-        },
+        "id": "773f2ffa-5c45-4a4d-a654-1b14804f91b8",
+        "name": "Insert OOB ",
         "credentials": {
           "supabaseApi": {
             "id": "jYr9UcuCbwO8Um80",
@@ -1257,18 +1255,18 @@
         }
       },
       {
-        "id": "a304f9a2-9ca5-4e8a-9610-3863f98acb0b",
-        "name": "Google Gemini Chat Model1",
+        "parameters": {
+          "modelName": "models/gemini-flash-latest",
+          "options": {}
+        },
         "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "typeVersion": 1,
         "position": [
           -192,
           2624
         ],
-        "parameters": {
-          "modelName": "models/gemini-flash-latest",
-          "options": {}
-        },
+        "id": "a304f9a2-9ca5-4e8a-9610-3863f98acb0b",
+        "name": "Google Gemini Chat Model1",
         "credentials": {
           "googlePalmApi": {
             "id": "Q653Teuy9nP6VLoE",
@@ -1277,17 +1275,6 @@
         }
       },
       {
-        "id": "4f000ecf-3392-49c0-8a16-71f8a0ff5a3e",
-        "name": "shortlist_careers",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "executeOnce": true,
-        "retryOnFail": true,
-        "waitBetweenTries": 3000,
-        "position": [
-          -2176,
-          1952
-        ],
         "parameters": {
           "assignments": {
             "assignments": [
@@ -1300,23 +1287,34 @@
             ]
           },
           "options": {}
-        }
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -2176,
+          1952
+        ],
+        "id": "4f000ecf-3392-49c0-8a16-71f8a0ff5a3e",
+        "name": "shortlist_careers",
+        "retryOnFail": true,
+        "waitBetweenTries": 3000,
+        "executeOnce": true
       },
       {
-        "id": "c89f1d76-fe12-430a-9984-286d45828e23",
-        "name": "Google Gemini Chat Model",
+        "parameters": {
+          "modelName": "models/gemini-flash-latest",
+          "options": {
+            "temperature": 0.1
+          }
+        },
         "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "typeVersion": 1,
         "position": [
           -16,
           1872
         ],
-        "parameters": {
-          "modelName": "models/gemini-flash-latest",
-          "options": {
-            "temperature": 0.1
-          }
-        },
+        "id": "c89f1d76-fe12-430a-9984-286d45828e23",
+        "name": "Google Gemini Chat Model",
         "credentials": {
           "googlePalmApi": {
             "id": "Q653Teuy9nP6VLoE",
@@ -1325,36 +1323,36 @@
         }
       },
       {
-        "id": "ec1a541e-8ef2-49d3-8efa-fcf7b6e4a0bf",
-        "name": "Extract Interests and history",
-        "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.7,
-        "executeOnce": true,
-        "position": [
-          -240,
-          2448
-        ],
         "parameters": {
           "promptType": "define",
           "text": "=# ROLE\nYou are an expert data synthesizer.\n\n# TASK\nSynthesize the candidate's initial summary into a concise, narrative profile. Organize the profile using the provided headers. For each section, write a brief, insightful paragraph that weaves together the specified data points from the input.\n\nThe goal is to create a rich, human-readable summary that captures the story behind the data, not just the data itself.\n\n# PROFILE STRUCTURE\n\n### Personal Context\n\nWeave together the candidate's age (1c), current/most recent company size and culture (1j), and their role satisfaction (1k). Incorporate the \"reasons\" for their happiness score from 1k if provided to explain their current professional sentiment.\n\n### Previous Careers\n\nExtract and list the job titles held by the candidate from their Career History (1j) in a numbered list format. This serves as a record of roles to be excluded from future suggestions.\n\n### Personal Interests & Strengths\n\nSynthesize their proudest achievements (1l), personal hobbies (1m), professional interests (4a), and what others naturally rely on them for (4g) to paint a picture of what drives and engages them both in and out of work, and the strengths people see in them.\n\n### Career Goals & Aspirations\n\nCombine their short-term (7a) and long-term (7b) goals with their primary reason for the assessment (1e) and current career barriers (7c). Incorporate their attitude towards skill development (7d, 7e) to describe their overall career trajectory and ambition.\n\n### Career Constraints & Avoidances\n\nSummarize the specific work aspects (3h) the candidate wants to avoid. Frame this as their professional boundaries or \"non-negotiables.\"\n\n### Compensation & Work Preferences\n\nDescribe their ideal work arrangement by combining their schedule preference (3d) and work environment preference (2g) with their views on salary. Explain the relationship between salary's importance (3e), their desired range (3f), and what aspect of compensation matters most to them (3g).\n\n### Dream Jobs\n\nState their dream job aspirations (4h) directly and briefly connect them to their broader interests or values if relevant.\n\n### Report ID\n{{ $('Pull Init Summary').item.json.report_id }}\n\n---\n\n# EXAMPLE OUTPUT\n\n### Personal Context\n\nNatasha is a 35-year-old executive currently operating in high-impact leadership roles, including a Fractional VP People position at a boutique HR consultancy. While she currently rates her happiness at an 8/10 due to the autonomy and exciting nature of her new challenges, her overall sentiment is shaped by a history of demanding roles in the Startup and Corporate sectors.\n\n### Previous Careers\n\n* Fractional VP People\n* Supervisory Board Member\n* Strategic Finance\n* VP, Chief of Staff - CEO & Founder\n* Head of Operations, Finance & People\n\n### Personal Interests & Strengths\n\nHer professional identity is anchored in strategic execution, notably evidenced by leading a successful $30M Series B fundraising round. She possesses a unique blend of skills in Strategic Planning, Finance, and HR Department Start-ups. Outside the office, Natasha recharges through bouldering and reading, while her professional interests in Social Sciences and Executive Education highlight a deep commitment to understanding organizational culture and human behavior. Colleagues consistently turn to her to untangle messy organizational problems and bring calm structure to chaos.\n\n### Career Goals & Aspirations\n\nCurrently, Natasha is at a pivotal crossroads, seeking a career change to address burnout and re-establish a healthy work-life balance. Her short-term focus is on gaining experience in new industries or exploring entrepreneurial ventures. Long-term, she is driven by a quest for complete autonomy and financial independence. While she is an avid learner—targeting development in Leadership, Communication, and Entrepreneurship—her primary barrier remains uncertainty regarding the specific \"next step\" in her trajectory.\n\n### Career Constraints & Avoidances\n\nNatasha has established firm professional boundaries, explicitly seeking to avoid finance-heavy tasks like budgeting and analysis, as well as sales-driven roles. She moves away from highly structured or repetitive environments.\n\n### Compensation & Work Preferences\n\nEfficiency and structure are central to Natasha's ideal environment; she prefers a standard 9-to-5 schedule within a structured organization that provides clear guidelines. She views salary as a moderate priority, targeting a range of 100,000–150,000, with a strong preference for a high base salary that reflects her level of seniority and impact.\n\n### Dream Jobs\n\nYoga instructor, Non-Fiction Writer, Academic / Lecturer\n\n### Report ID\nf3ba4b05-xxxx etc\n\n---\n\n# INPUT:\n\n{{ $('Pull Init Summary').item.json.content }}\n\n\n",
           "batching": {}
-        }
+        },
+        "id": "ec1a541e-8ef2-49d3-8efa-fcf7b6e4a0bf",
+        "name": "Extract Interests and history",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          -240,
+          2448
+        ],
+        "executeOnce": true
       },
       {
-        "id": "a736bad7-e4a4-49eb-8018-254357c3c3ca",
-        "name": "Google Gemini Chat Model2",
+        "parameters": {
+          "modelName": "models/gemini-flash-latest",
+          "options": {
+            "temperature": 0.1
+          }
+        },
         "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "typeVersion": 1,
         "position": [
           1744,
           2272
         ],
-        "parameters": {
-          "modelName": "models/gemini-flash-latest",
-          "options": {
-            "temperature": 0.1
-          }
-        },
+        "id": "a736bad7-e4a4-49eb-8018-254357c3c3ca",
+        "name": "Google Gemini Chat Model2",
         "credentials": {
           "googlePalmApi": {
             "id": "Q653Teuy9nP6VLoE",
@@ -1363,15 +1361,6 @@
         }
       },
       {
-        "id": "63547852-a131-4409-bf29-53a904e1adcf",
-        "name": "Objective Compat score",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "executeOnce": false,
-        "position": [
-          -224,
-          1712
-        ],
         "parameters": {
           "assignments": {
             "assignments": [
@@ -1384,38 +1373,47 @@
             ]
           },
           "options": {}
-        }
-      },
-      {
-        "id": "c04b252a-ff91-433d-bf81-32e69de48acd",
-        "name": "OC Score",
-        "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.7,
-        "executeOnce": false,
-        "retryOnFail": true,
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
         "position": [
-          -16,
+          -224,
           1712
         ],
+        "id": "63547852-a131-4409-bf29-53a904e1adcf",
+        "name": "Objective Compat score",
+        "executeOnce": false
+      },
+      {
         "parameters": {
           "promptType": "define",
           "text": "={{ $json.cai_score_prompt }}",
           "batching": {}
-        }
+        },
+        "id": "c04b252a-ff91-433d-bf81-32e69de48acd",
+        "name": "OC Score",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          -16,
+          1712
+        ],
+        "executeOnce": false,
+        "retryOnFail": true
       },
       {
-        "id": "77ec0bdf-cece-4ebc-9992-349c00146c4e",
-        "name": "Google Gemini Chat Model3",
+        "parameters": {
+          "modelName": "models/gemini-flash-latest",
+          "options": {}
+        },
         "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "typeVersion": 1,
         "position": [
           -1808,
           2592
         ],
-        "parameters": {
-          "modelName": "models/gemini-flash-latest",
-          "options": {}
-        },
+        "id": "77ec0bdf-cece-4ebc-9992-349c00146c4e",
+        "name": "Google Gemini Chat Model3",
         "credentials": {
           "googlePalmApi": {
             "id": "Q653Teuy9nP6VLoE",
@@ -1424,38 +1422,38 @@
         }
       },
       {
-        "id": "ff96e0fa-3c32-431d-8234-db46db426e45",
-        "name": "Extract 1k-n",
-        "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.7,
-        "executeOnce": false,
-        "retryOnFail": true,
-        "position": [
-          -1824,
-          2448
-        ],
         "parameters": {
           "promptType": "define",
           "text": "=Extract content for [1k], [1j], [1n] and nothing else\n\nInput:\n{{ $json.content }}\n",
           "batching": {}
-        }
+        },
+        "id": "ff96e0fa-3c32-431d-8234-db46db426e45",
+        "name": "Extract 1k-n",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          -1824,
+          2448
+        ],
+        "executeOnce": false,
+        "retryOnFail": true
       },
       {
-        "id": "8713939b-1ff6-48ba-8b95-780cf68dee72",
-        "name": "Pull Init Summary",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.2,
-        "executeOnce": true,
-        "position": [
-          -2560,
-          2128
-        ],
         "parameters": {
           "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Add structure').item.json['report id'] }}&section_type=in.(init_summary)&select=report_id,section_type,content\n",
           "authentication": "predefinedCredentialType",
           "nodeCredentialType": "supabaseApi",
           "options": {}
         },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -2560,
+          2128
+        ],
+        "id": "8713939b-1ff6-48ba-8b95-780cf68dee72",
+        "name": "Pull Init Summary",
+        "executeOnce": true,
         "credentials": {
           "supabaseApi": {
             "id": "jYr9UcuCbwO8Um80",
@@ -1464,28 +1462,20 @@
         }
       },
       {
-        "id": "835adc2a-f45e-40fd-8ad3-f4515918b1f1",
-        "name": "BatchingOC",
+        "parameters": {
+          "jsCode": "// Get careers from direct input\nconst careers = $input.all().map(item => item.json);\n\n// Get init summary from the other node (no direct connection needed)\nconst initSummaryContent = $(\"Pull Init Summary\").first().json.content || '';\n\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  const careerBatch = careers.slice(i, i + batchSize);\n\n  batches.push({\n    json: {\n      careers: careerBatch,\n      init_summary: initSummaryContent,\n      batch_info: {\n        batch_number: Math.floor(i / batchSize) + 1,\n        total_batches: Math.ceil(careers.length / batchSize),\n        careers_in_batch: careerBatch.length\n      }\n    }\n  });\n}\n\nreturn batches;"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
-        "alwaysOutputData": true,
         "position": [
           -448,
           1712
         ],
-        "parameters": {
-          "jsCode": "// Get careers from direct input\nconst careers = $input.all().map(item => item.json);\n\n// Get init summary from the other node (no direct connection needed)\nconst initSummaryContent = $(\"Pull Init Summary\").first().json.content || '';\n\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  const careerBatch = careers.slice(i, i + batchSize);\n\n  batches.push({\n    json: {\n      careers: careerBatch,\n      init_summary: initSummaryContent,\n      batch_info: {\n        batch_number: Math.floor(i / batchSize) + 1,\n        total_batches: Math.ceil(careers.length / batchSize),\n        careers_in_batch: careerBatch.length\n      }\n    }\n  });\n}\n\nreturn batches;"
-        }
+        "id": "835adc2a-f45e-40fd-8ad3-f4515918b1f1",
+        "name": "BatchingOC",
+        "alwaysOutputData": true
       },
       {
-        "id": "1062795f-cb9d-4724-a5dc-66482a00118e",
-        "name": "Renaming 1k-1n",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "position": [
-          -1472,
-          2448
-        ],
         "parameters": {
           "assignments": {
             "assignments": [
@@ -1498,50 +1488,49 @@
             ]
           },
           "options": {}
-        }
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          -1472,
+          2448
+        ],
+        "id": "1062795f-cb9d-4724-a5dc-66482a00118e",
+        "name": "Renaming 1k-1n"
       },
       {
-        "id": "e98a01a4-2ee9-49c7-9b0e-1f27c841ad2f",
-        "name": "Step 1 scores",
+        "parameters": {
+          "aggregate": "aggregateAllItemData",
+          "destinationFieldName": "Step 1 scores",
+          "options": {}
+        },
         "type": "n8n-nodes-base.aggregate",
         "typeVersion": 1,
         "position": [
           320,
           1712
         ],
-        "parameters": {
-          "aggregate": "aggregateAllItemData",
-          "destinationFieldName": "Step 1 scores",
-          "options": {}
-        }
+        "id": "e98a01a4-2ee9-49c7-9b0e-1f27c841ad2f",
+        "name": "Step 1 scores"
       },
       {
-        "id": "db50f294-fc05-4b56-9178-4f7f00f22e74",
-        "name": "Step 2 - Final Score",
-        "type": "@n8n/n8n-nodes-langchain.chainLlm",
-        "typeVersion": 1.7,
-        "executeOnce": false,
-        "retryOnFail": true,
-        "position": [
-          1712,
-          2112
-        ],
         "parameters": {
           "promptType": "define",
           "text": "={{ $json['Step 2 analysis (patterns)'] }}",
           "batching": {}
-        }
-      },
-      {
-        "id": "01dfe58b-74e6-46ba-bf64-c5efa8a216da",
-        "name": "Step 2 analysis",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "executeOnce": true,
+        },
+        "id": "db50f294-fc05-4b56-9178-4f7f00f22e74",
+        "name": "Step 2 - Final Score",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
         "position": [
-          1376,
+          1712,
           2112
         ],
+        "executeOnce": false,
+        "retryOnFail": true
+      },
+      {
         "parameters": {
           "assignments": {
             "assignments": [
@@ -1554,41 +1543,42 @@
             ]
           },
           "options": {}
-        }
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1376,
+          2112
+        ],
+        "id": "01dfe58b-74e6-46ba-bf64-c5efa8a216da",
+        "name": "Step 2 analysis",
+        "executeOnce": true
       },
       {
-        "id": "d5255cfc-44a1-4529-9831-9f5b6249f00d",
-        "name": "ShortHisProf",
+        "parameters": {},
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3.2,
         "position": [
           -976,
           1968
         ],
-        "parameters": {}
+        "id": "d5255cfc-44a1-4529-9831-9f5b6249f00d",
+        "name": "ShortHisProf"
       },
       {
-        "id": "c2036f73-53f7-4345-be56-5aa562d4374d",
-        "name": "Prep WF4 data",
+        "parameters": {
+          "jsCode": "// Combine all data WF4 needs and pass directly (no Supabase intermediary)\nconst ranking = $('Ranking').first().json;\nconst reportId = $('Add structure').first().json['report id'];\nconst initSummaryContent = $('Pull Init Summary').first().json.content;\nconst interestsText = $('Extract Interests and history').first().json.text;\nconst oobText = $('Outside Of Box Analysis').first().json.text || '';\n\nconst top3 = ranking.career_recommendations?.top_3_careers || [];\nconst runnerUps = ranking.career_recommendations?.runner_up_careers || [];\nconst allRanked = ranking.career_recommendations?.all_ranked_careers || [];\n\nreturn [{\n  json: {\n    report_id: reportId,\n    top_3_careers: top3,\n    runner_up_careers: runnerUps,\n    all_ranked_careers: allRanked,\n    interests_history_text: interestsText,\n    top_3_careers_str: JSON.stringify(top3, null, 2),\n    runner_up_careers_str: JSON.stringify(runnerUps, null, 2),\n    outside_box_careers_str: oobText,\n    init_summary_content: initSummaryContent\n  }\n}];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           2688,
           2112
         ],
-        "parameters": {
-          "jsCode": "// Combine all data WF4 needs and pass directly (no Supabase intermediary)\nconst ranking = $('Ranking').first().json;\nconst reportId = $('Add structure').first().json['report id'];\nconst initSummaryContent = $('Pull Init Summary').first().json.content;\nconst interestsText = $('Extract Interests and history').first().json.text;\nconst oobText = $('Outside Of Box Analysis').first().json.text || '';\n\nconst top3 = ranking.career_recommendations?.top_3_careers || [];\nconst runnerUps = ranking.career_recommendations?.runner_up_careers || [];\nconst allRanked = ranking.career_recommendations?.all_ranked_careers || [];\n\nreturn [{\n  json: {\n    report_id: reportId,\n    top_3_careers: top3,\n    runner_up_careers: runnerUps,\n    all_ranked_careers: allRanked,\n    interests_history_text: interestsText,\n    top_3_careers_str: JSON.stringify(top3, null, 2),\n    runner_up_careers_str: JSON.stringify(runnerUps, null, 2),\n    outside_box_careers_str: oobText,\n    init_summary_content: initSummaryContent\n  }\n}];"
-        }
+        "id": "c2036f73-53f7-4345-be56-5aa562d4374d",
+        "name": "Prep WF4 data"
       },
       {
-        "id": "edaf00ae-eb59-4d44-96eb-4edd425aa90e",
-        "name": "Execute WF4 Content Gen",
-        "type": "n8n-nodes-base.executeWorkflow",
-        "typeVersion": 1.2,
-        "position": [
-          2960,
-          2112
-        ],
         "parameters": {
           "workflowId": {
             "__rl": true,
@@ -1607,72 +1597,72 @@
           "options": {
             "waitForSubWorkflow": false
           }
-        }
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [
+          2960,
+          2112
+        ],
+        "id": "edaf00ae-eb59-4d44-96eb-4edd425aa90e",
+        "name": "Execute WF4 Content Gen"
       },
       {
-        "id": "6b579609-a928-4499-af3c-1087eb7db8e3",
-        "name": "Wait for Ranking + OOB",
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "options": {}
+        },
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3.2,
         "position": [
           2464,
           2112
         ],
-        "parameters": {
-          "mode": "combine",
-          "combineBy": "combineByPosition",
-          "options": {}
-        }
+        "id": "6b579609-a928-4499-af3c-1087eb7db8e3",
+        "name": "Wait for Ranking + OOB"
       },
       {
-        "id": "997039cd-a8bc-4805-8010-1dc0d10ccc28",
-        "name": "Code in JavaScript",
+        "parameters": {
+          "jsCode": "// Pull all four inputs explicitly. n8n waits for each referenced\n// node to finish before this code runs, so we get them all in sync.\n\nconst enrichedCareers = $('content in order').all().map(i => i.json);\nconst step1Output = $('Step 1 scores').first().json['Step 1 scores'] || [];\nconst personality = $('Combine Profile sections').first().json;\nconst sentimentExtract = $('Renaming 1k-1n').first().json;\n\nreturn [{\n  json: {\n    \"Step 2 input\": [\n      { \"1k-1n extract\": sentimentExtract.text || sentimentExtract['1k-1n extract'] || sentimentExtract },\n      { \"Step 1 scores\": step1Output },\n      { \"personality_profile\": personality.personality_profile || personality },\n      { \"enriched_careers\": enrichedCareers }\n    ]\n  }\n}];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
-        "executeOnce": true,
         "position": [
           976,
           2112
         ],
-        "parameters": {
-          "jsCode": "// Pull all four inputs explicitly. n8n waits for each referenced\n// node to finish before this code runs, so we get them all in sync.\n\nconst enrichedCareers = $('content in order').all().map(i => i.json);\nconst step1Output = $('Step 1 scores').first().json['Step 1 scores'] || [];\nconst personality = $('Combine Profile sections').first().json;\nconst sentimentExtract = $('Renaming 1k-1n').first().json;\n\nreturn [{\n  json: {\n    \"Step 2 input\": [\n      { \"1k-1n extract\": sentimentExtract.text || sentimentExtract['1k-1n extract'] || sentimentExtract },\n      { \"Step 1 scores\": step1Output },\n      { \"personality_profile\": personality.personality_profile || personality },\n      { \"enriched_careers\": enrichedCareers }\n    ]\n  }\n}];"
-        }
+        "id": "997039cd-a8bc-4805-8010-1dc0d10ccc28",
+        "name": "Code in JavaScript",
+        "executeOnce": true
       },
       {
-        "id": "15266004-d0d2-4b6a-a895-df614f4d11ca",
-        "name": "Merge",
+        "parameters": {
+          "numberInputs": 4
+        },
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3.2,
         "position": [
           640,
           2080
         ],
-        "parameters": {
-          "numberInputs": 4
-        }
+        "id": "15266004-d0d2-4b6a-a895-df614f4d11ca",
+        "name": "Merge"
       },
       {
-        "id": "331012c7-2bd9-4bd0-8759-232ad350286a",
-        "name": "Build covered titles",
+        "parameters": {
+          "jsCode": "// \"Already considered\" namespace for the OOB prompt: each suitable-15 career's\n// main title + its alternate titles, so OOB can't echo a presented role's alt\n// (e.g. \"Program Director\" is an alt of \"Senior Program Manager, Social Impact\").\nconst enriched = $('Pull enriched').all().map(i => i.json);\nconst covered = enriched\n  .filter(c => c && c.career_title)\n  .map(c => {\n    let alts = c.alternate_titles;\n    if (typeof alts === 'string') { try { alts = JSON.parse(alts); } catch { alts = []; } }\n    if (!Array.isArray(alts)) alts = [];\n    return { title: c.career_title, alternate_titles: alts };\n  });\nreturn [{ json: { covered_titles: JSON.stringify(covered, null, 2) } }];"
+        },
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
           -1472,
           1392
         ],
-        "parameters": {
-          "jsCode": "// \"Already considered\" namespace for the OOB prompt: each suitable-15 career's\n// main title + its alternate titles, so OOB can't echo a presented role's alt\n// (e.g. \"Program Director\" is an alt of \"Senior Program Manager, Social Impact\").\nconst enriched = $('Pull enriched').all().map(i => i.json);\nconst covered = enriched\n  .filter(c => c && c.career_title)\n  .map(c => {\n    let alts = c.alternate_titles;\n    if (typeof alts === 'string') { try { alts = JSON.parse(alts); } catch { alts = []; } }\n    if (!Array.isArray(alts)) alts = [];\n    return { title: c.career_title, alternate_titles: alts };\n  });\nreturn [{ json: { covered_titles: JSON.stringify(covered, null, 2) } }];"
-        }
+        "id": "331012c7-2bd9-4bd0-8759-232ad350286a",
+        "name": "Build covered titles"
       },
       {
-        "id": "f680328e-be2a-442d-b9ca-a1a5058dc4a2",
-        "name": "Anthropic Chat Model",
-        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-        "typeVersion": 1.5,
-        "position": [
-          1200,
-          2624
-        ],
         "parameters": {
           "model": {
             "__rl": true,
@@ -1680,10 +1670,16 @@
             "mode": "list",
             "cachedResultName": "Claude Sonnet 5"
           },
-          "options": {
-            "maxTokensToSample": 16000
-          }
+          "options": {}
         },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.5,
+        "position": [
+          1200,
+          2624
+        ],
+        "id": "f680328e-be2a-442d-b9ca-a1a5058dc4a2",
+        "name": "Anthropic Chat Model",
         "credentials": {
           "anthropicApi": {
             "id": "RhTKhZPWZ6gcGD13",
@@ -2081,16 +2077,16 @@
     "name": null,
     "description": null,
     "autosaved": false,
-    "createdAt": "2026-09-17T08:18:31.566Z",
-    "updatedAt": "2026-09-17T08:18:31.566Z",
+    "createdAt": "2026-09-16T07:12:00.453Z",
+    "updatedAt": "2026-09-16T07:12:00.453Z",
     "workflowPublishHistory": [
       {
-        "id": 1656,
+        "id": 1638,
         "workflowId": "zhgJuiDp60PS5ZKJ",
-        "versionId": "3a912000-e029-4b29-99e7-c665697bec2c",
+        "versionId": "061a8b18-fa44-4119-ba0f-022bcddb9a86",
         "event": "activated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-        "createdAt": "2026-09-17T08:18:31.867Z"
+        "createdAt": "2026-09-16T07:12:00.625Z"
       }
     ]
   }
