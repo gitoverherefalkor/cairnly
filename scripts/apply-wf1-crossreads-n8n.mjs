@@ -13,6 +13,12 @@
 //
 // Inserted before "# Content Requirements" in prompt_perso_prof1. Idempotent;
 // same backup/assert/verify pattern as the other apply scripts.
+//
+// Two smaller rules ride along, both from the 2026-09-17 rehearsal runs:
+//   - numbers must be quoted verbatim (Marcel's run turned 7.1 -> 8.0 into "two
+//     points" and ten -> six weeks into "in half");
+//   - the false-contrast ban and the "same problem" ban get a rewrite rule,
+//     because the bare prohibitions have not been biting since July.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -73,13 +79,38 @@ const live = await api(`/workflows/${WF1_ID}`);
 assert(live.active === true, `WF1 is not active (active=${live.active}); refusing to touch an unexpected state`);
 const pre = JSON.parse(JSON.stringify(live));
 
+const ANCHOR_LABELS = "- DO NOT MENTION QUESTION LABELS eg. '7b' in your narratives! Never!";
+const NUMBERS_RULE =
+  '- Numbers: quote them exactly as the candidate wrote them (7,1 to 8,0; ten weeks to six; 36 to 32 hours). Never round a number, convert it to a fraction or a multiple ("half", "double", "two points"), or paraphrase it. If you cannot quote it exactly, leave the number out.';
+
+const ANCHOR_FALSE_CONTRAST = 'ban it everywhere in the report';
+const FALSE_CONTRAST_RULE =
+  '  Rewrite rule: when a draft sentence negates one thing to assert another ("didn\'t raise it, it lowered it", "wasn\'t skill, it was proximity", "isn\'t a gap in X, it\'s a gap in Y"), delete the negated half and keep only the positive claim ("The promotion lowered your satisfaction"). Check every Key Insight for this shape before finishing.';
+
+const ANCHOR_SAME_PROBLEM = '"are actually the same problem"';
+const SAME_PROBLEM_RULE =
+  '  Rewrite rule: you may name a mechanism that several flagged tendencies share, but never open a section by declaring them one habit, one root or one problem ("these three trace back to one habit"). Lead with what that mechanism costs this candidate, and keep the tendencies as distinct items.';
+
 const node = live.nodes.find((n) => n.name === NODE);
 assert(node, `${NODE} not found`);
 const a = node.parameters.assignments.assignments[0];
-if (a.value.includes('# CROSS-READS')) { console.log(`${NODE}: cross-reads block already present - nothing to do.`); process.exit(0); }
-assert(a.value.split(ANCHOR).length === 2, `${NODE}: anchor "${ANCHOR}" must occur exactly once`);
-a.value = a.value.replace(ANCHOR, `${BLOCK}\n${ANCHOR}`);
-console.log(`--- ${NODE}: inserting ${BLOCK.split('\n').length} lines before "${ANCHOR}"\n${BLOCK}`);
+const once = (needle) => assert(a.value.split(needle).length === 2, `${NODE}: anchor "${needle}" must occur exactly once`);
+const edits = [];
+
+if (a.value.includes('# CROSS-READS')) console.log(`${NODE}: cross-reads block already present - skipped`);
+else { once(ANCHOR); a.value = a.value.replace(ANCHOR, `${BLOCK}\n${ANCHOR}`); edits.push(`cross-reads block (${BLOCK.split('\n').length} lines) before "${ANCHOR}"`); }
+
+if (a.value.includes(NUMBERS_RULE)) console.log(`${NODE}: numbers rule already present - skipped`);
+else { once(ANCHOR_LABELS); a.value = a.value.replace(ANCHOR_LABELS, `${ANCHOR_LABELS}\n${NUMBERS_RULE}`); edits.push(`numbers rule after "${ANCHOR_LABELS.slice(0, 40)}..."`); }
+
+if (a.value.includes(FALSE_CONTRAST_RULE)) console.log(`${NODE}: false-contrast rewrite rule already present - skipped`);
+else { once(ANCHOR_FALSE_CONTRAST); a.value = a.value.replace(ANCHOR_FALSE_CONTRAST, `${ANCHOR_FALSE_CONTRAST}\n${FALSE_CONTRAST_RULE}`); edits.push('false-contrast rewrite rule after the ban line'); }
+
+if (a.value.includes(SAME_PROBLEM_RULE)) console.log(`${NODE}: same-problem rewrite rule already present - skipped`);
+else { once(ANCHOR_SAME_PROBLEM); const line = a.value.split('\n').find((l) => l.includes(ANCHOR_SAME_PROBLEM)); a.value = a.value.replace(line, `${line}\n${SAME_PROBLEM_RULE}`); edits.push('same-problem rewrite rule after the ban line'); }
+
+if (edits.length === 0) { console.log(`${NODE}: everything already applied - nothing to do.`); process.exit(0); }
+console.log(`--- ${NODE}: ${edits.length} edit(s)\n  * ${edits.join('\n  * ')}\n\n${BLOCK}\n${NUMBERS_RULE}\n${FALSE_CONTRAST_RULE}\n${SAME_PROBLEM_RULE}`);
 
 const changed = pre.nodes
   .filter((x) => JSON.stringify(x) !== JSON.stringify(live.nodes.find((b) => b.name === x.name)))
