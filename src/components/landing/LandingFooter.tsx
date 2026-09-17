@@ -25,8 +25,8 @@ const LandingFooter: React.FC = () => {
       <div className="lp-container">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
           <div>
-            <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 w-auto -mb-2.5" />
-            <p className="text-[10px] tracking-[0.22em] text-[#D4A024] ml-8">{t('nav.tagAuth')}</p>
+            <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-16 w-auto -mb-2.5" />
+            <p className="text-[10px] tracking-[0.22em] text-[#D4A024]">{t('nav.tagAuth')}</p>
             <p className="mt-6 text-[13px] text-white/40">{t('footer.copyright')}</p>
             <p className="mt-1.5 text-[12px] text-white/30">{t('footer.legalEntity')}</p>
           </div>

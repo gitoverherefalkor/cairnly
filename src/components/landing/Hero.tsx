@@ -5,7 +5,7 @@ import Reveal from './Reveal';
 import CompareLink from './CompareLink';
 import DemoVideoStage from './demo/DemoVideoStage';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import CairnlyLockup from '@/logos/live/cairnly_logo_wordmark_inverted_tagline.png';
+import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
 
 /**
  * Hero on the app's nature background. The proof is the public demo: one
@@ -40,10 +40,9 @@ const Hero: React.FC = () => {
         <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
           <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
             <img
-              src={CairnlyLockup}
-              alt="Cairnly — career path clarity"
-              className="w-[160px] md:w-[190px] h-auto"
-              style={{ marginTop: 6 }}
+              src={CairnlyWordmarkInverted}
+              alt="Cairnly"
+              className="h-24 md:h-28 w-auto -mb-8"
             />
           </a>
 
@@ -62,12 +61,11 @@ const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Eyebrow + full-width gold rule */}
-        <Reveal className="flex items-center gap-3 mt-6 mb-8 md:mb-10">
+        {/* Eyebrow */}
+        <Reveal className="mt-6 mb-8 md:mb-10">
           <span className="whitespace-nowrap text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
             {t('hero.eyebrowDemo')}
           </span>
-          <span className="h-px flex-1 bg-[#D4A024]/50" />
         </Reveal>
 
         {/* Content band: intro text and the small CTAs on the left, the
