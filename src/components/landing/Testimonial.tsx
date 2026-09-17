@@ -26,9 +26,12 @@ import { trackCtaClick } from '@/lib/analytics';
  *   is a private individual talking about her own career, and the link proves
  *   she is real for anyone who wants to check.
  *
- * Two edits against the originals, marked here so nobody has to wonder:
- * - Brad's "The A.I. Aspects" is lowercased to "aspects". A stray capital
- *   reads as our typo on our own page.
+ * Edits against the originals, marked here so nobody has to wonder:
+ * - Brad's closing passage ("Yet this tool has an almost 'caring' feel to it,
+ *   as though the author really wants to help people. The A.I. aspects have
+ *   been thoughtfully woven into the format.") was cut on 2026-09-17 at
+ *   Sjoerd's request, from both variants. It is gone, not shortened: do not
+ *   reinstate a trimmed version of it.
  * - Valentina's quote opens "To summarize… thank you.", which is addressed to
  *   Sjoerd rather than to a reader, so the excerpt starts at the next
  *   sentence. Every passage kept is verbatim and free of second-person
@@ -60,13 +63,11 @@ const BRAD: Person = {
   full: [
     'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers. Career Anchors was always my go to process, but this has taken career planning to another level.',
     "Comprehensive, a proper deep dive into gaining clarity around one's future career choices.",
-    'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people. The A.I. aspects have been thoughtfully woven into the format.',
   ],
   // The consumer page drops the Career Anchors sentence: outside the
   // profession that name carries nothing.
   short: [
     'This is by far the best career tool I have come across in the 25 years I have been advising people on their careers.',
-    'Yet this tool has an almost "caring" feel to it, as though the author really wants to help people.',
   ],
 };
 
