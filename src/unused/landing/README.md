@@ -8,7 +8,8 @@ build. They are kept because they were expensive to build and may come back.
 relative imports (`./Reveal` etc. resolve differently from here — see "Import
 paths" below), and mount it in `src/pages/Index.tsx`.
 
-Retired 2026-09-16 in the homepage copy cleanup.
+Retired 2026-09-16 in the homepage copy cleanup, and 2026-09-17 when
+`/partners` was pinned to one persona.
 
 ---
 
@@ -84,6 +85,29 @@ An earlier version also carried a three-card device (a static PDF, a Cairnly
 dashboard, a subscription chat). Those cards are not in this file: the outer
 two repeated the comparison table's columns and were deleted, and the middle
 card's point became `chatRefine.intro`.
+
+### `DemoPersonaCards.tsx` — the Emma / Marcel picker
+The two cards that let a visitor choose which persona the demo stage played,
+with an idle spotlight that cycled between them every 3 seconds until someone
+hovered or used the toggle. Clicking a card opened the full replay with that
+persona.
+
+The homepage dropped it on 2026-09-14 when the hero became a single recording.
+`/partners` kept it until 2026-09-17, when that hero was pinned to Marcel:
+both partner CTAs call `partnerDemoLink()`, which has always hardcoded
+`PARTNER_DEMO_PERSONA`, so the cards asked a professional buyer to pick a
+fictional candidate and then ignored the answer one scroll later. The cards'
+"which one is you" framing is a consumer move; a bureau wants the candidate
+that looks like its caseload. The substance (who, intent, what the session
+shows) lives on in `SessionBrief` inside `PartnersHero.tsx`.
+
+Worth keeping: the idle cycle that pauses off-screen, respects
+`prefers-reduced-motion` and stops for good once the visitor picks, and the
+`ns` prop that let the partner page supply its own card copy.
+
+Note `heroPersonaOrder` in `demo/HeroPersonaContext.tsx` was written for this
+component and now has no caller. It is left in place as part of that context's
+API; `HERO_PERSONAS` is still used by `DemoStage`'s toggle.
 
 ### `ForkDivider.tsx` — same-path / different-path diagram
 Already disabled before this cleanup (commented out in `Index.tsx` with the

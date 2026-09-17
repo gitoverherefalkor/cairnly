@@ -8,7 +8,8 @@
     "body": "Cairnly is an online career assessment that turns 25 to 40 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
     "sampleCta": "See a sample report (2 minutes)",
     "demoCta": "See a real coaching session",
-    "stageCaption": "Marcel and Emma are fictional candidates, everything you see is real output. Click a screen or a card to open the session: the conversation with the coach and the dashboard that follows."
+    "stageEyebrow": "The session on screen",
+    "stageCaption": "Marcel is a fictional candidate; everything on screen is real output. Click a screen to open the session."
   },
   "whoFor": {
     "title": "Who it's for",
@@ -127,25 +128,7 @@
           "empathetic",
           "practical",
           "loyal"
-        ],
-        "cta": "See Marcel's session"
-      },
-      "emma": {
-        "name": "Emma",
-        "who": "Emma · 38 · Senior marketing manager, London fintech",
-        "intent": "Can do the job with her eyes closed, and that is exactly the problem.",
-        "seeLabel": "What you see in her session",
-        "see": [
-          "three careers side by side on one radar",
-          "the coach pushing back on an assumption",
-          "a Move pill: ready now, or upskill first"
-        ],
-        "traits": [
-          "strategic",
-          "sense-maker",
-          "restless"
-        ],
-        "cta": "See Emma's session"
+        ]
       }
     }
   },
