@@ -139,3 +139,11 @@ verify_jwt = false
 # outreach_code_request when a bureau asks for one. Never sends mail.
 [functions.outreach-mail-sync]
 verify_jwt = false
+
+# Daily Google Ads push: called by a Google Ads Script, which cannot hold a
+# Supabase session, so no JWT. Gated by its own x-shared-secret header
+# (GOOGLE_ADS_INGEST_SECRET, deliberately NOT N8N_SHARED_SECRET, so the value
+# sitting inside Google Ads cannot reach the n8n endpoints). Fails closed when
+# the secret is unset, and can do nothing but upsert the google_ads_* tables.
+[functions.google-ads-ingest]
+verify_jwt = false
