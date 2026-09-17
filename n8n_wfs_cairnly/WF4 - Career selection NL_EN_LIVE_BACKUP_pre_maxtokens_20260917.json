@@ -3,12 +3,12 @@
   "name": "WF4 - Career selection NL/EN",
   "description": null,
   "active": true,
-  "activeVersionId": "842b5a7b-4a23-414f-83f7-f04b1d234169",
+  "activeVersionId": "184d5289-2f3a-456f-b137-8e1a0be1efc4",
   "createdAt": "2026-05-30T21:51:11.250Z",
-  "updatedAt": "2026-09-16T07:12:01.185Z",
+  "updatedAt": "2026-09-17T09:26:59.037Z",
   "isArchived": false,
-  "versionId": "842b5a7b-4a23-414f-83f7-f04b1d234169",
-  "versionCounter": 97,
+  "versionId": "184d5289-2f3a-456f-b137-8e1a0be1efc4",
+  "versionCounter": 98,
   "sourceWorkflowId": null,
   "triggerCount": 0,
   "nodes": [
@@ -16,32 +16,35 @@
       "id": "8272e7dc-ec6d-440f-867b-3b96e9e6b0b3",
       "name": "When Executed by Another Workflow",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
       "position": [
         -704,
         624
       ],
       "parameters": {
         "inputSource": "passthrough"
-      },
-      "typeVersion": 1.1
+      }
     },
     {
       "id": "3bc84633-d425-4df7-9fac-52d423e7f44f",
       "name": "Top 3 only",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         -64,
         320
       ],
       "parameters": {
         "jsCode": "// Prep top 3 data + build RPC body for Pull enriched T3\nconst trigger = $('When Executed by Another Workflow').first().json;\nconst careers = trigger.top_3_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  top_3_careers: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "de520df6-8d37-4912-8336-e53fbc2f1be2",
       "name": "Pull enriched T3",
       "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
       "position": [
         160,
         320
@@ -57,28 +60,26 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "executeOnce": true,
-      "typeVersion": 4.2,
-      "alwaysOutputData": true
+      }
     },
     {
       "id": "198c1088-1574-4b85-9dbe-8e20ead8c045",
       "name": "t3 content order",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         448,
         320
       ],
       "parameters": {
         "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "9e2da11f-1d0d-41ee-b952-cb4413c8f209",
       "name": "T3 enr. combined",
       "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
       "position": [
         672,
         320
@@ -87,13 +88,13 @@
         "options": {},
         "aggregate": "aggregateAllItemData",
         "destinationFieldName": "top3_enriched_combined"
-      },
-      "typeVersion": 1
+      }
     },
     {
       "id": "0543a3cd-fd28-4929-ba2b-9bdaa39368fd",
       "name": "T3 Careers Prompt",
       "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
         896,
         320
@@ -110,13 +111,13 @@
             }
           ]
         }
-      },
-      "typeVersion": 3.4
+      }
     },
     {
       "id": "2cd75cb0-f79a-4b43-b9b4-f4bbb0a69abe",
       "name": "Top 3 Careers Generator",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
       "position": [
         1120,
         320
@@ -125,26 +126,26 @@
         "text": "={{ $json.top_3_careers_prompt }}",
         "batching": {},
         "promptType": "define"
-      },
-      "typeVersion": 1.7
+      }
     },
     {
       "id": "a8b60d92-97e1-4a7e-911d-3db2623f0198",
       "name": "Split Top3",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         1472,
         320
       ],
       "parameters": {
         "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\n\n// Enriched top-3 careers (same trigger source as reportId), for the salary pill.\nconst careers = $('When Executed by Another Workflow').first().json.top_3_careers || [];\nconst salaryFor = (i) => careers[i]?.career_data?.salary ?? careers[i]?.salary ?? null;\n\n\n// Subheaders to convert to h5 tags (must match ACTUAL AI output headers)\nconst CAREER_SUBHEADERS = [\n  \"Overview\",\n  \"Why this role fits you\",\n  \"What you'll actually do\",\n  \"The Reality Check\",\n  \"The practical stuff\",\n  \"How AI will impact this role\",\n  \"Future-proof skills\",\n  \"Alignment with your ambitions\"\n];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText.replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim() };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles || '',\n    company_size_type: companySizeType || '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: { ...(meta1.metadata || {}), salary: salaryFor(0) },\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: { ...(meta2.metadata || {}), salary: salaryFor(1) },\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: { ...(meta3.metadata || {}), salary: salaryFor(2) },\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];\n"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "31205f90-595b-4875-b31a-44c19192b642",
       "name": "Insert Top 3",
       "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
       "position": [
         1696,
         320
@@ -158,26 +159,28 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "typeVersion": 1
+      }
     },
     {
       "id": "122022e0-92c2-4f85-be97-e15f8041a485",
       "name": "4-10 only",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         -64,
         624
       ],
       "parameters": {
         "jsCode": "// Prep runner up data + build RPC body for Pull Runner up\nconst trigger = $('When Executed by Another Workflow').first().json;\nconst careers = trigger.runner_up_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  runner_up: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "40a9382b-63fa-4f84-ab79-bab144ade1e3",
       "name": "Pull Runner up",
       "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
       "position": [
         160,
         624
@@ -193,28 +196,26 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "executeOnce": true,
-      "typeVersion": 4.2,
-      "alwaysOutputData": true
+      }
     },
     {
       "id": "1f86ac80-2bd4-42a4-b864-0fcd33839202",
       "name": "Combine runners",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         448,
         624
       ],
       "parameters": {
         "jsCode": "// Combine all items into one item\nconst allItems = $input.all();\nconst allCareers = allItems.map(item => item.json);\n\nreturn [{ \n  json: { \n    allCareers: allCareers,\n    careerCount: allCareers.length \n  } \n}];"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "fd8e03ae-b234-411b-a637-377b6e5b661d",
       "name": "Set Runner Up Prompt",
       "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
         896,
         624
@@ -231,13 +232,13 @@
             }
           ]
         }
-      },
-      "typeVersion": 3.4
+      }
     },
     {
       "id": "d92dfe34-c58e-4142-b4d4-c1ccc61dc9f8",
       "name": "Runner Up Analysis",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
       "position": [
         1120,
         624
@@ -246,26 +247,26 @@
         "text": "={{ $json.runner_up_prompt }}",
         "batching": {},
         "promptType": "define"
-      },
-      "typeVersion": 1.7
+      }
     },
     {
       "id": "6e8e1b2c-b238-4d16-b0e8-f3a3451929a6",
       "name": "Parse runner up",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         1472,
         624
       ],
       "parameters": {
         "jsCode": "// Parse Runner-Up Careers (Markdown format with CAREER_SPLIT delimiter)\nconst input = $input.first().json.text;\n\n// Get report_id from the same node that Split Top3 uses\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\n\n// GUARD (2026-07-05): if no runner-up careers came in from '4-10 only', the\n// upstream pool was empty. Do NOT parse the LLM output (it hallucinates a\n// \"the list is empty\" complaint). Emit one clean, controlled placeholder row.\nconst __ru = ($('4-10 only').first().json.runner_up) || [];\nconst salaryFor = (i) => __ru[i]?.career_data?.salary ?? __ru[i]?.salary ?? null;\nif (!Array.isArray(__ru) || __ru.length === 0) {\n  const __msg = __lang === 'nl'\n    ? 'Er zijn geen aanvullende runner-up carrières geïdentificeerd die hoog genoeg scoorden. Je sterkste matches staan in je top 3 hierboven.'\n    : 'No additional runner-up careers scored high enough to include. Your strongest matches are captured in your top 3 above.';\n  return [{ json: {\n    title: '',\n    alternate_titles: '',\n    company_size_type: '',\n    content: '<p>' + __msg + '</p>',\n    score: null,\n    report_id: reportId,\n    metadata: { empty: true },\n    section_type: 'runner_ups',\n    order_number: 1,\n    language: __lang\n  } }];\n}\n\n\n// Split by the delimiter\nconst careerBlocks = input.split('---CAREER_SPLIT---').map(block => block.trim()).filter(Boolean);\n\nconst results = careerBlocks.map((block, index) => {\n  // Extract career title (first # heading, not ## subheaders)\n  const titleMatch = block.match(/^# ([^#].+)$/m);\n  const career_title = titleMatch ? titleMatch[1].trim() : `Career ${index + 1}`;\n\n  // Extract alternative titles and company size\n  const altTitlesMatch = block.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n  const alternate_titles = altTitlesMatch ? altTitlesMatch[1].trim() : '';\n  const company_size_type = altTitlesMatch ? altTitlesMatch[2].trim() : '';\n\n  // Extract compatibility score\n  const scoreMatch = block.match(/\\*\\*Compatibility score: (\\d+)\\/100\\*\\*/);\n  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null;\n\n  const moveMatch = block.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n\n  // Build content language-agnostically: from the first \"## \" subheader\n  // onward, drop any trailing \"**More details\" footer, and convert every\n  // \"## X\" header to <h5>X</h5>. Works for English and Dutch headers alike.\n  let __body = block;\n  const __fh = __body.search(/^##\\s+/m);\n  if (__fh >= 0) __body = __body.slice(__fh);\n  __body = __body.split(/\\n\\*\\*More details/)[0];\n  const sections = __body.replace(/^##\\s+(.+?)\\s*$/gm, '<h5>$1</h5>').replace(/<!--move:.*?-->/gi, '').trim();\n\n  // Return one item per career (matches report_sections table structure)\n  return {\n    json: {\n      title: `<h3><strong>${career_title}</strong></h3>`,\n      alternate_titles: alternate_titles || '',\n      company_size_type: company_size_type || '',\n      content: sections,\n      score: score,\n      report_id: reportId,\n      metadata: { ...(move ? { move } : {}), salary: salaryFor(index) },\n      section_type: \"runner_ups\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn results;\n"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "1f954c89-a292-4c95-b619-07bffec45458",
       "name": "Insert Runner Ups",
       "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
       "position": [
         1696,
         624
@@ -279,26 +280,26 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "typeVersion": 1
+      }
     },
     {
       "id": "967c19be-18a5-47c8-9b3f-5e3381045b30",
       "name": "Dream prep",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         -64,
         928
       ],
       "parameters": {
         "jsCode": "// Prepare data for Dream Job Feasibility prompt\nconst trigger = $('When Executed by Another Workflow').first().json;\nreturn [{\n  json: {\n    'Top 3 careers': trigger.top_3_careers_str,\n    'Runner up careers': trigger.runner_up_careers_str,\n    'Outside box careers': trigger.outside_box_careers_str\n  }\n}];"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "231cb4d5-638c-40a8-acbb-8c54c1cc51cd",
       "name": "Dream Job Feasibility",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
       "position": [
         1120,
         928
@@ -307,26 +308,26 @@
         "text": "=# ROLE\nYou are an expert career strategist specializing in \"The Bridge Pivot\"—evaluating the feasibility of unconventional dream jobs for professionals while maintaining their professional seniority and financial viability.\n\n# TASK\nAnalyze the feasibility of the candidate's Dream Job(s) as listed in the \"Career Goals & Aspirations\" section of Input 1. Analyze at most the first 3 dream jobs the candidate listed; if more are present, focus on the 3 most prominent. You must provide a balanced analysis that respects the dream while being intellectually honest about the \"Executive Reality.\"\n\n## ANALYSIS DIMENSIONS\n1. **Personality Suitability:** Does the dream job align with their 4-point scales (2a, 2g, 5f) and social energy profile?\n2. **The \"Executive Pivot\" Suggestion:** Instead of just analyzing the entry-level dream, suggest how they could leverage their 14+ years of experience within that field (e.g., instead of just \"Yoga Instructor,\" suggest \"Founder of a Boutique Wellness Studio Chain\").\n3. **Regional & Future Context:** Specifically consider the 2026 economic landscape of Northern and Western Europe (e.g., Netherlands, Germany, Scandinavia) including AI's impact and regional salary trends.\n4. **Path Type Reality:** Identify whether the dream job (or its Executive Version) is realistically an employee role, independent practice (freelance/fractional), or a founder path. Each carries different realities — founder paths require capital and 1-3 year builds; freelance demands client acquisition; employee paths depend on hiring cycles. The \"Steps for Pursuing This Role\" section must reflect the real path type, not generic career steps.\n5. **Credential Reality (gating credentials only):** Check the candidate's education level [1f] and field of study [1g] in Input 5 against what the dream field actually gates on.\n   - A GATING credential is one a person cannot legally or practically be hired without: law, medicine, psychotherapy, accountancy, teaching, chartered or professional engineering, and similar licensed fields. Relevance does not fade with time; the licence is the barrier.\n   - A NON-GATING degree (most business, communications, marketing and general technical degrees) is background color only. It must NOT move the Feasibility Rating or the Move tag.\n   - If they ALREADY hold the gating credential for the dream field, say so plainly and let it raise the Feasibility Rating and the Move tag. A gated field they are already credentialed for is rarely \"Retrain\".\n   - If the dream field gates on a credential they do NOT hold, name that credential as the concrete barrier, in both the Feasibility Rating reason and the Steps section.\n   - NEVER speculate about how old a degree is. No graduation date is collected anywhere, so you cannot know it. Do not call a degree \"outdated\", \"recent\", or \"no longer relevant\". Judge ONLY whether the credential gates the field.\n\n**TONE:**\n- Business casual, direct\n- Atlas voice: honest, helpful, no fluff\n- Active voice, second person. Use 'you' and occasionally their name to adress them!\n\n# CRITICAL FORMATTING REQUIREMENTS\n- If there are multiple dream jobs, separate each job analysis with: ---DREAM_JOB_SPLIT---\n- At the very end of each dream job (before ---DREAM_JOB_SPLIT---), output its Move rating (reskilling effort to pursue it, AI-adjusted) as a hidden HTML comment exactly like <!--move:Retrain--> with ONE of: Ready now (skills already fit), Reframe (gap is positioning not skills), Upskill (a real learning gap), Retrain (a large gap or a new field). Dream jobs are often Upskill or Retrain. Never show the rating any other way.\n- Start directly with the first job title using the ## header.\n- **Strictly DO NOT use the em dash (—)** in your narrative. Use colons, commas, or parentheses instead.\n- **NEVER use survey question lables in your output! eg. '4l', '7e'**\n- Keep bullets to a maximum of 3 per section for scannability.\n- No intro or outro: start with the first Title immediately.\n\n# OUTPUT FORMAT\n\n## [Dream Job Title]\n\n**Overview**\n[A conversational 2-sentence intro explaining why this dream resonates with their profile, written as if speaking directly to a peer.]\n\n**Feasibility Rating**\n**[Rating]**: [One-sentence \"Bottom Line\" reason for this rating.]\n\nThe rating must be exactly one of these five labels, copied verbatim, with the WHOLE rating in bold (including both words of a hyphenated range): **Low** | **Low - Moderate** | **Moderate** | **Moderate - High** | **High**. Follow it with a colon, a space, and the one-sentence reason.\nCorrect: **Low - Moderate**: Acting as a profession needs a long runway before stable income.\nWrong: \"**Low** - Moderate: ...\" (only half bold), or \"Low - Moderate: ...\" (not bold at all).\n\n**Personality & Energy Fit**\n- [Bullet 1: Alignment with Social Energy (2a) and Stress Response (2i)]\n- [Bullet 2: Alignment with Work Style (2g) and Deadline Approach (5f)]\n- [Bullet 3: Impact on burnout recovery vs. their natural \"Competence Trap\"]\n\n**The \"Executive Version\" Suggestion**\n- [Bullet 1: Suggest a specific role in this field that utilizes their current seniority (e.g. Director, Owner, Strategist)]\n- [Bullet 2: Explain how this version solves the \"Low Salary\" or \"Low Intellectual Stimulus\" risk of the base dream job]\n- [Bullet 3: Note if this executive version already appeared in their Top 15 or OTB lists for validation]\n\n**Industry Outlook & Regional Trends**\n- [Bullet 1: 2026 salary expectations in Northern/Western Europe for this specific field]\n- [Bullet 2: AI Impact: Describe how AI is transforming or protecting this role (Human-centric vs. Automated)] - see below\n- [Bullet 3: Regional demand or barriers in Europe (e.g. certifications, linguistic needs, or market saturation)]\n\n**Future-proof skills**\n- [Bullet 1: the human-centric skill or positioning that keeps this dream viable as AI reshapes the field]\n- [Bullet 2: one concrete, AI-aware capability to build now, tied to their existing seniority]\n\n**Steps for Pursuing This Role**\n- [Bullet 1: Immediate low-stakes action to \"test\" the dream job]\n- [Bullet 2: Critical certification or education required in the European market. If Input 5 shows they already hold it, say that instead of listing it as a to-do]\n- [Bullet 3: A \"Portfolio Career\" suggestion to bridge the financial gap during transition]\n\n*Heads-up: [Only include if the base dream job salary is significantly lower than their target range.]*\n\n---DREAM_JOB_SPLIT---\n\n\n# EXTRACTION GUARD (critical)\nDream jobs come ONLY from the candidate's own stated dream jobs inside input 1. Write EXACTLY one narrative per stated dream job (up to 3; if they stated one, write one). Inputs 2-4 are context so you avoid overlapping those roles' content - NEVER treat a title from inputs 2, 3, or 4 as a dream job and never add a dream job the candidate did not state.\nInput 5 is the candidate fact sheet. Use it ONLY for education level [1f], field of study [1g] and certifications. NEVER treat a title appearing in it as a dream job.\n\n# INPUTS\n1. Where to extract the dreamjob(s)\n{{ $('When Executed by Another Workflow').first().json.interests_history_text }}\n2. top 3 careers\n{{ $json['Top 3 careers'] }}\n3. runner up careers\n{{ $json['Runner up careers'] }}\n4. Out of box careers\n{{ $json['Outside box careers'] }}\n5. Candidate fact sheet (education level [1f], field of study [1g], certifications - credentials ONLY, never a source of dream jobs)\n{{ $('When Executed by Another Workflow').first().json.init_summary_content }}\n\n\n## AI impact rating scale\n\n[1-2 sentences. Use ai_impact_rating from enriched data. The rating word you print MUST be exactly one of: Minimal, Moderate, High, Severe, Critical. Never a synonym (no Substantial, Significant, Considerable, Low, Medium) and never a range like 'Minimal to Moderate': the platform parses this exact word into a fixed badge, so any other word makes the badge and your text disagree. Be specific about what changes and what stays human. Connect to their exact AI familiarity level (summary 4e). Keep the Rating Scale lable, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment, even senior roles are augmented.\n\n\n\n# OUTPUT LANGUAGE\nWrite ALL prose in English. Always. The candidate's name, nationality, employers or survey answers in another language never change your output language. The platform translates the finished document afterwards (language contract); your output is the canonical English version.",
         "batching": {},
         "promptType": "define"
-      },
-      "typeVersion": 1.7
+      }
     },
     {
       "id": "04111827-9e37-4db8-a7cf-8e53003d4d90",
       "name": "Parse Dream",
       "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
         1472,
         928
       ],
       "parameters": {
         "jsCode": "// Get report_id from upstream node\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\n\n// Get the dream jobs text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lr = $('Get Report Language').first().json;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst DREAM_JOB_SUBHEADERS_ALL = {\n  en: [\"Overview\",\"Feasibility Rating\",\"Personality & Energy Fit\",\"The Executive Version Suggestion\",\"Industry Outlook & Regional Trends\",\"Future-proof skills\",\"Steps for Pursuing This Role\"],\n  nl: [\"Overzicht\",\"Haalbaarheidsscore\",\"Aansluiting op persoonlijkheid en energie\",\"De executive-versie\",\"Sectorvooruitzichten en regionale trends\",\"Future-proof skills\",\"Stappen om deze rol na te streven\"]\n};\n// Report content is forced to English by the language lock (2026-07-08),\n// but report_sections.language can still be 'nl'. Match subheaders from\n// BOTH languages so the <h5> formatting never depends on which language\n// the model actually produced.\nconst DREAM_JOB_SUBHEADERS = [...new Set([...DREAM_JOB_SUBHEADERS_ALL.en, ...DREAM_JOB_SUBHEADERS_ALL.nl])];\n\nfunction formatDreamJobContent(content) {\n  let formatted = content;\n  \n  DREAM_JOB_SUBHEADERS.forEach(subheader => {\n    /**\n     * Updated Regex:\n     * 1. Looks for the subheader at the start of the string or after a newline\n     * 2. Allows for optional Markdown stars (**)\n     * 3. Allows for an optional colon (:)\n     * 4. Ensures it matches the whole line to avoid replacing the word mid-sentence\n     */\n    const __flex = subheader.split(/\\s+/).map(w => w.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')).join('[\\\\s\"\\\\u2018\\\\u2019\\\\u201c\\\\u201d\\\\x27]*');\n    const regex = new RegExp('(^|\\\\n)\\\\*?\\\\*?\\\\s*(' + __flex + ')\\\\*?\\\\*?:?\\\\s*(\\\\n|$)', 'gi');\n    formatted = formatted.replace(regex, (m, pre, captured) => `${pre}<h5>${captured.trim()}</h5>\\n\\n`);\n  });\n  \n  // Convert markdown bold to <strong> — covers the feasibility rating,\n  // which the prompt now bolds in full.\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');\n  \n  return formatted.trim();\n}\n\nfunction parseDreamJob(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    // Match ## Title or just \"Chief Product Officer\" if it's the very first line\n    if (line.match(/^##\\s*.+$/) || (i === 0 && line.length > 0)) {\n      title = line.replace(/^##\\s*/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatDreamJobContent(rawContent);\n  \n  return {\n    title: title || 'Dream Job',\n    content: formattedContent\n  };\n}\n\nconst dreamJobSections = fullText.split('---DREAM_JOB_SPLIT---');\nconst cleanSections = dreamJobSections.filter(section => section.trim().length > 0);\n\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseDreamJob(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      section_type: \"dream_jobs\",\n      title: `<h3>${parsed.title}</h3>`,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
-      },
-      "typeVersion": 2
+      }
     },
     {
       "id": "66e20bd2-df47-4eb3-865d-1fd266ff0482",
       "name": "Insert dream",
       "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
       "position": [
         1696,
         928
@@ -340,26 +341,27 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "typeVersion": 1
+      }
     },
     {
       "id": "02dc6615-008d-446b-a999-e1357ac8bc97",
       "name": "Complete merge",
       "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
       "position": [
         2272,
         608
       ],
       "parameters": {
         "numberInputs": 3
-      },
-      "typeVersion": 3.2
+      }
     },
     {
       "id": "f2075da1-bebb-4ab5-a08e-9a5d5bf18cfb",
       "name": "HTTP Request",
       "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "executeOnce": true,
       "position": [
         2496,
         624
@@ -379,14 +381,13 @@
           "id": "aiABzg04zbeDSXRc",
           "name": "Supabase Edge Functions — Shared Secret"
         }
-      },
-      "executeOnce": true,
-      "typeVersion": 4.3
+      }
     },
     {
       "id": "1e239ace-b324-40cd-aecd-ad1ec2ba4a26",
       "name": "Anthropic Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
       "position": [
         1120,
         464
@@ -399,7 +400,7 @@
           "cachedResultName": "Claude Sonnet 5"
         },
         "options": {
-          "maxTokensToSample": 8000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -407,13 +408,13 @@
           "id": "RhTKhZPWZ6gcGD13",
           "name": "Anthropic account"
         }
-      },
-      "typeVersion": 1.3
+      }
     },
     {
       "id": "24281098-2118-4664-b89b-7a2ecd5ca9b8",
       "name": "Anthropic Chat Model1",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
       "position": [
         1120,
         784
@@ -426,7 +427,7 @@
           "cachedResultName": "Claude Sonnet 5"
         },
         "options": {
-          "maxTokensToSample": 8000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -434,13 +435,13 @@
           "id": "RhTKhZPWZ6gcGD13",
           "name": "Anthropic account"
         }
-      },
-      "typeVersion": 1.3
+      }
     },
     {
       "id": "4f6a8057-64a9-4218-aed5-507716a6e05e",
       "name": "Anthropic Chat Model2",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
       "position": [
         1120,
         1072
@@ -453,7 +454,7 @@
           "cachedResultName": "Claude Sonnet 5"
         },
         "options": {
-          "maxTokensToSample": 8000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -461,13 +462,15 @@
           "id": "RhTKhZPWZ6gcGD13",
           "name": "Anthropic account"
         }
-      },
-      "typeVersion": 1.3
+      }
     },
     {
       "id": "16814ad9-c418-46eb-a48e-f5f93c96eb1b",
       "name": "Get Report Language",
       "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
       "position": [
         -480,
         624
@@ -483,10 +486,7 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "executeOnce": true,
-      "typeVersion": 4.2,
-      "alwaysOutputData": true
+      }
     }
   ],
   "connections": {
@@ -1005,39 +1005,42 @@
     }
   ],
   "activeVersion": {
-    "versionId": "842b5a7b-4a23-414f-83f7-f04b1d234169",
+    "versionId": "184d5289-2f3a-456f-b137-8e1a0be1efc4",
     "workflowId": "seWmQPFQqIe60TkU",
     "nodes": [
       {
         "id": "8272e7dc-ec6d-440f-867b-3b96e9e6b0b3",
         "name": "When Executed by Another Workflow",
         "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1.1,
         "position": [
           -704,
           624
         ],
         "parameters": {
           "inputSource": "passthrough"
-        },
-        "typeVersion": 1.1
+        }
       },
       {
         "id": "3bc84633-d425-4df7-9fac-52d423e7f44f",
         "name": "Top 3 only",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           -64,
           320
         ],
         "parameters": {
           "jsCode": "// Prep top 3 data + build RPC body for Pull enriched T3\nconst trigger = $('When Executed by Another Workflow').first().json;\nconst careers = trigger.top_3_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  top_3_careers: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "de520df6-8d37-4912-8336-e53fbc2f1be2",
         "name": "Pull enriched T3",
         "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "executeOnce": true,
+        "alwaysOutputData": true,
         "position": [
           160,
           320
@@ -1053,28 +1056,26 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "executeOnce": true,
-        "typeVersion": 4.2,
-        "alwaysOutputData": true
+        }
       },
       {
         "id": "198c1088-1574-4b85-9dbe-8e20ead8c045",
         "name": "t3 content order",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           448,
           320
         ],
         "parameters": {
           "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "9e2da11f-1d0d-41ee-b952-cb4413c8f209",
         "name": "T3 enr. combined",
         "type": "n8n-nodes-base.aggregate",
+        "typeVersion": 1,
         "position": [
           672,
           320
@@ -1083,13 +1084,13 @@
           "options": {},
           "aggregate": "aggregateAllItemData",
           "destinationFieldName": "top3_enriched_combined"
-        },
-        "typeVersion": 1
+        }
       },
       {
         "id": "0543a3cd-fd28-4929-ba2b-9bdaa39368fd",
         "name": "T3 Careers Prompt",
         "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
         "position": [
           896,
           320
@@ -1106,13 +1107,13 @@
               }
             ]
           }
-        },
-        "typeVersion": 3.4
+        }
       },
       {
         "id": "2cd75cb0-f79a-4b43-b9b4-f4bbb0a69abe",
         "name": "Top 3 Careers Generator",
         "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
         "position": [
           1120,
           320
@@ -1121,26 +1122,26 @@
           "text": "={{ $json.top_3_careers_prompt }}",
           "batching": {},
           "promptType": "define"
-        },
-        "typeVersion": 1.7
+        }
       },
       {
         "id": "a8b60d92-97e1-4a7e-911d-3db2623f0198",
         "name": "Split Top3",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           1472,
           320
         ],
         "parameters": {
           "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\n\n// Enriched top-3 careers (same trigger source as reportId), for the salary pill.\nconst careers = $('When Executed by Another Workflow').first().json.top_3_careers || [];\nconst salaryFor = (i) => careers[i]?.career_data?.salary ?? careers[i]?.salary ?? null;\n\n\n// Subheaders to convert to h5 tags (must match ACTUAL AI output headers)\nconst CAREER_SUBHEADERS = [\n  \"Overview\",\n  \"Why this role fits you\",\n  \"What you'll actually do\",\n  \"The Reality Check\",\n  \"The practical stuff\",\n  \"How AI will impact this role\",\n  \"Future-proof skills\",\n  \"Alignment with your ambitions\"\n];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText.replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim() };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles || '',\n    company_size_type: companySizeType || '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: { ...(meta1.metadata || {}), salary: salaryFor(0) },\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: { ...(meta2.metadata || {}), salary: salaryFor(1) },\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: { ...(meta3.metadata || {}), salary: salaryFor(2) },\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];\n"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "31205f90-595b-4875-b31a-44c19192b642",
         "name": "Insert Top 3",
         "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
         "position": [
           1696,
           320
@@ -1154,26 +1155,28 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "typeVersion": 1
+        }
       },
       {
         "id": "122022e0-92c2-4f85-be97-e15f8041a485",
         "name": "4-10 only",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           -64,
           624
         ],
         "parameters": {
           "jsCode": "// Prep runner up data + build RPC body for Pull Runner up\nconst trigger = $('When Executed by Another Workflow').first().json;\nconst careers = trigger.runner_up_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  runner_up: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "40a9382b-63fa-4f84-ab79-bab144ade1e3",
         "name": "Pull Runner up",
         "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "executeOnce": true,
+        "alwaysOutputData": true,
         "position": [
           160,
           624
@@ -1189,28 +1192,26 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "executeOnce": true,
-        "typeVersion": 4.2,
-        "alwaysOutputData": true
+        }
       },
       {
         "id": "1f86ac80-2bd4-42a4-b864-0fcd33839202",
         "name": "Combine runners",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           448,
           624
         ],
         "parameters": {
           "jsCode": "// Combine all items into one item\nconst allItems = $input.all();\nconst allCareers = allItems.map(item => item.json);\n\nreturn [{ \n  json: { \n    allCareers: allCareers,\n    careerCount: allCareers.length \n  } \n}];"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "fd8e03ae-b234-411b-a637-377b6e5b661d",
         "name": "Set Runner Up Prompt",
         "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
         "position": [
           896,
           624
@@ -1227,13 +1228,13 @@
               }
             ]
           }
-        },
-        "typeVersion": 3.4
+        }
       },
       {
         "id": "d92dfe34-c58e-4142-b4d4-c1ccc61dc9f8",
         "name": "Runner Up Analysis",
         "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
         "position": [
           1120,
           624
@@ -1242,26 +1243,26 @@
           "text": "={{ $json.runner_up_prompt }}",
           "batching": {},
           "promptType": "define"
-        },
-        "typeVersion": 1.7
+        }
       },
       {
         "id": "6e8e1b2c-b238-4d16-b0e8-f3a3451929a6",
         "name": "Parse runner up",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           1472,
           624
         ],
         "parameters": {
           "jsCode": "// Parse Runner-Up Careers (Markdown format with CAREER_SPLIT delimiter)\nconst input = $input.first().json.text;\n\n// Get report_id from the same node that Split Top3 uses\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\n\n// GUARD (2026-07-05): if no runner-up careers came in from '4-10 only', the\n// upstream pool was empty. Do NOT parse the LLM output (it hallucinates a\n// \"the list is empty\" complaint). Emit one clean, controlled placeholder row.\nconst __ru = ($('4-10 only').first().json.runner_up) || [];\nconst salaryFor = (i) => __ru[i]?.career_data?.salary ?? __ru[i]?.salary ?? null;\nif (!Array.isArray(__ru) || __ru.length === 0) {\n  const __msg = __lang === 'nl'\n    ? 'Er zijn geen aanvullende runner-up carrières geïdentificeerd die hoog genoeg scoorden. Je sterkste matches staan in je top 3 hierboven.'\n    : 'No additional runner-up careers scored high enough to include. Your strongest matches are captured in your top 3 above.';\n  return [{ json: {\n    title: '',\n    alternate_titles: '',\n    company_size_type: '',\n    content: '<p>' + __msg + '</p>',\n    score: null,\n    report_id: reportId,\n    metadata: { empty: true },\n    section_type: 'runner_ups',\n    order_number: 1,\n    language: __lang\n  } }];\n}\n\n\n// Split by the delimiter\nconst careerBlocks = input.split('---CAREER_SPLIT---').map(block => block.trim()).filter(Boolean);\n\nconst results = careerBlocks.map((block, index) => {\n  // Extract career title (first # heading, not ## subheaders)\n  const titleMatch = block.match(/^# ([^#].+)$/m);\n  const career_title = titleMatch ? titleMatch[1].trim() : `Career ${index + 1}`;\n\n  // Extract alternative titles and company size\n  const altTitlesMatch = block.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n  const alternate_titles = altTitlesMatch ? altTitlesMatch[1].trim() : '';\n  const company_size_type = altTitlesMatch ? altTitlesMatch[2].trim() : '';\n\n  // Extract compatibility score\n  const scoreMatch = block.match(/\\*\\*Compatibility score: (\\d+)\\/100\\*\\*/);\n  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null;\n\n  const moveMatch = block.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n\n  // Build content language-agnostically: from the first \"## \" subheader\n  // onward, drop any trailing \"**More details\" footer, and convert every\n  // \"## X\" header to <h5>X</h5>. Works for English and Dutch headers alike.\n  let __body = block;\n  const __fh = __body.search(/^##\\s+/m);\n  if (__fh >= 0) __body = __body.slice(__fh);\n  __body = __body.split(/\\n\\*\\*More details/)[0];\n  const sections = __body.replace(/^##\\s+(.+?)\\s*$/gm, '<h5>$1</h5>').replace(/<!--move:.*?-->/gi, '').trim();\n\n  // Return one item per career (matches report_sections table structure)\n  return {\n    json: {\n      title: `<h3><strong>${career_title}</strong></h3>`,\n      alternate_titles: alternate_titles || '',\n      company_size_type: company_size_type || '',\n      content: sections,\n      score: score,\n      report_id: reportId,\n      metadata: { ...(move ? { move } : {}), salary: salaryFor(index) },\n      section_type: \"runner_ups\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn results;\n"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "1f954c89-a292-4c95-b619-07bffec45458",
         "name": "Insert Runner Ups",
         "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
         "position": [
           1696,
           624
@@ -1275,26 +1276,26 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "typeVersion": 1
+        }
       },
       {
         "id": "967c19be-18a5-47c8-9b3f-5e3381045b30",
         "name": "Dream prep",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           -64,
           928
         ],
         "parameters": {
           "jsCode": "// Prepare data for Dream Job Feasibility prompt\nconst trigger = $('When Executed by Another Workflow').first().json;\nreturn [{\n  json: {\n    'Top 3 careers': trigger.top_3_careers_str,\n    'Runner up careers': trigger.runner_up_careers_str,\n    'Outside box careers': trigger.outside_box_careers_str\n  }\n}];"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "231cb4d5-638c-40a8-acbb-8c54c1cc51cd",
         "name": "Dream Job Feasibility",
         "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
         "position": [
           1120,
           928
@@ -1303,26 +1304,26 @@
           "text": "=# ROLE\nYou are an expert career strategist specializing in \"The Bridge Pivot\"—evaluating the feasibility of unconventional dream jobs for professionals while maintaining their professional seniority and financial viability.\n\n# TASK\nAnalyze the feasibility of the candidate's Dream Job(s) as listed in the \"Career Goals & Aspirations\" section of Input 1. Analyze at most the first 3 dream jobs the candidate listed; if more are present, focus on the 3 most prominent. You must provide a balanced analysis that respects the dream while being intellectually honest about the \"Executive Reality.\"\n\n## ANALYSIS DIMENSIONS\n1. **Personality Suitability:** Does the dream job align with their 4-point scales (2a, 2g, 5f) and social energy profile?\n2. **The \"Executive Pivot\" Suggestion:** Instead of just analyzing the entry-level dream, suggest how they could leverage their 14+ years of experience within that field (e.g., instead of just \"Yoga Instructor,\" suggest \"Founder of a Boutique Wellness Studio Chain\").\n3. **Regional & Future Context:** Specifically consider the 2026 economic landscape of Northern and Western Europe (e.g., Netherlands, Germany, Scandinavia) including AI's impact and regional salary trends.\n4. **Path Type Reality:** Identify whether the dream job (or its Executive Version) is realistically an employee role, independent practice (freelance/fractional), or a founder path. Each carries different realities — founder paths require capital and 1-3 year builds; freelance demands client acquisition; employee paths depend on hiring cycles. The \"Steps for Pursuing This Role\" section must reflect the real path type, not generic career steps.\n5. **Credential Reality (gating credentials only):** Check the candidate's education level [1f] and field of study [1g] in Input 5 against what the dream field actually gates on.\n   - A GATING credential is one a person cannot legally or practically be hired without: law, medicine, psychotherapy, accountancy, teaching, chartered or professional engineering, and similar licensed fields. Relevance does not fade with time; the licence is the barrier.\n   - A NON-GATING degree (most business, communications, marketing and general technical degrees) is background color only. It must NOT move the Feasibility Rating or the Move tag.\n   - If they ALREADY hold the gating credential for the dream field, say so plainly and let it raise the Feasibility Rating and the Move tag. A gated field they are already credentialed for is rarely \"Retrain\".\n   - If the dream field gates on a credential they do NOT hold, name that credential as the concrete barrier, in both the Feasibility Rating reason and the Steps section.\n   - NEVER speculate about how old a degree is. No graduation date is collected anywhere, so you cannot know it. Do not call a degree \"outdated\", \"recent\", or \"no longer relevant\". Judge ONLY whether the credential gates the field.\n\n**TONE:**\n- Business casual, direct\n- Atlas voice: honest, helpful, no fluff\n- Active voice, second person. Use 'you' and occasionally their name to adress them!\n\n# CRITICAL FORMATTING REQUIREMENTS\n- If there are multiple dream jobs, separate each job analysis with: ---DREAM_JOB_SPLIT---\n- At the very end of each dream job (before ---DREAM_JOB_SPLIT---), output its Move rating (reskilling effort to pursue it, AI-adjusted) as a hidden HTML comment exactly like <!--move:Retrain--> with ONE of: Ready now (skills already fit), Reframe (gap is positioning not skills), Upskill (a real learning gap), Retrain (a large gap or a new field). Dream jobs are often Upskill or Retrain. Never show the rating any other way.\n- Start directly with the first job title using the ## header.\n- **Strictly DO NOT use the em dash (—)** in your narrative. Use colons, commas, or parentheses instead.\n- **NEVER use survey question lables in your output! eg. '4l', '7e'**\n- Keep bullets to a maximum of 3 per section for scannability.\n- No intro or outro: start with the first Title immediately.\n\n# OUTPUT FORMAT\n\n## [Dream Job Title]\n\n**Overview**\n[A conversational 2-sentence intro explaining why this dream resonates with their profile, written as if speaking directly to a peer.]\n\n**Feasibility Rating**\n**[Rating]**: [One-sentence \"Bottom Line\" reason for this rating.]\n\nThe rating must be exactly one of these five labels, copied verbatim, with the WHOLE rating in bold (including both words of a hyphenated range): **Low** | **Low - Moderate** | **Moderate** | **Moderate - High** | **High**. Follow it with a colon, a space, and the one-sentence reason.\nCorrect: **Low - Moderate**: Acting as a profession needs a long runway before stable income.\nWrong: \"**Low** - Moderate: ...\" (only half bold), or \"Low - Moderate: ...\" (not bold at all).\n\n**Personality & Energy Fit**\n- [Bullet 1: Alignment with Social Energy (2a) and Stress Response (2i)]\n- [Bullet 2: Alignment with Work Style (2g) and Deadline Approach (5f)]\n- [Bullet 3: Impact on burnout recovery vs. their natural \"Competence Trap\"]\n\n**The \"Executive Version\" Suggestion**\n- [Bullet 1: Suggest a specific role in this field that utilizes their current seniority (e.g. Director, Owner, Strategist)]\n- [Bullet 2: Explain how this version solves the \"Low Salary\" or \"Low Intellectual Stimulus\" risk of the base dream job]\n- [Bullet 3: Note if this executive version already appeared in their Top 15 or OTB lists for validation]\n\n**Industry Outlook & Regional Trends**\n- [Bullet 1: 2026 salary expectations in Northern/Western Europe for this specific field]\n- [Bullet 2: AI Impact: Describe how AI is transforming or protecting this role (Human-centric vs. Automated)] - see below\n- [Bullet 3: Regional demand or barriers in Europe (e.g. certifications, linguistic needs, or market saturation)]\n\n**Future-proof skills**\n- [Bullet 1: the human-centric skill or positioning that keeps this dream viable as AI reshapes the field]\n- [Bullet 2: one concrete, AI-aware capability to build now, tied to their existing seniority]\n\n**Steps for Pursuing This Role**\n- [Bullet 1: Immediate low-stakes action to \"test\" the dream job]\n- [Bullet 2: Critical certification or education required in the European market. If Input 5 shows they already hold it, say that instead of listing it as a to-do]\n- [Bullet 3: A \"Portfolio Career\" suggestion to bridge the financial gap during transition]\n\n*Heads-up: [Only include if the base dream job salary is significantly lower than their target range.]*\n\n---DREAM_JOB_SPLIT---\n\n\n# EXTRACTION GUARD (critical)\nDream jobs come ONLY from the candidate's own stated dream jobs inside input 1. Write EXACTLY one narrative per stated dream job (up to 3; if they stated one, write one). Inputs 2-4 are context so you avoid overlapping those roles' content - NEVER treat a title from inputs 2, 3, or 4 as a dream job and never add a dream job the candidate did not state.\nInput 5 is the candidate fact sheet. Use it ONLY for education level [1f], field of study [1g] and certifications. NEVER treat a title appearing in it as a dream job.\n\n# INPUTS\n1. Where to extract the dreamjob(s)\n{{ $('When Executed by Another Workflow').first().json.interests_history_text }}\n2. top 3 careers\n{{ $json['Top 3 careers'] }}\n3. runner up careers\n{{ $json['Runner up careers'] }}\n4. Out of box careers\n{{ $json['Outside box careers'] }}\n5. Candidate fact sheet (education level [1f], field of study [1g], certifications - credentials ONLY, never a source of dream jobs)\n{{ $('When Executed by Another Workflow').first().json.init_summary_content }}\n\n\n## AI impact rating scale\n\n[1-2 sentences. Use ai_impact_rating from enriched data. The rating word you print MUST be exactly one of: Minimal, Moderate, High, Severe, Critical. Never a synonym (no Substantial, Significant, Considerable, Low, Medium) and never a range like 'Minimal to Moderate': the platform parses this exact word into a fixed badge, so any other word makes the badge and your text disagree. Be specific about what changes and what stays human. Connect to their exact AI familiarity level (summary 4e). Keep the Rating Scale lable, tweak text for job relevance:\n- **Minimal**: The rare exception. The role leans on physical presence, hands-on skill, or human accountability AI cannot take over. Few office roles qualify. Think: skilled trades, emergency response, hands-on care.\n- **Moderate**: Healthy augmentation. AI absorbs routine research, drafting, and analysis; the human shifts to judgment, editing, and decisions and stays essential. Think: product management, senior consulting, UX strategy, people leadership.\n- **High**: The role reshapes. A large part of the day-to-day moves to AI; the human adapts to directing and quality-checking AI rather than doing the work by hand. Think: mid-level analysis, marketing execution, project coordination.\n- **Severe**: Teams shrink. Most of the role automates and the work concentrates into fewer, AI-leveraged people. Remaining human involvement is supervisory. Think: standard reporting, routine QA, first-line content.\n- **Critical**: Pivot needed. The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. The role as it exists is endangered. Think: data entry, basic customer support, routine translation.\nCalibration: Minimal is the EXCEPTION, not the default. Almost every office role is at least Moderate; do not rate a knowledge-work role Minimal just because it involves judgment, even senior roles are augmented.\n\n\n\n# OUTPUT LANGUAGE\nWrite ALL prose in English. Always. The candidate's name, nationality, employers or survey answers in another language never change your output language. The platform translates the finished document afterwards (language contract); your output is the canonical English version.",
           "batching": {},
           "promptType": "define"
-        },
-        "typeVersion": 1.7
+        }
       },
       {
         "id": "04111827-9e37-4db8-a7cf-8e53003d4d90",
         "name": "Parse Dream",
         "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
         "position": [
           1472,
           928
         ],
         "parameters": {
           "jsCode": "// Get report_id from upstream node\nconst reportId = $('When Executed by Another Workflow').first().json.report_id;\n\n// Get the dream jobs text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lr = $('Get Report Language').first().json;\nconst __lang = 'en'; // language contract: canonical content is always English; translate-section adds translations\nconst DREAM_JOB_SUBHEADERS_ALL = {\n  en: [\"Overview\",\"Feasibility Rating\",\"Personality & Energy Fit\",\"The Executive Version Suggestion\",\"Industry Outlook & Regional Trends\",\"Future-proof skills\",\"Steps for Pursuing This Role\"],\n  nl: [\"Overzicht\",\"Haalbaarheidsscore\",\"Aansluiting op persoonlijkheid en energie\",\"De executive-versie\",\"Sectorvooruitzichten en regionale trends\",\"Future-proof skills\",\"Stappen om deze rol na te streven\"]\n};\n// Report content is forced to English by the language lock (2026-07-08),\n// but report_sections.language can still be 'nl'. Match subheaders from\n// BOTH languages so the <h5> formatting never depends on which language\n// the model actually produced.\nconst DREAM_JOB_SUBHEADERS = [...new Set([...DREAM_JOB_SUBHEADERS_ALL.en, ...DREAM_JOB_SUBHEADERS_ALL.nl])];\n\nfunction formatDreamJobContent(content) {\n  let formatted = content;\n  \n  DREAM_JOB_SUBHEADERS.forEach(subheader => {\n    /**\n     * Updated Regex:\n     * 1. Looks for the subheader at the start of the string or after a newline\n     * 2. Allows for optional Markdown stars (**)\n     * 3. Allows for an optional colon (:)\n     * 4. Ensures it matches the whole line to avoid replacing the word mid-sentence\n     */\n    const __flex = subheader.split(/\\s+/).map(w => w.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')).join('[\\\\s\"\\\\u2018\\\\u2019\\\\u201c\\\\u201d\\\\x27]*');\n    const regex = new RegExp('(^|\\\\n)\\\\*?\\\\*?\\\\s*(' + __flex + ')\\\\*?\\\\*?:?\\\\s*(\\\\n|$)', 'gi');\n    formatted = formatted.replace(regex, (m, pre, captured) => `${pre}<h5>${captured.trim()}</h5>\\n\\n`);\n  });\n  \n  // Convert markdown bold to <strong> — covers the feasibility rating,\n  // which the prompt now bolds in full.\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');\n  \n  return formatted.trim();\n}\n\nfunction parseDreamJob(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    // Match ## Title or just \"Chief Product Officer\" if it's the very first line\n    if (line.match(/^##\\s*.+$/) || (i === 0 && line.length > 0)) {\n      title = line.replace(/^##\\s*/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatDreamJobContent(rawContent);\n  \n  return {\n    title: title || 'Dream Job',\n    content: formattedContent\n  };\n}\n\nconst dreamJobSections = fullText.split('---DREAM_JOB_SPLIT---');\nconst cleanSections = dreamJobSections.filter(section => section.trim().length > 0);\n\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseDreamJob(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      section_type: \"dream_jobs\",\n      title: `<h3>${parsed.title}</h3>`,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
-        },
-        "typeVersion": 2
+        }
       },
       {
         "id": "66e20bd2-df47-4eb3-865d-1fd266ff0482",
         "name": "Insert dream",
         "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
         "position": [
           1696,
           928
@@ -1336,26 +1337,27 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "typeVersion": 1
+        }
       },
       {
         "id": "02dc6615-008d-446b-a999-e1357ac8bc97",
         "name": "Complete merge",
         "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
         "position": [
           2272,
           608
         ],
         "parameters": {
           "numberInputs": 3
-        },
-        "typeVersion": 3.2
+        }
       },
       {
         "id": "f2075da1-bebb-4ab5-a08e-9a5d5bf18cfb",
         "name": "HTTP Request",
         "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "executeOnce": true,
         "position": [
           2496,
           624
@@ -1375,14 +1377,13 @@
             "id": "aiABzg04zbeDSXRc",
             "name": "Supabase Edge Functions — Shared Secret"
           }
-        },
-        "executeOnce": true,
-        "typeVersion": 4.3
+        }
       },
       {
         "id": "1e239ace-b324-40cd-aecd-ad1ec2ba4a26",
         "name": "Anthropic Chat Model",
         "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
         "position": [
           1120,
           464
@@ -1395,7 +1396,7 @@
             "cachedResultName": "Claude Sonnet 5"
           },
           "options": {
-            "maxTokensToSample": 8000
+            "maxTokensToSample": 32000
           }
         },
         "credentials": {
@@ -1403,13 +1404,13 @@
             "id": "RhTKhZPWZ6gcGD13",
             "name": "Anthropic account"
           }
-        },
-        "typeVersion": 1.3
+        }
       },
       {
         "id": "24281098-2118-4664-b89b-7a2ecd5ca9b8",
         "name": "Anthropic Chat Model1",
         "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
         "position": [
           1120,
           784
@@ -1422,7 +1423,7 @@
             "cachedResultName": "Claude Sonnet 5"
           },
           "options": {
-            "maxTokensToSample": 8000
+            "maxTokensToSample": 32000
           }
         },
         "credentials": {
@@ -1430,13 +1431,13 @@
             "id": "RhTKhZPWZ6gcGD13",
             "name": "Anthropic account"
           }
-        },
-        "typeVersion": 1.3
+        }
       },
       {
         "id": "4f6a8057-64a9-4218-aed5-507716a6e05e",
         "name": "Anthropic Chat Model2",
         "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
         "position": [
           1120,
           1072
@@ -1449,7 +1450,7 @@
             "cachedResultName": "Claude Sonnet 5"
           },
           "options": {
-            "maxTokensToSample": 8000
+            "maxTokensToSample": 32000
           }
         },
         "credentials": {
@@ -1457,13 +1458,15 @@
             "id": "RhTKhZPWZ6gcGD13",
             "name": "Anthropic account"
           }
-        },
-        "typeVersion": 1.3
+        }
       },
       {
         "id": "16814ad9-c418-46eb-a48e-f5f93c96eb1b",
         "name": "Get Report Language",
         "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "executeOnce": true,
+        "alwaysOutputData": true,
         "position": [
           -480,
           624
@@ -1479,10 +1482,7 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "executeOnce": true,
-        "typeVersion": 4.2,
-        "alwaysOutputData": true
+        }
       }
     ],
     "connections": {
@@ -1777,16 +1777,16 @@
     "name": null,
     "description": null,
     "autosaved": false,
-    "createdAt": "2026-09-16T07:12:01.187Z",
-    "updatedAt": "2026-09-16T07:12:01.187Z",
+    "createdAt": "2026-09-17T09:26:59.043Z",
+    "updatedAt": "2026-09-17T09:26:59.043Z",
     "workflowPublishHistory": [
       {
-        "id": 1640,
+        "id": 1666,
         "workflowId": "seWmQPFQqIe60TkU",
-        "versionId": "842b5a7b-4a23-414f-83f7-f04b1d234169",
+        "versionId": "184d5289-2f3a-456f-b137-8e1a0be1efc4",
         "event": "activated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-        "createdAt": "2026-09-16T07:12:01.368Z"
+        "createdAt": "2026-09-17T09:26:59.206Z"
       }
     ]
   }

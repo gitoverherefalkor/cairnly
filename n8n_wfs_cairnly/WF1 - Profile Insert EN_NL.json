@@ -3,12 +3,12 @@
   "name": "WF1 - Profile Insert EN/NL",
   "description": null,
   "active": true,
-  "activeVersionId": "89e7768e-146a-4801-9255-1fc3161cd581",
+  "activeVersionId": "a5595376-bb0f-4be6-9158-5206e0ce5eac",
   "createdAt": "2026-05-30T21:49:34.152Z",
-  "updatedAt": "2026-09-17T09:26:59.575Z",
+  "updatedAt": "2026-09-17T09:48:53.037Z",
   "isArchived": false,
-  "versionId": "89e7768e-146a-4801-9255-1fc3161cd581",
-  "versionCounter": 33,
+  "versionId": "a5595376-bb0f-4be6-9158-5206e0ce5eac",
+  "versionCounter": 34,
   "sourceWorkflowId": null,
   "triggerCount": 1,
   "nodes": [
@@ -316,7 +316,7 @@
           "cachedResultName": "Claude Sonnet 5"
         },
         "options": {
-          "maxTokensToSample": 32000
+          "maxTokensToSample": 20000
         }
       },
       "credentials": {
@@ -844,7 +844,7 @@
     }
   ],
   "activeVersion": {
-    "versionId": "89e7768e-146a-4801-9255-1fc3161cd581",
+    "versionId": "a5595376-bb0f-4be6-9158-5206e0ce5eac",
     "workflowId": "0Z8WxV5tVFMJqIZt",
     "nodes": [
       {
@@ -1151,7 +1151,7 @@
             "cachedResultName": "Claude Sonnet 5"
           },
           "options": {
-            "maxTokensToSample": 32000
+            "maxTokensToSample": 20000
           }
         },
         "credentials": {
@@ -1312,16 +1312,16 @@
     "name": null,
     "description": null,
     "autosaved": false,
-    "createdAt": "2026-09-17T09:26:59.577Z",
-    "updatedAt": "2026-09-17T09:26:59.577Z",
+    "createdAt": "2026-09-17T09:48:53.040Z",
+    "updatedAt": "2026-09-17T09:48:53.040Z",
     "workflowPublishHistory": [
       {
-        "id": 1668,
+        "id": 1670,
         "workflowId": "0Z8WxV5tVFMJqIZt",
-        "versionId": "89e7768e-146a-4801-9255-1fc3161cd581",
+        "versionId": "a5595376-bb0f-4be6-9158-5206e0ce5eac",
         "event": "activated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-        "createdAt": "2026-09-17T09:26:59.712Z"
+        "createdAt": "2026-09-17T09:48:53.247Z"
       }
     ]
   }

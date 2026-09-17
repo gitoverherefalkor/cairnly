@@ -27,10 +27,14 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const EXPORT_DIR = resolve(ROOT, 'n8n_wfs_cairnly');
 const BASE_URL = 'https://falkoratlas.app.n8n.cloud/api/v1';
 // --max=N overrides the target budget (default 16000). WF4 generates three long
-// career narratives in one call and hit an 8000 cap on 2026-09-17 (exec 11111),
-// so it gets 32000; thinking length swings 2x between identical inputs.
+// career narratives in one call and hit an 8000 cap on 2026-09-17 (exec 11111);
+// thinking length swings 2x between identical inputs, so WF1 and WF4 run at
+// 20000. HARD CEILING 21000: the n8n node calls Anthropic without streaming,
+// and the SDK refuses any non-streaming request whose max_tokens implies more
+// than 10 minutes of generation (128k tokens/hour => 21,333). At 32000 the call
+// failed in 3 ms before sending anything (WF1 exec 11122, 2026-09-17).
 const MAX_TOKENS = Number(process.argv.find((a) => a.startsWith('--max='))?.slice(6) ?? 16000);
-if (!Number.isInteger(MAX_TOKENS) || MAX_TOKENS < 4096 || MAX_TOKENS > 64000) { console.error(`--max must be an integer between 4096 and 64000, got ${MAX_TOKENS}`); process.exit(1); }
+if (!Number.isInteger(MAX_TOKENS) || MAX_TOKENS < 4096 || MAX_TOKENS > 21000) { console.error(`--max must be an integer between 4096 and 21000 (non-streaming SDK limit), got ${MAX_TOKENS}`); process.exit(1); }
 const DRY_RUN = process.argv.includes('--dry-run');
 
 // Every claude-sonnet-5 node per workflow, and the canonical export file name.
