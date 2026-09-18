@@ -73,7 +73,9 @@ const Hero: React.FC = () => {
             </Reveal>
           </div>
 
-          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:pt-8">
+          {/* -mt nudge: lifts the first line's cap height onto the demo
+              window's top edge, past the paragraph's own half-leading. */}
+          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:-mt-1.5">
             <Reveal as="div">
               {/* Two paragraphs, not one block: the emphasis line is the turn
                   from "here is the problem" to "here is what Cairnly does",
