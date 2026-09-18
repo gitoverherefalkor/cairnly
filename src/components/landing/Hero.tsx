@@ -54,9 +54,17 @@ const Hero: React.FC = () => {
             >
               <h1>
                 {t('hero.titleA')}
-                <br />
-                {t('hero.titlePrefix') ? `${t('hero.titlePrefix')} ` : ''}
-                <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
+                {t('hero.titlePrefix') ? (
+                  <span className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
+                    <span>{t('hero.titlePrefix')}</span>
+                    <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span>
+                  </span>
+                ) : (
+                  <>
+                    <br />
+                    <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
+                  </>
+                )}
               </h1>
             </Reveal>
           </div>
