@@ -72,7 +72,7 @@ const Hero: React.FC = () => {
             recording on the right. DOM order (video, text) is the phone order:
             the moving picture first, the words under it. */}
         <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
-          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
+          <div className="min-w-0 lg:col-span-7 lg:col-start-6 lg:row-start-1">
             <Reveal as="div">
               <DemoVideoStage />
             </Reveal>

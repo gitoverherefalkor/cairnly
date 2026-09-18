@@ -89,8 +89,6 @@ const DemoVideoStage: React.FC = () => {
           <video
             ref={videoRef}
             className="block w-full h-full object-cover"
-            width={VIDEO_W}
-            height={VIDEO_H}
             muted
             playsInline
             preload="metadata"
