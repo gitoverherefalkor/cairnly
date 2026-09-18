@@ -69,20 +69,6 @@ const DemoVideoStage: React.FC = () => {
 
   return (
     <div className="select-none">
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <span className="min-w-0 truncate text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-white/55">
-          {t('heroDemo.stageLabel', { name: t(`heroDemo.cards.${clip.persona}.name`) })}
-        </span>
-        <Link
-          to={demoHref(DEMO_ROUTE)}
-          onClick={() => trackCtaClick('hero_video_open_demo')}
-          className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-white/70 hover:text-white"
-        >
-          {t('heroDemo.endCard.fullDemo')}
-          <ArrowUpRight size={12} strokeWidth={2.6} />
-        </Link>
-      </div>
-
       <div className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#15262F] flex flex-col">
         {/* Chrome bar, same as the deck's windows on /partners */}
         <div className="flex items-center gap-3 px-3.5 h-9 shrink-0 bg-[#1B2E38] border-b border-black/30">
@@ -192,6 +178,20 @@ const DemoVideoStage: React.FC = () => {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3 mt-3">
+        <span className="min-w-0 truncate text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-white/55">
+          {t('heroDemo.stageLabel', { name: t(`heroDemo.cards.${clip.persona}.name`) })}
+        </span>
+        <Link
+          to={demoHref(DEMO_ROUTE)}
+          onClick={() => trackCtaClick('hero_video_open_demo')}
+          className="inline-flex shrink-0 items-center gap-1 text-[12px] font-semibold text-white/70 hover:text-white"
+        >
+          {t('heroDemo.endCard.fullDemo')}
+          <ArrowUpRight size={12} strokeWidth={2.6} />
+        </Link>
       </div>
     </div>
   );

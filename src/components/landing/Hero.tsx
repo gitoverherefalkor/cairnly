@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
             <img
               src={CairnlyWordmarkInverted}
               alt="Cairnly"
-              className="h-24 md:h-28 w-auto -mb-8"
+              className="h-24 md:h-28 w-auto -mb-8 -mt-[36px] md:-mt-[42px]"
             />
           </a>
 
