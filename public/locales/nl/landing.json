@@ -1,9 +1,9 @@
 {
   "hero": {
     "eyebrow": "01 · De vraag",
-    "titleA": "Duidelijkheid over je loopbaan.",
-    "titleHighlight": "Vind werk",
-    "titleB": "dat bij je past.",
+    "titleA": "Duidelijkheid over je carrière. Vind werk",
+    "titleHighlight": "dat bij je past.",
+    "titleB": "",
     "body": "Elke carrièrestap weegt twee soorten ongemak tegen elkaar af: de spanning van wat er mis kan gaan, en de trage teleurstelling van blijven waar je niet meer past. De meesten kiezen de teleurstelling, één jaar per keer.",
     "bodyEmphasis": "Cairnly is één assessment om die keuze echt te bekijken: hoe zou verandering er voor jou uitzien, en zou het dat waard zijn?",
     "ctaPrimary": "Aan de slag",
@@ -12,7 +12,7 @@
     "compareLink": "Hoe dit zich verhoudt tot gratis tests en andere tools",
     "screenshotMeta": "5 : 4 · AI-coachsessie",
     "screenshotAlt": "Cairnly AI-coachsessie",
-    "eyebrowDemo": "01 · Bekijk een echte sessie",
+    "eyebrowDemo": "Cairnly geeft duidelijkheid",
     "neitherLine": "Herken je je in geen van beide?",
     "neitherCta": "Vertel wat jou hier brengt",
     "scrollCue": "Waarom Cairnly anders is"
@@ -333,10 +333,10 @@
   },
   "finalCTA": {
     "titleA": "De richting die je nu zou kiezen,",
-    "titleHighlight": "geleefd hebt in gedachten.",
+    "titleHighlight": "het leven dat je nu leidt.",
     "cta": "Aan de slag",
     "footer": "Gebouwd met carrièrecoaches. Eerlijk over wat AI wel en niet kan zeggen.",
-    "titleB": "met het leven dat je"
+    "titleB": "en past bij"
   },
   "whyBuilt": {
     "eyebrow": "Waarom we dit hebben gebouwd",
@@ -623,7 +623,7 @@
       "toolkitLabel": "Het dashboard met je resultaten biedt ook:",
       "toolkit": [
         "Download je profiel als pdf",
-        "Vind actuele vacatures voor de voorgestelde rollen",
+        "Actuele vacatures voor de voorgestelde rollen",
         "Pas je cv aan om ze binnen te halen",
         "Motivatiebrieven op basis van je profiel"
       ],
