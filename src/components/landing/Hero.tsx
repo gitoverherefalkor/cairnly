@@ -5,7 +5,7 @@ import Reveal from './Reveal';
 import CompareLink from './CompareLink';
 import DemoVideoStage from './demo/DemoVideoStage';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted.png';
+import CairnlyWordmarkInverted from '@/logos/live/cairnly_logo_wordmark_inverted_tight.png';
 
 /**
  * Hero on the app's nature background. The proof is the public demo: one
@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
             <img
               src={CairnlyWordmarkInverted}
               alt="Cairnly"
-              className="h-24 md:h-28 w-auto -mb-8 -mt-[36px] md:-mt-[42px]"
+              className="h-[34px] md:h-[40px] w-auto"
             />
           </a>
 
@@ -55,6 +55,7 @@ const Hero: React.FC = () => {
               <h1>
                 {t('hero.titleA')}
                 <br />
+                {t('hero.titlePrefix') ? `${t('hero.titlePrefix')} ` : ''}
                 <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
               </h1>
             </Reveal>

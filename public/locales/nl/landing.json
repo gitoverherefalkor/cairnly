@@ -1,7 +1,8 @@
 {
   "hero": {
     "eyebrow": "01 · De vraag",
-    "titleA": "Duidelijkheid over je carrière. Vind werk",
+    "titleA": "Duidelijkheid over je carrière.",
+    "titlePrefix": "Vind werk",
     "titleHighlight": "dat bij je past.",
     "titleB": "",
     "body": "Elke carrièrestap weegt twee soorten ongemak tegen elkaar af: de spanning van wat er mis kan gaan, en de trage teleurstelling van blijven waar je niet meer past. De meesten kiezen de teleurstelling, één jaar per keer.",
