@@ -36,39 +36,32 @@ const Hero: React.FC = () => {
       </div>
 
       <div className="lp-container relative z-10">
-        {/* Header band: the brand lockup (left) sits level with the headline (right). */}
-        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-6">
-          <a href="/" className="lg:col-span-5 lg:col-start-1 self-start">
-            <img
-              src={CairnlyWordmarkInverted}
-              alt="Cairnly"
-              className="h-[34px] md:h-[40px] w-auto"
-            />
-          </a>
+        {/* Brand lockup, directly above the headline's first letter. */}
+        <a href="/" className="inline-block">
+          <img
+            src={CairnlyWordmarkInverted}
+            alt="Cairnly"
+            className="h-[34px] md:h-[40px] w-auto"
+          />
+        </a>
 
-          <div className="lg:col-span-7 lg:col-start-6">
-            <Reveal
-              as="div"
-              className="font-heading font-bold leading-[1.15] text-white"
-              style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
-            >
-              <h1>
-                {t('hero.titleA')}
-                {t('hero.titlePrefix') ? (
-                  <span className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
-                    <span>{t('hero.titlePrefix')}</span>
-                    <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span>
-                  </span>
-                ) : (
-                  <>
-                    <br />
-                    <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span> {t('hero.titleB')}
-                  </>
-                )}
-              </h1>
-            </Reveal>
-          </div>
-        </div>
+        {/* Headline: the white half starts at the container edge, the gold half
+            on the demo window's left edge. Same 12-column grid and gaps as the
+            content band below, so the two land on the same line. */}
+        <Reveal
+          as="div"
+          className="mt-8 md:mt-10 font-heading font-bold leading-[1.15] text-white"
+          style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', letterSpacing: '-0.015em' }}
+        >
+          <h1 className="grid items-baseline lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-1">
+            <span className="lg:col-span-5 lg:col-start-1 lg:whitespace-nowrap">
+              {t('hero.titleA')}
+            </span>
+            <span className="lp-text-gold-grad lg:col-span-7 lg:col-start-6">
+              {t('hero.titleHighlight')}
+            </span>
+          </h1>
+        </Reveal>
 
         {/* Eyebrow */}
         <Reveal className="mt-6 mb-8 md:mb-10">
