@@ -63,17 +63,10 @@ const Hero: React.FC = () => {
           </h1>
         </Reveal>
 
-        {/* Eyebrow */}
-        <Reveal className="mt-6 mb-8 md:mb-10">
-          <span className="whitespace-nowrap text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-            {t('hero.eyebrowDemo')}
-          </span>
-        </Reveal>
-
         {/* Content band: intro text and the small CTAs on the left, the
             recording on the right. DOM order (video, text) is the phone order:
             the moving picture first, the words under it. */}
-        <div className="grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
+        <div className="mt-8 md:mt-10 grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-8">
           <div className="min-w-0 lg:col-span-7 lg:col-start-6 lg:row-start-1">
             <Reveal as="div">
               <DemoVideoStage />
