@@ -1,0 +1,14 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 1760, "title": "Ops — rustige dag", "expand": "fit" },
+    { "file": "Blockers.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 1420, "title": "Ops — er zijn blockers", "expand": "fit" },
+    { "file": "Tokens.dc.html", "x": 0, "y": 1900, "w": 1200, "h": 1080, "title": "Bouwstenen + herindeling", "expand": "fit" }
+  ],
+  "annotations": [
+    { "id": "note-tabs", "x": 0, "y": -200, "w": 470, "text": "Drie tabbladen. Elk tabblad is al een overzicht: je ziet de cijfers en de nieuwste regel per onderdeel, en klapt open wat je wilt zien.\n\nDeze is echt klikbaar — Partners, Platform en Stats wisselen, en elke sectie klapt open en dicht." },
+    { "id": "note-visit", "x": 530, "y": -200, "w": 450, "text": "\"Sinds je vorige bezoek\" is het nieuwe stuk. Eén balk, altijd bovenaan, op alle drie de tabbladen, die zegt wat er veranderd is sinds je er voor het laatst was — en verder niets." },
+    { "id": "note-blockers", "x": 1560, "y": -200, "w": 470, "text": "Dezelfde pagina, maar nu zijn er wél blockers: een stilstaand plaatje, niet klikbaar.\n\nDe rode balk staat bóven de tabbladen, dus je ziet hem op welk tabblad je ook landt. Zijn er geen blockers, dan is er geen rode balk, geen Blockers-sectie en geen badge — alleen één groene regel op Platform dat het rustig is." },
+    { "id": "note-tokens", "x": 0, "y": 1700, "w": 470, "text": "Waar elke kleur, rand en schaduw vandaan komt, plus waar de twaalf oude tabbladen naartoe gaan. Bedoeld als spiekbriefje bij het bouwen." }
+  ],
+  "launch": { "view": "canvas" }
+}

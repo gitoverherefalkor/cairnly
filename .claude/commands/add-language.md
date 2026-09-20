@@ -1,5 +1,5 @@
 ---
-description: Add a new language to Cairnly end-to-end, following LOCALIZATION_PLAYBOOK.md. Pass the language (e.g. "de" or "German").
+description: Add a new language to Cairnly end-to-end, following docs/LOCALIZATION_PLAYBOOK.md. Pass the language (e.g. "de" or "German").
 argument-hint: <language code or name, e.g. "de" or "German">
 ---
 
@@ -9,7 +9,7 @@ If `$ARGUMENTS` is empty, ask the user which language to add (code + flag) befor
 
 ## Your job
 
-1. **Read `LOCALIZATION_PLAYBOOK.md` first** — it is the authoritative runbook. Do not assume you remember it; it gets updated. Also skim `scripts/i18n-glossary.json`.
+1. **Read `docs/LOCALIZATION_PLAYBOOK.md` first** — it is the authoritative runbook. Do not assume you remember it; it gets updated. Also skim `scripts/i18n-glossary.json`.
 
 2. **Resolve the language**: normalize the input to a BCP-47 code (e.g. "German"/"Duits" → `de`, "French"/"Frans" → `fr`), and note the native label + flag emoji for the switcher (e.g. `de` → "Deutsch" 🇩🇪).
 
@@ -47,4 +47,4 @@ If `$ARGUMENTS` is empty, ask the user which language to add (code + flag) befor
 ## Report at the end
 Summarize: what's now in the new language, what's still English (emails, n8n AI output, survey questions, Profile body — per playbook Section 7), the deploy status, and whether the language is live (`disabled:false`) or staged for review.
 
-Begin by reading `LOCALIZATION_PLAYBOOK.md`.
+Begin by reading `docs/LOCALIZATION_PLAYBOOK.md`.
