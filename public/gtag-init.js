@@ -29,5 +29,15 @@ function gtag() { dataLayer.push(arguments); }
   });
 })();
 
-gtag('js', new Date());
-gtag('config', 'AW-11471365050');
+// Only the live site configures the tag. The same bundle is served by dev
+// servers, Vercel branch deploys and Lovable's per-commit previews, and an
+// unguarded config call makes the tag report from those hosts too — which is
+// how five *.lovable.app domains ended up in Google's cross-domain
+// suggestions. Without a destination configured, gtag.js loads but sends
+// nothing, so conversions can only ever come from real traffic.
+// Mirrors PRODUCTION_HOST in src/lib/analytics.ts, which already does this
+// for the first-party beacons.
+if (window.location.hostname.endsWith('cairnly.io')) {
+  gtag('js', new Date());
+  gtag('config', 'AW-11471365050');
+}
