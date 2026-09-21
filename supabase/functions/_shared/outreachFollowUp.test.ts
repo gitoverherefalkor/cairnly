@@ -16,6 +16,7 @@ const base: FollowUpInput = {
   contactpersoon: null,
   step: 1,
   clicks: 0,
+  clickDays: 0,
   openingshaak: null,
   campaign: 'bureaus-sep26',
   codeIssued: false,
@@ -77,7 +78,7 @@ Deno.test('every skeleton signs off and asks at most one question', () => {
 });
 
 Deno.test('the skeleton matches the situation', () => {
-  assertStringIncludes(renderFollowUp(make({ clicks: 1 })), 'is geopend');
+  assertStringIncludes(renderFollowUp(make({ clicks: 1, clickDays: 2 })), 'is geopend');
   assertStringIncludes(renderFollowUp(make({ clicks: 4 })), 'een paar keer is bekeken');
   // Never opened: no claim that they looked, and the link comes along again.
   const quiet = renderFollowUp(make({ clicks: 0 }));
@@ -118,4 +119,17 @@ Deno.test('the quiet chase carries both links, and survives the trip to HTML', (
 Deno.test('the chase that did get a click keeps its single link-free ask', () => {
   const clicked = renderFollowUp(make({ clicks: 2 }));
   assertEquals(clicked.includes('http'), false);
+});
+
+Deno.test('the chase only claims to have seen them look when the evidence carries it', () => {
+  // One click on one day can still be a late scanner: no claim.
+  const dun = renderFollowUp(make({ clicks: 1, clickDays: 1 }));
+  assertEquals(dun.includes('Ik zag dat'), false);
+  assertStringIncludes(dun, 'Korte opvolging op mijn mail van vorige week.');
+  // ...and the opening line is not doubled now that it carries the whole load.
+  assertEquals(dun.split('Korte opvolging').length - 1, 1);
+
+  // Two clicks, or clicks on two days, is beyond what a scanner does.
+  assertStringIncludes(renderFollowUp(make({ clicks: 2, clickDays: 1 })), 'een paar keer is bekeken');
+  assertStringIncludes(renderFollowUp(make({ clicks: 1, clickDays: 2 })), 'Ik zag dat de demo bij jullie is geopend');
 });

@@ -90,12 +90,28 @@ interface SubjectStat {
   momenten_gemiddeld: number | null;
 }
 
+interface SendState {
+  gepauzeerd: boolean;
+  next_allowed_at: string | null;
+  laatste_fout: string | null;
+}
+
+interface SendInfo {
+  state: SendState | null;
+  in_wachtrij: number;
+  bezig: number;
+  mislukt: number;
+  vandaag_verzonden: number;
+  recent: Array<{ id: string; slug: string; soort: string; status: string; sent_at: string | null; fout: string | null }>;
+}
+
 interface ListResponse {
   prospects: OutreachProspect[];
   counters: Counters;
   campaigns: string[];
   log: ClickRow[];
   subject_stats: SubjectStat[];
+  send: SendInfo;
 }
 
 // ─── Shared styles (same language as MarketingTab / PartnersTab) ─────────────
@@ -650,6 +666,85 @@ function SubjectTest({ stats }: { stats: SubjectStat[] }) {
   );
 }
 
+/**
+ * The send queue: what is waiting, and the switch that stops it.
+ *
+ * Deliberately not a control surface. There is no "send this now" here,
+ * because the pacing rules are the whole point and a button that skips them
+ * would be the first thing reached for on a slow afternoon. The queue fills
+ * itself when WF11 creates a chase; the only thing a human does here is stop
+ * it. To cancel one mail, delete its draft in Gmail.
+ */
+function SendQueue({ send, onToggle }: { send: SendInfo; onToggle: (pause: boolean) => void }) {
+  const [busy, setBusy] = useState(false);
+  const paused = send.state?.gepauzeerd ?? true;
+  const next = send.state?.next_allowed_at ? new Date(send.state.next_allowed_at) : null;
+  const wachtend = next && next.getTime() > Date.now() ? next : null;
+
+  const flip = async () => {
+    setBusy(true);
+    try {
+      await onToggle(!paused);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className={`${card} px-4 py-3`}>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className={label}>Sending</span>
+          <span
+            className={`text-[11px] px-2 py-0.5 rounded-full border ${
+              paused
+                ? 'bg-white/[0.05] text-white/60 border-white/[0.14]'
+                : 'bg-atlas-teal/15 text-atlas-teal border-atlas-teal/40'
+            }`}
+          >
+            {paused ? 'Paused' : 'Running'}
+          </span>
+        </div>
+        <button
+          onClick={flip}
+          disabled={busy}
+          className={`text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
+            paused
+              ? 'border-atlas-teal/40 text-atlas-teal hover:bg-atlas-teal/10'
+              : 'border-amber-500/40 text-amber-300 hover:bg-amber-500/10'
+          }`}
+        >
+          {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : paused ? 'Start sending' : 'Stop everything'}
+        </button>
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-white/70">
+        <span>{send.in_wachtrij} waiting</span>
+        <span>{send.vandaag_verzonden} of 8 sent today</span>
+        {send.bezig > 0 && <span className="text-amber-300">{send.bezig} in flight</span>}
+        {send.mislukt > 0 && <span className="text-red-300">{send.mislukt} failed</span>}
+        {wachtend && (
+          <span className="text-white/50">
+            next slot {wachtend.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        )}
+      </div>
+
+      {send.state?.laatste_fout && (
+        <div className="mt-2 text-[11px] text-red-300/90">Last error: {send.state.laatste_fout}</div>
+      )}
+
+      <p className="mt-2 text-[11px] text-white/50">
+        Chases queue themselves once WF11 has written the draft; replies never do. Mail goes out
+        Monday from 13:00, Friday until 12:00, otherwise 09:00 to 16:30, never at the weekend, at
+        most 8 a day with 24 to 53 minutes between them. Those rules live in the database, so they
+        hold however often the workflow runs. Editing a draft in Gmail changes what is sent;
+        deleting it cancels that mail.
+      </p>
+    </div>
+  );
+}
+
 function RawLog({ rows }: { rows: ClickRow[] }) {
   const [open, setOpen] = useState(false);
   return (
@@ -741,6 +836,18 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
   useEffect(() => {
     load();
   }, [load]);
+
+  // The kill switch. Patched in place rather than reloading the whole table,
+  // because stopping the machine should feel instant.
+  const toggleSending = useCallback(async (pause: boolean) => {
+    try {
+      const res = await callOutreach<{ state: SendState }>({ action: 'send_pause', gepauzeerd: pause });
+      setData((prev) => (prev ? { ...prev, send: { ...prev.send, state: res.state } } : prev));
+      toast.success(pause ? 'Sending stopped' : 'Sending started');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not change sending');
+    }
+  }, []);
 
   // Patch a row in place after a save so the table does not jump while the
   // user is still editing the next one.
@@ -890,6 +997,8 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           { on: onlyDue, onToggle: () => setOnlyDue((v) => !v) },
         )}
       </div>
+
+      {data.send && <SendQueue send={data.send} onToggle={toggleSending} />}
 
       <SubjectTest stats={data.subject_stats} />
 

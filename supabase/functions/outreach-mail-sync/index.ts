@@ -414,7 +414,7 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
 
   const slugs = pending.map((p) => p.slug as string);
   const [statsRes, mailsRes] = await Promise.all([
-    supabase.from('outreach_prospect_stats').select('slug, kliks_bevestigd').in('slug', slugs),
+    supabase.from('outreach_prospect_stats').select('slug, kliks_bevestigd, dagen_bevestigd').in('slug', slugs),
     supabase
       .from('outreach_mails')
       .select('slug, gmail_thread_id, subject, to_email, direction, sent_at')
@@ -425,6 +425,9 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
   if (mailsRes.error) throw mailsRes.error;
 
   const clicksBySlug = new Map((statsRes.data ?? []).map((r) => [r.slug as string, Number(r.kliks_bevestigd ?? 0)]));
+  // How many separate days those clicks fell on: the evidence that decides
+  // whether the chase may claim to have seen them look. See templateClicked.
+  const clickDaysBySlug = new Map((statsRes.data ?? []).map((r) => [r.slug as string, Number(r.dagen_bevestigd ?? 0)]));
   const lastMail = new Map<string, Record<string, unknown>>();
   for (const m of mailsRes.data ?? []) {
     if (!lastMail.has(m.slug as string)) lastMail.set(m.slug as string, m as Record<string, unknown>);
@@ -460,6 +463,7 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
       contactpersoon: (p.contactpersoon as string | null) ?? null,
       step: status === 'verzonden' ? 1 : 2,
       clicks: clicksBySlug.get(slug) ?? 0,
+      clickDays: clickDaysBySlug.get(slug) ?? 0,
       openingshaak: (p.openingshaak as string | null) ?? null,
       campaign: (p.campaign as string | null) ?? null,
       codeIssued: Boolean(p.partner_slug),
@@ -483,6 +487,50 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
   }
 
   return drafts;
+}
+
+/**
+ * Put a freshly created chase in the send queue.
+ *
+ * Chases queue themselves because their content is a skeleton that was signed
+ * off once, not per mail. Replies never do: those answer a person who wrote
+ * to us, and a human reads them first. That difference is the whole policy,
+ * and it lives here rather than in the workflow.
+ *
+ * The draft is the unit of work — the queue only carries its id, so editing
+ * the draft in Gmail changes what ships and deleting it cancels the send.
+ *
+ * Never fatal. A chase that fails to queue still sits in Drafts, and losing
+ * the automation is better than losing the sync that logs the mail.
+ */
+async function queueChase(
+  supabase: SupabaseClient,
+  slug: string,
+  draftId: string,
+  toEmail: string | null,
+): Promise<void> {
+  const { data: last } = await supabase
+    .from('outreach_mails')
+    .select('gmail_thread_id, to_email')
+    .eq('slug', slug)
+    .order('sent_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const { error } = await supabase.from('outreach_send_queue').insert({
+    slug,
+    soort: 'chase',
+    draft_id: draftId,
+    thread_id: (last?.gmail_thread_id as string | null) ?? null,
+    to_email: toEmail ?? (last?.to_email as string | null) ?? null,
+    // Chases are on a cadence; a first mail can always wait a slot.
+    prioriteit: 1,
+  });
+  // 23505 is the partial unique index: this draft is already queued, which is
+  // exactly what should happen when a sync is retried.
+  if (error && error.code !== '23505') {
+    console.error('[outreach-mail-sync] could not queue chase for', slug, error);
+  }
 }
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
@@ -527,10 +575,11 @@ serve(async (req) => {
           .from('outreach_prospects')
           .update({ followup_draft_id: draftId, updated_at: new Date().toISOString() })
           .eq('slug', slug)
-          .select('slug')
+          .select('slug, to_email')
           .maybeSingle();
         if (error) throw error;
         if (!data) return json({ error: 'Unknown prospect' }, 404);
+        await queueChase(supabase, slug, draftId, (data.to_email as string | null) ?? null);
         return json({ ok: true, slug });
       }
 

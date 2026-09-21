@@ -157,6 +157,14 @@ verify_jwt = false
 [functions.outreach-mail-sync]
 verify_jwt = false
 
+# Outreach send: called by n8n WF12 on a schedule, not by a user, so no JWT.
+# Same x-shared-secret gate as the sync. It hands out at most one already
+# written Gmail draft per call and records the result; every pacing rule
+# (window, daily cap, gap, kill switch) lives in outreach_send_claim() in the
+# database, so polling harder cannot send more mail.
+[functions.outreach-send]
+verify_jwt = false
+
 # Daily Google Ads push: called by a Google Ads Script, which cannot hold a
 # Supabase session, so no JWT. Gated by its own x-shared-secret header
 # (GOOGLE_ADS_INGEST_SECRET, deliberately NOT N8N_SHARED_SECRET, so the value

@@ -93,7 +93,7 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, demoRes, subjectRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
+      const [prospectsRes, statsRes, demoRes, subjectRes, sendStateRes, sendQueueRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
@@ -108,6 +108,13 @@ serve(async (req) => {
         // Subject-line A/B readout. Underpowered at the current list size;
         // the tab says so next to the numbers rather than in a comment.
         supabase.from('outreach_subject_stats').select('*'),
+        // The send queue: the kill switch, the pacing state, and what is
+        // waiting. Read-only here; WF12 is the only thing that sends.
+        supabase.from('outreach_send_state').select('*').maybeSingle(),
+        supabase.from('outreach_send_queue')
+          .select('id, slug, soort, status, sent_at, fout, pogingen, created_at')
+          .order('created_at', { ascending: false })
+          .limit(120),
         // Rows, not a head count: "clicks today" has to apply the same scanner
         // rule as everything else, and that needs each row's slug and time.
         supabase
@@ -134,6 +141,8 @@ serve(async (req) => {
       if (statsRes.error) throw statsRes.error;
       if (demoRes.error) throw demoRes.error;
       if (subjectRes.error) throw subjectRes.error;
+      if (sendStateRes.error) throw sendStateRes.error;
+      if (sendQueueRes.error) throw sendQueueRes.error;
       if (todayRes.error) throw todayRes.error;
       if (logRes.error) throw logRes.error;
       if (mailsRes.error) throw mailsRes.error;
@@ -224,7 +233,43 @@ serve(async (req) => {
         verdacht: !row.is_bot && isSuspect(row.slug, row.created_at),
       }));
 
-      return ok({ prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [] }, corsHeaders);
+      // Amsterdam day, matching outreach_send_claim's own daily cap.
+      const vandaag = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Amsterdam' });
+      const queue = sendQueueRes.data ?? [];
+      const send = {
+        state: sendStateRes.data ?? null,
+        in_wachtrij: queue.filter((q) => q.status === 'queued').length,
+        bezig: queue.filter((q) => q.status === 'sending').length,
+        mislukt: queue.filter((q) => q.status === 'failed').length,
+        vandaag_verzonden: queue.filter(
+          (q) =>
+            q.sent_at &&
+            new Date(q.sent_at as string).toLocaleDateString('en-CA', { timeZone: 'Europe/Amsterdam' }) === vandaag,
+        ).length,
+        recent: queue.slice(0, 20),
+      };
+
+      return ok(
+        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send },
+        corsHeaders,
+      );
+    }
+
+    // ── send_pause ──────────────────────────────────────────────────────────
+    // The kill switch, and deliberately the ONLY write this function offers on
+    // the send side. Queuing happens in outreach-mail-sync when a draft is
+    // created, and sending happens in WF12; /ops can stop the machine but
+    // cannot make it send something.
+    if (action === 'send_pause') {
+      const gepauzeerd = Boolean(body.gepauzeerd);
+      const { data, error } = await supabase
+        .from('outreach_send_state')
+        .update({ gepauzeerd, updated_at: new Date().toISOString() })
+        .eq('id', true)
+        .select('*')
+        .maybeSingle();
+      if (error) throw error;
+      return ok({ state: data }, corsHeaders);
     }
 
     // ── update ──────────────────────────────────────────────────────────────

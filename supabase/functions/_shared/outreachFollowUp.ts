@@ -20,6 +20,13 @@ export interface FollowUpInput {
   step: 1 | 2;
   /** Confirmed, human clicks on the demo link. Scanner hits are not in here. */
   clicks: number;
+  /**
+   * On how many separate days those clicks fell. The scanner filter only
+   * covers the two minutes after sending, and enterprise mail security
+   * imitates a real browser, so a single click is weak evidence that a PERSON
+   * looked. Clicks spread over two days are not something a scanner produces.
+   */
+  clickDays: number;
   /** The bespoke hook from the seed, the same one that opened the first mail. */
   openingshaak: string | null;
   /** utm_campaign, so the demo link in the chase attributes to the same batch. */
@@ -95,18 +102,35 @@ export function salutation(input: Pick<FollowUpInput, 'contactpersoon' | 'bureau
 
 // ─── The approved skeletons ──────────────────────────────────────────────────
 
-/** Chase 1, they opened the demo. */
+/**
+ * Chase 1, the demo was opened.
+ *
+ * The mail only CLAIMS to have seen that when the evidence can carry it. A
+ * single confirmed click is not proof a person looked: the scanner filter
+ * only rules out the first two minutes after sending, and enterprise mail
+ * security spoofs a real browser user agent, so a late scanner hit passes as
+ * human. That used to be caught by Sjoerd reading the draft; now that chases
+ * send themselves, a wrong claim would go out unread. Clicks on two different
+ * days, or more than one click, are beyond what a scanner does.
+ *
+ * With thin evidence the observation is simply left out. The rest of the mail
+ * works fine without it, and a question that does not presume anything is
+ * always safe to send.
+ */
 export function templateClicked(input: FollowUpInput): string {
-  const seen = input.clicks > 1
-    ? 'Ik zag dat de demo bij jullie een paar keer is bekeken, dus je hebt een indruk kunnen krijgen.'
-    : 'Ik zag dat de demo bij jullie is geopend, dus je hebt een indruk kunnen krijgen.';
+  const solide = input.clicks > 1 || input.clickDays > 1;
+  const seen = !solide
+    ? 'Korte opvolging op mijn mail van vorige week.'
+    : input.clicks > 1
+      ? 'Ik zag dat de demo bij jullie een paar keer is bekeken, dus je hebt een indruk kunnen krijgen.'
+      : 'Ik zag dat de demo bij jullie is geopend, dus je hebt een indruk kunnen krijgen.';
   const code = input.codeIssued
     ? 'De testcode die ik je stuurde blijft gewoon geldig, ook als je er later pas aan toekomt.'
     : 'Wil je het zelf uitproberen met een eigen casus, dan stuur ik je een gratis testcode, zonder voorwaarden. Eén regel terug is genoeg.';
   return [
     salutation(input),
     '',
-    `Korte opvolging op mijn mail van vorige week. ${seen}`,
+    solide ? `Korte opvolging op mijn mail van vorige week. ${seen}` : seen,
     '',
     COACH_QUOTE,
     '',
@@ -206,7 +230,10 @@ export const FOLLOW_UP_TOOL = {
 
 export function buildFollowUpMessage(input: FollowUpInput): string {
   const opened = input.clicks > 0
-    ? `Ja, ${input.clicks} keer (bevestigde opens, geen scanners)`
+    ? `Ja, ${input.clicks} keer op ${input.clickDays} ${input.clickDays === 1 ? 'dag' : 'dagen'}` +
+      (input.clicks > 1 || input.clickDays > 1
+        ? ' (solide bewijs dat een mens keek)'
+        : ' (\u00e9\u00e9n klik op \u00e9\u00e9n dag: kan nog een scanner zijn, dus NIET beweren dat je het zag)')
     : 'Nee, de demo is nooit geopend';
   return [
     `Bureau: ${input.bureau}`,
