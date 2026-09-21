@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Globe } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import DemoStage from '@/components/landing/demo/DemoStage';
+import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
 import { demoSessionLanguage } from '@/demo/loadFixture';
 import { trackCtaClick } from '@/lib/analytics';
@@ -46,20 +47,30 @@ const PartnersHero: React.FC = () => {
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
-      {/* Cairn silhouette */}
-      <div className="absolute left-[-30px] bottom-[-50px] pointer-events-none opacity-[0.07]">
-        <img src={CairnSymbolInvert} alt="" className="w-[200px] md:w-[260px] h-auto" />
-      </div>
-
       <div className="lp-container relative z-10">
-        <Reveal as="div">
-          <h1
-            className="font-heading font-bold leading-[1.15] text-white"
-            style={{ fontSize: 'clamp(28px, 3.4vw, 48px)', letterSpacing: '-0.015em', maxWidth: 820 }}
-          >
-            {t('hero.title')}
-          </h1>
-        </Reveal>
+        {/* The cairn sits in the gap the headline leaves, above the deck, and
+            is laid out rather than absolutely positioned so it cannot drift
+            across breakpoints. Hidden below lg, where there is no gap: on a
+            phone the headline uses the full width. */}
+        <div className="relative">
+          <Reveal as="div">
+            <h1
+              className="font-heading font-bold leading-[1.15] text-white"
+              style={{ fontSize: 'clamp(28px, 3.4vw, 48px)', letterSpacing: '-0.015em', maxWidth: 820 }}
+            >
+              {t('hero.title')}
+            </h1>
+          </Reveal>
+          {/* Absolute, so a portrait watermark cannot stretch the header row
+              and push the body paragraph down. It lands in the space the
+              820px headline and the 3xl paragraph both leave on the right. */}
+          <img
+            src={CairnSymbolInvert}
+            alt=""
+            aria-hidden="true"
+            className="hidden lg:block absolute right-0 top-[-8px] w-[150px] xl:w-[180px] h-auto opacity-[0.10] pointer-events-none"
+          />
+        </div>
 
         <Reveal as="div" className="mt-8 max-w-3xl">
           <p className="text-base md:text-lg text-white/70 font-medium leading-relaxed">
@@ -77,7 +88,10 @@ const PartnersHero: React.FC = () => {
           <div className="mt-12 grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-10">
             <div className="lg:col-span-6 lg:col-start-7 xl:col-span-7 xl:col-start-6 lg:row-start-1 lg:self-stretch">
               <Reveal as="div" className="lg:h-full">
-                <DemoStage screens={['chat', 'dashboard']} showToggle={false} />
+                {/* step=30, not the 14px default: with only two windows the
+                    dashboard has to peek out far enough to read as a second
+                    screen rather than as the front one's drop shadow. */}
+                <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={30} />
               </Reveal>
             </div>
             <div className="lg:col-span-6 xl:col-span-5 lg:col-start-1 lg:row-start-1">
@@ -87,6 +101,23 @@ const PartnersHero: React.FC = () => {
             </div>
           </div>
         </HeroPersonaProvider>
+
+        {/* What every suggested role comes back rated on, using the real
+            per-career pill row the report renders rather than a landing-only
+            restyle. Same band as the homepage's Methodology section. */}
+        <Reveal as="div" className="mt-14 md:mt-16">
+          <div
+            className="rounded-2xl px-6 py-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
+              {t('hero.pillsLabel')}
+            </p>
+            <div className="flex justify-center">
+              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -155,22 +186,24 @@ const SessionBrief: React.FC<SessionBriefProps> = ({ t }) => {
         ))}
       </div>
 
+      {/* The live session leads and the static PDF follows (2026-09-21). The
+          specimen report is the easier artifact to ship, which is exactly why
+          it kept winning the primary slot; the session is what actually sells
+          the product, so it takes the teal and the sample drops to an outline. */}
       <div className="mt-8 flex flex-col items-start gap-3">
-        <Link to={SAMPLE_ROUTE} onClick={() => trackCtaClick('partners_sample')} className="lp-btn-primary">
-          {t('hero.sampleCta')}
+        <Link to={partnerDemoLink()} onClick={() => trackCtaClick('partners_demo_chat')} className="lp-btn-primary">
+          {t('hero.demoCta')}
           <ArrowRight size={18} strokeWidth={2.4} />
         </Link>
         <Link
-          to={partnerDemoLink()}
-          onClick={() => trackCtaClick('partners_demo_chat')}
+          to={SAMPLE_ROUTE}
+          onClick={() => trackCtaClick('partners_sample')}
           className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-[15px] font-bold text-white/85 transition-colors hover:border-white hover:text-white"
         >
-          {t('hero.demoCta')}
+          {t('hero.sampleCta')}
           <ArrowUpRight size={16} strokeWidth={2.4} />
         </Link>
       </div>
-
-      <p className="mt-6 text-[13.5px] text-white/55 font-medium leading-relaxed">{t('hero.stageCaption')}</p>
     </div>
   );
 };

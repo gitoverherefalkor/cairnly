@@ -26,7 +26,7 @@ type StillLang = 'en' | 'nl';
 const stillLang = (language: string | undefined): StillLang =>
   (language || 'en').slice(0, 2).toLowerCase() === 'nl' ? 'nl' : 'en';
 
-/** Offset per depth step for the windows stacked behind the front one. */
+/** Default offset per depth step for the windows stacked behind the front one. */
 const STEP_PX = 14;
 
 /** Natural size of every still (scripts/demo-capture-stills.mjs). The frame is
@@ -50,9 +50,15 @@ interface DemoStageProps {
   showToggle?: boolean;
   /** Replace the "Playing: …" label. */
   label?: string;
+  /**
+   * Pixels each window behind the front one is offset by. Raise it when the
+   * deck holds few screens and the point is that there IS another one back
+   * there: at the 14px default a two-window deck reads as a shadow.
+   */
+  step?: number;
 }
 
-const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label }) => {
+const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label, step = STEP_PX }) => {
   const { t, i18n } = useTranslation('landing');
   const { persona, setPersona, demoHref } = useHeroPersona();
   const lang = stillLang(i18n.language);
@@ -104,10 +110,14 @@ const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label
       </div>
 
       {/* The deck. Top/right margin makes room for the offsets of the windows
-          behind. All three windows share one grid cell, so they overlap without
-          absolute positioning and the tallest (they are all one still tall)
-          gives the deck its height. */}
-      <div className="relative grid" style={{ marginTop: STEP_PX * 2, marginRight: STEP_PX * 2 }}>
+          behind: one step per window other than the front one, so a two-screen
+          deck does not reserve the room a three-screen deck needs. All windows
+          share one grid cell, so they overlap without absolute positioning and
+          the tallest (they are all one still tall) gives the deck its height. */}
+      <div
+        className="relative grid"
+        style={{ marginTop: step * (SCREENS.length - 1), marginRight: step * (SCREENS.length - 1) }}
+      >
         {SCREENS.map((screen, i) => {
           const depth = (i - front + SCREENS.length) % SCREENS.length;
           const isFront = depth === 0;
@@ -162,7 +172,7 @@ const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label
               key={screen.slug}
               className="col-start-1 row-start-1 transition-all duration-500 ease-out"
               style={{
-                transform: `translate(${depth * STEP_PX}px, ${-depth * STEP_PX}px)`,
+                transform: `translate(${depth * step}px, ${-depth * step}px)`,
                 zIndex: 30 - depth * 10,
                 opacity: 1 - depth * 0.08,
               }}
