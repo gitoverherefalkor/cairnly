@@ -93,11 +93,11 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, demoRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
+      const [prospectsRes, statsRes, demoRes, subjectRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, subject_variant, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -105,6 +105,9 @@ serve(async (req) => {
         // moments the best session at this agency got. Empty for every
         // visit before 2026-09-21, when the slug first reached analytics.
         supabase.from('outreach_prospect_demo').select('*'),
+        // Subject-line A/B readout. Underpowered at the current list size;
+        // the tab says so next to the numbers rather than in a comment.
+        supabase.from('outreach_subject_stats').select('*'),
         // Rows, not a head count: "clicks today" has to apply the same scanner
         // rule as everything else, and that needs each row's slug and time.
         supabase
@@ -130,6 +133,7 @@ serve(async (req) => {
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
       if (demoRes.error) throw demoRes.error;
+      if (subjectRes.error) throw subjectRes.error;
       if (todayRes.error) throw todayRes.error;
       if (logRes.error) throw logRes.error;
       if (mailsRes.error) throw mailsRes.error;
@@ -220,7 +224,7 @@ serve(async (req) => {
         verdacht: !row.is_bot && isSuspect(row.slug, row.created_at),
       }));
 
-      return ok({ prospects, counters, campaigns, log }, corsHeaders);
+      return ok({ prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [] }, corsHeaders);
     }
 
     // ── update ──────────────────────────────────────────────────────────────

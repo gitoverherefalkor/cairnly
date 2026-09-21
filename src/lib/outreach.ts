@@ -110,6 +110,8 @@ export interface OutreachProspect {
   momenten_gemiddeld: number | null;
   sessies_met_cta: number;
   sessies_engaged: number;
+  /** Which subject line this agency gets. See SUBJECT_VARIANTS. */
+  subject_variant: 'a' | 'b' | null;
   /** Phase 3: partner hand-off. */
   partner_slug: string | null;
   /** Set by the "Draft follow-up" button; cleared once the mail actually goes out. */
@@ -304,4 +306,31 @@ export function compareWorkFirst(a: OutreachProspect, b: OutreachProspect, now: 
   if (dueA === 1 && fa && fb && fa.daysLate !== fb.daysLate) return fb.daysLate - fa.daysLate;
 
   return compareProspects(a, b);
+}
+
+/**
+ * The two subject lines under test.
+ *
+ * They differ on one axis and one only: 'a' announces that a question is
+ * coming, 'b' asks it. Tone, length and register are held equal, so whatever
+ * the numbers do can be attributed to that difference rather than to three
+ * things at once. 'b' repeats the question the mail body already asks.
+ *
+ * Dutch, because they are the actual subject lines, not interface labels.
+ *
+ * Read the numbers with care. At the current list size each arm is about
+ * fifteen agencies, and against a 27.5% baseline click rate that can only
+ * surface a tripling. This is a direction, not a result; a real test of a
+ * business-relevant lift needs roughly 120 per arm.
+ */
+export const SUBJECT_VARIANTS = {
+  a: 'Vraagje over jullie spoor 2-trajecten',
+  b: 'Doen jullie het loopbaanonderzoek in spoor 2 zelf?',
+} as const;
+
+export type SubjectVariant = keyof typeof SUBJECT_VARIANTS;
+
+/** The line to actually send, or null when an agency was never assigned one. */
+export function subjectFor(p: Pick<OutreachProspect, 'subject_variant'>): string | null {
+  return p.subject_variant ? SUBJECT_VARIANTS[p.subject_variant] : null;
 }

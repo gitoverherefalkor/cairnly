@@ -40,6 +40,7 @@ const base: OutreachProspect = {
   momenten_gemiddeld: null,
   sessies_met_cta: 0,
   sessies_engaged: 0,
+  subject_variant: 'a',
   partner_slug: null,
   followup_requested_at: null,
   followup_draft_id: null,

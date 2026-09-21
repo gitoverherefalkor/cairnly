@@ -30,6 +30,7 @@ import {
   OUTREACH_STATUSES,
   STATUS_LABELS,
   SENTIMENT_LABELS,
+  SUBJECT_VARIANTS,
   compareWorkFirst,
   followUp,
   followUpDraftState,
@@ -79,11 +80,22 @@ interface UpdateResponse {
   prospect: Pick<OutreachProspect, 'slug' | 'status' | 'notities' | 'updated_at'>;
 }
 
+interface SubjectStat {
+  variant: 'a' | 'b';
+  bureaus: number;
+  verstuurd: number;
+  met_klik: number;
+  reacties: number;
+  positieve_reacties: number;
+  momenten_gemiddeld: number | null;
+}
+
 interface ListResponse {
   prospects: OutreachProspect[];
   counters: Counters;
   campaigns: string[];
   log: ClickRow[];
+  subject_stats: SubjectStat[];
 }
 
 // ─── Shared styles (same language as MarketingTab / PartnersTab) ─────────────
@@ -368,6 +380,14 @@ function ProspectRow({
         <span className={`text-[11px] px-1.5 py-0.5 rounded border ${TIER_CLS[p.tier ?? ''] ?? TIER_CLS.C}`}>
           {p.tier ?? '-'}
         </span>
+        {p.subject_variant && (
+          <span
+            className="ml-1 text-[10px] px-1 py-0.5 rounded border border-white/[0.14] bg-white/[0.05] text-white/60 uppercase"
+            title={`Subject ${p.subject_variant.toUpperCase()}: "${SUBJECT_VARIANTS[p.subject_variant]}"`}
+          >
+            {p.subject_variant}
+          </span>
+        )}
       </td>
       <td className="px-3 py-2.5 text-xs text-white/80 max-w-[12rem]">
         <div className="truncate" title={p.contactpersoon ?? ''}>{p.contactpersoon ?? '-'}</div>
@@ -554,6 +574,81 @@ function MailHistory({ mails }: { mails: OutreachMail[] }) {
 }
 
 // ─── Raw click log ────────────────────────────────────────────────────────────
+
+/**
+ * Subject-line A/B readout.
+ *
+ * The caveat is rendered, not hidden in a comment, because a two-row table of
+ * percentages invites a conclusion it cannot carry: each arm is about fifteen
+ * agencies, and against the observed baseline only a tripling would show. The
+ * panel therefore leads with the counts and states what it would take to call
+ * a winner.
+ */
+function SubjectTest({ stats }: { stats: SubjectStat[] }) {
+  if (!stats.length) return null;
+  const byVariant = new Map(stats.map((s) => [s.variant, s]));
+  const rows: Array<'a' | 'b'> = ['a', 'b'];
+  const pct = (n: number, of: number) => (of > 0 ? `${Math.round((100 * n) / of)}%` : '-');
+
+  return (
+    <div className={`${card} px-4 py-3`}>
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className={label}>Subject line test</div>
+        <div className="text-[11px] text-white/50">
+          Direction, not a result — about 15 agencies per arm reads only a tripling. A real
+          call needs roughly 120 each.
+        </div>
+      </div>
+      <table className="w-full mt-2 text-sm">
+        <thead>
+          <tr className="text-left text-[11px] uppercase tracking-[0.12em] text-white/45">
+            <th className="py-1 pr-3 font-normal">Subject</th>
+            <th className="py-1 pr-3 font-normal">Sent</th>
+            <th className="py-1 pr-3 font-normal">Clicked</th>
+            <th className="py-1 pr-3 font-normal">Replied</th>
+            <th className="py-1 pr-3 font-normal">Positive</th>
+            <th className="py-1 font-normal">Demo depth</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((v) => {
+            const s = byVariant.get(v);
+            const sent = s?.verstuurd ?? 0;
+            return (
+              <tr key={v} className="border-t border-white/[0.06] align-top">
+                <td className="py-1.5 pr-3">
+                  <span className="text-[10px] uppercase text-white/55 mr-1.5">{v}</span>
+                  <span className="text-white/[0.88]">{SUBJECT_VARIANTS[v]}</span>
+                  <div className="text-[11px] text-white/45">
+                    {s?.bureaus ?? 0} assigned{sent < (s?.bureaus ?? 0) ? `, ${(s?.bureaus ?? 0) - sent} still to send` : ''}
+                  </div>
+                </td>
+                <td className="py-1.5 pr-3 text-white/[0.88]">{sent}</td>
+                <td className="py-1.5 pr-3 text-white/[0.88]">
+                  {s?.met_klik ?? 0} <span className="text-white/45">{pct(s?.met_klik ?? 0, sent)}</span>
+                </td>
+                <td className="py-1.5 pr-3 text-white/[0.88]">
+                  {s?.reacties ?? 0} <span className="text-white/45">{pct(s?.reacties ?? 0, sent)}</span>
+                </td>
+                <td className="py-1.5 pr-3 text-white/[0.88]">{s?.positieve_reacties ?? 0}</td>
+                <td className="py-1.5 text-white/[0.88]">
+                  {s?.momenten_gemiddeld == null
+                    ? <span className="text-white/45" title="Nobody with this subject has visited the demo with the slug attached yet">-</span>
+                    : `${s.momenten_gemiddeld}/7`}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="mt-2 text-[11px] text-white/50">
+        Every mail before 21 September carried subject A, so A&apos;s sent count includes
+        history and B starts at zero. The two differ on one axis: A announces a question,
+        B asks it. The row pills in the table below say which line an agency should get.
+      </p>
+    </div>
+  );
+}
 
 function RawLog({ rows }: { rows: ClickRow[] }) {
   const [open, setOpen] = useState(false);
@@ -795,6 +890,8 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           { on: onlyDue, onToggle: () => setOnlyDue((v) => !v) },
         )}
       </div>
+
+      <SubjectTest stats={data.subject_stats} />
 
       <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
         <label className="block">
