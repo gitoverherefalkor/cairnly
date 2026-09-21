@@ -43,12 +43,18 @@ export function usePageViewTracking() {
         });
     });
 
-    // Engaged-session signal: if the visitor is still on this page after 10s,
-    // mark the session engaged so it no longer counts as a bounce. The cleanup
-    // clears the timer on navigation/unmount, so a quick exit stays a bounce.
+    // Engaged-view signal: if the visitor is still on this page after 10s, mark
+    // it engaged so the session no longer counts as a bounce. The cleanup clears
+    // the timer on navigation/unmount, so a quick exit stays a bounce, and the
+    // effect is keyed on pathname so each route gets its own 10s window.
+    //
+    // `path` scopes the update server-side to the view that earned it. Without
+    // it, track-view falls back to marking every row in the session.
     const engageTimer = setTimeout(() => {
       supabase.functions
-        .invoke('track-view', { body: { session_id: sessionId, engaged: true } })
+        .invoke('track-view', {
+          body: { session_id: sessionId, engaged: true, path: location.pathname },
+        })
         .catch(() => {
           /* ignore */
         });

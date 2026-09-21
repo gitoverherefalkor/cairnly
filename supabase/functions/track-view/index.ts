@@ -103,13 +103,26 @@ serve(async (req) => {
     return error;
   };
 
-  // Engage ping — fired ~10s into a page view. Marks the session as engaged so
-  // it no longer counts as a bounce.
+  // Engage ping — fired ~10s into a page view, marking that view engaged so the
+  // session no longer counts as a bounce.
+  //
+  // Scoped to the path that actually earned the 10 seconds. Without that filter
+  // the first page to reach 10s retroactively marked every row in the session,
+  // including pages the visitor bounced straight off, which made any per-path
+  // engagement rate meaningless. Bounce itself was never affected: ops_traffic_stats()
+  // only considers single-pageview sessions, where there is one row either way.
+  //
+  // A ping carrying no path falls back to the old session-wide update — bundles
+  // cached from before this shipped don't send one, and losing their signal
+  // outright would be worse than the imprecision.
   if (body.engaged === true) {
-    const { error } = await supabase
+    const engagedPath = typeof body.path === 'string' ? body.path.slice(0, 300) : '';
+    let query = supabase
       .from('page_views')
       .update({ engaged: true })
       .eq('session_id', sessionId);
+    if (engagedPath) query = query.eq('path', engagedPath);
+    const { error } = await query;
     if (error) console.error('[track-view] engage update error:', error);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
