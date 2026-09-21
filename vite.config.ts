@@ -38,6 +38,7 @@ export default defineConfig(({ mode }) => ({
       'supabase/functions/_shared/outreach.test.ts',
       'supabase/functions/_shared/outreachMail.test.ts',
       'supabase/functions/_shared/outreachFollowUp.test.ts',
+      'supabase/functions/_shared/outreachHtml.test.ts',
       'supabase/functions/resume-strengthen/request.test.ts',
       'supabase/functions/resume-strengthen/strength.test.ts',
       'supabase/functions/forward-to-n8n/n8n-delivery.test.ts',

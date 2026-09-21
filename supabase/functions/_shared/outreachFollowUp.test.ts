@@ -1,4 +1,5 @@
 import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.224.0/assert/mod.ts';
+import { textToHtml } from './outreachHtml.ts';
 import {
   agencyName,
   demoLink,
@@ -97,4 +98,24 @@ Deno.test('parseFollowUp rejects a generation that lost the signature', () => {
   // A thinking block in front must not hide the tool call.
   const thought = { content: [{ type: 'thinking' }, { type: 'tool_use', name: 'write_follow_up', input: { body: 'Hoi.\n\nGroet,\nSjoerd' } }] };
   assertStringIncludes(parseFollowUp(thought) ?? '', 'Groet');
+});
+
+Deno.test('the quiet chase carries both links, and survives the trip to HTML', () => {
+  const quiet = renderFollowUp(make({ clicks: 0 }));
+  // Written as markdown so the model has something it can copy verbatim.
+  assertStringIncludes(quiet, '[demo van een sessie](');
+  assertStringIncludes(quiet, '[onze partnerpagina](https://cairnly.io/partners)');
+
+  const html = textToHtml(quiet);
+  // The reader sees a name, not a query string, and the slug still rides along.
+  assertStringIncludes(html, '>demo van een sessie</a>');
+  assertStringIncludes(html, 'utm_content=mepd');
+  assertStringIncludes(html, '>onze partnerpagina</a>');
+  // No markdown leaks into the mail.
+  assertEquals(html.includes('[demo van een sessie]'), false);
+});
+
+Deno.test('the chase that did get a click keeps its single link-free ask', () => {
+  const clicked = renderFollowUp(make({ clicks: 2 }));
+  assertEquals(clicked.includes('http'), false);
 });

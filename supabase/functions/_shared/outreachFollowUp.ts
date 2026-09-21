@@ -119,7 +119,16 @@ export function templateClicked(input: FollowUpInput): string {
   ].join('\n');
 }
 
-/** Chase 1, the mail was never opened. Different hook, lower threshold. */
+/**
+ * Chase 1, nobody clicked the demo. Note that this is the only thing we know:
+ * clicks are demo-link clicks, there is no open tracking, so a quiet agency
+ * may well have read the first mail and shrugged.
+ *
+ * Two links, because the two objections are different. The demo is the low
+ * threshold and stays the main one. The partner page is for the reader whose
+ * question is not "what is it" but "what does this cost me and who runs it",
+ * and that reader was never going to click a demo first.
+ */
 export function templateQuiet(input: FollowUpInput): string {
   return [
     salutation(input),
@@ -130,7 +139,8 @@ export function templateQuiet(input: FollowUpInput): string {
     '',
     'De vraag die erachter zit: doen jullie het loopbaanonderzoek in spoor 2 helemaal zelf, of zou het schelen als een kandidaat al met richting bij de adviseur binnenkomt?',
     '',
-    `In twee minuten zie je wat ik bedoel, geen login nodig: ${demoLink(input.slug, input.campaign)}`,
+    `In twee minuten zie je wat ik bedoel in deze [demo van een sessie](${demoLink(input.slug, input.campaign)}), geen login nodig.`,
+    `Werkwijze en tarieven voor bureaus staan op [onze partnerpagina](${PARTNERS_URL}).`,
     '',
     'Groet,',
     'Sjoerd',
@@ -172,9 +182,10 @@ Je krijgt een SKELET dat Sjoerd heeft goedgekeurd. Dat skelet is de mail. Jouw w
 - Je mag ALLEEN de aanhef en de openingszin aanpassen, en alleen als de aanleiding uit het bureau-profiel dat echt beter maakt. Verwerk de openingshaak hooguit in één korte bijzin, nooit als losse alinea.
 - Verzin geen nieuwe beloftes, geen prijzen, geen cijfers, geen namen van klanten.
 - Laat de slotzin en de ondertekening exact staan.
+- Links staan in het skelet als [tekst](url). Neem die vorm letterlijk over, inclusief de blokhaken en de haakjes. Verander de linktekst niet, verander de url niet, en maak er geen kale url van.
 - Het citaat van de loopbaancoach staat tussen aanhalingstekens en blijft Engels en woordelijk. Niet vertalen, niet inkorten, niet herschrijven.
 
-HUISREGELS: Nederlands, je-vorm, warm maar zakelijk. Maximaal 120 woorden. Stel precies één vraag aan de lezer (een vraagteken in een link telt niet mee). Geen opsommingen, geen onderwerpregel, geen bijlagen. Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y". Eindig met "Groet," en op de volgende regel "Sjoerd", zonder verdere handtekening.
+HUISREGELS: Nederlands, je-vorm, warm maar zakelijk. Maximaal 120 woorden, het citaat van de loopbaancoach niet meegeteld. Stel precies één vraag aan de lezer (een vraagteken in een link telt niet mee). Geen opsommingen, geen onderwerpregel, geen bijlagen. Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y". Eindig met "Groet," en op de volgende regel "Sjoerd", zonder verdere handtekening.
 
 FEITEN die je mag gebruiken als de mail erom vraagt: Cairnly is 25 tot 40 minuten invullen en levert een top 3 concrete beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Voor spoor 2 is het voorwerk: de kandidaat komt met richting bij de adviseur binnen in plaats van met een leeg vel. Het rapport draagt het logo van het bureau. Pilot: vijf bureaus, vijf kandidaten per bureau, zes weken, gratis. Werkwijze en prijzen staan op ${PARTNERS_URL}. Een gesprek van 20 minuten plannen kan via ${CALENDLY_URL}.`;
 

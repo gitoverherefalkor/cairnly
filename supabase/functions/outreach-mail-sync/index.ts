@@ -23,6 +23,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { verifySharedSecret } from '../_shared/cors.ts';
+import { textToHtml } from '../_shared/outreachHtml.ts';
 import {
   classifyOutbound,
   directionOf,
@@ -77,6 +78,14 @@ interface DraftOut {
   subject: string;
   body: string;
 }
+
+/**
+ * Every draft is written as plain text and leaves as HTML, so a link can carry
+ * a name instead of six utm parameters. One place, so no draft can slip out in
+ * the wrong shape, and the Gmail node in WF11 is set to emailType "html" to
+ * match. The two settings move together or the drafts arrive as visible markup.
+ */
+const asHtmlDraft = (d: DraftOut): DraftOut => ({ ...d, body: textToHtml(d.body) });
 
 // ─── Claude ──────────────────────────────────────────────────────────────────
 
@@ -501,7 +510,7 @@ serve(async (req) => {
       // drained on the many runs where Gmail brought nothing new and sync()
       // returns early.
       const followUps = await composePendingFollowUps(supabase);
-      const drafts = [...((result.drafts as DraftOut[]) ?? []), ...followUps];
+      const drafts = [...((result.drafts as DraftOut[]) ?? []), ...followUps].map(asHtmlDraft);
       return json({ ...result, drafts, follow_ups: followUps.length });
     }
 

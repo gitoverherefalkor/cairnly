@@ -3,24 +3,16 @@
     "name": "WF11 - Outreach Mail Sync",
     "description": "Outreach phase 3: syncs Gmail with outreach_prospects/outreach_mails via the outreach-mail-sync edge function and drops reply drafts in Gmail. Never sends.",
     "active": true,
-    "activeVersionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
+    "activeVersionId": "5afdf6ba-52ad-467b-b749-5e301987bd7c",
     "createdAt": "2026-09-11T10:44:06.960Z",
-    "updatedAt": "2026-09-21T13:15:39.730Z",
+    "updatedAt": "2026-09-11T14:21:56.438Z",
     "isArchived": false,
-    "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
-    "versionCounter": 7,
+    "versionId": "e77233ef-33cc-48c8-aec1-c93bd1aa8119",
+    "versionCounter": 6,
     "sourceWorkflowId": null,
     "triggerCount": 1,
     "nodes": [
         {
-            "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-            "name": "Every 15 minutes",
-            "type": "n8n-nodes-base.scheduleTrigger",
-            "typeVersion": 1.4,
-            "position": [
-                0,
-                0
-            ],
             "parameters": {
                 "rule": {
                     "interval": [
@@ -30,18 +22,17 @@
                         }
                     ]
                 }
-            }
+            },
+            "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
+            "name": "Every 15 minutes",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.4,
+            "position": [
+                0,
+                0
+            ]
         },
         {
-            "id": "e85880d0-5eef-4cf4-9c95-572292815390",
-            "name": "Gmail: mail of the last 3 days",
-            "webhookId": "706e32d6-8584-44a0-9538-ffab9d4637db",
-            "type": "n8n-nodes-base.gmail",
-            "typeVersion": 2.2,
-            "position": [
-                224,
-                0
-            ],
             "parameters": {
                 "operation": "getAll",
                 "returnAll": true,
@@ -52,6 +43,15 @@
                 },
                 "options": {}
             },
+            "id": "e85880d0-5eef-4cf4-9c95-572292815390",
+            "name": "Gmail: mail of the last 3 days",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                224,
+                0
+            ],
+            "webhookId": "706e32d6-8584-44a0-9538-ffab9d4637db",
             "credentials": {
                 "gmailOAuth2": {
                     "id": "sPpoSg9CO0fP31TB",
@@ -60,6 +60,9 @@
             }
         },
         {
+            "parameters": {
+                "jsCode": "const pick = (m) => ({\n  id: m.id,\n  threadId: m.threadId,\n  labelIds: m.labelIds || (m.labels || []).map((l) => l.id || l.name),\n  from: m.from ?? m.From,\n  to: m.to ?? m.To,\n  cc: m.cc ?? m.Cc,\n  subject: m.subject ?? m.Subject,\n  date: m.date ?? m.internalDate,\n  snippet: m.snippet,\n  text: typeof m.text === \"string\" ? m.text.slice(0, 20000) : undefined,\n  html: typeof m.text === \"string\" && m.text.trim() ? undefined : (typeof m.html === \"string\" ? m.html.slice(0, 40000) : undefined),\n});\nconst messages = $input.all().map((i) => pick(i.json)).filter((m) => m.id);\nreturn [{ json: { messages } }];"
+            },
             "id": "2482e824-2f98-4527-9c8c-ea03cd58ca32",
             "name": "Bundle messages",
             "type": "n8n-nodes-base.code",
@@ -67,20 +70,9 @@
             "position": [
                 448,
                 0
-            ],
-            "parameters": {
-                "jsCode": "const pick = (m) => ({\n  id: m.id,\n  threadId: m.threadId,\n  labelIds: m.labelIds || (m.labels || []).map((l) => l.id || l.name),\n  from: m.from ?? m.From,\n  to: m.to ?? m.To,\n  cc: m.cc ?? m.Cc,\n  subject: m.subject ?? m.Subject,\n  date: m.date ?? m.internalDate,\n  snippet: m.snippet,\n  text: typeof m.text === \"string\" ? m.text.slice(0, 20000) : undefined,\n  html: typeof m.text === \"string\" && m.text.trim() ? undefined : (typeof m.html === \"string\" ? m.html.slice(0, 40000) : undefined),\n});\nconst messages = $input.all().map((i) => pick(i.json)).filter((m) => m.id);\nreturn [{ json: { messages } }];"
-            }
+            ]
         },
         {
-            "id": "1db5753a-d68b-4357-8d2f-487d0b7d4cf6",
-            "name": "Sync with Supabase",
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.5,
-            "position": [
-                672,
-                0
-            ],
             "parameters": {
                 "method": "POST",
                 "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-mail-sync",
@@ -93,6 +85,14 @@
                     "timeout": 150000
                 }
             },
+            "id": "1db5753a-d68b-4357-8d2f-487d0b7d4cf6",
+            "name": "Sync with Supabase",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.5,
+            "position": [
+                672,
+                0
+            ],
             "credentials": {
                 "httpHeaderAuth": {
                     "id": "aiABzg04zbeDSXRc",
@@ -101,6 +101,10 @@
             }
         },
         {
+            "parameters": {
+                "fieldToSplitOut": "drafts",
+                "options": {}
+            },
             "id": "5e707bc9-687d-495e-9bbf-77ac127e2770",
             "name": "Each draft",
             "type": "n8n-nodes-base.splitOut",
@@ -108,26 +112,12 @@
             "position": [
                 896,
                 0
-            ],
-            "parameters": {
-                "fieldToSplitOut": "drafts",
-                "options": {}
-            }
+            ]
         },
         {
-            "id": "b28bf1b6-c1f9-4a4b-8b23-a305fa3059a1",
-            "name": "Gmail: create draft in thread",
-            "webhookId": "75d6c1f7-c743-46d9-b0a6-dbadae596d64",
-            "type": "n8n-nodes-base.gmail",
-            "typeVersion": 2.2,
-            "position": [
-                1120,
-                0
-            ],
             "parameters": {
                 "resource": "draft",
                 "subject": "={{ $json.subject }}",
-                "emailType": "html",
                 "message": "={{ $json.body }}",
                 "options": {
                     "fromAlias": "sjoerd@cairnly.io",
@@ -135,6 +125,15 @@
                     "sendTo": "={{ $json.to }}"
                 }
             },
+            "id": "b28bf1b6-c1f9-4a4b-8b23-a305fa3059a1",
+            "name": "Gmail: create draft in thread",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.2,
+            "position": [
+                1120,
+                0
+            ],
+            "webhookId": "75d6c1f7-c743-46d9-b0a6-dbadae596d64",
             "credentials": {
                 "gmailOAuth2": {
                     "id": "sPpoSg9CO0fP31TB",
@@ -143,14 +142,6 @@
             }
         },
         {
-            "id": "407bdb93-c77d-4f41-8822-b3a33e4c4314",
-            "name": "Record draft id",
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.5,
-            "position": [
-                1344,
-                0
-            ],
             "parameters": {
                 "method": "POST",
                 "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-mail-sync",
@@ -163,6 +154,14 @@
                     "timeout": 30000
                 }
             },
+            "id": "407bdb93-c77d-4f41-8822-b3a33e4c4314",
+            "name": "Record draft id",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.5,
+            "position": [
+                1344,
+                0
+            ],
             "credentials": {
                 "httpHeaderAuth": {
                     "id": "aiABzg04zbeDSXRc",
@@ -171,6 +170,12 @@
             }
         },
         {
+            "parameters": {
+                "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
+                "height": 368,
+                "width": 688,
+                "color": 4
+            },
             "id": "d4e39385-eea3-43a6-9546-838c5f7a5f39",
             "name": "Sticky Note 02e62ebb",
             "type": "n8n-nodes-base.stickyNote",
@@ -178,13 +183,7 @@
             "position": [
                 384,
                 160
-            ],
-            "parameters": {
-                "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
-                "height": 368,
-                "width": 688,
-                "color": 4
-            }
+            ]
         }
     ],
     "connections": {
@@ -301,18 +300,10 @@
         }
     ],
     "activeVersion": {
-        "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
+        "versionId": "5afdf6ba-52ad-467b-b749-5e301987bd7c",
         "workflowId": "JXOW9lwv9MKPp9Cy",
         "nodes": [
             {
-                "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-                "name": "Every 15 minutes",
-                "type": "n8n-nodes-base.scheduleTrigger",
-                "typeVersion": 1.4,
-                "position": [
-                    0,
-                    0
-                ],
                 "parameters": {
                     "rule": {
                         "interval": [
@@ -322,28 +313,36 @@
                             }
                         ]
                     }
-                }
+                },
+                "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
+                "name": "Every 15 minutes",
+                "type": "n8n-nodes-base.scheduleTrigger",
+                "typeVersion": 1.4,
+                "position": [
+                    0,
+                    0
+                ]
             },
             {
+                "parameters": {
+                    "operation": "getAll",
+                    "returnAll": true,
+                    "simple": false,
+                    "filters": {
+                        "q": "newer_than:3d -in:draft -in:spam -in:trash -in:chats -category:promotions -category:social -category:updates -category:forums",
+                        "readStatus": "both"
+                    },
+                    "options": {}
+                },
                 "id": "e85880d0-5eef-4cf4-9c95-572292815390",
                 "name": "Gmail: mail of the last 3 days",
-                "webhookId": "706e32d6-8584-44a0-9538-ffab9d4637db",
                 "type": "n8n-nodes-base.gmail",
                 "typeVersion": 2.2,
                 "position": [
                     224,
                     0
                 ],
-                "parameters": {
-                    "operation": "getAll",
-                    "returnAll": true,
-                    "simple": false,
-                    "filters": {
-                        "q": "label:cly-partners newer_than:3d -in:draft -in:spam -in:trash",
-                        "readStatus": "both"
-                    },
-                    "options": {}
-                },
+                "webhookId": "706e32d6-8584-44a0-9538-ffab9d4637db",
                 "credentials": {
                     "gmailOAuth2": {
                         "id": "sPpoSg9CO0fP31TB",
@@ -352,6 +351,9 @@
                 }
             },
             {
+                "parameters": {
+                    "jsCode": "const pick = (m) => ({\n  id: m.id,\n  threadId: m.threadId,\n  labelIds: m.labelIds || (m.labels || []).map((l) => l.id || l.name),\n  from: m.from ?? m.From,\n  to: m.to ?? m.To,\n  cc: m.cc ?? m.Cc,\n  subject: m.subject ?? m.Subject,\n  date: m.date ?? m.internalDate,\n  snippet: m.snippet,\n  text: typeof m.text === \"string\" ? m.text.slice(0, 20000) : undefined,\n  html: typeof m.text === \"string\" && m.text.trim() ? undefined : (typeof m.html === \"string\" ? m.html.slice(0, 40000) : undefined),\n});\nconst messages = $input.all().map((i) => pick(i.json)).filter((m) => m.id);\nreturn [{ json: { messages } }];"
+                },
                 "id": "2482e824-2f98-4527-9c8c-ea03cd58ca32",
                 "name": "Bundle messages",
                 "type": "n8n-nodes-base.code",
@@ -359,20 +361,9 @@
                 "position": [
                     448,
                     0
-                ],
-                "parameters": {
-                    "jsCode": "const pick = (m) => ({\n  id: m.id,\n  threadId: m.threadId,\n  labelIds: m.labelIds || (m.labels || []).map((l) => l.id || l.name),\n  from: m.from ?? m.From,\n  to: m.to ?? m.To,\n  cc: m.cc ?? m.Cc,\n  subject: m.subject ?? m.Subject,\n  date: m.date ?? m.internalDate,\n  snippet: m.snippet,\n  text: typeof m.text === \"string\" ? m.text.slice(0, 20000) : undefined,\n  html: typeof m.text === \"string\" && m.text.trim() ? undefined : (typeof m.html === \"string\" ? m.html.slice(0, 40000) : undefined),\n});\nconst messages = $input.all().map((i) => pick(i.json)).filter((m) => m.id);\nreturn [{ json: { messages } }];"
-                }
+                ]
             },
             {
-                "id": "1db5753a-d68b-4357-8d2f-487d0b7d4cf6",
-                "name": "Sync with Supabase",
-                "type": "n8n-nodes-base.httpRequest",
-                "typeVersion": 4.5,
-                "position": [
-                    672,
-                    0
-                ],
                 "parameters": {
                     "method": "POST",
                     "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-mail-sync",
@@ -385,6 +376,14 @@
                         "timeout": 150000
                     }
                 },
+                "id": "1db5753a-d68b-4357-8d2f-487d0b7d4cf6",
+                "name": "Sync with Supabase",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.5,
+                "position": [
+                    672,
+                    0
+                ],
                 "credentials": {
                     "httpHeaderAuth": {
                         "id": "aiABzg04zbeDSXRc",
@@ -393,6 +392,10 @@
                 }
             },
             {
+                "parameters": {
+                    "fieldToSplitOut": "drafts",
+                    "options": {}
+                },
                 "id": "5e707bc9-687d-495e-9bbf-77ac127e2770",
                 "name": "Each draft",
                 "type": "n8n-nodes-base.splitOut",
@@ -400,26 +403,12 @@
                 "position": [
                     896,
                     0
-                ],
-                "parameters": {
-                    "fieldToSplitOut": "drafts",
-                    "options": {}
-                }
+                ]
             },
             {
-                "id": "b28bf1b6-c1f9-4a4b-8b23-a305fa3059a1",
-                "name": "Gmail: create draft in thread",
-                "webhookId": "75d6c1f7-c743-46d9-b0a6-dbadae596d64",
-                "type": "n8n-nodes-base.gmail",
-                "typeVersion": 2.2,
-                "position": [
-                    1120,
-                    0
-                ],
                 "parameters": {
                     "resource": "draft",
                     "subject": "={{ $json.subject }}",
-                    "emailType": "html",
                     "message": "={{ $json.body }}",
                     "options": {
                         "fromAlias": "sjoerd@cairnly.io",
@@ -427,6 +416,15 @@
                         "sendTo": "={{ $json.to }}"
                     }
                 },
+                "id": "b28bf1b6-c1f9-4a4b-8b23-a305fa3059a1",
+                "name": "Gmail: create draft in thread",
+                "type": "n8n-nodes-base.gmail",
+                "typeVersion": 2.2,
+                "position": [
+                    1120,
+                    0
+                ],
+                "webhookId": "75d6c1f7-c743-46d9-b0a6-dbadae596d64",
                 "credentials": {
                     "gmailOAuth2": {
                         "id": "sPpoSg9CO0fP31TB",
@@ -435,14 +433,6 @@
                 }
             },
             {
-                "id": "407bdb93-c77d-4f41-8822-b3a33e4c4314",
-                "name": "Record draft id",
-                "type": "n8n-nodes-base.httpRequest",
-                "typeVersion": 4.5,
-                "position": [
-                    1344,
-                    0
-                ],
                 "parameters": {
                     "method": "POST",
                     "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-mail-sync",
@@ -455,6 +445,14 @@
                         "timeout": 30000
                     }
                 },
+                "id": "407bdb93-c77d-4f41-8822-b3a33e4c4314",
+                "name": "Record draft id",
+                "type": "n8n-nodes-base.httpRequest",
+                "typeVersion": 4.5,
+                "position": [
+                    1344,
+                    0
+                ],
                 "credentials": {
                     "httpHeaderAuth": {
                         "id": "aiABzg04zbeDSXRc",
@@ -463,6 +461,12 @@
                 }
             },
             {
+                "parameters": {
+                    "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
+                    "height": 368,
+                    "width": 688,
+                    "color": 4
+                },
                 "id": "d4e39385-eea3-43a6-9546-838c5f7a5f39",
                 "name": "Sticky Note 02e62ebb",
                 "type": "n8n-nodes-base.stickyNote",
@@ -470,13 +474,7 @@
                 "position": [
                     384,
                     160
-                ],
-                "parameters": {
-                    "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
-                    "height": 368,
-                    "width": 688,
-                    "color": 4
-                }
+                ]
             }
         ],
         "connections": {
@@ -549,19 +547,19 @@
         },
         "nodeGroups": [],
         "authors": "Sjoerd Geurts",
-        "name": null,
-        "description": null,
-        "autosaved": false,
-        "createdAt": "2026-09-21T13:15:39.731Z",
-        "updatedAt": "2026-09-21T13:15:39.731Z",
+        "name": "Version 5afdf6ba",
+        "description": "",
+        "autosaved": true,
+        "createdAt": "2026-09-11T10:54:24.450Z",
+        "updatedAt": "2026-09-11T10:54:27.000Z",
         "workflowPublishHistory": [
             {
-                "id": 1687,
+                "id": 1632,
                 "workflowId": "JXOW9lwv9MKPp9Cy",
-                "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
+                "versionId": "5afdf6ba-52ad-467b-b749-5e301987bd7c",
                 "event": "activated",
                 "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-                "createdAt": "2026-09-21T13:15:39.857Z"
+                "createdAt": "2026-09-11T10:54:27.809Z"
             }
         ]
     }
