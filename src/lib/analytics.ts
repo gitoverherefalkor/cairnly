@@ -198,6 +198,11 @@ export async function trackSampleView(
     utm_source: sanitizeTag(params.get('utm_source')),
     utm_medium: sanitizeTag(params.get('utm_medium')),
     utm_campaign: sanitizeTag(params.get('utm_campaign')),
+    // The per-bureau outreach slug. The edge middleware already logs the click
+    // itself, but it cannot see what happens after the page loads, so without
+    // this the seven demo moments and the CTA clicks stay anonymous and we
+    // only ever learn THAT an agency looked, never for how long.
+    utm_content: sanitizeTag(params.get('utm_content')),
     country,
   });
 }

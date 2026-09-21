@@ -334,6 +334,22 @@ function ProspectRow({
         ? `No confirmed clicks. ${p.bot_kliks} bot click${p.bot_kliks === 1 ? '' : 's'} ignored.`
         : 'No confirmed clicks yet';
 
+  // Depth, the half of the story the click never told: did they look at the
+  // demo for three seconds or read the whole conversation? null is "never
+  // measured" and stays blank, because showing it as 0 would invent a bounce.
+  const depth = p.momenten_max;
+  const depthLabel = depth === null ? null : depth === 0 ? 'bounced' : `${depth}/7 read`;
+  const depthTitle =
+    depth === null
+      ? 'No depth measured. Visits before 21 Sept 2026 did not carry the agency slug into analytics.'
+      : [
+          `${p.demo_sessies} demo session${p.demo_sessies === 1 ? '' : 's'}`,
+          depth === 0
+            ? 'nobody reached the first annotated moment'
+            : `best session reached ${depth} of the seven moments`,
+          p.sessies_met_cta > 0 ? `${p.sessies_met_cta} clicked a CTA` : '',
+        ].filter(Boolean).join(' \u00b7 ');
+
   return (
     <>
     <tr className={`border-t border-white/[0.06] align-top ${rowBg}`}>
@@ -434,6 +450,14 @@ function ProspectRow({
         >
           {clicked ? 'Yes' : scannerOnly ? 'Scanner?' : 'Not yet'}
         </span>
+        {depthLabel && (
+          <div
+            className={`mt-1 text-[10px] ${depth === 0 ? 'text-amber-300/80' : 'text-white/60'}`}
+            title={depthTitle}
+          >
+            {depthLabel}
+          </div>
+        )}
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
         {p.partner_slug ? (
@@ -878,7 +902,7 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 

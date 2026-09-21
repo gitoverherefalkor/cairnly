@@ -97,6 +97,19 @@ export interface OutreachProspect {
   dagen_bevestigd: number;
   eerste_bevestigde_klik: string | null;
   laatste_bevestigde_klik: string | null;
+  /**
+   * What happened after the click. The demo records seven annotated moments in
+   * scroll order, so `momenten_max` is how far the best session at this agency
+   * got: 0 means someone opened it and left, 7 means they read the whole
+   * conversation. `null` means no measurement exists, which is NOT zero — the
+   * slug only started reaching analytics on 2026-09-21, so every earlier visit
+   * is blank and must stay blank rather than read as a bounce.
+   */
+  demo_sessies: number;
+  momenten_max: number | null;
+  momenten_gemiddeld: number | null;
+  sessies_met_cta: number;
+  sessies_engaged: number;
   /** Phase 3: partner hand-off. */
   partner_slug: string | null;
   /** Set by the "Draft follow-up" button; cleared once the mail actually goes out. */

@@ -34,6 +34,7 @@ type Body = {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  utm_content?: string;
 };
 
 // Attribution tags (?p= and utm_*) are visitor-controlled strings off the URL.
@@ -198,9 +199,13 @@ serve(async (req) => {
         utm_source: tag(body.utm_source),
         utm_medium: tag(body.utm_medium),
         utm_campaign: tag(body.utm_campaign),
+        // Outreach slug: the one attribution tag that names an organisation
+        // rather than a channel. Joined to the rest of the session on
+        // session_id by the outreach_prospect_demo view.
+        utm_content: tag(body.utm_content),
         country,
       },
-      ['persona'],
+      ['persona', 'utm_content'],
     );
     if (error) {
       console.error('[track-view] sample_view insert error:', error);

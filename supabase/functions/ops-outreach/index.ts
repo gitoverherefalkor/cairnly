@@ -93,7 +93,7 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
+      const [prospectsRes, statsRes, demoRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
@@ -101,6 +101,10 @@ serve(async (req) => {
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
+        // What happened AFTER the click: how deep into the demo's seven
+        // moments the best session at this agency got. Empty for every
+        // visit before 2026-09-21, when the slug first reached analytics.
+        supabase.from('outreach_prospect_demo').select('*'),
         // Rows, not a head count: "clicks today" has to apply the same scanner
         // rule as everything else, and that needs each row's slug and time.
         supabase
@@ -125,6 +129,7 @@ serve(async (req) => {
       ]);
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
+      if (demoRes.error) throw demoRes.error;
       if (todayRes.error) throw todayRes.error;
       if (logRes.error) throw logRes.error;
       if (mailsRes.error) throw mailsRes.error;
@@ -139,8 +144,10 @@ serve(async (req) => {
       const partnerBySlug = new Map((partnersRes.data ?? []).map((r) => [r.slug as string, r]));
 
       const statsBySlug = new Map((statsRes.data ?? []).map((s) => [s.slug as string, s]));
+      const demoBySlug = new Map((demoRes.data ?? []).map((d) => [d.slug as string, d]));
       const prospects = (prospectsRes.data ?? []).map((p) => {
         const s = statsBySlug.get(p.slug as string);
+        const d = demoBySlug.get(p.slug as string);
         // Mail-derived state. `needs_reply`: their mail is the newest thing in
         // the conversation, so Sjoerd is up (a draft usually waits in Gmail).
         const mails = mailsBySlug.get(p.slug as string) ?? [];
@@ -171,6 +178,15 @@ serve(async (req) => {
           dagen_bevestigd: Number(s?.dagen_bevestigd ?? 0),
           eerste_bevestigde_klik: (s?.eerste_bevestigde_klik as string | null) ?? null,
           laatste_bevestigde_klik: (s?.laatste_bevestigde_klik as string | null) ?? null,
+          // Demo depth. `momenten_max` is the best session's reach into the
+          // seven annotated moments, so 0 is "clicked and bounced" and 7 is
+          // "read the whole conversation". null means we have no measurement,
+          // which is not the same as zero and must not be shown as one.
+          demo_sessies: Number(d?.demo_sessies ?? 0),
+          momenten_max: d ? Number(d.momenten_max ?? 0) : null,
+          momenten_gemiddeld: d ? Number(d.momenten_gemiddeld ?? 0) : null,
+          sessies_met_cta: Number(d?.sessies_met_cta ?? 0),
+          sessies_engaged: Number(d?.sessies_engaged ?? 0),
         };
       });
 
