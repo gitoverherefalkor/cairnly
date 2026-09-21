@@ -77,13 +77,30 @@ verify_jwt = true
 
 [auth]
 site_url = "https://cairnly.io"
-additional_redirect_urls = ["https://www.cairnly.io", "https://atlas-career-chat.lovable.app", "http://localhost:3000"]
+# Mirrors Authentication -> URL Configuration in the Supabase dashboard, which is
+# the source of truth for the hosted project. Synced by hand; last verified
+# 2026-09-21. The wildcards cover every app route we hand to `redirectTo`
+# (currently /auth/confirm and /reset-password). The two supabase.co entries are
+# the provider callback LinkedIn/Google redirect to and the auth-callback
+# function. Dev runs on port 8080 (see vite.config.ts), not 3000.
+additional_redirect_urls = [
+  "https://cairnly.io/**",
+  "https://www.cairnly.io/**",
+  "http://localhost:8080*",
+  "https://pcoyafgsirrznhmdaiji.supabase.co/auth/v1/callback",
+  "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/auth-callback",
+]
 
 [auth.email]
 enable_confirmations = true
 
 [auth.email.template.confirmation]
-subject = "Confirm Your Atlas Assessment Account"
+# Superseded in production by the send_email auth hook (the
+# send-confirmation-email function), which builds its own EN/NL subjects. This
+# value only applies to a local stack with that hook off, so it is kept matching
+# the function's English subject rather than naming a product that no longer
+# exists.
+subject = "Confirm Your Cairnly Account"
 content_path = "./supabase/templates/confirmation.html"
 
 # Auth hooks are configured in Supabase dashboard
