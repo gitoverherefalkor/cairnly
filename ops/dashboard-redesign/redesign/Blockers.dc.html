@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #122E3B; }
+    * { box-sizing: border-box; }
+    a { color: #2ABFBF; text-decoration: none; }
+    a:hover { color: #7FD9D9; }
+    button { font-family: inherit; border: 0; background: none; cursor: pointer; color: inherit; }
+    .panel {
+      background: rgba(18,46,59,0.55);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 18px;
+      box-shadow: 0 24px 50px -22px rgba(0,0,0,0.40);
+    }
+    .panel-raised {
+      background: rgba(18,46,59,0.62);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.10); border-radius: 20px;
+      box-shadow: 0 40px 80px -28px rgba(0,0,0,0.55);
+    }
+    .eyebrow { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #EFBE48; }
+    .eyebrow-quiet { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+    .h-sec { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 17px; color: rgba(255,255,255,0.92); margin: 0; letter-spacing: -0.01em; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 9999px; padding: 3px 10px; font-size: 11px; font-weight: 600; border: 1px solid rgba(255,255,255,0.22); }
+    .chip { display: inline-flex; align-items: center; gap: 7px; border-radius: 9999px; padding: 7px 14px 7px 11px; font-size: 12.5px; font-weight: 500; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.82); transition: all .15s ease; }
+    .chip:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.24); }
+    .dot { width: 7px; height: 7px; border-radius: 9999px; flex: none; }
+    .sec-head { display: flex; align-items: center; gap: 14px; width: 100%; padding: 18px 24px; text-align: left; }
+    .num { font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: -0.02em; color: #fff; }
+  </style>
+</helmet>
+
+<div style="position: relative; min-height: 1420px; background: #122E3B; padding-bottom: 48px">
+  <div style="position: absolute; inset: 0; background-image: linear-gradient(180deg, rgba(33,63,79,0.72) 0%, rgba(18,46,59,0.90) 46%, #122E3B 100%), url(./stone-bg.jpg); background-size: cover; background-position: center top; pointer-events: none"></div>
+
+  <div style="position: relative">
+    <header style="background: #ECE4D2; border-bottom: 1px solid #C9B690; padding: 11px 32px; display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 19px; color: #122E3B; letter-spacing: -0.02em">Cairnly</span>
+        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.24em; color: #1F8282; border: 1px solid rgba(31,130,130,0.35); background: rgba(39,161,161,0.10); border-radius: 9999px; padding: 4px 10px">OPS</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 18px">
+        <span style="font-size: 12px; color: #4B6373">Ververst 09:42 &middot; automatisch elke 5 min</span>
+        <button style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #C9B690; background: #F5EFE2; color: #122E3B; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+          Ververs
+        </button>
+      </div>
+    </header>
+
+    <div style="max-width: 1320px; margin: 0 auto; padding: 0 32px">
+
+      <!-- ═══ The only thing that ever outranks the tabs ═══════════════ -->
+      <div style="margin-top: 26px; border-radius: 20px; border: 1px solid rgba(248,113,113,0.45); background: linear-gradient(180deg, rgba(239,68,68,0.18) 0%, rgba(239,68,68,0.10) 100%); box-shadow: 0 40px 80px -28px rgba(0,0,0,0.55), 0 0 0 1px rgba(239,68,68,0.10); padding: 22px 26px">
+        <div style="display: flex; align-items: flex-start; gap: 16px">
+          <div style="width: 40px; height: 40px; border-radius: 11px; background: rgba(239,68,68,0.22); border: 1px solid rgba(248,113,113,0.40); display: flex; align-items: center; justify-content: center; flex: none">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0"/></svg>
+          </div>
+          <div style="flex: 1">
+            <div style="display: flex; align-items: center; gap: 11px">
+              <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 19px; color: #fff; letter-spacing: -0.01em">2 nieuwe blockers</span>
+              <span class="pill" style="background: rgba(239,68,68,0.20); color: #FCA5A5; border-color: rgba(248,113,113,0.40)">sinds dinsdag 09:14</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px">
+              <div style="display: flex; align-items: baseline; gap: 11px">
+                <span class="dot" style="background: #F87171; align-self: center"></span>
+                <span style="font-size: 14px; color: rgba(255,255,255,0.92); font-weight: 600">Betaling mislukt na checkout</span>
+                <span style="font-size: 13px; color: rgba(255,255,255,0.66)">3 gebruikers kwamen niet voorbij Stripe &mdash; webhook geeft 500</span>
+                <span style="font-size: 12px; color: rgba(255,255,255,0.55); margin-left: auto; flex: none">1u geleden</span>
+              </div>
+              <div style="display: flex; align-items: baseline; gap: 11px">
+                <span class="dot" style="background: #F87171; align-self: center"></span>
+                <span style="font-size: 14px; color: rgba(255,255,255,0.92); font-weight: 600">WF4 leverde een leeg rapport</span>
+                <span style="font-size: 13px; color: rgba(255,255,255,0.66)">1 gebruiker wacht al 4 uur op haar top 3</span>
+                <span style="font-size: 12px; color: rgba(255,255,255,0.55); margin-left: auto; flex: none">4u geleden</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 9px; margin-top: 18px">
+              <button style="display: inline-flex; align-items: center; gap: 7px; border-radius: 9999px; padding: 8px 18px; font-size: 13px; font-weight: 600; background: #EF4444; color: #fff; box-shadow: 0 10px 24px -8px rgba(239,68,68,0.55)">Naar de blockers</button>
+              <button class="chip" style="padding: 8px 16px; font-size: 13px">Vraag het Claude</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Since your last visit -->
+      <div class="panel-raised" style="margin-top: 16px; padding: 20px 24px; display: flex; align-items: center; gap: 28px">
+        <div style="flex: none">
+          <div class="eyebrow">Sinds je vorige bezoek</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.58); margin-top: 5px">dinsdag 09:14 &middot; 2 dagen geleden</div>
+        </div>
+        <div style="width: 1px; align-self: stretch; background: rgba(255,255,255,0.10); flex: none"></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 9px; flex: 1">
+          <button class="chip"><span class="dot" style="background: #EFBE48"></span>2 bureaus wachten op jou</button>
+          <button class="chip"><span class="dot" style="background: #27A1A1"></span>3 nieuwe demo-opens</button>
+          <button class="chip"><span class="dot" style="background: #3989AF"></span>7 nieuwe aanmeldingen</button>
+        </div>
+      </div>
+
+      <!-- Tabs — Platform carries the red count -->
+      <div style="display: flex; gap: 8px; margin: 22px 0 20px">
+        <button style="display: inline-flex; align-items: center; gap: 9px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; padding: 11px 22px; border-radius: 12px; background: rgba(18,46,59,0.45); color: rgba(255,255,255,0.62); border: 1px solid rgba(255,255,255,0.08)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Partners
+          <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background: rgba(239,190,72,0.18); color: #EFBE48">2</span>
+        </button>
+        <button style="display: inline-flex; align-items: center; gap: 9px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; padding: 11px 22px; border-radius: 12px; background: rgba(236,228,210,0.95); color: #122E3B; border: 1px solid rgba(201,182,144,0.60); box-shadow: 0 10px 26px -12px rgba(0,0,0,0.55)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.9 4.9 2.9 2.9"/><path d="m16.2 16.2 2.9 2.9"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 19.1 2.9-2.9"/><path d="m16.2 7.8 2.9-2.9"/></svg>
+          Platform
+          <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background: #EF4444; color: #fff">5</span>
+        </button>
+        <button style="display: inline-flex; align-items: center; gap: 9px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; padding: 11px 22px; border-radius: 12px; background: rgba(18,46,59,0.45); color: rgba(255,255,255,0.62); border: 1px solid rgba(255,255,255,0.08)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m7 14 3-4 4 3 5-6"/></svg>
+          Stats
+        </button>
+      </div>
+
+      <!-- Blockers section — only exists while the count is above zero -->
+      <div style="border-radius: 18px; border: 1px solid rgba(248,113,113,0.35); background: rgba(239,68,68,0.07); box-shadow: 0 24px 50px -22px rgba(0,0,0,0.40)">
+        <div class="sec-head">
+          <span style="display: inline-flex; flex: none; transform: rotate(90deg)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
+          <div style="flex: 1">
+            <h2 class="h-sec">Blockers</h2>
+            <div style="font-size: 12.5px; color: rgba(255,255,255,0.58); margin-top: 3px">Beide vanmorgen binnengekomen &middot; 4 gebruikers geraakt</div>
+          </div>
+          <span class="pill" style="background: rgba(239,68,68,0.20); color: #FCA5A5; border-color: rgba(248,113,113,0.40)">2 open</span>
+        </div>
+
+        <div style="border-top: 1px solid rgba(248,113,113,0.18); padding: 16px 24px; display: flex; flex-direction: column; gap: 12px">
+          <div style="background: rgba(18,46,59,0.45); border: 1px solid rgba(248,113,113,0.28); border-radius: 13px; padding: 17px 19px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <span style="font-size: 14.5px; font-weight: 600; color: rgba(255,255,255,0.94)">Betaling mislukt na checkout</span>
+              <span class="pill" style="background: rgba(239,68,68,0.18); color: #FCA5A5; border-color: rgba(248,113,113,0.35)">Blocker</span>
+              <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.60); border-color: rgba(255,255,255,0.16)">Support</span>
+              <span style="font-size: 12px; color: rgba(255,255,255,0.55); margin-left: auto">1 uur geleden &middot; 3 meldingen</span>
+            </div>
+            <div style="font-size: 13.5px; color: rgba(255,255,255,0.78); margin-top: 9px; line-height: 1.55">Drie mensen betaalden wel maar kregen geen toegang. De Stripe-webhook geeft 500 op <span style="font-family: ui-monospace, monospace; font-size: 12.5px; color: rgba(255,255,255,0.62)">/functions/v1/stripe-webhook</span> sinds de deploy van vanmorgen.</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.56); margin-top: 9px"><span style="color: #EFBE48; font-weight: 600">Voorstel</span> &middot; Rol de deploy terug of zet het access-record handmatig; de drie e-mailadressen staan hieronder.</div>
+            <div style="display: flex; gap: 8px; margin-top: 14px">
+              <button style="display: inline-flex; align-items: center; gap: 7px; border-radius: 9999px; padding: 7px 16px; font-size: 12.5px; font-weight: 600; background: #EF4444; color: #fff">Open in Supabase</button>
+              <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Vraag het Claude</button>
+              <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Toon de 3 gebruikers</button>
+              <button class="chip" style="padding: 6px 14px; font-size: 12.5px; margin-left: auto">Afhandelen</button>
+            </div>
+          </div>
+
+          <div style="background: rgba(18,46,59,0.45); border: 1px solid rgba(248,113,113,0.28); border-radius: 13px; padding: 17px 19px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <span style="font-size: 14.5px; font-weight: 600; color: rgba(255,255,255,0.94)">WF4 leverde een leeg rapport</span>
+              <span class="pill" style="background: rgba(239,68,68,0.18); color: #FCA5A5; border-color: rgba(248,113,113,0.35)">Blocker</span>
+              <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.60); border-color: rgba(255,255,255,0.16)">n8n</span>
+              <span style="font-size: 12px; color: rgba(255,255,255,0.55); margin-left: auto">4 uur geleden</span>
+            </div>
+            <div style="font-size: 13.5px; color: rgba(255,255,255,0.78); margin-top: 9px; line-height: 1.55">De enrichment-pool kwam leeg terug, dus WF4 had niets om uit te kiezen. Zij zit sinds 05:40 op &ldquo;rapport wordt gemaakt&rdquo;.</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.56); margin-top: 9px"><span style="color: #EFBE48; font-weight: 600">Voorstel</span> &middot; Draai WF2 opnieuw voor deze gebruiker en daarna WF3 en WF4.</div>
+            <div style="display: flex; gap: 8px; margin-top: 14px">
+              <button style="display: inline-flex; align-items: center; gap: 7px; border-radius: 9999px; padding: 7px 16px; font-size: 12.5px; font-weight: 600; background: #EF4444; color: #fff">Rapport opnieuw draaien</button>
+              <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Open de run in n8n</button>
+              <button class="chip" style="padding: 6px 14px; font-size: 12.5px; margin-left: auto">Afhandelen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Everything else on Platform, unchanged and quiet -->
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px">
+        <div class="panel">
+          <div class="sec-head">
+            <span style="display: inline-flex; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            <div style="flex: 1">
+              <h2 class="h-sec">n8n-fouten</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">Nieuwste: WF8 Finding Roles &mdash; timeout op de scorer, 2u geleden</div>
+            </div>
+            <span class="pill" style="background: rgba(245,158,11,0.16); color: #FBBF24; border-color: rgba(251,191,36,0.34)">3 open</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sec-head">
+            <span style="display: inline-flex; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Support</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">Nieuwste: &ldquo;Mijn code werkt niet meer&rdquo; &mdash; Toegang / betaling, 5u geleden</div>
+            </div>
+            <span class="pill" style="background: rgba(57,137,175,0.18); color: #7FBCD9; border-color: rgba(127,188,217,0.32)">2 open</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sec-head">
+            <span style="display: inline-flex; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Chat-feedback</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">5 beoordelingen deze week &middot; &ldquo;Sterke punten&rdquo; scoort het laagst</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">5</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sec-head">
+            <span style="display: inline-flex; flex: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Assessment-missers</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">1 grote herziening door WF6 deze week &middot; loopbaanrichting</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">1</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview": {"width": 1440, "height": 1420}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

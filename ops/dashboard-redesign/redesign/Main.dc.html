@@ -1,0 +1,889 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #122E3B; }
+    * { box-sizing: border-box; }
+    a { color: #2ABFBF; text-decoration: none; }
+    a:hover { color: #7FD9D9; }
+    button { font-family: inherit; border: 0; background: none; cursor: pointer; color: inherit; }
+
+    /* ── Surfaces: lifted from DashboardV4's glass cards ─────────────── */
+    .panel {
+      background: rgba(18,46,59,0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 24px 50px -22px rgba(0,0,0,0.40);
+    }
+    .panel-raised {
+      background: rgba(18,46,59,0.62);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px;
+      box-shadow: 0 40px 80px -28px rgba(0,0,0,0.55);
+    }
+    .eyebrow {
+      font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
+      letter-spacing: 0.24em; text-transform: uppercase; color: #EFBE48;
+    }
+    .eyebrow-quiet {
+      font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
+      letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.55);
+    }
+    .h-sec {
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 17px;
+      color: rgba(255,255,255,0.92); margin: 0; letter-spacing: -0.01em;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px; border-radius: 9999px;
+      padding: 3px 10px; font-size: 11px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 7px; border-radius: 9999px;
+      padding: 7px 14px 7px 11px; font-size: 12.5px; font-weight: 500;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.82); transition: all .15s ease;
+    }
+    .chip:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.24); }
+    .dot { width: 7px; height: 7px; border-radius: 9999px; flex: none; }
+
+    /* ── Tables ───────────────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.50);
+      text-align: left; padding: 0 12px 9px; white-space: nowrap;
+    }
+    td { padding: 11px 12px; font-size: 13px; color: rgba(255,255,255,0.78); vertical-align: middle; }
+    tbody tr { border-top: 1px solid rgba(255,255,255,0.06); }
+    tbody tr:hover { background: rgba(255,255,255,0.035); }
+
+    .sec-head {
+      display: flex; align-items: center; gap: 14px; width: 100%;
+      padding: 18px 24px; text-align: left;
+    }
+    .sec-head:hover .h-sec { color: #fff; }
+    .num { font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: -0.02em; color: #fff; }
+  </style>
+</helmet>
+
+<div style="position: relative; min-height: 1760px; background: #122E3B; padding-bottom: 56px">
+
+  <!-- Nature photo + heavy overlay: same treatment as the assessment dashboard -->
+  <div style="position: absolute; inset: 0; background-image: linear-gradient(180deg, rgba(33,63,79,0.72) 0%, rgba(18,46,59,0.90) 46%, #122E3B 100%), url(./stone-bg.jpg); background-size: cover; background-position: center top; pointer-events: none"></div>
+
+  <div style="position: relative">
+
+    <!-- ═══ Cream top bar — matches DashboardAppNav ═══════════════════ -->
+    <header style="background: #ECE4D2; border-bottom: 1px solid #C9B690; padding: 11px 32px; display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 19px; color: #122E3B; letter-spacing: -0.02em">Cairnly</span>
+        <span style="font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.24em; color: #1F8282; border: 1px solid rgba(31,130,130,0.35); background: rgba(39,161,161,0.10); border-radius: 9999px; padding: 4px 10px">OPS</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 18px">
+        <span style="font-size: 12px; color: #4B6373">Ververst 09:42 &middot; automatisch elke 5 min</span>
+        <button style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #C9B690; background: #F5EFE2; color: #122E3B; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+          Ververs
+        </button>
+      </div>
+    </header>
+
+    <div style="max-width: 1320px; margin: 0 auto; padding: 0 32px">
+
+      <!-- ═══ Since your last visit ═════════════════════════════════════ -->
+      <div class="panel-raised" style="margin-top: 26px; padding: 20px 24px; display: flex; align-items: center; gap: 28px">
+        <div style="flex: none">
+          <div class="eyebrow">Sinds je vorige bezoek</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.58); margin-top: 5px">dinsdag 09:14 &middot; 2 dagen geleden</div>
+        </div>
+        <div style="width: 1px; align-self: stretch; background: rgba(255,255,255,0.10); flex: none"></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 9px; flex: 1">
+          <button class="chip"><span class="dot" style="background: #EFBE48"></span>2 bureaus wachten op jou</button>
+          <button class="chip"><span class="dot" style="background: #27A1A1"></span>3 nieuwe demo-opens</button>
+          <button class="chip"><span class="dot" style="background: #27A1A1"></span>1 status verplaatst</button>
+          <button class="chip"><span class="dot" style="background: #3989AF"></span>7 nieuwe aanmeldingen</button>
+          <button class="chip"><span class="dot" style="background: #f59e0b"></span>3 n8n-fouten</button>
+        </div>
+      </div>
+
+      <!-- ═══ Main tabs ═════════════════════════════════════════════════ -->
+      <div style="display: flex; gap: 8px; margin: 22px 0 20px">
+        <button onClick="{{ goPartners }}" style="{{ tabPartners }}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Partners
+          <span style="{{ badgeGold }}">2</span>
+        </button>
+        <button onClick="{{ goPlatform }}" style="{{ tabPlatform }}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.9 4.9 2.9 2.9"/><path d="m16.2 16.2 2.9 2.9"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 19.1 2.9-2.9"/><path d="m16.2 7.8 2.9-2.9"/></svg>
+          Platform
+          <span style="{{ badgeAmber }}">3</span>
+        </button>
+        <button onClick="{{ goStats }}" style="{{ tabStats }}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m7 14 3-4 4 3 5-6"/></svg>
+          Stats
+        </button>
+      </div>
+
+      <!-- ╔═══ PARTNERS ═══════════════════════════════════════════════╗ -->
+      <sc-if value="{{ isPartners }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+
+        <!-- Four numbers that frame the whole pipeline -->
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+          <div class="panel" style="padding: 20px 22px">
+            <div class="eyebrow-quiet">Benaderd</div>
+            <div class="num" style="font-size: 34px; margin-top: 8px">53<span style="font-size: 17px; color: rgba(255,255,255,0.46); font-weight: 500"> / 71</span></div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 4px">31 wachten nog op antwoord</div>
+          </div>
+          <div class="panel" style="padding: 20px 22px">
+            <div class="eyebrow-quiet">Demo geopend</div>
+            <div style="display: flex; align-items: baseline; gap: 9px; margin-top: 8px">
+              <div class="num" style="font-size: 34px; color: #2ABFBF">14</div>
+              <span style="font-size: 12.5px; font-weight: 600; color: #34D399">+3</span>
+            </div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 4px">26% van de verzonden mails</div>
+          </div>
+          <div class="panel" style="padding: 20px 22px; border-color: rgba(239,190,72,0.32); background: rgba(212,160,36,0.09)">
+            <div class="eyebrow" style="font-size: 10px">Wacht op jou</div>
+            <div class="num" style="font-size: 34px; margin-top: 8px; color: #EFBE48">2</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.62); margin-top: 4px">zij schreven als laatste</div>
+          </div>
+          <div class="panel" style="padding: 20px 22px">
+            <div class="eyebrow-quiet">Partners live</div>
+            <div class="num" style="font-size: 34px; margin-top: 8px">3</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 4px">46 codes, 19 gebruikt</div>
+          </div>
+        </div>
+
+        <!-- ── Outreach ─────────────────────────────────────────────── -->
+        <div class="panel">
+          <button onClick="{{ toggleOutreach }}" class="sec-head">
+            <span style="{{ chevOutreach }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Outreach</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">71 bureaus &middot; 2 wachten op antwoord &middot; 3 nieuwe opens sinds dinsdag</div>
+            </div>
+            <span class="pill" style="background: rgba(212,160,36,0.16); color: #EFBE48; border-color: rgba(239,190,72,0.38)">2 aan zet</span>
+            <span class="pill" style="background: rgba(39,161,161,0.16); color: #2ABFBF; border-color: rgba(42,191,191,0.34)">3 warm</span>
+          </button>
+
+          <sc-if value="{{ outreachOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07)">
+
+            <!-- Pipeline: 18 + 31 + 9 + 4 + 3 + 6 = alle 71 bureaus -->
+            <div style="padding: 18px 24px; display: flex; align-items: flex-end; gap: 6px">
+              <div style="flex: 1.8">
+                <div style="height: 30px; border-radius: 6px 2px 2px 6px; background: rgba(255,255,255,0.10)"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Niet benaderd</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">18</div>
+              </div>
+              <div style="flex: 3.1">
+                <div style="height: 30px; border-radius: 2px; background: rgba(39,161,161,0.32)"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Verzonden</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">31</div>
+              </div>
+              <div style="flex: 0.9">
+                <div style="height: 30px; border-radius: 2px; background: rgba(39,161,161,0.58)"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Gereageerd</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">9</div>
+              </div>
+              <div style="flex: 0.4">
+                <div style="height: 30px; border-radius: 2px; background: rgba(42,191,191,0.88)"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Gesprek</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">4</div>
+              </div>
+              <div style="flex: 0.3">
+                <div style="height: 30px; border-radius: 2px; background: #EFBE48"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Partner</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">3</div>
+              </div>
+              <div style="flex: 0.6">
+                <div style="height: 30px; border-radius: 2px 6px 6px 2px; background: rgba(255,255,255,0.16)"></div>
+                <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 7px">Geen fit</div>
+                <div class="num" style="font-size: 15px; margin-top: 1px">6</div>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div style="padding: 0 24px 14px; display: flex; align-items: center; gap: 8px">
+              <button class="chip" style="padding: 5px 13px; font-size: 12px; background: rgba(236,228,210,0.92); border-color: rgba(201,182,144,0.60); color: #122E3B">Alle 71</button>
+              <button class="chip" style="padding: 5px 13px; font-size: 12px">Aan zet &amp; warm</button>
+              <button class="chip" style="padding: 5px 13px; font-size: 12px">Tier A</button>
+              <button class="chip" style="padding: 5px 13px; font-size: 12px">Veranderd sinds dinsdag</button>
+              <span style="margin-left: auto; font-size: 12px; color: rgba(255,255,255,0.55)">6 van 71</span>
+            </div>
+
+            <!-- Table -->
+            <div style="padding: 0 12px 4px">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="padding-left: 24px">Bureau</th>
+                    <th>Status</th>
+                    <th>Laatste contact</th>
+                    <th style="text-align: center">Opens</th>
+                    <th>Partner</th>
+                    <th style="padding-right: 24px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background: rgba(212,160,36,0.08)">
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: #EFBE48"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.92); font-weight: 600">Koers &amp; Co Outplacement</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Marieke Bos &middot; Amsterdam &middot; A</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(39,161,161,0.16); color: #2ABFBF; border-color: rgba(42,191,191,0.34)">Gereageerd</span></td>
+                    <td>
+                      <div style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.88)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#EFBE48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>
+                        gisteren 16:21
+                      </div>
+                      <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 2px">Wil graag een code om zelf te proberen</div>
+                    </td>
+                    <td style="text-align: center"><span class="num" style="font-size: 15px">4</span></td>
+                    <td><span style="color: rgba(255,255,255,0.46)">&mdash;</span></td>
+                    <td style="padding-right: 24px; text-align: right">
+                      <button class="chip" style="padding: 5px 13px; font-size: 12px; background: rgba(239,190,72,0.18); border-color: rgba(239,190,72,0.45); color: #EFBE48">Concept klaar</button>
+                    </td>
+                  </tr>
+                  <tr style="background: rgba(212,160,36,0.08)">
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: #EFBE48"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.92); font-weight: 600">Talentbrug</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Joost Reinders &middot; Rotterdam &middot; A</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(39,161,161,0.16); color: #2ABFBF; border-color: rgba(42,191,191,0.34)">Gesprek gepland</span></td>
+                    <td>
+                      <div style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.88)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#EFBE48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>
+                        gisteren 09:03
+                      </div>
+                      <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); margin-top: 2px">Vraagt of het ook voor 55+ kandidaten werkt</div>
+                    </td>
+                    <td style="text-align: center"><span class="num" style="font-size: 15px">7</span></td>
+                    <td><span style="color: rgba(255,255,255,0.46)">&mdash;</span></td>
+                    <td style="padding-right: 24px; text-align: right">
+                      <button class="chip" style="padding: 5px 13px; font-size: 12px; background: rgba(239,190,72,0.18); border-color: rgba(239,190,72,0.45); color: #EFBE48">Concept klaar</button>
+                    </td>
+                  </tr>
+                  <tr style="background: rgba(39,161,161,0.06)">
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: #27A1A1"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.92); font-weight: 600">Meridiaan Loopbaanadvies</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Anne Verhoef &middot; Zwolle &middot; B</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(57,137,175,0.18); color: #7FBCD9; border-color: rgba(127,188,217,0.32)">Verzonden</span></td>
+                    <td>
+                      <div style="color: rgba(255,255,255,0.72)">5 dagen geleden verstuurd</div>
+                      <div style="font-size: 11.5px; color: #2ABFBF; margin-top: 2px">2 nieuwe opens sinds dinsdag &mdash; nog niet opgevolgd</div>
+                    </td>
+                    <td style="text-align: center"><span class="num" style="font-size: 15px">3</span></td>
+                    <td><span style="color: rgba(255,255,255,0.46)">&mdash;</span></td>
+                    <td style="padding-right: 24px; text-align: right">
+                      <button class="chip" style="padding: 5px 13px; font-size: 12px">Opvolgen</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: transparent"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.88); font-weight: 600">Van Dijk Loopbaan</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Peter van Dijk &middot; Utrecht &middot; A</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(239,190,72,0.16); color: #EFBE48; border-color: rgba(239,190,72,0.38)">Founding partner</span></td>
+                    <td><div style="color: rgba(255,255,255,0.72)">2 weken geleden</div></td>
+                    <td style="text-align: center"><span class="num" style="font-size: 15px">12</span></td>
+                    <td>
+                      <div style="color: rgba(255,255,255,0.88)">Van Dijk</div>
+                      <div style="font-size: 11.5px; color: rgba(255,255,255,0.58)">20 codes, 11 gebruikt</div>
+                    </td>
+                    <td style="padding-right: 24px"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: transparent"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.88); font-weight: 600">De Nieuwe Route</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Sanne de Groot &middot; Eindhoven &middot; B</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.62); border-color: rgba(255,255,255,0.16)">Opvolging 1</span></td>
+                    <td><div style="color: rgba(255,255,255,0.72)">4 dagen geleden</div></td>
+                    <td style="text-align: center"><span style="color: rgba(255,255,255,0.58)">0</span></td>
+                    <td><span style="color: rgba(255,255,255,0.46)">&mdash;</span></td>
+                    <td style="padding-right: 24px"></td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left: 24px">
+                      <div style="display: flex; align-items: center; gap: 9px">
+                        <span class="dot" style="background: transparent"></span>
+                        <div>
+                          <div style="color: rgba(255,255,255,0.88); font-weight: 600">Passage HR Partners</div>
+                          <div style="font-size: 11.5px; color: rgba(255,255,255,0.55)">Ilse Mulder &middot; Den Haag &middot; B</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="pill" style="background: rgba(239,68,68,0.14); color: #F87171; border-color: rgba(248,113,113,0.30)">Geen fit</span></td>
+                    <td>
+                      <div style="color: rgba(255,255,255,0.72)">vorige week</div>
+                      <div style="font-size: 11.5px; color: rgba(255,255,255,0.58); margin-top: 2px">Doen alleen executive search</div>
+                    </td>
+                    <td style="text-align: center"><span style="color: rgba(255,255,255,0.58)">1</span></td>
+                    <td><span style="color: rgba(255,255,255,0.46)">&mdash;</span></td>
+                    <td style="padding-right: 24px"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="padding: 14px 24px 18px; border-top: 1px solid rgba(255,255,255,0.06)">
+              <span style="font-size: 12px; color: rgba(255,255,255,0.55)">Goud = zij schreven als laatste. Teal = klik, nog niet opgevolgd. Statussen komen uit Gmail via WF11.</span>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+
+        <!-- ── Partners ─────────────────────────────────────────────── -->
+        <div class="panel">
+          <button onClick="{{ togglePartners }}" class="sec-head">
+            <span style="{{ chevPartners }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Partners</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">3 live &middot; 46 codes uitgegeven, 19 gebruikt, 8 rapporten af</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">Niets nieuws</span>
+          </button>
+
+          <sc-if value="{{ partnersOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 8px 12px 12px">
+            <table>
+              <thead>
+                <tr>
+                  <th style="padding-left: 24px">Partner</th>
+                  <th style="text-align: center">Uitgegeven</th>
+                  <th style="text-align: center">Gebruikt</th>
+                  <th style="text-align: center">Gestart</th>
+                  <th style="text-align: center">Rapport af</th>
+                  <th style="padding-right: 24px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding-left: 24px">
+                    <div style="display: flex; align-items: center; gap: 11px">
+                      <div style="width: 34px; height: 34px; border-radius: 9px; background: #ECE4D2; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; color: #122E3B">VD</div>
+                      <div>
+                        <div style="color: rgba(255,255,255,0.92); font-weight: 600">Van Dijk Loopbaan</div>
+                        <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); font-family: ui-monospace, monospace">/p/van-dijk</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px">20</span></td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px; color: #2ABFBF">11</span></td>
+                  <td style="text-align: center">9</td>
+                  <td style="text-align: center">6</td>
+                  <td style="padding-right: 24px; text-align: right"><button class="chip" style="padding: 5px 13px; font-size: 12px">Codes minten</button></td>
+                </tr>
+                <tr>
+                  <td style="padding-left: 24px">
+                    <div style="display: flex; align-items: center; gap: 11px">
+                      <div style="width: 34px; height: 34px; border-radius: 9px; background: #ECE4D2; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; color: #122E3B">BL</div>
+                      <div>
+                        <div style="color: rgba(255,255,255,0.92); font-weight: 600">Baken Loopbaancoaching</div>
+                        <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); font-family: ui-monospace, monospace">/p/baken</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px">16</span></td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px; color: #2ABFBF">6</span></td>
+                  <td style="text-align: center">5</td>
+                  <td style="text-align: center">2</td>
+                  <td style="padding-right: 24px; text-align: right"><button class="chip" style="padding: 5px 13px; font-size: 12px">Codes minten</button></td>
+                </tr>
+                <tr>
+                  <td style="padding-left: 24px">
+                    <div style="display: flex; align-items: center; gap: 11px">
+                      <div style="width: 34px; height: 34px; border-radius: 9px; background: #ECE4D2; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 13px; color: #122E3B">KV</div>
+                      <div>
+                        <div style="color: rgba(255,255,255,0.92); font-weight: 600">Kompas Verzuim &amp; Werk</div>
+                        <div style="font-size: 11.5px; color: rgba(255,255,255,0.55); font-family: ui-monospace, monospace">/p/kompas</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px">10</span></td>
+                  <td style="text-align: center"><span class="num" style="font-size: 15px; color: #2ABFBF">2</span></td>
+                  <td style="text-align: center">2</td>
+                  <td style="text-align: center">0</td>
+                  <td style="padding-right: 24px; text-align: right"><button class="chip" style="padding: 5px 13px; font-size: 12px">Codes minten</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="padding: 14px 24px 6px; display: flex; gap: 9px">
+              <button class="chip" style="padding: 7px 16px; background: rgba(39,161,161,0.18); border-color: rgba(42,191,191,0.40); color: #2ABFBF"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Nieuwe partner</button>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+
+      </div>
+      </sc-if>
+
+      <!-- ╔═══ PLATFORM ═══════════════════════════════════════════════╗ -->
+      <sc-if value="{{ isPlatform }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+
+        <!-- No blockers: one calm line, no red, no badge. -->
+        <div class="panel" style="padding: 16px 24px; display: flex; align-items: center; gap: 13px; border-color: rgba(52,211,153,0.22); background: rgba(16,185,129,0.07)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-size: 14px; color: rgba(255,255,255,0.86); font-weight: 500">Geen blockers.</span>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.52)">Laatste opgelost 6 dagen geleden. De 3 n8n-fouten hieronder hebben geen gebruiker geraakt.</span>
+        </div>
+
+        <!-- System health strip: deploy + providers, side by side -->
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+          <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 12px">
+            <span class="dot" style="background: #34D399; width: 9px; height: 9px"></span>
+            <div style="flex: 1; min-width: 0">
+              <div class="eyebrow-quiet">Deploy</div>
+              <div style="font-size: 13px; color: rgba(255,255,255,0.80); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Ready &middot; outreach mail sync</div>
+            </div>
+            <span style="font-size: 11.5px; color: rgba(255,255,255,0.55); flex: none">4u</span>
+          </div>
+          <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 12px">
+            <span class="dot" style="background: #34D399; width: 9px; height: 9px"></span>
+            <div style="flex: 1">
+              <div class="eyebrow-quiet">Claude</div>
+              <div style="font-size: 13px; color: rgba(255,255,255,0.80); margin-top: 4px">Alle systemen normaal</div>
+            </div>
+          </div>
+          <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 12px">
+            <span class="dot" style="background: #FBBF24; width: 9px; height: 9px"></span>
+            <div style="flex: 1">
+              <div class="eyebrow-quiet">OpenAI</div>
+              <div style="font-size: 13px; color: rgba(255,255,255,0.80); margin-top: 4px">Verhoogde latency</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── n8n errors (open) ────────────────────────────────────── -->
+        <div class="panel">
+          <button onClick="{{ toggleN8n }}" class="sec-head">
+            <span style="{{ chevN8n }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">n8n-fouten</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">Nieuwste: WF8 Finding Roles &mdash; timeout op de scorer, 2u geleden</div>
+            </div>
+            <span class="pill" style="background: rgba(245,158,11,0.16); color: #FBBF24; border-color: rgba(251,191,36,0.34)">3 open</span>
+          </button>
+
+          <sc-if value="{{ n8nOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; display: flex; flex-direction: column; gap: 12px">
+
+            <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.07); border-radius: 13px; padding: 17px 19px">
+              <div style="display: flex; align-items: flex-start; gap: 12px">
+                <span class="dot" style="background: #FBBF24; margin-top: 6px"></span>
+                <div style="flex: 1">
+                  <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap">
+                    <span style="font-size: 14.5px; font-weight: 600; color: rgba(255,255,255,0.94)">WF8 &mdash; Finding selected roles</span>
+                    <span class="pill" style="background: rgba(245,158,11,0.14); color: #FBBF24; border-color: rgba(251,191,36,0.30)">Needs action</span>
+                    <span style="font-size: 11.5px; color: rgba(255,255,255,0.55)">2 uur geleden</span>
+                  </div>
+                  <div style="font-size: 13.5px; color: rgba(255,255,255,0.78); margin-top: 9px; line-height: 1.55">Timeout in de scorer-node na 120s. De run gaf ongescoorde resultaten terug, dus de gebruiker zag wel vacatures &mdash; alleen zonder match-percentage.</div>
+                  <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 7px"><span style="color: #EFBE48; font-weight: 600">Voorstel</span> &middot; Verhoog de timeout naar 180s, of cache de scorer per rol.</div>
+                  <div style="display: flex; gap: 8px; margin-top: 14px">
+                    <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Open in n8n</button>
+                    <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Vraag het Claude</button>
+                    <button class="chip" style="padding: 6px 14px; font-size: 12.5px; margin-left: auto">Afhandelen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.07); border-radius: 13px; padding: 17px 19px">
+              <div style="display: flex; align-items: flex-start; gap: 12px">
+                <span class="dot" style="background: rgba(255,255,255,0.30); margin-top: 6px"></span>
+                <div style="flex: 1">
+                  <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap">
+                    <span style="font-size: 14.5px; font-weight: 600; color: rgba(255,255,255,0.94)">WF2 &mdash; Source to Enrich 15</span>
+                    <span class="pill" style="background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">FYI</span>
+                    <span style="font-size: 11.5px; color: rgba(255,255,255,0.55)">gisteren 22:40</span>
+                  </div>
+                  <div style="font-size: 13.5px; color: rgba(255,255,255,0.78); margin-top: 9px; line-height: 1.55">Eén rate-limit van de research-provider, automatisch hervat bij de volgende poging. Geen rapport geraakt.</div>
+                  <div style="display: flex; gap: 8px; margin-top: 14px">
+                    <button class="chip" style="padding: 6px 14px; font-size: 12.5px">Open in n8n</button>
+                    <button class="chip" style="padding: 6px 14px; font-size: 12.5px; margin-left: auto">Afhandelen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button class="chip" style="align-self: flex-start; padding: 6px 15px; font-size: 12.5px">Nog 1 tonen</button>
+          </div>
+          </sc-if>
+        </div>
+
+        <!-- ── Collapsed queues ─────────────────────────────────────── -->
+        <div class="panel">
+          <button onClick="{{ toggleSupport }}" class="sec-head">
+            <span style="{{ chevSupport }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Support</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">Nieuwste: &ldquo;Mijn code werkt niet meer&rdquo; &mdash; Toegang / betaling, 5u geleden</div>
+            </div>
+            <span class="pill" style="background: rgba(57,137,175,0.18); color: #7FBCD9; border-color: rgba(127,188,217,0.32)">2 open</span>
+          </button>
+          <sc-if value="{{ supportOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; font-size: 13px; color: rgba(255,255,255,0.60)">
+            Dezelfde kaartjes als hierboven &mdash; per ticket de categorie, de gebruiker, de screenshot en de voorgestelde reactie.
+          </div>
+          </sc-if>
+        </div>
+
+        <div class="panel">
+          <button onClick="{{ toggleFeedback }}" class="sec-head">
+            <span style="{{ chevFeedback }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Chat-feedback</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">5 beoordelingen deze week &middot; &ldquo;Sterke punten&rdquo; scoort het laagst</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">5</span>
+          </button>
+          <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; font-size: 13px; color: rgba(255,255,255,0.60)">
+            Per hoofdstuk de beoordeling die de gebruiker midden in het gesprek gaf.
+          </div>
+          </sc-if>
+        </div>
+
+        <div class="panel">
+          <button onClick="{{ toggleMisses }}" class="sec-head">
+            <span style="{{ chevMisses }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Assessment-missers</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">1 grote herziening door WF6 deze week &middot; loopbaanrichting</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">1</span>
+          </button>
+          <sc-if value="{{ missesOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; font-size: 13px; color: rgba(255,255,255,0.60)">
+            Categorie 2 = WF6 heeft de AI-output flink herschreven na weerwoord van de gebruiker. Categorie 1 = kleine bijstelling.
+          </div>
+          </sc-if>
+        </div>
+
+        <div class="panel" style="padding: 15px 24px; display: flex; align-items: center; gap: 12px; background: rgba(18,46,59,0.38)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.2a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.2a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.2a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.2a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span style="font-size: 13px; color: rgba(255,255,255,0.70); flex: 1">Beheertools &mdash; een rapport opnieuw draaien voor een gebruiker</span>
+          <button class="chip" style="padding: 5px 13px; font-size: 12px">Openen</button>
+        </div>
+
+      </div>
+      </sc-if>
+
+      <!-- ╔═══ STATS ══════════════════════════════════════════════════╗ -->
+      <sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+
+        <!-- Traffic + People get the room; usage and marketing wait below. -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start">
+
+          <!-- ── Traffic ────────────────────────────────────────────── -->
+          <div class="panel" style="padding: 24px">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between">
+              <div>
+                <div class="eyebrow">Bezoekers</div>
+                <div style="display: flex; align-items: baseline; gap: 11px; margin-top: 9px">
+                  <span class="num" style="font-size: 42px">1.152</span>
+                  <span style="font-size: 13.5px; font-weight: 600; color: #34D399">+18%</span>
+                </div>
+                <div style="font-size: 12.5px; color: rgba(255,255,255,0.50); margin-top: 3px">laatste 7 dagen &middot; 2.650 pageviews &middot; 2,3 per bezoek</div>
+              </div>
+              <div style="display: flex; gap: 7px">
+                <button class="chip" style="padding: 5px 13px; font-size: 12px; background: rgba(39,161,161,0.16); border-color: rgba(42,191,191,0.34); color: #2ABFBF">7d</button>
+                <button class="chip" style="padding: 5px 13px; font-size: 12px">30d</button>
+              </div>
+            </div>
+
+            <!-- Daily visitors. One series, so no legend; only the peak and today are labelled. -->
+            <div style="margin-top: 26px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 0">
+              <div style="display: flex; align-items: flex-end; gap: 10px; height: 132px">
+                <div style="flex: 1; height: 72%; background: rgba(39,161,161,0.60); border-radius: 4px 4px 0 0"></div>
+                <div style="flex: 1; height: 86%; background: rgba(39,161,161,0.60); border-radius: 4px 4px 0 0"></div>
+                <div style="flex: 1; height: 66%; background: rgba(39,161,161,0.60); border-radius: 4px 4px 0 0"></div>
+                <div style="flex: 1; height: 100%; background: #27A1A1; border-radius: 4px 4px 0 0; position: relative">
+                  <span style="position: absolute; top: -21px; left: 50%; transform: translateX(-50%); font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; color: rgba(255,255,255,0.86)">233</span>
+                </div>
+                <div style="flex: 1; height: 84%; background: rgba(39,161,161,0.60); border-radius: 4px 4px 0 0"></div>
+                <div style="flex: 1; height: 38%; background: rgba(39,161,161,0.60); border-radius: 4px 4px 0 0"></div>
+                <div style="flex: 1; height: 48%; background: #2ABFBF; border-radius: 4px 4px 0 0; position: relative">
+                  <span style="position: absolute; top: -21px; left: 50%; transform: translateX(-50%); font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 12px; color: rgba(255,255,255,0.86)">112</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 8px">
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">ma</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">di</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">wo</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">do</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">vr</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.55)">za</span>
+              <span style="flex: 1; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.72); font-weight: 600">vandaag</span>
+            </div>
+
+            <!-- Top pages -->
+            <div style="margin-top: 26px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07)">
+              <div class="eyebrow-quiet">Best bezochte pagina&rsquo;s</div>
+              <div style="display: flex; flex-direction: column; gap: 9px; margin-top: 13px">
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <span style="width: 108px; flex: none; font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.74)">/</span>
+                  <span style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden"><span style="display: block; width: 100%; height: 100%; background: rgba(39,161,161,0.72); border-radius: 4px"></span></span>
+                  <span style="width: 38px; flex: none; text-align: right; font-size: 12px; color: rgba(255,255,255,0.62)">412</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <span style="width: 108px; flex: none; font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.74)">/demo</span>
+                  <span style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden"><span style="display: block; width: 69%; height: 100%; background: rgba(39,161,161,0.72); border-radius: 4px"></span></span>
+                  <span style="width: 38px; flex: none; text-align: right; font-size: 12px; color: rgba(255,255,255,0.62)">286</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <span style="width: 108px; flex: none; font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.74)">/partners</span>
+                  <span style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden"><span style="display: block; width: 35%; height: 100%; background: rgba(39,161,161,0.72); border-radius: 4px"></span></span>
+                  <span style="width: 38px; flex: none; text-align: right; font-size: 12px; color: rgba(255,255,255,0.62)">143</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <span style="width: 108px; flex: none; font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.74)">/assessment</span>
+                  <span style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden"><span style="display: block; width: 24%; height: 100%; background: rgba(39,161,161,0.72); border-radius: 4px"></span></span>
+                  <span style="width: 38px; flex: none; text-align: right; font-size: 12px; color: rgba(255,255,255,0.62)">97</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 14px">
+                  <span style="width: 108px; flex: none; font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.74)">/p/van-dijk</span>
+                  <span style="flex: 1; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden"><span style="display: block; width: 16%; height: 100%; background: rgba(39,161,161,0.72); border-radius: 4px"></span></span>
+                  <span style="width: 38px; flex: none; text-align: right; font-size: 12px; color: rgba(255,255,255,0.62)">64</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── People ─────────────────────────────────────────────── -->
+          <div class="panel" style="padding: 24px">
+            <div class="eyebrow">Mensen</div>
+            <div style="display: flex; align-items: baseline; gap: 11px; margin-top: 9px">
+              <span class="num" style="font-size: 42px">7</span>
+              <span style="font-size: 13.5px; color: rgba(255,255,255,0.58)">nieuw deze week</span>
+            </div>
+            <div style="font-size: 12.5px; color: rgba(255,255,255,0.50); margin-top: 3px">41 aanmeldingen in de laatste 30 dagen</div>
+
+            <!-- Where everyone actually is. One hue, light to dark. -->
+            <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px">
+                  <span style="font-size: 12.5px; color: rgba(255,255,255,0.74)">Aangemeld</span>
+                  <span class="num" style="font-size: 14px">41</span>
+                </div>
+                <div style="height: 9px; background: rgba(39,161,161,0.26); border-radius: 4px; width: 100%"></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px">
+                  <span style="font-size: 12.5px; color: rgba(255,255,255,0.74)">Survey bezig</span>
+                  <span class="num" style="font-size: 14px">28</span>
+                </div>
+                <div style="height: 9px; background: rgba(255,255,255,0.05); border-radius: 4px"><div style="height: 100%; width: 68%; background: rgba(39,161,161,0.42); border-radius: 4px"></div></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px">
+                  <span style="font-size: 12.5px; color: rgba(255,255,255,0.74)">Rapport klaar</span>
+                  <span class="num" style="font-size: 14px">19</span>
+                </div>
+                <div style="height: 9px; background: rgba(255,255,255,0.05); border-radius: 4px"><div style="height: 100%; width: 46%; background: rgba(39,161,161,0.62); border-radius: 4px"></div></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px">
+                  <span style="font-size: 12.5px; color: rgba(255,255,255,0.74)">In gesprek</span>
+                  <span class="num" style="font-size: 14px">12</span>
+                </div>
+                <div style="height: 9px; background: rgba(255,255,255,0.05); border-radius: 4px"><div style="height: 100%; width: 29%; background: rgba(42,191,191,0.82); border-radius: 4px"></div></div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px">
+                  <span style="font-size: 12.5px; color: rgba(255,255,255,0.74)">Klaar</span>
+                  <span class="num" style="font-size: 14px">8</span>
+                </div>
+                <div style="height: 9px; background: rgba(255,255,255,0.05); border-radius: 4px"><div style="height: 100%; width: 20%; background: #2ABFBF; border-radius: 4px"></div></div>
+              </div>
+            </div>
+
+            <!-- The leak, stated plainly -->
+            <div style="margin-top: 22px; padding: 15px 17px; border-radius: 13px; background: rgba(245,158,11,0.08); border: 1px solid rgba(251,191,36,0.24)">
+              <div style="display: flex; align-items: center; gap: 9px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0"/></svg>
+                <span style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.88)">6 mensen 3+ dagen stil</span>
+              </div>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.60); margin-top: 6px; line-height: 1.5">Vier daarvan halverwege de survey. Dat is al twee weken de grootste lekplek.</div>
+              <button class="chip" style="padding: 5px 13px; font-size: 12px; margin-top: 11px">Bekijk deze 6</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Secondary: usage + marketing ─────────────────────────── -->
+        <div class="panel">
+          <button onClick="{{ toggleUsage }}" class="sec-head">
+            <span style="{{ chevUsage }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Verbruik &amp; kosten</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">n8n 2.140 / 5.000 runs &middot; $86,40 AI deze maand</div>
+            </div>
+            <span class="pill" style="background: rgba(52,211,153,0.14); color: #34D399; border-color: rgba(52,211,153,0.30)">43%</span>
+          </button>
+          <sc-if value="{{ usageOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 20px 24px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span style="font-size: 13px; color: rgba(255,255,255,0.74)">n8n-executies &mdash; september</span>
+              <span style="font-size: 12.5px; color: rgba(255,255,255,0.50)">2.140 / 5.000</span>
+            </div>
+            <div style="height: 9px; background: rgba(255,255,255,0.06); border-radius: 4px; margin-top: 9px"><div style="height: 100%; width: 43%; background: #34D399; border-radius: 4px"></div></div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px">
+              <div><div class="num" style="font-size: 24px">$52,10</div><div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 3px">Anthropic</div></div>
+              <div><div class="num" style="font-size: 24px">$34,30</div><div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 3px">OpenAI</div></div>
+              <div><div class="num" style="font-size: 24px; color: rgba(255,255,255,0.55)">&mdash;</div><div style="font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 3px">Google &middot; in GCP Billing</div></div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+
+        <div class="panel">
+          <button onClick="{{ toggleMarketing }}" class="sec-head">
+            <span style="{{ chevMarketing }}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+            <div style="flex: 1">
+              <h2 class="h-sec">Marketing</h2>
+              <div style="font-size: 12.5px; color: rgba(255,255,255,0.52); margin-top: 3px">4 LinkedIn-posts deze maand &middot; 11.400 bereik &middot; laatste post 3 dagen geleden</div>
+            </div>
+            <span class="pill" style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.58); border-color: rgba(255,255,255,0.16)">Handmatig</span>
+          </button>
+          <sc-if value="{{ marketingOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; font-size: 13px; color: rgba(255,255,255,0.60)">
+            De postenlijst met bereik-snapshots, zoals hij nu is.
+          </div>
+          </sc-if>
+        </div>
+
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview": {"width": 1440, "height": 1760}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'partners',
+      outreach: true, partners: false,
+      n8n: true, support: false, feedback: false, misses: false,
+      usage: false, marketing: false,
+    };
+  }
+
+  tabStyle(name) {
+    const on = this.state.tab === name;
+    return [
+      "display: inline-flex", "align-items: center", "gap: 9px",
+      "font-family: 'Poppins', sans-serif", "font-weight: 600", "font-size: 14.5px",
+      "padding: 11px 22px", "border-radius: 12px", "transition: all .16s ease",
+      on ? 'background: rgba(236,228,210,0.95)' : 'background: rgba(18,46,59,0.45)',
+      on ? 'color: #122E3B' : 'color: rgba(255,255,255,0.62)',
+      on ? 'border: 1px solid rgba(201,182,144,0.60)' : 'border: 1px solid rgba(255,255,255,0.08)',
+      on ? 'box-shadow: 0 10px 26px -12px rgba(0,0,0,0.55)' : 'box-shadow: none',
+    ].join('; ');
+  }
+
+  badge(bg, fg) {
+    return `display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 9999px; font-size: 11.5px; font-weight: 700; background: ${bg}; color: ${fg}`;
+  }
+
+  chev(open) {
+    return `display: inline-flex; flex: none; transition: transform .18s ease; transform: rotate(${open ? 90 : 0}deg)`;
+  }
+
+  toggle(key) {
+    return () => this.setState({ [key]: !this.state[key] });
+  }
+
+  renderVals() {
+    const s = this.state;
+    return {
+      isPartners: s.tab === 'partners',
+      isPlatform: s.tab === 'platform',
+      isStats: s.tab === 'stats',
+      tabPartners: this.tabStyle('partners'),
+      tabPlatform: this.tabStyle('platform'),
+      tabStats: this.tabStyle('stats'),
+      badgeGold: this.badge(s.tab === 'partners' ? 'rgba(212,160,36,0.22)' : 'rgba(239,190,72,0.18)', s.tab === 'partners' ? '#8A6410' : '#EFBE48'),
+      badgeAmber: this.badge(s.tab === 'platform' ? 'rgba(245,158,11,0.22)' : 'rgba(251,191,36,0.16)', s.tab === 'platform' ? '#8A5A08' : '#FBBF24'),
+      goPartners: () => this.setState({ tab: 'partners' }),
+      goPlatform: () => this.setState({ tab: 'platform' }),
+      goStats: () => this.setState({ tab: 'stats' }),
+      outreachOpen: s.outreach, partnersOpen: s.partners,
+      n8nOpen: s.n8n, supportOpen: s.support, feedbackOpen: s.feedback, missesOpen: s.misses,
+      usageOpen: s.usage, marketingOpen: s.marketing,
+      chevOutreach: this.chev(s.outreach), chevPartners: this.chev(s.partners),
+      chevN8n: this.chev(s.n8n), chevSupport: this.chev(s.support),
+      chevFeedback: this.chev(s.feedback), chevMisses: this.chev(s.misses),
+      chevUsage: this.chev(s.usage), chevMarketing: this.chev(s.marketing),
+      toggleOutreach: this.toggle('outreach'), togglePartners: this.toggle('partners'),
+      toggleN8n: this.toggle('n8n'), toggleSupport: this.toggle('support'),
+      toggleFeedback: this.toggle('feedback'), toggleMisses: this.toggle('misses'),
+      toggleUsage: this.toggle('usage'), toggleMarketing: this.toggle('marketing'),
+    };
+  }
+}
+</script>
+</body>
+</html>

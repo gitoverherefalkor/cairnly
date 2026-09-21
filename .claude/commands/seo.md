@@ -1,5 +1,5 @@
 ---
-description: Run the SEO growth playbook (SEO_GROWTH_PLAYBOOK.md) — audit + build the technical foundation and/or draft researched content, adapted to this repo's stack and sector.
+description: Run the SEO growth playbook (docs/SEO_GROWTH_PLAYBOOK.md) — audit + build the technical foundation and/or draft researched content, adapted to this repo's stack and sector.
 argument-hint: optionally "audit" | "technical" | "content <topic>" (default audits and recommends)
 ---
 
@@ -9,7 +9,7 @@ copy specifics.
 
 ## Your job
 
-1. **Read `SEO_GROWTH_PLAYBOOK.md` first** — it is the authoritative runbook (portable,
+1. **Read `docs/SEO_GROWTH_PLAYBOOK.md` first** — it is the authoritative runbook (portable,
    sector-agnostic). If it isn't in this repo, tell the user to copy it here from the
    project they got it from, then stop.
 

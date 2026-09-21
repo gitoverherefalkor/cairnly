@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #122E3B; }
+    * { box-sizing: border-box; }
+    a { color: #2ABFBF; } a:hover { color: #7FD9D9; }
+    .eyebrow { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #EFBE48; }
+    .row { display: flex; align-items: center; gap: 13px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+    .sw { width: 34px; height: 34px; border-radius: 9px; flex: none; border: 1px solid rgba(255,255,255,0.14); }
+    .nm { font-size: 13px; color: rgba(255,255,255,0.88); font-weight: 500; flex: 1; }
+    .hx { font-family: ui-monospace, monospace; font-size: 12px; color: rgba(255,255,255,0.62); flex: none; }
+    .card { background: rgba(18,46,59,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 22px 24px; box-shadow: 0 24px 50px -22px rgba(0,0,0,0.40); }
+  </style>
+</helmet>
+
+<div style="position: relative; min-height: 1080px; background: #122E3B; padding: 40px">
+  <div style="position: absolute; inset: 0; background-image: linear-gradient(180deg, rgba(33,63,79,0.72) 0%, rgba(18,46,59,0.90) 46%, #122E3B 100%), url(./stone-bg.jpg); background-size: cover; background-position: center top; pointer-events: none"></div>
+
+  <div style="position: relative">
+    <div class="eyebrow">Waar dit uit is opgebouwd</div>
+    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 26px; color: #fff; margin: 11px 0 6px; letter-spacing: -0.02em">Alles hieronder staat al in de codebase</h1>
+    <p style="font-size: 13.5px; color: rgba(255,255,255,0.62); margin: 0 0 26px; max-width: 720px; line-height: 1.6">
+      Niets nieuws bedacht. Elke waarde komt uit <span style="font-family: ui-monospace, monospace; font-size: 12.5px; color: rgba(255,255,255,0.82)">dashboardV2Shared.tsx</span> en <span style="font-family: ui-monospace, monospace; font-size: 12.5px; color: rgba(255,255,255,0.82)">DashboardV4.tsx</span> &mdash; dezelfde glaskaarten, crèmebalk en gouden eyebrows als het assessment-dashboard dat gebruikers zien.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px">
+
+      <div class="card">
+        <div class="eyebrow" style="color: rgba(255,255,255,0.58); font-size: 11px">Vlakken</div>
+        <div style="margin-top: 12px">
+          <div class="row" style="border-top: 0">
+            <span class="sw" style="background: #122E3B"></span>
+            <span class="nm">Canvas, onder de foto</span><span class="hx">#122E3B</span>
+          </div>
+          <div class="row">
+            <span class="sw" style="background: rgba(18,46,59,0.55); backdrop-filter: blur(6px)"></span>
+            <span class="nm">Glaskaart &middot; blur 14px</span><span class="hx">18,46,59 / .55</span>
+          </div>
+          <div class="row">
+            <span class="sw" style="background: rgba(18,46,59,0.62)"></span>
+            <span class="nm">Verhoogd &middot; blur 18px</span><span class="hx">18,46,59 / .62</span>
+          </div>
+          <div class="row">
+            <span class="sw" style="background: #ECE4D2"></span>
+            <span class="nm">Crème topbalk</span><span class="hx">#ECE4D2</span>
+          </div>
+          <div class="row">
+            <span class="sw" style="background: #C9B690"></span>
+            <span class="nm">Tan lijn onder de balk</span><span class="hx">#C9B690</span>
+          </div>
+          <div class="row">
+            <span class="sw" style="background: rgba(255,255,255,0.08)"></span>
+            <span class="nm">Kaartrand</span><span class="hx">#fff / .08</span>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.6">
+          Radius 20 (verhoogd) / 18 (kaart) / 13 (kaart in kaart) / 12 (tab) / 9 (logo) / 8 (knop) / 4 (staaf) / 9999 (pill).<br>
+          Schaduw <span style="font-family: ui-monospace, monospace; font-size: 11.5px">0 24px 50px -22px rgba(0,0,0,.4)</span>.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="color: rgba(255,255,255,0.58); font-size: 11px">Tekst op glas</div>
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 11px">
+          <div><span style="font-size: 17px; font-family: 'Poppins', sans-serif; font-weight: 600; color: rgba(255,255,255,0.92)">Kop &mdash; Poppins 600</span><div class="hx" style="margin-top: 2px">#fff / .92</div></div>
+          <div><span style="font-size: 13.5px; color: rgba(255,255,255,0.78)">Lopende tekst &mdash; Inter 400</span><div class="hx" style="margin-top: 2px">#fff / .78</div></div>
+          <div><span style="font-size: 13px; color: rgba(255,255,255,0.60)">Tweede regel, uitleg</span><div class="hx" style="margin-top: 2px">#fff / .60</div></div>
+          <div><span style="font-size: 12.5px; color: rgba(255,255,255,0.55)">Bijschrift, naam, slug, legenda</span><div class="hx" style="margin-top: 2px">#fff / .55</div></div>
+          <div><span style="font-size: 11px; color: rgba(255,255,255,0.50)">Kolomkop &mdash; het zwakste dat mag</span><div class="hx" style="margin-top: 2px">#fff / .50</div></div>
+          <div><span class="eyebrow">Eyebrow &middot; 0.24em</span><div class="hx" style="margin-top: 3px">#EFBE48</div></div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.6">
+          Dit is de hele reden dat het nu leesbaar is: het oude dashboard schreef alles in <span style="font-family: ui-monospace, monospace; font-size: 11.5px">text-gray-400/500/600</span> op bijna-zwart. Niets onder .50 of onder 11px. Gewicht nooit boven 700.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow" style="color: rgba(255,255,255,0.58); font-size: 11px">Betekenis van kleur</div>
+        <div style="margin-top: 12px">
+          <div class="row" style="border-top: 0"><span class="sw" style="background: #EFBE48"></span><span class="nm">Jij bent aan zet</span><span class="hx">#EFBE48</span></div>
+          <div class="row"><span class="sw" style="background: #27A1A1"></span><span class="nm">Warm &middot; voortgang</span><span class="hx">#27A1A1</span></div>
+          <div class="row"><span class="sw" style="background: #2ABFBF"></span><span class="nm">Warm, feller</span><span class="hx">#2ABFBF</span></div>
+          <div class="row"><span class="sw" style="background: #34D399"></span><span class="nm">Gezond</span><span class="hx">#34D399</span></div>
+          <div class="row"><span class="sw" style="background: #FBBF24"></span><span class="nm">Aandacht nodig</span><span class="hx">#FBBF24</span></div>
+          <div class="row"><span class="sw" style="background: #F87171"></span><span class="nm">Blocker &mdash; alleen echt</span><span class="hx">#F87171</span></div>
+          <div class="row"><span class="sw" style="background: #3989AF"></span><span class="nm">Neutrale telling</span><span class="hx">#3989AF</span></div>
+        </div>
+        <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.6">
+          Rood is gereserveerd. Het verschijnt alleen als er echt een blocker is, en dan meteen bovenaan met een icoon en een woord erbij &mdash; nooit kleur alleen.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 18px">
+      <div class="eyebrow" style="color: rgba(255,255,255,0.58); font-size: 11px">Wat er met de twaalf oude tabbladen gebeurt</div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; margin-top: 16px">
+        <div>
+          <div style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; color: #fff">Partners</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.66); margin-top: 7px; line-height: 1.7">Partners &middot; Outreach</div>
+        </div>
+        <div>
+          <div style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; color: #fff">Platform</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.66); margin-top: 7px; line-height: 1.7">n8n-fouten &middot; Blockers &middot; Support &middot; Chat-feedback &middot; Assessment-missers<br><span style="color: rgba(255,255,255,0.58)">plus Deploy en Provider-status, die eerst onderaan de pagina hingen</span></div>
+        </div>
+        <div>
+          <div style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14.5px; color: #fff">Stats</div>
+          <div style="font-size: 13px; color: rgba(255,255,255,0.66); margin-top: 7px; line-height: 1.7">Traffic &middot; People &middot; Verbruik &middot; Marketing<br><span style="color: rgba(255,255,255,0.58)">Traffic en People krijgen de ruimte, de andere twee zijn dichtgeklapt</span></div>
+        </div>
+      </div>
+      <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 13px; color: rgba(255,255,255,0.60); line-height: 1.6">
+        Het oude Overzicht-tabblad verdwijnt: de vier cijfers stonden er dubbel op. Wat het deed &mdash; vertellen waar je moet kijken &mdash; doet nu de balk &ldquo;Sinds je vorige bezoek&rdquo;, en die staat op alle drie de tabbladen.
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview": {"width": 1200, "height": 1080}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
