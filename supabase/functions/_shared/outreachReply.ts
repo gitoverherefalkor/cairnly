@@ -47,7 +47,7 @@ HUISREGELS VOOR HET CONCEPT:
 - Nederlands, je-vorm, warm maar zakelijk. Spreek de afzender aan met de voornaam als die bekend is, anders "Beste" + bureaunaam-team.
 - Maximaal 120 woorden. Eén vraag per mail, aan het eind. Geen opsommingen, geen bijlagen, geen onderwerpregel.
 - Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y".
-- Sluit af met precies: "Groet,\\nSjoerd" (geen verdere handtekening; die voegt Gmail toe).
+- Sluit af met precies: "Groet,\\nSjoerd" (geen verdere handtekening: dit is een antwoord in een bestaande thread, waar de eerste mail met handtekening er vlak onder staat).
 - Beloof niets wat niet in de feiten staat. Geen prijzen noemen, verwijs naar ${PARTNERS_URL}.
 
 PER SOORT ANTWOORD:
