@@ -3,18 +3,18 @@
     "name": "WF11 - Outreach Mail Sync",
     "description": "Outreach phase 3: syncs Gmail with outreach_prospects/outreach_mails via the outreach-mail-sync edge function and drops reply drafts in Gmail. Never sends.",
     "active": true,
-    "activeVersionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
+    "activeVersionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
     "createdAt": "2026-09-11T10:44:06.960Z",
-    "updatedAt": "2026-09-22T18:31:01.231Z",
+    "updatedAt": "2026-09-21T13:15:39.730Z",
     "isArchived": false,
-    "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
-    "versionCounter": 8,
+    "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
+    "versionCounter": 7,
     "sourceWorkflowId": null,
     "triggerCount": 1,
     "nodes": [
         {
             "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-            "name": "Hourly on weekdays (08-18)",
+            "name": "Every 15 minutes",
             "type": "n8n-nodes-base.scheduleTrigger",
             "typeVersion": 1.4,
             "position": [
@@ -25,8 +25,8 @@
                 "rule": {
                     "interval": [
                         {
-                            "field": "cronExpression",
-                            "expression": "0 8-18 * * 1-5"
+                            "field": "minutes",
+                            "minutesInterval": 15
                         }
                     ]
                 }
@@ -180,7 +180,7 @@
                 160
             ],
             "parameters": {
-                "content": "## WF11 - Outreach Mail Sync\n\nLeest elk uur op werkdagen (08:00-18:00, Amsterdamse tijd) de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
+                "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
                 "height": 368,
                 "width": 688,
                 "color": 4
@@ -188,6 +188,17 @@
         }
     ],
     "connections": {
+        "Every 15 minutes": {
+            "main": [
+                [
+                    {
+                        "node": "Gmail: mail of the last 3 days",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
         "Gmail: mail of the last 3 days": {
             "main": [
                 [
@@ -242,36 +253,16 @@
                     }
                 ]
             ]
-        },
-        "Hourly on weekdays (08-18)": {
-            "main": [
-                [
-                    {
-                        "node": "Gmail: mail of the last 3 days",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
         }
     },
     "nodeGroups": [],
     "settings": {
         "executionOrder": "v1",
         "availableInMCP": true,
-        "binaryMode": "separate",
-        "timezone": "Europe/Amsterdam"
+        "binaryMode": "separate"
     },
     "staticData": {
         "node:Every 15 minutes": {
-            "recurrenceRules": [
-                null
-            ],
-            "recurrenceRuleSignatures": [
-                null
-            ]
-        },
-        "node:Hourly on weekdays (08-18)": {
             "recurrenceRules": [
                 null
             ],
@@ -310,12 +301,12 @@
         }
     ],
     "activeVersion": {
-        "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
+        "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
         "workflowId": "JXOW9lwv9MKPp9Cy",
         "nodes": [
             {
                 "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-                "name": "Hourly on weekdays (08-18)",
+                "name": "Every 15 minutes",
                 "type": "n8n-nodes-base.scheduleTrigger",
                 "typeVersion": 1.4,
                 "position": [
@@ -326,8 +317,8 @@
                     "rule": {
                         "interval": [
                             {
-                                "field": "cronExpression",
-                                "expression": "0 8-18 * * 1-5"
+                                "field": "minutes",
+                                "minutesInterval": 15
                             }
                         ]
                     }
@@ -481,7 +472,7 @@
                     160
                 ],
                 "parameters": {
-                    "content": "## WF11 - Outreach Mail Sync\n\nLeest elk uur op werkdagen (08:00-18:00, Amsterdamse tijd) de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
+                    "content": "## WF11 - Outreach Mail Sync\n\nLeest elke 15 minuten de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
                     "height": 368,
                     "width": 688,
                     "color": 4
@@ -489,6 +480,17 @@
             }
         ],
         "connections": {
+            "Every 15 minutes": {
+                "main": [
+                    [
+                        {
+                            "node": "Gmail: mail of the last 3 days",
+                            "type": "main",
+                            "index": 0
+                        }
+                    ]
+                ]
+            },
             "Gmail: mail of the last 3 days": {
                 "main": [
                     [
@@ -543,34 +545,23 @@
                         }
                     ]
                 ]
-            },
-            "Hourly on weekdays (08-18)": {
-                "main": [
-                    [
-                        {
-                            "node": "Gmail: mail of the last 3 days",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
             }
         },
         "nodeGroups": [],
-        "authors": "Sjoerd Geurts (via MCP)",
-        "name": "Stopgap: hourly on weekdays 08-18 instead of every 15 min",
-        "description": "Execution budget: 96 runs/day around the clock, ~1% found new mail. Now 11 runs per weekday (Europe/Amsterdam). Replaced later by Gmail Trigger + sync-now webhook + sweep. Backup: n8n_wfs_cairnly/backups/WF11 - Outreach Mail Sync_LIVE_BACKUP_pre_hourly_20260922.json",
+        "authors": "Sjoerd Geurts",
+        "name": null,
+        "description": null,
         "autosaved": false,
-        "createdAt": "2026-09-22T18:31:01.232Z",
-        "updatedAt": "2026-09-22T18:31:01.232Z",
+        "createdAt": "2026-09-21T13:15:39.731Z",
+        "updatedAt": "2026-09-21T13:15:39.731Z",
         "workflowPublishHistory": [
             {
-                "id": 1693,
+                "id": 1687,
                 "workflowId": "JXOW9lwv9MKPp9Cy",
-                "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
+                "versionId": "ef1e8c86-5656-4dd5-b6f8-961051ca06c5",
                 "event": "activated",
                 "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-                "createdAt": "2026-09-22T18:31:41.408Z"
+                "createdAt": "2026-09-21T13:15:39.857Z"
             }
         ]
     }

@@ -214,7 +214,7 @@ function FollowUpBadge({
 
   if (draftState === 'queued') {
     return (
-      <div className="text-[11px] text-white/60 inline-flex items-center gap-1" title="WF11 runs every 15 minutes and writes the draft into the Gmail thread.">
+      <div className="text-[11px] text-white/60 inline-flex items-center gap-1" title="WF11 runs hourly on weekdays (08:00-18:00) and writes the draft into the Gmail thread.">
         <Clock className="h-3 w-3" /> Draft queued
       </div>
     );
@@ -886,8 +886,8 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
       if (res.queued.length > 0) {
         toast.success(
           res.queued.length === 1
-            ? 'Follow-up queued. The draft lands in Gmail within 15 minutes.'
-            : `${res.queued.length} follow-ups queued. The drafts land in Gmail within 15 minutes.`,
+            ? 'Follow-up queued. The draft lands in Gmail at the next hourly sync (weekdays 08:00-18:00).'
+            : `${res.queued.length} follow-ups queued. The drafts land in Gmail at the next hourly sync (weekdays 08:00-18:00).`,
         );
       }
       if (res.rejected.length > 0) {

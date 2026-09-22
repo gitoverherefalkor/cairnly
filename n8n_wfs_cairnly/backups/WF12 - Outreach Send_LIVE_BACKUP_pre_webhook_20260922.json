@@ -1,0 +1,283 @@
+{
+    "id": "TNlRk9vah0xqSIZn",
+    "name": "WF12 - Outreach Send",
+    "description": null,
+    "active": false,
+    "activeVersionId": null,
+    "createdAt": "2026-09-21T15:16:05.189Z",
+    "updatedAt": "2026-09-21T15:16:05.189Z",
+    "isArchived": false,
+    "versionId": "ff3862b5-616b-45ff-9bbb-c68835640633",
+    "versionCounter": 1,
+    "sourceWorkflowId": null,
+    "triggerCount": 0,
+    "nodes": [
+        {
+            "name": "Every 10 minutes",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                0,
+                0
+            ],
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "minutes",
+                            "minutesInterval": 10
+                        }
+                    ]
+                }
+            },
+            "id": "49e89cef-f22d-4054-91ea-02e7bed5438c"
+        },
+        {
+            "name": "Ask for one due mail",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                220,
+                0
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-send",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ action: \"next\" }) }}",
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "aiABzg04zbeDSXRc",
+                    "name": "Supabase Edge Functions \u2014 Shared Secret"
+                }
+            },
+            "id": "87f5d65f-370e-4848-b05d-94ed80c75791"
+        },
+        {
+            "name": "Anything to send?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [
+                440,
+                0
+            ],
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "loose",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "has-send",
+                            "leftValue": "={{ $json.send }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "object",
+                                "operation": "exists",
+                                "singleValue": true
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "looseTypeValidation": true,
+                "options": {}
+            },
+            "id": "b48cfe72-9bb2-4849-a8d0-b2996bddab2f"
+        },
+        {
+            "name": "Gmail: send the draft",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "onError": "continueErrorOutput",
+            "position": [
+                660,
+                -100
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "=https://gmail.googleapis.com/gmail/v1/users/me/drafts/send",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "gmailOAuth2",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ id: $json.send.draft_id }) }}",
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "credentials": {
+                "gmailOAuth2": {
+                    "id": "sPpoSg9CO0fP31TB",
+                    "name": "Gmail account 2"
+                }
+            },
+            "id": "9427ee81-594c-41cd-a191-2625ac0f5fd2"
+        },
+        {
+            "name": "Report sent",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                900,
+                -200
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-send",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ action: \"sent\", id: $('Anything to send?').item.json.send.id, gmail_message_id: $json.id }) }}",
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "aiABzg04zbeDSXRc",
+                    "name": "Supabase Edge Functions \u2014 Shared Secret"
+                }
+            },
+            "id": "d639d7ab-faf1-49b0-afe3-a400a46d8995"
+        },
+        {
+            "name": "Report failure",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                900,
+                0
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "https://pcoyafgsirrznhmdaiji.supabase.co/functions/v1/outreach-send",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpHeaderAuth",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ JSON.stringify({ action: \"failed\", id: $('Anything to send?').item.json.send.id, error: ($json.error && ($json.error.message || JSON.stringify($json.error))) || \"Gmail drafts/send failed\" }) }}",
+                "options": {
+                    "timeout": 30000
+                }
+            },
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "aiABzg04zbeDSXRc",
+                    "name": "Supabase Edge Functions \u2014 Shared Secret"
+                }
+            },
+            "id": "6f0f5795-d896-4e3b-8381-83f763891a72"
+        },
+        {
+            "name": "Sticky Note",
+            "type": "n8n-nodes-base.stickyNote",
+            "typeVersion": 1,
+            "position": [
+                -40,
+                160
+            ],
+            "parameters": {
+                "content": "## WF12 - Outreach Send\\n\\nSends outreach mail that is ALREADY WRITTEN as a Gmail draft. It never composes anything.\\n\\nEvery pacing rule lives in `outreach_send_claim()` in Supabase: Monday from 13:00, Friday until 12:00, otherwise 09:00-16:30, never at the weekend, max 8 a day, a random 24-53 minute gap, plus a kill switch (`outreach_send_state.gepauzeerd`). Polling more often than every 10 minutes therefore sends no extra mail.\\n\\nEditing a draft in Gmail changes what ships. Deleting a draft cancels the send.\\n\\nTo stop everything: set `gepauzeerd = true` in `outreach_send_state`, or the toggle in /ops. Deactivating this workflow also works but is the blunter tool.",
+                "height": 340,
+                "width": 460,
+                "color": 4
+            },
+            "id": "aca0d127-d86f-421e-b19e-212dd86ab65c"
+        }
+    ],
+    "connections": {
+        "Every 10 minutes": {
+            "main": [
+                [
+                    {
+                        "node": "Ask for one due mail",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ask for one due mail": {
+            "main": [
+                [
+                    {
+                        "node": "Anything to send?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Anything to send?": {
+            "main": [
+                [
+                    {
+                        "node": "Gmail: send the draft",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "Gmail: send the draft": {
+            "main": [
+                [
+                    {
+                        "node": "Report sent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Report failure",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "nodeGroups": [],
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "pinData": null,
+    "meta": null,
+    "tags": [],
+    "shared": [
+        {
+            "role": "workflow:owner",
+            "workflowId": "TNlRk9vah0xqSIZn",
+            "projectId": "tU8FiznMfmTnDFNa",
+            "project": {
+                "id": "tU8FiznMfmTnDFNa",
+                "name": "Sjoerd Geurts <sjoerd@bethehitl.com>",
+                "type": "personal",
+                "icon": null,
+                "description": null,
+                "customTelemetryTags": [],
+                "creatorId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
+                "createdAt": "2025-06-17T10:09:28.440Z",
+                "updatedAt": "2026-08-17T09:18:10.096Z"
+            },
+            "createdAt": "2026-09-21T15:16:05.191Z",
+            "updatedAt": "2026-09-21T15:16:05.191Z"
+        }
+    ],
+    "activeVersion": null
+}
