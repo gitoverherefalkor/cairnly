@@ -3,18 +3,18 @@
     "name": "WF11 - Outreach Mail Sync",
     "description": "Outreach phase 3: syncs Gmail with outreach_prospects/outreach_mails via the outreach-mail-sync edge function and drops reply drafts in Gmail. Never sends.",
     "active": true,
-    "activeVersionId": "9c4bc8f7-2be9-4ea8-a4fd-a106c71de5bf",
+    "activeVersionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
     "createdAt": "2026-09-11T10:44:06.960Z",
-    "updatedAt": "2026-09-23T10:56:00.176Z",
+    "updatedAt": "2026-09-22T18:31:01.231Z",
     "isArchived": false,
-    "versionId": "9c4bc8f7-2be9-4ea8-a4fd-a106c71de5bf",
-    "versionCounter": 9,
+    "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
+    "versionCounter": 8,
     "sourceWorkflowId": null,
-    "triggerCount": 3,
+    "triggerCount": 1,
     "nodes": [
         {
             "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-            "name": "Sweep: weekdays 08, 12, 16",
+            "name": "Hourly on weekdays (08-18)",
             "type": "n8n-nodes-base.scheduleTrigger",
             "typeVersion": 1.4,
             "position": [
@@ -26,7 +26,7 @@
                     "interval": [
                         {
                             "field": "cronExpression",
-                            "expression": "0 8,12,16 * * 1-5"
+                            "expression": "0 8-18 * * 1-5"
                         }
                     ]
                 }
@@ -57,8 +57,7 @@
                     "id": "sPpoSg9CO0fP31TB",
                     "name": "Gmail account 2"
                 }
-            },
-            "alwaysOutputData": true
+            }
         },
         {
             "id": "2482e824-2f98-4527-9c8c-ea03cd58ca32",
@@ -181,73 +180,11 @@
                 160
             ],
             "parameters": {
-                "content": "## WF11 - Outreach Mail Sync\n\nDrie ingangen, geen klok die leeg draait (n8n rekent elke run):\n\n1. **Gmail: new mail** (Gmail Trigger, kijkt elke 5 minuten). Een check zonder nieuwe mail kost niets; alleen binnenkomende mail start een run. De trigger slaat mail over die WIJ versturen.\n2. **Sweep** op werkdagen om 08:00, 12:00 en 16:00 (Amsterdam): leest de laatste 3 dagen opnieuw, voor onze eigen verzonden mail en alles wat een mislukte run miste.\n3. **Sync now**: Supabase klopt aan als Sjoerd in /ops op Draft follow-up klikt (`outreach_sync_wake()`, hoogstens eens per 3 minuten).\n\nAlles gaat naar de Supabase-functie `outreach-mail-sync`: koppelt mail aan een bureau, dedupliceert op Gmail-id, zet statussen, laat Claude antwoorden classificeren en concepten schrijven, mint testcodes. De concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT verzonden.\n\nLogica in git: `supabase/functions/outreach-mail-sync/`, `_shared/outreachReply.ts`, migratie `20260923120000_outreach_sync_wake.sql`.",
+                "content": "## WF11 - Outreach Mail Sync\n\nLeest elk uur op werkdagen (08:00-18:00, Amsterdamse tijd) de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
                 "height": 368,
                 "width": 688,
                 "color": 4
             }
-        },
-        {
-            "id": "67b9963b-0ab0-4478-bc34-4aadd3e1eed0",
-            "name": "Gmail: new mail (checks every 5 min)",
-            "type": "n8n-nodes-base.gmailTrigger",
-            "typeVersion": 1.4,
-            "position": [
-                224,
-                -200
-            ],
-            "parameters": {
-                "pollTimes": {
-                    "item": [
-                        {
-                            "mode": "everyX",
-                            "value": 5,
-                            "unit": "minutes"
-                        }
-                    ]
-                },
-                "authentication": "oAuth2",
-                "event": "messageReceived",
-                "simple": false,
-                "maxResults": 50,
-                "filters": {
-                    "q": "label:cly-partners -in:draft -in:spam -in:trash",
-                    "readStatus": "both",
-                    "includeDrafts": false,
-                    "includeSpamTrash": false
-                },
-                "options": {}
-            },
-            "credentials": {
-                "gmailOAuth2": {
-                    "id": "sPpoSg9CO0fP31TB",
-                    "name": "Gmail account 2"
-                }
-            }
-        },
-        {
-            "id": "c9c51dc5-fdde-4730-9a08-14d18f96652a",
-            "name": "Sync now (knock from Supabase)",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 2.1,
-            "position": [
-                0,
-                180
-            ],
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "e0a968a9-082e-4d1d-8de7-293101d0bed5",
-                "authentication": "headerAuth",
-                "responseMode": "onReceived",
-                "options": {}
-            },
-            "credentials": {
-                "httpHeaderAuth": {
-                    "id": "aiABzg04zbeDSXRc",
-                    "name": "Supabase Edge Functions \u2014 Shared Secret"
-                }
-            },
-            "webhookId": "46a7ce39-0013-4097-b470-29136157b00e"
         }
     ],
     "connections": {
@@ -306,29 +243,7 @@
                 ]
             ]
         },
-        "Sweep: weekdays 08, 12, 16": {
-            "main": [
-                [
-                    {
-                        "node": "Gmail: mail of the last 3 days",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Gmail: new mail (checks every 5 min)": {
-            "main": [
-                [
-                    {
-                        "node": "Bundle messages",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Sync now (knock from Supabase)": {
+        "Hourly on weekdays (08-18)": {
             "main": [
                 [
                     {
@@ -363,19 +278,6 @@
             "recurrenceRuleSignatures": [
                 null
             ]
-        },
-        "node:Sweep: weekdays 08, 12, 16": {
-            "recurrenceRules": [
-                null
-            ],
-            "recurrenceRuleSignatures": [
-                null
-            ]
-        },
-        "node:Gmail: new mail (checks every 5 min)": {
-            "Gmail: new mail (checks every 5 min)": {
-                "lastTimeChecked": 1790160995
-            }
         }
     },
     "pinData": {},
@@ -408,12 +310,12 @@
         }
     ],
     "activeVersion": {
-        "versionId": "9c4bc8f7-2be9-4ea8-a4fd-a106c71de5bf",
+        "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
         "workflowId": "JXOW9lwv9MKPp9Cy",
         "nodes": [
             {
                 "id": "3f18f277-f31e-4c5c-a619-8808788829e1",
-                "name": "Sweep: weekdays 08, 12, 16",
+                "name": "Hourly on weekdays (08-18)",
                 "type": "n8n-nodes-base.scheduleTrigger",
                 "typeVersion": 1.4,
                 "position": [
@@ -425,7 +327,7 @@
                         "interval": [
                             {
                                 "field": "cronExpression",
-                                "expression": "0 8,12,16 * * 1-5"
+                                "expression": "0 8-18 * * 1-5"
                             }
                         ]
                     }
@@ -456,8 +358,7 @@
                         "id": "sPpoSg9CO0fP31TB",
                         "name": "Gmail account 2"
                     }
-                },
-                "alwaysOutputData": true
+                }
             },
             {
                 "id": "2482e824-2f98-4527-9c8c-ea03cd58ca32",
@@ -580,73 +481,11 @@
                     160
                 ],
                 "parameters": {
-                    "content": "## WF11 - Outreach Mail Sync\n\nDrie ingangen, geen klok die leeg draait (n8n rekent elke run):\n\n1. **Gmail: new mail** (Gmail Trigger, kijkt elke 5 minuten). Een check zonder nieuwe mail kost niets; alleen binnenkomende mail start een run. De trigger slaat mail over die WIJ versturen.\n2. **Sweep** op werkdagen om 08:00, 12:00 en 16:00 (Amsterdam): leest de laatste 3 dagen opnieuw, voor onze eigen verzonden mail en alles wat een mislukte run miste.\n3. **Sync now**: Supabase klopt aan als Sjoerd in /ops op Draft follow-up klikt (`outreach_sync_wake()`, hoogstens eens per 3 minuten).\n\nAlles gaat naar de Supabase-functie `outreach-mail-sync`: koppelt mail aan een bureau, dedupliceert op Gmail-id, zet statussen, laat Claude antwoorden classificeren en concepten schrijven, mint testcodes. De concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT verzonden.\n\nLogica in git: `supabase/functions/outreach-mail-sync/`, `_shared/outreachReply.ts`, migratie `20260923120000_outreach_sync_wake.sql`.",
+                    "content": "## WF11 - Outreach Mail Sync\n\nLeest elk uur op werkdagen (08:00-18:00, Amsterdamse tijd) de mail van de laatste 3 dagen en stuurt die naar de Supabase-functie `outreach-mail-sync`. Die koppelt elke mail aan een bureau uit `outreach_prospects`, dedupliceert op Gmail-id, zet statussen (verzonden / opvolging / gereageerd / afgewezen / codes_gemint), laat Claude een antwoord classificeren en een concept schrijven, en mint een testcode als een bureau erom vraagt.\n\nDe concepten komen terug en worden hier als **Gmail-draft in de thread** gezet. Er wordt NOOIT automatisch verzonden.\n\nLogica en huisregels staan in git: `supabase/functions/outreach-mail-sync/` en `_shared/outreachReply.ts`. Spec: `docs/superpowers/specs/2026-09-11-outreach-mail-sync-design.md`.",
                     "height": 368,
                     "width": 688,
                     "color": 4
                 }
-            },
-            {
-                "id": "67b9963b-0ab0-4478-bc34-4aadd3e1eed0",
-                "name": "Gmail: new mail (checks every 5 min)",
-                "type": "n8n-nodes-base.gmailTrigger",
-                "typeVersion": 1.4,
-                "position": [
-                    224,
-                    -200
-                ],
-                "parameters": {
-                    "pollTimes": {
-                        "item": [
-                            {
-                                "mode": "everyX",
-                                "value": 5,
-                                "unit": "minutes"
-                            }
-                        ]
-                    },
-                    "authentication": "oAuth2",
-                    "event": "messageReceived",
-                    "simple": false,
-                    "maxResults": 50,
-                    "filters": {
-                        "q": "label:cly-partners -in:draft -in:spam -in:trash",
-                        "readStatus": "both",
-                        "includeDrafts": false,
-                        "includeSpamTrash": false
-                    },
-                    "options": {}
-                },
-                "credentials": {
-                    "gmailOAuth2": {
-                        "id": "sPpoSg9CO0fP31TB",
-                        "name": "Gmail account 2"
-                    }
-                }
-            },
-            {
-                "id": "c9c51dc5-fdde-4730-9a08-14d18f96652a",
-                "name": "Sync now (knock from Supabase)",
-                "type": "n8n-nodes-base.webhook",
-                "typeVersion": 2.1,
-                "position": [
-                    0,
-                    180
-                ],
-                "parameters": {
-                    "httpMethod": "POST",
-                    "path": "e0a968a9-082e-4d1d-8de7-293101d0bed5",
-                    "authentication": "headerAuth",
-                    "responseMode": "onReceived",
-                    "options": {}
-                },
-                "credentials": {
-                    "httpHeaderAuth": {
-                        "id": "aiABzg04zbeDSXRc",
-                        "name": "Supabase Edge Functions \u2014 Shared Secret"
-                    }
-                },
-                "webhookId": "46a7ce39-0013-4097-b470-29136157b00e"
             }
         ],
         "connections": {
@@ -705,29 +544,7 @@
                     ]
                 ]
             },
-            "Sweep: weekdays 08, 12, 16": {
-                "main": [
-                    [
-                        {
-                            "node": "Gmail: mail of the last 3 days",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Gmail: new mail (checks every 5 min)": {
-                "main": [
-                    [
-                        {
-                            "node": "Bundle messages",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "Sync now (knock from Supabase)": {
+            "Hourly on weekdays (08-18)": {
                 "main": [
                     [
                         {
@@ -741,19 +558,19 @@
         },
         "nodeGroups": [],
         "authors": "Sjoerd Geurts (via MCP)",
-        "name": "Gmail Trigger + sweep 3x/weekday + sync-now webhook instead of a clock",
-        "description": "Hourly stopgap replaced. New mail: Gmail Trigger every 5 min (empty polls are free). Sweep 08/12/16 weekdays re-reads 3 days (own sent mail, missed runs). Sync now: webhook knocked by Supabase outreach_sync_wake() on a /ops follow-up click, debounced 3 min. Gmail getAll alwaysOutputData so a quiet mailbox still drains follow-ups. Backup: n8n_wfs_cairnly/backups/WF11 - Outreach Mail Sync_LIVE_BACKUP_pre_trigger_20260923.json",
+        "name": "Stopgap: hourly on weekdays 08-18 instead of every 15 min",
+        "description": "Execution budget: 96 runs/day around the clock, ~1% found new mail. Now 11 runs per weekday (Europe/Amsterdam). Replaced later by Gmail Trigger + sync-now webhook + sweep. Backup: n8n_wfs_cairnly/backups/WF11 - Outreach Mail Sync_LIVE_BACKUP_pre_hourly_20260922.json",
         "autosaved": false,
-        "createdAt": "2026-09-23T10:56:00.177Z",
-        "updatedAt": "2026-09-23T10:56:00.177Z",
+        "createdAt": "2026-09-22T18:31:01.232Z",
+        "updatedAt": "2026-09-22T18:31:01.232Z",
         "workflowPublishHistory": [
             {
-                "id": 1702,
+                "id": 1693,
                 "workflowId": "JXOW9lwv9MKPp9Cy",
-                "versionId": "9c4bc8f7-2be9-4ea8-a4fd-a106c71de5bf",
+                "versionId": "1ac03f88-8b43-4a8f-891d-88eff0cda174",
                 "event": "activated",
                 "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-                "createdAt": "2026-09-23T10:56:34.897Z"
+                "createdAt": "2026-09-22T18:31:41.408Z"
             }
         ]
     }
