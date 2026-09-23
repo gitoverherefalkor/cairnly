@@ -15,8 +15,10 @@
 //   { action: 'sent', id, gmail_message_id }  -> { ok: true }
 //   { action: 'failed', id, error }           -> { ok: true, status }
 //
-// WF12 "Outreach Send" polls 'next' every ten minutes, posts the draft id to
-// Gmail's drafts/send, and reports back. Nothing else calls this.
+// WF12 "Outreach Send" does not poll: pg_cron knocks its webhook when
+// outreach_send_due() says a mail may leave (outreach_send_wake). WF12 then
+// calls 'next', posts the draft id to Gmail's drafts/send, and reports back.
+// Nothing else calls this.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';

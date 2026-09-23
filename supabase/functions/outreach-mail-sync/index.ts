@@ -398,8 +398,10 @@ const CHASEABLE = new Set(['verzonden', 'opvolging_1']);
 /**
  * Turn every "Draft follow-up" click in /ops into a draft for n8n to create.
  *
- * Runs on every sync, including the many runs with no new mail, because the
- * queue is filled by the dashboard rather than by Gmail. A request on an agency
+ * Runs on every sync, including runs with no new mail, because the queue is
+ * filled by the dashboard rather than by Gmail. A click in /ops also knocks
+ * WF11's sync-now webhook (outreach_sync_wake, debounced), so the draft does
+ * not wait for the next sweep. A request on an agency
  * that has meanwhile replied or been closed is dropped rather than written: by
  * the time Sjoerd reads the draft the situation would already have changed.
  */
@@ -571,14 +573,26 @@ serve(async (req) => {
       // the mail it answers; a chase hangs off the agency itself.
       if (mailId.startsWith(FOLLOW_UP_PREFIX)) {
         const slug = mailId.slice(FOLLOW_UP_PREFIX.length);
+        // Only the FIRST draft for a request counts. WF11 has several doors now
+        // (Gmail Trigger, sweep, sync-now webhook), so two runs can overlap and
+        // both write a chase for the same agency. A request always resets
+        // followup_draft_id to null, so a non-null value here means this draft
+        // is the second one: it stays in Gmail for Sjoerd to delete, but it is
+        // never queued, because a queued chase is sent without a human.
         const { data, error } = await supabase
           .from('outreach_prospects')
           .update({ followup_draft_id: draftId, updated_at: new Date().toISOString() })
           .eq('slug', slug)
+          .is('followup_draft_id', null)
           .select('slug, to_email')
           .maybeSingle();
         if (error) throw error;
-        if (!data) return json({ error: 'Unknown prospect' }, 404);
+        if (!data) {
+          const { data: known } = await supabase.from('outreach_prospects').select('slug').eq('slug', slug).maybeSingle();
+          if (!known) return json({ error: 'Unknown prospect' }, 404);
+          console.warn('[outreach-mail-sync] second chase draft for', slug, draftId, '- not queued');
+          return json({ ok: true, slug, duplicate: true });
+        }
         await queueChase(supabase, slug, draftId, (data.to_email as string | null) ?? null);
         return json({ ok: true, slug });
       }
