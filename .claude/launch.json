@@ -12,6 +12,16 @@
       "autoPort": true
     },
     {
+      "name": "preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview"
+      ],
+      "port": 4173,
+      "autoPort": true
+    },
+    {
       "name": "dev-resume-wf",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
