@@ -57,3 +57,43 @@ export const OUTREACH_STATUSES = [
 ] as const;
 
 export type OutreachStatus = (typeof OUTREACH_STATUSES)[number];
+
+// ─── Parked replies and the check-in ─────────────────────────────────────────
+//
+// Some replies need no answer now but do need one later: "I'll pass it on, my
+// colleagues will be in touch." /ops parks those ("Park, they'll get back to
+// me"), which takes the agency off Waiting on you and starts a check-in clock.
+// Mirrored in src/lib/outreach.ts, which Vite cannot import from here.
+
+/** Working days after parking before the check-in is due. Two weeks: time to talk it over internally. */
+export const CHECK_IN_WORKING_DAYS = 10;
+
+/**
+ * No check-in once the conversation has moved on: a call is booked, they said
+ * no, or they are already running a pilot.
+ */
+export const CHECK_IN_CLOSED: ReadonlySet<string> = new Set([
+  'nog_niet_benaderd',
+  'gesprek_gepland',
+  'pilot_gestart',
+  'founding_partner',
+  'afgewezen',
+  'geen_fit',
+]);
+
+interface LatestMail {
+  direction: string;
+  sentiment?: string | null;
+  sent_at: string;
+}
+
+/**
+ * Parked = they wrote last (a person, not an out-of-office) and the park stamp
+ * is newer than that mail. A fresh mail from them un-parks it by itself; so
+ * does any mail from us, because then we wrote last.
+ */
+export function isParked(dismissedAt: string | null | undefined, latest: LatestMail | null | undefined): boolean {
+  if (!dismissedAt || !latest) return false;
+  if (latest.direction !== 'in' || latest.sentiment === 'auto') return false;
+  return Date.parse(dismissedAt) >= Date.parse(latest.sent_at);
+}

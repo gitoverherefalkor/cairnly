@@ -259,3 +259,72 @@ export function parseFollowUp(
   if (!body || !/Sjoerd\s*$/.test(body)) return null;
   return body;
 }
+
+// ─── The check-in ────────────────────────────────────────────────────────────
+//
+// A different mail from a chase. The chase goes to someone who never answered;
+// the check-in goes to someone who DID answer, with "I'll pass it on" or "we'll
+// get back to you", and then went quiet. So it may refer to what they said,
+// it goes to the person who replied rather than the seed contact, and it is
+// never queued for sending: like every reply, a human reads it first.
+
+export interface CheckInInput {
+  slug: string;
+  bureau: string;
+  /** The person who replied, as far as we can tell. Often not the seed contact. */
+  replierName: string | null;
+  /** What they wrote, cut to the part they typed. The model reads it for tone and names. */
+  theirReply: string | null;
+  /** The classifier's one-line summary of that reply. */
+  summary: string | null;
+  codeIssued: boolean;
+}
+
+/**
+ * The approved skeleton. One question, no pitch: they already know what
+ * Cairnly is, the only thing we do not know is where it landed.
+ */
+export function templateCheckIn(input: CheckInInput): string {
+  const name = firstName(input.replierName);
+  const code = input.codeIssued
+    ? 'De testcode die ik je stuurde blijft gewoon geldig, ook als jullie er later pas aan toekomen.'
+    : 'Willen jullie het eerst zelf proberen met een eigen casus, dan stuur ik graag een gratis testcode, zonder voorwaarden.';
+  return [
+    name ? `Hoi ${name},` : `Beste team van ${agencyName(input.bureau)},`,
+    '',
+    'Een tijdje terug gaf je aan dat je mijn vraag over Cairnly intern zou bespreken. Ik ben benieuwd: is het al ter sprake gekomen?',
+    '',
+    'Geen haast, en als het nu niet speelt hoor ik dat ook graag. Dan weet ik waar ik sta.',
+    '',
+    code,
+    '',
+    'Groet,',
+    'Sjoerd',
+  ].join('\n');
+}
+
+export const CHECK_IN_SYSTEM_PROMPT = `Je bent de assistent van Sjoerd Geurts, oprichter van Cairnly (cairnly.io). Sjoerd mailde een Nederlands re-integratie- of outplacementbureau over Cairnly. Iemand van dat bureau antwoordde dat ze erop terug zouden komen (bijvoorbeeld: "ik leg het intern neer, mijn collega's nemen contact op"). Daarna bleef het stil. Jij schrijft een korte, vriendelijke check-in die Sjoerd nakijkt en zelf verstuurt.
+
+Je krijgt een SKELET dat Sjoerd heeft goedgekeurd, plus hun laatste mail. Dat skelet is de mail. Jouw werk is klein en precies:
+- Neem de zinnen van het skelet over, in dezelfde volgorde.
+- De aanhef: spreek de persoon aan die de laatste mail schreef, met de voornaam waarmee die zelf ondertekende. Is die naam niet duidelijk, laat de aanhef van het skelet staan.
+- De eerste zin mag je laten aansluiten op wat zij echt schreven (bijvoorbeeld "met je collega's bespreken" in plaats van "intern bespreken"). Citeer ze niet letterlijk en maak hun toezegging niet groter dan die was.
+- Verzin geen nieuwe beloftes, geen prijzen, geen cijfers, geen namen van klanten, en geen nieuwe pitch.
+- Laat de slotzin en de ondertekening exact staan.
+
+HUISREGELS: Nederlands, je-vorm, warm maar zakelijk. Maximaal 80 woorden. Stel precies één vraag. Geen opsommingen, geen onderwerpregel, geen bijlagen. Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y". Eindig met "Groet," en op de volgende regel "Sjoerd", zonder verdere handtekening.`;
+
+export function buildCheckInMessage(input: CheckInInput): string {
+  return [
+    `Bureau: ${input.bureau}`,
+    `Naam van wie antwoordde (uit het afzenderadres, kan leeg zijn): ${input.replierName ?? 'onbekend'}`,
+    `Samenvatting van hun antwoord: ${input.summary ?? 'geen'}`,
+    `Al een gratis testcode gestuurd: ${input.codeIssued ? 'ja' : 'nee'}`,
+    '',
+    'HUN LAATSTE MAIL (alleen om op aan te sluiten, niet citeren):',
+    input.theirReply ?? '(niet beschikbaar)',
+    '',
+    'SKELET (neem dit over, pas hooguit de aanhef en de eerste zin aan):',
+    templateCheckIn(input),
+  ].join('\n');
+}

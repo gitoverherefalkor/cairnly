@@ -2,11 +2,14 @@ import { assertEquals, assertStringIncludes } from 'https://deno.land/std@0.224.
 import { textToHtml } from './outreachHtml.ts';
 import {
   agencyName,
+  buildCheckInMessage,
   demoLink,
   firstName,
   parseFollowUp,
   renderFollowUp,
   salutation,
+  templateCheckIn,
+  type CheckInInput,
   type FollowUpInput,
 } from './outreachFollowUp.ts';
 
@@ -132,4 +135,38 @@ Deno.test('the chase only claims to have seen them look when the evidence carrie
   // Two clicks, or clicks on two days, is beyond what a scanner does.
   assertStringIncludes(renderFollowUp(make({ clicks: 2, clickDays: 1 })), 'een paar keer is bekeken');
   assertStringIncludes(renderFollowUp(make({ clicks: 1, clickDays: 2 })), 'Ik zag dat de demo bij jullie is geopend');
+});
+
+const checkIn: CheckInInput = {
+  slug: 'denieuwekracht',
+  bureau: 'De Nieuwe Kracht B.V.',
+  replierName: null,
+  theirReply: 'Hoi Sjoerd, dank je wel voor je toelichting! Ik ga dit meegeven aan mijn collega\'s.',
+  summary: "Judith legt vraag intern neer, collega's nemen later contact op.",
+  codeIssued: false,
+};
+
+Deno.test('the check-in asks exactly one question and signs off', () => {
+  for (const input of [checkIn, { ...checkIn, codeIssued: true }, { ...checkIn, replierName: 'Judith Asselbergs' }]) {
+    const body = templateCheckIn(input);
+    assertEquals((body.match(/\?/g) ?? []).length, 1);
+    assertEquals(/Groet,\nSjoerd$/.test(body), true);
+    assertEquals(body.includes('—'), false);
+  }
+});
+
+Deno.test('the check-in greets the person who replied, or the team', () => {
+  assertStringIncludes(templateCheckIn({ ...checkIn, replierName: 'Judith Asselbergs' }), 'Hoi Judith,');
+  assertStringIncludes(templateCheckIn(checkIn), 'Beste team van De Nieuwe Kracht,');
+});
+
+Deno.test('the check-in does not offer a second test code', () => {
+  assertEquals(templateCheckIn({ ...checkIn, codeIssued: true }).includes('gratis testcode'), false);
+  assertStringIncludes(templateCheckIn(checkIn), 'gratis testcode');
+});
+
+Deno.test('the check-in prompt carries their reply and the skeleton', () => {
+  const msg = buildCheckInMessage(checkIn);
+  assertStringIncludes(msg, 'meegeven aan mijn collega');
+  assertStringIncludes(msg, 'is het al ter sprake gekomen?');
 });

@@ -23,10 +23,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine, X, Check } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine, X, PauseCircle } from 'lucide-react';
 import {
   FOLLOW_UP_1_WORKING_DAYS,
   FOLLOW_UP_2_WORKING_DAYS,
+  CHECK_IN_WORKING_DAYS,
   FOCUS_LABELS,
   OUTREACH_STATUSES,
   STATUS_LABELS,
@@ -206,14 +207,21 @@ function FollowUpBadge({
   onDraft?: () => void;
   queueing?: boolean;
 }) {
+  const checkIn = fu?.kind === 'checkin';
+  const what = checkIn ? 'Check-in' : `Follow-up ${fu?.step ?? ''}`.trim();
+
   if (draftState === 'ready') {
     return (
       <div>
         <span
           className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-atlas-teal/40 bg-atlas-teal/15 text-atlas-teal"
-          title="The follow-up is written and waiting in Gmail under Drafts. Read it, change what you want, send it."
+          title={
+            checkIn
+              ? 'The check-in is written and waiting in Gmail under Drafts. It is never sent on its own: read it, change what you want, send it.'
+              : 'The follow-up is written and waiting in Gmail under Drafts. Read it, change what you want, send it.'
+          }
         >
-          <Mail className="h-3 w-3" /> Follow-up draft in Gmail
+          <Mail className="h-3 w-3" /> {checkIn ? 'Check-in' : 'Follow-up'} draft in Gmail
         </span>
       </div>
     );
@@ -234,8 +242,8 @@ function FollowUpBadge({
   if (!fu.due) {
     return (
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] text-white/45" title={`Follow-up ${fu.step} is due ${fmtDay(fu.dueDay)}`}>
-          Follow-up {fu.step} {fmtDay(fu.dueDay)}
+        <span className="text-[11px] text-white/45" title={`${what} is due ${fmtDay(fu.dueDay)}`}>
+          {what} {fmtDay(fu.dueDay)}
         </span>
         {onDraft && (
           <button
@@ -259,16 +267,24 @@ function FollowUpBadge({
     <div className="flex flex-wrap items-center gap-1.5">
       <span
         className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-atlas-gold/40 bg-atlas-gold/15 text-atlas-gold"
-        title={`Follow-up ${fu.step} was due ${fmtDay(fu.dueDay)}. Sending it moves the status by itself once WF11 picks the mail up.`}
+        title={
+          checkIn
+            ? `The check-in was due ${fmtDay(fu.dueDay)}: they said they would get back to you and went quiet.`
+            : `Follow-up ${fu.step} was due ${fmtDay(fu.dueDay)}. Sending it moves the status by itself once WF11 picks the mail up.`
+        }
       >
-        <Clock className="h-3 w-3" /> Follow-up {fu.step}, {late}
+        <Clock className="h-3 w-3" /> {what}, {late}
       </span>
       {onDraft && (
         <button
           onClick={onDraft}
           disabled={queueing}
           className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-white/15 text-white/70 hover:text-white hover:border-atlas-gold/40 disabled:opacity-50"
-          title="Write the follow-up for this agency and put it in the Gmail thread as a draft. Nothing is sent."
+          title={
+            checkIn
+              ? 'Write the check-in to whoever replied and put it in their Gmail thread as a draft. Never sent on its own.'
+              : 'Write the follow-up for this agency and put it in the Gmail thread as a draft. Nothing is sent.'
+          }
         >
           {queueing ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3" />}
           Draft it
@@ -292,7 +308,7 @@ function ProspectRow({
   onSaved: (patch: Pick<OutreachProspect, 'slug'> & Partial<OutreachProspect>) => void;
   onCreatePartner?: (draft: PartnerDraft) => void;
   onDraftFollowUp: (slug: string) => Promise<void>;
-  /** A "no reply needed" (or its undo) went through; the page-level counts are now stale. */
+  /** A park (or its undo) went through; the page-level counts are now stale. */
   onReplyDismissed?: () => void;
 }) {
   const [notes, setNotes] = useState(p.notities ?? '');
@@ -304,7 +320,7 @@ function ProspectRow({
 
   const draftState = followUpDraftState(p);
 
-  // "No reply needed" / undo. Only ever touches our own row: the Gmail thread,
+  // Park / undo. Only ever touches our own row: the Gmail thread,
   // and any reply draft waiting in it, stay exactly as they are.
   const dismissReply = async (undo: boolean) => {
     setDismissing(true);
@@ -504,17 +520,17 @@ function ProspectRow({
               <button
                 onClick={() => dismissReply(false)}
                 disabled={dismissing}
-                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-white/15 text-white/70 hover:text-white hover:border-white/30 disabled:opacity-50"
-                title="Nothing to answer here (for example: they will get back to you). Takes them off Waiting on you until they write again. Gmail is not touched, so delete the reply draft there yourself if there is one."
+                className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-lg border border-dashed border-white/25 text-white/70 hover:text-white hover:border-white/45 hover:bg-white/[0.05] disabled:opacity-50"
+                title={`For a reply with nothing to answer yet, like "my colleagues will get back to you". Takes them off Waiting on you and puts a check-in on the list ${CHECK_IN_WORKING_DAYS} working days from now. If they write first, it comes back by itself. Gmail is not touched: delete the reply draft there if you don't need it.`}
               >
-                {dismissing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
-                No reply needed
+                {dismissing ? <Loader2 className="h-3 w-3 animate-spin" /> : <PauseCircle className="h-3 w-3" />}
+                Park: they'll get back to me
               </button>
             )}
             {p.reply_dismissed && (
               <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-white/50">
-                <span title={`Marked ${fmt(p.reply_dismissed_at, true)}. Comes back by itself when they write again.`}>
-                  <Check className="inline h-3 w-3 -mt-0.5" /> No reply needed
+                <span title={`Parked ${fmt(p.reply_dismissed_at, true)}. Comes back by itself when they write again.`}>
+                  <PauseCircle className="inline h-3 w-3 -mt-0.5" /> Parked
                 </span>
                 <button
                   onClick={() => dismissReply(true)}
@@ -1085,7 +1101,7 @@ export default function OutreachTab({
         {counter(
           'Waiting on you',
           waitingCount,
-          dismissedCount > 0 ? `they wrote last · ${dismissedCount} marked no reply needed` : 'they wrote last',
+          dismissedCount > 0 ? `they wrote last · ${dismissedCount} parked` : 'they wrote last',
           'waiting',
         )}
         {counter('Follow-up due', dueCount, dueSub, 'due')}
@@ -1194,7 +1210,7 @@ export default function OutreachTab({
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or mark &quot;No reply needed&quot;, which holds until they write again, then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or park them (&quot;they&apos;ll get back to me&quot;): a parked agency leaves Waiting on you and comes back as a check-in {CHECK_IN_WORKING_DAYS} working days later, or straight away if they write first. A check-in draft is never sent on its own. Below them come the ones whose follow-up or check-in is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 

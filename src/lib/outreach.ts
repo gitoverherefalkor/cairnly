@@ -129,11 +129,14 @@ export interface OutreachProspect {
   laatste_samenvatting: string | null;
   /** The newest mail is theirs and a Gmail draft is waiting for it. */
   concept_klaar: boolean;
-  /** The newest mail is theirs (not an auto-reply) and not marked "no reply needed": Sjoerd is up. */
+  /** The newest mail is theirs (not an auto-reply) and not parked: Sjoerd is up. */
   needs_reply: boolean;
-  /** They wrote last, but Sjoerd marked it "no reply needed". Resets when they write again. */
+  /**
+   * Parked: they wrote last, but it was "we'll get back to you", so there is
+   * nothing to answer now and a check-in is due later. Resets when anyone writes.
+   */
   reply_dismissed: boolean;
-  /** When "no reply needed" was clicked. Only meaningful through `reply_dismissed`. */
+  /** When the row was parked. Only meaningful through `reply_dismissed`. */
   reply_dismissed_at: string | null;
 }
 
@@ -201,6 +204,19 @@ export function matchesFocus(
 export const FOLLOW_UP_1_WORKING_DAYS = 4;
 export const FOLLOW_UP_2_WORKING_DAYS = 6;
 
+// A parked reply ("my colleagues will be in touch") gets one check-in, ten
+// working days after it was parked. Mirrors supabase/functions/_shared/outreach.ts.
+export const CHECK_IN_WORKING_DAYS = 10;
+/** No check-in once a call is booked, they said no, or a pilot runs. */
+const CHECK_IN_CLOSED: ReadonlySet<OutreachStatus> = new Set<OutreachStatus>([
+  'nog_niet_benaderd',
+  'gesprek_gepland',
+  'pilot_gestart',
+  'founding_partner',
+  'afgewezen',
+  'geen_fit',
+]);
+
 const AMSTERDAM = 'Europe/Amsterdam';
 const DAY_MS = 86_400_000;
 
@@ -261,7 +277,9 @@ export function followUpDraftState(
 }
 
 export interface FollowUp {
-  /** 1 = first chase, 2 = last chase. */
+  /** A chase to someone who never answered, or a check-in on a parked reply. */
+  kind: 'chase' | 'checkin';
+  /** 1 = first chase, 2 = last chase. Always 1 for a check-in. */
   step: 1 | 2;
   /** UTC-midnight stamp of the Amsterdam day it is (or was) due. */
   dueDay: number;
@@ -279,10 +297,26 @@ export interface FollowUp {
  * chase that went out today does not immediately look overdue again.
  */
 export function followUp(
-  p: Pick<OutreachProspect, 'status' | 'needs_reply' | 'verzonden_op' | 'mails'>,
+  p: Pick<OutreachProspect, 'status' | 'needs_reply' | 'verzonden_op' | 'mails' | 'reply_dismissed' | 'reply_dismissed_at'>,
   now: Date = new Date(),
 ): FollowUp | null {
   if (p.needs_reply) return null;
+
+  // Parked: the clock runs from the moment Sjoerd parked it, which is what
+  // the "Parked, check-in …" label promises.
+  if (p.reply_dismissed && p.reply_dismissed_at) {
+    if (CHECK_IN_CLOSED.has(p.status)) return null;
+    const dueDay = addWorkingDays(amsterdamDay(p.reply_dismissed_at), CHECK_IN_WORKING_DAYS);
+    const today = amsterdamDay(now);
+    const due = today >= dueDay;
+    return {
+      kind: 'checkin',
+      step: 1,
+      dueDay,
+      daysLate: due ? workingDaysBetween(dueDay, today) : -workingDaysBetween(today, dueDay),
+      due,
+    };
+  }
 
   const step: 1 | 2 | null =
     p.status === 'verzonden' ? 1 : p.status === 'opvolging_1' ? 2 : null;
@@ -298,6 +332,7 @@ export function followUp(
   const due = today >= dueDay;
 
   return {
+    kind: 'chase',
     step,
     dueDay,
     daysLate: due ? workingDaysBetween(dueDay, today) : -workingDaysBetween(today, dueDay),

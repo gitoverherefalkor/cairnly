@@ -18,11 +18,14 @@
 // with the reply drafts. n8n creates whatever is in `drafts` and hands the id
 // back under the same `mail_id` it was given, so the follow-up leg needed no
 // workflow change at all: its handle is the string `followup:<slug>` instead
-// of an outreach_mails uuid. See draftTarget() below.
+// of an outreach_mails uuid. See draftTarget() below. A check-in (a parked
+// reply that went quiet) travels the same way as `checkin:<slug>`, and is the
+// one follow-up that is never queued for sending.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { verifySharedSecret } from '../_shared/cors.ts';
+import { CHECK_IN_CLOSED, isParked } from '../_shared/outreach.ts';
 import { textToHtml } from '../_shared/outreachHtml.ts';
 import {
   classifyOutbound,
@@ -45,11 +48,15 @@ import {
   type Classification,
 } from '../_shared/outreachReply.ts';
 import {
+  buildCheckInMessage,
   buildFollowUpMessage,
+  CHECK_IN_SYSTEM_PROMPT,
   FOLLOW_UP_SYSTEM_PROMPT,
   FOLLOW_UP_TOOL,
   parseFollowUp,
   renderFollowUp,
+  templateCheckIn,
+  type CheckInInput,
   type FollowUpInput,
 } from '../_shared/outreachFollowUp.ts';
 
@@ -157,6 +164,20 @@ async function writeFollowUp(input: FollowUpInput): Promise<string> {
   } catch (e) {
     console.error('[outreach-mail-sync] follow-up generation failed for', input.slug, e);
     return renderFollowUp(input);
+  }
+}
+
+/**
+ * The check-in to a parked reply. Same deal as the chase: Claude may fit the
+ * approved skeleton, and a malformed or failed generation falls back to it.
+ */
+async function writeCheckIn(input: CheckInInput): Promise<string> {
+  try {
+    const resp = await claudeToolCall(CHECK_IN_SYSTEM_PROMPT, buildCheckInMessage(input), FOLLOW_UP_TOOL, 800);
+    return parseFollowUp(resp) ?? templateCheckIn(input);
+  } catch (e) {
+    console.error('[outreach-mail-sync] check-in generation failed for', input.slug, e);
+    return templateCheckIn(input);
   }
 }
 
@@ -391,6 +412,9 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
 /** The handle n8n carries for a queued chase. Not a uuid, on purpose: see the file header. */
 const FOLLOW_UP_PREFIX = 'followup:';
 const draftTarget = (slug: string) => `${FOLLOW_UP_PREFIX}${slug}`;
+/** Same idea for a check-in. A different prefix because draft_created must NOT queue it. */
+const CHECK_IN_PREFIX = 'checkin:';
+const checkInTarget = (slug: string) => `${CHECK_IN_PREFIX}${slug}`;
 
 /** Agencies we may still chase. Anything else that asked for one has moved on. */
 const CHASEABLE = new Set(['verzonden', 'opvolging_1']);
@@ -408,7 +432,7 @@ const CHASEABLE = new Set(['verzonden', 'opvolging_1']);
 async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftOut[]> {
   const { data: pending, error } = await supabase
     .from('outreach_prospects')
-    .select('slug, naam, contactpersoon, to_email, status, campaign, openingshaak, partner_slug')
+    .select('slug, naam, contactpersoon, to_email, status, campaign, openingshaak, partner_slug, reply_dismissed_at')
     .not('followup_requested_at', 'is', null)
     .is('followup_draft_id', null);
   if (error) throw error;
@@ -419,7 +443,7 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
     supabase.from('outreach_prospect_stats').select('slug, kliks_bevestigd, dagen_bevestigd').in('slug', slugs),
     supabase
       .from('outreach_mails')
-      .select('slug, gmail_thread_id, subject, to_email, direction, sent_at')
+      .select('slug, gmail_thread_id, subject, from_email, to_email, direction, sentiment, snippet, samenvatting, sent_at')
       .in('slug', slugs)
       .order('sent_at', { ascending: false }),
   ]);
@@ -441,11 +465,38 @@ async function composePendingFollowUps(supabase: SupabaseClient): Promise<DraftO
   for (const p of pending) {
     const slug = p.slug as string;
     const status = String(p.status ?? '');
+    const last = lastMail.get(slug);
+
+    // A parked reply gets a check-in, addressed to whoever answered (often not
+    // the person the first mail went to), in their own thread.
+    if (isParked(p.reply_dismissed_at as string | null, last as never)) {
+      if (CHECK_IN_CLOSED.has(status) || !last?.from_email) {
+        stale.push(slug);
+        continue;
+      }
+      const subject = String(last.subject ?? 'Vraagje over jullie spoor 2-trajecten');
+      const body = await writeCheckIn({
+        slug,
+        bureau: (p.naam as string | null) ?? slug,
+        replierName: null,
+        theirReply: (last.snippet as string | null) ?? null,
+        summary: (last.samenvatting as string | null) ?? null,
+        codeIssued: Boolean(p.partner_slug),
+      });
+      drafts.push({
+        mail_id: checkInTarget(slug),
+        thread_id: String(last.gmail_thread_id),
+        to: String(last.from_email),
+        subject: /^re:/i.test(subject) ? subject : `Re: ${subject}`,
+        body,
+      });
+      continue;
+    }
+
     if (!CHASEABLE.has(status)) {
       stale.push(slug);
       continue;
     }
-    const last = lastMail.get(slug);
     if (!last) {
       // Nothing to thread onto. The status says a mail went out, so this is a
       // data problem rather than a normal state; leave the flag for a human.
@@ -569,8 +620,26 @@ serve(async (req) => {
       const draftId = String(body.draft_id ?? '');
       if (!mailId || !draftId) return json({ error: 'mail_id and draft_id required' }, 400);
 
-      // Two kinds of draft come back through this one door. A reply hangs off
-      // the mail it answers; a chase hangs off the agency itself.
+      // Three kinds of draft come back through this one door. A reply hangs off
+      // the mail it answers; a chase and a check-in hang off the agency itself.
+      //
+      // A check-in is recorded exactly like a chase (so /ops shows it waiting in
+      // Gmail) but NEVER queued: it answers someone who wrote to us, and those
+      // mails always get read by a human before they go.
+      if (mailId.startsWith(CHECK_IN_PREFIX)) {
+        const slug = mailId.slice(CHECK_IN_PREFIX.length);
+        const { data, error } = await supabase
+          .from('outreach_prospects')
+          .update({ followup_draft_id: draftId, updated_at: new Date().toISOString() })
+          .eq('slug', slug)
+          .is('followup_draft_id', null)
+          .select('slug')
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) console.warn('[outreach-mail-sync] second check-in draft for', slug, draftId);
+        return json({ ok: true, slug, check_in: true, duplicate: !data });
+      }
+
       if (mailId.startsWith(FOLLOW_UP_PREFIX)) {
         const slug = mailId.slice(FOLLOW_UP_PREFIX.length);
         // Only the FIRST draft for a request counts. WF11 has several doors now

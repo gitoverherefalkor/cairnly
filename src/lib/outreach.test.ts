@@ -271,7 +271,7 @@ describe('matchesFocus', () => {
   });
 
   it('due follows the follow-up clock', () => {
-    const fu = { step: 1 as const, dueDay: 0, daysLate: 2, due: true };
+    const fu = { kind: 'chase' as const, step: 1 as const, dueDay: 0, daysLate: 2, due: true };
     expect(matchesFocus(make({}), 'due', fu, now)).toBe(true);
     expect(matchesFocus(make({}), 'due', { ...fu, due: false }, now)).toBe(false);
     expect(matchesFocus(make({}), 'due', null, now)).toBe(false);
@@ -280,5 +280,38 @@ describe('matchesFocus', () => {
   it('partner is a linked partner slug', () => {
     expect(matchesFocus(make({ partner_slug: 'regio-effect' }), 'partner', null, now)).toBe(true);
     expect(matchesFocus(make({}), 'partner', null, now)).toBe(false);
+  });
+});
+
+describe('check-in on a parked reply', () => {
+  // Parked on Wednesday 23 Sept 2026; ten working days later is Wednesday 7 Oct.
+  const parked = make({
+    status: 'gereageerd',
+    needs_reply: false,
+    reply_dismissed: true,
+    reply_dismissed_at: '2026-09-23T13:00:00Z',
+  });
+
+  it('is due ten working days after parking', () => {
+    const fu = followUp(parked, new Date('2026-10-06T10:00:00Z'));
+    expect(fu?.kind).toBe('checkin');
+    expect(fu?.due).toBe(false);
+    expect(new Date(fu!.dueDay).toISOString().slice(0, 10)).toBe('2026-10-07');
+    expect(followUp(parked, new Date('2026-10-07T08:00:00Z'))?.due).toBe(true);
+  });
+
+  it('never happens once the conversation moved on', () => {
+    for (const status of ['gesprek_gepland', 'afgewezen', 'geen_fit', 'pilot_gestart'] as const) {
+      expect(followUp({ ...parked, status }, new Date('2026-10-20T10:00:00Z'))).toBeNull();
+    }
+  });
+
+  it('is not a chase: an unparked reply still gets nothing', () => {
+    expect(followUp({ ...parked, needs_reply: true, reply_dismissed: false }, new Date('2026-10-20T10:00:00Z'))).toBeNull();
+  });
+
+  it('counts in the Follow-up due filter', () => {
+    const now = new Date('2026-10-08T10:00:00Z');
+    expect(matchesFocus(parked, 'due', followUp(parked, now), now)).toBe(true);
   });
 });

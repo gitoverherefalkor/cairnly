@@ -20,7 +20,7 @@ import {
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
 import { isAdminEmail } from '../_shared/admins.ts';
-import { OUTREACH_STATUSES } from '../_shared/outreach.ts';
+import { CHECK_IN_CLOSED, OUTREACH_STATUSES, isParked } from '../_shared/outreach.ts';
 
 type Json = Record<string, unknown>;
 
@@ -168,12 +168,9 @@ serve(async (req) => {
         const latestIn = mails.find((m) => m.direction === 'in') ?? null;
         // They wrote last and it was a real person, not an out-of-office.
         const theyWroteLast = latest !== null && latest.direction === 'in' && latest.sentiment !== 'auto';
-        // "No reply needed" only holds while it is newer than their last mail,
-        // so a fresh mail from them re-opens the row without anyone touching it.
-        const replyDismissed =
-          theyWroteLast &&
-          !!p.reply_dismissed_at &&
-          Date.parse(p.reply_dismissed_at as string) >= Date.parse(latest.sent_at as string);
+        // Parked ("they'll get back to me") only holds while it is newer than
+        // their last mail, so a fresh mail from them re-opens the row by itself.
+        const replyDismissed = isParked(p.reply_dismissed_at as string | null, latest as never);
         const partner = p.partner_slug ? partnerBySlug.get(p.partner_slug as string) : undefined;
         return {
           ...p,
@@ -351,9 +348,10 @@ serve(async (req) => {
     }
 
     // ── dismiss_reply ───────────────────────────────────────────────────────
-    // "No reply needed": takes the agency off "Waiting on you" until they write
-    // again. A stamp, not a flag, so the list read can compare it with their
-    // newest mail. `undo` clears it. Gmail is not touched either way.
+    // "Park, they'll get back to me": takes the agency off "Waiting on you"
+    // until they write again, and starts the check-in clock. A stamp, not a
+    // flag, so the list read can compare it with their newest mail. `undo`
+    // clears it. Gmail is not touched either way.
     if (action === 'dismiss_reply') {
       const slug = String(body.slug ?? '').trim();
       if (!slug) return errorResponse('slug required', 400, corsHeaders);
@@ -385,18 +383,42 @@ serve(async (req) => {
         return errorResponse(`Queue at most ${QUEUE_MAX} follow-ups at a time.`, 400, corsHeaders);
       }
 
-      // Only agencies that are actually due a chase. Asking for one on a bureau
-      // that replied would put a chase on top of their unanswered mail.
-      const { data, error } = await supabase
-        .from('outreach_prospects')
-        .update({
-          followup_requested_at: new Date().toISOString(),
-          followup_draft_id: null,
-          updated_at: new Date().toISOString(),
+      // Only agencies that are actually due a mail from us: a chase (no answer
+      // yet) or a check-in (parked reply). Asking for one on a bureau whose
+      // mail is still unanswered would put a chase on top of it.
+      const [candRes, lastRes] = await Promise.all([
+        supabase.from('outreach_prospects').select('slug, status, reply_dismissed_at').in('slug', slugs),
+        supabase
+          .from('outreach_mails')
+          .select('slug, direction, sentiment, sent_at')
+          .in('slug', slugs)
+          .order('sent_at', { ascending: false }),
+      ]);
+      if (candRes.error) throw candRes.error;
+      if (lastRes.error) throw lastRes.error;
+      const latestBySlug = new Map<string, { direction: string; sentiment: string | null; sent_at: string }>();
+      for (const m of lastRes.data ?? []) {
+        if (!latestBySlug.has(m.slug as string)) latestBySlug.set(m.slug as string, m as never);
+      }
+      const eligible = (candRes.data ?? [])
+        .filter((c) => {
+          const status = String(c.status ?? '');
+          const parked = isParked(c.reply_dismissed_at as string | null, latestBySlug.get(c.slug as string));
+          return parked ? !CHECK_IN_CLOSED.has(status) : CHASEABLE_STATUSES.includes(status);
         })
-        .in('slug', slugs)
-        .in('status', CHASEABLE_STATUSES)
-        .select('slug, followup_requested_at, followup_draft_id');
+        .map((c) => c.slug as string);
+
+      const { data, error } = eligible.length
+        ? await supabase
+            .from('outreach_prospects')
+            .update({
+              followup_requested_at: new Date().toISOString(),
+              followup_draft_id: null,
+              updated_at: new Date().toISOString(),
+            })
+            .in('slug', eligible)
+            .select('slug, followup_requested_at, followup_draft_id')
+        : { data: [], error: null };
       if (error) throw error;
 
       const queued = data ?? [];
