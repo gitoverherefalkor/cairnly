@@ -23,10 +23,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine } from 'lucide-react';
+import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine, X, Check } from 'lucide-react';
 import {
   FOLLOW_UP_1_WORKING_DAYS,
   FOLLOW_UP_2_WORKING_DAYS,
+  FOCUS_LABELS,
   OUTREACH_STATUSES,
   STATUS_LABELS,
   SENTIMENT_LABELS,
@@ -35,8 +36,10 @@ import {
   followUp,
   followUpDraftState,
   isWarm,
+  matchesFocus,
   type FollowUp,
   type FollowUpDraftState,
+  type OutreachFocus,
   type OutreachMail,
   type OutreachProspect,
   type OutreachStatus,
@@ -78,6 +81,10 @@ interface QueueResponse {
 
 interface UpdateResponse {
   prospect: Pick<OutreachProspect, 'slug' | 'status' | 'notities' | 'updated_at'>;
+}
+
+interface DismissResponse {
+  prospect: Pick<OutreachProspect, 'slug' | 'reply_dismissed_at'>;
 }
 
 interface SubjectStat {
@@ -277,6 +284,7 @@ function ProspectRow({
   onSaved,
   onCreatePartner,
   onDraftFollowUp,
+  onReplyDismissed,
 }: {
   p: OutreachProspect;
   /** The next chase for this agency, or null when chasing is not the move. */
@@ -284,14 +292,37 @@ function ProspectRow({
   onSaved: (patch: Pick<OutreachProspect, 'slug'> & Partial<OutreachProspect>) => void;
   onCreatePartner?: (draft: PartnerDraft) => void;
   onDraftFollowUp: (slug: string) => Promise<void>;
+  /** A "no reply needed" (or its undo) went through; the page-level counts are now stale. */
+  onReplyDismissed?: () => void;
 }) {
   const [notes, setNotes] = useState(p.notities ?? '');
   const [savingStatus, setSavingStatus] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [showMails, setShowMails] = useState(false);
   const [queueing, setQueueing] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
 
   const draftState = followUpDraftState(p);
+
+  // "No reply needed" / undo. Only ever touches our own row: the Gmail thread,
+  // and any reply draft waiting in it, stay exactly as they are.
+  const dismissReply = async (undo: boolean) => {
+    setDismissing(true);
+    try {
+      const res = await callOutreach<DismissResponse>({ action: 'dismiss_reply', slug: p.slug, undo });
+      onSaved({
+        slug: p.slug,
+        reply_dismissed_at: res.prospect.reply_dismissed_at,
+        reply_dismissed: !undo,
+        needs_reply: undo,
+      });
+      onReplyDismissed?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not save that');
+    } finally {
+      setDismissing(false);
+    }
+  };
   const draftFollowUp = async () => {
     setQueueing(true);
     try {
@@ -468,6 +499,31 @@ function ProspectRow({
             )}
             {p.laatste_samenvatting && (
               <div className="text-[11px] text-white/70 leading-snug" title={p.laatste_samenvatting}>{p.laatste_samenvatting}</div>
+            )}
+            {p.needs_reply && (
+              <button
+                onClick={() => dismissReply(false)}
+                disabled={dismissing}
+                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-white/15 text-white/70 hover:text-white hover:border-white/30 disabled:opacity-50"
+                title="Nothing to answer here (for example: they will get back to you). Takes them off Waiting on you until they write again. Gmail is not touched, so delete the reply draft there yourself if there is one."
+              >
+                {dismissing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                No reply needed
+              </button>
+            )}
+            {p.reply_dismissed && (
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-white/50">
+                <span title={`Marked ${fmt(p.reply_dismissed_at, true)}. Comes back by itself when they write again.`}>
+                  <Check className="inline h-3 w-3 -mt-0.5" /> No reply needed
+                </span>
+                <button
+                  onClick={() => dismissReply(true)}
+                  disabled={dismissing}
+                  className="underline text-white/60 hover:text-white disabled:opacity-50"
+                >
+                  undo
+                </button>
+              </div>
             )}
             <FollowUpBadge fu={fu} draftState={draftState} onDraft={draftFollowUp} queueing={queueing} />
           </div>
@@ -810,15 +866,39 @@ function RawLog({ rows }: { rows: ClickRow[] }) {
 
 // ─── Tab ──────────────────────────────────────────────────────────────────────
 
-export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (draft: PartnerDraft) => void } = {}) {
+export default function OutreachTab({
+  onCreatePartner,
+  focus: focusProp,
+  onFocusChange,
+  onChanged,
+}: {
+  onCreatePartner?: (draft: PartnerDraft) => void;
+  /**
+   * Which card is filtering the table. Controlled when the page passes it, so
+   * the page-level tiles above the section can drive the same filter.
+   */
+  focus?: OutreachFocus;
+  onFocusChange?: (focus: OutreachFocus) => void;
+  /** Something changed that the page-level counts read too. */
+  onChanged?: () => void;
+} = {}) {
   const [data, setData] = useState<ListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [tier, setTier] = useState<'all' | 'A' | 'B' | 'C'>('all');
   const [campaign, setCampaign] = useState<string>('all');
-  const [onlyClicked, setOnlyClicked] = useState(false);
-  const [onlyDue, setOnlyDue] = useState(false);
+  const [focusState, setFocusState] = useState<OutreachFocus>('all');
+  const focus = focusProp ?? focusState;
+  const setFocus = useCallback(
+    (next: OutreachFocus) => {
+      setFocusState(next);
+      onFocusChange?.(next);
+    },
+    [onFocusChange],
+  );
+  /** Clicking the card that is already on shows everything again. */
+  const toggleFocus = (next: OutreachFocus) => setFocus(focus === next ? 'all' : next);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -914,6 +994,13 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     [data, followUps],
   );
 
+  /** Due, and the chase is already asked for or sitting in Gmail. */
+  const dueDrafted = useMemo(
+    () =>
+      (data?.prospects ?? []).filter((p) => followUps.get(p.slug)?.due && followUpDraftState(p) !== 'none').length,
+    [data, followUps],
+  );
+
   /** Due, and nobody has asked for a draft yet. This is what "Draft all due" acts on. */
   const undrafted = useMemo(
     () =>
@@ -929,10 +1016,9 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
     return data.prospects
       .filter((p) => tier === 'all' || p.tier === tier)
       .filter((p) => campaign === 'all' || p.campaign === campaign)
-      .filter((p) => !onlyClicked || p.kliks_bevestigd > 0)
-      .filter((p) => !onlyDue || followUps.get(p.slug)?.due)
+      .filter((p) => matchesFocus(p, focus, followUps.get(p.slug) ?? null, now))
       .sort((a, b) => compareWorkFirst(a, b, now));
-  }, [data, tier, campaign, onlyClicked, onlyDue, followUps, now]);
+  }, [data, tier, campaign, focus, followUps, now]);
 
   if (loading && !data) {
     return (
@@ -953,49 +1039,56 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
 
   if (!data) return null;
 
-  // A counter with an onToggle is a button: clicking it filters the table down
-  // to exactly what it counts, which is the whole point of counting it.
-  const counter = (
-    lbl: string,
-    big: number,
-    sub: string,
-    toggle?: { on: boolean; onToggle: () => void },
-  ) => {
-    const body = (
-      <>
-        <div className="text-xs text-white/70">{lbl}</div>
-        <div className={`text-3xl font-bold mt-1 ${toggle?.on ? 'text-atlas-gold' : 'text-white/[0.92]'}`}>{big}</div>
-        <div className="text-xs text-white/60 mt-0.5">{sub}</div>
-      </>
-    );
-    if (!toggle) return <div className={`${card} px-4 py-4`}>{body}</div>;
+  // Every counter is a button: clicking it filters the table down to exactly
+  // what it counts, which is the whole point of counting it. Clicking the one
+  // that is on shows everything again.
+  const counter = (lbl: string, big: number, sub: string, target: OutreachFocus) => {
+    const on = target !== 'all' && focus === target;
     return (
       <button
-        onClick={toggle.onToggle}
-        aria-pressed={toggle.on}
-        title={toggle.on ? 'Show every agency again' : 'Show only these'}
+        onClick={() => (target === 'all' ? setFocus('all') : toggleFocus(target))}
+        aria-pressed={on}
+        title={target === 'all' ? 'Show every agency' : on ? 'Show every agency again' : 'Show only these'}
         className={`${card} px-4 py-4 text-left transition-colors hover:border-atlas-gold/40 ${
-          toggle.on ? 'border-atlas-gold/50 bg-atlas-gold/[0.06]' : ''
+          on ? 'border-atlas-gold/50 bg-atlas-gold/[0.06]' : ''
         }`}
       >
-        {body}
+        <div className="text-xs text-white/70">{lbl}</div>
+        <div className={`text-3xl font-bold mt-1 ${on ? 'text-atlas-gold' : 'text-white/[0.92]'}`}>{big}</div>
+        <div className="text-xs text-white/60 mt-0.5">{sub}</div>
       </button>
     );
   };
 
+  const waitingCount = data.prospects.filter((p) => p.needs_reply).length;
+  const dismissedCount = data.prospects.filter((p) => p.reply_dismissed).length;
+  const clickedTodayAgencies = data.prospects.filter((p) => matchesFocus(p, 'clicked_today', null, now)).length;
+  // "12" alone hid that one of them was already written; say where they stand.
+  const dueSub =
+    dueCount === 0
+      ? `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`
+      : dueDrafted === 0
+        ? `none drafted yet`
+        : `${dueDrafted} drafted · ${dueCount - dueDrafted} to draft`;
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {counter('Agencies in seed', data.counters.prospects, 'rows in outreach_prospects')}
-        {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click')}
-        {counter('Clicks today', data.counters.clicks_today, 'confirmed, Amsterdam day')}
-        {counter('Waiting on you', data.prospects.filter((p) => p.needs_reply).length, 'they wrote last')}
+        {counter('Agencies in seed', data.counters.prospects, 'rows in outreach_prospects', 'all')}
+        {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click', 'clicked')}
         {counter(
-          'Follow-up due',
-          dueCount,
-          onlyDue ? 'showing only these' : `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`,
-          { on: onlyDue, onToggle: () => setOnlyDue((v) => !v) },
+          'Clicks today',
+          data.counters.clicks_today,
+          `confirmed, from ${clickedTodayAgencies} ${clickedTodayAgencies === 1 ? 'agency' : 'agencies'}`,
+          'clicked_today',
         )}
+        {counter(
+          'Waiting on you',
+          waitingCount,
+          dismissedCount > 0 ? `they wrote last · ${dismissedCount} marked no reply needed` : 'they wrote last',
+          'waiting',
+        )}
+        {counter('Follow-up due', dueCount, dueSub, 'due')}
       </div>
 
       {data.send && <SendQueue send={data.send} onToggle={toggleSending} />}
@@ -1030,24 +1123,16 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
             </select>
           </div>
         </label>
-        <label className="flex items-center gap-2 text-xs text-white/80 pb-1 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={onlyClicked}
-            onChange={(e) => setOnlyClicked(e.target.checked)}
-            className="accent-atlas-teal"
-          />
-          Only with a click
-        </label>
-        <label className="flex items-center gap-2 text-xs text-white/80 pb-1 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={onlyDue}
-            onChange={(e) => setOnlyDue(e.target.checked)}
-            className="accent-atlas-gold"
-          />
-          Only follow-up due
-        </label>
+        {focus !== 'all' && (
+          <button
+            onClick={() => setFocus('all')}
+            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border border-atlas-gold/40 bg-atlas-gold/10 text-atlas-gold hover:bg-atlas-gold/20 mb-0.5"
+            title="Show every agency again"
+          >
+            Showing: {FOCUS_LABELS[focus]}
+            <X className="h-3 w-3" />
+          </button>
+        )}
         {undrafted.length > 0 && (
           <button
             onClick={async () => {
@@ -1102,13 +1187,14 @@ export default function OutreachTab({ onCreatePartner }: { onCreatePartner?: (dr
                   onSaved={applyPatch}
                   onCreatePartner={onCreatePartner}
                   onDraftFollowUp={queueFollowUps}
+                  onReplyDismissed={onChanged}
                 />
               ))
             )}
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Agencies who wrote last sort to the top (gold, you&apos;re up), then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or mark &quot;No reply needed&quot;, which holds until they write again, then the ones whose follow-up is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
         </div>
       </div>
 

@@ -129,8 +129,62 @@ export interface OutreachProspect {
   laatste_samenvatting: string | null;
   /** The newest mail is theirs and a Gmail draft is waiting for it. */
   concept_klaar: boolean;
-  /** The newest mail is theirs (not an auto-reply): Sjoerd is up. */
+  /** The newest mail is theirs (not an auto-reply) and not marked "no reply needed": Sjoerd is up. */
   needs_reply: boolean;
+  /** They wrote last, but Sjoerd marked it "no reply needed". Resets when they write again. */
+  reply_dismissed: boolean;
+  /** When "no reply needed" was clicked. Only meaningful through `reply_dismissed`. */
+  reply_dismissed_at: string | null;
+}
+
+// ─── Card filters ────────────────────────────────────────────────────────────
+//
+// Every headline card on /ops filters the table down to exactly the agencies it
+// counts. One focus at a time: a card is a question ("who is waiting on me?"),
+// and stacking two of them answers neither.
+
+export type OutreachFocus =
+  | 'all'
+  | 'contacted'
+  | 'clicked'
+  | 'clicked_today'
+  | 'waiting'
+  | 'due'
+  | 'partner';
+
+/** What the table says it is showing, when a card narrowed it. */
+export const FOCUS_LABELS: Record<Exclude<OutreachFocus, 'all'>, string> = {
+  contacted: 'Contacted',
+  clicked: 'Opened the demo',
+  clicked_today: 'Clicked today',
+  waiting: 'Waiting on you',
+  due: 'Follow-up due',
+  partner: 'Linked partners',
+};
+
+export function matchesFocus(
+  p: OutreachProspect,
+  focus: OutreachFocus,
+  fu: FollowUp | null,
+  now: Date,
+): boolean {
+  switch (focus) {
+    case 'all':
+      return true;
+    case 'contacted':
+      return p.status !== 'nog_niet_benaderd';
+    case 'clicked':
+      return p.kliks_bevestigd > 0;
+    case 'clicked_today':
+      // The counter counts clicks; the table lists the agencies behind them.
+      return !!p.laatste_bevestigde_klik && amsterdamDay(p.laatste_bevestigde_klik) === amsterdamDay(now);
+    case 'waiting':
+      return p.needs_reply;
+    case 'due':
+      return !!fu?.due;
+    case 'partner':
+      return !!p.partner_slug;
+  }
 }
 
 // ─── Follow-up cadence ───────────────────────────────────────────────────────

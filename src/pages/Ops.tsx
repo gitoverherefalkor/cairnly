@@ -14,7 +14,7 @@ import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
-import { isWarm, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
+import { isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1424,6 +1424,7 @@ function StatTile({
   delta,
   tone = 'normal',
   onClick,
+  active = false,
 }: {
   label: string;
   value: React.ReactNode;
@@ -1431,16 +1432,22 @@ function StatTile({
   delta?: string;
   tone?: 'normal' | 'gold';
   onClick?: () => void;
+  /** This tile's filter is the one the outreach table is showing. */
+  active?: boolean;
 }) {
   const Tag = onClick ? 'button' : 'div';
   return (
     <Tag
       onClick={onClick}
+      aria-pressed={onClick ? active : undefined}
+      title={onClick ? (active ? 'Show every agency again' : 'Show only these in the outreach table') : undefined}
       className={`${
         tone === 'gold'
           ? 'rounded-[18px] border border-[rgba(239,190,72,0.32)] bg-[rgba(212,160,36,0.09)] shadow-[0_24px_50px_-22px_rgba(0,0,0,0.40)]'
           : GLASS
-      } px-5 py-5 text-left ${onClick ? 'hover:border-white/25 transition-colors' : ''}`}
+      } px-5 py-5 text-left ${onClick ? 'hover:border-white/25 transition-colors' : ''} ${
+        active ? 'ring-1 ring-[#EFBE48]/60' : ''
+      }`}
     >
       <div className={tone === 'gold' ? EYEBROW : EYEBROW_QUIET}>{label}</div>
       <div className="flex items-baseline gap-2.5 mt-2">
@@ -1588,6 +1595,10 @@ export default function Ops() {
 
   const lastVisit = useLastVisit();
   const { open, toggle } = useOpenSections();
+
+  // Which headline card is filtering the outreach table. Lives here so the
+  // tiles above the section and the counters inside it drive one filter.
+  const [outreachFocus, setOutreachFocus] = useState<OutreachFocus>('all');
 
   // OutreachTab keeps its own fetch for the table it renders. This second,
   // page-level read of the same admin-gated function is what lets the Partners
@@ -1828,6 +1839,17 @@ export default function Ops() {
   if (newSupport.length)
     deltas.push({ label: `${newSupport.length} support ticket${newSupport.length === 1 ? '' : 's'}`, color: '#7FBCD9', onClick: () => setActiveTab('platform') });
 
+  /** A tile click: filter the outreach table to what the tile counts, open it, bring it into view. */
+  const focusOutreach = (next: OutreachFocus) => {
+    const target = outreachFocus === next ? 'all' : next;
+    setOutreachFocus(target);
+    if (target === 'all') return;
+    if (!open.outreach) toggle('outreach');
+    requestAnimationFrame(() =>
+      document.getElementById('ops-outreach-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+    );
+  };
+
   const openBlockers = () => {
     setActiveTab('platform');
     if (!open.blockers) toggle('blockers');
@@ -1900,26 +1922,35 @@ export default function Ops() {
                       label="Contacted"
                       value={outreachLoading ? '—' : contacted}
                       sub={`of ${prospects.length} agencies`}
+                      onClick={() => focusOutreach('contacted')}
+                      active={outreachFocus === 'contacted'}
                     />
                     <StatTile
                       label="Demo opened"
                       value={outreachLoading ? '—' : (outreach?.withClick ?? 0)}
                       sub={contacted > 0 ? `${Math.round((100 * (outreach?.withClick ?? 0)) / contacted)}% of those contacted` : 'nobody contacted yet'}
                       delta={newOpens ? `+${newOpens}` : undefined}
+                      onClick={() => focusOutreach('clicked')}
+                      active={outreachFocus === 'clicked'}
                     />
                     <StatTile
                       label="Waiting on you"
                       value={outreachLoading ? '—' : awaitingReply}
                       sub="they wrote last"
                       tone="gold"
+                      onClick={() => focusOutreach('waiting')}
+                      active={outreachFocus === 'waiting'}
                     />
                     <StatTile
                       label="Linked partners"
                       value={outreachLoading ? '—' : linkedPartners}
                       sub={`${codesIssued} codes, ${codesClaimed} used`}
+                      onClick={() => focusOutreach('partner')}
+                      active={outreachFocus === 'partner'}
                     />
                   </div>
 
+                  <div id="ops-outreach-section" className="scroll-mt-4">
                   <SectionCard
                     id="outreach"
                     title="Outreach"
@@ -1943,6 +1974,9 @@ export default function Ops() {
                       </div>
                     )}
                     <OutreachTab
+                      focus={outreachFocus}
+                      onFocusChange={setOutreachFocus}
+                      onChanged={fetchOutreach}
                       onCreatePartner={(d) => {
                         setPartnerDraft(d);
                         if (!open.partners) toggle('partners');
@@ -1950,6 +1984,7 @@ export default function Ops() {
                       }}
                     />
                   </SectionCard>
+                  </div>
 
                   <SectionCard
                     id="partners"

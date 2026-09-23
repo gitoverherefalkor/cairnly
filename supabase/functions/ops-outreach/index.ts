@@ -9,7 +9,7 @@
 // runs through the service role because outreach_prospects / outreach_clicks
 // have RLS on with zero policies.
 //
-// Actions: list | update | queue_followup
+// Actions: list | update | queue_followup | dismiss_reply | send_pause
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -97,7 +97,7 @@ serve(async (req) => {
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, subject_variant, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, reply_dismissed_at, subject_variant, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -166,6 +166,14 @@ serve(async (req) => {
         const mails = mailsBySlug.get(p.slug as string) ?? [];
         const latest = mails[0] ?? null;
         const latestIn = mails.find((m) => m.direction === 'in') ?? null;
+        // They wrote last and it was a real person, not an out-of-office.
+        const theyWroteLast = latest !== null && latest.direction === 'in' && latest.sentiment !== 'auto';
+        // "No reply needed" only holds while it is newer than their last mail,
+        // so a fresh mail from them re-opens the row without anyone touching it.
+        const replyDismissed =
+          theyWroteLast &&
+          !!p.reply_dismissed_at &&
+          Date.parse(p.reply_dismissed_at as string) >= Date.parse(latest.sent_at as string);
         const partner = p.partner_slug ? partnerBySlug.get(p.partner_slug as string) : undefined;
         return {
           ...p,
@@ -178,7 +186,8 @@ serve(async (req) => {
           laatste_sentiment: (latestIn?.sentiment as string | null) ?? null,
           laatste_samenvatting: (latestIn?.samenvatting as string | null) ?? null,
           concept_klaar: Boolean(latestIn?.draft_id) && latest === latestIn,
-          needs_reply: latest !== null && latest.direction === 'in' && latest.sentiment !== 'auto',
+          needs_reply: theyWroteLast && !replyDismissed,
+          reply_dismissed: replyDismissed,
           kliks_totaal: Number(s?.kliks_totaal ?? 0),
           kliks_uniek_dagen: Number(s?.kliks_uniek_dagen ?? 0),
           eerste_klik: (s?.eerste_klik as string | null) ?? null,
@@ -338,6 +347,25 @@ serve(async (req) => {
       if (error) throw error;
       if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
 
+      return ok({ prospect: data }, corsHeaders);
+    }
+
+    // ── dismiss_reply ───────────────────────────────────────────────────────
+    // "No reply needed": takes the agency off "Waiting on you" until they write
+    // again. A stamp, not a flag, so the list read can compare it with their
+    // newest mail. `undo` clears it. Gmail is not touched either way.
+    if (action === 'dismiss_reply') {
+      const slug = String(body.slug ?? '').trim();
+      if (!slug) return errorResponse('slug required', 400, corsHeaders);
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('outreach_prospects')
+        .update({ reply_dismissed_at: body.undo ? null : now, updated_at: now })
+        .eq('slug', slug)
+        .select('slug, reply_dismissed_at')
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
       return ok({ prospect: data }, corsHeaders);
     }
 

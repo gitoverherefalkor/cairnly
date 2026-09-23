@@ -10,6 +10,7 @@ import {
   workingDaysBetween,
   type OutreachMail,
   type OutreachProspect,
+  matchesFocus,
 } from './outreach';
 
 const base: OutreachProspect = {
@@ -54,6 +55,8 @@ const base: OutreachProspect = {
   laatste_samenvatting: null,
   concept_klaar: false,
   needs_reply: false,
+  reply_dismissed: false,
+  reply_dismissed_at: null,
 };
 
 const make = (over: Partial<OutreachProspect>): OutreachProspect => ({ ...base, ...over });
@@ -235,5 +238,47 @@ describe('followUpDraftState', () => {
     expect(
       followUpDraftState(make({ followup_requested_at: '2026-09-15T08:00:00Z', followup_draft_id: 'r-123' })),
     ).toBe('ready');
+  });
+});
+
+describe('matchesFocus', () => {
+  const now = new Date('2026-09-23T10:00:00Z');
+
+  it('all matches everything', () => {
+    expect(matchesFocus(make({}), 'all', null, now)).toBe(true);
+  });
+
+  it('contacted is anything past the seed', () => {
+    expect(matchesFocus(make({ status: 'nog_niet_benaderd' }), 'contacted', null, now)).toBe(false);
+    expect(matchesFocus(make({ status: 'verzonden' }), 'contacted', null, now)).toBe(true);
+  });
+
+  it('clicked counts confirmed clicks only, never scanner hits', () => {
+    expect(matchesFocus(make({ kliks_verdacht: 3, kliks_bevestigd: 0 }), 'clicked', null, now)).toBe(false);
+    expect(matchesFocus(make({ kliks_bevestigd: 1 }), 'clicked', null, now)).toBe(true);
+  });
+
+  it('clicked today uses the Amsterdam day', () => {
+    // 23:30 UTC on the 22nd is already the 23rd in Amsterdam.
+    expect(matchesFocus(make({ laatste_bevestigde_klik: '2026-09-22T23:30:00Z' }), 'clicked_today', null, now)).toBe(true);
+    expect(matchesFocus(make({ laatste_bevestigde_klik: '2026-09-22T21:30:00Z' }), 'clicked_today', null, now)).toBe(false);
+    expect(matchesFocus(make({ laatste_bevestigde_klik: null }), 'clicked_today', null, now)).toBe(false);
+  });
+
+  it('waiting follows needs_reply, so a dismissed reply drops out', () => {
+    expect(matchesFocus(make({ needs_reply: true }), 'waiting', null, now)).toBe(true);
+    expect(matchesFocus(make({ needs_reply: false, reply_dismissed: true }), 'waiting', null, now)).toBe(false);
+  });
+
+  it('due follows the follow-up clock', () => {
+    const fu = { step: 1 as const, dueDay: 0, daysLate: 2, due: true };
+    expect(matchesFocus(make({}), 'due', fu, now)).toBe(true);
+    expect(matchesFocus(make({}), 'due', { ...fu, due: false }, now)).toBe(false);
+    expect(matchesFocus(make({}), 'due', null, now)).toBe(false);
+  });
+
+  it('partner is a linked partner slug', () => {
+    expect(matchesFocus(make({ partner_slug: 'regio-effect' }), 'partner', null, now)).toBe(true);
+    expect(matchesFocus(make({}), 'partner', null, now)).toBe(false);
   });
 });
