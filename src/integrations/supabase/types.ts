@@ -2201,7 +2201,9 @@ export type Database = {
         Row: {
           codes_claimed: number | null
           codes_issued: number | null
+          codes_open: number | null
           expired_unused: number | null
+          first_code_at: string | null
           is_active: boolean | null
           name: string | null
           partner_id: string | null

@@ -1,7 +1,7 @@
 // Shapes the cockpit reads from ops-outreach `list`. Mirrors the columns of
 // outreach_concepts plus what the function joins on (queue row, answered mail).
 
-export type ConceptSoort = 'initial' | 'chase' | 'checkin' | 'reply';
+export type ConceptSoort = 'initial' | 'chase' | 'checkin' | 'reply' | 'activation';
 export type ConceptStatus = 'voorstel' | 'ingepland' | 'verzonden' | 'weggegooid' | 'verouderd' | 'geen_antwoord';
 
 export interface ConceptRow {
@@ -77,5 +77,6 @@ export const SOORT_LABEL: Record<ConceptSoort, string> = {
   initial: 'First mail',
   chase: 'Chase',
   checkin: 'Check-in',
+  activation: 'Code nudge',
   reply: 'Reply',
 };

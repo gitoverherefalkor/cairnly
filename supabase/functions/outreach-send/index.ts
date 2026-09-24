@@ -29,6 +29,7 @@ import { CHECK_IN_CLOSED } from '../_shared/outreach.ts';
 import { classifyOutbound, type PriorMail } from '../_shared/outreachMail.ts';
 import { buildMime, newMessageId } from '../_shared/outreachMime.ts';
 import { chaseVariant } from '../_shared/outreachFollowUp.ts';
+import { ACTIVATION_CLOSED } from '../_shared/outreachCadence.ts';
 import { notifyPush, OPS_OUTREACH_URL } from '../_shared/opsPush.ts';
 
 const json = (body: unknown, status = 200) =>
@@ -42,7 +43,7 @@ type Row = Record<string, unknown>;
 interface Concept {
   id: string;
   slug: string;
-  soort: 'initial' | 'chase' | 'checkin' | 'reply';
+  soort: 'initial' | 'chase' | 'checkin' | 'reply' | 'activation';
   step: number | null;
   status: string;
   to_email: string;
@@ -74,7 +75,7 @@ async function staleReason(db: SupabaseClient, c: Concept): Promise<string | nul
 
   const { data: p } = await db
     .from('outreach_prospects')
-    .select('status, niet_mailen_op, email_ongeldig_op')
+    .select('status, partner_slug, niet_mailen_op, email_ongeldig_op')
     .eq('slug', c.slug)
     .maybeSingle();
   if (!p) return 'agency not found';
@@ -125,6 +126,21 @@ async function staleReason(db: SupabaseClient, c: Concept): Promise<string | nul
       if (CHECK_IN_CLOSED.has(p.status as string)) return `status is now ${p.status}`;
       if (list.some((m) => personIn(m) && Date.parse(m.sent_at as string) > since)) return 'they wrote since';
       return null;
+
+    case 'activation': {
+      if (ACTIVATION_CLOSED.has(p.status as string)) return `status is now ${p.status}`;
+      if (list.some((m) => personIn(m) && Date.parse(m.sent_at as string) > since)) return 'they wrote since';
+      // The whole mail asks whether they tried the code: once they did, it must not go.
+      if (p.partner_slug) {
+        const { data: codes } = await db
+          .from('partner_code_status')
+          .select('codes_claimed')
+          .eq('slug', p.partner_slug as string)
+          .maybeSingle();
+        if (Number(codes?.codes_claimed ?? 0) > 0) return 'the test code was used';
+      }
+      return null;
+    }
 
     case 'reply': {
       const answered = c.answers_mail_id ? list.find((m) => m.id === c.answers_mail_id) : null;

@@ -113,7 +113,7 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, demoRes, subjectRes, sendStateRes, sendQueueRes, todayRes, logRes, mailsRes, partnersRes, conceptsRes] = await Promise.all([
+      const [prospectsRes, statsRes, demoRes, subjectRes, sendStateRes, sendQueueRes, todayRes, logRes, mailsRes, partnersRes, conceptsRes, nudgedRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
@@ -155,7 +155,9 @@ serve(async (req) => {
           .order('sent_at', { ascending: false })
           .limit(MAILS_MAX),
         // Linked partners and how many codes they hold.
-        supabase.from('partner_code_status').select('slug, name, codes_issued, codes_claimed, reports_completed'),
+        supabase
+          .from('partner_code_status')
+          .select('slug, name, codes_issued, codes_claimed, codes_open, reports_completed, first_code_at'),
         // The control center: everything waiting or scheduled, the stale ones
         // Sjoerd had edited (his words must not vanish), and today's sent.
         supabase
@@ -168,6 +170,8 @@ serve(async (req) => {
           )
           .order('created_at', { ascending: true })
           .limit(300),
+        // The one unused-code nudge per agency, once it went out.
+        supabase.from('outreach_concepts').select('slug, verzonden_op').eq('soort', 'activation').eq('status', 'verzonden'),
       ]);
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
@@ -180,6 +184,8 @@ serve(async (req) => {
       if (mailsRes.error) throw mailsRes.error;
       if (partnersRes.error) throw partnersRes.error;
       if (conceptsRes.error) throw conceptsRes.error;
+      if (nudgedRes.error) throw nudgedRes.error;
+      const nudgedBySlug = new Map((nudgedRes.data ?? []).map((c) => [c.slug as string, c.verzonden_op as string | null]));
 
       const mailsBySlug = new Map<string, Json[]>();
       for (const m of mailsRes.data ?? []) {
@@ -210,6 +216,10 @@ serve(async (req) => {
           partner_naam: (partner?.name as string | null) ?? null,
           codes_issued: Number(partner?.codes_issued ?? 0),
           codes_claimed: Number(partner?.codes_claimed ?? 0),
+          codes_open: Number(partner?.codes_open ?? 0),
+          reports_completed: Number(partner?.reports_completed ?? 0),
+          first_code_at: (partner?.first_code_at as string | null) ?? null,
+          activation_nudged_at: nudgedBySlug.get(p.slug as string) ?? null,
           mails,
           laatste_mail_op: (latest?.sent_at as string | null) ?? null,
           laatste_mail_richting: (latest?.direction as 'in' | 'out' | null) ?? null,
@@ -453,7 +463,7 @@ serve(async (req) => {
 
       // A call booked, a no, a no-fit: whatever was prepared for them is spent.
       if (typeof patch.status === 'string' && CLOSING_STATUSES.has(patch.status)) {
-        await invalidateForSlug(supabase, slug, `Status set to ${patch.status} in /ops`, { soorten: ['initial', 'chase', 'checkin'] });
+        await invalidateForSlug(supabase, slug, `Status set to ${patch.status} in /ops`, { soorten: ['initial', 'chase', 'checkin', 'activation'] });
       }
 
       return ok({ prospect: data }, corsHeaders);
@@ -600,7 +610,7 @@ serve(async (req) => {
       return ok({ ok: true, status }, corsHeaders);
     }
 
-    // Regenerate a chase, check-in or first mail from today's facts.
+    // Regenerate a chase, check-in, code nudge or first mail from today's facts.
     if (action === 'concept_regenerate') {
       const missing = needId();
       if (missing) return missing;

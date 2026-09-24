@@ -10,7 +10,7 @@
 // The same result is stored on the concept (`validatie`) and shown in /ops,
 // so a failing concept that waits for Sjoerd says what is wrong with it.
 
-export type ConceptSoort = 'initial' | 'chase' | 'checkin' | 'reply';
+export type ConceptSoort = 'initial' | 'chase' | 'checkin' | 'reply' | 'activation';
 
 export interface ValidationResult {
   ok: boolean;
@@ -22,6 +22,7 @@ export const MAX_WORDS: Record<ConceptSoort, number> = {
   initial: 330,
   chase: 170,
   checkin: 90,
+  activation: 80,
   reply: 160,
 };
 

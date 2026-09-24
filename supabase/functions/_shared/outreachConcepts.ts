@@ -21,7 +21,7 @@ import { CODELINK_TOKEN } from './outreachReply.ts';
 export type { ConceptSoort };
 
 /** Replies first, then the cadence mail, then new agencies. */
-export const PRIORITY: Record<ConceptSoort, number> = { reply: 0, chase: 1, checkin: 1, initial: 2 };
+export const PRIORITY: Record<ConceptSoort, number> = { reply: 0, chase: 1, checkin: 1, activation: 1, initial: 2 };
 
 /** Minutes an auto-approved mail stays visible under "Going out" before it may leave. */
 export const VETO_MINUTES = 60;

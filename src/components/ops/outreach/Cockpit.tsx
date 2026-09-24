@@ -24,7 +24,7 @@ const card =
 const label = 'font-heading font-bold text-[11px] uppercase tracking-[0.16em] text-white/50';
 const pill = 'text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50';
 
-const KIND_ORDER: Record<string, number> = { reply: 0, checkin: 2, chase: 3, initial: 4 };
+const KIND_ORDER: Record<string, number> = { reply: 0, checkin: 2, activation: 2, chase: 3, initial: 4 };
 
 function fmtTime(iso: string | null | undefined): string {
   if (!iso) return '-';
@@ -169,10 +169,10 @@ export default function Cockpit({
 
   const prepare = () =>
     run('prepare', async () => {
-      const res = await callOutreach<{ result: { chases: number; checkins: number; initials: number } }>({ action: 'prepare_now' });
+      const res = await callOutreach<{ result: { chases: number; checkins: number; activations?: number; initials: number } }>({ action: 'prepare_now' });
       const r = res.result;
-      const made = r.chases + r.checkins + r.initials;
-      toast.success(made ? `Prepared ${r.initials} first mails, ${r.chases} chases, ${r.checkins} check-ins` : 'Nothing new to prepare right now');
+      const made = r.chases + r.checkins + (r.activations ?? 0) + r.initials;
+      toast.success(made ? `Prepared ${r.initials} first mails, ${r.chases} chases, ${r.checkins} check-ins${r.activations ? `, ${r.activations} code nudges` : ''}` : 'Nothing new to prepare right now');
       onReload();
     });
 

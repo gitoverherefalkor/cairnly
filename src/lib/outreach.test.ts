@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   addWorkingDays,
+  codeActivation,
   followUpDraftState,
   amsterdamDay,
   compareProspects,
@@ -313,5 +314,60 @@ describe('check-in on a parked reply', () => {
   it('counts in the Follow-up due filter', () => {
     const now = new Date('2026-10-08T10:00:00Z');
     expect(matchesFocus(parked, 'due', followUp(parked, now), now)).toBe(true);
+  });
+});
+
+describe('codeActivation', () => {
+  // RegioEffect's real shape: code minted 11 Sept 10:55, mailed 14:30 the same day.
+  const mail = (sent_at: string, direction: 'in' | 'out' = 'out'): OutreachMail => ({
+    id: sent_at,
+    direction,
+    kind: direction === 'out' ? 'antwoord' : 'reactie',
+    from_email: null,
+    to_email: null,
+    subject: null,
+    snippet: null,
+    sent_at,
+    sentiment: null,
+    samenvatting: null,
+    draft_id: null,
+    status_voor: null,
+    status_na: null,
+  });
+  const holder = make({
+    partner_slug: 'regioeffect',
+    codes_issued: 1,
+    codes_claimed: 0,
+    codes_open: 1,
+    reports_completed: 0,
+    first_code_at: '2026-09-11T10:55:04Z',
+    // Newest first, as ops-outreach sends them.
+    mails: [mail('2026-09-11T14:30:22Z'), mail('2026-09-10T11:52:58Z', 'in'), mail('2026-09-09T10:52:45Z')],
+  });
+
+  it('is nothing for an agency without codes', () => {
+    expect(codeActivation(make({}))).toBeNull();
+  });
+
+  it('counts working days from the code mail, not the first mail', () => {
+    const a = codeActivation(holder, new Date('2026-09-24T10:00:00Z'));
+    expect(a).toMatchObject({ state: 'unused', workingDays: 9, stale: true, nudged: false });
+  });
+
+  it('turns stale on the fourth working day', () => {
+    expect(codeActivation(holder, new Date('2026-09-16T10:00:00Z'))?.stale).toBe(false);
+    expect(codeActivation(holder, new Date('2026-09-17T10:00:00Z'))?.stale).toBe(true);
+  });
+
+  it('reports the furthest stage reached', () => {
+    expect(codeActivation({ ...holder, codes_claimed: 1, codes_open: 0 })?.state).toBe('activated');
+    expect(codeActivation({ ...holder, codes_claimed: 1, codes_open: 0, reports_completed: 1 })?.state).toBe('report');
+    expect(codeActivation({ ...holder, codes_open: 0 })?.state).toBe('expired');
+  });
+
+  it('feeds the "Code not used yet" card filter', () => {
+    const now = new Date('2026-09-24T10:00:00Z');
+    expect(matchesFocus(holder, 'code_unused', null, now)).toBe(true);
+    expect(matchesFocus({ ...holder, codes_claimed: 1 }, 'code_unused', null, now)).toBe(false);
   });
 });

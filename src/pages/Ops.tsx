@@ -14,7 +14,7 @@ import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
-import { isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
+import { ACTIVATION_NUDGE_WORKING_DAYS, codeActivation, isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1809,6 +1809,11 @@ export default function Ops() {
   const linkedPartners = new Set(prospects.filter((p) => p.partner_slug).map((p) => p.partner_slug)).size;
   const codesIssued = prospects.reduce((n, p) => n + (p.codes_issued ?? 0), 0);
   const codesClaimed = prospects.reduce((n, p) => n + (p.codes_claimed ?? 0), 0);
+  // Codes nobody redeemed ACTIVATION_NUDGE_WORKING_DAYS after the mail that carried them.
+  const codesStale = prospects.filter((p) => {
+    const a = codeActivation(p);
+    return a?.state === 'unused' && a.stale;
+  }).length;
 
   // ── What changed since the last visit ───────────────────────────────────
   const newerThan = (iso: string | null | undefined) =>
@@ -1917,7 +1922,7 @@ export default function Ops() {
               {/* ══ PARTNERS ══════════════════════════════════════════════ */}
               {activeTab === 'partners' && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                     <StatTile
                       label="Contacted"
                       value={outreachLoading ? '—' : contacted}
@@ -1944,9 +1949,23 @@ export default function Ops() {
                     <StatTile
                       label="Linked partners"
                       value={outreachLoading ? '—' : linkedPartners}
-                      sub={`${codesIssued} codes, ${codesClaimed} used`}
+                      sub="with a partner account"
                       onClick={() => focusOutreach('partner')}
                       active={outreachFocus === 'partner'}
+                    />
+                    <StatTile
+                      label="Codes activated"
+                      value={outreachLoading ? '—' : `${codesClaimed}/${codesIssued}`}
+                      sub={
+                        codesStale > 0
+                          ? `${codesStale} unused ${ACTIVATION_NUDGE_WORKING_DAYS}+ working days`
+                          : codesIssued > 0
+                            ? 'none waiting too long'
+                            : 'no codes out yet'
+                      }
+                      tone={codesStale > 0 ? 'gold' : 'normal'}
+                      onClick={() => focusOutreach('code_unused')}
+                      active={outreachFocus === 'code_unused'}
                     />
                   </div>
 

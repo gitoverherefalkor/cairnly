@@ -127,6 +127,13 @@ export interface OutreachProspect {
   partner_naam: string | null;
   codes_issued: number;
   codes_claimed: number;
+  /** Unclaimed and not expired: codes they could still redeem. */
+  codes_open?: number;
+  reports_completed?: number;
+  /** When their first code was minted. */
+  first_code_at?: string | null;
+  /** When the one "have you tried the code?" nudge went out, if it did. */
+  activation_nudged_at?: string | null;
   /** Phase 3: mail log, newest first, capped. */
   mails: OutreachMail[];
   laatste_mail_op: string | null;
@@ -159,7 +166,8 @@ export type OutreachFocus =
   | 'clicked_today'
   | 'waiting'
   | 'due'
-  | 'partner';
+  | 'partner'
+  | 'code_unused';
 
 /** What the table says it is showing, when a card narrowed it. */
 export const FOCUS_LABELS: Record<Exclude<OutreachFocus, 'all'>, string> = {
@@ -169,6 +177,7 @@ export const FOCUS_LABELS: Record<Exclude<OutreachFocus, 'all'>, string> = {
   waiting: 'Waiting on you',
   due: 'Follow-up due',
   partner: 'Linked partners',
+  code_unused: 'Code not used yet',
 };
 
 export function matchesFocus(
@@ -193,6 +202,8 @@ export function matchesFocus(
       return !!fu?.due;
     case 'partner':
       return !!p.partner_slug;
+    case 'code_unused':
+      return codeActivation(p, now)?.state === 'unused';
   }
 }
 
@@ -428,4 +439,46 @@ export type SubjectVariant = keyof typeof SUBJECT_VARIANTS;
 /** The line to actually send, or null when an agency was never assigned one. */
 export function subjectFor(p: Pick<OutreachProspect, 'subject_variant'>): string | null {
   return p.subject_variant ? SUBJECT_VARIANTS[p.subject_variant] : null;
+}
+
+// ─── Test codes ──────────────────────────────────────────────────────────────
+//
+// Did the agency do anything with the code they asked for? Four working days
+// after the mail that carried it, an unused code turns amber in /ops and the
+// cockpit gets one nudge to approve. Mirrors nextActivationNudge() in
+// supabase/functions/_shared/outreachCadence.ts.
+
+export const ACTIVATION_NUDGE_WORKING_DAYS = 4;
+
+export interface CodeActivation {
+  /** report: a candidate finished; activated: a code was redeemed; expired: nothing left to redeem. */
+  state: 'report' | 'activated' | 'unused' | 'expired';
+  /** Working days since the code mail (or the mint, before that mail is logged). */
+  workingDays: number;
+  /** Unused for ACTIVATION_NUDGE_WORKING_DAYS or longer. */
+  stale: boolean;
+  /** The nudge already went out. */
+  nudged: boolean;
+}
+
+export function codeActivation(
+  p: Pick<
+    OutreachProspect,
+    'codes_issued' | 'codes_claimed' | 'codes_open' | 'reports_completed' | 'first_code_at' | 'activation_nudged_at' | 'mails'
+  >,
+  now: Date = new Date(),
+): CodeActivation | null {
+  if (!p.codes_issued) return null;
+  const base = { workingDays: 0, stale: false, nudged: !!p.activation_nudged_at };
+  if ((p.reports_completed ?? 0) > 0) return { ...base, state: 'report' };
+  if (p.codes_claimed > 0) return { ...base, state: 'activated' };
+  if ((p.codes_open ?? 0) === 0) return { ...base, state: 'expired' };
+  // How long they have had it: from the first mail we sent once the code existed.
+  const minted = p.first_code_at ? Date.parse(p.first_code_at) : null;
+  const codeMail = minted === null
+    ? null
+    : [...p.mails].reverse().find((m) => m.direction === 'out' && Date.parse(m.sent_at) >= minted);
+  const since = codeMail?.sent_at ?? p.first_code_at;
+  const workingDays = since ? workingDaysBetween(amsterdamDay(since), amsterdamDay(now)) : 0;
+  return { ...base, state: 'unused', workingDays, stale: workingDays >= ACTIVATION_NUDGE_WORKING_DAYS };
 }

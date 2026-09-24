@@ -8,7 +8,7 @@
 //
 // POST, x-shared-secret = N8N_SHARED_SECRET (the value pg_cron reads from
 // vault 'n8n_shared_secret').
-//   {}              → { ran: true, chases, checkins, initials, capacity, skipped }
+//   {}              → { ran: true, chases, checkins, activations, initials, capacity, skipped }
 //                     or { ran: false, reason: 'not the moment' }
 //   { force: true } → runs regardless of the clock (manual runs, tests)
 //

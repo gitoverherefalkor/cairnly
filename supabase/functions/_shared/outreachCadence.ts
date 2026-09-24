@@ -79,3 +79,41 @@ export function nextFollowUp(p: CadenceInput): NextFollowUp | null {
   const wait = step === 1 ? FOLLOW_UP_1_WORKING_DAYS : FOLLOW_UP_2_WORKING_DAYS;
   return { kind: 'chase', step, dueDay: addWorkingDays(amsterdamDayStamp(anchor), wait) };
 }
+
+// ─── The unused test code ────────────────────────────────────────────────────
+//
+// An agency that got a test code and did nothing with it gets ONE nudge, four
+// working days after the last mail we sent since the code existed (normally
+// the mail that carried it). Mirrors codeActivation() in src/lib/outreach.ts,
+// which shows the same clock in /ops.
+
+export const ACTIVATION_NUDGE_WORKING_DAYS = 4;
+
+/** No nudge to an agency that said no. */
+export const ACTIVATION_CLOSED: ReadonlySet<string> = new Set(['afgewezen', 'geen_fit']);
+
+export interface ActivationInput {
+  status: string;
+  codesIssued: number;
+  codesClaimed: number;
+  /** Unclaimed and not expired: something they could still redeem. */
+  codesOpen: number;
+  /** When their first code was minted. */
+  firstCodeAt: string | null;
+  /** When we last mailed them (any outbound), or null. */
+  lastOutAt: string | null;
+  /** They wrote last and it was a person: answer them, do not nudge. */
+  theyWroteLast: boolean;
+  /** Their last mail is parked: the check-in covers it. */
+  parked: boolean;
+  /** When an earlier activation nudge went out. One is the limit. */
+  nudgedAt: string | null;
+}
+
+export function nextActivationNudge(p: ActivationInput): { dueDay: number; anchor: string } | null {
+  if (p.codesIssued <= 0 || p.codesClaimed > 0 || p.codesOpen <= 0 || !p.firstCodeAt) return null;
+  if (ACTIVATION_CLOSED.has(p.status) || p.nudgedAt || p.theyWroteLast || p.parked) return null;
+  // Before the code mail is logged, the mint itself starts the clock.
+  const anchor = p.lastOutAt && Date.parse(p.lastOutAt) >= Date.parse(p.firstCodeAt) ? p.lastOutAt : p.firstCodeAt;
+  return { anchor, dueDay: addWorkingDays(amsterdamDayStamp(anchor), ACTIVATION_NUDGE_WORKING_DAYS) };
+}

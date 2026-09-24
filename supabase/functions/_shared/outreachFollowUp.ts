@@ -339,3 +339,40 @@ export function buildCheckInMessage(input: CheckInInput): string {
     templateCheckIn(input),
   ].join('\n');
 }
+
+// ─── The unused test code ────────────────────────────────────────────────────
+
+export interface ActivationNudgeInput {
+  bureau: string;
+  /** Only when the code mail went to the seeded contact; otherwise the team is greeted. */
+  contactpersoon: string | null;
+  /** The /p/:slug?code=… link of a code that is still open. */
+  link: string;
+  /** When that code expires, or null. */
+  expiresAt: string | null;
+}
+
+/** "23 oktober", in Amsterdam. */
+export function dutchDate(at: string): string {
+  return new Intl.DateTimeFormat('nl-NL', { timeZone: 'Europe/Amsterdam', day: 'numeric', month: 'long' }).format(new Date(at));
+}
+
+/**
+ * The approved skeleton (Sjoerd, 2026-09-24). Pure template: they asked for
+ * the code themselves, so there is nothing to personalise and nothing to pitch.
+ * The link goes in again, so they do not have to dig for the earlier mail.
+ */
+export function templateActivation(input: ActivationNudgeInput): string {
+  const geldig = input.expiresAt ? ` De code is geldig tot ${dutchDate(input.expiresAt)}.` : '';
+  return [
+    salutation({ contactpersoon: input.contactpersoon, bureau: input.bureau }),
+    '',
+    'Heb je al tijd gehad om de testcode te proberen? De makkelijkste start is hem zelf in te vullen, dan zie je precies wat een kandidaat krijgt:',
+    input.link,
+    '',
+    `Liever eerst even samen kijken? Dan plan ik graag een kwartier met je in.${geldig}`,
+    '',
+    'Groet,',
+    'Sjoerd',
+  ].join('\n');
+}
