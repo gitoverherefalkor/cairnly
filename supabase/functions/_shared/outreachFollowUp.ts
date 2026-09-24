@@ -197,6 +197,17 @@ export function renderFollowUp(input: FollowUpInput): string {
   return input.clicks > 0 ? templateClicked(input) : templateQuiet(input);
 }
 
+/**
+ * Which of those texts renderFollowUp picks, as a name. Stored on the concept
+ * and checked again at send time: a chase written as "quiet" must not leave
+ * after they clicked, and "clicked" must not become a claim of "seen".
+ */
+export function chaseVariant(i: Pick<FollowUpInput, 'step' | 'clicks' | 'clickDays'>): string {
+  if (i.step === 2) return 'goodbye';
+  if (i.clicks === 0) return 'quiet';
+  return i.clicks > 1 || i.clickDays > 1 ? 'clicked_seen' : 'clicked';
+}
+
 // ─── The model pass ──────────────────────────────────────────────────────────
 
 export const FOLLOW_UP_SYSTEM_PROMPT = `Je bent de assistent van Sjoerd Geurts, oprichter van Cairnly (cairnly.io). Sjoerd mailde Nederlandse re-integratie- en outplacementbureaus (spoor 2) met een demo en het aanbod van een gratis pilot. Ze hebben niet geantwoord. Jij schrijft de opvolgmail die Sjoerd nakijkt en zelf verstuurt.

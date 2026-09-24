@@ -21,6 +21,7 @@ import { autoApproveOn, insertConcept } from './outreachConcepts.ts';
 import {
   buildCheckInMessage,
   buildFollowUpMessage,
+  chaseVariant,
   CHECK_IN_SYSTEM_PROMPT,
   demoLink,
   FOLLOW_UP_SYSTEM_PROMPT,
@@ -91,13 +92,6 @@ interface Mail {
   snippet: string | null;
   samenvatting: string | null;
   sent_at: string;
-}
-
-/** Which chase text renderFollowUp picks for this input. Stored, then re-checked at send time. */
-export function chaseVariant(i: Pick<FollowUpInput, 'step' | 'clicks' | 'clickDays'>): string {
-  if (i.step === 2) return 'goodbye';
-  if (i.clicks === 0) return 'quiet';
-  return i.clicks > 1 || i.clickDays > 1 ? 'clicked_seen' : 'clicked';
 }
 
 /** Run jobs with at most `n` at a time. */
