@@ -16,15 +16,14 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { isParked } from './outreach.ts';
 import { addWorkingDays, amsterdamDayStamp, nextFollowUp } from './outreachCadence.ts';
-import { claudeToolCall } from './outreachClaude.ts';
+import { claudeToolCall, CRITIC_MODEL } from './outreachClaude.ts';
 import { autoApproveOn, insertConcept } from './outreachConcepts.ts';
+import { critique, TEMPLATE_BEOORDELING, type Beoordeling } from './outreachCritic.ts';
 import {
   buildCheckInMessage,
-  buildFollowUpMessage,
   chaseVariant,
   CHECK_IN_SYSTEM_PROMPT,
   demoLink,
-  FOLLOW_UP_SYSTEM_PROMPT,
   FOLLOW_UP_TOOL,
   parseFollowUp,
   renderFollowUp,
@@ -108,22 +107,15 @@ async function pool<T>(jobs: Array<() => Promise<T>>, n: number): Promise<T[]> {
   return out;
 }
 
-/** Model text if it passes the validator, else the plain skeleton (which always passes). */
-function pick(modelText: string | null, skeleton: string, check: (b: string) => ValidationResult): { body: string; validatie: ValidationResult } {
-  if (modelText) {
-    const v = check(modelText);
-    if (v.ok) return { body: modelText, validatie: v };
-  }
-  return { body: skeleton, validatie: check(skeleton) };
+interface Composed {
+  body: string;
+  validatie: ValidationResult;
+  beoordeling: Beoordeling;
 }
 
-async function writeChase(input: FollowUpInput): Promise<string | null> {
-  try {
-    return parseFollowUp(await claudeToolCall(FOLLOW_UP_SYSTEM_PROMPT, buildFollowUpMessage(input), FOLLOW_UP_TOOL, 800));
-  } catch (e) {
-    console.error('[prepare] chase generation failed for', input.slug, e);
-    return null;
-  }
+/** The approved skeleton, as is. Always passes the validator (tested), never needs the critic. */
+function asTemplate(skeleton: string, check: (b: string) => ValidationResult, note?: string): Composed {
+  return { body: skeleton, validatie: check(skeleton), beoordeling: { ...TEMPLATE_BEOORDELING, reasons: note ? [note] : [] } };
 }
 
 async function writeCheckIn(input: CheckInInput): Promise<string | null> {
@@ -135,14 +127,46 @@ async function writeCheckIn(input: CheckInInput): Promise<string | null> {
   }
 }
 
-async function writeInitial(input: InitialInput): Promise<string | null> {
+async function askInitial(
+  input: InitialInput,
+  rejected: { opening: string; bespoke: string; reasons: string[] } | null,
+): Promise<{ opening: string; bespoke: string } | null> {
   try {
-    const personal = parseInitial(await claudeToolCall(INITIAL_SYSTEM_PROMPT, buildInitialMessage(input), INITIAL_TOOL, 600));
-    return personal ? renderInitial(input, personal) : null;
+    return parseInitial(await claudeToolCall(INITIAL_SYSTEM_PROMPT, buildInitialMessage(input, rejected), INITIAL_TOOL, 600));
   } catch (e) {
     console.error('[prepare] first-mail generation failed for', input.slug, e);
     return null;
   }
+}
+
+/**
+ * The first mail: the model writes the two personal sentences, the second
+ * reader judges the whole mail, one rewrite with its reasons, and when it is
+ * still krom (or anything fails) the mail goes out as Sjoerd's plain text.
+ * A mail without a personal line is always better than one with a crooked one.
+ */
+async function composeInitial(input: InitialInput, check: (b: string) => ValidationResult): Promise<Composed> {
+  const skeleton = renderInitial(input);
+  let rejected: { opening: string; bespoke: string; reasons: string[] } | null = null;
+  for (let round = 1; round <= 2; round++) {
+    const personal = await askInitial(input, rejected);
+    if (!personal) return asTemplate(skeleton, check, rejected ? 'Rewrite unusable, template used' : undefined);
+    const body = renderInitial(input, personal);
+    const validatie = check(body);
+    if (!validatie.ok) return asTemplate(skeleton, check, `Model text failed the checks: ${validatie.problems[0]}`);
+    const verdict = await critique({
+      bureau: input.bureau,
+      body,
+      personal: [personal.opening, personal.bespoke].filter(Boolean),
+      notitie: input.openingshaak,
+    });
+    if (!verdict) return asTemplate(skeleton, check, 'Critic unavailable, template used');
+    if (verdict.verdict === 'goed') {
+      return { body, validatie, beoordeling: { verdict: 'goed', reasons: [], rounds: round, model: CRITIC_MODEL } };
+    }
+    rejected = { ...personal, reasons: verdict.reasons };
+  }
+  return asTemplate(skeleton, check, `Personal lines rejected twice: ${rejected?.reasons.join(' / ') ?? ''}`.trim());
 }
 
 /**
@@ -239,8 +263,17 @@ export async function runPrepare(
           codeIssued: Boolean(p.partner_slug),
         };
         const skeleton = templateCheckIn(input);
-        const chosen = pick(await writeCheckIn(input), skeleton, (b) =>
-          validateOutgoing(b, { soort: 'checkin', expectedSalutation: null, maxWords: MAX_WORDS.checkin }));
+        const check = (b: string) => validateOutgoing(b, { soort: 'checkin', expectedSalutation: null, maxWords: MAX_WORDS.checkin });
+        // A check-in may refer to what they wrote, so the model stays; it is
+        // never auto-approved, and the critic's verdict is there for Sjoerd.
+        const modelText = await writeCheckIn(input);
+        let chosen: Composed = asTemplate(skeleton, check);
+        if (modelText && check(modelText).ok) {
+          const verdict = await critique({ bureau, body: modelText, personal: [modelText.split('\n\n')[1] ?? ''].filter(Boolean), notitie: latest.samenvatting });
+          chosen = verdict?.verdict === 'goed'
+            ? { body: modelText, validatie: check(modelText), beoordeling: { verdict: 'goed', reasons: [], rounds: 1, model: CRITIC_MODEL } }
+            : asTemplate(skeleton, check, verdict ? `Personal line rejected: ${verdict.reasons.join(' / ')}` : 'Critic unavailable, template used');
+        }
         const subject = latest.subject ?? 'Vraagje over jullie spoor 2-trajecten';
         const id = await insertConcept(
           db,
@@ -257,6 +290,7 @@ export async function runPrepare(
             in_reply_to: latest.rfc_message_id,
             references_hdr: latest.rfc_message_id,
             validatie: chosen.validatie,
+            beoordeling: chosen.beoordeling,
           },
           // A check-in follows a real conversation: always Sjoerd's call.
           { autoApprove: false },
@@ -293,7 +327,10 @@ export async function runPrepare(
           demoLink: variant === 'quiet' ? demoLink(p.slug, p.campaign) : null,
           maxWords: MAX_WORDS.chase,
         });
-      const chosen = pick(await writeChase(input), skeleton, check);
+      // Chases are Sjoerd's approved text, nothing personal woven in: the
+      // hook already did its work in the first mail, and weaving it into a
+      // template sentence is exactly what read as machine-made (2026-09-24).
+      const chosen = asTemplate(skeleton, check);
       const subject = firstOut.subject ?? 'Vraagje over jullie spoor 2-trajecten';
       const id = await insertConcept(
         db,
@@ -311,6 +348,7 @@ export async function runPrepare(
           in_reply_to: lastOut.rfc_message_id,
           references_hdr: lastOut.rfc_message_id,
           validatie: chosen.validatie,
+          beoordeling: chosen.beoordeling,
         },
         { autoApprove: autoOn },
       );
@@ -358,7 +396,7 @@ export async function runPrepare(
           demoLink: demoLink(p.slug, p.campaign),
           maxWords: MAX_WORDS.initial,
         });
-      const chosen = pick(await writeInitial(input), skeleton, check);
+      const chosen = await composeInitial(input, check);
       const id = await insertConcept(
         db,
         {
@@ -371,6 +409,7 @@ export async function runPrepare(
           variant: p.subject_variant ?? 'a',
           basis: { status: 'nog_niet_benaderd' },
           validatie: chosen.validatie,
+          beoordeling: chosen.beoordeling,
         },
         { autoApprove: autoOn },
       );

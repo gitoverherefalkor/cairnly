@@ -3,6 +3,13 @@
 // (classify a reply) and outreach-prepare (fit a skeleton to an agency).
 
 export const OUTREACH_MODEL = 'claude-sonnet-5'; // never send `temperature` to sonnet-5
+/**
+ * The second reader (outreachCritic.ts): a stronger model, a handful of calls
+ * a day. Opus 5, not 5.5: 5.5 rejects both `thinking: disabled` and a forced
+ * tool_choice (400), and this call relies on both. Opus 5 accepts disabled
+ * thinking at the default effort.
+ */
+export const CRITIC_MODEL = 'claude-opus-5';
 
 export type ClaudeResponse = { content?: Array<{ type: string; name?: string; input?: unknown }> };
 
@@ -11,11 +18,12 @@ export async function claudeToolCall(
   userMessage: string,
   tool: { name: string },
   maxTokens: number,
+  model: string = OUTREACH_MODEL,
 ): Promise<ClaudeResponse> {
   const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) throw new Error('ANTHROPIC_API_KEY not configured');
   const body = {
-    model: OUTREACH_MODEL,
+    model,
     max_tokens: maxTokens,
     system,
     messages: [{ role: 'user', content: userMessage }],

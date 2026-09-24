@@ -22,6 +22,8 @@ export interface ConceptRow {
   thread_id: string | null;
   answers_mail_id: string | null;
   validatie: { ok: boolean; problems: string[] };
+  /** The second reader's verdict. 'template' = Sjoerd's own text, no model sentences. */
+  beoordeling: { verdict: 'goed' | 'krom' | 'template' | 'onbekend'; reasons: string[]; zin?: string | null } | null;
   verouderd_reden: string | null;
   bewerkt_op: string | null;
   goedgekeurd_door: 'auto' | 'sjoerd' | null;
@@ -46,6 +48,14 @@ export interface HandledToday {
   opt_outs: number;
   bounces: number;
   out_of_office: number;
+}
+
+/** How often the second reader judged a concept the way Sjoerd then did. */
+export interface CriticAgreement {
+  judged: number;
+  agreed: number;
+  /** Agreements in a row, newest first. */
+  streak: number;
 }
 
 export interface CockpitSendState {

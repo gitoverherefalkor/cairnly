@@ -161,7 +161,7 @@ serve(async (req) => {
         supabase
           .from('outreach_concepts')
           .select(
-            'id, slug, soort, step, status, to_email, subject, body, body_origineel, skeleton, variant, basis, thread_id, answers_mail_id, validatie, verouderd_reden, bewerkt_op, goedgekeurd_door, goedgekeurd_op, verzonden_op, created_at, updated_at',
+            'id, slug, soort, step, status, to_email, subject, body, body_origineel, skeleton, variant, basis, thread_id, answers_mail_id, validatie, beoordeling, verouderd_reden, bewerkt_op, goedgekeurd_door, goedgekeurd_op, verzonden_op, created_at, updated_at',
           )
           .or(
             `status.in.(voorstel,ingepland),and(status.eq.verouderd,bewerkt_op.not.is.null),and(status.eq.verzonden,verzonden_op.gte."${startOfTodayAmsterdam()}")`,
@@ -338,8 +338,32 @@ serve(async (req) => {
         out_of_office: inToday.filter((m) => m.sentiment === 'auto').length,
       };
 
+      // Does the second reader judge like Sjoerd? Every concept it judged that
+      // Sjoerd then decided on: approved untouched = he found it good; edited
+      // or discarded = he did not. "No reply needed" says nothing about the
+      // text and is left out. Newest first, so the streak is the current run.
+      const { data: judged, error: judgedErr } = await supabase
+        .from('outreach_concepts')
+        .select('beoordeling, status, bewerkt_op, goedgekeurd_door, updated_at')
+        .in('beoordeling->>verdict', ['goed', 'krom'])
+        .or('goedgekeurd_door.eq.sjoerd,status.eq.weggegooid')
+        .order('updated_at', { ascending: false })
+        .limit(60);
+      if (judgedErr) throw judgedErr;
+      const outcomes = (judged ?? []).map((c) => {
+        const critic = (c.beoordeling as Json | null)?.verdict;
+        const sjoerd = c.status === 'weggegooid' || c.bewerkt_op ? 'krom' : 'goed';
+        return critic === sjoerd;
+      });
+      const streak = outcomes.findIndex((agree) => !agree);
+      const critic_agreement = {
+        judged: outcomes.length,
+        agreed: outcomes.filter(Boolean).length,
+        streak: streak === -1 ? outcomes.length : streak,
+      };
+
       return ok(
-        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send, concepts, handled_today },
+        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send, concepts, handled_today, critic_agreement },
         corsHeaders,
       );
     }

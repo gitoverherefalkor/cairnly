@@ -25,6 +25,51 @@ export const MAX_WORDS: Record<ConceptSoort, number> = {
   reply: 160,
 };
 
+/**
+ * Words and phrases that make a Dutch mail read as generated. Cheap net before
+ * the critic (outreachCritic.ts). Sjoerd's own templates contain none of them
+ * (tested), so a hit is always model text.
+ */
+export const AI_TELLS = [
+  'prominent',
+  'naadloos',
+  'naadloze',
+  'cruciaal',
+  'cruciale',
+  'essentieel',
+  'essentiële',
+  'uniek',
+  'unieke',
+  'indrukwekkend',
+  'indrukwekkende',
+  'inspirerend',
+  'inspirerende',
+  'waardevol',
+  'waardevolle',
+  'landschap',
+  'holistisch',
+  'holistische',
+  'toonaangevend',
+  'toonaangevende',
+  'baanbrekend',
+  'revolutionair',
+  'optimaal',
+  'optimale',
+  'bovendien',
+  'tevens',
+  'kortom',
+  'speelt een belangrijke rol',
+  'in een wereld waar',
+  'niet alleen',
+];
+const AI_TELL_RE = new RegExp(`\\b(${AI_TELLS.map((w) => w.replace(/ /g, '\\s+')).join('|')})\\b`, 'iu');
+
+/** The first AI tell in a text, or null. */
+export function aiTell(text: string): string | null {
+  const m = AI_TELL_RE.exec(text);
+  return m ? m[1].toLowerCase() : null;
+}
+
 const DASH = /[—–]/;
 const NOT_BUT = /\bniet\b[^.?!\n]{1,60},\s*maar\b/i;
 const SIGNATURE = /Groet,\nSjoerd\s*$/;
@@ -78,6 +123,8 @@ export function validateOutgoing(
   if (NOT_BUT.test(text)) problems.push('contains a "niet X, maar Y" construction');
   if (!SIGNATURE.test(text)) problems.push('signature "Groet,\\nSjoerd" missing at the end');
   if (/\[CODELINK\]|[{}]/.test(text)) problems.push('template placeholder left in the text');
+  const tell = aiTell(text);
+  if (tell) problems.push(`reads as generated: "${tell}"`);
 
   return { ok: problems.length === 0, problems };
 }

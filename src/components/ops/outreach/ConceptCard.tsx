@@ -231,6 +231,29 @@ export default function ConceptCard({
         </span>
       </div>
 
+      {concept.beoordeling && concept.beoordeling.verdict !== 'onbekend' && (
+        <div
+          className={`mt-2 text-[11px] flex items-start gap-1.5 ${
+            concept.beoordeling.verdict === 'krom' ? 'text-amber-300' : 'text-white/55'
+          }`}
+        >
+          {concept.beoordeling.verdict === 'krom' ? (
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          ) : (
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+          )}
+          <span>
+            {concept.beoordeling.verdict === 'goed' && 'Second reader: reads natural.'}
+            {concept.beoordeling.verdict === 'krom' && `Second reader: reads off. ${concept.beoordeling.reasons.join(' · ')}`}
+            {concept.beoordeling.verdict === 'template' &&
+              (concept.beoordeling.reasons.length
+                ? `Your own template text (${concept.beoordeling.reasons[0]}).`
+                : 'Your own template text, nothing generated.')}
+            {concept.beoordeling.zin && <span className="block italic text-white/45">“{concept.beoordeling.zin}”</span>}
+          </span>
+        </div>
+      )}
+
       {stale && (
         <div className="mt-2 text-xs text-amber-300 flex items-start gap-1.5">
           <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />

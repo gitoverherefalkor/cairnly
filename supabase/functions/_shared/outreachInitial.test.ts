@@ -1,5 +1,6 @@
 import { assert, assertEquals, assertStringIncludes } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import {
+  buildInitialMessage,
   categoryWords,
   DEFAULT_BESPOKE,
   initialSubject,
@@ -75,4 +76,17 @@ Deno.test('parseInitial accepts an empty opening and rejects a dash or a long se
   assertEquals(parseInitial(toolResp({ opening: 'Jullie werken landelijk.', bespoke: 'Kort.' })), null);
   const long = Array.from({ length: 25 }, () => 'woord').join(' ') + '.';
   assertEquals(parseInitial(toolResp({ opening: '', bespoke: long })), null);
+});
+
+Deno.test('parseInitial rejects invented reasons and marketing words', () => {
+  assertEquals(parseInitial(toolResp({ opening: '', bespoke: 'Gezien jullie focus scheelt dat reistijd.' })), null);
+  assertEquals(parseInitial(toolResp({ opening: 'Ik zag dat jullie assessment prominent aanbieden.', bespoke: 'Dat scheelt tijd.' })), null);
+  assertEquals(parseInitial(toolResp({ opening: '', bespoke: 'Dat scheelt tijd, dus meer ruimte.' })), null);
+});
+
+Deno.test('a rejected first try is sent back with the reasons', () => {
+  const msg = buildInitialMessage(base, { opening: 'Ik zag dat jullie x.', bespoke: 'Y.', reasons: ['verband klopt niet'] });
+  assertStringIncludes(msg, 'afgekeurd');
+  assertStringIncludes(msg, 'verband klopt niet');
+  assert(!buildInitialMessage(base).includes('afgekeurd'));
 });

@@ -15,7 +15,7 @@ import { Bell, BellOff, Loader2, Sparkles, Wand2, AlertOctagon, MailX } from 'lu
 import { callOutreach } from './api';
 import ConceptCard from './ConceptCard';
 import { enablePush, pushState, type PushState } from './pushClient';
-import type { CockpitSend, ConceptRow, HandledToday } from './types';
+import type { CockpitSend, ConceptRow, CriticAgreement, HandledToday } from './types';
 import { estimateTimes, runwayDays, tomorrowSlots, COLD_CAP_PER_DAY } from '@/lib/outreachCockpit';
 import type { OutreachProspect } from '@/lib/outreach';
 
@@ -80,12 +80,14 @@ export default function Cockpit({
   send,
   handledToday,
   prospects,
+  criticAgreement,
   onReload,
   onTogglePause,
 }: {
   concepts: ConceptRow[];
   send: CockpitSend;
   handledToday: HandledToday | null;
+  criticAgreement: CriticAgreement | null;
   prospects: OutreachProspect[];
   onReload: () => void;
   onTogglePause: (pause: boolean) => Promise<void> | void;
@@ -218,6 +220,20 @@ export default function Cockpit({
           sub={`${notContacted} agencies not contacted`}
           tone={runway < 5 ? (runway === 0 ? 'bad' : 'warn') : 'plain'}
         />
+        {criticAgreement && (
+          <div title="Every mail the second reader judged, compared with what you did: approved untouched counts as good, edited or discarded as not good. Turn auto-approve on once the streak reaches about 20.">
+            <Stat
+              title="Second reader"
+              value={criticAgreement.judged ? `${criticAgreement.streak} in a row` : 'no data yet'}
+              sub={
+                criticAgreement.judged
+                  ? `agreed with you on ${criticAgreement.agreed} of ${criticAgreement.judged}`
+                  : 'judges first mails and replies'
+              }
+              tone={criticAgreement.judged && criticAgreement.streak >= 20 ? 'plain' : 'warn'}
+            />
+          </div>
+        )}
         <div className="ml-auto flex flex-wrap gap-2">
           <button onClick={prepare} disabled={busy !== null} className={`${pill} border-white/[0.14] text-white/80 hover:bg-white/[0.06] inline-flex items-center gap-1.5`}>
             {busy === 'prepare' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />} Prepare more

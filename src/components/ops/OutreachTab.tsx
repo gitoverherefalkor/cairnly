@@ -24,7 +24,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { callOutreach } from './outreach/api';
 import Cockpit from './outreach/Cockpit';
-import type { ConceptRow, HandledToday } from './outreach/types';
+import type { ConceptRow, CriticAgreement, HandledToday } from './outreach/types';
 import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine, X, PauseCircle } from 'lucide-react';
 import {
   FOLLOW_UP_1_WORKING_DAYS,
@@ -122,6 +122,7 @@ interface ListResponse {
   /** The control center: concepts waiting, scheduled and sent today. */
   concepts?: ConceptRow[];
   handled_today?: HandledToday;
+  critic_agreement?: CriticAgreement;
 }
 
 // ─── Shared styles (same language as MarketingTab / PartnersTab) ─────────────
@@ -957,6 +958,7 @@ export default function OutreachTab({
           concepts={data.concepts ?? []}
           send={data.send}
           handledToday={data.handled_today ?? null}
+          criticAgreement={data.critic_agreement ?? null}
           prospects={data.prospects}
           onReload={() => {
             load();

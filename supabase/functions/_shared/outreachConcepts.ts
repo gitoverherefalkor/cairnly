@@ -15,6 +15,7 @@
 
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import type { ConceptSoort, ValidationResult } from './outreachValidate.ts';
+import { mayAutoApprove, type Beoordeling } from './outreachCritic.ts';
 
 export type { ConceptSoort };
 
@@ -47,6 +48,8 @@ export interface NewConcept {
   references_hdr?: string | null;
   answers_mail_id?: string | null;
   validatie: ValidationResult;
+  /** The critic's verdict (outreachCritic.ts); pure template text is 'template'. */
+  beoordeling: Beoordeling;
 }
 
 const randomBetween = ([lo, hi]: [number, number]) => lo + Math.floor(Math.random() * (hi - lo + 1));
@@ -69,7 +72,8 @@ export async function insertConcept(
   // A chase prepared a day ahead carries its due moment in basis.dueAt; it
   // must never leave before that, whoever approves it.
   const now = new Date();
-  const auto = opts.autoApprove && c.validatie.ok;
+  // Three gates: the switch, the rule-based check, and the second reader.
+  const auto = opts.autoApprove && c.validatie.ok && mayAutoApprove(c.beoordeling);
   const { data, error } = await db
     .from('outreach_concepts')
     .insert({
@@ -88,6 +92,7 @@ export async function insertConcept(
       references_hdr: c.references_hdr ?? null,
       answers_mail_id: c.answers_mail_id ?? null,
       validatie: c.validatie,
+      beoordeling: c.beoordeling,
       status: auto ? 'ingepland' : 'voorstel',
       goedgekeurd_door: auto ? 'auto' : null,
       goedgekeurd_op: auto ? now.toISOString() : null,

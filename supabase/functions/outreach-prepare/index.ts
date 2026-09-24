@@ -58,8 +58,11 @@ serve(async (req) => {
   }
 
   const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  // { force: true, slug } prepares one agency regardless of capacity: for
+  // checking a first mail (and the second reader) on a real agency.
+  const slug = typeof body.slug === 'string' && body.slug ? body.slug : undefined;
   try {
-    const result = await runPrepare(supabase, now);
+    const result = await runPrepare(supabase, now, slug);
     console.log('[outreach-prepare]', JSON.stringify(result));
     return json({ ran: true, ...result });
   } catch (e) {

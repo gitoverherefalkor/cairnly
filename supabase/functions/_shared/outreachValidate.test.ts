@@ -72,3 +72,10 @@ Deno.test('too long, no signature, "niet X, maar Y", and leftovers are caught', 
   assert(problemsOf(good.replace('Utrecht', 'Utrecht [CODELINK]')).includes('placeholder'));
   assert(problemsOf(good.replace('Utrecht', '{plaats}')).includes('placeholder'));
 });
+
+Deno.test('AI tells are caught, whole words only', () => {
+  assert(problemsOf(good.replace('Fictieve kandidaat', 'Een naadloze ervaring. Fictieve kandidaat')).includes('generated'));
+  assert(problemsOf(good.replace('Fictieve kandidaat', 'Dat speelt een  belangrijke rol. Fictieve kandidaat')).includes('generated'));
+  // "uniekheid" is not the word "uniek"; the check must not fire on substrings.
+  assertEquals(problemsOf(good.replace('Fictieve kandidaat', 'Uniekheidsdenken. Fictieve kandidaat')), '');
+});

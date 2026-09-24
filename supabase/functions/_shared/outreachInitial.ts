@@ -16,6 +16,7 @@
 
 import { demoLink, salutation } from './outreachFollowUp.ts';
 import { PARTNERS_URL } from './outreachReply.ts';
+import { aiTell } from './outreachValidate.ts';
 
 export interface InitialInput {
   slug: string;
@@ -96,10 +97,12 @@ export function renderInitial(
 
 export const INITIAL_SYSTEM_PROMPT = `Je bent de assistent van Sjoerd Geurts, oprichter van Cairnly (cairnly.io), een online loopbaantool. Sjoerd mailt Nederlandse re-integratie- en outplacementbureaus voor het eerst. De mail zelf staat vast. Jij schrijft precies twee zinnen die de mail persoonlijk maken, en verder niets.
 
-1. OPENING: één zin die begint met "Ik zag dat jullie" en iets concreets over dit bureau noemt, uitsluitend gebaseerd op de ONDERZOEKSNOTITIE. Maximaal 30 woorden. Voorbeelden van de toon: "Ik zag dat jullie bewust landelijk werken met een klein team van negen, met een 8,5 van cliënten en een 8,7 van opdrachtgevers." / "Ik zag dat jullie met tien coaches landelijk werken en een 9,0 scoren op zowel re-integratie als outplacement." Staat er in de notitie niets specifieks over het bureau zelf (bijvoorbeeld alleen "website niet bereikbaar" of "website gaf 503"), geef dan een lege string. Noem nooit dat een website onbereikbaar was.
-2. VOORWERK: één zin, maximaal 20 woorden, over wat voorwerk voor precies dit soort bureau scheelt. Voorbeelden: "Bij een klein team scheelt dat vooral voorbereidingstijd per kandidaat." / "Het vervangt jullie Scan&Plan niet, het zit ervoor." Gebruik alleen wat in de notitie staat.
+1. OPENING: één zin die begint met "Ik zag dat jullie" en één of twee concrete feiten over dit bureau noemt, uitsluitend uit de ONDERZOEKSNOTITIE. Maximaal 22 woorden. Zo schreef de afzender ze zelf: "Ik zag dat jullie bewust landelijk werken met een klein team van negen, met een 8,5 van cliënten en een 8,7 van opdrachtgevers." / "Ik zag dat jullie met tien coaches landelijk werken en een 9,0 scoren op zowel re-integratie als outplacement." Staat er in de notitie niets concreets over het bureau zelf (bijvoorbeeld alleen "website niet bereikbaar" of een algemene omschrijving als "biedt re-integratie en outplacement"), geef dan een lege string. Een lege opening is beter dan een vage of geforceerde. Noem nooit dat een website onbereikbaar was.
+2. VOORWERK: één zin, maximaal 16 woorden, over wat voorwerk voor precies dit soort bureau scheelt. Zo schreef de afzender ze: "Bij een klein team scheelt dat vooral voorbereidingstijd per kandidaat." / "Het vervangt jullie Scan&Plan niet, het zit ervoor." Gebruik alleen wat in de notitie staat.
 
-HUISREGELS: Nederlands, je-vorm, zakelijk en warm. Geen gedachtestreepjes (— of –). Geen constructies als "niet X, maar Y". Geen cijfers, namen of methodes die niet in de notitie staan. Geen complimenten ("indrukwekkend", "mooi"). Geen vragen.`;
+Zo NIET (afgekeurd, omdat ze niet klinken als een mens): "Ik zag dat jullie assessment prominent in het dienstenmenu voert naast individueel en collectief outplacement." (opgestapeld, stijf) / "Gezien jullie focus op heel Nederland scheelt dat reistijd." (verband dat er niet is).
+
+HUISREGELS: Nederlands, je-vorm, gewoon en direct, zoals je een collega mailt. Geen verbindingswoorden die een reden suggereren ("gezien", "aangezien", "dus", "daarom", "waardoor", "hierdoor"). Geen opsomming van drie dingen. Geen gedachtestreepjes (— of –). Geen constructies als "niet X, maar Y". Geen cijfers, namen of methodes die niet in de notitie staan. Geen complimenten en geen marketingwoorden ("indrukwekkend", "mooi", "prominent", "uniek", "waardevol"). Geen vragen.`;
 
 export const INITIAL_TOOL = {
   name: 'write_first_mail',
@@ -114,18 +117,38 @@ export const INITIAL_TOOL = {
   },
 } as const;
 
-export function buildInitialMessage(input: InitialInput): string {
+/**
+ * The model's input. `rejected` carries the critic's reasons from an earlier
+ * attempt, so the second try knows what read as krom.
+ */
+export function buildInitialMessage(
+  input: InitialInput,
+  rejected?: { opening: string; bespoke: string; reasons: string[] } | null,
+): string {
   const w = categoryWords(input.categorie);
-  return [
+  const lines = [
     `Bureau: ${input.bureau}`,
     `Soort trajecten: ${w.traject.replace(/^Voor een /, '')}`,
     `ONDERZOEKSNOTITIE: ${input.openingshaak ?? '(geen)'}`,
-  ].join('\n');
+  ];
+  if (rejected) {
+    lines.push(
+      '',
+      'Je vorige poging werd afgekeurd door een kritische lezer:',
+      `OPENING was: ${rejected.opening || '(leeg)'}`,
+      `VOORWERK was: ${rejected.bespoke}`,
+      `Reden: ${rejected.reasons.join(' / ') || 'leest niet natuurlijk'}`,
+      'Schrijf beide zinnen opnieuw, eenvoudiger. Twijfel je over de opening, geef dan een lege string.',
+    );
+  }
+  return lines.join('\n');
 }
 
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 const DASH = /[—–]/;
 const NOT_BUT = /\bniet\b[^.?!]{1,60},\s*maar\b/i;
+/** Connectors that invent a reason; in the Sept 2026 chases they were the tell. */
+const FAKE_BECAUSE = /\b(gezien|aangezien|dus|daarom|waardoor|hierdoor)\b/i;
 
 /** The two sentences, or null when the model strayed from the pattern. */
 export function parseInitial(
@@ -136,10 +159,10 @@ export function parseInitial(
   const i = block.input as Record<string, unknown>;
   const opening = String(i.opening ?? '').trim();
   const bespoke = String(i.bespoke ?? '').trim();
-  if (!bespoke || words(bespoke) > 20) return null;
-  if (opening && (!opening.startsWith('Ik zag dat jullie') || words(opening) > 30)) return null;
+  if (!bespoke || words(bespoke) > 16) return null;
+  if (opening && (!opening.startsWith('Ik zag dat jullie') || words(opening) > 22)) return null;
   for (const s of [opening, bespoke]) {
-    if (DASH.test(s) || NOT_BUT.test(s) || s.includes('?') || s.includes('\n')) return null;
+    if (DASH.test(s) || NOT_BUT.test(s) || FAKE_BECAUSE.test(s) || aiTell(s) || s.includes('?') || s.includes('\n')) return null;
   }
   return { opening, bespoke };
 }

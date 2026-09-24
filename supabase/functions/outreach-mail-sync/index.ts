@@ -59,7 +59,8 @@ import {
   REPLY_DELAY_AUTO,
 } from '../_shared/outreachConcepts.ts';
 import { notifyPush, OPS_OUTREACH_URL } from '../_shared/opsPush.ts';
-import { claudeToolCall } from '../_shared/outreachClaude.ts';
+import { claudeToolCall, CRITIC_MODEL } from '../_shared/outreachClaude.ts';
+import { critique, TEMPLATE_BEOORDELING, type Beoordeling } from '../_shared/outreachCritic.ts';
 
 const SNIPPET_MAX = 400;
 const BODY_MAX = 20000;
@@ -346,6 +347,7 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
               basis: { status: 'afgewezen', answers: mailId },
               answers_mail_id: mailId,
               validatie: validateOutgoing(rejection, { soort: 'reply', expectedSalutation: null, maxWords: MAX_WORDS.reply }),
+              beoordeling: TEMPLATE_BEOORDELING,
             },
             { autoApprove: autoOn, replyDelay: REPLY_DELAY_AUTO },
           );
@@ -354,6 +356,14 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
         await invalidateForSlug(supabase, slug, 'Nieuwe mail van het bureau');
         const text = body ?? '';
         afterInsert = async (mailId) => {
+          // A reply always waits for Sjoerd; the second reader's verdict is
+          // shown on the card and feeds the agreement count in the cockpit.
+          const verdict = text
+            ? await critique({ bureau, body: text, personal: [text], notitie: `Hun mail: ${replyOnly.slice(0, 1500)}` })
+            : null;
+          const beoordeling: Beoordeling = verdict
+            ? { verdict: verdict.verdict, reasons: verdict.reasons, zin: verdict.zin, rounds: 1, model: CRITIC_MODEL }
+            : { verdict: 'onbekend', reasons: [] };
           await insertConcept(
             supabase,
             {
@@ -364,6 +374,7 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
               validatie: text
                 ? validateOutgoing(text, { soort: 'reply', expectedSalutation: null, maxWords: MAX_WORDS.reply })
                 : { ok: false, problems: ['Generation failed: write this one yourself.'] },
+              beoordeling,
             },
             { autoApprove: false },
           );
