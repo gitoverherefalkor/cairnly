@@ -41,7 +41,7 @@ export const STATUS_LABELS: Record<OutreachStatus, string> = {
   geen_fit: 'No fit',
 };
 
-export type MailSentiment = 'positief' | 'code' | 'vraag' | 'later' | 'afwijzing' | 'auto' | 'overig';
+export type MailSentiment = 'positief' | 'code' | 'vraag' | 'later' | 'afwijzing' | 'stop' | 'bounce' | 'auto' | 'overig';
 
 export const SENTIMENT_LABELS: Record<MailSentiment, string> = {
   positief: 'Positive',
@@ -49,6 +49,8 @@ export const SENTIMENT_LABELS: Record<MailSentiment, string> = {
   vraag: 'Question',
   later: 'Later',
   afwijzing: 'Rejection',
+  stop: 'Unsubscribe',
+  bounce: 'Bounced',
   auto: 'Auto-reply',
   overig: 'Other',
 };

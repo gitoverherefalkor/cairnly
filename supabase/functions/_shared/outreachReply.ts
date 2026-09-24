@@ -6,7 +6,7 @@
 // in Gmail as a draft. It never sends. The rules live here in git so a change
 // in tone is a code review, not a prompt lost in a workflow.
 
-export const SENTIMENTS = ['positief', 'code', 'vraag', 'later', 'afwijzing', 'auto', 'overig'] as const;
+export const SENTIMENTS = ['positief', 'code', 'vraag', 'later', 'afwijzing', 'stop', 'auto', 'overig'] as const;
 export type Sentiment = (typeof SENTIMENTS)[number];
 
 export const CALENDLY_URL = 'https://calendly.com/sjoerd-bethehitl/new-meeting';
@@ -56,6 +56,7 @@ PER SOORT ANTWOORD:
 - later ("nu niet", "na de zomer", "druk"): bevestig vriendelijk, vraag wanneer het wél past.
 - afwijzing zonder eerdere code (codeIssued = false): kort bedanken voor de reactie, "jammer", en: mocht je je bedenken, dan sturen we graag een gratis testcode. Deur open, geen druk, geen vraag verplicht.
 - afwijzing na een uitgegeven code (codeIssued = true): kort bedanken, vraag in één zin waarom het niet paste, met vier keuzes op één regel: (a) te weinig tijd, (b) past niet bij onze aanpak, (c) prijs, (d) anders. Zeg dat een letter terugmailen genoeg is.
+- stop (vraagt uitdrukkelijk om niet meer gemaild te worden: "haal me van de lijst", "geen mails meer", "stop met mailen"): geen concept (null). Een gewone afwijzing ("geen interesse", "past niet bij ons") is afwijzing, niet stop.
 - auto (afwezigheidsbericht, automatisch antwoord, bounce): geen concept (null).
 - overig (onduidelijk, doorverwijzing naar een collega, vraag om te bellen zonder meer): kort en neutraal bevestigen dat de mail is ontvangen en wat Sjoerd doet, plus één vraag.
 
@@ -104,7 +105,7 @@ export function parseClassification(resp: { content?: Array<{ type: string; name
   return {
     sentiment: sentiment as Sentiment,
     samenvatting: String(i.samenvatting ?? '').trim().slice(0, 200),
-    concept: sentiment === 'auto' ? null : concept,
+    concept: sentiment === 'auto' || sentiment === 'stop' ? null : concept,
   };
 }
 
@@ -119,6 +120,7 @@ export function statusForSentiment(s: Sentiment): 'code_request' | 'gereageerd' 
     case 'overig':
       return 'gereageerd';
     case 'afwijzing':
+    case 'stop':
       return 'afgewezen';
     case 'auto':
       return null;
