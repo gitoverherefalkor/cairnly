@@ -114,6 +114,10 @@ export interface OutreachProspect {
   sessies_engaged: number;
   /** Which subject line this agency gets. See SUBJECT_VARIANTS. */
   subject_variant: 'a' | 'b' | null;
+  /** They asked not to be mailed. Nothing is prepared or sent for them again. */
+  niet_mailen_op?: string | null;
+  /** Their address bounced; the cockpit asks for a corrected one. */
+  email_ongeldig_op?: string | null;
   /** Phase 3: partner hand-off. */
   partner_slug: string | null;
   /** Set by the "Draft follow-up" button; cleared once the mail actually goes out. */

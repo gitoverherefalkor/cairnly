@@ -21,8 +21,10 @@
 // stay visible everywhere, they just do not count as an open.
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { callOutreach } from './outreach/api';
+import Cockpit from './outreach/Cockpit';
+import type { ConceptRow, HandledToday } from './outreach/types';
 import { Loader2, RefreshCw, ChevronDown, ChevronRight, Building2, Mail, ArrowUpRight, ArrowDownLeft, Clock, PenLine, X, PauseCircle } from 'lucide-react';
 import {
   FOLLOW_UP_1_WORKING_DAYS,
@@ -75,11 +77,6 @@ interface ClickRow {
   created_at: string;
 }
 
-interface QueueResponse {
-  queued: Array<Pick<OutreachProspect, 'slug' | 'followup_requested_at' | 'followup_draft_id'>>;
-  rejected: string[];
-}
-
 interface UpdateResponse {
   prospect: Pick<OutreachProspect, 'slug' | 'status' | 'notities' | 'updated_at'>;
 }
@@ -100,6 +97,7 @@ interface SubjectStat {
 
 interface SendState {
   gepauzeerd: boolean;
+  auto_goedkeuren?: boolean;
   next_allowed_at: string | null;
   laatste_fout: string | null;
 }
@@ -110,6 +108,8 @@ interface SendInfo {
   bezig: number;
   mislukt: number;
   vandaag_verzonden: number;
+  /** Cold mail only: what the daily cap counts. */
+  vandaag_koud?: number;
   recent: Array<{ id: string; slug: string; soort: string; status: string; sent_at: string | null; fout: string | null }>;
 }
 
@@ -120,6 +120,9 @@ interface ListResponse {
   log: ClickRow[];
   subject_stats: SubjectStat[];
   send: SendInfo;
+  /** The control center: concepts waiting, scheduled and sent today. */
+  concepts?: ConceptRow[];
+  handled_today?: HandledToday;
 }
 
 // ─── Shared styles (same language as MarketingTab / PartnersTab) ─────────────
@@ -165,28 +168,6 @@ function fmtDay(dayStamp: number): string {
     day: 'numeric',
     month: 'short',
   });
-}
-
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-async function callOutreach<T = unknown>(body: Record<string, unknown>): Promise<T> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('Not authenticated');
-  const url = import.meta.env.VITE_SUPABASE_URL as string;
-  const r = await fetch(`${url}/functions/v1/ops-outreach`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
-      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-    },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) {
-    const b = await r.json().catch(() => ({}));
-    throw new Error(b.error ?? `HTTP ${r.status}`);
-  }
-  return r.json();
 }
 
 // ─── One row ──────────────────────────────────────────────────────────────────
@@ -299,7 +280,6 @@ function ProspectRow({
   fu,
   onSaved,
   onCreatePartner,
-  onDraftFollowUp,
   onReplyDismissed,
 }: {
   p: OutreachProspect;
@@ -307,7 +287,6 @@ function ProspectRow({
   fu: FollowUp | null;
   onSaved: (patch: Pick<OutreachProspect, 'slug'> & Partial<OutreachProspect>) => void;
   onCreatePartner?: (draft: PartnerDraft) => void;
-  onDraftFollowUp: (slug: string) => Promise<void>;
   /** A park (or its undo) went through; the page-level counts are now stale. */
   onReplyDismissed?: () => void;
 }) {
@@ -315,7 +294,6 @@ function ProspectRow({
   const [savingStatus, setSavingStatus] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [showMails, setShowMails] = useState(false);
-  const [queueing, setQueueing] = useState(false);
   const [dismissing, setDismissing] = useState(false);
 
   const draftState = followUpDraftState(p);
@@ -339,15 +317,6 @@ function ProspectRow({
       setDismissing(false);
     }
   };
-  const draftFollowUp = async () => {
-    setQueueing(true);
-    try {
-      await onDraftFollowUp(p.slug);
-    } finally {
-      setQueueing(false);
-    }
-  };
-
   // Keep the local draft in step if a refresh brings newer notes in and the
   // field is not being edited.
   useEffect(() => {
@@ -480,7 +449,7 @@ function ProspectRow({
               <span className="text-white/55" title={`First sent ${fmt(p.verzonden_op, true)}`}>
                 Sent {fmt(p.verzonden_op, true)}
               </span>
-              <FollowUpBadge fu={fu} draftState={draftState} onDraft={draftFollowUp} queueing={queueing} />
+              <FollowUpBadge fu={fu} draftState={draftState} />
             </div>
           ) : (
             <span className="text-white/45">Not sent</span>
@@ -541,7 +510,7 @@ function ProspectRow({
                 </button>
               </div>
             )}
-            <FollowUpBadge fu={fu} draftState={draftState} onDraft={draftFollowUp} queueing={queueing} />
+            <FollowUpBadge fu={fu} draftState={draftState} />
           </div>
         )}
       </td>
@@ -738,85 +707,6 @@ function SubjectTest({ stats }: { stats: SubjectStat[] }) {
   );
 }
 
-/**
- * The send queue: what is waiting, and the switch that stops it.
- *
- * Deliberately not a control surface. There is no "send this now" here,
- * because the pacing rules are the whole point and a button that skips them
- * would be the first thing reached for on a slow afternoon. The queue fills
- * itself when WF11 creates a chase; the only thing a human does here is stop
- * it. To cancel one mail, delete its draft in Gmail.
- */
-function SendQueue({ send, onToggle }: { send: SendInfo; onToggle: (pause: boolean) => void }) {
-  const [busy, setBusy] = useState(false);
-  const paused = send.state?.gepauzeerd ?? true;
-  const next = send.state?.next_allowed_at ? new Date(send.state.next_allowed_at) : null;
-  const wachtend = next && next.getTime() > Date.now() ? next : null;
-
-  const flip = async () => {
-    setBusy(true);
-    try {
-      await onToggle(!paused);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className={`${card} px-4 py-3`}>
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className={label}>Sending</span>
-          <span
-            className={`text-[11px] px-2 py-0.5 rounded-full border ${
-              paused
-                ? 'bg-white/[0.05] text-white/60 border-white/[0.14]'
-                : 'bg-atlas-teal/15 text-atlas-teal border-atlas-teal/40'
-            }`}
-          >
-            {paused ? 'Paused' : 'Running'}
-          </span>
-        </div>
-        <button
-          onClick={flip}
-          disabled={busy}
-          className={`text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
-            paused
-              ? 'border-atlas-teal/40 text-atlas-teal hover:bg-atlas-teal/10'
-              : 'border-amber-500/40 text-amber-300 hover:bg-amber-500/10'
-          }`}
-        >
-          {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : paused ? 'Start sending' : 'Stop everything'}
-        </button>
-      </div>
-
-      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-white/70">
-        <span>{send.in_wachtrij} waiting</span>
-        <span>{send.vandaag_verzonden} of 8 sent today</span>
-        {send.bezig > 0 && <span className="text-amber-300">{send.bezig} in flight</span>}
-        {send.mislukt > 0 && <span className="text-red-300">{send.mislukt} failed</span>}
-        {wachtend && (
-          <span className="text-white/50">
-            next slot {wachtend.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        )}
-      </div>
-
-      {send.state?.laatste_fout && (
-        <div className="mt-2 text-[11px] text-red-300/90">Last error: {send.state.laatste_fout}</div>
-      )}
-
-      <p className="mt-2 text-[11px] text-white/50">
-        Chases queue themselves once WF11 has written the draft; replies never do. Mail goes out
-        Monday from 13:00, Friday until 12:00, otherwise 09:00 to 16:30, never at the weekend, at
-        most 8 a day with 24 to 53 minutes between them. Those rules live in the database, so they
-        hold however often the workflow runs. Editing a draft in Gmail changes what is sent;
-        deleting it cancels that mail.
-      </p>
-    </div>
-  );
-}
-
 function RawLog({ rows }: { rows: ClickRow[] }) {
   const [open, setOpen] = useState(false);
   return (
@@ -955,45 +845,6 @@ export default function OutreachTab({
     );
   }, []);
 
-  /**
-   * Ask for a follow-up draft on one or many agencies. This writes a flag and
-   * nothing else: the mail is written by outreach-mail-sync on the next WF11
-   * run and lands in the Gmail thread as a draft, never sent.
-   */
-  const queueFollowUps = useCallback(async (slugs: string | string[]) => {
-    const list = Array.isArray(slugs) ? slugs : [slugs];
-    if (list.length === 0) return;
-    try {
-      const res = await callOutreach<QueueResponse>({ action: 'queue_followup', slugs: list });
-      const queued = new Map(res.queued.map((q) => [q.slug, q]));
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              prospects: prev.prospects.map((p) => {
-                const q = queued.get(p.slug);
-                return q
-                  ? { ...p, followup_requested_at: q.followup_requested_at, followup_draft_id: q.followup_draft_id }
-                  : p;
-              }),
-            }
-          : prev,
-      );
-      if (res.queued.length > 0) {
-        toast.success(
-          res.queued.length === 1
-            ? 'Follow-up queued. The draft lands in Gmail within a few minutes.'
-            : `${res.queued.length} follow-ups queued. The drafts land in Gmail within a few minutes.`,
-        );
-      }
-      if (res.rejected.length > 0) {
-        toast.warning(`Skipped ${res.rejected.length}: they are no longer waiting on a chase.`);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Could not queue the follow-up');
-    }
-  }, []);
-
   // One clock for the whole render pass, refreshed when the data is: a `new
   // Date()` per row would make the sort non-deterministic across a tick.
   const now = useMemo(() => new Date(), [data]);
@@ -1010,22 +861,15 @@ export default function OutreachTab({
     [data, followUps],
   );
 
-  /** Due, and the chase is already asked for or sitting in Gmail. */
-  const dueDrafted = useMemo(
-    () =>
-      (data?.prospects ?? []).filter((p) => followUps.get(p.slug)?.due && followUpDraftState(p) !== 'none').length,
-    [data, followUps],
-  );
-
-  /** Due, and nobody has asked for a draft yet. This is what "Draft all due" acts on. */
-  const undrafted = useMemo(
-    () =>
-      (data?.prospects ?? [])
-        .filter((p) => followUps.get(p.slug)?.due && followUpDraftState(p) === 'none')
-        .map((p) => p.slug),
-    [data, followUps],
-  );
-  const [draftingAll, setDraftingAll] = useState(false);
+  /** Due, and a concept for it is already waiting or scheduled in the cockpit. */
+  const dueReady = useMemo(() => {
+    const live = new Set(
+      (data?.concepts ?? [])
+        .filter((c) => (c.soort === 'chase' || c.soort === 'checkin') && (c.status === 'voorstel' || c.status === 'ingepland'))
+        .map((c) => c.slug),
+    );
+    return (data?.prospects ?? []).filter((p) => followUps.get(p.slug)?.due && live.has(p.slug)).length;
+  }, [data, followUps]);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -1083,9 +927,9 @@ export default function OutreachTab({
   const dueSub =
     dueCount === 0
       ? `${FOLLOW_UP_1_WORKING_DAYS} working days, then ${FOLLOW_UP_2_WORKING_DAYS}`
-      : dueDrafted === 0
-        ? `none drafted yet`
-        : `${dueDrafted} drafted · ${dueCount - dueDrafted} to draft`;
+      : dueReady === dueCount
+        ? `all prepared in the cockpit`
+        : `${dueReady} prepared · ${dueCount - dueReady} at the next prepare run`;
 
   return (
     <div className="space-y-4">
@@ -1107,7 +951,19 @@ export default function OutreachTab({
         {counter('Follow-up due', dueCount, dueSub, 'due')}
       </div>
 
-      {data.send && <SendQueue send={data.send} onToggle={toggleSending} />}
+      {data.send && (
+        <Cockpit
+          concepts={data.concepts ?? []}
+          send={data.send}
+          handledToday={data.handled_today ?? null}
+          prospects={data.prospects}
+          onReload={() => {
+            load();
+            onChanged?.();
+          }}
+          onTogglePause={toggleSending}
+        />
+      )}
 
       <SubjectTest stats={data.subject_stats} />
 
@@ -1149,24 +1005,6 @@ export default function OutreachTab({
             <X className="h-3 w-3" />
           </button>
         )}
-        {undrafted.length > 0 && (
-          <button
-            onClick={async () => {
-              setDraftingAll(true);
-              try {
-                await queueFollowUps(undrafted);
-              } finally {
-                setDraftingAll(false);
-              }
-            }}
-            disabled={draftingAll}
-            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-atlas-gold/40 bg-atlas-gold/10 text-atlas-gold hover:bg-atlas-gold/20 disabled:opacity-50"
-            title="Write a follow-up for every agency whose chase is due, into their own Gmail thread. Drafts only, nothing is sent."
-          >
-            {draftingAll ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PenLine className="h-3.5 w-3.5" />}
-            Draft all due ({undrafted.length})
-          </button>
-        )}
         <div className="ml-auto flex items-center gap-2 text-xs text-white/60">
           {rows.length} of {data.prospects.length}
           <button onClick={load} disabled={loading} className="inline-flex items-center gap-1 text-white/80 hover:text-white">
@@ -1202,7 +1040,6 @@ export default function OutreachTab({
                   fu={followUps.get(p.slug) ?? null}
                   onSaved={applyPatch}
                   onCreatePartner={onCreatePartner}
-                  onDraftFollowUp={queueFollowUps}
                   onReplyDismissed={onChanged}
                 />
               ))
@@ -1210,7 +1047,7 @@ export default function OutreachTab({
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or park them (&quot;they&apos;ll get back to me&quot;): a parked agency leaves Waiting on you and comes back as a check-in {CHECK_IN_WORKING_DAYS} working days later, or straight away if they write first. A check-in draft is never sent on its own. Below them come the ones whose follow-up or check-in is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one; sending it clears the nudge by itself, because WF11 logs the mail and moves the status. &quot;Draft it&quot; writes that mail for you: within fifteen minutes it sits in the agency&apos;s own Gmail thread under Drafts, personalised with what we know about them, and it is never sent on its own. Mail and statuses arrive from Gmail via WF11; a draft reply sits in Gmail under Drafts and is never sent on its own.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or park them (&quot;they&apos;ll get back to me&quot;): a parked agency leaves Waiting on you and comes back as a check-in {CHECK_IN_WORKING_DAYS} working days later, or straight away if they write first. A check-in always waits for you in the cockpit. Below them come the ones whose follow-up or check-in is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one. The cockpit above prepares every due chase and enough first mails for the next two working days by itself, at 07:30 and 14:45; with auto-approve on, the ones that pass the checks go out on the schedule after an hour you can veto. Replies are written into the cockpit too, never into Gmail, and a reply from someone interested always waits for you. Incoming mail and statuses still arrive from Gmail via WF11.
         </div>
       </div>
 
