@@ -66,6 +66,8 @@ export async function insertConcept(
   c: NewConcept,
   opts: { autoApprove: boolean; replyDelay?: [number, number] } = { autoApprove: false },
 ): Promise<string | null> {
+  // A chase prepared a day ahead carries its due moment in basis.dueAt; it
+  // must never leave before that, whoever approves it.
   const now = new Date();
   const auto = opts.autoApprove && c.validatie.ok;
   const { data, error } = await db
@@ -100,10 +102,22 @@ export async function insertConcept(
   if (auto) {
     const nietVoor = isReply(c.soort)
       ? minutesFromNow(randomBetween(opts.replyDelay ?? REPLY_DELAY_AUTO), now)
-      : minutesFromNow(VETO_MINUTES, now);
+      : latest(minutesFromNow(VETO_MINUTES, now), dueAtOf(c.basis));
     await queue(db, id, c, { direct: false, nietVoor });
   }
   return id;
+}
+
+/** The later of two ISO instants; null counts as "no constraint". */
+function latest(a: string | null, b: string | null): string | null {
+  if (!a) return b;
+  if (!b) return a;
+  return Date.parse(a) >= Date.parse(b) ? a : b;
+}
+
+function dueAtOf(basis: unknown): string | null {
+  const v = (basis as Record<string, unknown> | null)?.dueAt;
+  return typeof v === 'string' ? v : null;
 }
 
 async function queue(
@@ -142,17 +156,18 @@ export async function approveConcept(
     .update({ status: 'ingepland', goedgekeurd_door: 'sjoerd', goedgekeurd_op: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', id)
     .in('status', ['voorstel', 'verouderd'])
-    .select('id, slug, soort, thread_id, to_email')
+    .select('id, slug, soort, thread_id, to_email, basis')
     .maybeSingle();
   if (error) throw error;
   if (!c) throw new Error('Concept is not waiting for approval (already scheduled, sent or discarded).');
 
   const soort = c.soort as ConceptSoort;
+  // Send means now (after Undo). Schedule respects a chase's due day.
   const nietVoor = opts.direct
     ? new Date(Date.now() + UNDO_SECONDS * 1000).toISOString()
     : isReply(soort)
       ? minutesFromNow(randomBetween(REPLY_DELAY_APPROVED))
-      : null;
+      : dueAtOf(c.basis);
   await queue(db, id, { slug: c.slug as string, soort, thread_id: c.thread_id as string | null, to_email: c.to_email as string }, {
     direct: opts.direct,
     nietVoor,

@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => ({
       'supabase/functions/_shared/outreachMime.test.ts',
       'supabase/functions/_shared/outreachRouting.test.ts',
       'supabase/functions/_shared/outreachReply.test.ts',
+      'supabase/functions/_shared/outreachCadence.test.ts',
       'supabase/functions/resume-strengthen/request.test.ts',
       'supabase/functions/resume-strengthen/strength.test.ts',
       'supabase/functions/forward-to-n8n/n8n-delivery.test.ts',

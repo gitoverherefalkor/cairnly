@@ -165,6 +165,20 @@ verify_jwt = false
 [functions.outreach-send]
 verify_jwt = false
 
+# Outreach prepare: called by pg_cron (07:30 and 14:45 Amsterdam, working
+# days), not by a user, so no JWT. Same x-shared-secret gate as the other
+# outreach functions (vault 'n8n_shared_secret' = N8N_SHARED_SECRET). Writes
+# outreach concepts (first mails, chases, check-ins) and queues the ones the
+# auto-approve rule allows; it never sends mail itself.
+[functions.outreach-prepare]
+verify_jwt = false
+
+# Ops push: called by pg_cron for the morning and afternoon digest and the
+# paused-queue alarm, so no JWT. Same x-shared-secret gate. Sends Web Push to
+# the admin subscriptions in ops_push_subscriptions and nothing else.
+[functions.ops-push]
+verify_jwt = false
+
 # Daily Google Ads push: called by a Google Ads Script, which cannot hold a
 # Supabase session, so no JWT. Gated by its own x-shared-secret header
 # (GOOGLE_ADS_INGEST_SECRET, deliberately NOT N8N_SHARED_SECRET, so the value
