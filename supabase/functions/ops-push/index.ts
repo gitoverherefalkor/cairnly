@@ -20,7 +20,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { verifySharedSecret } from '../_shared/cors.ts';
 import { notifyPush, OPS_OUTREACH_URL } from '../_shared/opsPush.ts';
-import { amsterdamDay, dayCapacity, nextWorkingDays } from '../_shared/outreachSchedule.ts';
+import { amsterdamDay, dayCapacity, FIRST_MAILS_PER_DAY, nextWorkingDays } from '../_shared/outreachSchedule.ts';
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -75,10 +75,8 @@ async function picture(db: SupabaseClient, now: Date): Promise<Picture> {
   const notContacted = (prospectsRes.data ?? []).filter(
     (p) => p.status === 'nog_niet_benaderd' && p.to_email && !p.niet_mailen_op && !p.email_ongeldig_op,
   ).length;
-  // Roughly: a working day holds ~7 cold mails, about half of which are
-  // chases once the pipeline is running. The cockpit shows the same figure.
-  const firstMailsPerDay = 4;
-  const runwayDays = notContacted ? Math.floor(notContacted / firstMailsPerDay) : 0;
+  // The cockpit shows the same figure (runwayDays in src/lib/outreachCockpit.ts).
+  const runwayDays = Math.floor(notContacted / FIRST_MAILS_PER_DAY);
 
   return {
     repliesWaiting: concepts.filter((c) => c.soort === 'reply' && c.status === 'voorstel').length,

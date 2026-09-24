@@ -240,13 +240,19 @@ export async function invalidateForSlug(
   return ids.length;
 }
 
-/** Opt-out or bounce: everything for this agency is discarded, not merely stale. */
+/**
+ * Opt-out or bounce: every live concept for this agency stops, and its queue
+ * row is cancelled. Marked 'verouderd' (a machine decision), not 'weggegooid'
+ * (Sjoerd's decision, which prepare honours forever): after a bounced
+ * address is corrected, prepare must be free to write the mail again. An
+ * opt-out stays closed through niet_mailen_op, not through this status.
+ */
 export async function cancelAllForSlug(db: SupabaseClient, slug: string, reason: string): Promise<void> {
   const { data, error } = await db
     .from('outreach_concepts')
-    .update({ status: 'weggegooid', verouderd_reden: reason, updated_at: new Date().toISOString() })
+    .update({ status: 'verouderd', verouderd_reden: reason, updated_at: new Date().toISOString() })
     .eq('slug', slug)
-    .in('status', [...LIVE, 'verouderd'])
+    .in('status', LIVE)
     .select('id');
   if (error) throw error;
   await cancelQueueFor(db, (data ?? []).map((r) => r.id as string));

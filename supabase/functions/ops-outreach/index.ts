@@ -480,6 +480,15 @@ serve(async (req) => {
       if (!['voorstel', 'ingepland', 'verouderd'].includes(c.status as string)) {
         return errorResponse(`A ${c.status} concept can no longer be edited.`, 409, corsHeaders);
       }
+      // Once WF12 has claimed it, the text is already on its way: an edit now
+      // would be saved but never sent.
+      const { data: inFlight } = await supabase
+        .from('outreach_send_queue')
+        .select('id')
+        .eq('concept_id', conceptId)
+        .eq('status', 'sending')
+        .limit(1);
+      if (inFlight?.length) return errorResponse('Too late: this mail is being sent right now.', 409, corsHeaders);
       const { data: p } = await supabase
         .from('outreach_prospects')
         .select('naam, contactpersoon, campaign')
@@ -580,7 +589,7 @@ serve(async (req) => {
       const back = await unscheduleConcept(supabase, conceptId);
       if (!back) return errorResponse('Too late: this mail is already on its way.', 409, corsHeaders);
       await supabase.from('outreach_concepts').update({ status: 'weggegooid', updated_at: new Date().toISOString() }).eq('id', conceptId);
-      const result = await runPrepare(supabase, new Date(), c.slug as string);
+      const result = await runPrepare(supabase, new Date(), c.slug as string, { regenerate: true });
       return ok({ ok: true, result }, corsHeaders);
     }
 
@@ -625,6 +634,19 @@ serve(async (req) => {
     if (action === 'knock') {
       const secret = Deno.env.get('N8N_SHARED_SECRET');
       if (!secret) return errorResponse('Shared secret not configured', 503, corsHeaders);
+      // The browser's countdown and the server clock can disagree by a second.
+      // A knock before the row's niet_voor claims nothing, and outside the
+      // pg_cron hours no later tick would pick it up, so wait it out here.
+      const { data: pending } = await supabase
+        .from('outreach_send_queue')
+        .select('niet_voor')
+        .eq('status', 'queued')
+        .eq('direct', true)
+        .order('niet_voor', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      const waitMs = pending?.niet_voor ? Date.parse(pending.niet_voor as string) - Date.now() + 1000 : 0;
+      if (waitMs > 0 && waitMs < 30_000) await new Promise((r) => setTimeout(r, waitMs));
       const r = await fetch(WF12_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-shared-secret': secret },

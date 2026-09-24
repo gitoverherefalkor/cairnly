@@ -125,8 +125,14 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
   // 3. Match every new message to a bureau.
   const work: Array<{ mail: NormalisedMail; direction: 'out' | 'in'; slug: string }> = [];
   let skipped = 0;
+  const headerFixes: Array<{ id: string; messageId: string }> = [];
   for (const mail of mails) {
     if (known.has(mail.id)) {
+      // A mail the queue sent was logged by outreach-send with the Message-ID
+      // it generated. Gmail may have replaced that header on the way out;
+      // what Gmail shows here is what the recipient got, and the next chase
+      // must point at that one.
+      if (mail.messageId && directionOf(mail) === 'out') headerFixes.push({ id: mail.id, messageId: mail.messageId });
       skipped++;
       continue;
     }
@@ -139,6 +145,15 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
     threadSlugs.set(mail.threadId, slug);
     work.push({ mail, direction, slug });
   }
+  for (const f of headerFixes) {
+    const { error } = await supabase
+      .from('outreach_mails')
+      .update({ rfc_message_id: f.messageId })
+      .eq('gmail_message_id', f.id)
+      .or(`rfc_message_id.is.null,rfc_message_id.neq."${f.messageId.replace(/"/g, '')}"`);
+    if (error) console.error('[outreach-mail-sync] could not correct the Message-ID of', f.id, error);
+  }
+
   if (work.length === 0) return { processed: 0, skipped, drafts: [] };
 
   // 4. Prior mails for the bureaus involved (for touch counts and context).

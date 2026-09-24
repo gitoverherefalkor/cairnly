@@ -14,6 +14,12 @@ export const COLD_CAP_PER_DAY = 8;
 export const GAP_MIN = 24;
 export const GAP_MAX = 53;
 export const MEAN_GAP = (GAP_MIN + GAP_MAX) / 2;
+/**
+ * Rough first-mail slots per working day once chases take their share. The
+ * runway figure divides the not-contacted list by this. Same value as
+ * FIRST_MAILS_PER_DAY in src/lib/outreachCockpit.ts.
+ */
+export const FIRST_MAILS_PER_DAY = 4;
 
 const TZ = 'Europe/Amsterdam';
 

@@ -149,8 +149,13 @@ async function writeInitial(input: InitialInput): Promise<string | null> {
  * The whole run. `onlySlug` limits it to one agency (Regenerate in /ops);
  * then capacity is ignored for that agency's first mail.
  */
-export async function runPrepare(db: SupabaseClient, now = new Date(), onlySlug?: string): Promise<PrepareResult> {
-  const [prospectsRes, mailsRes, statsRes, liveRes] = await Promise.all([
+export async function runPrepare(
+  db: SupabaseClient,
+  now = new Date(),
+  onlySlug?: string,
+  opts: { regenerate?: boolean } = {},
+): Promise<PrepareResult> {
+  const [prospectsRes, mailsRes, statsRes, liveRes, declinedRes] = await Promise.all([
     db
       .from('outreach_prospects')
       .select(
@@ -164,8 +169,12 @@ export async function runPrepare(db: SupabaseClient, now = new Date(), onlySlug?
       .limit(5000),
     db.from('outreach_prospect_stats').select('slug, kliks_bevestigd, dagen_bevestigd'),
     db.from('outreach_concepts').select('slug, soort, step').in('status', ['voorstel', 'ingepland']),
+    // What Sjoerd threw away or marked as not needed stays away: prepare
+    // must not write the same mail again the next morning. Regenerate is the
+    // explicit way back.
+    db.from('outreach_concepts').select('slug, soort, step').in('status', ['weggegooid', 'geen_antwoord']),
   ]);
-  for (const r of [prospectsRes, mailsRes, statsRes, liveRes]) if (r.error) throw r.error;
+  for (const r of [prospectsRes, mailsRes, statsRes, liveRes, declinedRes]) if (r.error) throw r.error;
 
   const autoOn = await autoApproveOn(db);
   const skipped: string[] = [];
@@ -177,6 +186,9 @@ export async function runPrepare(db: SupabaseClient, now = new Date(), onlySlug?
   }
   const stats = new Map((statsRes.data ?? []).map((s) => [s.slug as string, s]));
   const live = new Set((liveRes.data ?? []).map((c) => `${c.slug}|${c.soort}|${c.step ?? 0}`));
+  if (!opts.regenerate) {
+    for (const c of declinedRes.data ?? []) live.add(`${c.slug}|${c.soort}|${c.step ?? 0}`);
+  }
   let liveCold = (liveRes.data ?? []).filter((c) => COLD.includes(c.soort as string)).length;
 
   const prospects = ((prospectsRes.data ?? []) as Prospect[]).filter((p) => !onlySlug || p.slug === onlySlug);

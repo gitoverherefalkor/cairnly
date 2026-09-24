@@ -37,7 +37,6 @@ import {
   SUBJECT_VARIANTS,
   compareWorkFirst,
   followUp,
-  followUpDraftState,
   isWarm,
   matchesFocus,
   type FollowUp,
@@ -296,7 +295,9 @@ function ProspectRow({
   const [showMails, setShowMails] = useState(false);
   const [dismissing, setDismissing] = useState(false);
 
-  const draftState = followUpDraftState(p);
+  // Gmail drafts are gone (the cockpit holds the concepts), and nothing clears
+  // the old followup_* columns any more, so they must not drive the badge.
+  const draftState: FollowUpDraftState = 'none';
 
   // Park / undo. Only ever touches our own row: the Gmail thread,
   // and any reply draft waiting in it, stay exactly as they are.
