@@ -285,18 +285,18 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
       let body = cls?.concept ?? null;
       const target = cls && !bounce ? statusForSentiment(cls.sentiment) : null;
       if (target === 'code_request') {
+        // No code is minted here any more (2026-09-24): the partner and code
+        // are created when Sjoerd schedules or sends this reply
+        // (approveConcept), so a misread reply or a discarded concept never
+        // leaves a stray partner behind. The [CODELINK] token stays in the
+        // concept until then.
         if (codeIssued) {
           if (body) body = body.replaceAll(CODELINK_TOKEN, '').replace(/\n{3,}/g, '\n\n');
-        } else {
-          const { data, error } = await supabase.rpc('outreach_code_request', { p_slug: slug, p_lang: 'nl' });
-          if (error || !data || typeof data !== 'object' || !(data as Json).link) {
-            console.error('[outreach-mail-sync] code request failed for', slug, error);
-            row.samenvatting = `${cls?.samenvatting ?? ''} (code minten mislukt, link zelf invullen)`.trim();
-          } else {
-            const link = String((data as Json).link);
-            if (body) body = body.includes(CODELINK_TOKEN) ? body.replaceAll(CODELINK_TOKEN, link) : `${body}\n\n${link}`;
-          }
+        } else if (body && !body.includes(CODELINK_TOKEN)) {
+          body = `${body}\n\n${CODELINK_TOKEN}`;
         }
+        const { error } = await supabase.rpc('outreach_advance_status', { p_slug: slug, p_status: 'gereageerd', p_at: mail.date });
+        if (error) throw error;
       } else if (target) {
         const { error } = await supabase.rpc('outreach_advance_status', { p_slug: slug, p_status: target, p_at: mail.date });
         if (error) throw error;

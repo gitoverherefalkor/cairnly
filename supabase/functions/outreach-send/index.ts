@@ -69,6 +69,8 @@ const CONCEPT_COLUMNS =
  */
 async function staleReason(db: SupabaseClient, c: Concept): Promise<string | null> {
   if (c.status !== 'ingepland') return `concept is ${c.status}, not scheduled`;
+  // Approval fills the code link in; a token still here would go out verbatim.
+  if (c.body.includes('[CODELINK]')) return 'the test-code link was never filled in';
 
   const { data: p } = await db
     .from('outreach_prospects')

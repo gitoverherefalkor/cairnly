@@ -16,6 +16,7 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import type { ConceptSoort, ValidationResult } from './outreachValidate.ts';
 import { mayAutoApprove, type Beoordeling } from './outreachCritic.ts';
+import { CODELINK_TOKEN } from './outreachReply.ts';
 
 export type { ConceptSoort };
 
@@ -156,9 +157,33 @@ export async function approveConcept(
   id: string,
   opts: { direct: boolean },
 ): Promise<{ niet_voor: string | null }> {
+  // A reply that offers a test code carries [CODELINK]. The partner and code
+  // are created only now, when Sjoerd approves it, never when the reply was
+  // merely read: a misread or discarded reply leaves nothing behind.
+  const { data: pending, error: pErr } = await db
+    .from('outreach_concepts')
+    .select('slug, body')
+    .eq('id', id)
+    .in('status', ['voorstel', 'verouderd'])
+    .maybeSingle();
+  if (pErr) throw pErr;
+  if (!pending) throw new Error('Concept is not waiting for approval (already scheduled, sent or discarded).');
+  const patch: Record<string, unknown> = {
+    status: 'ingepland',
+    goedgekeurd_door: 'sjoerd',
+    goedgekeurd_op: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+  if (String(pending.body).includes(CODELINK_TOKEN)) {
+    const { data: minted, error: mErr } = await db.rpc('outreach_code_request', { p_slug: pending.slug, p_lang: 'nl' });
+    const link = minted && typeof minted === 'object' ? String((minted as Record<string, unknown>).link ?? '') : '';
+    if (mErr || !link) throw new Error('Could not create the test code; nothing was scheduled. Try again or remove [CODELINK].');
+    patch.body = String(pending.body).replaceAll(CODELINK_TOKEN, link);
+  }
+
   const { data: c, error } = await db
     .from('outreach_concepts')
-    .update({ status: 'ingepland', goedgekeurd_door: 'sjoerd', goedgekeurd_op: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .update(patch)
     .eq('id', id)
     .in('status', ['voorstel', 'verouderd'])
     .select('id, slug, soort, thread_id, to_email, basis')

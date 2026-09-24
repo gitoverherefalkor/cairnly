@@ -122,7 +122,11 @@ export function validateOutgoing(
   if (DASH.test(text)) problems.push('contains a dash (— or –)');
   if (NOT_BUT.test(text)) problems.push('contains a "niet X, maar Y" construction');
   if (!SIGNATURE.test(text)) problems.push('signature "Groet,\\nSjoerd" missing at the end');
-  if (/\[CODELINK\]|[{}]/.test(text)) problems.push('template placeholder left in the text');
+  // In a reply, [CODELINK] is expected: approving the reply creates the code
+  // and fills it in. Anywhere else it is residue.
+  if (/[{}]/.test(text) || (opts.soort !== 'reply' && text.includes('[CODELINK]'))) {
+    problems.push('template placeholder left in the text');
+  }
   const tell = aiTell(text);
   if (tell) problems.push(`reads as generated: "${tell}"`);
 
