@@ -146,7 +146,7 @@ Units and their one job:
 | `outreach-send` fn | Claims, revalidates, returns `raw` + `threadId` | changed |
 | `ops-outreach` fn | Concept edit/schedule/send/discard/park, push subscribe | changed |
 | `ops-push` fn | Sends Web Push; digest, nudge and event pings | new |
-| WF12 | Posts `raw` to `messages/send` instead of a draft id to `drafts/send` | **existing workflow, per-workflow yes required** |
+| WF12 | Posts `raw` to `messages/send` instead of a draft id to `drafts/send`; reports `threadId` back | **existing workflow, per-workflow yes required** |
 | WF11 | Unchanged. Sync returns `drafts: []`, so the draft branch creates nothing | none |
 | `src/lib/outreachHighlight.ts` | Pure functions for the highlight views | new |
 | `OutreachCockpit`, `ConceptCard`, `ReplyConceptCard` | The UI | new |
@@ -346,10 +346,10 @@ equal in SQL and `outreach-send`.
 
 ### WF12 change (needs Sjoerd's explicit yes for WF12)
 
-One node: the HTTP request posts `{raw, threadId}` to
+Two nodes: the send request posts `{raw, threadId}` to
 `https://gmail.googleapis.com/gmail/v1/users/me/messages/send` instead of
-`{id}` to `drafts/send`, and reports `id` + `threadId` back in `sent`. Export
-WF12 to `n8n_wfs_cairnly/backups/` first. No other node changes.
+`{id}` to `drafts/send`, and "Report sent" also passes `threadId` back.
+Export WF12 to `n8n_wfs_cairnly/backups/` first. No other node changes.
 
 ### After sending
 
@@ -415,9 +415,10 @@ HANDLED FOR YOU TODAY  2 rejections answered · 1 opt-out stopped · 1 out-of-of
 - Service worker `public/ops-sw.js` (scope `/ops`). A "Notifications on"
   button in the cockpit asks Chrome for permission and stores the subscription
   via `ops-push`/`ops-outreach` (admin only).
-- VAPID: public key in the frontend as `VITE_VAPID_PUBLIC_KEY` (public by
-  design), private key only as Supabase secret `VAPID_PRIVATE_KEY` with
-  `VAPID_SUBJECT=mailto:sjoerd@cairnly.io`. Never in git.
+- VAPID: both keys are Supabase secrets (`VAPID_PUBLIC_KEY`,
+  `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT=mailto:sjoerd@cairnly.io`), generated
+  without passing through the transcript. The browser fetches the public key
+  from `ops-outreach`, so no Vercel env var is needed. Never in git.
 - Clicking a notification opens /ops on the relevant concept.
 - iPhone only works if /ops is added to the home screen; Chrome on the Mac
   works directly. Out of scope to make /ops a full PWA.
