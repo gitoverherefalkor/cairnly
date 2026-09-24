@@ -65,7 +65,19 @@ Deno.test('normaliseGmailItem: n8n simple mode', () => {
 });
 
 Deno.test('matchProspect: body slug, then address, then domain, then thread', () => {
-  const base = { id: 'x', threadId: 'tt', subject: '', date: '2026-09-11T00:00:00Z', snippet: '', labelIds: [] as string[] };
+  const base = {
+    id: 'x',
+    threadId: 'tt',
+    subject: '',
+    date: '2026-09-11T00:00:00Z',
+    snippet: '',
+    labelIds: [] as string[],
+    messageId: null,
+    inReplyTo: null,
+    references: null,
+    fromName: null,
+    contentType: null,
+  };
   const threads = new Map([['known', 'vierl']]);
   // outbound with link
   assertEquals(
@@ -113,4 +125,45 @@ Deno.test('looksAutomatic and replyBodyOnly', () => {
   assertEquals(looksAutomatic({ subject: 'RE: Vraagje', from: 'x@y.nl' }), false);
   const body = 'Dag Sjoerd,\n\nWe hebben interesse.\n\nGroet, M\n\nOp do 11 sep 2026 om 10:52 schreef Sjoerd <sjoerd@cairnly.io>:\n> Beste Monique,\n> ...';
   assertEquals(replyBodyOnly(body), 'Dag Sjoerd,\n\nWe hebben interesse.\n\nGroet, M');
+});
+
+Deno.test('normalise keeps the threading headers and display name (mailparser shape)', () => {
+  const m = normaliseGmailItem({
+    id: 'm1',
+    threadId: 't1',
+    date: '2026-09-24T08:00:00Z',
+    from: { value: [{ address: 'Ingrid@X.nl', name: 'Ingrid de Vries' }], text: 'Ingrid de Vries <Ingrid@X.nl>' },
+    to: { value: [{ address: 'sjoerd@cairnly.io' }] },
+    subject: 'Re: Vraagje',
+    text: 'Hoi',
+    messageId: '<abc@x.nl>',
+    inReplyTo: '<ours@cairnly.io>',
+    references: ['<first@cairnly.io>', '<ours@cairnly.io>'],
+    headers: { 'content-type': { value: 'multipart/alternative', params: { boundary: 'b' } } },
+  });
+  assertEquals(m?.messageId, '<abc@x.nl>');
+  assertEquals(m?.inReplyTo, '<ours@cairnly.io>');
+  assertEquals(m?.references, '<first@cairnly.io> <ours@cairnly.io>');
+  assertEquals(m?.fromName, 'Ingrid de Vries');
+  assertEquals(m?.contentType, 'multipart/alternative');
+});
+
+Deno.test('normalise reads the same headers from the Gmail REST shape', () => {
+  const m = normaliseGmailItem({
+    id: 'm2',
+    threadId: 't2',
+    internalDate: '1789970400000',
+    snippet: 'Mail delivery failed',
+    payload: {
+      headers: [
+        { name: 'From', value: 'Mail Delivery Subsystem <mailer-daemon@googlemail.com>' },
+        { name: 'Message-ID', value: '<bounce@google.com>' },
+        { name: 'Content-Type', value: 'multipart/report; report-type=delivery-status' },
+      ],
+    },
+  });
+  assertEquals(m?.messageId, '<bounce@google.com>');
+  assertEquals(m?.fromName, 'Mail Delivery Subsystem');
+  assertEquals(m?.contentType, 'multipart/report; report-type=delivery-status');
+  assertEquals(m?.inReplyTo, null);
 });

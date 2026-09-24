@@ -22,6 +22,15 @@ export interface NormalisedMail {
   text: string;
   snippet: string;
   labelIds: string[];
+  /** RFC Message-ID header, angle brackets included. What a reply points at. */
+  messageId: string | null;
+  inReplyTo: string | null;
+  /** Space-separated Message-IDs of the thread so far. */
+  references: string | null;
+  /** Display name of the sender ("Ingrid de Vries"), for a salutation. */
+  fromName: string | null;
+  /** Top-level Content-Type; a bounce is multipart/report. */
+  contentType: string | null;
 }
 
 export interface ProspectLite {
@@ -77,6 +86,54 @@ export function htmlToText(html: string): string {
     .trim();
 }
 
+/**
+ * One header, from whichever shape the item has: mailparser (n8n Gmail with
+ * simple=false) puts them in a `headers` object keyed lowercase, whose values
+ * can be strings, arrays or {value, params} objects; the Gmail REST API puts
+ * them in `payload.headers` as [{name, value}].
+ */
+function headerOf(r: Record<string, unknown>, name: string): string | null {
+  const lower = name.toLowerCase();
+  const flat = (v: unknown): string | null => {
+    if (v == null) return null;
+    if (typeof v === 'string') return v.trim() || null;
+    if (Array.isArray(v)) return v.map(flat).filter(Boolean).join(' ') || null;
+    if (typeof v === 'object' && 'value' in (v as Record<string, unknown>)) {
+      return flat((v as Record<string, unknown>).value);
+    }
+    return null;
+  };
+  const h = r.headers;
+  if (h && typeof h === 'object' && !Array.isArray(h)) {
+    for (const [k, v] of Object.entries(h as Record<string, unknown>)) {
+      if (k.toLowerCase() === lower) return flat(v);
+    }
+  }
+  const payload = r.payload as Record<string, unknown> | undefined;
+  if (payload && Array.isArray(payload.headers)) {
+    const hit = (payload.headers as Array<Record<string, unknown>>).find(
+      (x) => String(x.name ?? '').toLowerCase() === lower,
+    );
+    if (hit) return flat(hit.value);
+  }
+  return null;
+}
+
+/** The sender's display name, if the item carries one. */
+function fromNameOf(r: Record<string, unknown>): string | null {
+  const f = r.from ?? r.From;
+  if (f && typeof f === 'object' && !Array.isArray(f)) {
+    const v = (f as Record<string, unknown>).value;
+    if (Array.isArray(v) && v[0] && typeof v[0] === 'object') {
+      const n = String((v[0] as Record<string, unknown>).name ?? '').trim();
+      if (n) return n;
+    }
+  }
+  const raw = typeof f === 'string' ? f : headerOf(r, 'from');
+  const m = raw ? /^\s*"?([^"<]+?)"?\s*</.exec(raw) : null;
+  return m ? m[1].trim() || null : null;
+}
+
 function isoDate(v: unknown): string | null {
   if (v == null || v === '') return null;
   if (typeof v === 'number') return new Date(v).toISOString();
@@ -125,6 +182,13 @@ export function normaliseGmailItem(raw: unknown): NormalisedMail | null {
     text: text.trim(),
     snippet: String(r.snippet ?? '').trim() || text.trim().slice(0, 200),
     labelIds,
+    messageId: (typeof r.messageId === 'string' && r.messageId.trim()) || headerOf(r, 'message-id'),
+    inReplyTo: (typeof r.inReplyTo === 'string' && r.inReplyTo.trim()) || headerOf(r, 'in-reply-to'),
+    references:
+      (Array.isArray(r.references) ? r.references.map(String).join(' ') : typeof r.references === 'string' ? r.references.trim() : '') ||
+      headerOf(r, 'references'),
+    fromName: fromNameOf(r),
+    contentType: headerOf(r, 'content-type'),
   };
 }
 
