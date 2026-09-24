@@ -9,7 +9,14 @@
 // runs through the service role because outreach_prospects / outreach_clicks
 // have RLS on with zero policies.
 //
-// Actions: list | update | queue_followup | dismiss_reply | send_pause
+// Actions: list | update | dismiss_reply | send_pause
+//   Control center (2026-09-24): concept_update | concept_schedule |
+//   concept_schedule_all | concept_send | concept_unschedule | concept_discard |
+//   concept_no_reply | concept_regenerate | prepare_now | auto_toggle |
+//   fix_email | knock | push_subscribe | push_unsubscribe | push_test |
+//   vapid_public_key
+// The old queue_followup ("Draft it") is gone: outreach-prepare writes the
+// chases itself, and they wait here as concepts.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -20,7 +27,17 @@ import {
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
 import { isAdminEmail } from '../_shared/admins.ts';
-import { CHECK_IN_CLOSED, OUTREACH_STATUSES, isParked } from '../_shared/outreach.ts';
+import { OUTREACH_STATUSES, isParked } from '../_shared/outreach.ts';
+import {
+  approveConcept,
+  invalidateForSlug,
+  unscheduleConcept,
+  type ConceptSoort,
+} from '../_shared/outreachConcepts.ts';
+import { runPrepare } from '../_shared/outreachPrepare.ts';
+import { MAX_WORDS, validateOutgoing } from '../_shared/outreachValidate.ts';
+import { demoLink, salutation } from '../_shared/outreachFollowUp.ts';
+import { sendToAll, vapidPublicKey, OPS_OUTREACH_URL } from '../_shared/opsPush.ts';
 
 type Json = Record<string, unknown>;
 
@@ -33,11 +50,14 @@ const STATUS_SET = new Set<string>(OUTREACH_STATUSES);
 const NOTES_MAX = 4000;
 const RAW_LOG_ROWS = 100;
 const MAILS_MAX = 2000;
-/** One click on "Draft all due" should never become a hundred Gmail drafts. */
-const QUEUE_MAX = 40;
-/** Statuses where a chase is still the right move; mirrors CHASEABLE in outreach-mail-sync. */
-const CHASEABLE_STATUSES = ['verzonden', 'opvolging_1'];
+/** "Schedule all" never approves more than this in one click. */
+const SCHEDULE_ALL_MAX = 40;
 const MAILS_PER_PROSPECT = 12;
+/** Statuses after which a prepared chase or first mail no longer makes sense. */
+const CLOSING_STATUSES = new Set(['gesprek_gepland', 'gesprek_gevoerd', 'pilot_afgesproken', 'pilot_gestart', 'founding_partner', 'afgewezen', 'geen_fit']);
+const BODY_MAX = 8000;
+/** WF12's webhook, knocked after a Send so "now" means about now. */
+const WF12_WEBHOOK = 'https://falkoratlas.app.n8n.cloud/webhook/d56ec58d-99d7-4c1e-bfd0-e6ffce6b894a';
 // Mirrors the interval in the outreach_prospect_stats view. A non-bot click
 // inside this window after the mail went out is treated as a link scanner.
 const SUSPECT_WINDOW_MS = 2 * 60 * 1000;
@@ -93,11 +113,11 @@ serve(async (req) => {
   try {
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
-      const [prospectsRes, statsRes, demoRes, subjectRes, sendStateRes, sendQueueRes, todayRes, logRes, mailsRes, partnersRes] = await Promise.all([
+      const [prospectsRes, statsRes, demoRes, subjectRes, sendStateRes, sendQueueRes, todayRes, logRes, mailsRes, partnersRes, conceptsRes] = await Promise.all([
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, reply_dismissed_at, subject_variant, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, reply_dismissed_at, subject_variant, niet_mailen_op, email_ongeldig_op, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -112,9 +132,9 @@ serve(async (req) => {
         // waiting. Read-only here; WF12 is the only thing that sends.
         supabase.from('outreach_send_state').select('*').maybeSingle(),
         supabase.from('outreach_send_queue')
-          .select('id, slug, soort, status, sent_at, fout, pogingen, created_at')
+          .select('id, slug, soort, status, sent_at, fout, pogingen, created_at, concept_id, niet_voor, direct')
           .order('created_at', { ascending: false })
-          .limit(120),
+          .limit(200),
         // Rows, not a head count: "clicks today" has to apply the same scanner
         // rule as everything else, and that needs each row's slug and time.
         supabase
@@ -136,6 +156,18 @@ serve(async (req) => {
           .limit(MAILS_MAX),
         // Linked partners and how many codes they hold.
         supabase.from('partner_code_status').select('slug, name, codes_issued, codes_claimed, reports_completed'),
+        // The control center: everything waiting or scheduled, the stale ones
+        // Sjoerd had edited (his words must not vanish), and today's sent.
+        supabase
+          .from('outreach_concepts')
+          .select(
+            'id, slug, soort, step, status, to_email, subject, body, body_origineel, skeleton, variant, basis, thread_id, answers_mail_id, validatie, verouderd_reden, bewerkt_op, goedgekeurd_door, goedgekeurd_op, verzonden_op, created_at, updated_at',
+          )
+          .or(
+            `status.in.(voorstel,ingepland),and(status.eq.verouderd,bewerkt_op.not.is.null),and(status.eq.verzonden,verzonden_op.gte."${startOfTodayAmsterdam()}")`,
+          )
+          .order('created_at', { ascending: true })
+          .limit(300),
       ]);
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
@@ -147,6 +179,7 @@ serve(async (req) => {
       if (logRes.error) throw logRes.error;
       if (mailsRes.error) throw mailsRes.error;
       if (partnersRes.error) throw partnersRes.error;
+      if (conceptsRes.error) throw conceptsRes.error;
 
       const mailsBySlug = new Map<string, Json[]>();
       for (const m of mailsRes.data ?? []) {
@@ -253,10 +286,60 @@ serve(async (req) => {
             new Date(q.sent_at as string).toLocaleDateString('en-CA', { timeZone: 'Europe/Amsterdam' }) === vandaag,
         ).length,
         recent: queue.slice(0, 20),
+        // The cap counts cold mail only; replies do not use it up.
+        vandaag_koud: queue.filter(
+          (q) =>
+            q.sent_at && q.soort !== 'reply' &&
+            new Date(q.sent_at as string).toLocaleDateString('en-CA', { timeZone: 'Europe/Amsterdam' }) === vandaag,
+        ).length,
+      };
+
+      // ── Control center ──
+      // Each concept travels with its live queue row (when scheduled) and, for
+      // a reply, the full mail it answers, so the cockpit needs no second call.
+      const conceptRows = conceptsRes.data ?? [];
+      const liveQueue = new Map(
+        queue
+          .filter((q) => q.concept_id && (q.status === 'queued' || q.status === 'sending'))
+          .map((q) => [q.concept_id as string, q]),
+      );
+      const answerIds = conceptRows.map((c) => c.answers_mail_id).filter(Boolean) as string[];
+      const answered = new Map<string, Json>();
+      if (answerIds.length) {
+        const { data: am, error: amErr } = await supabase
+          .from('outreach_mails')
+          .select('id, from_email, subject, body_text, snippet, sent_at, sentiment, samenvatting')
+          .in('id', answerIds);
+        if (amErr) throw amErr;
+        for (const m of am ?? []) answered.set(m.id as string, m as Json);
+      }
+      const naamBySlug = new Map((prospectsRes.data ?? []).map((p) => [p.slug as string, p]));
+      const concepts = conceptRows.map((c) => {
+        const q = liveQueue.get(c.id as string);
+        const p = naamBySlug.get(c.slug as string);
+        return {
+          ...c,
+          naam: (p?.naam as string | null) ?? null,
+          tier: (p?.tier as string | null) ?? null,
+          queue: q ? { id: q.id, status: q.status, niet_voor: q.niet_voor, direct: q.direct } : null,
+          answers: c.answers_mail_id ? answered.get(c.answers_mail_id as string) ?? null : null,
+        };
+      });
+
+      // What the automation decided today, so nothing happens silently.
+      const todayStart = Date.parse(startOfTodayAmsterdam());
+      const inToday = (mailsRes.data ?? []).filter((m) => m.direction === 'in' && Date.parse(m.sent_at as string) >= todayStart);
+      const handled_today = {
+        auto_rejections: conceptRows.filter(
+          (c) => c.soort === 'reply' && c.goedgekeurd_door === 'auto' && Date.parse(c.created_at as string) >= todayStart,
+        ).length,
+        opt_outs: inToday.filter((m) => m.sentiment === 'stop').length,
+        bounces: inToday.filter((m) => m.sentiment === 'bounce').length,
+        out_of_office: inToday.filter((m) => m.sentiment === 'auto').length,
       };
 
       return ok(
-        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send },
+        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send, concepts, handled_today },
         corsHeaders,
       );
     }
@@ -344,6 +427,11 @@ serve(async (req) => {
       if (error) throw error;
       if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
 
+      // A call booked, a no, a no-fit: whatever was prepared for them is spent.
+      if (typeof patch.status === 'string' && CLOSING_STATUSES.has(patch.status)) {
+        await invalidateForSlug(supabase, slug, `Status set to ${patch.status} in /ops`, { soorten: ['initial', 'chase', 'checkin'] });
+      }
+
       return ok({ prospect: data }, corsHeaders);
     }
 
@@ -367,63 +455,230 @@ serve(async (req) => {
       return ok({ prospect: data }, corsHeaders);
     }
 
-    // ── queue_followup ──────────────────────────────────────────────────────
-    // The "Draft follow-up" button. It writes a flag and nothing else: the next
-    // WF11 run asks outreach-mail-sync for work, Claude fits the approved
-    // template to this agency, and the draft lands in the Gmail thread. Nothing
-    // is ever sent from here, and no mail is composed in this function.
-    if (action === 'queue_followup') {
-      const slugs = Array.isArray(body.slugs)
-        ? body.slugs.map((s) => String(s)).filter(Boolean)
-        : body.slug
-          ? [String(body.slug)]
-          : [];
-      if (slugs.length === 0) return errorResponse('slug or slugs required', 400, corsHeaders);
-      if (slugs.length > QUEUE_MAX) {
-        return errorResponse(`Queue at most ${QUEUE_MAX} follow-ups at a time.`, 400, corsHeaders);
-      }
+    // ── Control center: concepts ────────────────────────────────────────────
+    // Everything below acts on outreach_concepts through _shared/outreachConcepts.ts,
+    // so approving and queueing stay one step and the veto/undo windows hold.
 
-      // Only agencies that are actually due a mail from us: a chase (no answer
-      // yet) or a check-in (parked reply). Asking for one on a bureau whose
-      // mail is still unanswered would put a chase on top of it.
-      const [candRes, lastRes] = await Promise.all([
-        supabase.from('outreach_prospects').select('slug, status, reply_dismissed_at').in('slug', slugs),
-        supabase
-          .from('outreach_mails')
-          .select('slug, direction, sentiment, sent_at')
-          .in('slug', slugs)
-          .order('sent_at', { ascending: false }),
-      ]);
-      if (candRes.error) throw candRes.error;
-      if (lastRes.error) throw lastRes.error;
-      const latestBySlug = new Map<string, { direction: string; sentiment: string | null; sent_at: string }>();
-      for (const m of lastRes.data ?? []) {
-        if (!latestBySlug.has(m.slug as string)) latestBySlug.set(m.slug as string, m as never);
-      }
-      const eligible = (candRes.data ?? [])
-        .filter((c) => {
-          const status = String(c.status ?? '');
-          const parked = isParked(c.reply_dismissed_at as string | null, latestBySlug.get(c.slug as string));
-          return parked ? !CHECK_IN_CLOSED.has(status) : CHASEABLE_STATUSES.includes(status);
-        })
-        .map((c) => c.slug as string);
+    const conceptId = String(body.id ?? '').trim();
+    const needId = () => (conceptId ? null : errorResponse('id required', 400, corsHeaders));
 
-      const { data, error } = eligible.length
-        ? await supabase
-            .from('outreach_prospects')
-            .update({
-              followup_requested_at: new Date().toISOString(),
-              followup_draft_id: null,
-              updated_at: new Date().toISOString(),
-            })
-            .in('slug', eligible)
-            .select('slug, followup_requested_at, followup_draft_id')
-        : { data: [], error: null };
+    // Save Sjoerd's edit. The first edit stamps bewerkt_op: from then on no
+    // generator touches this text again. The validator result is refreshed so
+    // the card shows what (if anything) is off.
+    if (action === 'concept_update') {
+      const missing = needId();
+      if (missing) return missing;
+      const text = String(body.body ?? '');
+      if (!text.trim() || text.length > BODY_MAX) return errorResponse(`Body must be 1-${BODY_MAX} characters.`, 400, corsHeaders);
+      const { data: c, error: cErr } = await supabase
+        .from('outreach_concepts')
+        .select('id, slug, soort, status, bewerkt_op')
+        .eq('id', conceptId)
+        .maybeSingle();
+      if (cErr) throw cErr;
+      if (!c) return errorResponse('Unknown concept', 404, corsHeaders);
+      if (!['voorstel', 'ingepland', 'verouderd'].includes(c.status as string)) {
+        return errorResponse(`A ${c.status} concept can no longer be edited.`, 409, corsHeaders);
+      }
+      const { data: p } = await supabase
+        .from('outreach_prospects')
+        .select('naam, contactpersoon, campaign')
+        .eq('slug', c.slug)
+        .maybeSingle();
+      const soort = c.soort as ConceptSoort;
+      const person = { contactpersoon: (p?.contactpersoon as string | null) ?? null, bureau: (p?.naam as string | null) ?? String(c.slug) };
+      const validatie = validateOutgoing(text, {
+        soort,
+        expectedSalutation: soort === 'initial' || soort === 'chase' ? salutation(person) : null,
+        demoLink: soort === 'initial' ? demoLink(String(c.slug), (p?.campaign as string | null) ?? null) : null,
+        maxWords: MAX_WORDS[soort],
+      });
+      const patch: Json = { body: text, validatie, updated_at: new Date().toISOString() };
+      if (!c.bewerkt_op) patch.bewerkt_op = new Date().toISOString();
+      if (typeof body.subject === 'string' && body.subject.trim()) patch.subject = body.subject.trim().slice(0, 200);
+      const { error } = await supabase.from('outreach_concepts').update(patch).eq('id', conceptId);
       if (error) throw error;
+      return ok({ ok: true, validatie }, corsHeaders);
+    }
 
-      const queued = data ?? [];
-      const rejected = slugs.filter((s) => !queued.some((q) => q.slug === s));
-      return ok({ queued, rejected }, corsHeaders);
+    // Schedule: the next free slot in its lane (a chase never before its due day).
+    if (action === 'concept_schedule') {
+      const missing = needId();
+      if (missing) return missing;
+      const res = await approveConcept(supabase, conceptId, { direct: false });
+      return ok({ ok: true, ...res }, corsHeaders);
+    }
+
+    // Schedule all: cold mail only; replies and check-ins are always one by one.
+    if (action === 'concept_schedule_all') {
+      const ids = Array.isArray(body.ids) ? body.ids.map(String).filter(Boolean) : [];
+      if (!ids.length) return errorResponse('ids required', 400, corsHeaders);
+      if (ids.length > SCHEDULE_ALL_MAX) return errorResponse(`At most ${SCHEDULE_ALL_MAX} at a time.`, 400, corsHeaders);
+      const { data: rows, error } = await supabase
+        .from('outreach_concepts')
+        .select('id, soort')
+        .in('id', ids)
+        .eq('status', 'voorstel')
+        .in('soort', ['initial', 'chase']);
+      if (error) throw error;
+      let scheduled = 0;
+      for (const r of rows ?? []) {
+        try {
+          await approveConcept(supabase, r.id as string, { direct: false });
+          scheduled++;
+        } catch (e) {
+          console.error('[ops-outreach] schedule_all skipped', r.id, e);
+        }
+      }
+      return ok({ ok: true, scheduled, skipped: ids.length - scheduled }, corsHeaders);
+    }
+
+    // Send: goes now, after a short Undo window. The browser calls `knock`
+    // when that window closes; if the tab is gone, pg_cron's wake picks it up.
+    if (action === 'concept_send') {
+      const missing = needId();
+      if (missing) return missing;
+      const res = await approveConcept(supabase, conceptId, { direct: true });
+      return ok({ ok: true, ...res }, corsHeaders);
+    }
+
+    // Undo / Unschedule: only while WF12 has not claimed it.
+    if (action === 'concept_unschedule') {
+      const missing = needId();
+      if (missing) return missing;
+      const back = await unscheduleConcept(supabase, conceptId);
+      if (!back) return errorResponse('Too late: this mail is already on its way.', 409, corsHeaders);
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    // Discard, or "No reply needed" for a reply that asks nothing of us.
+    if (action === 'concept_discard' || action === 'concept_no_reply') {
+      const missing = needId();
+      if (missing) return missing;
+      const back = await unscheduleConcept(supabase, conceptId);
+      if (!back) return errorResponse('Too late: this mail is already on its way.', 409, corsHeaders);
+      const status = action === 'concept_no_reply' ? 'geen_antwoord' : 'weggegooid';
+      const { error } = await supabase
+        .from('outreach_concepts')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', conceptId)
+        .in('status', ['voorstel', 'verouderd']);
+      if (error) throw error;
+      return ok({ ok: true, status }, corsHeaders);
+    }
+
+    // Regenerate a chase, check-in or first mail from today's facts.
+    if (action === 'concept_regenerate') {
+      const missing = needId();
+      if (missing) return missing;
+      const { data: c, error } = await supabase.from('outreach_concepts').select('id, slug, soort, status').eq('id', conceptId).maybeSingle();
+      if (error) throw error;
+      if (!c) return errorResponse('Unknown concept', 404, corsHeaders);
+      if (c.soort === 'reply') {
+        return errorResponse('Regenerate works for chases, check-ins and first mails. Edit a reply by hand.', 400, corsHeaders);
+      }
+      const back = await unscheduleConcept(supabase, conceptId);
+      if (!back) return errorResponse('Too late: this mail is already on its way.', 409, corsHeaders);
+      await supabase.from('outreach_concepts').update({ status: 'weggegooid', updated_at: new Date().toISOString() }).eq('id', conceptId);
+      const result = await runPrepare(supabase, new Date(), c.slug as string);
+      return ok({ ok: true, result }, corsHeaders);
+    }
+
+    // "Prepare more": the 07:30 run, now.
+    if (action === 'prepare_now') {
+      const result = await runPrepare(supabase);
+      return ok({ ok: true, result }, corsHeaders);
+    }
+
+    // The auto-approve switch. Off = every concept waits for Sjoerd.
+    if (action === 'auto_toggle') {
+      const on = Boolean(body.on);
+      const { data, error } = await supabase
+        .from('outreach_send_state')
+        .update({ auto_goedkeuren: on, updated_at: new Date().toISOString() })
+        .eq('id', true)
+        .select('*')
+        .maybeSingle();
+      if (error) throw error;
+      return ok({ state: data }, corsHeaders);
+    }
+
+    // A bounced address, corrected by hand.
+    if (action === 'fix_email') {
+      const slug = String(body.slug ?? '').trim();
+      const email = String(body.to_email ?? '').trim().toLowerCase();
+      if (!slug || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return errorResponse('slug and a valid to_email required', 400, corsHeaders);
+      }
+      const { data, error } = await supabase
+        .from('outreach_prospects')
+        .update({ to_email: email, email_ongeldig_op: null, updated_at: new Date().toISOString() })
+        .eq('slug', slug)
+        .select('slug, to_email, email_ongeldig_op')
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return errorResponse('Unknown prospect', 404, corsHeaders);
+      return ok({ prospect: data }, corsHeaders);
+    }
+
+    // After Send's Undo window: wake WF12 now instead of at the next cron minute.
+    if (action === 'knock') {
+      const secret = Deno.env.get('N8N_SHARED_SECRET');
+      if (!secret) return errorResponse('Shared secret not configured', 503, corsHeaders);
+      const r = await fetch(WF12_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-shared-secret': secret },
+        body: JSON.stringify({ due_at: new Date().toISOString(), reason: 'send_now' }),
+        signal: AbortSignal.timeout(10_000),
+      }).catch((e) => {
+        console.error('[ops-outreach] knock failed', e);
+        return null;
+      });
+      return ok({ ok: Boolean(r?.ok), status: r?.status ?? null }, corsHeaders);
+    }
+
+    // ── Push notifications ──────────────────────────────────────────────────
+    if (action === 'vapid_public_key') {
+      return ok({ key: await vapidPublicKey() }, corsHeaders);
+    }
+
+    if (action === 'push_subscribe') {
+      const sub = (body.subscription ?? {}) as Json;
+      const keys = (sub.keys ?? {}) as Json;
+      const endpoint = String(sub.endpoint ?? '');
+      if (!endpoint.startsWith('https://') || !keys.p256dh || !keys.auth) {
+        return errorResponse('A browser push subscription (endpoint + keys) is required', 400, corsHeaders);
+      }
+      const { error } = await supabase.from('ops_push_subscriptions').upsert(
+        {
+          endpoint,
+          p256dh: String(keys.p256dh),
+          auth: String(keys.auth),
+          user_email: authed.email,
+          failed_count: 0,
+        },
+        { onConflict: 'endpoint' },
+      );
+      if (error) throw error;
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    if (action === 'push_unsubscribe') {
+      const endpoint = String(body.endpoint ?? '');
+      if (!endpoint) return errorResponse('endpoint required', 400, corsHeaders);
+      const { error } = await supabase.from('ops_push_subscriptions').delete().eq('endpoint', endpoint);
+      if (error) throw error;
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    if (action === 'push_test') {
+      const delivered = await sendToAll(supabase, {
+        title: 'Cairnly outreach',
+        body: 'Notifications work. You will hear from here when a reply needs you.',
+        url: OPS_OUTREACH_URL,
+        tag: 'test',
+      });
+      return ok({ ok: delivered > 0, delivered }, corsHeaders);
     }
 
     return errorResponse(`Unknown action: ${action}`, 400, corsHeaders);
