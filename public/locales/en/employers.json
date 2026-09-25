@@ -5,11 +5,16 @@
   },
   "hero": {
     "eyebrow": "Cairnly for employers",
-    "title": "Give your people a clear answer about their career. Even if it's not with you.",
-    "body": "A 25-minute assessment that maps someone's skills, personality and goals to ten named roles, with a match score, salary data and an AI-impact rating for each. Employees own the result. You pay per head, roll it out with a batch of codes, and never see who took it or what came out.",
+    "title": "Give your people career path clarity. Even if it's not with you.",
+    "body": "One assessment and one conversation with an AI career coach, and within an hour someone has ten named roles that fit their skills, personality and goals, each with a match score, salary data and an AI-impact rating. Employees own the result. You pay per head, roll it out with a batch of codes, and never see who took it or what came out.",
     "trialCta": "Try it yourself first",
     "talkCta": "Talk to us",
-    "pills": ["25 minutes", "Ten named roles", "Employee owns the result", "From 20 euro per head"]
+    "pills": [
+      "Clarity within one hour",
+      "Ten named roles",
+      "Employee owns the result",
+      "From 20 euro per head"
+    ]
   },
   "why": {
     "eyebrow": "Why employers offer it",
@@ -18,9 +23,21 @@
     "p2": "Cairnly gives them the answer in one sitting. Some will find their best next step is inside your company, in a role you hadn't thought to offer. Some will find it's elsewhere, and leave on good terms with a plan. Either way you get honest conversations instead of guesswork, and you get them before anything turns into a file."
   },
   "stats": [
-    { "value": "14%", "label": "of Dutch employees are engaged at work.", "source": "Gallup, 2026" },
-    { "value": "15%", "label": "of employees got a career plan from their manager in the last six months.", "source": "LinkedIn, 2025" },
-    { "value": "€17,500", "label": "average absence cost per employee after a conflict at work.", "source": "TNO, 2025" }
+    {
+      "value": "14%",
+      "label": "of Dutch employees are engaged at work.",
+      "source": "Gallup, 2026"
+    },
+    {
+      "value": "15%",
+      "label": "of employees got a career plan from their manager in the last six months.",
+      "source": "LinkedIn, 2025"
+    },
+    {
+      "value": "€17,500",
+      "label": "average absence cost per employee after a conflict at work.",
+      "source": "TNO, 2025"
+    }
   ],
   "how": {
     "eyebrow": "How it works",
@@ -28,20 +45,32 @@
     "steps": [
       {
         "title": "The assessment",
-        "body": "The employee uploads their CV and takes a 25-minute assessment. Cairnly's workflows, built with working career coaches on top of Schein's Career Anchors and Big Five research, produce a first analysis."
+        "body": "The employee uploads their CV and answers the assessment, about half an hour. Cairnly's workflows, built with working career coaches on top of Schein's Career Anchors and Big Five research, produce a first analysis."
       },
       {
         "title": "The conversation",
-        "body": "They talk it through with an AI career coach, push back where it's wrong, and only then get the final report."
+        "body": "An AI career coach walks them through ten roles across four categories: the closest fits, the stretch options, the adjacent moves, and one wild card. Picked from thousands of real job titles, not a category list. They push back where it's wrong, and the report is rewritten before it's final."
       },
       {
-        "title": "The report",
-        "body": "Ten roles across four categories: the closest fits, the stretch options, the adjacent moves, and one wild card. Picked from thousands of real job titles, not a category list."
+        "title": "The next move",
+        "body": "The final report, plus the tools to act on it: live openings per role, and a CV and cover letter tailored to each application (in beta). Whether they look inside or outside your company is up to them."
       }
     ],
     "perRoleLabel": "Every role comes with",
-    "perRole": ["A match score", "A salary range", "The kind of company it suits", "The future-proof skills it needs", "How exposed it is to AI"],
-    "after": "If they want to act on it, the beta tools find live openings and tailor a CV and cover letter per role. Whether they look inside or outside your company is up to them.",
+    "perRole": [
+      {
+        "label": "Salary",
+        "value": "€70k to €90k"
+      },
+      {
+        "label": "Company type",
+        "value": "Scale-up"
+      },
+      {
+        "label": "Skills to build",
+        "value": "AI product strategy"
+      }
+    ],
     "languages": "Live in English and Dutch.",
     "reportCta": "See a finished report"
   },
@@ -55,22 +84,40 @@
     "eyebrow": "Built to pass your works council",
     "intro": "Three things make this an easy yes for an OR, a staff council or a union rep:",
     "items": [
-      { "title": "Voluntary.", "body": "Nobody is required to take it and nobody is asked why they didn't." },
-      { "title": "Offered to a group.", "body": "A team, a department or the whole company. Never to one person." },
-      { "title": "The employer sees nothing.", "body": "Not the roles, not the scores, not who redeemed a code. You see a count, and that's it." }
+      {
+        "title": "Voluntary.",
+        "body": "Nobody is required to take it and nobody is asked why they didn't."
+      },
+      {
+        "title": "Offered to a group.",
+        "body": "A team, a department or the whole company. Never to one person."
+      },
+      {
+        "title": "The employer sees nothing.",
+        "body": "Not the roles, not the scores, not who redeemed a code. You see a count, and that's it."
+      }
     ],
-    "privacy": "Employee data sits with Cairnly under our privacy policy, not with you. GDPR applies, and we'll sign a processing agreement if your DPO wants one."
+    "trust": [
+      {
+        "title": "Employee data stays with Cairnly",
+        "detail": "never with you"
+      },
+      {
+        "title": "GDPR compliant",
+        "detail": "EU-hosted data"
+      },
+      {
+        "title": "Processing agreement",
+        "detail": "on request from your DPO"
+      }
+    ]
   },
   "get": {
     "eyebrow": "What you get",
     "items": [
       {
-        "title": "A batch of codes",
-        "body": "For the number of people you want to cover. Hand them out however you like: HR email, intranet, a manager in a team meeting. Or skip the codes and let people buy it themselves and expense it. Batches are cheaper."
-      },
-      {
-        "title": "A count",
-        "body": "How many codes were redeemed. Nothing else."
+        "title": "A batch of codes, and a count",
+        "body": "Codes for the number of people you want to cover. Hand them out however you like: HR email, intranet, a manager in a team meeting. Afterwards you see how many were redeemed. Nothing else. Or skip the codes and let people buy it themselves and expense it. Batches are cheaper."
       },
       {
         "title": "A rollout kit",
@@ -80,8 +127,7 @@
         "title": "Aggregated feedback, from 20 employees up",
         "body": "Below that number we don't report anything, because below that number someone could be picked out of the aggregate."
       }
-    ],
-    "expiry": "Credits never expire. Buy for a team now and a department later."
+    ]
   },
   "fits": {
     "eyebrow": "Where it fits",
@@ -103,16 +149,27 @@
         "body": "Annual development conversations, as something concrete to talk about instead of a generic growth plan."
       }
     ],
-    "uk": "UK employers: preparing for the Employment Rights Act? From January 2027 unfair dismissal protection starts at six months and the compensation cap goes. A voluntary career tool is the least contentious thing you can put in front of people before then."
+    "uk": "Preparing for the Employment Rights Act? From January 2027 unfair dismissal protection starts at six months and the compensation cap goes. A voluntary career tool is the least contentious thing you can put in front of people before then.",
+    "ukTitle": "UK employers"
   },
   "pricing": {
     "eyebrow": "What it costs",
     "title": "What it costs, next to what you already pay",
     "compareCaption": "Per person, ex VAT",
     "compare": [
-      { "label": "An external career coach, per person", "price": "€500 to €2,750" },
-      { "label": "An outplacement programme, per person", "price": "€3,000 to €6,000" },
-      { "label": "Cairnly, per person", "price": "€20 to €44", "highlight": true }
+      {
+        "label": "An external career coach, per person",
+        "price": "€500 to €2,750"
+      },
+      {
+        "label": "An outplacement programme, per person",
+        "price": "€3,000 to €6,000"
+      },
+      {
+        "label": "Cairnly, per person",
+        "price": "€20 to €44",
+        "highlight": true
+      }
     ],
     "compareNote": "Cairnly doesn't replace the top two rows. It's the step before them. Someone who's taken Cairnly arrives at a coach, at outplacement or at their next internal role already knowing what they're looking for, so the expensive part gets shorter.",
     "pricingTitle": "Pricing.",
@@ -130,7 +187,7 @@
   },
   "about": {
     "eyebrow": "Who's behind it",
-    "p1": "Cairnly is built by Human in the Loop B.V. in Utrecht. My wife and I started it after sitting with the \"is this still the right job\" question ourselves and finding nothing that gave a straight answer. Career coaches use it as the opening step of their own programmes. Employers use it to give people the same starting point without the programme.",
+    "p1": "Cairnly is built by Human in the Loop B.V. in Utrecht, the Netherlands. My wife and I started it after sitting with the \"is this still the right job\" question ourselves and finding nothing that gave a straight answer. Career coaches use it as the opening step of their own programmes. Employers use it to give people the same starting point without the programme.",
     "p2Before": "How the method works is public at ",
     "p2Link": "cairnly.io/partners",
     "p2After": ". If you want to talk, email us or book 20 minutes.",
@@ -173,6 +230,6 @@
     ]
   },
   "closing": {
-    "body": "Cairnly is a product of Human in the Loop B.V., Utrecht."
+    "body": "Cairnly is a product of Human in the Loop B.V., Utrecht, the Netherlands."
   }
 }

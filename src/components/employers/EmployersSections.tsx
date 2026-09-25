@@ -10,7 +10,6 @@ import {
   ClipboardList,
   FileText,
   GitMerge,
-  Hash,
   KeyRound,
   Lock,
   Mail,
@@ -24,10 +23,13 @@ import {
   EyeOff,
   BarChart3,
   Package,
+  Shield,
+  FileSignature,
 } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import DemoStage from '@/components/landing/demo/DemoStage';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
+import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
@@ -211,6 +213,27 @@ export const EmployersWhy: React.FC = () => {
   );
 };
 
+/** Same shape as the dashboard's pills (CareerScoreCard), for facts that
+ *  have no pill of their own in the product. */
+const FactPill: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="inline-flex items-center gap-2.5 rounded-full border border-atlas-teal/30 bg-white px-3 py-1.5 shadow-sm">
+    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</span>
+    <span className="text-xs font-semibold text-[#122E3B]">{value}</span>
+  </div>
+);
+
+/** Great Britain + Northern Ireland, simplified from coastline coordinates.
+ *  An outline rather than a flag, so the UK note reads as a market, not a
+ *  language option. */
+const UkOutline: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="-2 -2 61 91" className={className} aria-hidden="true">
+    <g fill="rgba(39,161,161,0.14)" stroke="#1F8282" strokeWidth="1.6" strokeLinejoin="round">
+      <path d="M13.9 86.0 L16.8 87.1 L23.0 83.0 L25.9 84.5 L29.6 79.7 L32.8 81.5 L38.9 79.2 L42.4 79.4 L48.5 79.4 L52.7 77.6 L55.0 75.4 L55.5 72.9 L51.1 71.7 L53.1 69.7 L54.5 67.2 L57.3 61.9 L54.6 57.4 L49.9 57.2 L48.2 58.7 L49.1 55.2 L47.7 50.9 L46.6 45.5 L43.5 41.8 L40.1 39.7 L38.7 36.7 L35.4 29.0 L31.9 26.2 L32.1 23.9 L30.2 22.2 L35.0 15.3 L36.7 11.7 L35.4 9.8 L25.0 10.2 L25.1 8.1 L29.2 2.3 L29.4 0.3 L27.5 0.0 L18.0 0.5 L16.3 7.7 L13.4 13.7 L11.0 19.7 L14.5 24.7 L13.4 33.7 L20.0 32.1 L18.8 40.3 L26.7 37.2 L25.9 41.7 L30.2 46.0 L29.3 52.7 L20.3 52.7 L19.5 58.7 L23.2 62.7 L16.3 67.9 L17.4 69.7 L22.6 71.2 L28.5 72.2 L31.4 71.7 L26.7 74.7 L20.7 76.5 L17.4 82.5Z" />
+      <path d="M13.4 38.2 L11.3 34.5 L4.6 35.7 L0.0 41.7 L2.9 44.7 L8.7 46.2 L11.6 46.2 L15.1 43.2 L15.4 40.7 L12.8 40.2Z" />
+    </g>
+  </svg>
+);
+
 /* ------------------------------------------------------------ How it works */
 
 const STEP_ICONS = [ClipboardList, MessagesSquare, FileText];
@@ -218,10 +241,10 @@ const STEP_ICONS = [ClipboardList, MessagesSquare, FileText];
 export const EmployersHow: React.FC = () => {
   const { t } = useTranslation('employers');
   const steps = tArray<{ title: string; body: string }>(t, 'how.steps');
-  const perRole = tArray<string>(t, 'how.perRole');
+  const perRole = tArray<{ label: string; value: string }>(t, 'how.perRole');
 
   return (
-    <section className="bg-[#ECE4D2] pb-20 md:pb-28">
+    <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <Eyebrow>{t('how.eyebrow')}</Eyebrow>
@@ -243,25 +266,22 @@ export const EmployersHow: React.FC = () => {
           ))}
         </Reveal>
 
+        {/* The real per-career pills the dashboard renders (match, AI impact,
+            Move), plus the per-role facts that have no pill in the product,
+            drawn in the same pill style so the row reads as one set. */}
         <Reveal className="mt-6 max-w-6xl">
           <div className="rounded-2xl px-6 py-5 flex flex-wrap items-center gap-x-4 gap-y-3" style={CARD_STYLE}>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F8282]">{t('how.perRoleLabel')}</p>
-            <ul className="flex flex-wrap gap-2">
-              {perRole.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-full px-3 py-1 text-[13px] font-semibold text-[#122E3B]"
-                  style={{ background: 'rgba(39,161,161,0.10)' }}
-                >
-                  {item}
-                </li>
+            <div className="flex flex-wrap items-center gap-1.5 [&>div]:m-0">
+              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+              {perRole.map((pill) => (
+                <FactPill key={pill.label} label={pill.label} value={pill.value} />
               ))}
-            </ul>
+            </div>
           </div>
         </Reveal>
 
         <Reveal className="mt-8 max-w-3xl">
-          <p className="text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.7]">{t('how.after')}</p>
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
             <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('how.languages')}</p>
             <Link
@@ -313,6 +333,7 @@ export const EmployersEmployeeSees: React.FC = () => {
 /* ------------------------------------------------ Built to pass the council */
 
 const COUNCIL_ICONS = [Hand, UsersRound, EyeOff];
+const TRUST_ICONS = [Lock, Shield, FileSignature];
 
 /**
  * The page's central promise as its own block. The third card is the dark
@@ -322,6 +343,7 @@ const COUNCIL_ICONS = [Hand, UsersRound, EyeOff];
 export const EmployersCouncil: React.FC = () => {
   const { t } = useTranslation('employers');
   const items = tArray<{ title: string; body: string }>(t, 'council.items');
+  const trust = tArray<{ title: string; detail: string }>(t, 'council.trust');
 
   return (
     <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
@@ -368,11 +390,29 @@ export const EmployersCouncil: React.FC = () => {
           })}
         </Reveal>
 
-        <Reveal className="mt-8 max-w-3xl">
-          <p className="flex gap-2.5 items-start text-[15px] text-[#4B6373] font-medium leading-[1.7]">
-            <Lock size={16} strokeWidth={2.4} className="text-[#1F8282] shrink-0 mt-1" />
-            {t('council.privacy')}
-          </p>
+        {/* Same idiom as the trust bar above the nav (LandingNav): icon, bold
+            claim, muted detail, dot separators. */}
+        <Reveal className="mt-6 max-w-6xl">
+          <ul className="rounded-2xl bg-[#1A1A1A] text-white/75 px-6 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] md:text-[13px] font-medium tracking-wide">
+            {trust.map((item, i) => {
+              const Icon = TRUST_ICONS[i] ?? Shield;
+              return (
+                <React.Fragment key={item.title}>
+                  {i > 0 && (
+                    <li aria-hidden="true" className="hidden md:block text-white/20">
+                      ·
+                    </li>
+                  )}
+                  <li className="flex items-center gap-2">
+                    <Icon size={15} strokeWidth={2} className="text-[#D4A024] shrink-0" />
+                    <span>
+                      <strong className="text-white font-semibold">{item.title}</strong> · {item.detail}
+                    </span>
+                  </li>
+                </React.Fragment>
+              );
+            })}
+          </ul>
         </Reveal>
       </div>
     </section>
@@ -381,7 +421,7 @@ export const EmployersCouncil: React.FC = () => {
 
 /* ------------------------------------------------------------- What you get */
 
-const GET_ICONS = [KeyRound, Hash, Package, BarChart3];
+const GET_ICONS = [KeyRound, Package, BarChart3];
 
 export const EmployersGet: React.FC = () => {
   const { t } = useTranslation('employers');
@@ -395,19 +435,14 @@ export const EmployersGet: React.FC = () => {
             {t('get.eyebrow')}
           </h2>
         </Reveal>
-        <Reveal className="grid gap-5 sm:grid-cols-2 max-w-5xl">
+        <Reveal className="grid gap-5 md:grid-cols-3 max-w-6xl">
           {items.map((item, i) => (
-            <div key={item.title} className="lp-pillar-card rounded-2xl p-7 flex gap-4 items-start" style={CARD_STYLE}>
+            <div key={item.title} className="lp-pillar-card rounded-2xl p-7" style={CARD_STYLE}>
               <IconDot icon={GET_ICONS[i] ?? Check} />
-              <div>
-                <p className="font-heading font-bold text-[#122E3B] text-[17px]">{item.title}</p>
-                <p className="mt-1.5 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{item.body}</p>
-              </div>
+              <p className="mt-5 font-heading font-bold text-[#122E3B] text-[17px]">{item.title}</p>
+              <p className="mt-1.5 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{item.body}</p>
             </div>
           ))}
-        </Reveal>
-        <Reveal className="mt-8 max-w-3xl">
-          <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('get.expiry')}</p>
         </Reveal>
       </div>
     </section>
@@ -423,7 +458,7 @@ export const EmployersFits: React.FC = () => {
   const items = tArray<{ title: string; body: string }>(t, 'fits.items');
 
   return (
-    <section className="bg-[#ECE4D2] pb-20 md:pb-28">
+    <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <Eyebrow>{t('fits.eyebrow')}</Eyebrow>
@@ -440,9 +475,12 @@ export const EmployersFits: React.FC = () => {
           ))}
         </Reveal>
         <Reveal className="mt-8 max-w-3xl">
-          <p className="rounded-2xl px-6 py-5 text-[15px] text-[#4B6373] font-medium leading-[1.7]" style={{ background: 'rgba(39,161,161,0.07)' }}>
-            {t('fits.uk')}
-          </p>
+          <div className="rounded-2xl px-6 py-5 flex gap-5 items-center" style={{ background: 'rgba(39,161,161,0.07)' }}>
+            <UkOutline className="shrink-0 w-12 md:w-14 h-auto" />
+            <p className="text-[15px] text-[#4B6373] font-medium leading-[1.7]">
+              <strong className="text-[#122E3B] font-bold">{t('fits.ukTitle')}:</strong> {t('fits.uk')}
+            </p>
+          </div>
         </Reveal>
       </div>
     </section>
