@@ -214,11 +214,15 @@ export const EmployersWhy: React.FC = () => {
 };
 
 /** Same shape as the dashboard's pills (CareerScoreCard), for facts that
- *  have no pill of their own in the product. */
+ *  have no pill of their own in the product. Grey, on their own row, so
+ *  they read as secondary to the real pills above them. */
 const FactPill: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="inline-flex items-center gap-2.5 rounded-full border border-atlas-teal/30 bg-white px-3 py-1.5 shadow-sm">
-    <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</span>
-    <span className="text-xs font-semibold text-[#122E3B]">{value}</span>
+  <div
+    className="inline-flex items-center gap-2.5 rounded-full px-3 py-1.5"
+    style={{ background: '#EEEAE1', border: '1px solid #D9D3C6' }}
+  >
+    <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: '#7A8790' }}>{label}</span>
+    <span className="text-xs font-semibold" style={{ color: '#4B6373' }}>{value}</span>
   </div>
 );
 
@@ -270,10 +274,12 @@ export const EmployersHow: React.FC = () => {
             Move), plus the per-role facts that have no pill in the product,
             drawn in the same pill style so the row reads as one set. */}
         <Reveal className="mt-6 max-w-6xl">
-          <div className="rounded-2xl px-6 py-5 flex flex-wrap items-center gap-x-4 gap-y-3" style={CARD_STYLE}>
+          <div className="rounded-2xl px-6 py-5 flex flex-col items-center gap-3 text-center" style={CARD_STYLE}>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F8282]">{t('how.perRoleLabel')}</p>
-            <div className="flex flex-wrap items-center gap-1.5 [&>div]:m-0">
+            <div className="flex justify-center [&>div]:m-0 [&>div]:justify-center">
               <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+            </div>
+            <div className="flex flex-wrap justify-center gap-1.5">
               {perRole.map((pill) => (
                 <FactPill key={pill.label} label={pill.label} value={pill.value} />
               ))}
