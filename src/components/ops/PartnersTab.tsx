@@ -11,9 +11,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, Copy, Check, Building2, RefreshCw, Pencil, X } from 'lucide-react';
+import { Loader2, Upload, Copy, Check, Building2, RefreshCw, Pencil, X, Trash2 } from 'lucide-react';
 
 interface Partner {
   partner_id: string;
@@ -137,6 +138,37 @@ function PartnerForm({
     setErr(null);
     setOkMsg(null);
   }, [editing]);
+  // Delete lives in the edit form, behind a confirm that spells out what goes.
+  const [deleting, setDeleting] = useState(false);
+  const remove = async () => {
+    if (!editing) return;
+    const unused = editing.codes_issued - editing.codes_claimed;
+    const lines = [
+      `Delete ${editing.name} (${editing.slug})? This cannot be undone.`,
+      '',
+      unused > 0 ? `• ${unused} unused code(s) are deleted: links already sent stop working.` : null,
+      editing.codes_claimed > 0
+        ? `• ${editing.codes_claimed} candidate(s) signed up with a code: they keep their account and report, but their PDF loses the ${editing.name} branding.`
+        : null,
+      `• /p/${editing.slug} stops working and the logo is removed.`,
+      '• A linked outreach agency is unlinked (its status stays).',
+    ].filter((l) => l !== null);
+    if (!window.confirm(lines.join('\n'))) return;
+    setErr(null);
+    setDeleting(true);
+    try {
+      const res = await callPartners({ action: 'delete', slug: editing.slug });
+      // The form unmounts with the card, so the confirmation goes in a toast.
+      toast.success(`${editing.name} deleted${res.codesDeleted ? `, ${res.codesDeleted} unused codes with it` : ''}`);
+      onCancelEdit();
+      onSaved();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Failed to delete');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const suggestSlug = (v: string) =>
     v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
@@ -246,10 +278,22 @@ function PartnerForm({
       {err && <div className="text-xs text-red-400">{err}</div>}
       {okMsg && <div className="text-xs text-emerald-400">{okMsg}</div>}
 
-      <Button onClick={save} disabled={saving || !name} size="sm" className="bg-atlas-teal hover:bg-atlas-teal/90">
-        {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
-        {editing ? 'Save changes' : 'Save partner'}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button onClick={save} disabled={saving || deleting || !name} size="sm" className="bg-atlas-teal hover:bg-atlas-teal/90">
+          {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1.5" />}
+          {editing ? 'Save changes' : 'Save partner'}
+        </Button>
+        {editing && (
+          <button
+            onClick={remove}
+            disabled={saving || deleting}
+            className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-2.5 py-1.5 text-xs text-red-300 hover:bg-red-500/10 disabled:opacity-50"
+          >
+            {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+            Delete partner
+          </button>
+        )}
+      </div>
       <p className="text-[11px] text-white/60">
         {editing
           ? 'The slug cannot change: it is the storage path and the /p/ URL already handed out. Leaving the logo empty keeps the current one.'

@@ -8,7 +8,7 @@
 // with RLS and zero policies, so only the service role can write to it; the file
 // comes in here as base64 on the JSON body and is decoded and uploaded here.
 //
-// Actions: list | save | mint | setActive
+// Actions: list | save | mint | setActive | delete
 //
 // Outreach hand-off: `save` may carry a `prospectSlug` (the bureau in the
 // Outreach tab this partner is for). The prospect is then linked to the
@@ -25,8 +25,11 @@ import {
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
 import { isAdminEmail } from '../_shared/admins.ts';
+import { invalidateForSlug } from '../_shared/outreachConcepts.ts';
 
 const BUCKET = 'partner-logos';
+/** The public /partners page links to /p/voorbeeld as its example; deleting it breaks that page. */
+const PROTECTED_SLUGS = new Set(['voorbeeld']);
 const MAX_LOGO_BYTES = 256 * 1024;
 // JPEG is allowed even though it has no transparency: both places a partner
 // logo is rendered sit on pure white (the white band on the report cover and
@@ -274,6 +277,66 @@ serve(async (req) => {
         .eq('slug', slug);
       if (error) throw error;
       return ok({ slug, isActive }, corsHeaders);
+    }
+
+    // ── delete ──────────────────────────────────────────────────────────────
+    // Gone for good, with what hangs off it:
+    //   - untouched codes (never claimed or used) are deleted: the FK would only null their partner_id,
+    //     which leaves them as free, unbranded Cairnly codes still in someone's inbox;
+    //   - claimed codes and the candidates' profiles stay (the FK nulls the
+    //     partner), so those people keep their account and report, unbranded;
+    //   - cached PDFs are dropped: once the partner is null the cache check
+    //     would match null to null and keep serving the branded copy;
+    //   - a linked outreach agency is unlinked by the FK, and a live
+    //     "have you tried the code?" nudge is cancelled (its link is dead);
+    //   - the logo leaves the bucket.
+    if (action === 'delete') {
+      const slug = String(body.slug ?? '').trim().toLowerCase();
+      if (!SLUG_RE.test(slug)) return errorResponse('Unknown partner.', 400, corsHeaders);
+      if (PROTECTED_SLUGS.has(slug)) {
+        return errorResponse(`"${slug}" powers the public example on /partners (/p/${slug}). Deactivate it instead.`, 400, corsHeaders);
+      }
+
+      const { data: partner, error: pErr } = await supabase
+        .from('partners')
+        .select('id, logo_path')
+        .eq('slug', slug)
+        .maybeSingle();
+      if (pErr) throw pErr;
+      if (!partner) return errorResponse('Unknown partner.', 404, corsHeaders);
+
+      // First, so a code that something still references (purchases and
+      // answers point at access_codes without a cascade) stops the delete
+      // before anything else has changed. Untouched codes only.
+      const { data: codes, error: cErr } = await supabase
+        .from('access_codes')
+        .delete()
+        .eq('partner_id', partner.id)
+        .is('user_id', null)
+        .eq('usage_count', 0)
+        .select('id');
+      if (cErr) throw cErr;
+
+      const { data: linked } = await supabase.from('outreach_prospects').select('slug').eq('partner_slug', slug);
+      for (const p of linked ?? []) {
+        await invalidateForSlug(supabase, p.slug as string, `Partner ${slug} deleted`, { soorten: ['activation'] });
+      }
+
+      const { error: pdfErr } = await supabase.from('report_pdfs').delete().eq('partner_id', partner.id);
+      if (pdfErr) throw pdfErr;
+
+      const { error: dErr } = await supabase.from('partners').delete().eq('id', partner.id);
+      if (dErr) throw dErr;
+
+      if (partner.logo_path) {
+        const { error: rmErr } = await supabase.storage.from(BUCKET).remove([partner.logo_path as string]);
+        if (rmErr) console.error('[ops-partners] logo left behind', partner.logo_path, rmErr);
+      }
+
+      return ok(
+        { slug, codesDeleted: codes?.length ?? 0, agenciesUnlinked: (linked ?? []).map((p) => p.slug) },
+        corsHeaders,
+      );
     }
 
     return errorResponse(`Unknown action: ${action}`, 400, corsHeaders);
