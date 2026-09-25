@@ -14,7 +14,7 @@ import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
-import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, codeActivation, isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
+import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, SUBJECT_TEST_ID, codeActivation, isWarm, matchesFocus, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1555,6 +1555,7 @@ const PIPELINE: Array<{ label: string; statuses: OutreachStatus[]; color: string
   { label: 'No fit', statuses: ['afgewezen', 'geen_fit'], color: 'rgba(255,255,255,0.16)', cap: 'right' },
 ];
 
+/** Sits in the tab row, right of the tabs: a thin bar with "Label n" underneath. */
 function PipelineBar({ prospects }: { prospects: OutreachProspect[] }) {
   const buckets = PIPELINE.map((b) => ({
     ...b,
@@ -1562,18 +1563,19 @@ function PipelineBar({ prospects }: { prospects: OutreachProspect[] }) {
   }));
   const total = Math.max(1, prospects.length);
   return (
-    <div className="flex items-end gap-1.5">
+    <div className="flex items-end gap-1.5" aria-label="Outreach pipeline">
       {buckets.map((b) => (
-        <div key={b.label} style={{ flex: Math.max(0.25, (b.n / total) * 6) }}>
+        <div key={b.label} className="min-w-0" style={{ flex: Math.max(0.6, (b.n / total) * 6) }} title={`${b.label}: ${b.n}`}>
           <div
-            className="h-[30px]"
+            className="h-[12px]"
             style={{
               background: b.color,
               borderRadius: b.cap === 'left' ? '6px 2px 2px 6px' : b.cap === 'right' ? '2px 6px 6px 2px' : 2,
             }}
           />
-          <div className="text-[11.5px] text-white/55 mt-1.5 truncate">{b.label}</div>
-          <div className="font-heading font-semibold text-[15px] text-white mt-px">{b.n}</div>
+          <div className="text-[11px] text-white/55 mt-1 truncate">
+            {b.label} <span className="font-heading font-semibold text-[12.5px] text-white">{b.n}</span>
+          </div>
         </div>
       ))}
     </div>
@@ -1809,6 +1811,8 @@ export default function Ops() {
   const linkedPartners = new Set(prospects.filter((p) => p.partner_slug).map((p) => p.partner_slug)).size;
   const codesIssued = prospects.reduce((n, p) => n + (p.codes_issued ?? 0), 0);
   const codesClaimed = prospects.reduce((n, p) => n + (p.codes_claimed ?? 0), 0);
+  const parkedCount = prospects.filter((p) => p.reply_dismissed).length;
+  const clickedTodayAgencies = prospects.filter((p) => matchesFocus(p, 'clicked_today', null, new Date())).length;
   // Codes nobody redeemed ACTIVATION_NUDGE_WORKING_DAYS after the mail that carried them.
   const codesStale = prospects.filter((p) => {
     const a = codeActivation(p);
@@ -1853,7 +1857,9 @@ export default function Ops() {
     // Land on the table, past the cockpit: the cockpit is not filtered, so
     // landing on it made its first card look like what the tile counted.
     requestAnimationFrame(() => {
-      const target = document.getElementById(OUTREACH_TABLE_ID) ?? document.getElementById('ops-outreach-section');
+      // Contacted unfolds the subject-line test; everything else lands on the table.
+      const target =
+        document.getElementById(next === 'contacted' ? SUBJECT_TEST_ID : OUTREACH_TABLE_ID) ?? document.getElementById('ops-outreach-section');
       target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   };
@@ -1912,7 +1918,7 @@ export default function Ops() {
 
               <VisitBar since={lastVisit} deltas={deltas} />
 
-              <div className="pt-1">
+              <div className="pt-1 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <MainTabs
                   active={activeTab}
                   onSelect={setActiveTab}
@@ -1920,12 +1926,17 @@ export default function Ops() {
                   platformBadge={platformBadge}
                   platformUrgent={blockers.length > 0}
                 />
+                {activeTab === 'partners' && prospects.length > 0 && (
+                  <div className="flex-1 min-w-[18rem]">
+                    <PipelineBar prospects={prospects} />
+                  </div>
+                )}
               </div>
 
               {/* ══ PARTNERS ══════════════════════════════════════════════ */}
               {activeTab === 'partners' && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
                     <StatTile
                       label="Contacted"
                       value={outreachLoading ? '—' : contacted}
@@ -1942,9 +1953,16 @@ export default function Ops() {
                       active={outreachFocus === 'clicked'}
                     />
                     <StatTile
+                      label="Clicks today"
+                      value={outreachLoading ? '—' : (outreach?.clicksToday ?? 0)}
+                      sub={`confirmed, from ${clickedTodayAgencies} ${clickedTodayAgencies === 1 ? 'agency' : 'agencies'}`}
+                      onClick={() => focusOutreach('clicked_today')}
+                      active={outreachFocus === 'clicked_today'}
+                    />
+                    <StatTile
                       label="Waiting on you"
                       value={outreachLoading ? '—' : awaitingReply}
-                      sub="they wrote last"
+                      sub={parkedCount > 0 ? `they wrote last · ${parkedCount} parked` : 'they wrote last'}
                       tone="gold"
                       onClick={() => focusOutreach('waiting')}
                       active={outreachFocus === 'waiting'}
@@ -1990,11 +2008,6 @@ export default function Ops() {
                     open={open.outreach}
                     onToggle={toggle}
                   >
-                    {prospects.length > 0 && (
-                      <div className="mb-5">
-                        <PipelineBar prospects={prospects} />
-                      </div>
-                    )}
                     <OutreachTab
                       focus={outreachFocus}
                       onFocusChange={setOutreachFocus}

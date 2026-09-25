@@ -83,6 +83,7 @@ export default function Cockpit({
   criticAgreement,
   onReload,
   onTogglePause,
+  followUp,
 }: {
   concepts: ConceptRow[];
   send: CockpitSend;
@@ -91,6 +92,8 @@ export default function Cockpit({
   prospects: OutreachProspect[];
   onReload: () => void;
   onTogglePause: (pause: boolean) => Promise<void> | void;
+  /** "Follow-up due", moved here from the counter row: it filters the table below. */
+  followUp?: { count: number; sub: string; active: boolean; onClick: () => void };
 }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [push, setPush] = useState<PushState>('off');
@@ -208,6 +211,18 @@ export default function Cockpit({
       {/* Strip */}
       <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
         <Stat title="Today" value={`${coldToday} / ${COLD_CAP_PER_DAY}`} sub={nextSlot ? `next ~${fmtTime(nextSlot)}` : 'nothing scheduled'} />
+        {followUp && (
+          <button
+            onClick={followUp.onClick}
+            aria-pressed={followUp.active}
+            title={followUp.active ? 'Show every agency again' : 'Show only these in the table below'}
+            className={`text-left rounded-lg -mx-2 -my-1 px-2 py-1 transition-colors hover:bg-white/[0.05] ${
+              followUp.active ? 'ring-1 ring-atlas-gold/60 bg-atlas-gold/[0.06]' : ''
+            }`}
+          >
+            <Stat title="Follow-up due" value={String(followUp.count)} sub={followUp.sub} />
+          </button>
+        )}
         <Stat
           title="Tomorrow"
           value={tomorrow.day ? `${tomorrow.filled} / ${tomorrow.capacity}` : '-'}

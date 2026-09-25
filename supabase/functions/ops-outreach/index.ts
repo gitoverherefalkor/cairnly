@@ -265,10 +265,16 @@ serve(async (req) => {
         return at >= sent && at < sent + SUSPECT_WINDOW_MS;
       };
 
+      const knownSlugs = new Set(prospects.map((p) => p.slug as string));
       const counters = {
         prospects: prospects.length,
         prospects_with_click: prospects.filter((p) => p.kliks_bevestigd > 0).length,
-        clicks_today: (todayRes.data ?? []).filter((r) => !isSuspect(r.slug, r.created_at)).length,
+        // Only clicks on a link we sent to a known agency. Mail scanners also
+        // hit rewritten links with scrambled slugs (seen 2026-09-25), which
+        // read as "3 clicks, from 0 agencies".
+        clicks_today: (todayRes.data ?? []).filter(
+          (r) => knownSlugs.has(r.slug as string) && !isSuspect(r.slug, r.created_at),
+        ).length,
       };
 
       const campaigns = Array.from(

@@ -183,6 +183,9 @@ export const FOCUS_LABELS: Record<Exclude<OutreachFocus, 'all'>, string> = {
 /** The filter bar right above the agency table: where a card click should land. */
 export const OUTREACH_TABLE_ID = 'ops-outreach-table';
 
+/** The subject-line test, which only shows while the Contacted filter is on. */
+export const SUBJECT_TEST_ID = 'ops-subject-test';
+
 /** Bring the filtered table into view (after the render that applied the filter). */
 export function scrollToOutreachTable() {
   requestAnimationFrame(() =>

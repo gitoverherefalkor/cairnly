@@ -37,6 +37,7 @@ import {
   SUBJECT_VARIANTS,
   ACTIVATION_NUDGE_WORKING_DAYS,
   OUTREACH_TABLE_ID,
+  SUBJECT_TEST_ID,
   codeActivation,
   scrollToOutreachTable,
   compareWorkFirst,
@@ -944,36 +945,6 @@ export default function OutreachTab({
 
   if (!data) return null;
 
-  // Every counter is a button: clicking it filters the table down to exactly
-  // what it counts, which is the whole point of counting it. Clicking the one
-  // that is on shows everything again.
-  const counter = (lbl: string, big: number, sub: string, target: OutreachFocus) => {
-    const on = target !== 'all' && focus === target;
-    return (
-      <button
-        onClick={() => {
-          if (target === 'all') return setFocus('all');
-          toggleFocus(target);
-          // The cockpit sits between the counters and the table and is never
-          // filtered; without the jump its first card reads as the answer.
-          if (!on) scrollToOutreachTable();
-        }}
-        aria-pressed={on}
-        title={target === 'all' ? 'Show every agency' : on ? 'Show every agency again' : 'Show only these'}
-        className={`${card} px-4 py-4 text-left transition-colors hover:border-atlas-gold/40 ${
-          on ? 'border-atlas-gold/50 bg-atlas-gold/[0.06]' : ''
-        }`}
-      >
-        <div className="text-xs text-white/70">{lbl}</div>
-        <div className={`text-3xl font-bold mt-1 ${on ? 'text-atlas-gold' : 'text-white/[0.92]'}`}>{big}</div>
-        <div className="text-xs text-white/60 mt-0.5">{sub}</div>
-      </button>
-    );
-  };
-
-  const waitingCount = data.prospects.filter((p) => p.needs_reply).length;
-  const dismissedCount = data.prospects.filter((p) => p.reply_dismissed).length;
-  const clickedTodayAgencies = data.prospects.filter((p) => matchesFocus(p, 'clicked_today', null, now)).length;
   // "12" alone hid that one of them was already written; say where they stand.
   const dueSub =
     dueCount === 0
@@ -984,23 +955,13 @@ export default function OutreachTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {counter('Agencies in seed', data.counters.prospects, 'rows in outreach_prospects', 'all')}
-        {counter('Opened the demo', data.counters.prospects_with_click, 'at least one confirmed click', 'clicked')}
-        {counter(
-          'Clicks today',
-          data.counters.clicks_today,
-          `confirmed, from ${clickedTodayAgencies} ${clickedTodayAgencies === 1 ? 'agency' : 'agencies'}`,
-          'clicked_today',
-        )}
-        {counter(
-          'Waiting on you',
-          waitingCount,
-          dismissedCount > 0 ? `they wrote last · ${dismissedCount} parked` : 'they wrote last',
-          'waiting',
-        )}
-        {counter('Follow-up due', dueCount, dueSub, 'due')}
-      </div>
+      {/* Folds out from the Contacted tile at the top of the page: it is about
+          the mails that went out, and it is not needed on every visit. */}
+      {focus === 'contacted' && (
+        <div id={SUBJECT_TEST_ID} className="scroll-mt-4">
+          <SubjectTest stats={data.subject_stats} />
+        </div>
+      )}
 
       {data.send && (
         <Cockpit
@@ -1014,10 +975,18 @@ export default function OutreachTab({
             onChanged?.();
           }}
           onTogglePause={toggleSending}
+          followUp={{
+            count: dueCount,
+            sub: dueSub,
+            active: focus === 'due',
+            onClick: () => {
+              const wasOn = focus === 'due';
+              toggleFocus('due');
+              if (!wasOn) scrollToOutreachTable();
+            },
+          }}
         />
       )}
-
-      <SubjectTest stats={data.subject_stats} />
 
       <div id={OUTREACH_TABLE_ID} className={`${card} px-4 py-3 flex flex-wrap items-end gap-4 scroll-mt-4`}>
         <label className="block">
