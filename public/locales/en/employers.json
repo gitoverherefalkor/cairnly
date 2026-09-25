@@ -1,0 +1,133 @@
+{
+  "seo": {
+    "title": "Cairnly for employers | Career clarity for your people, owned by your people",
+    "description": "Give employees a clear picture of where their skills fit, inside or outside your company. One assessment, one price per head, results stay with the employee."
+  },
+  "hero": {
+    "eyebrow": "Cairnly for employers",
+    "title": "Give your people a clear answer about their career. Even if it's not with you.",
+    "body": "Cairnly is a one-off career assessment that maps someone's skills, personality and goals to ten named roles, with a match score, salary data and an AI-impact rating for each. Employees own the result. You pay per head, roll it out with a code, and never see an individual report.",
+    "talkCta": "Talk to us",
+    "assessmentCta": "See the assessment",
+    "ownershipNote": "The report belongs to the employee. You never see it.",
+    "pillsLabel": "Every suggested role, rated:"
+  },
+  "why": {
+    "eyebrow": "Why employers offer it",
+    "lead": "Most people have no idea whether the role they're in still fits the person they've become. They stay because it's easier than finding out. That costs you engagement, and it costs them years.",
+    "p1": "Cairnly gives them the answer in under an hour. Some will find their best next step is inside your company, in a role you hadn't thought to offer them. Some will find it's elsewhere, and leave on good terms with a plan. Either way, you get honest conversations instead of guesswork.",
+    "p2": "That's what most companies mean when they say they invest in employability. This is a way to actually do it, without a six-week programme or an external coach per person."
+  },
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Three steps, all of them the employee's",
+    "steps": [
+      {
+        "title": "The assessment",
+        "body": "The employee uploads their CV and takes a 25 to 40 minute assessment. Cairnly's workflows, built with working career coaches on top of validated psychometric research, produce a first analysis."
+      },
+      {
+        "title": "The conversation",
+        "body": "They talk it through with an AI career coach, push back where it's wrong, and only then get the final report."
+      },
+      {
+        "title": "The report",
+        "body": "Ten roles across four categories, picked from thousands of real job titles, each with a match score, salary range, company-type fit and how exposed the role is to AI."
+      }
+    ],
+    "after": "If they want to act on it, the beta tools find live openings and tailor a CV and cover letter per role. Whether they look inside or outside your company is up to them.",
+    "languages": "Live in English and Dutch."
+  },
+  "split": {
+    "eyebrow": "What you get, and what you don't",
+    "getTitle": "What you get",
+    "get": [
+      "A set of access codes",
+      "One price per head, and an invoice",
+      "Credits that never expire: a team now, a department later",
+      "How many codes were redeemed"
+    ],
+    "dontTitle": "What you don't get",
+    "dont": [
+      "The reports",
+      "The roles or the scores",
+      "Who took it, or whether someone took it at all"
+    ],
+    "why": "That's deliberate. An assessment people suspect is being read by HR is an assessment people answer strategically, and then it's worthless to everyone.",
+    "feedback": "If you want to know whether it helped, ask them. Or ask us for anonymised, aggregated feedback once enough people in your company have used it."
+  },
+  "fits": {
+    "eyebrow": "Where it fits",
+    "items": [
+      {
+        "title": "Employability budgets",
+        "body": "Employability and development budgets, especially where a collective agreement or sector fund expects you to offer career orientation."
+      },
+      {
+        "title": "Reorganisations",
+        "body": "Reorganisations and voluntary leave schemes, as the first step before someone decides whether they need full outplacement."
+      },
+      {
+        "title": "After a merger",
+        "body": "Onboarding after a merger, when nobody is quite sure which roles still make sense."
+      },
+      {
+        "title": "Development conversations",
+        "body": "Annual development conversations, as something concrete to talk about instead of a generic growth plan."
+      }
+    ]
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "One price per employee",
+    "intro": "Per employee, ex VAT, volume based. From 44 euro for small groups down to 20 euro at 250 and above. No setup fee, no subscription, no certification. Credits never expire.",
+    "colEmployees": "Employees",
+    "colPrice": "Price each (excl. VAT)"
+  },
+  "trial": {
+    "title": "Try it yourself first.",
+    "body": "We'll give you a code so you can take the assessment before you decide anything. Most HR leaders who do find it tells them something they didn't know about their own career, which tends to settle the question.",
+    "cta": "Request a trial code",
+    "mailSubject": "Trial code for Cairnly for employers"
+  },
+  "about": {
+    "eyebrow": "Who's behind it",
+    "p1": "Cairnly is built by Human in the Loop B.V. in Utrecht. My wife and I started it after sitting with the \"is this still the right job\" question ourselves and finding nothing that gave a straight answer. Career coaches use it as the opening step of their own programmes. Employers use it to give people the same starting point without the programme.",
+    "p2Before": "If you want to know how the method works, it's public at ",
+    "p2Link": "cairnly.io/partners",
+    "p2After": ". If you want to talk, reply to whatever email brought you here or book 20 minutes below.",
+    "cta": "Book a call"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "q": "Can we see who took it?",
+        "a": "No. You see how many codes were redeemed, not by whom. If you want that, this isn't the right tool."
+      },
+      {
+        "q": "Can we target it at specific people?",
+        "a": "You can, but don't. Offer it to a team, a department or everyone. A career tool handed to one person by their manager reads as a message, and everyone will read it that way, including your works council."
+      },
+      {
+        "q": "Does this replace outplacement?",
+        "a": "No. It's the cheap step in front of it. Someone who's taken Cairnly arrives at outplacement, or at their next internal role, already knowing what they're looking for."
+      },
+      {
+        "q": "Is it psychometrically validated?",
+        "a": "It's built on validated research and reviewed by working career coaches. It is not a certified psychometric instrument and we don't claim it is. The method is public."
+      },
+      {
+        "q": "What about privacy?",
+        "a": "Employee data sits with Cairnly under our privacy policy, not with you. We never share individual results with an employer. GDPR applies and we're happy to sign a processing agreement if your DPO asks for one."
+      },
+      {
+        "q": "Do we need to involve our works council?",
+        "a": "Offering a voluntary, group-wide development tool where the employer sees no results usually doesn't need formal consent, but check with them anyway. They tend to like this one for exactly the reason you might not expect: it's the employee's tool, not yours."
+      }
+    ]
+  },
+  "closing": {
+    "body": "Cairnly is a product of Human in the Loop B.V., Utrecht."
+  }
+}

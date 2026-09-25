@@ -64,6 +64,7 @@ const EncorePayment = lazyWithRetry(() => import("./pages/encore/EncorePayment")
 const PartnersIndex = lazyWithRetry(() => import("./pages/partners/PartnersIndex"));
 const PartnerSampleReport = lazyWithRetry(() => import("./pages/partners/PartnerSampleReport"));
 const PartnerLanding = lazyWithRetry(() => import("./pages/partners/PartnerLanding"));
+const EmployersIndex = lazyWithRetry(() => import("./pages/employers/EmployersIndex"));
 // Public product demo: a frozen replay of a real coaching session through the
 // real chat components. No auth, no n8n. See docs/handoff/demo-replay-plan.md.
 const Demo = lazyWithRetry(() => import("./pages/Demo"));
@@ -200,6 +201,7 @@ const App = () => {
                   this route is what makes the old link work in local dev too. */}
               <Route path="/partners/voorbeeldrapport" element={<Navigate to="/partners/sample-report" replace />} />
               <Route path="/p/:slug" element={<PartnerLanding />} />
+              <Route path="/employers" element={<EmployersIndex />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/demo/dashboard" element={<DemoDashboard />} />
               <Route path="/demo/jobs" element={<DemoJobs />} />

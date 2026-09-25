@@ -101,6 +101,16 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.5',
   },
+  // Employer channel (2026-09-25). Out of the nav, reached from outreach.
+  // English static shell: the page itself is English-only for now.
+  {
+    path: '/employers',
+    title: 'Cairnly for employers | Career clarity for your people, owned by your people',
+    description:
+      'Give employees a clear picture of where their skills fit, inside or outside your company. One assessment, one price per head, results stay with the employee.',
+    changefreq: 'monthly',
+    priority: '0.6',
+  },
   // Public product demo: a frozen replay of a real coaching session, one
   // persona per site language (Marcel for Dutch, Emma for English). The
   // static shell carries the Dutch copy like the rest of the site (matching
