@@ -7,19 +7,22 @@ import LandingFooter from '@/components/landing/LandingFooter';
 import {
   EmployersAbout,
   EmployersClosing,
+  EmployersCouncil,
+  EmployersEmployeeSees,
   EmployersFAQ,
   EmployersFits,
+  EmployersGet,
   EmployersHero,
   EmployersHow,
   EmployersPricing,
-  EmployersSplit,
   EmployersTrial,
   EmployersWhy,
 } from '@/components/employers/EmployersSections';
-import { EMPLOYERS_ROUTE } from '@/components/employers/constants';
+import { EMPLOYERS_ROUTE, SHOW_EMPLOYEE_SCREEN_QUOTE } from '@/components/employers/constants';
 
 /**
- * /employers — Cairnly for employers (draft v1, 2026-09-22 copy).
+ * /employers — Cairnly for employers (copy v2, 2026-09-25). Stats are
+ * sourced in cairnly-employers-stats-and-article-base.md.
  *
  * Out of the nav on purpose for now: it is reached from outreach links only.
  * English only; Dutch visitors fall back to the English namespace until
@@ -40,7 +43,9 @@ const EmployersIndex: React.FC = () => {
         <EmployersHero />
         <EmployersWhy />
         <EmployersHow />
-        <EmployersSplit />
+        {SHOW_EMPLOYEE_SCREEN_QUOTE && <EmployersEmployeeSees />}
+        <EmployersCouncil />
+        <EmployersGet />
         <EmployersFits />
         <EmployersPricing />
         <EmployersTrial />

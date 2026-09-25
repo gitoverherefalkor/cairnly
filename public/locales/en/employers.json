@@ -1,30 +1,34 @@
 {
   "seo": {
-    "title": "Cairnly for employers | Career clarity for your people, owned by your people",
-    "description": "Give employees a clear picture of where their skills fit, inside or outside your company. One assessment, one price per head, results stay with the employee."
+    "title": "Cairnly for employers | Career clarity your people own",
+    "description": "Give your people a clear answer about where their skills fit, inside or outside your company. Per-head pricing, one afternoon to roll out, and you never see an individual result."
   },
   "hero": {
     "eyebrow": "Cairnly for employers",
     "title": "Give your people a clear answer about their career. Even if it's not with you.",
-    "body": "Cairnly is a one-off career assessment that maps someone's skills, personality and goals to ten named roles, with a match score, salary data and an AI-impact rating for each. Employees own the result. You pay per head, roll it out with a code, and never see an individual report.",
+    "body": "A 25-minute assessment that maps someone's skills, personality and goals to ten named roles, with a match score, salary data and an AI-impact rating for each. Employees own the result. You pay per head, roll it out with a batch of codes, and never see who took it or what came out.",
+    "trialCta": "Try it yourself first",
     "talkCta": "Talk to us",
-    "assessmentCta": "See the assessment",
-    "ownershipNote": "The report belongs to the employee. You never see it.",
-    "pillsLabel": "Every suggested role, rated:"
+    "pills": ["25 minutes", "Ten named roles", "Employee owns the result", "From 20 euro per head"]
   },
   "why": {
     "eyebrow": "Why employers offer it",
-    "lead": "Most people have no idea whether the role they're in still fits the person they've become. They stay because it's easier than finding out. That costs you engagement, and it costs them years.",
-    "p1": "Cairnly gives them the answer in under an hour. Some will find their best next step is inside your company, in a role you hadn't thought to offer them. Some will find it's elsewhere, and leave on good terms with a plan. Either way, you get honest conversations instead of guesswork.",
-    "p2": "That's what most companies mean when they say they invest in employability. This is a way to actually do it, without a six-week programme or an external coach per person."
+    "lead": "Most people have no idea whether the role they're in still fits the person they've become. They stay because it's easier than finding out.",
+    "p1": "The numbers say the same thing. Gallup has 14% of Dutch employees engaged at work, and 86% saying it's a good time to find a job where they live. That's not loyalty. That's a workforce waiting for a reason. Only 15% of employees say their manager helped them build a career plan in the last six months, so the conversation that would settle it isn't happening either.",
+    "p2": "Cairnly gives them the answer in one sitting. Some will find their best next step is inside your company, in a role you hadn't thought to offer. Some will find it's elsewhere, and leave on good terms with a plan. Either way you get honest conversations instead of guesswork, and you get them before anything turns into a file."
   },
+  "stats": [
+    { "value": "14%", "label": "of Dutch employees are engaged at work.", "source": "Gallup, 2026" },
+    { "value": "15%", "label": "of employees got a career plan from their manager in the last six months.", "source": "LinkedIn, 2025" },
+    { "value": "€17,500", "label": "average absence cost per employee after a conflict at work.", "source": "TNO, 2025" }
+  ],
   "how": {
     "eyebrow": "How it works",
     "title": "Three steps, all of them the employee's",
     "steps": [
       {
         "title": "The assessment",
-        "body": "The employee uploads their CV and takes a 25 to 40 minute assessment. Cairnly's workflows, built with working career coaches on top of validated psychometric research, produce a first analysis."
+        "body": "The employee uploads their CV and takes a 25-minute assessment. Cairnly's workflows, built with working career coaches on top of Schein's Career Anchors and Big Five research, produce a first analysis."
       },
       {
         "title": "The conversation",
@@ -32,29 +36,52 @@
       },
       {
         "title": "The report",
-        "body": "Ten roles across four categories, picked from thousands of real job titles, each with a match score, salary range, company-type fit and how exposed the role is to AI."
+        "body": "Ten roles across four categories: the closest fits, the stretch options, the adjacent moves, and one wild card. Picked from thousands of real job titles, not a category list."
       }
     ],
+    "perRoleLabel": "Every role comes with",
+    "perRole": ["A match score", "A salary range", "The kind of company it suits", "The future-proof skills it needs", "How exposed it is to AI"],
     "after": "If they want to act on it, the beta tools find live openings and tailor a CV and cover letter per role. Whether they look inside or outside your company is up to them.",
-    "languages": "Live in English and Dutch."
+    "languages": "Live in English and Dutch.",
+    "reportCta": "See a finished report"
   },
-  "split": {
-    "eyebrow": "What you get, and what you don't",
-    "getTitle": "What you get",
-    "get": [
-      "A set of access codes",
-      "One price per head, and an invoice",
-      "Credits that never expire: a team now, a department later",
-      "How many codes were redeemed"
+  "employeeSees": {
+    "eyebrow": "What your employee sees",
+    "intro": "The first screen of a company-sponsored assessment says this, word for word:",
+    "quote": "Your employer paid for this. They will never see your answers, your scores or your report. Nobody at your company will know whether you finished it.",
+    "why": "That line is there because an assessment people suspect is being read by HR is an assessment people answer strategically. Then it's worthless to everyone."
+  },
+  "council": {
+    "eyebrow": "Built to pass your works council",
+    "intro": "Three things make this an easy yes for an OR, a staff council or a union rep:",
+    "items": [
+      { "title": "Voluntary.", "body": "Nobody is required to take it and nobody is asked why they didn't." },
+      { "title": "Offered to a group.", "body": "A team, a department or the whole company. Never to one person." },
+      { "title": "The employer sees nothing.", "body": "Not the roles, not the scores, not who redeemed a code. You see a count, and that's it." }
     ],
-    "dontTitle": "What you don't get",
-    "dont": [
-      "The reports",
-      "The roles or the scores",
-      "Who took it, or whether someone took it at all"
+    "privacy": "Employee data sits with Cairnly under our privacy policy, not with you. GDPR applies, and we'll sign a processing agreement if your DPO wants one."
+  },
+  "get": {
+    "eyebrow": "What you get",
+    "items": [
+      {
+        "title": "A batch of codes",
+        "body": "For the number of people you want to cover. Hand them out however you like: HR email, intranet, a manager in a team meeting. Or skip the codes and let people buy it themselves and expense it. Batches are cheaper."
+      },
+      {
+        "title": "A count",
+        "body": "How many codes were redeemed. Nothing else."
+      },
+      {
+        "title": "A rollout kit",
+        "body": "An announcement email for employees, a paragraph for your intranet, and a one-page note for your works council, all written so the tool is framed the way it should be. Takes you fifteen minutes, not an afternoon."
+      },
+      {
+        "title": "Aggregated feedback, from 20 employees up",
+        "body": "Below that number we don't report anything, because below that number someone could be picked out of the aggregate."
+      }
     ],
-    "why": "That's deliberate. An assessment people suspect is being read by HR is an assessment people answer strategically, and then it's worthless to everyone.",
-    "feedback": "If you want to know whether it helped, ask them. Or ask us for anonymised, aggregated feedback once enough people in your company have used it."
+    "expiry": "Credits never expire. Buy for a team now and a department later."
   },
   "fits": {
     "eyebrow": "Where it fits",
@@ -75,55 +102,73 @@
         "title": "Development conversations",
         "body": "Annual development conversations, as something concrete to talk about instead of a generic growth plan."
       }
-    ]
+    ],
+    "uk": "UK employers: preparing for the Employment Rights Act? From January 2027 unfair dismissal protection starts at six months and the compensation cap goes. A voluntary career tool is the least contentious thing you can put in front of people before then."
   },
   "pricing": {
-    "eyebrow": "Pricing",
-    "title": "One price per employee",
-    "intro": "Per employee, ex VAT, volume based. From 44 euro for small groups down to 20 euro at 250 and above. No setup fee, no subscription, no certification. Credits never expire.",
+    "eyebrow": "What it costs",
+    "title": "What it costs, next to what you already pay",
+    "compareCaption": "Per person, ex VAT",
+    "compare": [
+      { "label": "An external career coach, per person", "price": "€500 to €2,750" },
+      { "label": "An outplacement programme, per person", "price": "€3,000 to €6,000" },
+      { "label": "Cairnly, per person", "price": "€20 to €44", "highlight": true }
+    ],
+    "compareNote": "Cairnly doesn't replace the top two rows. It's the step before them. Someone who's taken Cairnly arrives at a coach, at outplacement or at their next internal role already knowing what they're looking for, so the expensive part gets shorter.",
+    "pricingTitle": "Pricing.",
+    "pricingBody": "Volume based. €44 per person for small groups, down to €20 at 250 and above. No setup fee, no subscription, no certification.",
+    "examples": "A team of 40: €33 × 40 = €1,320. Everyone in a 250-person company: €5,000.",
+    "tiersToggle": "See all volume tiers",
     "colEmployees": "Employees",
     "colPrice": "Price each (excl. VAT)"
   },
   "trial": {
     "title": "Try it yourself first.",
-    "body": "We'll give you a code so you can take the assessment before you decide anything. Most HR leaders who do find it tells them something they didn't know about their own career, which tends to settle the question.",
+    "body": "We'll send you a code so you can take the assessment before you decide anything. Most HR leaders who do find it tells them something about their own career, which tends to settle the question.",
     "cta": "Request a trial code",
     "mailSubject": "Trial code for Cairnly for employers"
   },
   "about": {
     "eyebrow": "Who's behind it",
     "p1": "Cairnly is built by Human in the Loop B.V. in Utrecht. My wife and I started it after sitting with the \"is this still the right job\" question ourselves and finding nothing that gave a straight answer. Career coaches use it as the opening step of their own programmes. Employers use it to give people the same starting point without the programme.",
-    "p2Before": "If you want to know how the method works, it's public at ",
+    "p2Before": "How the method works is public at ",
     "p2Link": "cairnly.io/partners",
-    "p2After": ". If you want to talk, reply to whatever email brought you here or book 20 minutes below.",
-    "cta": "Book a call"
+    "p2After": ". If you want to talk, email us or book 20 minutes.",
+    "signature": "Sjoerd Geurts, founder",
+    "bookCta": "Book a call",
+    "emailCta": "Email us",
+    "mailSubject": "Cairnly for employers"
   },
   "faq": {
     "title": "Frequently asked questions",
     "items": [
       {
         "q": "Can we see who took it?",
-        "a": "No. You see how many codes were redeemed, not by whom. If you want that, this isn't the right tool."
+        "a": "No. You see how many codes were redeemed, not by whom. If you need names, this isn't the right tool."
       },
       {
         "q": "Can we target it at specific people?",
         "a": "You can, but don't. Offer it to a team, a department or everyone. A career tool handed to one person by their manager reads as a message, and everyone will read it that way, including your works council."
       },
       {
-        "q": "Does this replace outplacement?",
-        "a": "No. It's the cheap step in front of it. Someone who's taken Cairnly arrives at outplacement, or at their next internal role, already knowing what they're looking for."
+        "q": "Does this replace outplacement or coaching?",
+        "a": "No. It's the cheap step in front of them. People arrive at the expensive part already knowing what they're looking for."
       },
       {
         "q": "Is it psychometrically validated?",
-        "a": "It's built on validated research and reviewed by working career coaches. It is not a certified psychometric instrument and we don't claim it is. The method is public."
+        "a": "It's built on Career Anchors and Big Five research and reviewed by working career coaches. It is not a certified psychometric instrument and we don't claim it is. Where Anchors gives you a preference, Cairnly gives you named roles, salary and AI exposure for each. The method is public."
       },
       {
         "q": "What about privacy?",
-        "a": "Employee data sits with Cairnly under our privacy policy, not with you. We never share individual results with an employer. GDPR applies and we're happy to sign a processing agreement if your DPO asks for one."
+        "a": "Employee data sits with Cairnly, not with you. We never share individual results with an employer. GDPR applies and we'll sign a processing agreement if your DPO asks."
       },
       {
         "q": "Do we need to involve our works council?",
-        "a": "Offering a voluntary, group-wide development tool where the employer sees no results usually doesn't need formal consent, but check with them anyway. They tend to like this one for exactly the reason you might not expect: it's the employee's tool, not yours."
+        "a": "A voluntary, group-wide development tool where the employer sees no results usually doesn't need formal consent, but check with them anyway. Our one-page note is written for exactly that conversation."
+      },
+      {
+        "q": "What if someone takes it and leaves?",
+        "a": "Then they were going to leave anyway, and now they leave with a plan and on good terms. The ones who stay, stay for a reason. Resume Now's 2025 survey found 58% of workers regret staying at a job too long and 38% regret quitting one. Staying too long is the more common mistake."
       }
     ]
   },

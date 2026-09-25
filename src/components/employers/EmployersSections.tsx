@@ -2,34 +2,41 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
+  ArrowDown,
   ArrowRight,
   Briefcase,
   CalendarClock,
   Check,
-  EyeOff,
+  ClipboardList,
+  FileText,
   GitMerge,
+  Hash,
   KeyRound,
   Lock,
+  Mail,
   MessagesSquare,
   Plus,
+  Quote,
   Shuffle,
   Sprout,
-  FileText,
-  ClipboardList,
+  UsersRound,
+  Hand,
+  EyeOff,
+  BarChart3,
+  Package,
 } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import DemoStage from '@/components/landing/demo/DemoStage';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
-import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import { CALENDLY_URL, CONTACT_EMAIL, EMPLOYER_DEMO_PERSONA, employerAssessmentLink } from './constants';
+import { CALENDLY_URL, CONTACT_EMAIL, EMPLOYER_DEMO_PERSONA, employerReportLink } from './constants';
 
 /*
- * The /employers page, section by section. Same surfaces as /partners (dark
- * teal-navy hero, cream body, #F4ECDA for the money section) so it reads as
- * part of the site.
+ * The /employers page, section by section (copy v2, 2026-09-25). Same
+ * surfaces as /partners (dark teal-navy, cream body, #F4ECDA for the money)
+ * so it reads as part of the site.
  *
  * B2C safety rule for everything in here: a consumer who lands on this page
  * must read "my employer pays, the result is mine". Every section says that
@@ -39,9 +46,23 @@ import { CALENDLY_URL, CONTACT_EMAIL, EMPLOYER_DEMO_PERSONA, employerAssessmentL
 
 const H2_STYLE: React.CSSProperties = { fontSize: 'clamp(24px, 2.8vw, 38px)', letterSpacing: '-0.012em' };
 const CARD_STYLE: React.CSSProperties = { background: '#FBF6E8', border: '1px solid rgba(201, 182, 144, 0.6)' };
+const GLASS_STYLE: React.CSSProperties = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' };
+const BODY = 'text-[16px] md:text-[17px] text-[#4B6373] font-medium leading-[1.7]';
+
+/** In-page anchor of the trial block; the hero's first CTA scrolls to it. */
+const TRIAL_ID = 'trial';
 
 const Eyebrow: React.FC<{ children: React.ReactNode; dark?: boolean }> = ({ children, dark }) => (
   <div className={`lp-eyebrow mb-5 ${dark ? 'text-[#D4A024]' : 'text-[#1F8282]'}`}>{children}</div>
+);
+
+const IconDot: React.FC<{ icon: React.ElementType; gold?: boolean; size?: 'sm' | 'md' }> = ({ icon: Icon, gold, size = 'md' }) => (
+  <span
+    className={`shrink-0 rounded-full flex items-center justify-center ${size === 'sm' ? 'w-6 h-6 mt-0.5' : 'w-10 h-10'}`}
+    style={{ background: gold ? 'rgba(212,160,36,0.14)' : 'rgba(39,161,161,0.12)' }}
+  >
+    <Icon size={size === 'sm' ? 13 : 18} strokeWidth={size === 'sm' ? 3 : 2.2} color={gold ? '#A87A12' : '#1F8282'} />
+  </span>
 );
 
 const BookLink: React.FC<{ id: string; label: string }> = ({ id, label }) => (
@@ -57,15 +78,18 @@ const BookLink: React.FC<{ id: string; label: string }> = ({ id, label }) => (
   </a>
 );
 
+const mailto = (subject: string) => `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+
 /* ------------------------------------------------------------------ Hero */
 
 /**
  * Words left, Emma's deck right (chat + dashboard): the tech-sector persona,
- * pinned. The ownership line under the CTAs is the B2C safety line in its
- * shortest form, visible before anyone scrolls.
+ * pinned. The first CTA scrolls to the trial block rather than opening a
+ * mail straight away, so the visitor reads the offer before committing.
  */
 export const EmployersHero: React.FC = () => {
   const { t } = useTranslation('employers');
+  const pills = tArray<string>(t, 'hero.pills');
 
   return (
     <section className="relative bg-[#213F4F] text-white pt-16 md:pt-24 pb-20 md:pb-24 overflow-hidden">
@@ -85,24 +109,27 @@ export const EmployersHero: React.FC = () => {
                 >
                   {t('hero.title')}
                 </h1>
-                <p className="mt-7 text-base md:text-lg text-white/70 font-medium leading-relaxed">
-                  {t('hero.body')}
-                </p>
+                <p className="mt-7 text-base md:text-lg text-white/70 font-medium leading-relaxed">{t('hero.body')}</p>
                 <div className="mt-9 flex flex-wrap items-center gap-3">
-                  <BookLink id="employers_hero_talk" label={t('hero.talkCta')} />
-                  <Link
-                    to={employerAssessmentLink}
-                    onClick={() => trackCtaClick('employers_hero_assessment')}
+                  <a
+                    href={`#${TRIAL_ID}`}
+                    onClick={() => trackCtaClick('employers_hero_trial')}
+                    className="lp-btn-primary lp-btn-gold"
+                  >
+                    {t('hero.trialCta')}
+                    <ArrowDown size={18} strokeWidth={2.4} />
+                  </a>
+                  <a
+                    href={CALENDLY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackCtaClick('employers_hero_talk')}
                     className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3.5 text-[15px] font-bold text-white/85 transition-colors hover:border-white hover:text-white"
                   >
-                    {t('hero.assessmentCta')}
-                    <ArrowRight size={16} strokeWidth={2.4} />
-                  </Link>
+                    {t('hero.talkCta')}
+                    <CalendarClock size={16} strokeWidth={2.4} />
+                  </a>
                 </div>
-                <p className="mt-6 inline-flex items-center gap-2 text-[13px] font-semibold text-white/55">
-                  <Lock size={14} strokeWidth={2.4} className="text-[#4FC3C3]" />
-                  {t('hero.ownershipNote')}
-                </p>
               </Reveal>
             </div>
             <div className="lg:col-span-6">
@@ -114,25 +141,38 @@ export const EmployersHero: React.FC = () => {
         </HeroPersonaProvider>
 
         <Reveal as="div" className="mt-14 md:mt-16">
-          <div
-            className="rounded-2xl px-6 py-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">{t('hero.pillsLabel')}</p>
-            <div className="flex justify-center">
-              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
-            </div>
-          </div>
+          <ul className="rounded-2xl px-5 py-4 flex flex-wrap items-center justify-center gap-2.5" style={GLASS_STYLE}>
+            {pills.map((pill, i) => (
+              <li
+                key={pill}
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-[13px] md:text-[14px] font-semibold text-white/85"
+              >
+                {i === 2 ? (
+                  <Lock size={13} strokeWidth={2.6} className="text-[#D4A024]" />
+                ) : (
+                  <Check size={13} strokeWidth={3} className="text-[#4FC3C3]" />
+                )}
+                {pill}
+              </li>
+            ))}
+          </ul>
         </Reveal>
       </div>
     </section>
   );
 };
 
-/* ------------------------------------------------------------------- Why */
+/* ----------------------------------------------------------- Why + stats */
+
+interface Stat {
+  value: string;
+  label: string;
+  source: string;
+}
 
 export const EmployersWhy: React.FC = () => {
   const { t } = useTranslation('employers');
+  const stats = tArray<Stat>(t, 'stats');
 
   return (
     <section className="bg-[#ECE4D2] py-20 md:py-28">
@@ -145,10 +185,26 @@ export const EmployersWhy: React.FC = () => {
           >
             {t('why.lead')}
           </p>
-          <div className="mt-8 space-y-5 text-[16px] md:text-[17px] text-[#4B6373] font-medium leading-[1.7]">
-            <p>{t('why.p1')}</p>
-            <p>{t('why.p2')}</p>
+          <p className={`mt-8 ${BODY}`}>{t('why.p1')}</p>
+        </Reveal>
+
+        {/* The stats band: dark glass tiles, the same idiom as the hero pills. */}
+        <Reveal className="mt-12 max-w-6xl">
+          <div className="rounded-3xl bg-[#213F4F] p-3 md:p-4 grid gap-3 md:grid-cols-3">
+            {stats.map((s) => (
+              <div key={s.value} className="rounded-2xl p-6 md:p-7" style={GLASS_STYLE}>
+                <p className="font-heading font-bold text-[#E6C36A] leading-none" style={{ fontSize: 'clamp(34px, 3.6vw, 48px)' }}>
+                  {s.value}
+                </p>
+                <p className="mt-3 text-[15px] text-white/85 font-medium leading-[1.55]">{s.label}</p>
+                <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-white/45">{s.source}</p>
+              </div>
+            ))}
           </div>
+        </Reveal>
+
+        <Reveal className="mt-12 max-w-3xl">
+          <p className={BODY}>{t('why.p2')}</p>
         </Reveal>
       </div>
     </section>
@@ -162,6 +218,7 @@ const STEP_ICONS = [ClipboardList, MessagesSquare, FileText];
 export const EmployersHow: React.FC = () => {
   const { t } = useTranslation('employers');
   const steps = tArray<{ title: string; body: string }>(t, 'how.steps');
+  const perRole = tArray<string>(t, 'how.perRole');
 
   return (
     <section className="bg-[#ECE4D2] pb-20 md:pb-28">
@@ -174,32 +231,147 @@ export const EmployersHow: React.FC = () => {
         </Reveal>
 
         <Reveal className="grid gap-5 md:grid-cols-3 max-w-6xl">
-          {steps.map((step, i) => {
-            const Icon = STEP_ICONS[i] ?? FileText;
+          {steps.map((step, i) => (
+            <div key={step.title} className="lp-pillar-card rounded-2xl p-7" style={CARD_STYLE}>
+              <div className="flex items-center justify-between">
+                <IconDot icon={STEP_ICONS[i] ?? FileText} />
+                <span className="font-heading font-bold text-[13px] tracking-[0.18em] text-[#C9B690]">0{i + 1}</span>
+              </div>
+              <p className="mt-5 font-heading font-bold text-[#122E3B] text-[18px]">{step.title}</p>
+              <p className="mt-2 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{step.body}</p>
+            </div>
+          ))}
+        </Reveal>
+
+        <Reveal className="mt-6 max-w-6xl">
+          <div className="rounded-2xl px-6 py-5 flex flex-wrap items-center gap-x-4 gap-y-3" style={CARD_STYLE}>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F8282]">{t('how.perRoleLabel')}</p>
+            <ul className="flex flex-wrap gap-2">
+              {perRole.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-full px-3 py-1 text-[13px] font-semibold text-[#122E3B]"
+                  style={{ background: 'rgba(39,161,161,0.10)' }}
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
+
+        <Reveal className="mt-8 max-w-3xl">
+          <p className="text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.7]">{t('how.after')}</p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('how.languages')}</p>
+            <Link
+              to={employerReportLink}
+              onClick={() => trackCtaClick('employers_how_report')}
+              className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#1F8282] hover:text-[#122E3B] transition-colors group"
+            >
+              {t('how.reportCta')}
+              <ArrowRight size={15} strokeWidth={2.4} className="transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+/* ------------------------------------------------- What your employee sees */
+
+/**
+ * Only rendered while SHOW_EMPLOYEE_SCREEN_QUOTE is true (see constants.ts):
+ * the quote claims to be the start screen word for word.
+ */
+export const EmployersEmployeeSees: React.FC = () => {
+  const { t } = useTranslation('employers');
+
+  return (
+    <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
+      <div className="lp-container">
+        <Reveal className="max-w-3xl">
+          <Eyebrow>{t('employeeSees.eyebrow')}</Eyebrow>
+          <p className={BODY}>{t('employeeSees.intro')}</p>
+          <figure className="mt-7 relative rounded-2xl bg-[#213F4F] text-white p-8 md:p-10 overflow-hidden">
+            <Quote size={36} strokeWidth={2} className="text-[#D4A024] opacity-60" />
+            <blockquote
+              className="mt-4 font-heading font-semibold leading-[1.45]"
+              style={{ fontSize: 'clamp(19px, 2vw, 25px)' }}
+            >
+              {t('employeeSees.quote')}
+            </blockquote>
+          </figure>
+          <p className={`mt-7 ${BODY}`}>{t('employeeSees.why')}</p>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+/* ------------------------------------------------ Built to pass the council */
+
+const COUNCIL_ICONS = [Hand, UsersRound, EyeOff];
+
+/**
+ * The page's central promise as its own block. The third card is the dark
+ * one on purpose: "the employer sees nothing" is what the employee reading
+ * over the employer's shoulder needs to find.
+ */
+export const EmployersCouncil: React.FC = () => {
+  const { t } = useTranslation('employers');
+  const items = tArray<{ title: string; body: string }>(t, 'council.items');
+
+  return (
+    <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
+      <div className="lp-container">
+        <Reveal className="max-w-3xl">
+          <h2 className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-5" style={H2_STYLE}>
+            {t('council.eyebrow')}
+          </h2>
+          <p className={BODY}>{t('council.intro')}</p>
+        </Reveal>
+
+        <Reveal className="mt-10 grid gap-5 md:grid-cols-3 max-w-6xl">
+          {items.map((item, i) => {
+            const Icon = COUNCIL_ICONS[i] ?? Check;
+            const dark = i === items.length - 1;
             return (
-              <div key={step.title} className="lp-pillar-card rounded-2xl p-7" style={CARD_STYLE}>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(39,161,161,0.12)' }}
-                  >
-                    <Icon size={18} strokeWidth={2.2} color="#1F8282" />
-                  </span>
-                  <span className="font-heading font-bold text-[13px] tracking-[0.18em] text-[#C9B690]">
-                    0{i + 1}
-                  </span>
-                </div>
-                <p className="mt-5 font-heading font-bold text-[#122E3B] text-[18px]">{step.title}</p>
-                <p className="mt-2 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{step.body}</p>
+              <div
+                key={item.title}
+                className={`relative rounded-2xl p-7 overflow-hidden ${dark ? 'bg-[#213F4F] text-white' : ''}`}
+                style={dark ? undefined : CARD_STYLE}
+              >
+                {dark && (
+                  <img
+                    src={CairnSymbolInvert}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute -right-5 -bottom-5 w-[110px] h-auto opacity-[0.07] pointer-events-none"
+                  />
+                )}
+                <span
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ background: dark ? 'rgba(255,255,255,0.10)' : 'rgba(39,161,161,0.12)' }}
+                >
+                  <Icon size={18} strokeWidth={2.2} color={dark ? '#D4A024' : '#1F8282'} />
+                </span>
+                <p className={`relative mt-5 font-heading font-bold text-[18px] ${dark ? 'text-white' : 'text-[#122E3B]'}`}>
+                  {item.title}
+                </p>
+                <p className={`relative mt-2 text-[15px] font-medium leading-[1.65] ${dark ? 'text-white/80' : 'text-[#4B6373]'}`}>
+                  {item.body}
+                </p>
               </div>
             );
           })}
         </Reveal>
 
         <Reveal className="mt-8 max-w-3xl">
-          <p className="text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.7]">{t('how.after')}</p>
-          <p className="mt-3 text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">
-            {t('how.languages')}
+          <p className="flex gap-2.5 items-start text-[15px] text-[#4B6373] font-medium leading-[1.7]">
+            <Lock size={16} strokeWidth={2.4} className="text-[#1F8282] shrink-0 mt-1" />
+            {t('council.privacy')}
           </p>
         </Reveal>
       </div>
@@ -207,73 +379,35 @@ export const EmployersHow: React.FC = () => {
   );
 };
 
-/* ------------------------------------------------ What you get / don't */
+/* ------------------------------------------------------------- What you get */
 
-/**
- * The page's central promise as a picture: two columns, the right one
- * deliberately the stronger card (dark) because "you never see the report"
- * is what the employee reading over the employer's shoulder needs to see.
- */
-export const EmployersSplit: React.FC = () => {
+const GET_ICONS = [KeyRound, Hash, Package, BarChart3];
+
+export const EmployersGet: React.FC = () => {
   const { t } = useTranslation('employers');
-  const get = tArray<string>(t, 'split.get');
-  const dont = tArray<string>(t, 'split.dont');
+  const items = tArray<{ title: string; body: string }>(t, 'get.items');
 
   return (
-    <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
+    <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
         <Reveal className="max-w-3xl">
-          <Eyebrow>{t('split.eyebrow')}</Eyebrow>
+          <h2 className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-10" style={H2_STYLE}>
+            {t('get.eyebrow')}
+          </h2>
         </Reveal>
-
-        <Reveal className="grid gap-5 md:grid-cols-2 max-w-5xl">
-          <div className="rounded-2xl p-7 md:p-8" style={CARD_STYLE}>
-            <div className="flex items-center gap-3">
-              <KeyRound size={20} strokeWidth={2.2} color="#1F8282" />
-              <h2 className="font-heading font-bold text-[#122E3B] text-[20px] md:text-[22px]">{t('split.getTitle')}</h2>
+        <Reveal className="grid gap-5 sm:grid-cols-2 max-w-5xl">
+          {items.map((item, i) => (
+            <div key={item.title} className="lp-pillar-card rounded-2xl p-7 flex gap-4 items-start" style={CARD_STYLE}>
+              <IconDot icon={GET_ICONS[i] ?? Check} />
+              <div>
+                <p className="font-heading font-bold text-[#122E3B] text-[17px]">{item.title}</p>
+                <p className="mt-1.5 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{item.body}</p>
+              </div>
             </div>
-            <ul className="mt-6 space-y-3.5">
-              {get.map((line) => (
-                <li key={line} className="flex gap-3 items-start text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.55]">
-                  <span
-                    className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5"
-                    style={{ background: 'rgba(39,161,161,0.12)' }}
-                  >
-                    <Check size={13} strokeWidth={3} color="#1F8282" />
-                  </span>
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="rounded-2xl p-7 md:p-8 bg-[#213F4F] text-white relative overflow-hidden">
-            <img
-              src={CairnSymbolInvert}
-              alt=""
-              aria-hidden="true"
-              className="absolute -right-6 -bottom-6 w-[140px] h-auto opacity-[0.07] pointer-events-none"
-            />
-            <div className="relative flex items-center gap-3">
-              <EyeOff size={20} strokeWidth={2.2} color="#D4A024" />
-              <h2 className="font-heading font-bold text-white text-[20px] md:text-[22px]">{t('split.dontTitle')}</h2>
-            </div>
-            <ul className="relative mt-6 space-y-3.5">
-              {dont.map((line) => (
-                <li key={line} className="flex gap-3 items-start text-[15px] md:text-base text-white/85 font-medium leading-[1.55]">
-                  <span className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 bg-white/10">
-                    <Lock size={12} strokeWidth={2.6} color="#D4A024" />
-                  </span>
-                  {line}
-                </li>
-              ))}
-            </ul>
-          </div>
+          ))}
         </Reveal>
-
-        <Reveal className="mt-10 max-w-3xl space-y-4 text-[16px] md:text-[17px] text-[#4B6373] font-medium leading-[1.7]">
-          <p className="text-[#122E3B] font-semibold">{t('split.why')}</p>
-          <p>{t('split.feedback')}</p>
+        <Reveal className="mt-8 max-w-3xl">
+          <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('get.expiry')}</p>
         </Reveal>
       </div>
     </section>
@@ -289,29 +423,26 @@ export const EmployersFits: React.FC = () => {
   const items = tArray<{ title: string; body: string }>(t, 'fits.items');
 
   return (
-    <section className="bg-[#ECE4D2] py-20 md:py-28">
+    <section className="bg-[#ECE4D2] pb-20 md:pb-28">
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <Eyebrow>{t('fits.eyebrow')}</Eyebrow>
         </Reveal>
         <Reveal className="grid gap-5 sm:grid-cols-2 max-w-5xl">
-          {items.map((item, i) => {
-            const Icon = FIT_ICONS[i] ?? Briefcase;
-            return (
-              <div key={item.title} className="lp-pillar-card rounded-2xl p-7 flex gap-4 items-start" style={CARD_STYLE}>
-                <span
-                  className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: 'rgba(212,160,36,0.14)' }}
-                >
-                  <Icon size={18} strokeWidth={2.2} color="#A87A12" />
-                </span>
-                <div>
-                  <p className="font-heading font-bold text-[#122E3B] text-[17px]">{item.title}</p>
-                  <p className="mt-1.5 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{item.body}</p>
-                </div>
+          {items.map((item, i) => (
+            <div key={item.title} className="lp-pillar-card rounded-2xl p-7 flex gap-4 items-start" style={CARD_STYLE}>
+              <IconDot icon={FIT_ICONS[i] ?? Briefcase} gold />
+              <div>
+                <p className="font-heading font-bold text-[#122E3B] text-[17px]">{item.title}</p>
+                <p className="mt-1.5 text-[15px] text-[#4B6373] font-medium leading-[1.65]">{item.body}</p>
               </div>
-            );
-          })}
+            </div>
+          ))}
+        </Reveal>
+        <Reveal className="mt-8 max-w-3xl">
+          <p className="rounded-2xl px-6 py-5 text-[15px] text-[#4B6373] font-medium leading-[1.7]" style={{ background: 'rgba(39,161,161,0.07)' }}>
+            {t('fits.uk')}
+          </p>
         </Reveal>
       </div>
     </section>
@@ -320,58 +451,103 @@ export const EmployersFits: React.FC = () => {
 
 /* ------------------------------------------------------------------ Pricing */
 
+interface CompareRow {
+  label: string;
+  price: string;
+  highlight?: boolean;
+}
+
 interface PriceRow {
   credits: string;
   price: string;
 }
 
 /**
- * Same credit ladder as /partners, read from the partners namespace so the
- * prices live in one place. If employers ever get their own ladder, give this
- * namespace its own `pricing.rows` and read that instead.
+ * Cost next to what the buyer already pays, then the price itself. The full
+ * ladder is the /partners one, read from the partners namespace so prices
+ * live in one place; it sits in a <details> because the copy leads with the
+ * two ends and a worked example. If employers get their own ladder, give this
+ * namespace its own rows and update `pricing.examples` with it.
  */
 export const EmployersPricing: React.FC = () => {
   const { t } = useTranslation(['employers', 'partners']);
-  const rows = tArray<PriceRow>(t, 'partners:pricing.rows');
+  const compare = tArray<CompareRow>(t, 'employers:pricing.compare');
+  const tiers = tArray<PriceRow>(t, 'partners:pricing.rows');
 
   return (
     <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <Eyebrow>{t('employers:pricing.eyebrow')}</Eyebrow>
-          <h2 className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-6" style={H2_STYLE}>
+          <h2 className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-8" style={H2_STYLE}>
             {t('employers:pricing.title')}
           </h2>
-          <p className="text-[15px] md:text-base text-[#4B6373] font-medium leading-[1.7]">
-            {t('employers:pricing.intro')}
-          </p>
         </Reveal>
 
-        <Reveal className="mt-10 max-w-2xl">
+        <Reveal className="max-w-2xl">
           <div className="rounded-2xl overflow-hidden" style={CARD_STYLE}>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr style={{ background: 'rgba(39,161,161,0.07)' }}>
-                    <th scope="col" className="text-left font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-4">
-                      {t('employers:pricing.colEmployees')}
-                    </th>
-                    <th scope="col" className="text-right font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-4 whitespace-nowrap">
-                      {t('employers:pricing.colPrice')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, i) => (
-                    <tr key={row.credits} style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(201, 182, 144, 0.45)' }}>
-                      <td className="px-6 py-4 text-[15px] font-semibold text-[#122E3B] whitespace-nowrap">{row.credits}</td>
-                      <td className="px-6 py-4 text-[15px] font-semibold text-[#1F8282] text-right whitespace-nowrap">{row.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <p className="px-6 pt-4 pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#4B6373]/80">
+              {t('employers:pricing.compareCaption')}
+            </p>
+            {compare.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between gap-4 px-6 py-4"
+                style={
+                  row.highlight
+                    ? { background: '#213F4F' }
+                    : { borderTop: '1px solid rgba(201, 182, 144, 0.45)' }
+                }
+              >
+                <span className={`text-[15px] font-semibold ${row.highlight ? 'text-white' : 'text-[#122E3B]'}`}>{row.label}</span>
+                <span
+                  className={`text-[15px] md:text-[17px] font-bold whitespace-nowrap ${row.highlight ? 'text-[#E6C36A]' : 'text-[#4B6373]'}`}
+                >
+                  {row.price}
+                </span>
+              </div>
+            ))}
           </div>
+        </Reveal>
+
+        <Reveal className="mt-8 max-w-3xl space-y-6">
+          <p className={BODY}>{t('employers:pricing.compareNote')}</p>
+          <p className={BODY}>
+            <strong className="text-[#122E3B] font-bold">{t('employers:pricing.pricingTitle')}</strong>{' '}
+            {t('employers:pricing.pricingBody')}
+          </p>
+          <p className="text-[#122E3B] font-semibold text-[16px] md:text-[17px] leading-[1.6]">{t('employers:pricing.examples')}</p>
+
+          <details className="lp-faq max-w-2xl">
+            <summary>
+              {t('employers:pricing.tiersToggle')}
+              <Plus className="lp-chev" size={20} strokeWidth={2.4} color="#27A1A1" />
+            </summary>
+            <div className="mt-2 rounded-2xl overflow-hidden" style={CARD_STYLE}>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr style={{ background: 'rgba(39,161,161,0.07)' }}>
+                      <th scope="col" className="text-left font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-3.5">
+                        {t('employers:pricing.colEmployees')}
+                      </th>
+                      <th scope="col" className="text-right font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-3.5 whitespace-nowrap">
+                        {t('employers:pricing.colPrice')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tiers.map((row, i) => (
+                      <tr key={row.credits} style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(201, 182, 144, 0.45)' }}>
+                        <td className="px-6 py-3.5 text-[15px] font-semibold text-[#122E3B] whitespace-nowrap">{row.credits}</td>
+                        <td className="px-6 py-3.5 text-[15px] font-semibold text-[#1F8282] text-right whitespace-nowrap">{row.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </details>
         </Reveal>
       </div>
     </section>
@@ -383,10 +559,9 @@ export const EmployersPricing: React.FC = () => {
 /** The page's one real ask: dark canvas, gold button, like the partner pilot. */
 export const EmployersTrial: React.FC = () => {
   const { t } = useTranslation('employers');
-  const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('trial.mailSubject'))}`;
 
   return (
-    <section className="relative bg-[#213F4F] text-white py-20 md:py-28 overflow-hidden">
+    <section id={TRIAL_ID} className="relative bg-[#213F4F] text-white py-20 md:py-28 overflow-hidden scroll-mt-24">
       <div
         className="absolute -bottom-72 -left-52 w-[760px] h-[760px] rounded-full pointer-events-none"
         style={{ background: 'rgba(212,160,36,0.12)', filter: 'blur(120px)' }}
@@ -398,7 +573,7 @@ export const EmployersTrial: React.FC = () => {
           </h2>
           <p className="mt-7 text-base md:text-lg text-white/70 font-medium leading-relaxed">{t('trial.body')}</p>
           <div className="mt-10">
-            <a href={mailto} onClick={() => trackCtaClick('employers_trial_code')} className="lp-btn-primary lp-btn-gold">
+            <a href={mailto(t('trial.mailSubject'))} onClick={() => trackCtaClick('employers_trial_code')} className="lp-btn-primary lp-btn-gold">
               {t('trial.cta')}
               <KeyRound size={18} strokeWidth={2.4} />
             </a>
@@ -419,7 +594,7 @@ export const EmployersAbout: React.FC = () => {
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <Eyebrow>{t('about.eyebrow')}</Eyebrow>
-          <div className="space-y-5 text-[16px] md:text-[17px] text-[#4B6373] font-medium leading-[1.7]">
+          <div className={`space-y-5 ${BODY}`}>
             <p>{t('about.p1')}</p>
             <p>
               {t('about.p2Before')}
@@ -433,8 +608,20 @@ export const EmployersAbout: React.FC = () => {
               {t('about.p2After')}
             </p>
           </div>
-          <div className="mt-9">
-            <BookLink id="employers_about_book" label={t('about.cta')} />
+          <div className="mt-8 flex items-center gap-3 text-[#4B6373]/70">
+            <div className="h-px w-12 bg-[#4B6373]/30" />
+            <span className="text-[12px] uppercase tracking-[0.22em] font-bold">{t('about.signature')}</span>
+          </div>
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <BookLink id="employers_about_book" label={t('about.bookCta')} />
+            <a
+              href={mailto(t('about.mailSubject'))}
+              onClick={() => trackCtaClick('employers_about_mail')}
+              className="inline-flex items-center gap-2 rounded-full border border-[#122E3B]/25 px-6 py-3.5 text-[15px] font-bold text-[#122E3B] transition-colors hover:border-[#122E3B]"
+            >
+              {t('about.emailCta')}
+              <Mail size={16} strokeWidth={2.4} />
+            </a>
           </div>
         </Reveal>
       </div>

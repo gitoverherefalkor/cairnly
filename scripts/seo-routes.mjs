@@ -105,9 +105,9 @@ const STATIC_ROUTES = [
   // English static shell: the page itself is English-only for now.
   {
     path: '/employers',
-    title: 'Cairnly for employers | Career clarity for your people, owned by your people',
+    title: 'Cairnly for employers | Career clarity your people own',
     description:
-      'Give employees a clear picture of where their skills fit, inside or outside your company. One assessment, one price per head, results stay with the employee.',
+      'Give your people a clear answer about where their skills fit, inside or outside your company. Per-head pricing, one afternoon to roll out, and you never see an individual result.',
     changefreq: 'monthly',
     priority: '0.6',
   },
