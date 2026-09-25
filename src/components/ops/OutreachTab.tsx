@@ -36,7 +36,9 @@ import {
   SENTIMENT_LABELS,
   SUBJECT_VARIANTS,
   ACTIVATION_NUDGE_WORKING_DAYS,
+  OUTREACH_TABLE_ID,
   codeActivation,
+  scrollToOutreachTable,
   compareWorkFirst,
   followUp,
   isWarm,
@@ -949,7 +951,13 @@ export default function OutreachTab({
     const on = target !== 'all' && focus === target;
     return (
       <button
-        onClick={() => (target === 'all' ? setFocus('all') : toggleFocus(target))}
+        onClick={() => {
+          if (target === 'all') return setFocus('all');
+          toggleFocus(target);
+          // The cockpit sits between the counters and the table and is never
+          // filtered; without the jump its first card reads as the answer.
+          if (!on) scrollToOutreachTable();
+        }}
         aria-pressed={on}
         title={target === 'all' ? 'Show every agency' : on ? 'Show every agency again' : 'Show only these'}
         className={`${card} px-4 py-4 text-left transition-colors hover:border-atlas-gold/40 ${
@@ -1011,7 +1019,7 @@ export default function OutreachTab({
 
       <SubjectTest stats={data.subject_stats} />
 
-      <div className={`${card} px-4 py-3 flex flex-wrap items-end gap-4`}>
+      <div id={OUTREACH_TABLE_ID} className={`${card} px-4 py-3 flex flex-wrap items-end gap-4 scroll-mt-4`}>
         <label className="block">
           <span className={label}>Tier</span>
           <div className="mt-1 flex gap-1">

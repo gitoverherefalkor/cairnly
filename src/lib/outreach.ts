@@ -180,6 +180,16 @@ export const FOCUS_LABELS: Record<Exclude<OutreachFocus, 'all'>, string> = {
   code_unused: 'Code not used yet',
 };
 
+/** The filter bar right above the agency table: where a card click should land. */
+export const OUTREACH_TABLE_ID = 'ops-outreach-table';
+
+/** Bring the filtered table into view (after the render that applied the filter). */
+export function scrollToOutreachTable() {
+  requestAnimationFrame(() =>
+    document.getElementById(OUTREACH_TABLE_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+  );
+}
+
 export function matchesFocus(
   p: OutreachProspect,
   focus: OutreachFocus,

@@ -14,7 +14,7 @@ import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
-import { ACTIVATION_NUDGE_WORKING_DAYS, codeActivation, isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
+import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, codeActivation, isWarm, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
 const SUPABASE_PROJECT_REF = 'pcoyafgsirrznhmdaiji';
@@ -1850,9 +1850,12 @@ export default function Ops() {
     setOutreachFocus(target);
     if (target === 'all') return;
     if (!open.outreach) toggle('outreach');
-    requestAnimationFrame(() =>
-      document.getElementById('ops-outreach-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-    );
+    // Land on the table, past the cockpit: the cockpit is not filtered, so
+    // landing on it made its first card look like what the tile counted.
+    requestAnimationFrame(() => {
+      const target = document.getElementById(OUTREACH_TABLE_ID) ?? document.getElementById('ops-outreach-section');
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   const openBlockers = () => {
