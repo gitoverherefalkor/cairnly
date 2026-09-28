@@ -17,9 +17,9 @@ export const SITE_URL = 'https://www.cairnly.io';
  * description/OG/Twitter tags, to avoid duplicate conflicting tags once
  * <Seo> mounts (see index.html for why).
  */
-export const DEFAULT_TITLE = 'Cairnly — Career path clarity. Find a career that fits.';
+export const DEFAULT_TITLE = 'Cairnly: career path clarity. Find a career that fits.';
 export const DEFAULT_DESCRIPTION =
-  "Thinking about a career change? Cairnly's assessment matches your personality, skills, and goals to careers that actually fit — with an AI career coach to talk it through.";
+  "Looking for career path clarity? Cairnly's assessment matches your personality, skills and goals to careers that actually fit, with an AI career coach to talk it through.";
 // Dedicated 1200x630 share card (public/og-card.jpg): the cairn-trail photo
 // with the brand overlay, rendered via headless browser — not the raw logo.
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-card.jpg`;

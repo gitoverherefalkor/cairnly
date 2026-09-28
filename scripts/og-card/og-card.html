@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!--
+  Source of public/og-card.jpg, the 1200x630 link-preview image (2026-09-28).
+  og-clean.jpg is the old card with its text removed (Gemini image edit), so
+  the photo stays identical. Change the text here, then render and convert:
+
+    open -na "Google Chrome" --args --headless=new --disable-gpu --hide-scrollbars \
+      --force-device-scale-factor=1 --window-size=1200,630 --virtual-time-budget=8000 \
+      --screenshot=/tmp/og.png "file://$PWD/scripts/og-card/og-card.html"
+    sips -s format jpeg -s formatOptions 88 /tmp/og.png --out public/og-card.jpg
+
+  (Chrome via `open -na`, never puppeteer: see the headless-Chrome memory.)
+  Link previews cache: re-scrape in LinkedIn's Post Inspector after deploying.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@500;600&display=block" rel="stylesheet">
+<style>
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#1d2f3a}
+.card{position:relative;width:1200px;height:630px;background:url(og-clean.jpg) center/cover no-repeat}
+.shade{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 62%,rgba(18,32,42,.55),rgba(18,32,42,0) 70%)}
+.inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;text-align:center}
+.logo{margin-top:168px;width:380px;height:auto}
+h1{margin:108px 0 0;font:700 84px/1 Poppins,sans-serif;letter-spacing:-.02em;color:#fff}
+h1 span{background:linear-gradient(90deg,#C8891A 0%,#F0C040 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+p{margin:30px 0 0;font:500 27px/1.3 Inter,sans-serif;color:rgba(255,255,255,.88)}
+p span{color:#E6B64A;font-weight:600}
+.rule{margin-top:26px;width:76px;height:4px;border-radius:2px;background:#2ABFBF}
+</style></head><body><div class="card"><div class="shade"></div><div class="inner">
+<img class="logo" src="../../src/logos/live/cairnly_logo_wordmark_inverted_tight.png">
+<h1>career path <span>clarity.</span></h1>
+<p>One assessment. Who you are, turned <span>into careers that fit.</span></p>
+<div class="rule"></div>
+</div></div></body></html>
