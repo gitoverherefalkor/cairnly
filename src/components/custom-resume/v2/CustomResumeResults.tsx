@@ -264,14 +264,19 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
               marginTop: 4,
             }}
           >
-            Usually 20–40 seconds. Live updates flow in via Realtime.
+            Usually about 2 minutes. This page updates on its own when it's ready.
           </div>
         </div>
       </div>
     );
   }
 
-  if (row.status === 'failed') {
+  // parseIfString (module scope) guards these jsonb-string columns. A
+  // completed row whose résumé body is missing or unparseable gets the failed
+  // panel below instead of crashing the whole page.
+  const resumeJson = row.status === 'completed' ? parseIfString<ResumeJson>(row.resume_json) : null;
+
+  if (row.status === 'failed' || !resumeJson) {
     return (
       <div
         style={{
@@ -307,9 +312,7 @@ const ResumeResultPanel: React.FC<{ row: CustomResumeRow }> = ({ row }) => {
     );
   }
 
-  // status === 'completed'
-  // parseIfString (module scope) guards these jsonb-string columns too.
-  const resumeJson = parseIfString<ResumeJson>(row.resume_json) as ResumeJson;
+  // status === 'completed' with a résumé body
   const coverLetterJson = parseIfString<CoverLetterJson>(row.cover_letter_json);
   const coverage = row.keyword_coverage as unknown as KeywordCoverage | null;
 

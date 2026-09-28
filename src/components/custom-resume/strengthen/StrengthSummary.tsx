@@ -53,7 +53,9 @@ export function StrengthBanner({
   review, hasEverApplied, onOpen,
 }: { review: StrengthReview; hasEverApplied: boolean; onOpen: () => void }) {
   const { t } = useTranslation('resume');
-  const wins = review.issues.filter((i) => i.status === 'pending').length;
+  // The edge function writes pending ({status, generated_at, status_changed_at})
+  // and failed ({status, error}) reviews without an `issues` array.
+  const wins = (review.issues ?? []).filter((i) => i.status === 'pending').length;
 
   // Re-check every 30s while pending/applying so a wedged review flips to the
   // retry affordance client-side without waiting on a row update (the row may

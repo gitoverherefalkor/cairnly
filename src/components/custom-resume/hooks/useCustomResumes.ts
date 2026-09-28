@@ -1,16 +1,33 @@
 // Subscribes to a set of custom_resumes rows. Used by the results view to
 // flip cards from "Generating…" to "Ready" as n8n completes each one.
 //
-// Uses Supabase Realtime for low-latency updates, plus a polling fallback in
-// case the Realtime channel is wedged or the user's network blocks websockets.
+// Uses Supabase Realtime as a low-latency "row changed" trigger (it refetches,
+// see handleCustomResumeRealtimeUpdate), plus a polling fallback in case the
+// Realtime channel is wedged or the user's network blocks websockets.
 
 import { useEffect, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { Tables } from '@/integrations/supabase/types';
 
 export type CustomResumeRow = Tables<'custom_resumes'>;
+
+// Realtime UPDATE payloads are not full rows. custom_resumes has the default
+// replica identity, so Postgres leaves large unchanged (TOASTed) values out of
+// the change record: a strength_review-only update arrives without
+// resume_json. Writing that payload into the cache wiped the résumé and crashed
+// the results screen. Treat the event as a "this row changed" signal and
+// refetch the full rows instead.
+export function handleCustomResumeRealtimeUpdate(
+  queryClient: QueryClient,
+  queryKey: readonly unknown[],
+  ids: string[],
+  updatedId: string,
+) {
+  if (!ids.includes(updatedId)) return;
+  void queryClient.invalidateQueries({ queryKey, exact: true });
+}
 
 interface UseCustomResumesArgs {
   ids: string[];
@@ -86,13 +103,7 @@ export function useCustomResumes({
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          const updated = payload.new as CustomResumeRow;
-          if (!ids.includes(updated.id)) return;
-          queryClient.setQueryData<CustomResumeRow[]>(queryKey, (prev) => {
-            if (!prev) return [updated];
-            const next = prev.map((r) => (r.id === updated.id ? updated : r));
-            return next;
-          });
+          handleCustomResumeRealtimeUpdate(queryClient, queryKey, ids, (payload.new as CustomResumeRow).id);
         },
       )
       .subscribe();
