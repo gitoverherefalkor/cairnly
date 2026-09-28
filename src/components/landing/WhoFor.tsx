@@ -26,7 +26,7 @@ const WhoFor: React.FC = () => {
   const notItems = tArray<string>(t, 'whoFor.notItems');
 
   return (
-    <section className="bg-[#FAF5E8] py-24 md:py-32">
+    <section id="is-it-for-you" className="bg-[#FAF5E8] py-24 md:py-32">
       <div className="lp-container">
         <div className="lp-chapter-rule mb-14">
           <span className="lp-chapter-rule__dot" />

@@ -53,6 +53,11 @@ linking to the same demo the video already links to.
 The scroll-position tracking and the `CairnProgress` rail integration are the
 non-obvious parts worth keeping.
 
+**Update 2026-09-28:** the cairn rail came back without this section. It now
+lives in `src/components/landing/CairnRail.tsx`, floats in the homepage's left
+margin on screens 1440px and up, and drops a stone per live section (the same
+trigger line and the same `CairnProgress` component as here).
+
 ### `ScreenshotSlot.tsx` — framed screenshot with zoom
 The browser-chrome frame with a meta label and a click-to-zoom button. Only
 used by `HowItWorks`. Reusable if any future section needs framed product

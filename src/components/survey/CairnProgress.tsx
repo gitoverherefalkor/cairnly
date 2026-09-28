@@ -37,8 +37,15 @@ export interface CairnProgressProps {
   width?: number;
   /** Folder the layer PNGs live in. Default '/cairn'. */
   assetBase?: string;
+  /** 'light' recolours the teal stones to cream for navy backgrounds (the
+   *  homepage cairn rail passes over dark sections). The gold capstone keeps
+   *  its colour either way. Default 'default'. */
+  tone?: 'default' | 'light';
   className?: string;
 }
+
+// Teal stone PNG -> cream: flatten to black, invert to near-white, warm it.
+const LIGHT_STONE_FILTER = 'brightness(0) invert(0.95) sepia(0.2)';
 
 export default function CairnProgress({
   filled,
@@ -46,6 +53,7 @@ export default function CairnProgress({
   animate = 'stone',
   width = 130,
   assetBase = '/cairn',
+  tone = 'default',
   className,
 }: CairnProgressProps) {
   const { t } = useTranslation('survey');
@@ -68,6 +76,12 @@ export default function CairnProgress({
     height: '100%',
     objectFit: 'contain',
   };
+  // The transition sits on both tones so the flip eases in either direction.
+  const stoneImg: React.CSSProperties = {
+    ...img,
+    filter: tone === 'light' ? LIGHT_STONE_FILTER : 'none',
+    transition: 'filter 300ms ease',
+  };
 
   return (
     <div
@@ -86,7 +100,7 @@ export default function CairnProgress({
             key={name}
             src={`${assetBase}/${name}.png`}
             alt=""
-            style={img}
+            style={stoneImg}
             className={animate === 'stone' && i === n - 1 ? 'cairn-stone-drop' : undefined}
           />
         ))}

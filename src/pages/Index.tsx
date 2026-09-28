@@ -13,6 +13,7 @@ import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
 import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
+import CairnRail from '@/components/landing/CairnRail';
 import { IntentProvider } from '@/contexts/IntentContext';
 import { IntakeChatProvider } from '@/components/landing/intake/IntakeChatContext';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
@@ -69,6 +70,9 @@ const Index: React.FC = () => (
       <FAQ />
       <FinalCTA />
     </main>
+    {/* A stone per section as you scroll, capstone at the founder story.
+        Wide screens only; see CairnRail. */}
+    <CairnRail />
     <LandingFooter />
   </div>
   </HeroPersonaProvider>

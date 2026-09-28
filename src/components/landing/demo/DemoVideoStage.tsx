@@ -154,7 +154,8 @@ const DemoVideoStage: React.FC = () => {
               <Link
                 to={demoHref(DEMO_ROUTE)}
                 onClick={() => trackCtaClick('hero_video_open_demo')}
-                className="inline-flex items-center gap-2 rounded-full border border-white/35 px-5 py-2.5 text-[14px] font-bold text-white hover:border-white transition-colors"
+                className="lp-btn-primary lp-btn-ghost"
+                style={{ fontSize: 14, padding: '10px 22px', gap: 8 }}
               >
                 {t('heroDemo.endCard.fullDemo')}
                 <ArrowUpRight size={15} strokeWidth={2.6} />
@@ -162,7 +163,8 @@ const DemoVideoStage: React.FC = () => {
               <Link
                 to="/payment"
                 onClick={() => trackCtaClick('hero_video_cta')}
-                className="inline-flex items-center gap-2 rounded-full bg-[#D4A024] text-[#122E3B] px-5 py-2.5 text-[14px] font-bold hover:bg-[#E0B03A] transition-colors"
+                className="lp-btn-primary lp-btn-gold"
+                style={{ fontSize: 14, padding: '10px 22px', gap: 8 }}
               >
                 {t('heroDemo.endCard.cta')}
                 <ArrowRight size={15} strokeWidth={2.6} />
