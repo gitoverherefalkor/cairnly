@@ -227,11 +227,22 @@ export const chapters: Chapter[] = [
         <p>
           Cairnly is built on that sequence, so you can weigh our interest here yourself. The
           assessment does the structured-measurement step: validated instruments mapped to
-          specific careers, not a four-letter box. The coach conversation comes after, on top
-          of your results, at a fraction of what an hourly engagement costs. Whether you use
-          us or not, the evidence supports one rule of thumb: <strong>never pay for
-          follow-through help before the diagnosis, and never accept a diagnosis from an
-          unstructured chat.</strong> The order is the product.
+          specific careers, not a four-letter box. What comes after is your choice: our AI
+          coach to pressure-test the results, a human coach who starts from a finished
+          diagnosis instead of a blank intake, or both. Whether you use us or not, the
+          evidence supports one rule of thumb: <strong>never pay for follow-through help
+          before the diagnosis, and never accept a diagnosis from an unstructured
+          chat.</strong> The order is the product.
+        </p>
+        <p>
+          <em>
+            Career coach or outplacement adviser? You can give Cairnly to your clients as
+            that first step.{' '}
+            <a href="/partners" style={{ color: '#1F8282', fontWeight: 600 }}>
+              See how it works for partners
+            </a>
+            .
+          </em>
         </p>
       </>
     ),
