@@ -7,12 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
 import { trackConversion } from '@/lib/analytics';
-import { PRO_PRICE } from '@/lib/pricing';
 import AuthShell from '@/components/auth/AuthShell';
 
-// The "Page view" conversion action from the Ads UI, set up for exactly this
-// page (Page load trigger, "measuring conversions after they're complete,
-// such as on a purchase confirmation page"). Fired from here with the real
+// The "Purchase" conversion action from the Ads UI (created as "Page view" in
+// August, renamed and recategorised 2026-09-18; the label did not change).
+// Fired from here with the real
 // transaction value and a dedup key rather than the raw snippet Google
 // suggests pasting into <head> unconditionally — that version fires on every
 // page load (refreshes, errors before redirect included) with no dedup, which
@@ -22,14 +21,21 @@ const GOOGLE_ADS_CONVERSION_SEND_TO = 'AW-11471365050/veddCM6jiIgZELrH_N0q';
 /** Fires once, only on a confirmed real purchase. transaction_id is the Stripe
  *  session_id, which Google Ads uses to dedupe — a refreshed success page
  *  reports the same session_id and doesn't double-count. Never lets a tracking
- *  failure (e.g. an ad blocker stripping gtag) break the payment flow. */
-const fireConversion = (sessionId: string) => {
+ *  failure (e.g. an ad blocker stripping gtag) break the payment flow.
+ *
+ *  Value is what Stripe actually charged, as returned by payment-success. A
+ *  free (100%-off) checkout never fires: it isn't a sale, and counting it as
+ *  one would teach bidding to chase traffic that doesn't pay. No amount in the
+ *  response (only possible for a few minutes mid-deploy) also skips rather
+ *  than guessing a price. */
+const fireConversion = (sessionId: string, amountPaid: unknown, currency: unknown) => {
+  if (typeof amountPaid !== 'number' || amountPaid <= 0) return;
   try {
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'conversion', {
         send_to: GOOGLE_ADS_CONVERSION_SEND_TO,
-        value: PRO_PRICE,
-        currency: 'EUR',
+        value: amountPaid,
+        currency: typeof currency === 'string' && currency ? currency.toUpperCase() : 'EUR',
         transaction_id: sessionId,
       });
     }
@@ -114,7 +120,7 @@ const PaymentSuccess = () => {
         // clear it so it can't apply to a later unrelated checkout.
         clearStoredReferralCode();
 
-        fireConversion(sessionId);
+        fireConversion(sessionId, data?.amountPaid, data?.currency);
         // First-party funnel: the session converted. Carries the analytics
         // session id only — the purchase row with the name and email stays
         // deliberately unlinked, so the pageview history is not made

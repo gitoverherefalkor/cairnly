@@ -481,10 +481,10 @@ serve(async (req) => {
     }
 
     // Re-retrieve the session with discount details expanded so we can see
-    // which referral promotion code (if any) was used. Required for BOTH
-    // entry paths — neither the raw webhook event object nor a plain
+    // which promotion code (if any) was used — referral or otherwise. Required
+    // for BOTH entry paths — neither the raw webhook event object nor a plain
     // retrieve() carries the expanded promotion-code data.
-    let referralPromoCode: string | null = null;
+    let promoCode: string | null = null;
     let referrerUserId: string | null = null;
     try {
       const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
@@ -495,7 +495,7 @@ serve(async (req) => {
         (expandedSession.discounts && expandedSession.discounts[0]?.promotion_code) ||
         expandedSession.total_details?.breakdown?.discounts?.[0]?.discount?.promotion_code;
       if (applied && typeof applied === "object") {
-        referralPromoCode = applied.code ?? null;
+        promoCode = applied.code ?? null;
         referrerUserId = applied.metadata?.referrer_user_id ?? null;
       }
     } catch (e) {
@@ -521,7 +521,7 @@ serve(async (req) => {
     if (existingPurchase?.access_code_id) {
       const { data: existingCode } = await supabase
         .from("access_codes")
-        .select("code")
+        .select("code, price_paid, currency")
         .eq("id", existingPurchase.access_code_id)
         .maybeSingle();
 
@@ -529,6 +529,9 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           accessCode: existingCode?.code ?? null,
+          amountPaid: existingCode?.price_paid ?? null,
+          currency: existingCode?.currency ?? null,
+          stripeSessionId: session.id,
           alreadyProcessed: true,
           message: "Payment already processed",
         }),
@@ -544,8 +547,10 @@ serve(async (req) => {
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
     // Extract pricing information from session. Stripe is authoritative here —
-    // the fallback only covers a session that somehow carries no total.
-    const amountTotal = session.amount_total ? session.amount_total / 100 : PRO_PRICE;
+    // the fallback only covers a session that somehow carries no total. `??`,
+    // not a truthiness check: a 100%-off promo checkout has amount_total 0, and
+    // `0 ? … : PRO_PRICE` recorded those free codes as €59 sales.
+    const amountTotal = (session.amount_total ?? PRO_PRICE * 100) / 100;
     const currency = session.currency?.toUpperCase() || 'EUR';
 
     // Flavor threaded from create-checkout via Stripe session metadata.
@@ -613,6 +618,7 @@ serve(async (req) => {
         stripe_session_id: session.id,
         access_code_id: codeData.id,
         stripe_payment_intent_id: stripePaymentIntentId,
+        promo_code: promoCode,
       });
 
     if (purchaseError) {
@@ -628,13 +634,20 @@ serve(async (req) => {
           .eq("stripe_session_id", session.id)
           .maybeSingle();
         const { data: winnerCode } = winnerPurchase?.access_code_id
-          ? await supabase.from("access_codes").select("code").eq("id", winnerPurchase.access_code_id).maybeSingle()
+          ? await supabase
+              .from("access_codes")
+              .select("code, price_paid, currency")
+              .eq("id", winnerPurchase.access_code_id)
+              .maybeSingle()
           : { data: null };
 
         return new Response(
           JSON.stringify({
             success: true,
             accessCode: winnerCode?.code ?? null,
+            amountPaid: winnerCode?.price_paid ?? null,
+            currency: winnerCode?.currency ?? null,
+            stripeSessionId: session.id,
             alreadyProcessed: true,
             message: "Payment already processed",
           }),
@@ -673,7 +686,7 @@ serve(async (req) => {
               referrer_user_id: referrerUserId,
               invitee_email: customerEmail,
               stripe_session_id: session.id,
-              promotion_code_used: referralPromoCode,
+              promotion_code_used: promoCode,
               amount_paid: amountTotal,
               currency: currency,
             })
@@ -757,6 +770,11 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         accessCode: accessCode,
+        // What was actually charged, so the Google Ads conversion reports the
+        // real value and never fires for a free (100%-off) checkout.
+        amountPaid: amountTotal,
+        currency: currency,
+        stripeSessionId: session.id,
         purchaseData: {
           email: customerEmail,
           firstName: firstName,
