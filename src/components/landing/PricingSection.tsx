@@ -60,7 +60,7 @@ const PricingSection: React.FC = () => {
 
           {/* Price panel */}
           <div
-            className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center items-center text-center"
+            className="lg:col-span-5 p-10 md:p-14 flex flex-col justify-center items-center text-center text-[#122E3B]"
             style={{ background: '#F4ECDA', borderLeft: '1px solid rgba(201,182,144,0.6)' }}
           >
             <h2
@@ -87,8 +87,7 @@ const PricingSection: React.FC = () => {
 
             <button
               onClick={() => { trackCtaClick('pricing'); navigate('/payment'); }}
-              className="lp-btn-primary w-full justify-center"
-              style={{ fontSize: 18, padding: '18px 28px' }}
+              className="lp-btn-primary"
             >
               {t('pricing.cta')}
               <ArrowRight size={18} strokeWidth={2.4} />

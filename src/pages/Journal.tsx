@@ -83,7 +83,6 @@ const SubscribeForm: React.FC = () => {
         type="submit"
         disabled={submitting}
         className="lp-btn-primary disabled:opacity-70"
-        style={{ padding: '12px 22px', fontSize: 14 }}
       >
         {submitting ? 'Sending…' : 'Subscribe'}
       </button>

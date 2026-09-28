@@ -152,7 +152,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
               </a>
             )}
             <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
-            <button onClick={getStarted} className="lp-btn-primary" style={{ padding: '10px 22px', fontSize: 13 }}>
+            <button onClick={getStarted} className="lp-btn-primary lp-btn-sm text-white">
               {user ? t('nav.goToDashboard') : t('nav.getStarted')}
             </button>
           </div>
@@ -209,8 +209,8 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
               </a>
             )}
           </nav>
-          <div className="mt-auto pt-8 border-t border-white/10">
-            <button onClick={getStarted} className="lp-btn-primary w-full justify-center">
+          <div className="mt-auto pt-8 border-t border-white/10 flex flex-col items-center">
+            <button onClick={getStarted} className="lp-btn-primary text-white">
               {user ? t('nav.goToDashboard') : t('nav.getStarted')}
               <ArrowRight size={18} strokeWidth={2.4} />
             </button>

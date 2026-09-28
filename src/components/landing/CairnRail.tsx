@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import CairnProgress from '@/components/survey/CairnProgress';
 
 /**
@@ -17,16 +16,10 @@ import CairnProgress from '@/components/survey/CairnProgress';
  * heading already says where you are.
  */
 
-/** Six pieces for six sections: five stones, then the capstone. Labels reuse
- *  each section's eyebrow so the rail needs no copy of its own. */
-const STEPS = [
-  { id: 'why-cairnly', labelKey: 'pillars.eyebrow' },
-  { id: 'is-it-for-you', labelKey: 'whoFor.eyebrow' },
-  { id: 'methodology', labelKey: 'methodology.eyebrow' },
-  { id: 'comparison', labelKey: 'comparison.eyebrow' },
-  { id: 'pricing', labelKey: 'pricing.eyebrow' },
-  { id: 'about', labelKey: 'whyBuilt.eyebrow' },
-] as const;
+/** Six pieces for six sections: five stones, then the capstone. Just the
+ *  stones, no label: the section eyebrow that sat above the cairn was dropped
+ *  on 2026-09-28 because each section already names itself. */
+const SECTION_IDS = ['why-cairnly', 'is-it-for-you', 'methodology', 'comparison', 'pricing', 'about'] as const;
 
 const STONES = 5;
 
@@ -40,7 +33,6 @@ function isDarkBackground(color: string): boolean {
 }
 
 const CairnRail: React.FC = () => {
-  const { t } = useTranslation('landing');
   const [placed, setPlaced] = useState(0);
   const [dark, setDark] = useState(false);
   const [overPage, setOverPage] = useState(false);
@@ -53,7 +45,7 @@ const CairnRail: React.FC = () => {
       // scrolled past a line ~42% down the viewport.
       const line = window.innerHeight * 0.42;
       let count = 0;
-      STEPS.forEach(({ id }, i) => {
+      SECTION_IDS.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top <= line) count = i + 1;
       });
@@ -83,7 +75,6 @@ const CairnRail: React.FC = () => {
   }, []);
 
   const crowned = placed > STONES;
-  const label = placed > 0 ? t(STEPS[placed - 1].labelKey) : '';
 
   return (
     <aside
@@ -91,9 +82,6 @@ const CairnRail: React.FC = () => {
       className="lp-cairn-float"
       style={{ opacity: placed > 0 && overPage ? 1 : 0 }}
     >
-      <div className="lp-cairn-rail__label mb-4" style={{ color: dark ? '#E6C36A' : '#1F8282' }}>
-        {label}
-      </div>
       {/* Remount per count (key) so the newest stone, or the capstone, drops
           in once, exactly as the old step rail did. */}
       <CairnProgress

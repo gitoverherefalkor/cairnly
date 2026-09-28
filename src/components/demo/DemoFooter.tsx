@@ -67,7 +67,10 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
         {t('footer.body', { name: firstName })}
       </p>
 
-      <div className="mt-7 grid gap-4 sm:grid-cols-2">
+      {/* Ink colour here: the stone buttons take their outline and label from
+          the surrounding text colour, and the demo page around this cream card
+          is light-on-dark. */}
+      <div className="mt-7 grid gap-4 sm:grid-cols-2 text-[#122E3B]">
         <div>
           {/* Customers get her plain report; partners get the Dutch report as
               the white-label template ([partnernaam], no logo): the partner
@@ -76,7 +79,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
             href={partner ? DEMO_PARTNER_TEMPLATE_PDF_PATH : demoPdfPath(personaId, language)}
             download
             onClick={() => trackCtaClick(partner ? 'demo_pdf_partner_template' : 'demo_pdf')}
-            className="lp-btn-primary !text-[15px] !py-3 !px-6"
+            className="lp-btn-primary"
           >
             {partner ? t('footer.pdfPartner') : t('footer.pdf')}
             <Download size={17} strokeWidth={2.4} />
@@ -92,7 +95,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCtaClick('demo_partner_call')}
-              className="lp-btn-primary lp-btn-gold !text-[15px] !py-3 !px-6"
+              className="lp-btn-primary lp-btn-gold"
             >
               {t('footer.ctaPartner')}
               <ArrowRight size={17} strokeWidth={2.4} />
@@ -101,7 +104,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
             <Link
               to="/payment"
               onClick={() => trackCtaClick('demo_start')}
-              className="lp-btn-primary lp-btn-gold !text-[15px] !py-3 !px-6"
+              className="lp-btn-primary lp-btn-gold"
             >
               {t('footer.ctaCustomer')}
               <ArrowRight size={17} strokeWidth={2.4} />

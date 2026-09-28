@@ -6,8 +6,8 @@
   "hero": {
     "title": "Your candidate starts with direction, not a blank page",
     "body": "Cairnly is an online career assessment that turns 25 to 40 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
-    "sampleCta": "See a sample report (2 minutes)",
-    "demoCta": "See a real coaching session",
+    "sampleCta": "See a sample report",
+    "demoCta": "See a coaching session",
     "stageEyebrow": "The session on screen",
     "pillsLabel": "Every suggested role, rated:"
   },
@@ -105,7 +105,7 @@
     "backLink": "Back to the partner page.",
     "intro": "This is a complete sample report for a fictional candidate. Everything you see here is what your candidate gets too, with your logo on it.",
     "download": "Download the PDF",
-    "openInTab": "Open the report in a new tab",
+    "openInTab": "Open in a new tab",
     "viewerTitle": "Cairnly sample report"
   },
   "heroDemo": {

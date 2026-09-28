@@ -62,7 +62,7 @@ const NotFoundShell: React.FC = () => (
       <div className="lp-container text-center">
         <div className="lp-eyebrow text-[#D4A024] mb-4">Article not found</div>
         <h1 className="font-heading font-bold text-4xl mb-6">This entry doesn't exist yet.</h1>
-        <Link to="/journal" className="lp-btn-primary inline-flex">
+        <Link to="/journal" className="lp-btn-primary">
           Back to the Journal
           <ArrowRight size={18} strokeWidth={2.4} />
         </Link>
@@ -299,7 +299,7 @@ const JournalArticle: React.FC = () => {
             roles you could go land. So one of those 90,000 hours, at least, gets spent right.
           </p>
           <div className="mt-10">
-            <Link to="/payment" className="lp-btn-primary inline-flex" style={{ fontSize: 17 }}>
+            <Link to="/payment" className="lp-btn-primary">
               Take the assessment
               <ArrowRight size={18} strokeWidth={2.4} />
             </Link>

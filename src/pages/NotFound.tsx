@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
+import '../components/landing/landing.css';
 
 // Big plain "404" in the Poppins display weight used elsewhere on the site.
 const FourOhFour = () => (
@@ -102,14 +103,13 @@ const NotFound = () => {
         <div className="flex flex-wrap gap-3 mt-8 justify-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-atlas-teal text-white font-bold text-[14px] px-[22px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)] hover:bg-atlas-teal/90 transition-colors"
+            className="lp-btn-primary"
           >
             Back to homepage <ArrowRight className="h-[15px] w-[15px]" />
           </Link>
           <Link
             to="/journal"
-            className="inline-flex items-center gap-2 rounded-full text-white font-semibold text-[14px] px-5 py-[13px] border border-white/20 hover:bg-white/10 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
+            className="lp-btn-primary lp-btn-ghost"
           >
             Read the journal
           </Link>

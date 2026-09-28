@@ -262,7 +262,6 @@ const IntakeChatPanel: React.FC = () => {
                     type="button"
                     onClick={() => { trackCtaClick('intake_checkout'); navigate('/payment'); }}
                     className="lp-btn-primary"
-                    style={{ fontSize: 15, padding: '13px 24px' }}
                   >
                     {t('intake.ctaCheckout')}
                     <ArrowRight size={16} strokeWidth={2.4} />

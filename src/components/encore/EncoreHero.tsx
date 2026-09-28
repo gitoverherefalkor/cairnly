@@ -58,7 +58,7 @@ const EncoreHero: React.FC = () => {
 
           <Reveal as="div" className="mt-10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <button onClick={() => { trackCtaClick('hero'); getStarted(); }} className="lp-btn-primary" style={{ fontSize: 18, padding: '18px 32px' }}>
+              <button onClick={() => { trackCtaClick('hero'); getStarted(); }} className="lp-btn-primary">
                 {t('hero.ctaPrimary')}
                 <ArrowRight size={19} strokeWidth={2.4} />
               </button>

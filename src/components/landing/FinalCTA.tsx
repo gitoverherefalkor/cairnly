@@ -30,7 +30,7 @@ const FinalCTA: React.FC = () => {
           <span className="lp-text-gold-grad">{t('finalCTA.titleB')} {t('finalCTA.titleHighlight')}</span>
         </h2>
         <div className="mt-12 inline-flex flex-col items-center gap-5">
-          <button onClick={() => { trackCtaClick('footer'); getStarted(); }} className="lp-btn-primary" style={{ fontSize: 18, padding: '18px 30px' }}>
+          <button onClick={() => { trackCtaClick('footer'); getStarted(); }} className="lp-btn-primary">
             {t('finalCTA.cta')}
             <ArrowRight size={18} strokeWidth={2.4} />
           </button>
