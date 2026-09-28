@@ -118,7 +118,7 @@ serve(async (req) => {
         supabase
           .from('outreach_prospects')
           .select(
-            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, reply_dismissed_at, subject_variant, niet_mailen_op, email_ongeldig_op, updated_at',
+            'slug, naam, tier, categorie, contactpersoon, plaats, campaign, to_email, status, notities, openingshaak, verzonden_op, partner_slug, followup_requested_at, followup_draft_id, reply_dismissed_at, subject_variant, niet_mailen_op, email_ongeldig_op, updated_at',
           )
           .order('naam'),
         supabase.from('outreach_prospect_stats').select('*'),
@@ -340,6 +340,7 @@ serve(async (req) => {
           ...c,
           naam: (p?.naam as string | null) ?? null,
           tier: (p?.tier as string | null) ?? null,
+          openingshaak: (p?.openingshaak as string | null) ?? null,
           queue: q ? { id: q.id, status: q.status, niet_voor: q.niet_voor, direct: q.direct } : null,
           answers: c.answers_mail_id ? answered.get(c.answers_mail_id as string) ?? null : null,
         };

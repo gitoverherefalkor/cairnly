@@ -452,6 +452,9 @@ function ProspectRow({
           ) : null}
           <span className="text-sm text-white/[0.92]">{p.naam ?? p.slug}</span>
         </div>
+        {p.openingshaak && (
+          <p className="mt-0.5 max-w-[22rem] text-[11px] leading-snug text-white/55">{p.openingshaak}</p>
+        )}
         <div className="text-[11px] text-white/50 font-mono">{p.slug}</div>
       </td>
       <td className="px-3 py-2.5">

@@ -356,6 +356,9 @@ export default function ConceptCard({
           {saving === 'saving' ? 'Saving…' : saving === 'saved' ? 'Saved' : saving === 'error' ? 'Not saved' : ''}
         </span>
       </div>
+      {concept.openingshaak && (
+        <p className="mt-1 max-w-[40rem] text-[11px] leading-snug text-white/55">{concept.openingshaak}</p>
+      )}
 
       {concept.beoordeling && concept.beoordeling.verdict !== 'onbekend' && (
         <div

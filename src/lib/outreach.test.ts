@@ -25,6 +25,7 @@ const base: OutreachProspect = {
   to_email: null,
   status: 'nog_niet_benaderd',
   notities: null,
+  openingshaak: null,
   updated_at: '2026-09-09T10:00:00Z',
   verzonden_op: null,
   kliks_totaal: 0,
@@ -209,6 +210,18 @@ describe('followUp', () => {
     const due = followUp(chased, new Date(at('2026-09-23')));
     expect(due?.step).toBe(2);
     expect(due?.due).toBe(true);
+  });
+
+  it('gives tier C the first chase only', () => {
+    const chasedC = make({
+      status: 'opvolging_1',
+      tier: 'C',
+      mails: [outMail(at('2026-09-15')), outMail(at('2026-09-09'))],
+      verzonden_op: at('2026-09-09'),
+    });
+    expect(followUp(make({ ...sentWed, tier: 'C' }), new Date(at('2026-09-15')))?.step).toBe(1);
+    expect(followUp(chasedC, new Date(at('2026-09-30')))).toBeNull();
+    expect(followUp({ ...chasedC, tier: 'B' }, new Date(at('2026-09-30')))?.step).toBe(2);
   });
 
   it('stays quiet when they wrote last, when both chases are done, and when the deal moved on', () => {

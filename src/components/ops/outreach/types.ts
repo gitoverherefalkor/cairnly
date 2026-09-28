@@ -9,6 +9,8 @@ export interface ConceptRow {
   slug: string;
   naam: string | null;
   tier: string | null;
+  /** The agency's one-line research note, joined from outreach_prospects. */
+  openingshaak?: string | null;
   soort: ConceptSoort;
   step: number | null;
   status: ConceptStatus;

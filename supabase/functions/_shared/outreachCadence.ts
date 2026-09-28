@@ -5,12 +5,22 @@
 //
 // Cadence (Sjoerd, 2026-09-14): a chase 4 working days after the first mail,
 // the last one 6 working days after that, then stop. A parked reply gets one
-// check-in 10 working days after it was parked.
+// check-in 10 working days after it was parked. Tier C gets the first chase
+// only (Sjoerd, 2026-09-28).
 
 import { CHECK_IN_CLOSED, CHECK_IN_WORKING_DAYS } from './outreach.ts';
 
 export const FOLLOW_UP_1_WORKING_DAYS = 4;
 export const FOLLOW_UP_2_WORKING_DAYS = 6;
+
+/**
+ * How many chases an agency gets: tier C one, everyone else two. A third touch
+ * on a weak-fit agency costs more goodwill than it returns. Ported from
+ * OutsideInput's chasePolicy (b9723fd), without its insurer exception.
+ */
+export function maxChases(tier: string | null): 1 | 2 {
+  return tier === 'C' ? 1 : 2;
+}
 
 const DAY_MS = 86_400_000;
 
@@ -43,6 +53,8 @@ export function addWorkingDays(stamp: number, days: number): number {
 
 export interface CadenceInput {
   status: string;
+  /** A, B or C; decides how many chases (see maxChases). */
+  tier: string | null;
   /** When we last mailed them (any outbound), or null. */
   lastOutAt: string | null;
   /** Fallback anchor when no outbound mail is logged. */
@@ -62,8 +74,8 @@ export interface NextFollowUp {
 
 /**
  * The next follow-up, or null when chasing is not the right move: they wrote
- * last and it is not parked (answer them first), both chases went out, or the
- * conversation moved on.
+ * last and it is not parked (answer them first), every chase their tier gets
+ * went out, or the conversation moved on.
  */
 export function nextFollowUp(p: CadenceInput): NextFollowUp | null {
   if (p.parkedAt) {
@@ -73,7 +85,7 @@ export function nextFollowUp(p: CadenceInput): NextFollowUp | null {
   if (p.theyWroteLast) return null;
 
   const step = p.status === 'verzonden' ? 1 : p.status === 'opvolging_1' ? 2 : null;
-  if (!step) return null;
+  if (!step || step > maxChases(p.tier)) return null;
   const anchor = p.lastOutAt ?? p.verzondenOp;
   if (!anchor) return null;
   const wait = step === 1 ? FOLLOW_UP_1_WORKING_DAYS : FOLLOW_UP_2_WORKING_DAYS;

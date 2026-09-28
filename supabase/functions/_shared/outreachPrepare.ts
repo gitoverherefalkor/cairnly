@@ -242,6 +242,7 @@ export async function runPrepare(
     const lastOut = mails.find((m) => m.direction === 'out') ?? null;
     const fu = nextFollowUp({
       status: p.status,
+      tier: p.tier,
       lastOutAt: lastOut?.sent_at ?? null,
       verzondenOp: p.verzonden_op,
       theyWroteLast,

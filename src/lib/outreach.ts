@@ -83,6 +83,11 @@ export interface OutreachProspect {
   to_email: string | null;
   status: OutreachStatus;
   notities: string | null;
+  /**
+   * One line on what the agency does, from the research before the first mail.
+   * Shown under the name so a concept can be judged without opening their site.
+   */
+  openingshaak: string | null;
   updated_at: string;
   /** When the mail actually went out. Null for anything not sent yet. */
   verzonden_op: string | null;
@@ -321,15 +326,23 @@ export interface FollowUp {
 }
 
 /**
+ * How many chases an agency gets: tier C one, everyone else two (Sjoerd,
+ * 2026-09-28). Mirrors maxChases() in supabase/functions/_shared/outreachCadence.ts.
+ */
+export function maxChases(tier: OutreachProspect['tier']): 1 | 2 {
+  return tier === 'C' ? 1 : 2;
+}
+
+/**
  * The next follow-up for an agency, or null when chasing is not the right move:
- * they wrote last (answer them first), they already had both chases, or the
- * conversation moved on (call booked, declined, pilot running).
+ * they wrote last (answer them first), they already had every chase their tier
+ * gets, or the conversation moved on (call booked, declined, pilot running).
  *
  * The clock runs from the last mail WE sent, not from the status change, so a
  * chase that went out today does not immediately look overdue again.
  */
 export function followUp(
-  p: Pick<OutreachProspect, 'status' | 'needs_reply' | 'verzonden_op' | 'mails' | 'reply_dismissed' | 'reply_dismissed_at'>,
+  p: Pick<OutreachProspect, 'status' | 'tier' | 'needs_reply' | 'verzonden_op' | 'mails' | 'reply_dismissed' | 'reply_dismissed_at'>,
   now: Date = new Date(),
 ): FollowUp | null {
   if (p.needs_reply) return null;
@@ -352,7 +365,7 @@ export function followUp(
 
   const step: 1 | 2 | null =
     p.status === 'verzonden' ? 1 : p.status === 'opvolging_1' ? 2 : null;
-  if (!step) return null;
+  if (!step || step > maxChases(p.tier)) return null;
 
   const lastOut = p.mails.find((m) => m.direction === 'out');
   const anchor = lastOut?.sent_at ?? p.verzonden_op;

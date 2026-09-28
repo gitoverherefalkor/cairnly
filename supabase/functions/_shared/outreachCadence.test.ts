@@ -2,7 +2,7 @@ import { assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
 import { amsterdamDayStamp, nextActivationNudge, nextFollowUp } from './outreachCadence.ts';
 
 const day = (s: string) => amsterdamDayStamp(`${s}T10:00:00Z`);
-const base = { status: 'verzonden', lastOutAt: null, verzondenOp: null, theyWroteLast: false, parkedAt: null };
+const base = { status: 'verzonden', tier: 'A', lastOutAt: null, verzondenOp: null, theyWroteLast: false, parkedAt: null };
 
 Deno.test('chase 1 is four working days after the first mail, skipping the weekend', () => {
   // Wednesday 16 Sept → Tuesday 22 Sept (Thu, Fri, Mon, Tue).
@@ -14,6 +14,19 @@ Deno.test('chase 2 is six working days after chase 1', () => {
   // Monday 21 Sept → Tuesday 29 Sept.
   const fu = nextFollowUp({ ...base, status: 'opvolging_1', lastOutAt: '2026-09-21T08:00:00Z' });
   assertEquals(fu, { kind: 'chase', step: 2, dueDay: day('2026-09-29') });
+});
+
+Deno.test('tier C gets the first chase only', () => {
+  const fu = nextFollowUp({ ...base, tier: 'C', lastOutAt: '2026-09-16T08:00:00Z' });
+  assertEquals(fu, { kind: 'chase', step: 1, dueDay: day('2026-09-22') });
+  assertEquals(nextFollowUp({ ...base, tier: 'C', status: 'opvolging_1', lastOutAt: '2026-09-21T08:00:00Z' }), null);
+  // No tier is not C: two chases, like A and B.
+  assertEquals(nextFollowUp({ ...base, tier: null, status: 'opvolging_1', lastOutAt: '2026-09-21T08:00:00Z' })?.step, 2);
+});
+
+Deno.test('a parked tier C reply still gets its check-in', () => {
+  const fu = nextFollowUp({ ...base, tier: 'C', status: 'opvolging_1', theyWroteLast: true, parkedAt: '2026-09-23T09:00:00Z' });
+  assertEquals(fu?.kind, 'checkin');
 });
 
 Deno.test('no chase when they wrote last, after both chases, or without an anchor', () => {
