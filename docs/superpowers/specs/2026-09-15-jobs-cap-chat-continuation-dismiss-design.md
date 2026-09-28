@@ -1,6 +1,6 @@
 # Job search free tier, chat continuation, and "Not for me"
 
-Date: 2026-09-15. Status: approved by Sjoerd in chat (answers A–E below), building.
+Date: 2026-09-15. Status: Phases A and B shipped. Phase C revised 2026-09-28 (decisions H–M), not built yet.
 
 Three independent features, built as three phases in the order below. Each
 phase ships on its own; nothing in a later phase is required by an earlier one.
@@ -24,9 +24,11 @@ phase ships on its own; nothing in a later phase is required by an earlier one.
   free, so Recent Searches chips never cost a credit.
 - **C.** Chat continuation, 50 messages, not a transcript download. Roughly
   €1.10 per user at Sonnet 5 rates, and only if someone actually sends all 50.
+  *Superseded 2026-09-28 by H (monthly top-up of 40).*
 - **D.** "Not for me" asks why with optional, skippable reason chips.
 - **E.** Phase C ships behind a per-user gate that only Sjoerd can open, so
   selected testers use it before anyone else sees it.
+  *Superseded 2026-09-28 by I (open to all, global kill switch).*
 - **F.** Build order: Phase A, then Phase B with its security fixes. Phase C is
   deferred to a separate session.
 - **G.** No Starter or Encore specific work. Those flavors are not live and not
@@ -224,101 +226,161 @@ No real concurrency risk: `useJobSearch` loops careers sequentially.
 
 ---
 
-## Phase C — Chat continuation, 50 messages
+## Phase C — The coach after the report (revised 2026-09-28)
 
-**Deferred to a separate session (decision F).** The design below is recorded
-so that session can pick it up without re-deciding anything. Nothing in Phase A
-or Phase B depends on it.
+**Revised 2026-09-28 (decisions H–M below).** The original 50-message design
+is superseded. Phases A and B shipped; nothing of Phase C existed yet when it
+was revised.
 
-### Tester gate (decision E)
+### Revised decisions (Sjoerd, 2026-09-28)
 
-The gate must live on a table users cannot write. It cannot be a column on
-`profiles`, for exactly the reason in finding 2 above: a user would simply
-grant it to themselves.
+- **H.** Monthly top-up instead of a lifetime 50. Start generous: **40
+  messages per report per calendar month**, no end date. Tighten later with
+  data.
+- **I.** No hand-picked tester gate. Open to every user with a completed
+  chat, behind one global kill switch only Sjoerd can flip. Replaces
+  decision E. The early goal is feedback and volume, not cost.
+- **J.** The coach behaves like a career advisor: conversation, agreed next
+  steps, a check-in later. The check-in is the reason to come back.
+- **K.** Entry points live on the dashboard (career cards, Move pill, "Not
+  for me", later job results and custom resume), each opening the coach with
+  a question already sent. A "continue" box at the bottom of /chat is
+  secondary.
+- **L.** WF5 prompt caching turned on (node v1.6, 5 min TTL). Done
+  2026-09-28, version `48a94f4b`. WF5C is built with caching from the start.
+- **M.** Existing users get it too. Anyone with a completed chat sees the
+  entry points.
 
-New table `beta_access`:
+### Why the original design needed changes
 
-| column | type | note |
-|---|---|---|
-| `user_id` | uuid → auth.users | |
-| `feature` | text | e.g. `chat_continuation` |
-| `granted_at` | timestamptz | |
-| `note` | text null | why, for Sjoerd's own memory |
+1. **Memory.** WF5 memory is a 10-message window, so "same memory keyed by
+   report_id" only remembers the last 10 messages (usually the wrap-up). On
+   top of that, the retention purge deletes `n8n_chat_histories` 30 days
+   after `chat_completed_at`, so for most existing users the raw
+   conversation is already gone. The real memory is the **final report**:
+   WF6 has already written every piece of chat feedback into
+   `report_sections`. WF5C gets a snapshot tool (below).
+2. **Prompt.** Cloning the WF5 prompt as-is tells the coach to call WF6, to
+   handle section buttons and to promise "this will be reflected in your
+   report". Without the WF6 tool it would make promises it cannot keep. The
+   WF5C prompt is a rewrite: roughly 11k of WF5's 25k characters (free-text
+   advance, quick replies, replacements, WF6 rules, dream-jobs wrap-up) do
+   not apply.
 
-Primary key `(user_id, feature)`. RLS: authenticated may **select their own
-rows only**. No insert, update or delete policy for authenticated at all, so
-the only way in is the service role. Sjoerd grants access with a one-line SQL
-insert (documented in the spec's runbook section below).
+### n8n: WF5C "Cairnly Coach Continued"
 
-Enforced in two places: the frontend hides the entry point, and `chat-proxy`
-refuses `mode: 'continue'` for a user with no row. The server check is the real
-one; hiding the button is only cosmetics.
+New workflow, created **inactive**, copy saved to `n8n_wfs_cairnly/`. Node
+plan is shown in chat before the API call.
 
-When Phase C leaves beta, the gate becomes "row present **or** feature is
-generally available", flipped by a constant in one place.
-
-### n8n
-
-New workflow **WF5C "Cairnly Coach Continued"**, a clone of WF5
-(`h7ie9zN080IM2g7N`) with:
-
-- the `Call 'WF6 - Feedback processing NL/EN'` tool **removed**. That removal,
-  not a prompt instruction, is what guarantees the dashboard never changes.
-- the agent prompt reframed: the report is fixed, the coach cannot edit it, its
-  job is helping the user think, not rewriting sections
-- the same Postgres chat memory keyed by `report_id`, so the follow-up thread
-  remembers the first conversation at no extra cost
-- the same `get_user_profile` tool (reads `init_summary` only)
-- the same banned-phrase and reply-length rules already applied to WF5
-
-A new workflow rather than a mode flag on WF5, because WF5 is live and a clone
-carries zero risk to it. Under the n8n policy in CLAUDE.md this is allowed
-without per-workflow approval, but the node plan is still shown in chat before
-the API call, the workflow is created **inactive** for Sjoerd to review and
-activate himself, and a copy is saved to `n8n_wfs_cairnly/`.
+- Chat trigger: same shape as WF5 (basic auth, `metadata` carries
+  `report_id`, `first_name`, `preferred_language`, `country`, `entry_point`,
+  `entry_context`).
+- Anthropic Chat Model: Sonnet 5, node v1.6, **prompt caching 5 min**.
+- Postgres Chat Memory: key `report_id`, window 10. Continues the old thread
+  where it still exists; empty for purged users, which the snapshot covers.
+- Tools:
+  - `get_report_snapshot` (new, read-only): exec summary, top 3 + runner-ups
+    with Move / feasibility / AI impact, dismissed careers with reasons, open
+    next steps. One Supabase RPC or edge function returning a compact JSON,
+    so the prompt stays small.
+  - `get_user_profile`: unchanged from WF5 (`init_summary`).
+  - `save_next_steps` (new, write): 1–3 steps plus a check-in date, into
+    `coach_next_steps`. Writes **never** touch `report_sections`.
+  - SerpAPI: carried over only if a supported replacement node exists (the
+    current `toolSerpApi` node type is retired).
+  - **No WF6 tool.** That removal is what guarantees the report and
+    dashboard never change.
+- Prompt: advisor framing. The report is fixed; the job is thinking it
+  through, making decisions, planning and preparing (interviews, networking
+  conversations, applications). Shared rules copied from WF5: tone, banned
+  words, one idea per reply, stay grounded, output language, security.
+  Static text first, per-user session data last.
+- **Maintenance note:** tone, banned words and language rules now live in
+  two prompts. Any change to those sections in WF5 is copied to WF5C.
 
 New edge secret `N8N_CHAT_CONTINUE_WEBHOOK_URL`.
 
-### Budget
+### Data
 
-Enforced in `chat-proxy`, which already has auth, IP rate limiting and the
-shared secret. A `mode: 'continue'` branch:
-
-1. reject if the user has no `beta_access` row for `chat_continuation`
-2. read `chat_continuation_usage` for this report; reject at 50
-3. forward to the continuation webhook
-4. increment the counter
-
-New table `chat_continuation_usage`: `report_id` pk, `user_id`,
+`coach_usage`: `(report_id, month)` primary key, `user_id`,
 `messages_used`, `first_message_at`, `last_message_at`. Service-role write
-only; the user reads their own row for the counter display.
+only; the user reads their own rows for the counter.
 
-The counter is authoritative for spend. The continuation thread also gets a
-fresh `session_id`, so its messages stay distinguishable inside `chat_messages`.
+`coach_next_steps`: `id`, `user_id`, `report_id`, `step` text,
+`career_section_id` null, `check_in_at` date, `status`
+(`open` | `done` | `dropped`), `created_at`, `updated_at`. Owner may select
+and update `status`; inserts are service role (from WF5C). Added to both
+delete-user-data RPCs.
+
+`app_flags` (or one row in an existing config table): `coach_enabled`
+boolean, service-role write only. The kill switch.
+
+**Retention (must fix with this phase):** the nightly purge marks a user
+`data_purged_at` and never rescans them until a newer chat completes. Coach
+messages written after that would be kept forever, which breaks the 30-day
+promise. The purge gets a second clock: coach transcripts are deleted 30
+days after `coach_usage.last_message_at`. `coach_next_steps` follow the
+account (they are user-visible data, like the report).
+
+### chat-proxy
+
+A `mode: 'continue'` branch, reusing the existing auth, IP rate limit and
+shared secret:
+
+1. reject if `coach_enabled` is false
+2. reject if the report has no completed chat or does not belong to the user
+3. read this month's `coach_usage`; reject at 40 with `{ error:
+   'coach_limit_reached', used, limit, resets_at }`
+4. forward to the WF5C webhook
+5. increment the counter (only on a successful reply)
 
 ### Frontend
 
-- After wrap-up, the dead chat input becomes a "Continue the conversation"
-  entry, shown only to gated testers.
-- The follow-up thread lives at `/chat?mode=continue` with its own session id,
-  keeps the report sidebar, and shows "42 of 50 left".
-- No WrapUpCard in continuation mode, no WF6 call, so the dashboard is
-  untouched by construction.
-- At zero, a clear end state pointing at the existing transcript export under
-  Profile → Export my data.
+- Dashboard "Ask the coach" buttons: career cards (top 3 and grouped rows),
+  the Move pill (sends the existing `buildFeasibilityQuestion`), after a "Not
+  for me" dismissal ("Want to talk through why?"). Later: job results,
+  custom resume.
+- "Your next steps" card on the dashboard: open steps, check-in date, mark
+  done / drop.
+- `/chat?mode=continue`: own session id, report sidebar, "32 of 40 left
+  this month", no WrapUpCard, no quick-reply advance buttons. At zero: when
+  it tops up, plus the transcript export.
+- After wrap-up, the disabled chat input becomes a "Keep talking to your
+  coach" entry.
+- Entry copy sets expectations: thinking it through and planning, not
+  editing the report.
 
-### Copy
+### Check-ins
 
-The entry copy has to set the expectation up front: this is thinking it
-through, not editing the report. A follow-up chat that cannot change anything
-reads as a nerfed version unless it is framed as coaching from the start.
+- On `check_in_at`, an email: "How did [step] go?", linking to
+  `/chat?mode=continue&checkin=<step id>`. The coach opens from that step.
+- Respects `profiles.email_reminders_enabled`. Reuse the existing reminder
+  email path if it fits (to verify when building).
+- Monthly top-up email ("Your coach messages for October are ready") only
+  for users who used the coach before. Optional, decide after the first
+  month.
+
+### Measurement
+
+Analytics events per entry point, messages per user per month, thumbs
+up/down on coach replies (existing), check-in email to conversation rate,
+next steps marked done. A small read-only panel on /ops (English).
 
 ### Cost
 
-WF5 runs Claude Sonnet 5 ($2/M in, $10/M out) with a 10-message memory window,
-a ~6.5k-token system prompt, and a tool that fetches only the compact
-`init_summary` rather than the whole report. That is roughly €0.02 a message,
-so 50 messages is about €1.10, and only for a user who actually sends all 50.
+Estimates from character counts, not measured. Rewritten prompt ~3.5k
+tokens plus tools, cached at 10% after the first message; 10-message memory
+uncached; ~300 output tokens. About €0.01 per message, so 40 messages is
+about €0.40 per user per month worst case. Verify with cache-read numbers in
+the Anthropic console after launch.
+
+### Build order
+
+1. WF5 caching. **Done 2026-09-28.**
+2. Coach core: WF5C, `coach_usage`, kill switch, chat-proxy branch,
+   `/chat?mode=continue`, dashboard entry points, retention fix.
+3. Advisor loop: `save_next_steps`, next steps card, check-in emails.
+4. /ops panel.
 
 ---
 
@@ -331,29 +393,27 @@ so 50 messages is about €1.10, and only for a user who actually sends all 50.
 - **Phase B**: edge-function tests for each branch of the gate (cached,
   unlimited, under cap, at cap). An explicit test that an unauthenticated call
   is rejected, and one that a free-tier user cannot exceed 4 charged searches.
-- **Phase C**: the tester gate is the test plan. Grant access to one account,
-  run a full continuation thread to exhaustion, and confirm `report_sections`
-  and the dashboard are byte-identical before and after.
+- **Phase C**: with the kill switch on, run a coach thread on Sjoerd's own
+  account to the monthly limit and confirm `report_sections` and the dashboard
+  are byte-identical before and after. Edge-function tests for each chat-proxy
+  branch (switch off, not owner, under limit, at limit, month rollover). Check
+  a purged (older than 30 days) report still gets a grounded first reply from
+  the snapshot tool.
 - `tsc --noEmit` checks zero files in this repo, so verification is
   `npm run build` plus vitest plus the browser.
 
 ## Runbook
 
-Grant a tester access to the continuation chat:
+Turn the coach on or off for everyone (service role / SQL editor):
 
 ```sql
-insert into public.beta_access (user_id, feature, note)
-select id, 'chat_continuation', 'first beta round'
-from auth.users where email = 'someone@example.com';
+update public.app_flags set value = true  where key = 'coach_enabled';
+update public.app_flags set value = false where key = 'coach_enabled';
 ```
 
-Revoke:
-
-```sql
-delete from public.beta_access
-where feature = 'chat_continuation'
-  and user_id = (select id from auth.users where email = 'someone@example.com');
-```
+Roll back WF5 prompt caching: restore
+`n8n_wfs_cairnly/backups/WF5 - Cairnly Coach_LIVE_BACKUP_pre_prompt_caching_20260928.json`
+or publish the previous version (`f4e06f57`) from the n8n version history.
 
 ## Sequencing note
 
