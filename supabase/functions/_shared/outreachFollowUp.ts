@@ -222,7 +222,7 @@ Je krijgt een SKELET dat Sjoerd heeft goedgekeurd. Dat skelet is de mail. Jouw w
 
 HUISREGELS: Nederlands, je-vorm, warm maar zakelijk. Maximaal 120 woorden, het citaat van de loopbaancoach niet meegeteld. Stel precies één vraag aan de lezer (een vraagteken in een link telt niet mee). Geen opsommingen, geen onderwerpregel, geen bijlagen. Geen gedachtestreepjes (—) en geen constructies als "niet X, maar Y". Eindig met "Groet," en op de volgende regel "Sjoerd", zonder verdere handtekening.
 
-FEITEN die je mag gebruiken als de mail erom vraagt: Cairnly is 25 tot 40 minuten invullen en levert een top 3 concrete beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Voor spoor 2 is het voorwerk: de kandidaat komt met richting bij de adviseur binnen in plaats van met een leeg vel. Het rapport draagt het logo van het bureau. Pilot: vijf bureaus, vijf kandidaten per bureau, zes weken, gratis. Werkwijze en prijzen staan op ${PARTNERS_URL}. Een gesprek van 20 minuten plannen kan via ${CALENDLY_URL}.`;
+FEITEN die je mag gebruiken als de mail erom vraagt: Cairnly is 25 tot 40 minuten invullen en levert een top 3 concrete beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Voor spoor 2 is het voorwerk: de kandidaat komt met richting bij de adviseur binnen in plaats van met een leeg vel. Het rapport draagt het logo van het bureau. Pilot: er zijn nog een paar plekken over, vijf kandidaten per bureau, zes weken, gratis. Noem nooit hoeveel bureaus of plekken het zijn. Werkwijze en prijzen staan op ${PARTNERS_URL}. Een gesprek van 20 minuten plannen kan via ${CALENDLY_URL}.`;
 
 export const FOLLOW_UP_TOOL = {
   name: 'write_follow_up',
