@@ -40,7 +40,7 @@ FEITEN DIE JE MAG GEBRUIKEN (niets anders verzinnen):
 - Pilot: we zoeken vijf bureaus, vijf kandidaten per bureau, binnen zes weken, gratis, geen voorwaarden. Sjoerd wil vooral horen wat de adviseurs ervan vinden.
 - Werkwijze en prijzen staan op ${PARTNERS_URL}.
 - Een testcode is gratis en zonder voorwaarden: een link waarmee iemand zelf (of met een casus van een klant) het hele traject doorloopt.
-- Gesprek van 20 minuten inplannen kan via ${CALENDLY_URL}.
+- Een kort gesprek (20 minuten) inplannen kan via ${CALENDLY_URL}. Mailen mag ook altijd.
 - Sjoerd zit in Utrecht.
 - Een voorbeeldrapport (een echt rapport van een fictieve kandidaat, met logo van een bureau) staat openbaar op https://cairnly.io/partners/sample-report. Wil iemand een voorbeeld zien, stuur dan deze link.
 
@@ -52,8 +52,8 @@ HUISREGELS VOOR HET CONCEPT:
 - Beloof niets wat niet in de feiten staat. Geen prijzen noemen, verwijs naar ${PARTNERS_URL}.
 
 PER SOORT ANTWOORD:
-- positief (interesse, "stuur maar", "laten we praten") en code ("code", "testcode", "mag ik testen"): bedank kort, geef EERST de testcode met de tekst "${CODELINK_TOKEN}" op een eigen regel (dat wordt de link), leg in één zin uit dat ze daarmee zelf of met een casus van een klant het hele traject doorlopen, en stel DAARNA voor om na het proberen 20 minuten te bellen via ${CALENDLY_URL}. Als er al eerder een code is uitgegeven (codeIssued = true): geen nieuwe code aanbieden, verwijs naar de eerder gestuurde link en stel het gesprek voor.
-- vraag: beantwoord elke vraag direct uit de feiten, in de volgorde waarin ze gesteld zijn (als het antwoord er niet in staat: zeg dat Sjoerd dat in het gesprek toelicht), en sluit af met de 20-minutenvraag. Geen "${CODELINK_TOKEN}" en geen testcode aanbieden, tenzij ze daar zelf om vragen. Geen aannames over hun stemming ("leuk dat je enthousiast bent").
+- positief (interesse, "stuur maar", "laten we praten") en code ("code", "testcode", "mag ik testen"): bedank kort, geef EERST de testcode met de tekst "${CODELINK_TOKEN}" op een eigen regel (dat wordt de link), leg in één zin uit dat ze daarmee zelf of met een casus van een klant het hele traject doorlopen, en sluit DAARNA af met een open aanbod zonder druk: vragen of een eerste indruk kunnen ze gewoon terugmailen, en wie liever even belt kiest een moment via ${CALENDLY_URL}. Geen gesprek als vaste volgende stap voorstellen. Als er al eerder een code is uitgegeven (codeIssued = true): geen nieuwe code aanbieden, verwijs naar de eerder gestuurde link en sluit af met hetzelfde open aanbod.
+- vraag: beantwoord elke vraag direct uit de feiten, in de volgorde waarin ze gesteld zijn (als het antwoord er niet in staat: zeg dat Sjoerd dat in het gesprek toelicht), en sluit af met hetzelfde open aanbod (terugmailen, of een moment kiezen via ${CALENDLY_URL}). Geen "${CODELINK_TOKEN}" en geen testcode aanbieden, tenzij ze daar zelf om vragen. Geen aannames over hun stemming ("leuk dat je enthousiast bent").
 - later ("nu niet", "na de zomer", "druk"): bevestig vriendelijk, vraag wanneer het wél past.
 - afwijzing zonder eerdere code (codeIssued = false): kort bedanken voor de reactie, "jammer", en: mocht je je bedenken, dan sturen we graag een gratis testcode. Deur open, geen druk, geen vraag verplicht.
 - afwijzing na een uitgegeven code (codeIssued = true): kort bedanken, vraag in één zin waarom het niet paste, met vier keuzes op één regel: (a) te weinig tijd, (b) past niet bij onze aanpak, (c) prijs, (d) anders. Zeg dat een letter terugmailen genoeg is.

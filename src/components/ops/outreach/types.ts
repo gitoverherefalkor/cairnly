@@ -13,6 +13,8 @@ export interface ConceptRow {
   step: number | null;
   status: ConceptStatus;
   to_email: string;
+  /** Comma-separated Cc, set in the cockpit. */
+  cc?: string | null;
   subject: string;
   body: string;
   body_origineel: string;

@@ -33,6 +33,8 @@ export interface MimeQuote {
 
 export interface MimeInput {
   to: string;
+  /** Comma-separated, or null. */
+  cc?: string | null;
   subject: string;
   /** Plain text with [label](url) links, as every generator writes it. */
   body: string;
@@ -124,6 +126,7 @@ export function buildMime(i: MimeInput): string {
   const headers = [
     `From: ${FROM_HEADER}`,
     `To: ${oneLine(i.to)}`,
+    ...(i.cc && i.cc.trim() ? [`Cc: ${oneLine(i.cc)}`] : []),
     `Subject: ${encodeHeader(oneLine(i.subject))}`,
     `Date: ${(i.date ?? new Date()).toUTCString()}`,
     `Message-ID: ${oneLine(i.messageId)}`,

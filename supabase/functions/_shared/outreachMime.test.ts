@@ -90,3 +90,10 @@ Deno.test('message ids are unique and on our domain', () => {
   assert(a !== b);
   assertMatch(a, /^<occ\.[a-z0-9]+\.[a-z0-9]+@cairnly\.io>$/);
 });
+
+Deno.test('a Cc set in the cockpit becomes a Cc header; none means no header', () => {
+  assert(!decode(buildMime(base)).headers.includes('Cc:'));
+  assert(!decode(buildMime({ ...base, cc: '  ' })).headers.includes('Cc:'));
+  const { headers } = decode(buildMime({ ...base, cc: 'aveenstra@stambv.com, x@y.nl' }));
+  assertStringIncludes(headers, 'Cc: aveenstra@stambv.com, x@y.nl');
+});

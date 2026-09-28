@@ -10,7 +10,7 @@
 // have RLS on with zero policies.
 //
 // Actions: list | update | dismiss_reply | send_pause
-//   Control center (2026-09-24): concept_update | concept_schedule |
+//   Control center (2026-09-24): concept_update | concept_recipients | concept_schedule |
 //   concept_schedule_all | concept_send | concept_unschedule | concept_discard |
 //   concept_no_reply | concept_regenerate | prepare_now | auto_toggle |
 //   fix_email | knock | push_subscribe | push_unsubscribe | push_test |
@@ -56,6 +56,7 @@ const MAILS_PER_PROSPECT = 12;
 /** Statuses after which a prepared chase or first mail no longer makes sense. */
 const CLOSING_STATUSES = new Set(['gesprek_gepland', 'gesprek_gevoerd', 'pilot_afgesproken', 'pilot_gestart', 'founding_partner', 'afgewezen', 'geen_fit']);
 const BODY_MAX = 8000;
+const EMAIL_RE = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 /** WF12's webhook, knocked after a Send so "now" means about now. */
 const WF12_WEBHOOK = 'https://falkoratlas.app.n8n.cloud/webhook/d56ec58d-99d7-4c1e-bfd0-e6ffce6b894a';
 // Mirrors the interval in the outreach_prospect_stats view. A non-bot click
@@ -163,7 +164,7 @@ serve(async (req) => {
         supabase
           .from('outreach_concepts')
           .select(
-            'id, slug, soort, step, status, to_email, subject, body, body_origineel, skeleton, variant, basis, thread_id, answers_mail_id, validatie, beoordeling, verouderd_reden, bewerkt_op, goedgekeurd_door, goedgekeurd_op, verzonden_op, created_at, updated_at',
+            'id, slug, soort, step, status, to_email, cc, subject, body, body_origineel, skeleton, variant, basis, thread_id, answers_mail_id, validatie, beoordeling, verouderd_reden, bewerkt_op, goedgekeurd_door, goedgekeurd_op, verzonden_op, created_at, updated_at',
           )
           .or(
             `status.in.(voorstel,ingepland),and(status.eq.verouderd,bewerkt_op.not.is.null),and(status.eq.verzonden,verzonden_op.gte."${startOfTodayAmsterdam()}")`,
@@ -548,6 +549,41 @@ serve(async (req) => {
       const { error } = await supabase.from('outreach_concepts').update(patch).eq('id', conceptId);
       if (error) throw error;
       return ok({ ok: true, validatie }, corsHeaders);
+    }
+
+    // To and Cc, set by hand in the cockpit ("send the code to my colleague").
+    if (action === 'concept_recipients') {
+      const missing = needId();
+      if (missing) return missing;
+      const to = String(body.to_email ?? '').trim().toLowerCase();
+      const ccList = String(body.cc ?? '')
+        .split(/[,;\s]+/)
+        .map((a) => a.trim().toLowerCase())
+        .filter(Boolean);
+      const bad = [to, ...ccList].filter((a) => !EMAIL_RE.test(a));
+      if (!to || bad.length) return errorResponse(`Not an email address: ${bad.join(', ') || '(empty To)'}`, 400, corsHeaders);
+      const cc = [...new Set(ccList.filter((a) => a !== to))].join(', ') || null;
+      const { data: c, error: cErr } = await supabase.from('outreach_concepts').select('status').eq('id', conceptId).maybeSingle();
+      if (cErr) throw cErr;
+      if (!c) return errorResponse('Unknown concept', 404, corsHeaders);
+      if (!['voorstel', 'ingepland', 'verouderd'].includes(c.status as string)) {
+        return errorResponse(`A ${c.status} concept can no longer be changed.`, 409, corsHeaders);
+      }
+      const { data: inFlight } = await supabase
+        .from('outreach_send_queue')
+        .select('id')
+        .eq('concept_id', conceptId)
+        .eq('status', 'sending')
+        .limit(1);
+      if (inFlight?.length) return errorResponse('Too late: this mail is being sent right now.', 409, corsHeaders);
+      const { error } = await supabase
+        .from('outreach_concepts')
+        .update({ to_email: to, cc, updated_at: new Date().toISOString() })
+        .eq('id', conceptId);
+      if (error) throw error;
+      // The queue row carries its own copy of the address; keep it in step.
+      await supabase.from('outreach_send_queue').update({ to_email: to }).eq('concept_id', conceptId).eq('status', 'queued');
+      return ok({ ok: true, to_email: to, cc }, corsHeaders);
     }
 
     // Schedule: the next free slot in its lane (a chase never before its due day).

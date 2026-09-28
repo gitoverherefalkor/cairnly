@@ -49,6 +49,129 @@ const BTN = {
   danger: `${btn} border-red-500/30 text-red-300/90 hover:bg-red-500/10`,
 };
 
+/** Addresses in their mail we could add: not theirs, not ours, not already on the mail. */
+function mentionedAddresses(text: string, exclude: string[]): string[] {
+  const seen = new Set(exclude.map((a) => a.toLowerCase()));
+  const out: string[] = [];
+  for (const m of text.matchAll(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g)) {
+    const a = m[0].toLowerCase().replace(/\.$/, '');
+    if (seen.has(a) || /@(cairnly\.io|bethehitl\.com)$/.test(a)) continue;
+    seen.add(a);
+    out.push(a);
+  }
+  return out;
+}
+
+/**
+ * To and Cc, editable, saved on blur. An address named in their mail ("stuur
+ * de code naar aveenstra@…") is offered as a one-click Cc or To, so what the
+ * card shows is exactly who gets the mail.
+ */
+function Recipients({
+  concept,
+  theirText,
+  editable,
+  onSaved,
+}: {
+  concept: ConceptRow;
+  theirText: string;
+  editable: boolean;
+  onSaved: () => void;
+}) {
+  const [to, setTo] = useState(concept.to_email);
+  const [cc, setCc] = useState(concept.cc ?? '');
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setTo(concept.to_email);
+    setCc(concept.cc ?? '');
+  }, [concept.to_email, concept.cc]);
+
+  const save = async (nextTo: string, nextCc: string) => {
+    if (nextTo.trim() === concept.to_email && nextCc.trim() === (concept.cc ?? '')) return;
+    setSaving(true);
+    try {
+      const res = await callOutreach<{ to_email: string; cc: string | null }>({
+        action: 'concept_recipients',
+        id: concept.id,
+        to_email: nextTo,
+        cc: nextCc,
+      });
+      setTo(res.to_email);
+      setCc(res.cc ?? '');
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Could not save the recipients');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const ccList = cc.split(/[,;\s]+/).filter(Boolean);
+  const suggestions = mentionedAddresses(theirText, [to, ...ccList, concept.answers?.from_email ?? '']);
+  const field =
+    'min-w-0 flex-1 rounded-md border border-white/[0.12] bg-white/[0.03] px-2 py-1 text-xs text-white/90 placeholder:text-white/30 focus:outline-none focus:border-atlas-teal/50 disabled:opacity-70';
+
+  return (
+    <div className="mb-2 space-y-1.5">
+      <div className="grid gap-1.5 sm:grid-cols-2">
+        <label className="flex items-center gap-2 text-[11px] text-white/50">
+          <span className="w-5 shrink-0">To</span>
+          <input
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            onBlur={() => save(to, cc)}
+            disabled={!editable}
+            className={field}
+            aria-label="To"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-[11px] text-white/50">
+          <span className="w-5 shrink-0">Cc</span>
+          <input
+            value={cc}
+            onChange={(e) => setCc(e.target.value)}
+            onBlur={() => save(to, cc)}
+            disabled={!editable}
+            placeholder="none"
+            className={field}
+            aria-label="Cc"
+          />
+        </label>
+      </div>
+      {editable && suggestions.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-amber-300">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <span>Named in their mail:</span>
+          {suggestions.map((a) => (
+            <span key={a} className="inline-flex items-center gap-1">
+              <span className="font-mono">{a}</span>
+              <button
+                onClick={() => save(to, [...ccList, a].join(', '))}
+                disabled={saving}
+                className="rounded border border-amber-500/40 px-1.5 hover:bg-amber-500/10 disabled:opacity-50"
+              >
+                add as Cc
+              </button>
+              <button
+                onClick={() => save(a, [...ccList, to].join(', '))}
+                disabled={saving}
+                className="rounded border border-white/[0.14] px-1.5 text-white/70 hover:bg-white/[0.06] disabled:opacity-50"
+                title={`${a} becomes To, ${to} moves to Cc`}
+              >
+                make To
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="text-[11px] text-white/45">
+        {concept.subject}
+        {saving && ' · saving…'}
+      </div>
+    </div>
+  );
+}
+
 export default function ConceptCard({
   concept,
   mode,
@@ -263,9 +386,7 @@ export default function ConceptCard({
 
       {open && (
         <div className="mt-3">
-          <div className="text-[11px] text-white/50 mb-1.5">
-            To {concept.to_email} · {concept.subject}
-          </div>
+          <Recipients concept={concept} theirText={theirText} editable={editable && countdown === null} onSaved={onChanged} />
 
           {isReply ? (
             <div className="grid gap-3 md:grid-cols-2">

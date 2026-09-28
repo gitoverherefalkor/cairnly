@@ -47,6 +47,7 @@ interface Concept {
   step: number | null;
   status: string;
   to_email: string;
+  cc: string | null;
   subject: string;
   body: string;
   variant: string | null;
@@ -61,7 +62,7 @@ interface Concept {
 }
 
 const CONCEPT_COLUMNS =
-  'id, slug, soort, step, status, to_email, subject, body, variant, basis, thread_id, in_reply_to, references_hdr, answers_mail_id, goedgekeurd_door, bewerkt_op, created_at';
+  'id, slug, soort, step, status, to_email, cc, subject, body, variant, basis, thread_id, in_reply_to, references_hdr, answers_mail_id, goedgekeurd_door, bewerkt_op, created_at';
 
 /**
  * Is the concept still true? Returns the reason it is not, or null. The
@@ -219,6 +220,7 @@ async function next(db: SupabaseClient) {
 
   const raw = buildMime({
     to: c.to_email,
+    cc: c.cc,
     subject: c.subject,
     body: c.body,
     messageId,
