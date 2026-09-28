@@ -7,7 +7,7 @@
     "eyebrow": "Cairnly for employers",
     "title": "Give your people career path clarity. Even if it's not with you.",
     "body": "One assessment and one conversation with an AI career coach, and within an hour someone has ten named roles that fit their skills, personality and goals, each with a match score, salary data and an AI-impact rating. Employees own the result. You pay per head, roll it out with a batch of codes, and never see who took it or what came out.",
-    "trialCta": "Try it yourself first",
+    "trialCta": "Try it yourself",
     "talkCta": "Talk to us",
     "pills": [
       "Clarity within one hour",
@@ -182,7 +182,7 @@
   "trial": {
     "title": "Try it yourself first.",
     "body": "We'll send you a code so you can take the assessment before you decide anything. Most HR leaders who do find it tells them something about their own career, which tends to settle the question.",
-    "cta": "Request a trial code",
+    "cta": "Get a trial code",
     "mailSubject": "Trial code for Cairnly for employers"
   },
   "about": {
