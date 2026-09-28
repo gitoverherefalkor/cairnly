@@ -537,6 +537,16 @@ button.lp-screenshot-slot {
   color: #E9BC4E;
   border-color: #E9BC4E;
 }
+/* On cream (the intake chat's pitch). The base gold is 2.2:1 on cream; this
+   darker gold is ~5:1, so it passes AA and still reads as the price accent. */
+.lp-compare-link--on-cream {
+  color: #8A6410;
+  border-color: rgba(138,100,16,0.4);
+}
+.lp-compare-link--on-cream:hover {
+  color: #122E3B;
+  border-color: #122E3B;
+}
 .lp-compare-link:focus-visible {
   outline: 2px solid #D4A024;
   outline-offset: 4px;

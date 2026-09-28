@@ -109,6 +109,22 @@ Note `heroPersonaOrder` in `demo/HeroPersonaContext.tsx` was written for this
 component and now has no caller. It is left in place as part of that context's
 API; `HERO_PERSONAS` is still used by `DemoStage`'s toggle.
 
+### `ReportDeliverablesCard.tsx` — the intake chat's package card
+Dark-glass card that replaced the right column of the intake chat once the
+pitch landed: deliverables list, the three rating pills, bonus tools, and a
+price panel with the checkout button. Retired 2026-09-28.
+
+It was built in July 2026 for the hero's wide right column on a dark photo.
+After the intake chat moved into "Is Cairnly for you?" (2026-09-03) and onto
+cream (2026-09-16), it sat in a 5/12 column: its two inner columns crushed the
+feature list to a few words per line, the translucent navy turned muddy grey
+on cream, and it repeated the pricing section one scroll further down. The
+checkout button now sits under the pitch in `IntakeChatSection.tsx`.
+
+Its copy keys (`pricing.*`, `intake.pillLabels.*`) are shared with live
+components or harmless to leave. Its imports are all `@/` absolute, so it
+would resolve from here, but it needs a wide dark surface to look right.
+
 ### `ForkDivider.tsx` — same-path / different-path diagram
 Already disabled before this cleanup (commented out in `Index.tsx` with the
 note "the same-path/different-path diagram wasn't landing well").

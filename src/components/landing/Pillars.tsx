@@ -4,13 +4,10 @@ import { Navigation, MessageSquare, BarChart3, CheckCircle2 } from 'lucide-react
 import Reveal from './Reveal';
 import { tArray } from '@/lib/i18nArray';
 
-// Icons stay fixed across languages — only title/body translate.
-const PILLAR_META = [
-  { num: '01', Icon: Navigation },
-  { num: '02', Icon: MessageSquare },
-  { num: '03', Icon: BarChart3 },
-  { num: '04', Icon: CheckCircle2 },
-] as const;
+// Icons stay fixed across languages — only title/body translate. The big
+// 01–04 numerals were dropped on 2026-09-28: the four points are not a
+// sequence, so numbering them implied an order that isn't there.
+const PILLAR_ICONS = [Navigation, MessageSquare, BarChart3, CheckCircle2] as const;
 
 const Pillars: React.FC = () => {
   const { t } = useTranslation('landing');
@@ -36,16 +33,13 @@ const Pillars: React.FC = () => {
         </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-          {PILLAR_META.map(({ num, Icon }, i) => (
+          {PILLAR_ICONS.map((Icon, i) => (
             <Reveal
-              key={num}
+              key={i}
               className="lp-pillar-card relative p-8 md:p-10 rounded-2xl"
               style={{ background: '#FBF6E8', border: '1px solid #C9B690' }}
             >
-              <div className="flex items-start justify-between mb-6">
-                <span className="font-heading font-bold text-[44px] text-[#C9B690] leading-none">{num}</span>
-                <Icon size={32} strokeWidth={1.8} className="opacity-80" color="#27A1A1" />
-              </div>
+              <Icon size={30} strokeWidth={1.8} className="opacity-80 mb-5" color="#27A1A1" aria-hidden="true" />
               <h3
                 className="font-heading font-bold text-2xl md:text-[24px] text-[#122E3B] mb-3"
                 style={{ letterSpacing: '-0.01em' }}

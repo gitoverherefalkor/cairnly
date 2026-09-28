@@ -5,8 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import Reveal from '../Reveal';
 import IntentChips from '../IntentChips';
 import IntakeChatPanel from './IntakeChatSection';
-import ReportDeliverablesCard from './ReportDeliverablesCard';
-import { useIntakeChatOptional } from './IntakeChatContext';
 import { useDemoHref } from '../demo/HeroPersonaContext';
 import { DEMO_SURVEY_ROUTE } from '@/demo/constants';
 import { trackCtaClick } from '@/lib/analytics';
@@ -25,12 +23,16 @@ export const INTAKE_SECTION_ANCHOR = 'intake';
  * On cream since 2026-09-16: the photographic background made this read as a
  * block pasted onto the page rather than part of it, and the section it sits
  * in ("Is Cairnly for you?") is cream.
+ *
+ * The pitch-stage package card (ReportDeliverablesCard) was removed on
+ * 2026-09-28. It was built in July for the hero's wide right column on a dark
+ * photo; squeezed into this 5/12 column on cream it collapsed into a grey box
+ * with a crushed feature list, and it repeated the pricing section a scroll
+ * further down. The checkout button now sits under the pitch itself.
  */
 const IntakeSection: React.FC = () => {
   const { t } = useTranslation('landing');
-  const intakeChat = useIntakeChatOptional();
   const demoHref = useDemoHref();
-  const pitched = intakeChat?.stage === 'pitched';
 
   return (
     <div
@@ -73,21 +75,17 @@ const IntakeSection: React.FC = () => {
           </Reveal>
 
           <Reveal as="div" className="lg:col-span-5">
-            {pitched ? (
-              <ReportDeliverablesCard />
-            ) : (
-              <div
-                className="rounded-2xl p-6"
-                style={{ background: 'rgba(18,46,59,0.04)', border: '1px solid rgba(201,182,144,0.7)' }}
-              >
-                <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[#1F8282]">
-                  {t('intakeSection.asideTitle')}
-                </p>
-                <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-relaxed">
-                  {t('intakeSection.asideBody')}
-                </p>
-              </div>
-            )}
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: 'rgba(18,46,59,0.04)', border: '1px solid rgba(201,182,144,0.7)' }}
+            >
+              <p className="text-[10px] font-heading font-bold tracking-[0.2em] uppercase text-[#1F8282]">
+                {t('intakeSection.asideTitle')}
+              </p>
+              <p className="mt-3 text-[15px] text-[#4B6373] font-medium leading-relaxed">
+                {t('intakeSection.asideBody')}
+              </p>
+            </div>
             <Link
               to={demoHref(DEMO_SURVEY_ROUTE)}
               onClick={() => trackCtaClick('intake_survey_link')}

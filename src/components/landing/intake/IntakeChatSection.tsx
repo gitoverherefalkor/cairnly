@@ -7,6 +7,7 @@ import { useIntakeChat, INTAKE_SECTION_ID } from './IntakeChatContext';
 import CompareLink from '../CompareLink';
 import { getProPricing } from '@/lib/pricing';
 import { formatCurrency } from '@/lib/format';
+import { trackCtaClick } from '@/lib/analytics';
 
 /**
  * Renders the agent's light markdown for chat bubbles: `**bold**` emphasis
@@ -102,7 +103,7 @@ const IntakeChatPanel: React.FC = () => {
   // Collapse everything except the latest exchange; the panel keeps a
   // stable height instead of growing an inner scrollbar. Once the pitch has
   // landed, only the pitch bubble remains and the history stays sealed: the
-  // closing screen is pitch + screenshot + package card, nothing else.
+  // closing screen is the pitch, the price line and the checkout button.
   const pitchedView = chat.stage === 'pitched';
   const hiddenMessages = pitchedView || showHistory ? [] : chat.messages.slice(0, -2);
   const visibleMessages = pitchedView
@@ -143,8 +144,7 @@ const IntakeChatPanel: React.FC = () => {
 
   const showChips = chat.started && chat.stage === 'chat' && !chat.sending && !!chat.chips?.options.length;
 
-  // Same source as the deliverables card beside it, so the two prices
-  // never disagree and both flip on their own when the intro price ends.
+  // Same source as the pricing section, so the two prices never disagree.
   const { core, currency } = getProPricing();
   const price = formatCurrency(core, i18n.language, currency);
 
@@ -244,15 +244,32 @@ const IntakeChatPanel: React.FC = () => {
                 their situation. One line of price context here catches the
                 "could I get this free somewhere?" hesitation before they
                 scroll past, rather than leaving it to the hero. */}
+            {/* On cream, so ink colours: the white-at-62% and bright gold here
+                were left over from when this panel sat on the dark hero photo
+                and were unreadable after the 2026-09-16 move. The checkout
+                button lives here since the package card beside the chat was
+                removed (2026-09-28). */}
             {pitchedView && (
               <div className="max-w-[92%] pt-1">
-                <p className="text-[13px] font-medium leading-[1.6]" style={{ color: 'rgba(255,255,255,0.62)' }}>
-                  <span className="font-bold" style={{ color: '#D4A024' }}>
+                <p className="text-[13px] font-medium leading-[1.6] text-[#4B6373]">
+                  <span className="font-bold text-[#8A6410]">
                     {t('intake.compare.lead', { price })}
                   </span>{' '}
                   {t('intake.compare.body')}
                 </p>
-                <CompareLink label={t('intake.compare.link')} className="mt-3" />
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <button
+                    type="button"
+                    onClick={() => { trackCtaClick('intake_checkout'); navigate('/payment'); }}
+                    className="lp-btn-primary"
+                    style={{ fontSize: 15, padding: '13px 24px' }}
+                  >
+                    {t('intake.ctaCheckout')}
+                    <ArrowRight size={16} strokeWidth={2.4} />
+                  </button>
+                  <span className="text-[12px] font-medium text-[#6B7F8B]">{t('intake.ctaNote')}</span>
+                </div>
+                <CompareLink label={t('intake.compare.link')} className="lp-compare-link--on-cream mt-4" />
               </div>
             )}
 
@@ -345,7 +362,7 @@ const IntakeChatPanel: React.FC = () => {
 
         {/* Input (app chat style). Present in the resting state (the custom
             "own words" route) and during Q&A; steps away once pitched, when the
-            dashboard card's CTA is the next step. */}
+            checkout button under the pitch is the next step. */}
         {chat.stage !== 'pitched' && (
           <div className="mt-4">
               <form
