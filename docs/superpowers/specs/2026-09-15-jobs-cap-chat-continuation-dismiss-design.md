@@ -250,6 +250,14 @@ was revised.
   2026-09-28, version `48a94f4b`. WF5C is built with caching from the start.
 - **M.** Existing users get it too. Anyone with a completed chat sees the
   entry points.
+- **N.** The coach also reads the user's **saved ("Keep") messages**
+  (`saved_chat_responses`, never purged).
+- **O.** Users choose how long their raw chat is kept (30 days / 12 months /
+  until deleted), with a clear warning about what the coach forgets after
+  that date. Existing users stay on 30 days until they choose.
+- **P.** Before a raw chat is deleted, a short **coach notes** summary is
+  written and kept with the report, so the coach keeps its memory without
+  the transcript. Disclosed on the choice screen.
 
 ### Why the original design needed changes
 
@@ -280,9 +288,11 @@ plan is shown in chat before the API call.
   where it still exists; empty for purged users, which the snapshot covers.
 - Tools:
   - `get_report_snapshot` (new, read-only): exec summary, top 3 + runner-ups
-    with Move / feasibility / AI impact, dismissed careers with reasons, open
-    next steps. One Supabase RPC or edge function returning a compact JSON,
-    so the prompt stays small.
+    with Move / feasibility / AI impact (incl. chat-generated replacement
+    careers, labelled as such), the section feedback WF6 wrote, dismissed
+    careers with reasons, saved ("Keep") messages with their section, coach
+    notes, open next steps. One Supabase RPC returning a compact JSON, so the
+    prompt stays small. Called once at the start of a conversation.
   - `get_user_profile`: unchanged from WF5 (`init_summary`).
   - `save_next_steps` (new, write): 1–3 steps plus a check-in date, into
     `coach_next_steps`. Writes **never** touch `report_sections`.
@@ -321,6 +331,40 @@ messages written after that would be kept forever, which breaks the 30-day
 promise. The purge gets a second clock: coach transcripts are deleted 30
 days after `coach_usage.last_message_at`. `coach_next_steps` follow the
 account (they are user-visible data, like the report).
+
+### Chat retention choice and coach notes (decisions O, P)
+
+Why: WF6 does not capture every discussion (see
+`n8n_wfs_cairnly/notes/WF5_WF6_capture_fix_TODO.md`, Scott's session), so
+some of what users said exists only in the raw chat, which the purge
+deletes.
+
+- `profiles.chat_retention`: `'30d'` (default, today's promise) | `'12m'` |
+  `'forever'`, plus `chat_retention_chosen_at`. Added to the allowed
+  user-writable columns in the profiles column lock.
+- The purge reads it: raw transcripts (`chat_messages`,
+  `n8n_chat_histories`) are deleted 30 days / 12 months after the later of
+  `chat_completed_at` and `coach_usage.last_message_at`, or never for
+  `'forever'`. Replaces the one-shot `data_purged_at` logic for chat
+  (answers purge unchanged).
+- Asked at wrap-up for new users and on first coach entry for existing
+  users. Changeable in Profile, next to "Delete my chat now". Copy warns:
+  "After this date your coach remembers your report, saved messages and
+  notes, not the conversation itself."
+- `coach_notes` table: `report_id` pk, `user_id`, `notes` text (a few
+  paragraphs: worries, decisions, open questions), `source_through`
+  timestamptz, `updated_at`. Written by one cheap LLM call (a small new
+  workflow or edge function) before a transcript is purged, and refreshed
+  after a coach conversation goes idle. Service-role write, owner read.
+  Added to both delete-user-data RPCs; deleted with the account.
+- **Open decision (Sjoerd):** existing users whose raw chat still exists
+  were promised 30 days and have not seen the notes disclosure yet. Either
+  (a) generate notes for them now, before the purge, and disclose it on
+  their first coach entry with a delete option, or (b) only generate notes
+  for users who have seen the choice screen, accepting that most current
+  transcripts are gone before anyone is asked.
+- **Privacy policy** must describe the choice, the notes and the defaults
+  before this ships. Current wording not yet checked.
 
 ### chat-proxy
 
@@ -378,9 +422,11 @@ the Anthropic console after launch.
 
 1. WF5 caching. **Done 2026-09-28.**
 2. Coach core: WF5C, `coach_usage`, kill switch, chat-proxy branch,
-   `/chat?mode=continue`, dashboard entry points, retention fix.
-3. Advisor loop: `save_next_steps`, next steps card, check-in emails.
-4. /ops panel.
+   `/chat?mode=continue`, dashboard entry points, snapshot RPC (incl. saved
+   messages), coach-transcript retention clock.
+3. Retention choice + coach notes + privacy policy update.
+4. Advisor loop: `save_next_steps`, next steps card, check-in emails.
+5. /ops panel.
 
 ---
 
