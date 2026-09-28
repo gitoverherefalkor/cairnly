@@ -132,8 +132,10 @@ export interface OutreachProspect {
   reports_completed?: number;
   /** When their first code was minted. */
   first_code_at?: string | null;
-  /** When the one "have you tried the code?" nudge went out, if it did. */
+  /** When the "have you tried the code?" nudge went out, if it did. */
   activation_nudged_at?: string | null;
+  /** When the follow-up check-in ("shall we start it together?") went out. */
+  activation_checked_in_at?: string | null;
   /** Phase 3: mail log, newest first, capped. */
   mails: OutreachMail[];
   laatste_mail_op: string | null;
@@ -462,6 +464,7 @@ export function subjectFor(p: Pick<OutreachProspect, 'subject_variant'>): string
 // supabase/functions/_shared/outreachCadence.ts.
 
 export const ACTIVATION_NUDGE_WORKING_DAYS = 4;
+export const ACTIVATION_CHECKIN_WORKING_DAYS = 5;
 
 export interface CodeActivation {
   /** report: a candidate finished; activated: a code was redeemed; expired: nothing left to redeem. */
@@ -472,17 +475,26 @@ export interface CodeActivation {
   stale: boolean;
   /** The nudge already went out. */
   nudged: boolean;
+  /** The step-2 check-in went out too: nothing else follows. */
+  checkedIn: boolean;
 }
 
 export function codeActivation(
   p: Pick<
     OutreachProspect,
-    'codes_issued' | 'codes_claimed' | 'codes_open' | 'reports_completed' | 'first_code_at' | 'activation_nudged_at' | 'mails'
+    | 'codes_issued'
+    | 'codes_claimed'
+    | 'codes_open'
+    | 'reports_completed'
+    | 'first_code_at'
+    | 'activation_nudged_at'
+    | 'activation_checked_in_at'
+    | 'mails'
   >,
   now: Date = new Date(),
 ): CodeActivation | null {
   if (!p.codes_issued) return null;
-  const base = { workingDays: 0, stale: false, nudged: !!p.activation_nudged_at };
+  const base = { workingDays: 0, stale: false, nudged: !!p.activation_nudged_at, checkedIn: !!p.activation_checked_in_at };
   if ((p.reports_completed ?? 0) > 0) return { ...base, state: 'report' };
   if (p.codes_claimed > 0) return { ...base, state: 'activated' };
   if ((p.codes_open ?? 0) === 0) return { ...base, state: 'expired' };

@@ -171,8 +171,8 @@ serve(async (req) => {
           )
           .order('created_at', { ascending: true })
           .limit(300),
-        // The one unused-code nudge per agency, once it went out.
-        supabase.from('outreach_concepts').select('slug, verzonden_op').eq('soort', 'activation').eq('status', 'verzonden'),
+        // The unused-code nudge (step null) and check-in (step 2), once they went out.
+        supabase.from('outreach_concepts').select('slug, step, verzonden_op').eq('soort', 'activation').eq('status', 'verzonden'),
       ]);
       if (prospectsRes.error) throw prospectsRes.error;
       if (statsRes.error) throw statsRes.error;
@@ -186,7 +186,8 @@ serve(async (req) => {
       if (partnersRes.error) throw partnersRes.error;
       if (conceptsRes.error) throw conceptsRes.error;
       if (nudgedRes.error) throw nudgedRes.error;
-      const nudgedBySlug = new Map((nudgedRes.data ?? []).map((c) => [c.slug as string, c.verzonden_op as string | null]));
+      const activationSent = (slug: string, step: 1 | 2) =>
+        ((nudgedRes.data ?? []).find((c) => c.slug === slug && Number(c.step ?? 1) === step)?.verzonden_op as string | null) ?? null;
 
       const mailsBySlug = new Map<string, Json[]>();
       for (const m of mailsRes.data ?? []) {
@@ -220,7 +221,8 @@ serve(async (req) => {
           codes_open: Number(partner?.codes_open ?? 0),
           reports_completed: Number(partner?.reports_completed ?? 0),
           first_code_at: (partner?.first_code_at as string | null) ?? null,
-          activation_nudged_at: nudgedBySlug.get(p.slug as string) ?? null,
+          activation_nudged_at: activationSent(p.slug as string, 1),
+          activation_checked_in_at: activationSent(p.slug as string, 2),
           mails,
           laatste_mail_op: (latest?.sent_at as string | null) ?? null,
           laatste_mail_richting: (latest?.direction as 'in' | 'out' | null) ?? null,

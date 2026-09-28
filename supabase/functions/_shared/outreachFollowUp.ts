@@ -376,3 +376,23 @@ export function templateActivation(input: ActivationNudgeInput): string {
     'Sjoerd',
   ].join('\n');
 }
+
+/**
+ * Step 2 (Sjoerd, 2026-09-28): the code is still unused five working days
+ * after the nudge. The agency said yes once, so this one offers to start it
+ * together, with the link again. Always waits for Sjoerd; he edits freely.
+ */
+export function templateActivationCheckIn(input: ActivationNudgeInput): string {
+  const geldig = input.expiresAt ? ` De code is geldig tot ${dutchDate(input.expiresAt)}.` : '';
+  return [
+    salutation({ contactpersoon: input.contactpersoon, bureau: input.bureau }),
+    '',
+    'Is het gelukt om de testcode te proberen? Als je ergens tegenaan liep bij het starten, hoor ik dat graag. Hier is de link nog een keer:',
+    input.link,
+    '',
+    `Zullen we het samen even opstarten? Dan bel ik je, een kwartier is genoeg. Een moment kiezen kan ook hier: ${CALENDLY_URL}.${geldig}`,
+    '',
+    'Groet,',
+    'Sjoerd',
+  ].join('\n');
+}

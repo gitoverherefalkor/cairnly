@@ -5,8 +5,9 @@
 //   1. chases due today or on the next working day (never further ahead: the
 //      chase variant depends on click data that can still change);
 //   2. check-ins on parked replies that are due (always for Sjoerd to approve);
-//   2b. one nudge when a partner's test code sits unused four working days
-//      after the mail that carried it (always for Sjoerd to approve);
+//   2b. when a partner's test code sits unused: a nudge four working days
+//      after the mail that carried it, a check-in five working days after
+//      the nudge, then nothing (both always for Sjoerd to approve);
 //   3. first mails for new agencies, as many as the remaining cold slots of
 //      the next two working days hold.
 // With the auto-approve switch on and a passing validator, chases and first
@@ -31,6 +32,7 @@ import {
   renderFollowUp,
   salutation,
   templateActivation,
+  templateActivationCheckIn,
   templateCheckIn,
   type CheckInInput,
   type FollowUpInput,
@@ -203,8 +205,8 @@ export async function runPrepare(
     db.from('outreach_concepts').select('slug, soort, step').in('status', ['weggegooid', 'geen_antwoord']),
     // Test codes per partner, for the unused-code nudge.
     db.from('partner_code_status').select('partner_id, slug, codes_issued, codes_claimed, codes_open, first_code_at'),
-    // One nudge per agency, ever.
-    db.from('outreach_concepts').select('slug, verzonden_op').eq('soort', 'activation').eq('status', 'verzonden'),
+    // Which activation steps already went out (step null = the step-1 nudge).
+    db.from('outreach_concepts').select('slug, step, verzonden_op').eq('soort', 'activation').eq('status', 'verzonden'),
   ]);
   for (const r of [prospectsRes, mailsRes, statsRes, liveRes, declinedRes, codesRes, nudgedRes]) if (r.error) throw r.error;
 
@@ -371,14 +373,16 @@ export async function runPrepare(
   // ── 2b. The unused test code ──────────────────────────────────────────────
   // Pure template, no model call, so it does not count against MAX_GENERATIONS.
   const codesByPartner = new Map((codesRes.data ?? []).map((c) => [c.slug as string, c]));
-  const nudged = new Map((nudgedRes.data ?? []).map((c) => [c.slug as string, c.verzonden_op as string | null]));
+  const sentStep = (slug: string, step: 1 | 2) =>
+    ((nudgedRes.data ?? []).find((c) => c.slug === slug && (Number(c.step ?? 1) === step))?.verzonden_op as string | null) ?? null;
+  const liveActivation = (slug: string) => live.has(`${slug}|activation|0`) || live.has(`${slug}|activation|2`);
   let activations = 0;
   for (const p of prospects) {
     if (blocked(p) || !p.partner_slug) continue;
     const codes = codesByPartner.get(p.partner_slug);
     if (!codes) continue;
     // Used since the nudge was written: it would now ask about nothing.
-    if (Number(codes.codes_claimed) > 0 && live.has(`${p.slug}|activation|0`)) {
+    if (Number(codes.codes_claimed) > 0 && liveActivation(p.slug)) {
       await invalidateForSlug(db, p.slug, 'The test code was used', { soorten: ['activation'] });
       continue;
     }
@@ -394,9 +398,11 @@ export async function runPrepare(
       lastOutAt: lastOut?.sent_at ?? null,
       theyWroteLast: latest !== null && latest.direction === 'in' && latest.sentiment !== 'auto',
       parked: isParked(p.reply_dismissed_at, latest as never),
-      nudgedAt: nudged.get(p.slug) ?? null,
+      nudgedAt: sentStep(p.slug, 1),
+      checkedInAt: sentStep(p.slug, 2),
     });
-    if (!nudge || nudge.dueDay > today || live.has(`${p.slug}|activation|0`)) continue;
+    // Step 1 lives under step null (index key 0), step 2 under 2.
+    if (!nudge || nudge.dueDay > today || live.has(`${p.slug}|activation|${nudge.step === 1 ? 0 : 2}`)) continue;
     // The template talks about one test code. A pilot batch is a different
     // conversation; the /ops chip still shows it amber.
     if (Number(codes.codes_issued) > 1) {
@@ -420,12 +426,13 @@ export async function runPrepare(
 
     // Greet the seeded contact by name only when the code mail went to them.
     const toContact = (p.to_email ?? '').toLowerCase() === lastOut.to_email.toLowerCase();
-    const skeleton = templateActivation({
+    const nudgeInput = {
       bureau: p.naam ?? p.slug,
       contactpersoon: toContact ? p.contactpersoon : null,
       link: `https://cairnly.io/p/${p.partner_slug}?code=${open.code}&lang=nl`,
       expiresAt: (open.expires_at as string | null) ?? null,
-    });
+    };
+    const skeleton = nudge.step === 1 ? templateActivation(nudgeInput) : templateActivationCheckIn(nudgeInput);
     const chosen = asTemplate(skeleton, (b) =>
       validateOutgoing(b, { soort: 'activation', expectedSalutation: null, maxWords: MAX_WORDS.activation }),
     );
@@ -435,12 +442,13 @@ export async function runPrepare(
       {
         slug: p.slug,
         soort: 'activation',
+        step: nudge.step === 1 ? null : 2,
         to_email: lastOut.to_email,
         subject: /^re:/i.test(subject) ? subject : `Re: ${subject}`,
         body: chosen.body,
         skeleton,
-        variant: 'activation',
-        basis: { status: p.status, partnerSlug: p.partner_slug, lastOutAt: lastOut.sent_at, dueAt: new Date(nudge.dueDay).toISOString() },
+        variant: nudge.step === 1 ? 'activation' : 'activation_checkin',
+        basis: { status: p.status, partnerSlug: p.partner_slug, step: nudge.step, lastOutAt: lastOut.sent_at, dueAt: new Date(nudge.dueDay).toISOString() },
         thread_id: lastOut.gmail_thread_id,
         in_reply_to: lastOut.rfc_message_id,
         references_hdr: lastOut.rfc_message_id,

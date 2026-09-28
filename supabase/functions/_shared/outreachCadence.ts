@@ -82,12 +82,16 @@ export function nextFollowUp(p: CadenceInput): NextFollowUp | null {
 
 // ─── The unused test code ────────────────────────────────────────────────────
 //
-// An agency that got a test code and did nothing with it gets ONE nudge, four
-// working days after the last mail we sent since the code existed (normally
-// the mail that carried it). Mirrors codeActivation() in src/lib/outreach.ts,
-// which shows the same clock in /ops.
+// An agency that got a test code and did nothing with it gets two touches:
+//   1. a nudge, four working days after the last mail we sent since the code
+//      existed (normally the mail that carried it);
+//   2. a check-in, five working days after the last mail we sent since the
+//      nudge (normally the nudge itself), offering to start it together.
+// Then it stops. Both always wait for Sjoerd. Mirrors codeActivation() in
+// src/lib/outreach.ts, which shows the same clock in /ops.
 
 export const ACTIVATION_NUDGE_WORKING_DAYS = 4;
+export const ACTIVATION_CHECKIN_WORKING_DAYS = 5;
 
 /** No nudge to an agency that said no. */
 export const ACTIVATION_CLOSED: ReadonlySet<string> = new Set(['afgewezen', 'geen_fit']);
@@ -106,14 +110,20 @@ export interface ActivationInput {
   theyWroteLast: boolean;
   /** Their last mail is parked: the check-in covers it. */
   parked: boolean;
-  /** When an earlier activation nudge went out. One is the limit. */
+  /** When the step-1 nudge went out, if it did. */
   nudgedAt: string | null;
+  /** When the step-2 check-in went out, if it did. Two is the limit. */
+  checkedInAt?: string | null;
 }
 
-export function nextActivationNudge(p: ActivationInput): { dueDay: number; anchor: string } | null {
+export function nextActivationNudge(p: ActivationInput): { step: 1 | 2; dueDay: number; anchor: string } | null {
   if (p.codesIssued <= 0 || p.codesClaimed > 0 || p.codesOpen <= 0 || !p.firstCodeAt) return null;
-  if (ACTIVATION_CLOSED.has(p.status) || p.nudgedAt || p.theyWroteLast || p.parked) return null;
-  // Before the code mail is logged, the mint itself starts the clock.
-  const anchor = p.lastOutAt && Date.parse(p.lastOutAt) >= Date.parse(p.firstCodeAt) ? p.lastOutAt : p.firstCodeAt;
-  return { anchor, dueDay: addWorkingDays(amsterdamDayStamp(anchor), ACTIVATION_NUDGE_WORKING_DAYS) };
+  if (ACTIVATION_CLOSED.has(p.status) || p.checkedInAt || p.theyWroteLast || p.parked) return null;
+  // The clock runs from the latest mail we sent after the previous milestone
+  // (the mint, then the nudge); before that mail is logged, the milestone itself.
+  const since = p.nudgedAt ?? p.firstCodeAt;
+  const anchor = p.lastOutAt && Date.parse(p.lastOutAt) >= Date.parse(since) ? p.lastOutAt : since;
+  const step = p.nudgedAt ? 2 : 1;
+  const wait = step === 1 ? ACTIVATION_NUDGE_WORKING_DAYS : ACTIVATION_CHECKIN_WORKING_DAYS;
+  return { step, anchor, dueDay: addWorkingDays(amsterdamDayStamp(anchor), wait) };
 }

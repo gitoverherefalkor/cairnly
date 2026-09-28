@@ -42,17 +42,25 @@ const code = {
 
 Deno.test('an unused code is nudged four working days after the code mail', () => {
   // Friday 11 Sept → Thursday 17 Sept (Mon, Tue, Wed, Thu).
-  assertEquals(nextActivationNudge(code), { anchor: '2026-09-11T14:30:00Z', dueDay: day('2026-09-17') });
+  assertEquals(nextActivationNudge(code), { step: 1, anchor: '2026-09-11T14:30:00Z', dueDay: day('2026-09-17') });
 });
 
 Deno.test('the mint starts the clock while the code mail is not logged yet', () => {
   assertEquals(nextActivationNudge({ ...code, lastOutAt: '2026-09-09T10:52:00Z' })?.anchor, '2026-09-11T10:55:00Z');
 });
 
-Deno.test('no nudge once used, expired, nudged, answered-to-them, parked or declined', () => {
+Deno.test('after the nudge, a check-in five working days after it', () => {
+  // Nudge Monday 28 Sept 11:00 → check-in Monday 5 Oct.
+  const nudged = { ...code, nudgedAt: '2026-09-28T11:00:00Z', lastOutAt: '2026-09-28T11:00:00Z' };
+  assertEquals(nextActivationNudge(nudged), { step: 2, anchor: '2026-09-28T11:00:00Z', dueDay: day('2026-10-05') });
+  // A later mail of ours moves the clock.
+  assertEquals(nextActivationNudge({ ...nudged, lastOutAt: '2026-09-30T09:00:00Z' })?.dueDay, day('2026-10-07'));
+});
+
+Deno.test('nothing after the check-in, once used, expired, answered-to-them, parked or declined', () => {
   assertEquals(nextActivationNudge({ ...code, codesClaimed: 1 }), null);
   assertEquals(nextActivationNudge({ ...code, codesOpen: 0 }), null);
-  assertEquals(nextActivationNudge({ ...code, nudgedAt: '2026-09-18T09:00:00Z' }), null);
+  assertEquals(nextActivationNudge({ ...code, nudgedAt: '2026-09-18T09:00:00Z', checkedInAt: '2026-09-25T09:00:00Z' }), null);
   assertEquals(nextActivationNudge({ ...code, theyWroteLast: true }), null);
   assertEquals(nextActivationNudge({ ...code, parked: true }), null);
   assertEquals(nextActivationNudge({ ...code, status: 'afgewezen' }), null);

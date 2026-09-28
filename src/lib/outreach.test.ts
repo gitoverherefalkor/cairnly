@@ -359,6 +359,12 @@ describe('codeActivation', () => {
     expect(codeActivation(holder, new Date('2026-09-17T10:00:00Z'))?.stale).toBe(true);
   });
 
+  it('knows when the nudge and the check-in went out', () => {
+    const a = codeActivation({ ...holder, activation_nudged_at: '2026-09-28T11:00:00Z' }, new Date('2026-09-29T10:00:00Z'));
+    expect(a).toMatchObject({ nudged: true, checkedIn: false });
+    expect(codeActivation({ ...holder, activation_nudged_at: 'x', activation_checked_in_at: 'y' })?.checkedIn).toBe(true);
+  });
+
   it('reports the furthest stage reached', () => {
     expect(codeActivation({ ...holder, codes_claimed: 1, codes_open: 0 })?.state).toBe('activated');
     expect(codeActivation({ ...holder, codes_claimed: 1, codes_open: 0, reports_completed: 1 })?.state).toBe('report');

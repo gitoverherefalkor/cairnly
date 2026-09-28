@@ -314,7 +314,10 @@ export default function ConceptCard({
 
   // ── Header facts ──
   const title = concept.naam ?? concept.slug;
-  const kind = `${SOORT_LABEL[concept.soort]}${concept.soort === 'chase' && concept.step ? ` ${concept.step}` : ''}`;
+  const kind =
+    concept.soort === 'activation' && concept.step === 2
+      ? 'Code check-in'
+      : `${SOORT_LABEL[concept.soort]}${concept.soort === 'chase' && concept.step ? ` ${concept.step}` : ''}`;
   const dueAt = concept.basis?.dueAt ? Date.parse(concept.basis.dueAt) : null;
   const lateDays = dueAt ? Math.floor((Date.now() - dueAt) / 86_400_000) : null;
   const stale = concept.status === 'verouderd';

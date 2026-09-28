@@ -35,6 +35,7 @@ import {
   STATUS_LABELS,
   SENTIMENT_LABELS,
   SUBJECT_VARIANTS,
+  ACTIVATION_CHECKIN_WORKING_DAYS,
   ACTIVATION_NUDGE_WORKING_DAYS,
   OUTREACH_TABLE_ID,
   SUBJECT_TEST_ID,
@@ -297,12 +298,14 @@ function CodeChip({ p }: { p: OutreachProspect }) {
         : a.state === 'expired'
           ? { label: 'Code expired', tone: 'bg-white/[0.05] text-white/55 border-white/[0.14]', title: 'Expired before anyone redeemed it' }
           : {
-              label: `${a.nudged ? 'Nudged' : 'Code unused'} · ${a.workingDays} wd`,
+              label: `${a.checkedIn ? 'Checked in' : a.nudged ? 'Nudged' : 'Code unused'} · ${a.workingDays} wd`,
               tone: a.stale
                 ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
                 : 'bg-white/[0.05] text-white/55 border-white/[0.14]',
-              title: a.nudged
-                ? `Not redeemed ${a.workingDays} working days after the code mail; the nudge went out, no second one follows`
+              title: a.checkedIn
+                ? `Not redeemed ${a.workingDays} working days after the code mail. Nudge and check-in both went out; nothing automatic follows, this one is yours.`
+                : a.nudged
+                  ? `Not redeemed ${a.workingDays} working days after the code mail. The nudge went out; a check-in ("shall we start it together?") comes to the cockpit ${ACTIVATION_CHECKIN_WORKING_DAYS} working days after it.`
                 : a.stale
                   ? `Not redeemed ${a.workingDays} working days after the code mail. A nudge waits in the cockpit for your approval.`
                   : `Sent ${a.workingDays} working day(s) ago. Turns amber, with a nudge in the cockpit, after ${ACTIVATION_NUDGE_WORKING_DAYS}.`,
@@ -1068,7 +1071,7 @@ export default function OutreachTab({
           </tbody>
         </table>
         <div className="px-3 py-2 text-[11px] text-white/50 border-t border-white/5">
-          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or park them (&quot;they&apos;ll get back to me&quot;): a parked agency leaves Waiting on you and comes back as a check-in {CHECK_IN_WORKING_DAYS} working days later, or straight away if they write first. A check-in always waits for you in the cockpit. Below them come the ones whose follow-up or check-in is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one. The cockpit above prepares every due chase and enough first mails for the next two working days by itself, at 07:30 and 14:45; with auto-approve on, the ones that pass the checks go out on the schedule after an hour you can veto. Replies are written into the cockpit too, never into Gmail, and a reply from someone interested always waits for you. Under a partner&apos;s name, a chip shows where their test code stands (unused, activated, report done), counted in working days from the mail that carried it; an unused code turns amber after {ACTIVATION_NUDGE_WORKING_DAYS} working days and gets one &quot;have you tried it?&quot; nudge in the cockpit, which always waits for you. Incoming mail and statuses still arrive from Gmail via WF11.
+          &quot;Clicked?&quot; is Yes once someone opened the demo on their own; hover it for the first and last click. Underneath it, how far the best session got into the demo&apos;s seven annotated moments: &quot;bounced&quot; means they opened it and left, &quot;5/7 read&quot; means they got most of the way through. Blank means no measurement, not zero — the agency slug only started reaching analytics on 21 September 2026. A click within two minutes of sending shows as &quot;Scanner?&quot; and never counts as an open — that is the mail server checking the link, not a person. Every card at the top filters the table to what it counts; click it again (or the gold chip) to see everything. Agencies who wrote last sort to the top (gold, you&apos;re up) until you answer them or park them (&quot;they&apos;ll get back to me&quot;): a parked agency leaves Waiting on you and comes back as a check-in {CHECK_IN_WORKING_DAYS} working days later, or straight away if they write first. A check-in always waits for you in the cockpit. Below them come the ones whose follow-up or check-in is due (longest overdue first), then ones who clicked but haven&apos;t been followed up (teal). A chase is due {FOLLOW_UP_1_WORKING_DAYS} working days after the first mail and {FOLLOW_UP_2_WORKING_DAYS} after that one. The cockpit above prepares every due chase and enough first mails for the next two working days by itself, at 07:30 and 14:45; with auto-approve on, the ones that pass the checks go out on the schedule after an hour you can veto. Replies are written into the cockpit too, never into Gmail, and a reply from someone interested always waits for you. Under a partner&apos;s name, a chip shows where their test code stands (unused, activated, report done), counted in working days from the mail that carried it; an unused code turns amber after {ACTIVATION_NUDGE_WORKING_DAYS} working days and gets a &quot;have you tried it?&quot; nudge in the cockpit, then {ACTIVATION_CHECKIN_WORKING_DAYS} working days after that a check-in offering to start it together. Both always wait for you; nothing automatic follows the check-in. Incoming mail and statuses still arrive from Gmail via WF11.
         </div>
       </div>
 
