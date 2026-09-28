@@ -328,6 +328,13 @@ async function sync(supabase: SupabaseClient, rawMessages: unknown[]): Promise<J
           });
         };
       } else if (route === 'stop') {
+        // The safety net in routeInbound can overrule the classifier; log it as
+        // what it is, and close the agency the way a 'stop' sentiment would.
+        if (row.sentiment !== 'stop') {
+          row.sentiment = 'stop';
+          const { error: stopErr } = await supabase.rpc('outreach_advance_status', { p_slug: slug, p_status: 'afgewezen', p_at: mail.date });
+          if (stopErr) throw stopErr;
+        }
         await supabase
           .from('outreach_prospects')
           .update({ niet_mailen_op: new Date().toISOString(), updated_at: new Date().toISOString() })

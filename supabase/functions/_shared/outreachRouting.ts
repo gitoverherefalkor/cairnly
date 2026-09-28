@@ -52,6 +52,33 @@ const LADDER = [
 /** A call booked or held means a real conversation; its rejection deserves Sjoerd's own words. */
 const CONVERSATION_STARTED = new Set(['gesprek_gepland', 'gesprek_gevoerd', 'pilot_afgesproken', 'pilot_gestart', 'founding_partner']);
 
+/**
+ * "Leave us alone", in the ways Dutch agencies actually say it. A safety net
+ * under the classifier: on 2026-09-28 "Verder contact is niet nodig/gewenst"
+ * was read as an ordinary rejection and the "let me know if you change your
+ * mind" boilerplate was queued to someone who had asked for no contact. A hit
+ * here always means stop, whatever the model said.
+ */
+const STOP_RE = new RegExp(
+  [
+    String.raw`(verder|meer|nog)\s+contact\s+(is\s+)?(niet|geen)\s*(meer\s+)?(nodig|gewenst|op\s+prijs)`,
+    String.raw`contact\s+(is\s+)?niet\s+(meer\s+)?(nodig|gewenst)`,
+    String.raw`geen\s+(verder|verdere|nieuw|nieuwe)?\s*contact`,
+    String.raw`niet\s+(meer\s+)?(benaderen|mailen|contacteren|benaderd|gemaild)`,
+    String.raw`geen\s+(verdere\s+)?(mails?|e-?mails?|berichten|correspondentie)\s*(meer)?\s*(sturen|ontvangen|gewenst)?`,
+    String.raw`(uit|af)\s*(te\s+)?(schrijven|melden)|uitschrijven|afmelden`,
+    String.raw`van\s+(de|jullie|je|uw)\s+(mail(ing)?|verzend)?lijst`,
+    String.raw`(stop|stoppen)\s+(met\s+)?(mailen|contact)`,
+    String.raw`do\s+not\s+contact|no\s+further\s+contact|unsubscribe|remove\s+(me|us)\s+from`,
+  ].join('|'),
+  'i',
+);
+
+/** They asked, in so many words, not to be contacted again. */
+export function asksForNoContact(replyOnly: string): boolean {
+  return STOP_RE.test(replyOnly);
+}
+
 export function routeInbound(x: {
   bounce: boolean;
   /** null = the classifier failed; a human reads it. */
@@ -64,7 +91,7 @@ export function routeInbound(x: {
   if (x.bounce || x.sentiment === 'bounce') return 'bounce';
   if (x.sentiment === null) return 'review';
   if (x.sentiment === 'auto') return 'ignore';
-  if (x.sentiment === 'stop') return 'stop';
+  if (x.sentiment === 'stop' || asksForNoContact(x.replyOnly)) return 'stop';
   if (
     x.sentiment === 'afwijzing' &&
     !hasQuestion(x.replyOnly) &&

@@ -29,6 +29,28 @@ Deno.test('a rejection with a question, or after a call, goes to Sjoerd', () => 
   assertEquals(route({ statusBefore: 'gesprek_gevoerd' }), 'review');
 });
 
+Deno.test('a request for no contact is always stop, even when the classifier said rejection', () => {
+  // The real mail of 2026-09-28 that got the "let me know" boilerplate queued.
+  const intertransfer = 'Beste Sjoerd,\n\nWe hebben jouw berichten in goede orde ontvangen. Verder contact is niet nodig/ gewenst.\n\nIk vertrouw erop je hiermee voldoende te hebben geïnformeerd.';
+  assertEquals(route({ replyOnly: intertransfer }), 'stop');
+  for (const s of [
+    'Wilt u ons niet meer benaderen?',
+    'Graag geen mails meer.',
+    'Haal ons van je mailinglijst.',
+    'Wij stellen geen verder contact op prijs.',
+    'Please do not contact us again.',
+    'Ik wil me afmelden.',
+  ]) {
+    assertEquals(route({ replyOnly: s }), 'stop', s);
+  }
+});
+
+Deno.test('an ordinary no is still an ordinary no', () => {
+  for (const s of ['Geen interesse, dank.', 'Past niet bij onze aanpak.', 'Wij werken al met een ander instrument.', 'Nu even niet, misschien volgend jaar contact.']) {
+    assertEquals(route({ replyOnly: s }), 'auto_rejection', s);
+  }
+});
+
 Deno.test('bounce beats anything the classifier said', () => {
   assertEquals(route({ bounce: true, sentiment: 'afwijzing' }), 'bounce');
 });
