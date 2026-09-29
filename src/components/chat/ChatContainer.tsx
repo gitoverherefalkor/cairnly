@@ -14,6 +14,7 @@ import { useSubmitChapterFeedback } from '@/hooks/useSubmitChapterFeedback';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { inferQuickReplyIntent } from './quickReplyIntent';
+import { ChatEndCoachBanner } from '@/components/coach/ChatEndCoachBanner';
 
 // Maps the sidebar section index (0..10) to the section_type used by the
 // `deliver-section` edge function. Indices that aren't delivered via chat
@@ -1199,6 +1200,8 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         />
 
         {/* Mobile-only Complete Session CTA — sidebar button isn't visible on mobile */}
+        {isSessionCompleted && <ChatEndCoachBanner reportId={reportId} />}
+
         {isSessionCompleted && (
           <div className="md:hidden px-4 py-3 bg-white border-t border-gray-100">
             <button

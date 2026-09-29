@@ -421,12 +421,38 @@ the Anthropic console after launch.
 ### Build order
 
 1. WF5 caching. **Done 2026-09-28.**
-2. Coach core: WF5C, `coach_usage`, kill switch, chat-proxy branch,
-   `/chat?mode=continue`, dashboard entry points, snapshot RPC (incl. saved
-   messages), coach-transcript retention clock.
-3. Retention choice + coach notes + privacy policy update.
-4. Advisor loop: `save_next_steps`, next steps card, check-in emails.
+2. Coach core. **Built 2026-09-29, on branch, kill switch off:**
+   - DB: `app_flags`, `coach_usage`, `coach_next_steps`, `coach_notes`,
+     `get_coach_snapshot()`, `coach_save_next_step()`, `coach_usage_bump()`
+     (migrations `20260929100000`, `20260929120000`, applied).
+   - WF5C `wPBE2wIwDaj6Wy8D` in the Cairnly n8n project, **inactive**. The
+     snapshot is loaded before every reply and put in the system prompt (tool
+     results are not kept in n8n chat memory, so a snapshot tool would be lost
+     after one turn). Prompt: `n8n_wfs_cairnly/notes/WF5C_system_prompt.md`.
+   - `chat-proxy` v106 deployed: `mode: 'continue'` branch, and a report
+     ownership check for every request (previously missing: a signed-in user
+     could send another user's report_id).
+   - Frontend: `/coach` page, dashboard "Your coach" card with next steps,
+     clickable Move pill, "Ask the coach" links on career rows (incl. after
+     "Not for me"), banner under a finished first chat. All hidden while the
+     kill switch is off.
+3. Coach notes. **Done 2026-09-29:** `coach-notes` edge function, cron every
+   3h plus 02:15 UTC before the purge (migration `20260929110000`). First
+   backfill: 13 reports, 6 with notes, 7 without real discussion. The first
+   coach visit shows a notice explaining what the coach remembers (option a
+   disclosure). Still open: the retention choice screen, purge changes for
+   coach transcripts, privacy policy update.
+4. Advisor loop: `save_next_step` and the next steps card are built; check-in
+   emails are not.
 5. /ops panel.
+
+### Go-live checklist
+
+1. Merge the branch (frontend).
+2. Activate WF5C in n8n.
+3. `update public.app_flags set value = true where key = 'coach_enabled';`
+4. Send one coach message from a real account and check the reply, the
+   counter, and that `report_sections` did not change.
 
 ---
 

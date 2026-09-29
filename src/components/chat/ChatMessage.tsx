@@ -11,7 +11,7 @@ import {
   extractAIImpact,
   extractFeasibility,
 } from './CareerScoreCard';
-import { MOVE_COLOR, normalizeMove } from '@/lib/moveScale';
+import { MOVE_COLOR, normalizeMove, buildFeasibilityQuestion } from '@/lib/moveScale';
 import { moveLabel } from '@/lib/enumLabels';
 import { companyContext } from '@/lib/companyContext';
 import { useTranslation } from 'react-i18next';
@@ -554,32 +554,9 @@ const markdownComponents = {
   ),
 };
 
-// Builds the question auto-sent by the "Can I get there from here?" pill.
-// Names the role inline so the agent has context without the [About <role>]
-// prefix (that prefix is only applied to free-text turns, not chip sends),
-// and explicitly asks for the transition/reskilling angle so the reply
-// covers feasibility of the jump, not just the role itself.
-// Written in the viewer's language: the user reads it as their own message,
-// and the agent mirrors the language of the question in its reply.
-export function buildFeasibilityQuestion(
-  roleTitle: string,
-  moveLevel?: string | null,
-  lang?: string | null,
-): string {
-  const nl = String(lang ?? 'en').slice(0, 2).toLowerCase() === 'nl';
-  const base = nl
-    ? `Hoe realistisch is de overstap naar ${roleTitle} vanaf waar ik nu sta, en wat zou ik moeten leren of bijleren om daar te komen?`
-    : `How realistic is the move into ${roleTitle} from where I am now, and what would I need to learn or reskill to get there?`;
-  // When the report has a Move rating for this role, name it so the agent ties
-  // its answer to the pill and justifies the label (rather than answering blind).
-  // The level is quoted with the label the user sees on the pill (localised).
-  // (Answer legibility / short paragraphs is handled by the WF5 system prompt.)
-  if (!moveLevel) return base;
-  const shownLevel = moveLabel(moveLevel, lang);
-  return nl
-    ? `${base} Mijn rapport beoordeelt de benodigde stap voor deze overstap als "${shownLevel}". Leg uit waarom die beoordeling zo is, en of die klopt.`
-    : `${base} My report rates the reskilling effort for this move as "${shownLevel}". Explain why it is rated that, and whether it holds up.`;
-}
+// buildFeasibilityQuestion moved to @/lib/moveScale (shared with the
+// dashboard's coach links); re-exported here for existing importers.
+export { buildFeasibilityQuestion };
 
 // Renders a section-reveal message with sequential sub-section disclosure.
 // Initial render: preamble (h3 + intro) + first h2 sub-section + a chevron

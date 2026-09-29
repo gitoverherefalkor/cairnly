@@ -25,9 +25,18 @@ import {
   getAuthenticatedUser,
   checkRateLimit,
 } from '../_shared/cors.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
+
+// Post-report coach budget per report per calendar month (decision H).
+const COACH_MONTHLY_LIMIT = 40;
+// WF5C "Coach chat" trigger (production URL; only answers once WF5C is active).
+const DEFAULT_COACH_WEBHOOK_URL =
+  'https://falkoratlas.app.n8n.cloud/webhook/ca944e4c-de52-46eb-bc45-e2c8405f5019/chat';
+const COACH_ENTRY_POINTS = ['chat', 'career', 'move', 'set_aside', 'checkin'];
 
 interface ChatRequestBody {
   action?: 'sendMessage' | 'loadPreviousSession';
+  mode?: 'continue';
   // n8n expects the exact key 'n8n-chat/sessionId'
   ['n8n-chat/sessionId']?: string;
   chatInput?: string;
@@ -48,6 +57,10 @@ interface ChatRequestBody {
     // straight through to WF5 without any change here — listed for clarity.
     assessment_purpose?: string;
     goal_alignment?: string;
+    // Coach mode only: which dashboard button opened the coach, and its subject
+    // (career title or next-step text).
+    entry_point?: string;
+    entry_context?: string;
   };
 }
 
@@ -95,6 +108,99 @@ serve(async (req) => {
     return errorResponse('chatInput too long (max 8000 chars)', 400, corsHeaders);
   }
 
+  // A report_id always has to be the caller's own report. Without this check a
+  // signed-in user could chat about (and, via WF6, edit) someone else's report.
+  const reportId = body.metadata?.report_id;
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+  if (reportId) {
+    const { data: owned } = await supabase
+      .from('reports')
+      .select('id')
+      .eq('id', reportId)
+      .eq('user_id', authed.userId)
+      .maybeSingle();
+    if (!owned) return errorResponse('Forbidden', 403, corsHeaders);
+  }
+
+  let targetUrl = webhookUrl;
+  let reserved = false;
+  if (body.mode === 'continue') {
+    if (body.action !== 'sendMessage' || !reportId || !body.chatInput?.trim()) {
+      return errorResponse('report_id and chatInput required', 400, corsHeaders);
+    }
+
+    const { data: flag } = await supabase
+      .from('app_flags').select('value').eq('key', 'coach_enabled').maybeSingle();
+    if (!flag?.value) return errorResponse('Coach not available', 403, corsHeaders);
+
+    const { data: engagement } = await supabase
+      .from('user_engagement_tracking')
+      .select('chat_completed_at')
+      .eq('user_id', authed.userId)
+      .maybeSingle();
+    if (!engagement?.chat_completed_at) {
+      return errorResponse('Finish your first coaching chat first', 403, corsHeaders);
+    }
+
+    const { data: used, error: usageErr } = await supabase.rpc('coach_usage_bump', {
+      p_report_id: reportId,
+      p_user_id: authed.userId,
+      p_limit: COACH_MONTHLY_LIMIT,
+      p_delta: 1,
+    });
+    if (usageErr) {
+      console.error('[chat-proxy] coach_usage_bump:', usageErr.message);
+      return errorResponse('Chat service unavailable', 503, corsHeaders);
+    }
+    if (used === -1) {
+      const now = new Date();
+      const resetsAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+      return new Response(
+        JSON.stringify({
+          error: 'coach_limit_reached',
+          used: COACH_MONTHLY_LIMIT,
+          limit: COACH_MONTHLY_LIMIT,
+          resets_at: resetsAt.toISOString(),
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+    reserved = true;
+
+    // Rebuild the payload: only whitelisted fields reach WF5C.
+    const m = body.metadata ?? {};
+    const entryPoint = COACH_ENTRY_POINTS.includes(m.entry_point ?? '') ? m.entry_point : 'chat';
+    body = {
+      action: 'sendMessage',
+      'n8n-chat/sessionId': body['n8n-chat/sessionId'],
+      chatInput: body.chatInput,
+      metadata: {
+        report_id: reportId,
+        first_name: String(m.first_name ?? '').slice(0, 80),
+        country: String(m.country ?? '').slice(0, 80),
+        preferred_language: String(m.preferred_language ?? 'en').slice(0, 8),
+        entry_point: entryPoint,
+        entry_context: String(m.entry_context ?? '').slice(0, 300),
+      },
+    };
+    targetUrl = Deno.env.get('N8N_CHAT_CONTINUE_WEBHOOK_URL') ?? DEFAULT_COACH_WEBHOOK_URL;
+  }
+
+  // A coach message that never got a reply is refunded.
+  const refund = async () => {
+    if (!reserved) return;
+    const { error } = await supabase.rpc('coach_usage_bump', {
+      p_report_id: reportId,
+      p_user_id: authed.userId,
+      p_limit: COACH_MONTHLY_LIMIT,
+      p_delta: -1,
+    });
+    if (error) console.error('[chat-proxy] coach refund failed:', error.message);
+  };
+
   // Forward to n8n with auth. We send BOTH x-shared-secret AND Basic Auth
   // because the n8n Chat Trigger node only supports Basic Auth — not Header
   // Auth — but other downstream consumers may still validate x-shared-secret.
@@ -110,7 +216,7 @@ serve(async (req) => {
 
   let n8nResp: Response;
   try {
-    n8nResp = await fetch(webhookUrl, {
+    n8nResp = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -121,6 +227,7 @@ serve(async (req) => {
       signal: controller.signal,
     });
   } catch (e) {
+    await refund();
     if ((e as Error).name === 'AbortError') {
       console.error('[chat-proxy] n8n timed out after 90s');
       return errorResponse('Chat timed out. Please try again.', 504, corsHeaders);
@@ -132,6 +239,7 @@ serve(async (req) => {
   }
 
   if (!n8nResp.ok) {
+    await refund();
     const text = await n8nResp.text().catch(() => '');
     console.error('[chat-proxy] n8n returned non-OK:', n8nResp.status, text.slice(0, 500));
     return errorResponse('Chat agent returned an error', 502, corsHeaders);
@@ -140,6 +248,25 @@ serve(async (req) => {
   // Pass n8n's body through verbatim — frontend parses the same shape it
   // used to parse from n8n directly.
   const respBody = await n8nResp.text();
+  if (reserved) {
+    // Tell the frontend how much budget is left, for the counter.
+    try {
+      const parsed = JSON.parse(respBody);
+      const { data: row } = await supabase
+        .from('coach_usage')
+        .select('messages_used')
+        .eq('report_id', reportId)
+        .eq('month', new Date().toISOString().slice(0, 7) + '-01')
+        .maybeSingle();
+      const payload = Array.isArray(parsed) ? parsed[0] ?? {} : parsed;
+      return new Response(
+        JSON.stringify({ ...payload, coach_usage: { used: row?.messages_used ?? null, limit: COACH_MONTHLY_LIMIT } }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    } catch {
+      // Not JSON: pass through unchanged.
+    }
+  }
   return new Response(respBody, {
     status: 200,
     headers: { ...corsHeaders, 'Content-Type': n8nResp.headers.get('Content-Type') ?? 'application/json' },

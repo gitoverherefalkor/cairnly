@@ -1,0 +1,65 @@
+{
+  "header": {
+    "back": "Dashboard",
+    "title": "Your coach",
+    "subtitle": "Think it through, plan your next move"
+  },
+  "counter": {
+    "left": "{{remaining}} of {{limit}} left this month",
+    "tooltip": "Your messages top up on {{date}}"
+  },
+  "opener": {
+    "default": "Hi {{name}}, your report is done, but the thinking usually isn't. Ask me about any career in it, a decision you're weighing, an interview coming up, or what to do first. I know your report, so you don't have to explain it again.",
+    "checkin": "Last time you planned to: **{{step}}**. How did it go?"
+  },
+  "starters": {
+    "plan": "Help me figure out what to do first",
+    "interview": "I have an interview coming up, help me prepare",
+    "doubt": "I'm having doubts about my top career"
+  },
+  "notice": {
+    "title": "What your coach remembers",
+    "body": "Your coach reads your finished report, the messages you saved, and short notes it keeps from your conversations, so you don't have to repeat yourself. It can't change your report. You can ask us to delete your chat data anytime via support.",
+    "close": "Close"
+  },
+  "thinking": "Thinking...",
+  "error": {
+    "send": "Something went wrong sending that. It didn't count against your messages. Please try again."
+  },
+  "limit": {
+    "title": "You've used this month's coach messages",
+    "body": "Your messages top up on {{date}}. Your report, saved messages and next steps are all still on your dashboard."
+  },
+  "input": {
+    "placeholder": "Ask your coach anything about your next step...",
+    "send": "Send",
+    "hint": "Your coach can't change your report. It's here to help you think and plan."
+  },
+  "steps": {
+    "title": "Your next steps",
+    "empty": "When you and your coach agree on something concrete, it shows up here with a check-in date.",
+    "checkin": "Check-in {{date}}",
+    "done": "Done",
+    "drop": "Drop"
+  },
+  "card": {
+    "eyebrow": "YOUR COACH",
+    "title": "Keep talking it through",
+    "body": "Questions come up after the report: an interview, a doubt, what to do first. Your coach knows your report and helps you plan.",
+    "cta": "Talk to your coach",
+    "left": "{{remaining}} of {{limit}} messages left this month",
+    "checkinDue": "Check-in due"
+  },
+  "links": {
+    "askCareer": "Ask the coach about this role",
+    "askSetAside": "Talk through why it's not for you",
+    "draftCareer": "About {{title}}: ",
+    "draftSetAside": "I set aside {{title}} because ",
+    "moveTooltip": "Click to ask your coach how realistic this move is for you"
+  },
+  "chatEnd": {
+    "title": "Want to keep talking?",
+    "body": "Your coach stays available after the report, to help you plan and prepare.",
+    "cta": "Talk to your coach"
+  }
+}

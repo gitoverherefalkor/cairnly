@@ -37,6 +37,7 @@ const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
 const ReportPrint = lazyWithRetry(() => import("./pages/ReportPrint"));
 const Profile = lazyWithRetry(() => import("./pages/Profile"));
 const Chat = lazyWithRetry(() => import("./pages/Chat"));
+const Coach = lazyWithRetry(() => import("./pages/Coach"));
 const ReportProcessing = lazyWithRetry(() => import("./pages/ReportProcessing"));
 const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
@@ -175,6 +176,7 @@ const App = () => {
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/assessment" element={<Assessment />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/coach" element={<Coach />} />
               <Route path="/report-processing" element={<ReportProcessing />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-conditions" element={<TermsOfService />} />

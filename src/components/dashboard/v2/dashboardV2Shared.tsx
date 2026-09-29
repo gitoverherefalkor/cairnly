@@ -15,6 +15,7 @@ import {
   salaryPillPrefix,
   salaryPillTitle,
 } from '@/lib/enumLabels';
+import { useCoachLinks } from '@/components/coach/coachLinkContext';
 
 // ---------- Brand palette ----------
 // Mirrors the --cairnly-* tokens in src/index.css. Kept as a local constant
@@ -241,31 +242,58 @@ export const MatchPill: React.FC<{ pct: number; lang?: string }> = ({ pct, lang 
 
 // ---------- MovePill ----------
 // Reskilling-effort pill shown beside the AI impact pill on top-3 career cards.
-export const MovePill: React.FC<{ level: MoveLevel; lang?: string }> = ({ level, lang }) => {
-  const { i18n } = useTranslation();
+// With a careerTitle and the coach available (CoachLinkProvider), the pill is
+// a button that asks the coach how realistic this move is. Otherwise it is
+// the plain, non-clickable pill.
+export const MovePill: React.FC<{ level: MoveLevel; lang?: string; careerTitle?: string | null }> = ({
+  level,
+  lang,
+  careerTitle,
+}) => {
+  const { i18n, t } = useTranslation('coach');
+  const coach = useCoachLinks();
   const l = lang ?? i18n.language;
   const color = MOVE_COLOR[level];
-  return (
-    <span
-      title={moveLegend(level, l)}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '4px 10px',
-        borderRadius: 9999,
-        background: `${color}1a`,
-        color,
-        fontFamily: FONT_DISPLAY,
-        fontWeight: 700,
-        fontSize: 10,
-        letterSpacing: '0.16em',
-        textTransform: 'uppercase',
-        border: `1px solid ${color}33`,
-        whiteSpace: 'nowrap',
-      }}
-    >
+  const clickable = !!coach && !!careerTitle;
+  const style: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '4px 10px',
+    borderRadius: 9999,
+    background: `${color}1a`,
+    color,
+    fontFamily: FONT_DISPLAY,
+    fontWeight: 700,
+    fontSize: 10,
+    letterSpacing: '0.16em',
+    textTransform: 'uppercase',
+    border: `1px solid ${color}33`,
+    whiteSpace: 'nowrap',
+  };
+  const inner = (
+    <>
       <Route size={11} color={color} /> {moveLabel(level, l)}
+    </>
+  );
+  if (clickable) {
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          coach!.askMove(careerTitle!, level);
+        }}
+        title={`${moveLegend(level, l)}\n\n${t('links.moveTooltip')}`}
+        style={{ ...style, cursor: 'pointer' }}
+      >
+        {inner}
+      </button>
+    );
+  }
+  return (
+    <span title={moveLegend(level, l)} style={style}>
+      {inner}
     </span>
   );
 };
