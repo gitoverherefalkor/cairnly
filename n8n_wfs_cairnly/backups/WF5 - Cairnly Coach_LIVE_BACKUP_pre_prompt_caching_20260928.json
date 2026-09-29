@@ -3,11 +3,11 @@
   "name": "WF5 - Cairnly Coach",
   "description": null,
   "active": true,
-  "activeVersionId": "48a94f4b-8c15-4ed7-80dc-bb92f87a34a9",
+  "activeVersionId": "f4e06f57-6eb9-499d-b0be-3079c368bcdf",
   "createdAt": "2025-06-20T07:41:50.211Z",
-  "updatedAt": "2026-09-28T11:20:09.998Z",
+  "updatedAt": "2026-09-17T08:18:32.572Z",
   "isArchived": false,
-  "versionId": "48a94f4b-8c15-4ed7-80dc-bb92f87a34a9",
+  "versionId": "f4e06f57-6eb9-499d-b0be-3079c368bcdf",
   "versionCounter": 634,
   "sourceWorkflowId": null,
   "triggerCount": 1,
@@ -83,7 +83,7 @@
       "id": "8778cbf1-12eb-4f51-8f5a-42868c0dbb58",
       "name": "Anthropic Chat Model1",
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.6,
+      "typeVersion": 1.3,
       "position": [
         -1728,
         160
@@ -96,8 +96,7 @@
           "cachedResultName": "Claude Sonnet 5"
         },
         "options": {
-          "maxTokensToSample": 16000,
-          "promptCaching": "5m"
+          "maxTokensToSample": 16000
         }
       },
       "credentials": {

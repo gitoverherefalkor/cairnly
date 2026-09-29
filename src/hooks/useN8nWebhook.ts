@@ -147,5 +147,68 @@ export function useN8nWebhook() {
     }
   };
 
-  return { sendMessage, loadPreviousSession };
+  // Post-report coach (WF5C) via chat-proxy mode 'continue'. chat-proxy
+  // enforces the monthly budget; a 429 with coach_limit_reached becomes a
+  // CoachLimitError so the page can show its end state.
+  const sendCoachMessage = async (
+    sessionId: string,
+    message: string,
+    metadata: CoachMetadata,
+  ): Promise<{ text: string; used: number | null }> => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const headers = await buildHeaders();
+      const res = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers,
+        mode: 'cors',
+        signal: controller.signal,
+        body: JSON.stringify({
+          action: 'sendMessage',
+          mode: 'continue',
+          'n8n-chat/sessionId': sessionId,
+          chatInput: message,
+          metadata: {
+            ...metadata,
+            preferred_language: metadata.preferred_language || i18n.language || 'en',
+          },
+        }),
+      });
+
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        if (body?.error === 'coach_limit_reached') {
+          throw new CoachLimitError(body.resets_at ?? null);
+        }
+      }
+      if (!res.ok) {
+        throw new Error(`chat-proxy returned ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      const text = data.output ?? data.text ?? data.message ?? '';
+      return { text, used: data.coach_usage?.used ?? null };
+    } finally {
+      clearTimeout(timeout);
+    }
+  };
+
+  return { sendMessage, loadPreviousSession, sendCoachMessage };
+}
+
+export interface CoachMetadata {
+  report_id: string;
+  first_name: string;
+  country: string;
+  preferred_language?: string;
+  entry_point?: string;
+  entry_context?: string;
+}
+
+export class CoachLimitError extends Error {
+  constructor(public resetsAt: string | null) {
+    super('coach_limit_reached');
+    this.name = 'CoachLimitError';
+  }
 }

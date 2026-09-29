@@ -1,0 +1,65 @@
+{
+  "header": {
+    "back": "Dashboard",
+    "title": "Je coach",
+    "subtitle": "Denk het door, plan je volgende stap"
+  },
+  "counter": {
+    "left": "Nog {{remaining}} van {{limit}} deze maand",
+    "tooltip": "Je berichten worden aangevuld op {{date}}"
+  },
+  "opener": {
+    "default": "Hoi {{name}}, je rapport is klaar, maar het nadenken meestal nog niet. Vraag me over een beroep uit je rapport, een keuze waar je mee zit, een sollicitatiegesprek dat eraan komt of waar je het beste kunt beginnen. Ik ken je rapport, dus je hoeft niets opnieuw uit te leggen.",
+    "checkin": "Vorige keer nam je je voor: **{{step}}**. Hoe ging het?"
+  },
+  "starters": {
+    "plan": "Help me bepalen waar ik moet beginnen",
+    "interview": "Ik heb binnenkort een sollicitatiegesprek, help me voorbereiden",
+    "doubt": "Ik twijfel over mijn beste match"
+  },
+  "notice": {
+    "title": "Wat je coach onthoudt",
+    "body": "Je coach leest je afgeronde rapport, de berichten die je hebt bewaard en korte notities uit jullie gesprekken, zodat je niets hoeft te herhalen. Je coach kan je rapport niet aanpassen. Je kunt ons altijd via support vragen je chatgegevens te verwijderen.",
+    "close": "Sluiten"
+  },
+  "thinking": "Even nadenken...",
+  "error": {
+    "send": "Er ging iets mis bij het versturen. Dit telt niet mee voor je berichten. Probeer het nog eens."
+  },
+  "limit": {
+    "title": "Je hebt je coachberichten voor deze maand gebruikt",
+    "body": "Je berichten worden aangevuld op {{date}}. Je rapport, bewaarde berichten en volgende stappen staan nog gewoon op je dashboard."
+  },
+  "input": {
+    "placeholder": "Vraag je coach alles over je volgende stap...",
+    "send": "Versturen",
+    "hint": "Je coach kan je rapport niet aanpassen. Je coach helpt je nadenken en plannen."
+  },
+  "steps": {
+    "title": "Je volgende stappen",
+    "empty": "Als je met je coach iets concreets afspreekt, verschijnt het hier met een datum om even terug te kijken.",
+    "checkin": "Terugkijken op {{date}}",
+    "done": "Gedaan",
+    "drop": "Laten vallen"
+  },
+  "card": {
+    "eyebrow": "JE COACH",
+    "title": "Blijf erover doorpraten",
+    "body": "Na het rapport komen de vragen pas echt: een sollicitatiegesprek, twijfel, waar begin je. Je coach kent je rapport en helpt je plannen.",
+    "cta": "Praat met je coach",
+    "left": "Nog {{remaining}} van {{limit}} berichten deze maand",
+    "checkinDue": "Tijd om terug te kijken"
+  },
+  "links": {
+    "askCareer": "Vraag de coach over deze rol",
+    "askSetAside": "Bespreek waarom dit niets voor je is",
+    "draftCareer": "Over {{title}}: ",
+    "draftSetAside": "Ik heb {{title}} opzij gezet omdat ",
+    "moveTooltip": "Klik om je coach te vragen hoe haalbaar deze stap voor jou is"
+  },
+  "chatEnd": {
+    "title": "Wil je verder praten?",
+    "body": "Je coach blijft beschikbaar na het rapport, om je te helpen plannen en voorbereiden.",
+    "cta": "Praat met je coach"
+  }
+}

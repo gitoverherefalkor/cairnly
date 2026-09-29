@@ -173,6 +173,11 @@ verify_jwt = false
 [functions.outreach-prepare]
 verify_jwt = false
 
+# Coach notes: called by pg_cron (and manually) with the x-shared-secret gate,
+# no JWT. Writes coach_notes only.
+[functions.coach-notes]
+verify_jwt = false
+
 # Ops push: called by pg_cron for the morning and afternoon digest and the
 # paused-queue alarm, so no JWT. Same x-shared-secret gate. Sends Web Push to
 # the admin subscriptions in ops_push_subscriptions and nothing else.

@@ -21,6 +21,9 @@ import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLett
 import { useSavedJobs } from '@/hooks/useSavedJobs';
 import { FREE_SEARCH_LIMIT } from '@/hooks/useJobSearchCredits';
 import { useDismissedCareers, type DismissReason } from '@/hooks/useDismissedCareers';
+import { useCoachAccess } from '@/hooks/useCoach';
+import { CoachLinkProvider } from '@/components/coach/coachLinkContext';
+import { CoachCard, CoachAskLinks } from '@/components/coach/CoachLinks';
 import { filterDismissed } from '@/lib/dismissed';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { extractAIImpact, type AIImpactLevel } from '@/components/chat/CareerScoreCard';
@@ -496,6 +499,11 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   // careers to the bottom of their group.
   const dismissal = useDismissedCareers(reportId);
 
+  // Post-report coach: off in the read-only demo; otherwise follows the
+  // app_flags kill switch and whether the first chat is finished.
+  const coachAccess = useCoachAccess(readOnly ? undefined : reportId);
+  const coachOn = !readOnly && coachAccess.available;
+
   const careerRows = useMemo<ReportRow[]>(() => {
     const rows: ReportRow[] = [];
     // Top 3 — one accordion row per career so hero/secondary "Open" buttons
@@ -728,7 +736,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     ? formatDate(reportGeneratedAt, i18n.language, { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
 
-  return (
+  const page = (
     <LakeBackground intensity="normal">
       {/* Accordion prose rules the inline style prop can't express
           (:first-child, ::marker). Mounted once for the whole page. */}
@@ -848,6 +856,9 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             )}
           </div>
         )}
+
+        {/* ─── Post-report coach (only when available) ─── */}
+        {coachOn && <CoachCard reportId={reportId} access={coachAccess} />}
 
         {/* ─── Share promo (sits right under the top-3 row) ─── */}
         <SharePromoBlock
@@ -1147,6 +1158,8 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
       </div>
     </LakeBackground>
   );
+
+  return coachOn ? <CoachLinkProvider>{page}</CoachLinkProvider> : page;
 };
 
 // ── Hero match (#1) ──────────────────────────────────────────
@@ -1272,7 +1285,7 @@ const HeroMatch: React.FC<{
           {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
             <MatchPill pct={match.matchPct} />
-            {match.move && <MovePill level={match.move} />}
+            {match.move && <MovePill level={match.move} careerTitle={match.title} />}
             {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
             {match.salary && <SalaryPill range={match.salary} />}
           </div>
@@ -1602,7 +1615,7 @@ const SecondaryMatch: React.FC<{
     {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
       <MatchPill pct={match.matchPct} />
-      {match.move && <MovePill level={match.move} />}
+      {match.move && <MovePill level={match.move} careerTitle={match.title} />}
       {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
       {match.salary && <SalaryPill range={match.salary} />}
     </div>
@@ -2956,7 +2969,7 @@ const ReportAccordionRow: React.FC<{
             onSelect={(i) => setActiveKey(row.careers![i].sectionId)}
             isDismissed={(id) => dismissal.bySectionId.has(id)}
           />
-          <CareerBodyHeader meta={row.careers[activeCareer].meta} />
+          <CareerBodyHeader meta={row.careers[activeCareer].meta} title={row.careers[activeCareer].title} />
           <AccordionContent content={row.careers[activeCareer].content} />
         </div>
       )}
@@ -2965,7 +2978,7 @@ const ReportAccordionRow: React.FC<{
           className="cairnly-accordion-body"
           style={{ padding: mobile ? '0 16px 22px 16px' : '0 28px 28px 120px', maxWidth: 880 }}
         >
-          <CareerBodyHeader meta={row.meta} />
+          <CareerBodyHeader meta={row.meta} title={row.title} />
           <AccordionContent content={row.content} />
           {row.comparison && <CareerComparisonPanel comparison={row.comparison} />}
         </div>
@@ -3002,6 +3015,7 @@ const ReportAccordionRow: React.FC<{
               dismissal.setReason({ sectionId: activeSectionId, reason })
             }
           />
+          <CoachAskLinks careerTitle={activeTitle ?? null} dismissed={isDismissed} />
         </div>
       )}
     </div>
@@ -3382,7 +3396,7 @@ const ACCORDION_BODY_CSS = `
 // and the alternate titles — the same three lines the coach chat shows at the
 // top of a career card. Renders nothing when a section carries none of them
 // (dream jobs and older outside-the-box rows), so the prose still starts flush.
-const CareerBodyHeader: React.FC<{ meta?: CareerBodyMeta }> = ({ meta }) => {
+const CareerBodyHeader: React.FC<{ meta?: CareerBodyMeta; title?: string | null }> = ({ meta, title }) => {
   const { t } = useTranslation('dashboard');
   if (!meta) return null;
   const hasPills =
@@ -3415,7 +3429,7 @@ const CareerBodyHeader: React.FC<{ meta?: CareerBodyMeta }> = ({ meta }) => {
       {hasPills && (
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
           {meta.matchPct != null && <MatchPill pct={meta.matchPct} />}
-          {meta.move && <MovePill level={meta.move} />}
+          {meta.move && <MovePill level={meta.move} careerTitle={title} />}
           {meta.aiImpact && <AIImpactPill label={meta.aiImpact} />}
           {meta.salary && <SalaryPill range={meta.salary} />}
         </div>

@@ -167,6 +167,7 @@ Rule of thumb: if the action is reversible by re-running `supabase db push` from
 | WF3 (Scoring + OOB) | zhgJuiDp60PS5ZKJ | Career scoring + outside-the-box ("WF3 - scoring careers NL/EN"). ⚠️ The old `LJA5JPHvnqhA36Oh` / `WF3.2_scoring_careers` is **inactive** — don't use it (it was the duplicate-and-replace source during the May 2026 NL localization). |
 | WF4 (Content Gen) | seWmQPFQqIe60TkU | Top 3 + runner-up + dream job narratives ("WF4 - Career selection NL/EN"). ⚠️ The old `pXlzC6vuG7TO28oQ` / `WF4 Career selection` is **inactive** — don't use it. |
 | WF5 (Chat) | h7ie9zN080IM2g7N | Interactive career coach chat (n8n name "WF5 - Cairnly Coach"). Old `XPhZc4Fyn2umaUyJ` / WF5.2 is inactive. |
+| WF5C (Coach Continued) | wPBE2wIwDaj6Wy8D | Post-report coach ("WF5C - Cairnly Coach Continued"), called by `chat-proxy` mode `continue`. No WF6 tool, cannot change the report. Created 2026-09-29, **inactive** until the coach launches. |
 | WF6 (Feedback) | CyyjL7D51NbVZNtL | Incorporates chat feedback into the report ("WF6 - Feedback processing NL/EN"). Old `XuOb0iIv1Hwc2t62` is inactive. |
 | WF7 (Exec Summary) | ohNbCw7pVqvjCZHT | Executive summary generation ("WF7 - ExecSummary NL/EN"). Old `yg7naUkC6oqr2WpU` is inactive. |
 | WF8 (Finding Roles) | Bx0uNW4gnnXIGO8j | "Find Open Roles" job search ("WF8 - Finding selected roles") |
