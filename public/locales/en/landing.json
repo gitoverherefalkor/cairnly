@@ -382,8 +382,8 @@
     "titleHighlight": "unclear?",
     "items": [
       {
-        "q": "Isn't this just ChatGPT in a wrapper?",
-        "a": "No. The assessment is built on validated psychometric research and refined with working career coaches. The AI is the engine that processes your specific history and responses against that foundation, it isn't improvising. Generic AI tools skip the science. We don't."
+        "q": "Can't I just ask ChatGPT?",
+        "a": "You can, and it'll give you an answer. But ChatGPT only works with what you type, and it tends to tell you what you want to hear. Cairnly starts with a 25-minute assessment built on psychometric research, covering your goals, skills, salary floor, working hours and what you won't compromise on. Then it runs a proper process: it researches around 15 career options (with salaries for your region and how exposed each role is to AI), scores each one against your answers, and picks the paths that actually fit. A career that breaks something you marked as non-negotiable drops down the list. After that you can talk it through with a coach that knows your full report. Same kind of AI, a very different result."
       },
       {
         "q": "How is this different from career coaching?",
