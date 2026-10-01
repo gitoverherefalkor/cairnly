@@ -124,11 +124,10 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
         }}
       >
         <div className="lp-container py-3 flex items-center justify-between">
-          <a href="/" className="flex flex-col items-start">
-            <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 md:h-16 w-auto -mb-2.5" />
-            <span className="text-[9px] md:text-[10px] tracking-[0.22em] text-[#D4A024]">
-              {t('nav.tagAuth')}
-            </span>
+          {/* Wordmark only: the "career path clarity." tagline lives in the
+              footer (removed from the header 2026-10-01). */}
+          <a href="/" className="flex items-center">
+            <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 md:h-16 w-auto" />
           </a>
 
           {/* Desktop nav */}
