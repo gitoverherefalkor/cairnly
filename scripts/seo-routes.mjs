@@ -81,15 +81,15 @@ const STATIC_ROUTES = [
   // English page and Helmet swaps in the English <title> once the namespace
   // loads. What stays Dutch is the STATIC shell a non-JS crawler or a link
   // preview sees, because one route has exactly one prerendered shell and this
-  // page is aimed at NL re-integratie and outplacement bureaus. Flipping these
+  // page is aimed at NL outplacement bureaus and loopbaancoaches. Flipping these
   // two strings to English trades that Dutch ranking away; only do it if the
   // channel's target audience changes.
   {
     path: '/partners',
     title:
-      'Cairnly voor loopbaanprofessionals | loopbaanassessment voor re-integratie en outplacement',
+      'Cairnly voor loopbaanprofessionals | loopbaanassessment voor outplacement en loopbaanbegeleiding',
     description:
-      'Zet Cairnly in als voorwerk in je traject: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten.',
+      'Cairnly als voorwerk in je outplacement- of loopbaantraject voor kantoor- en kenniswerkers: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten.',
     changefreq: 'monthly',
     priority: '0.8',
   },
