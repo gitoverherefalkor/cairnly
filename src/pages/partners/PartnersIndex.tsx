@@ -15,8 +15,9 @@ import PartnersFAQ from '@/components/partners/PartnersFAQ';
 import PartnersClosing from '@/components/partners/PartnersClosing';
 
 /**
- * /partners — the public marketing page for the partner channel (re-integratie,
- * outplacement, independent career coaches).
+ * /partners — the public marketing page for the partner channel (outplacement,
+ * independent career coaches; spoor 2 only for candidates with an office
+ * background, per the 2026-10-02 decision to park spoor 2).
  *
  * A plain route inside the existing site, NOT a flavor fork like /starter and
  * /encore: those carry their own pages dir, survey and WF1x-WF4x workflows,
