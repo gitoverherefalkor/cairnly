@@ -1,5 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { amsterdamDayStamp, nextActivationNudge, nextFollowUp } from './outreachCadence.ts';
+import { amsterdamDayStamp, nextActivationNudge, nextFollowUp, reanchorGoodbye } from './outreachCadence.ts';
 
 const day = (s: string) => amsterdamDayStamp(`${s}T10:00:00Z`);
 const base = { status: 'verzonden', tier: 'A', lastOutAt: null, verzondenOp: null, theyWroteLast: false, parkedAt: null };
@@ -78,4 +78,21 @@ Deno.test('nothing after the check-in, once used, expired, answered-to-them, par
   assertEquals(nextActivationNudge({ ...code, parked: true }), null);
   assertEquals(nextActivationNudge({ ...code, status: 'afgewezen' }), null);
   assertEquals(nextActivationNudge({ ...code, codesIssued: 0, codesOpen: 0 }), null);
+});
+
+Deno.test('a re-angle re-anchors the goodbye: new status, new last mail, at least six working days later', () => {
+  // Re-angle Tuesday 6 Oct → goodbye no earlier than Wednesday 14 Oct.
+  const r = reanchorGoodbye(
+    { status: 'opvolging_1', lastOutAt: '2026-09-24T12:00:00Z', dueAt: '2026-10-02T00:00:00.000Z', clicks: 4 },
+    { sentAt: '2026-10-06T09:00:00Z', statusAfter: 'opvolging_2' },
+  );
+  assertEquals(r.dueAt, new Date(day('2026-10-14')).toISOString());
+  assertEquals(r.basis.status, 'opvolging_2');
+  assertEquals(r.basis.lastOutAt, '2026-10-06T09:00:00Z');
+  assertEquals(r.basis.clicks, 4);
+  // A goodbye that was already pushed further out keeps its later date.
+  assertEquals(
+    reanchorGoodbye({ status: 'opvolging_1', dueAt: '2026-10-19T00:00:00.000Z' }, { sentAt: '2026-10-06T09:00:00Z', statusAfter: 'opvolging_2' }).dueAt,
+    '2026-10-19T00:00:00.000Z',
+  );
 });

@@ -100,6 +100,15 @@ interface SubjectStat {
   momenten_gemiddeld: number | null;
 }
 
+/** The re-angle (third touch, new thread), measured outside the A/B arms. */
+interface ReangleStats {
+  sent: number;
+  waiting: number;
+  clicked: number;
+  replied: number;
+  positive: number;
+}
+
 interface SendState {
   gepauzeerd: boolean;
   auto_goedkeuren?: boolean;
@@ -124,6 +133,7 @@ interface ListResponse {
   campaigns: string[];
   log: ClickRow[];
   subject_stats: SubjectStat[];
+  reangle_stats?: ReangleStats;
   send: SendInfo;
   /** The control center: concepts waiting, scheduled and sent today. */
   concepts?: ConceptRow[];
@@ -693,7 +703,7 @@ function MailHistory({ mails }: { mails: OutreachMail[] }) {
  * panel therefore leads with the counts and states what it would take to call
  * a winner.
  */
-function SubjectTest({ stats }: { stats: SubjectStat[] }) {
+function SubjectTest({ stats, reangle }: { stats: SubjectStat[]; reangle?: ReangleStats }) {
   if (!stats.length) return null;
   const byVariant = new Map(stats.map((s) => [s.variant, s]));
   const rows: Array<'a' | 'b'> = ['a', 'b'];
@@ -748,10 +758,32 @@ function SubjectTest({ stats }: { stats: SubjectStat[] }) {
               </tr>
             );
           })}
+          {reangle && (reangle.sent > 0 || reangle.waiting > 0) && (
+            <tr className="border-t border-white/[0.12] align-top">
+              <td className="py-1.5 pr-3">
+                <span className="text-[10px] uppercase text-white/55 mr-1.5">re</span>
+                <span className="text-white/[0.88]">Misschien heb ik het verkeerd gepitcht</span>
+                <div className="text-[11px] text-white/45">
+                  re-angle, 3rd touch, new thread{reangle.waiting > 0 ? ` · ${reangle.waiting} waiting` : ''}
+                </div>
+              </td>
+              <td className="py-1.5 pr-3 text-white/[0.88]">{reangle.sent}</td>
+              <td className="py-1.5 pr-3 text-white/[0.88]">
+                {reangle.clicked} <span className="text-white/45">{pct(reangle.clicked, reangle.sent)}</span>
+              </td>
+              <td className="py-1.5 pr-3 text-white/[0.88]">
+                {reangle.replied} <span className="text-white/45">{pct(reangle.replied, reangle.sent)}</span>
+              </td>
+              <td className="py-1.5 pr-3 text-white/[0.88]">{reangle.positive}</td>
+              <td className="py-1.5 text-white/45">-</td>
+            </tr>
+          )}
         </tbody>
       </table>
       <p className="mt-2 text-[11px] text-white/50">
-        Every mail before 21 September carried subject A, so A&apos;s sent count includes
+        The re-angle row counts only what happened after it went out; a first click or a first
+        reply that came after it is taken out of that agency&apos;s A or B arm, so the subject test
+        stays a first-mail test. Every mail before 21 September carried subject A, so A&apos;s sent count includes
         history and B starts at zero. The two differ on one axis: A announces a question,
         B asks it. The row pills in the table below say which line an agency should get.
       </p>
@@ -965,7 +997,7 @@ export default function OutreachTab({
           the mails that went out, and it is not needed on every visit. */}
       {focus === 'contacted' && (
         <div id={SUBJECT_TEST_ID} className="scroll-mt-4">
-          <SubjectTest stats={data.subject_stats} />
+          <SubjectTest stats={data.subject_stats} reangle={data.reangle_stats} />
         </div>
       )}
 

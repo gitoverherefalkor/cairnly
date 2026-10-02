@@ -269,6 +269,54 @@ serve(async (req) => {
       };
 
       const knownSlugs = new Set(prospects.map((p) => p.slug as string));
+      // ── Re-angle (2026-10-02): a third touch in a new thread, measured on its
+      // own. The subject-line test counts per agency, so a click or reply that
+      // only came after the re-angle is taken out of that agency's arm here and
+      // counted under the re-angle instead.
+      const { data: reangleRows, error: raErr } = await supabase
+        .from('outreach_concepts')
+        .select('slug, status, verzonden_op')
+        .eq('variant', 'reangle');
+      if (raErr) throw raErr;
+      const REPLIED = ['gereageerd', 'codes_gemint', 'partner_aangemaakt', 'afgewezen'];
+      const POSITIVE = ['gereageerd', 'codes_gemint', 'partner_aangemaakt'];
+      const reangle = { sent: 0, waiting: 0, clicked: 0, replied: 0, positive: 0 };
+      const armAdjust = new Map<string, { met_klik: number; reacties: number; positieve_reacties: number }>();
+      const bySlug = new Map(prospects.map((p) => [p.slug as string, p]));
+      for (const r of reangleRows ?? []) {
+        if (r.status === 'voorstel' || r.status === 'ingepland') reangle.waiting++;
+        if (r.status !== 'verzonden' || !r.verzonden_op) continue;
+        reangle.sent++;
+        const p = bySlug.get(r.slug as string);
+        if (!p) continue;
+        const at = Date.parse(r.verzonden_op as string);
+        const personIn = (p.mails as Array<Record<string, unknown>>).filter((m) => m.direction === 'in' && m.sentiment !== 'auto');
+        const repliedAfter = personIn.some((m) => Date.parse(m.sent_at as string) > at);
+        const repliedBefore = personIn.some((m) => Date.parse(m.sent_at as string) <= at);
+        const clickedAfter = !!p.laatste_bevestigde_klik && Date.parse(p.laatste_bevestigde_klik as string) > at;
+        const firstClickAfter = !!p.eerste_bevestigde_klik && Date.parse(p.eerste_bevestigde_klik as string) > at;
+        if (clickedAfter) reangle.clicked++;
+        if (repliedAfter) reangle.replied++;
+        if (repliedAfter && POSITIVE.includes(p.status as string)) reangle.positive++;
+        const arm = p.subject_variant as string | null;
+        if (!arm) continue;
+        const adj = armAdjust.get(arm) ?? { met_klik: 0, reacties: 0, positieve_reacties: 0 };
+        if (firstClickAfter) adj.met_klik++;
+        if (repliedAfter && !repliedBefore && REPLIED.includes(p.status as string)) adj.reacties++;
+        if (repliedAfter && !repliedBefore && POSITIVE.includes(p.status as string)) adj.positieve_reacties++;
+        armAdjust.set(arm, adj);
+      }
+      const subjectStats = (subjectRes.data ?? []).map((s) => {
+        const adj = armAdjust.get(s.variant as string);
+        if (!adj) return s;
+        return {
+          ...s,
+          met_klik: Number(s.met_klik) - adj.met_klik,
+          reacties: Number(s.reacties) - adj.reacties,
+          positieve_reacties: Number(s.positieve_reacties) - adj.positieve_reacties,
+        };
+      });
+
       const counters = {
         prospects: prospects.length,
         prospects_with_click: prospects.filter((p) => p.kliks_bevestigd > 0).length,
@@ -383,7 +431,7 @@ serve(async (req) => {
       };
 
       return ok(
-        { prospects, counters, campaigns, log, subject_stats: subjectRes.data ?? [], send, concepts, handled_today, critic_agreement },
+        { prospects, counters, campaigns, log, subject_stats: subjectStats, reangle_stats: reangle, send, concepts, handled_today, critic_agreement },
         corsHeaders,
       );
     }

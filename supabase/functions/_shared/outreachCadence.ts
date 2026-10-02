@@ -92,6 +92,29 @@ export function nextFollowUp(p: CadenceInput): NextFollowUp | null {
   return { kind: 'chase', step, dueDay: addWorkingDays(amsterdamDayStamp(anchor), wait) };
 }
 
+// ─── After a re-angle ─────────────────────────────────────────────────────────
+//
+// A re-angle (2026-10-02) is a third touch in a NEW thread, written by hand,
+// stored as a chase with step 3. Sending it moves the agency to opvolging_2,
+// and the goodbye chase that was already scheduled expected opvolging_1 and
+// no newer mail of ours: it would be dropped at send time, and prepare never
+// writes another one at opvolging_2. So when a re-angle goes out, the goodbye
+// is re-anchored on it and waits at least FOLLOW_UP_2_WORKING_DAYS after it.
+
+/** The goodbye's new basis and earliest send moment, given the re-angle that just went out. */
+export function reanchorGoodbye(
+  basis: Record<string, unknown>,
+  reangle: { sentAt: string; statusAfter: string | null },
+): { basis: Record<string, unknown>; dueAt: string } {
+  const after = new Date(addWorkingDays(amsterdamDayStamp(reangle.sentAt), FOLLOW_UP_2_WORKING_DAYS)).toISOString();
+  const old = typeof basis.dueAt === 'string' ? basis.dueAt : null;
+  const dueAt = old && Date.parse(old) > Date.parse(after) ? old : after;
+  return {
+    basis: { ...basis, status: reangle.statusAfter ?? basis.status, lastOutAt: reangle.sentAt, dueAt, reanchoredAfterReangle: true },
+    dueAt,
+  };
+}
+
 // ─── The unused test code ────────────────────────────────────────────────────
 //
 // An agency that got a test code and did nothing with it gets two touches:

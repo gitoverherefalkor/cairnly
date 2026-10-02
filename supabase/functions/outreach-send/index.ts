@@ -29,7 +29,7 @@ import { CHECK_IN_CLOSED } from '../_shared/outreach.ts';
 import { classifyOutbound, type PriorMail } from '../_shared/outreachMail.ts';
 import { buildMime, newMessageId } from '../_shared/outreachMime.ts';
 import { chaseVariant } from '../_shared/outreachFollowUp.ts';
-import { ACTIVATION_CLOSED } from '../_shared/outreachCadence.ts';
+import { ACTIVATION_CLOSED, reanchorGoodbye } from '../_shared/outreachCadence.ts';
 import { notifyPush, OPS_OUTREACH_URL } from '../_shared/opsPush.ts';
 
 const json = (body: unknown, status = 200) =>
@@ -226,7 +226,9 @@ async function next(db: SupabaseClient) {
     messageId,
     inReplyTo: c.in_reply_to,
     references: c.references_hdr,
-    signature: c.soort === 'initial',
+    // A first mail, and any mail that starts its own thread (a re-angle):
+    // without the block a new thread carries no contact details at all.
+    signature: c.soort === 'initial' || !c.thread_id,
     quote,
   });
 
@@ -292,6 +294,34 @@ async function sent(db: SupabaseClient, id: string, gmailMessageId: string | nul
     { onConflict: 'gmail_message_id', ignoreDuplicates: true },
   );
   if (insErr) console.error('[outreach-send] could not log the sent mail', concept.slug, insErr);
+
+  if (concept.soort === 'chase' && (concept.step ?? 0) >= 3) await reanchorGoodbyes(db, concept.slug, now, statusAfter);
+}
+
+/** A re-angle went out: keep the agency's scheduled goodbye true (see reanchorGoodbye). */
+async function reanchorGoodbyes(db: SupabaseClient, slug: string, sentAt: string, statusAfter: string | null) {
+  const { data: goodbyes, error } = await db
+    .from('outreach_concepts')
+    .select('id, basis')
+    .eq('slug', slug)
+    .eq('soort', 'chase')
+    .eq('step', 2)
+    .in('status', ['voorstel', 'ingepland']);
+  if (error) {
+    console.error('[outreach-send] could not read the goodbye to re-anchor', slug, error);
+    return;
+  }
+  for (const g of goodbyes ?? []) {
+    const next = reanchorGoodbye((g.basis ?? {}) as Record<string, unknown>, { sentAt, statusAfter });
+    await db.from('outreach_concepts').update({ basis: next.basis, updated_at: sentAt }).eq('id', g.id);
+    const { data: rows } = await db.from('outreach_send_queue').select('id, niet_voor').eq('concept_id', g.id).eq('status', 'queued');
+    for (const q of rows ?? []) {
+      if (!q.niet_voor || Date.parse(q.niet_voor as string) < Date.parse(next.dueAt)) {
+        await db.from('outreach_send_queue').update({ niet_voor: next.dueAt }).eq('id', q.id);
+      }
+    }
+    console.log('[outreach-send] goodbye re-anchored after re-angle', slug, next.dueAt);
+  }
 }
 
 serve(async (req) => {
