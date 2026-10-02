@@ -113,8 +113,9 @@ button.lp-screenshot-slot {
 
    A variant only sets colours: --btn-bg and --btn-fg (face and label) and
    --btn-edge (the solid edge). At rest the face sits on its edge; hover lifts
-   the face while the edge stays put, so the base never moves; press sinks the
-   face into the edge. Keyboard focus is a white ring inside a navy ring, which
+   the face while the edge stays put, so the base never moves, and the edge
+   turns gold (--btn-edge-hover; the gold button keeps its own edge); press
+   sinks the face into the edge. Keyboard focus is a white ring inside a navy ring, which
    reads on the cream and the navy sections alike.
 
    Kept compact on purpose (15px text, 38px tall) and never full width. */
@@ -122,6 +123,7 @@ button.lp-screenshot-slot {
   --btn-bg: #1F8282;
   --btn-fg: #fff;
   --btn-edge: #0F4F4F;
+  --btn-edge-hover: #D4A024;
   --edge: 3px;
   --lift: 2px;
   position: relative;
@@ -137,7 +139,7 @@ button.lp-screenshot-slot {
 }
 .lp-btn-primary:hover {
   transform: translateY(calc(var(--lift) * -1));
-  box-shadow: 0 calc(var(--edge) + var(--lift)) 0 var(--btn-edge);
+  box-shadow: 0 calc(var(--edge) + var(--lift)) 0 var(--btn-edge-hover);
 }
 .lp-btn-primary:active {
   transform: translateY(var(--edge));
@@ -166,6 +168,8 @@ button.lp-screenshot-slot {
   --btn-bg: #D4A024;
   --btn-fg: #122E3B;
   --btn-edge: #9A6F0E;
+  /* A gold edge under a gold face would vanish, so this one keeps its own. */
+  --btn-edge-hover: #9A6F0E;
 }
 
 /* Secondary, for dark and photo backgrounds (the video end card, the partners
