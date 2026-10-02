@@ -52,8 +52,7 @@ const EncorePricing: React.FC = () => {
 
           <button
             onClick={() => { trackCtaClick('pricing'); getStarted(); }}
-            className="lp-btn-primary justify-center"
-            style={{ fontSize: 18, padding: '18px 34px' }}
+            className="lp-btn-primary"
           >
             {t('pricing.cta')}
             <ArrowRight size={18} strokeWidth={2.4} />

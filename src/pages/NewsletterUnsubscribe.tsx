@@ -60,7 +60,7 @@ const NewsletterUnsubscribe: React.FC = () => {
             {done ? 'No more Journal emails from us.' : 'Saving your preference…'}
           </p>
           <div className="mt-10">
-            <Link to="/journal" className="lp-btn-primary" style={{ fontSize: 15 }}>
+            <Link to="/journal" className="lp-btn-primary">
               Back to the Journal
               <ArrowRight size={16} strokeWidth={2.4} />
             </Link>

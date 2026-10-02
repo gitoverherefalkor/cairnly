@@ -198,7 +198,7 @@ const SessionBrief: React.FC<SessionBriefProps> = ({ t }) => {
         <Link
           to={SAMPLE_ROUTE}
           onClick={() => trackCtaClick('partners_sample')}
-          className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-[15px] font-bold text-white/85 transition-colors hover:border-white hover:text-white"
+          className="lp-btn-primary lp-btn-ghost"
         >
           {t('hero.sampleCta')}
           <ArrowUpRight size={16} strokeWidth={2.4} />

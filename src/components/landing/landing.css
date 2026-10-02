@@ -107,83 +107,80 @@ button.lp-screenshot-slot {
 }
 .lp-on-dark.lp-screenshot-slot .lp-screenshot-slot__desc { color: rgba(255,255,255,0.55); }
 
-/* Stone buttons (2026-09-28, replacing the pill).
-   The shape is the cairn logo's bottom stone, traced from /public/cairn/s0.png.
-   The side points are in em so the slanted ends keep the same size at every
-   width (a full-width button does not stretch into a skewed slab) and scale
-   with the font (the 13px nav button gets smaller ends than the 18px CTA).
+/* Buttons (2026-10-02). Softly squared (8px corners), with a solid darker edge underneath that the
+   button presses down into. Replaces the cairn-stone shapes of 2026-09-28,
+   which read as cute rather than serious (feedback, 2026-10-01).
 
-   The stone is painted on ::before, not on the button itself: clip-path on the
-   button would also clip its focus outline and its shadow. So the button stays
-   a plain rectangle for clicks, ::before is the stone, ::after is a slightly
-   larger stone behind it that shows as the keyboard focus ring, and the shadow
-   is a drop-shadow filter, which follows the painted shape.
+   A variant only sets colours: --btn-bg and --btn-fg (face and label) and
+   --btn-edge (the solid edge). At rest the face sits on its edge; hover lifts
+   the face while the edge stays put, so the base never moves, and the edge
+   turns gold (--btn-edge-hover; the gold button keeps its own edge); press
+   sinks the face into the edge. Keyboard focus is a white ring inside a navy ring, which
+   reads on the cream and the navy sections alike.
 
-   Without clip-path support (very old browsers) ::before is a plain teal
-   rectangle: still a working, readable button. */
+   Kept compact on purpose (15px text, 38px tall) and never full width. */
 .lp-btn-primary {
-  --stone-fill: #1F8282;
-  --stone-fill-hover: #176B6B;
-  --stone-ring: #D4A024;
-  --stone-shape: polygon(
-    0.65em 19%, 68% 1%, calc(100% - 0.76em) 17%, calc(100% - 0.12em) 65%,
-    calc(100% - 1em) 97%, 1.1em 97%, 0.12em 68%
-  );
-  position: relative; isolation: isolate;
-  background: transparent; color: #fff;
-  padding: 16px 34px; border-radius: 0;
-  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 17px;
-  letter-spacing: -0.01em;
-  filter: drop-shadow(0 10px 12px rgba(18,46,59,0.22));
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), filter 280ms ease;
-  display: inline-flex; align-items: center; gap: 10px;
-  cursor: pointer; border: none; text-decoration: none;
+  --btn-bg: #1F8282;
+  --btn-fg: #fff;
+  --btn-edge: #0F4F4F;
+  --btn-edge-hover: #D4A024;
+  --edge: 3px;
+  --lift: 2px;
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 38px; padding: 8px 24px;
+  background: var(--btn-bg); color: var(--btn-fg);
+  border: 0; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
+  line-height: 1.2; letter-spacing: -0.005em; white-space: nowrap;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 var(--edge) 0 var(--btn-edge);
+  transition: transform 140ms ease-out, box-shadow 140ms ease-out, background-color 140ms ease-out;
 }
-.lp-btn-primary::before,
-.lp-btn-primary::after {
-  content: ''; position: absolute; pointer-events: none;
-  clip-path: var(--stone-shape);
+.lp-btn-primary:hover {
+  transform: translateY(calc(var(--lift) * -1));
+  box-shadow: 0 calc(var(--edge) + var(--lift)) 0 var(--btn-edge-hover);
 }
-.lp-btn-primary::before {
-  inset: 0; z-index: -1;
-  background: var(--stone-fill);
-  transition: background 200ms ease;
+.lp-btn-primary:active {
+  transform: translateY(var(--edge));
+  box-shadow: 0 0 0 var(--btn-edge);
 }
-.lp-btn-primary::after {
-  inset: -4px; z-index: -2;
-  background: var(--stone-ring);
-  opacity: 0; transition: opacity 150ms ease;
+.lp-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 var(--edge) 0 var(--btn-edge), 0 0 0 2px #fff, 0 0 0 4px #122E3B;
 }
-/* The stone settles a little under the cursor rather than lifting straight up. */
-.lp-btn-primary:hover { transform: translateY(-2px) rotate(-0.8deg); }
-.lp-btn-primary:hover::before { background: var(--stone-fill-hover); }
-.lp-btn-primary:active { transform: translateY(1px); }
-.lp-btn-primary:focus-visible { outline: none; }
-.lp-btn-primary:focus-visible::after { opacity: 1; }
 .lp-btn-primary:disabled { cursor: default; transform: none; }
 @media (prefers-reduced-motion: reduce) {
-  .lp-btn-primary:hover, .lp-btn-primary:active { transform: none; }
+  .lp-btn-primary, .lp-btn-primary:hover, .lp-btn-primary:active { transform: none; transition: none; }
 }
 
-/* Gold stone. Used by the partner-channel pilot CTA and the demo's buy
-   buttons, where the teal already belongs to another button nearby. Navy text:
-   white on this gold is 2.2:1 and failed AA. Teal focus ring, since a gold
-   ring would vanish against the gold stone. */
+/* Small: the nav, dialogs, the video end card. */
+.lp-btn-sm {
+  --edge: 2px;
+  min-height: 30px; padding: 6px 18px; gap: 6px;
+  font-size: 13px; border-radius: 7px;
+}
+
+/* Gold: the partner-channel pilot CTA and the demo's buy buttons, where teal
+   already belongs to another button nearby. Navy label: white on this gold is
+   2.2:1 and fails AA. */
 .lp-btn-gold {
-  --stone-fill: #D4A024;
-  --stone-fill-hover: #C08F1B;
-  --stone-ring: #1F8282;
-  color: #122E3B;
+  --btn-bg: #D4A024;
+  --btn-fg: #122E3B;
+  --btn-edge: #9A6F0E;
+  /* A gold edge under a gold face would vanish, so this one keeps its own. */
+  --btn-edge-hover: #9A6F0E;
 }
 
-/* Glass stone for a secondary action on dark surfaces (the hero video's end
-   card). No shadow: a drop shadow under a see-through stone reads as a smudge. */
+/* Secondary, for dark and photo backgrounds (the video end card, the partners
+   hero, the 404 page): a see-through face with a pale rim, quieter than the
+   solid button beside it. */
 .lp-btn-ghost {
-  --stone-fill: rgba(255,255,255,0.12);
-  --stone-fill-hover: rgba(255,255,255,0.22);
-  color: #fff;
-  filter: none;
+  --btn-bg: rgba(255,255,255,0.06);
+  --btn-edge: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.5);
 }
+.lp-btn-ghost:hover { background: rgba(255,255,255,0.14); }
 
 .lp-btn-secondary-text {
   color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px;
@@ -209,7 +206,6 @@ button.lp-screenshot-slot {
   text-align: center; pointer-events: none;
   transition: opacity 400ms ease;
 }
-.lp-cairn-float .lp-cairn-rail__label { line-height: 1.5; transition: color 300ms ease; }
 @media (min-width: 1440px) { .lp-cairn-float { display: block; } }
 @media (prefers-reduced-motion: reduce) {
   .lp-cairn-float .cairn-stone-drop, .lp-cairn-float .cairn-crown-pop { animation: none; }

@@ -82,7 +82,7 @@ export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({
                 trackCtaClick('demo_job_apply_open');
                 onClose();
               }}
-              className="lp-btn-primary !text-[14px] !py-2.5 !px-5"
+              className="lp-btn-primary lp-btn-sm"
             >
               {t('jobsDemo.apply.open')}
               <ExternalLink size={15} strokeWidth={2.4} />
@@ -93,7 +93,7 @@ export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCtaClick('demo_dashboard_partner_call')}
-              className="lp-btn-primary lp-btn-gold !text-[14px] !py-2.5 !px-5"
+              className="lp-btn-primary lp-btn-gold lp-btn-sm"
             >
               {t('footer.ctaPartner')}
               <ArrowRight size={16} strokeWidth={2.4} />
@@ -102,7 +102,7 @@ export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({
             <Link
               to="/payment"
               onClick={() => trackCtaClick('demo_dashboard_start')}
-              className="lp-btn-primary lp-btn-gold !text-[14px] !py-2.5 !px-5"
+              className="lp-btn-primary lp-btn-gold lp-btn-sm"
             >
               {t('footer.ctaCustomer')}
               <ArrowRight size={16} strokeWidth={2.4} />

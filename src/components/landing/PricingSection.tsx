@@ -87,8 +87,7 @@ const PricingSection: React.FC = () => {
 
             <button
               onClick={() => { trackCtaClick('pricing'); navigate('/payment'); }}
-              className="lp-btn-primary w-full justify-center"
-              style={{ fontSize: 18, padding: '18px 28px' }}
+              className="lp-btn-primary"
             >
               {t('pricing.cta')}
               <ArrowRight size={18} strokeWidth={2.4} />

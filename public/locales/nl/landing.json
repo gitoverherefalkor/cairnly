@@ -143,8 +143,8 @@
       "body": "Blijft voor altijd beschikbaar. Ontworpen om je te laten blijven inloggen. Gezellig voor het gezelschap, minder geschikt om de vraag daadwerkelijk te beantwoorden."
     },
     "closer": "Het is het verschil tussen een assessment over jou en een dat mét jou is gemaakt. En als het eenmaal klopt, dan klopt het.",
-    "demoCta": "Bekijk een echte sessie, van begin tot eind",
-    "demoNote": "Een fictieve kandidaat, echte AI-output. Vijf minuten scrollen, geen account nodig."
+    "demoCta": "Bekijk de hele sessie",
+    "demoNote": "Een fictieve kandidaat en echte AI-output, van begin tot eind. Vijf minuten scrollen, geen account nodig."
   },
   "comparison": {
     "eyebrow": "Een directe vergelijking",
@@ -504,7 +504,7 @@
     "continuePill": "Ga verder met ons gesprek",
     "typing": "Cairnly is aan het typen",
     "error": "Dat kwam niet door. Probeer het nog eens?",
-    "ctaCheckout": "Start nu je assessment",
+    "ctaCheckout": "Start nu",
     "ctaNote": "Je antwoorden gaan mee",
     "seeds": {
       "default": "Ik koos m'n richting op m'n zestiende, en ik vraag me af wat ik nu zou kiezen met alles wat ik sindsdien heb geleerd.",
@@ -625,8 +625,8 @@
         "Pas je cv aan om ze binnen te halen",
         "Motivatiebrieven op basis van je profiel"
       ],
-      "fullDemo": "Klik zelf door de demo",
-      "cta": "Of start nu je eigen sessie",
+      "fullDemo": "Probeer de demo",
+      "cta": "Start je sessie",
       "replay": "Opnieuw"
     }
   },

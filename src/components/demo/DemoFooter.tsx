@@ -76,7 +76,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
             href={partner ? DEMO_PARTNER_TEMPLATE_PDF_PATH : demoPdfPath(personaId, language)}
             download
             onClick={() => trackCtaClick(partner ? 'demo_pdf_partner_template' : 'demo_pdf')}
-            className="lp-btn-primary !text-[15px] !py-3 !px-6"
+            className="lp-btn-primary"
           >
             {partner ? t('footer.pdfPartner') : t('footer.pdf')}
             <Download size={17} strokeWidth={2.4} />
@@ -92,7 +92,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackCtaClick('demo_partner_call')}
-              className="lp-btn-primary lp-btn-gold !text-[15px] !py-3 !px-6"
+              className="lp-btn-primary lp-btn-gold"
             >
               {t('footer.ctaPartner')}
               <ArrowRight size={17} strokeWidth={2.4} />
@@ -101,7 +101,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
             <Link
               to="/payment"
               onClick={() => trackCtaClick('demo_start')}
-              className="lp-btn-primary lp-btn-gold !text-[15px] !py-3 !px-6"
+              className="lp-btn-primary lp-btn-gold"
             >
               {t('footer.ctaCustomer')}
               <ArrowRight size={17} strokeWidth={2.4} />
