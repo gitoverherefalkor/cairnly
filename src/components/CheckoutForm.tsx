@@ -10,6 +10,35 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { getStoredReferralCode } from '@/lib/referral';
 import { trackConversion } from '@/lib/analytics';
+
+// "Begin checkout" conversion action in Google Ads (created 2026-10-02).
+// Secondary signal for measuring drop-off at Stripe; the Purchase action in
+// PaymentSuccess.tsx is the one bidding optimizes on.
+const GOOGLE_ADS_BEGIN_CHECKOUT_SEND_TO = 'AW-11471365050/O8SfCPrq-Y0dELrH_N0q';
+
+function redirectAfterBeginCheckout(url: string): void {
+  let done = false;
+  const go = () => {
+    if (done) return;
+    done = true;
+    window.location.href = url;
+  };
+  if (typeof window.gtag !== 'function') {
+    go();
+    return;
+  }
+  try {
+    window.gtag('event', 'conversion', {
+      send_to: GOOGLE_ADS_BEGIN_CHECKOUT_SEND_TO,
+      event_callback: go,
+    });
+  } catch (err) {
+    console.error('Google Ads begin-checkout tracking failed:', err);
+    go();
+    return;
+  }
+  setTimeout(go, 800);
+}
 import i18n from '@/i18n';
 
 import {
@@ -278,8 +307,11 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
         // of the signup CTA. localStorage is per-browser, so the phone won't
         // have it unless the buyer also started on the phone.
         localStorage.setItem('checkout_initiated_here', '1');
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
+        // Report "Begin checkout" to Google Ads, then go to Stripe once it has
+        // been sent. Never blocks the buyer: no gtag (ad blocker, or a host
+        // where gtag-init.js left the tag unconfigured) or a slow callback
+        // falls through to the redirect after a short timeout.
+        redirectAfterBeginCheckout(data.url);
       } else {
         throw new Error("Failed to create checkout session: No URL returned");
       }
