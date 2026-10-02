@@ -63,7 +63,13 @@ let count = 0;
 for (const route of publicRoutes()) {
   const html = shell
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(route.title || DEFAULT_TITLE)}</title>`)
-    .replace('</head>', `${headBlock(route)}\n  </head>`);
+    .replace('</head>', `${headBlock(route)}\n  </head>`)
+    .replace(
+      '<div id="root"></div>',
+      route.staticBody
+        ? `<div id="root"><div data-static-seo style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">\n${route.staticBody}\n</div></div>`
+        : '<div id="root"></div>',
+    );
   const outFile =
     route.path === '/' ? join(DIST, 'index.html') : join(DIST, route.path.slice(1), 'index.html');
   mkdirSync(dirname(outFile), { recursive: true });

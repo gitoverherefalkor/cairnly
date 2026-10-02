@@ -42,6 +42,36 @@ const websiteSchema = {
   url: SITE_URL,
 };
 
+const escHtml = (s) =>
+  String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+/**
+ * Plain-HTML body for the /partners shell, built from the Dutch locale file so
+ * it can never drift from the page. Why it exists: the site is a client-
+ * rendered SPA, so a crawler that does not run JavaScript (most AI crawlers)
+ * would otherwise fetch an empty <body> and never see the copy or the FAQ,
+ * and AI answers are built from exactly that kind of question-and-answer
+ * passage. inject-meta.mjs puts this inside #root, off-screen rather than
+ * display:none; main.tsx removes it (data-static-seo) before React mounts.
+ */
+function partnersStaticBody() {
+  const t = JSON.parse(readFileSync(join(ROOT, 'public/locales/nl/partners.json'), 'utf8'));
+  const e = escHtml;
+  return [
+    `<h1>${e(t.hero.title)}</h1>`,
+    `<p>${e(t.hero.body)}</p>`,
+    `<h2>${e(t.whoFor.title)}</h2>`,
+    `<p>${e(t.whoFor.body)}</p>`,
+    `<h2>${e(t.whatYouGet.title)}</h2>`,
+    `<ul>${t.whatYouGet.items.map((i) => `<li>${e(i)}</li>`).join('')}</ul>`,
+    `<h2>${e(t.pricing.title)}</h2>`,
+    `<p>${e(t.pricing.intro)}</p>`,
+    `<ul>${t.pricing.rows.map((r) => `<li>${e(r.credits)} ${e(t.pricing.colCredits)}: ${e(r.price)}</li>`).join('')}</ul>`,
+    `<h2>${e(t.faq.title)}</h2>`,
+    ...t.faq.items.map((i) => `<h3>${e(i.q)}</h3><p>${e(i.a)}</p>`),
+  ].join('\n');
+}
+
 /** Static marketing/legal routes. Mirrors the <Seo> calls in src/pages. */
 const STATIC_ROUTES = [
   {
@@ -90,6 +120,7 @@ const STATIC_ROUTES = [
       'Cairnly voor loopbaanprofessionals | loopbaanassessment voor outplacement en loopbaanbegeleiding',
     description:
       'Cairnly als voorwerk in je outplacement- of loopbaantraject voor kantoor- en kenniswerkers: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten.',
+    staticBody: partnersStaticBody(),
     changefreq: 'monthly',
     priority: '0.8',
   },

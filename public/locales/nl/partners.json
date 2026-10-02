@@ -70,31 +70,39 @@
     "title": "Veelgestelde vragen",
     "items": [
       {
-        "q": "Is Cairnly een psychometrisch instrument?",
-        "a": "Nee, en dat claimen we ook niet. Cairnly is arbeidsmarktorientatie: het vertaalt iemands ervaring, waarden en voorkeuren naar concrete beroepsrichtingen. Het staat naast je gevalideerde (COTAN-)instrumenten, niet in plaats daarvan."
+        "q": "Welk loopbaanassessment past bij outplacement en loopbaanbegeleiding?",
+        "a": "Cairnly is een online loopbaanassessment voor kenniswerkers en mensen met een kantoorachtergrond. De kandidaat vult het in 25 tot 40 minuten in en krijgt een rapport met een top 3 beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Het rapport draagt het logo van jouw bureau. Met een AI-coach bespreekt de kandidaat het rapport en past het aan waar het niet klopt. Het echte gesprek blijft van jou."
       },
       {
-        "q": "Voor welke kandidaten is Cairnly bedoeld?",
-        "a": "Voor kenniswerkers en mensen met een kantoorachtergrond: de surveyvragen en de voorbeelden in de analyse zijn daarop geschreven. Voor kandidaten uit bijvoorbeeld de zorg, het onderwijs of de productie sluit het assessment nu niet goed aan, en we sturen je liever niet door met iets wat voor die groep niet werkt. Een variant daarvoor is er niet."
+        "q": "Voor welke kandidaten werkt Cairnly, en voor welke niet?",
+        "a": "Cairnly is gebouwd voor kenniswerkers en mensen met een kantoorachtergrond: de surveyvragen en de voorbeelden in de analyse zijn daarop geschreven. Voor kandidaten uit bijvoorbeeld de zorg, het onderwijs of de productie sluit het assessment nu niet goed aan, en we sturen je liever niet door met iets wat voor die groep niet werkt. Een variant daarvoor is er niet."
+      },
+      {
+        "q": "Is Cairnly een psychometrisch instrument of een COTAN-test?",
+        "a": "Nee, en dat claimen we ook niet. Cairnly is arbeidsmarktorientatie: het vertaalt iemands ervaring, waarden en voorkeuren naar concrete beroepsrichtingen. Het staat naast je gevalideerde (COTAN-)instrumenten, niet in plaats daarvan."
       },
       {
         "q": "Houdt Cairnly rekening met belastbaarheid en werkvoorwaarden?",
         "a": "Niet medisch, wel praktisch. De kandidaat geeft zelf aan onder welke voorwaarden werk vol te houden is: een maximum aantal uren per week dat als hard criterium meeweegt, en in een open veld zaken als een rustige omgeving, grip op het eigen tempo of weinig deadlinedruk. Beroepen die daar duidelijk niet in passen zakken in de ranking. Het oordeel over belastbaarheid blijft bij de bedrijfsarts en bij jou."
       },
       {
-        "q": "Hoe zit het met privacy en de AVG?",
-        "a": "De kandidaat doorloopt het assessment zelf en is eigenaar van het eigen rapport. Betalingen lopen via Stripe op EU-servers. Cairnly is een zelfgestuurd orientatie-instrument dat de kandidaat over zichzelf invult, geen selectie-instrument, en we leveren geen beoordelingen aan werkgevers."
-      },
-      {
-        "q": "Kan het rapport onder mijn eigen naam?",
-        "a": "Je logo en naam staan op het rapport en op de pagina waar jouw kandidaten het assessment starten. Volledige white-label (eigen domein, eigen betaalomgeving) bieden we nu niet aan."
+        "q": "Wat kost Cairnly voor een bureau?",
+        "a": "Eén credit is één volledig assessment inclusief rapport en AI-coach, en kost tussen 20 en 44 euro per stuk exclusief btw, afhankelijk van het aantal credits. Credits verlopen nooit. Er zijn geen instapkosten, geen certificering, geen contract en geen minimum. Bij aanmelding krijg je 3 gratis credits om het zelf te proberen."
       },
       {
         "q": "Wat kost het mijn kandidaat?",
         "a": "Niets. Jij koopt credits, de kandidaat verzilvert een code. Er staat geen prijs of betaalmuur tussen jouw kandidaat en het rapport."
       },
       {
-        "q": "In welke talen?",
+        "q": "Kan het rapport onder mijn eigen naam?",
+        "a": "Je logo en naam staan op het rapport en op de pagina waar jouw kandidaten het assessment starten. Volledige white-label (eigen domein, eigen betaalomgeving) bieden we nu niet aan."
+      },
+      {
+        "q": "Hoe zit het met privacy en de AVG?",
+        "a": "De kandidaat doorloopt het assessment zelf en is eigenaar van het eigen rapport. Betalingen lopen via Stripe op EU-servers. Cairnly is een zelfgestuurd orientatie-instrument dat de kandidaat over zichzelf invult, geen selectie-instrument, en we leveren geen beoordelingen aan werkgevers."
+      },
+      {
+        "q": "In welke talen is Cairnly beschikbaar?",
         "a": "Nederlands en Engels."
       }
     ]

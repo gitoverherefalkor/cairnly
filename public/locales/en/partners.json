@@ -70,31 +70,39 @@
     "title": "Frequently asked questions",
     "items": [
       {
-        "q": "Is Cairnly a psychometric instrument?",
-        "a": "No, and we don't claim it is. Cairnly is labor-market orientation: it translates someone's experience, values and preferences into concrete career directions. It sits alongside your validated instruments (COTAN-rated in the Netherlands), not in place of them."
+        "q": "Which career assessment fits outplacement and career coaching?",
+        "a": "Cairnly is an online career assessment for knowledge workers and people with an office background. The candidate completes it in 25 to 40 minutes and gets a report with a top 3 of careers with match scores, alternatives, salary ranges and, for each career, an honest read on what AI will do to it. The report carries your agency's logo. An AI coach lets the candidate discuss the report and correct it where it is wrong. The real conversation stays yours."
       },
       {
-        "q": "Which candidates is Cairnly meant for?",
-        "a": "Knowledge workers and people with an office background: the survey questions and the examples in the analysis are written for them. For candidates from, say, healthcare, education or production the assessment doesn't fit well right now, and we would rather not send you down a road that doesn't work for that group. There is no variant for them."
+        "q": "Which candidates does Cairnly work for, and which not?",
+        "a": "Cairnly is built for knowledge workers and people with an office background: the survey questions and the examples in the analysis are written for them. For candidates from, say, healthcare, education or production the assessment doesn't fit well right now, and we would rather not send you down a road that doesn't work for that group. There is no variant for them."
+      },
+      {
+        "q": "Is Cairnly a psychometric instrument or a COTAN-rated test?",
+        "a": "No, and we don't claim it is. Cairnly is labor-market orientation: it translates someone's experience, values and preferences into concrete career directions. It sits alongside your validated instruments (COTAN-rated in the Netherlands), not in place of them."
       },
       {
         "q": "Does Cairnly account for what someone can sustain?",
         "a": "Not medically, but practically. The candidate states the conditions under which work is sustainable for them: a maximum number of hours per week that counts as a hard requirement, and in a free-text field things like a calm environment, control over their own pace or little deadline pressure. Careers that clearly do not fit are pushed down the ranking. The medical judgement about capacity stays with the occupational physician and with you."
       },
       {
-        "q": "What about privacy and the GDPR?",
-        "a": "The candidate works through the assessment themselves and owns their own report. Payments run through Stripe on EU servers. Cairnly is a self-directed orientation tool that the candidate completes about themselves, not a selection instrument, and we don't supply assessments of candidates to employers."
-      },
-      {
-        "q": "Can the report carry my own name?",
-        "a": "Your logo and name appear on the report and on the page where your candidates start the assessment. Full white-label (your own domain, your own payment environment) is not something we offer at the moment."
+        "q": "What does Cairnly cost an agency?",
+        "a": "One credit is one full assessment including the report and the AI coach, and costs between 20 and 44 euro each excluding VAT, depending on volume. Credits never expire. There are no setup fees, no certification, no contract and no minimum. When you sign up you get 3 free credits to try it yourself."
       },
       {
         "q": "What does it cost my candidate?",
         "a": "Nothing. You buy credits, the candidate redeems a code. There is no price and no paywall between your candidate and the report."
       },
       {
-        "q": "Which languages?",
+        "q": "Can the report carry my own name?",
+        "a": "Your logo and name appear on the report and on the page where your candidates start the assessment. Full white-label (your own domain, your own payment environment) is not something we offer at the moment."
+      },
+      {
+        "q": "What about privacy and the GDPR?",
+        "a": "The candidate works through the assessment themselves and owns their own report. Payments run through Stripe on EU servers. Cairnly is a self-directed orientation tool that the candidate completes about themselves, not a selection instrument, and we don't supply assessments of candidates to employers."
+      },
+      {
+        "q": "Which languages is Cairnly available in?",
         "a": "Dutch and English."
       }
     ]
