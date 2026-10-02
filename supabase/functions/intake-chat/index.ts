@@ -48,7 +48,11 @@ import {
   CLOSE_MESSAGE,
 } from './prompts.ts';
 
-const MODEL = 'claude-sonnet-5'; // NOTE: never send `temperature` to sonnet-5 (API rejects it)
+const MODEL = 'claude-sonnet-5-5'; // NOTE: never send `temperature` (API rejects it)
+// Extraction forces a tool call (tool_choice: tool). Sonnet 5.5 rejects forced
+// tool_choice outright (400, even with between_tools), so that one call stays on
+// Sonnet 5. Moving it needs tool_choice auto + a prompt that insists on the tool.
+const EXTRACTION_MODEL = 'claude-sonnet-5';
 const MAX_USER_TURNS = 12; // hard stop per session
 const MAX_MESSAGE_CHARS = 600;
 const MAX_SESSION_TOKENS = 60_000; // input+output budget across the session
@@ -86,11 +90,14 @@ async function callClaude(opts: {
   tools?: unknown[];
   toolChoice?: unknown;
   thinking?: unknown;
+  model?: string;
+  /** Sonnet 5.5 effort: low/medium/high. Sent as output_config.effort. */
+  effort?: 'low' | 'medium' | 'high';
 }): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> {
   const key = Deno.env.get('ANTHROPIC_API_KEY');
   if (!key) throw new Error('ANTHROPIC_API_KEY not configured');
   const body: Record<string, unknown> = {
-    model: MODEL,
+    model: opts.model ?? MODEL,
     max_tokens: opts.maxTokens,
     system: opts.system,
     messages: opts.messages,
@@ -98,6 +105,7 @@ async function callClaude(opts: {
   if (opts.tools) body.tools = opts.tools;
   if (opts.toolChoice) body.tool_choice = opts.toolChoice;
   if (opts.thinking) body.thinking = opts.thinking;
+  if (opts.effort) body.output_config = { effort: opts.effort };
 
   const attempt = async (): Promise<{ content: Array<{ type: string; text?: string; input?: unknown }>; usage?: { input_tokens: number; output_tokens: number } }> => {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -360,6 +368,8 @@ async function advanceConversation(
         system: qaSystem(lang, userTurns, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 800,
+        thinking: { type: 'between_tools' }, // no upfront thinking: a chat reply should start now
+        effort: 'low',
       });
       reply = textFrom(resp);
       tokens = usedTokens(resp);
@@ -372,7 +382,8 @@ async function advanceConversation(
       // and that thinking shares the max_tokens budget with the visible text. On
       // the pitch it intermittently ate most of the 3000-token budget and
       // truncated the closing send-off mid-word ("...Cairnly needs the fu").
-      // budget_tokens is rejected on sonnet-5, so we turn thinking OFF here: the
+      // budget_tokens is rejected there, so we turn upfront thinking OFF here (on
+      // Sonnet 5.5 that is `between_tools`; `disabled` now returns a 400): the
       // pitch is a short, tightly-specced writing task, so the full budget goes
       // to the reply text and the send-off always completes. (This also removes
       // the empty-reply 502s the old comment worried about — same root cause.)
@@ -387,7 +398,8 @@ async function advanceConversation(
         system: pitchSystem(lang, intent),
         messages: apiMessages(rowForApi),
         maxTokens: 3000,
-        thinking: { type: 'disabled' },
+        thinking: { type: 'between_tools' },
+        effort: 'medium', // the one piece of writing the visitor is waiting to read
       });
       // Extraction is best-effort: catch here so a failed extraction can never
       // cost the visitor their pitch, and so the shared await below can't reject.
@@ -395,6 +407,7 @@ async function advanceConversation(
         system: extractionSystem(lang),
         messages: apiMessages(rowForApi),
         maxTokens: 1200,
+        model: EXTRACTION_MODEL,
         tools: [EXTRACTION_TOOL],
         toolChoice: { type: 'tool', name: EXTRACTION_TOOL.name },
       }).catch((e) => {
@@ -420,6 +433,8 @@ async function advanceConversation(
         system: postPitchSystem(lang),
         messages: apiMessages(rowForApi),
         maxTokens: 800,
+        thinking: { type: 'between_tools' },
+        effort: 'low',
       });
       reply = textFrom(resp);
       tokens = usedTokens(resp);

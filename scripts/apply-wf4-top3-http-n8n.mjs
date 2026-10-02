@@ -99,7 +99,7 @@ const httpNode = {
     headerParameters: { parameters: [{ name: 'anthropic-version', value: '2023-06-01' }] },
     sendBody: true,
     specifyBody: 'json',
-    jsonBody: `={{ JSON.stringify({ model: "claude-sonnet-5", max_tokens: ${MAX_TOKENS}, thinking: { type: "adaptive" }, output_config: { effort: "${EFFORT}" }, messages: [{ role: "user", content: $json.top_3_careers_prompt }] }) }}`,
+    jsonBody: `={{ JSON.stringify({ model: "claude-sonnet-5-5", max_tokens: ${MAX_TOKENS}, thinking: { type: "adaptive" }, output_config: { effort: "${EFFORT}" }, messages: [{ role: "user", content: $json.top_3_careers_prompt }] }) }}`,
     options: { timeout: 600000 },
   },
   id: crypto.randomUUID(),
