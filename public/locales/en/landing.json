@@ -143,8 +143,8 @@
       "body": "Stays available forever. Designed to keep you logging in. Great for company. Less great for closing the question."
     },
     "closer": "It's the difference between an assessment about you and one built with you. And once it's right, it stays right.",
-    "demoCta": "Watch a real session, start to finish",
-    "demoNote": "A fictional candidate, real AI output. Five minutes of scrolling, no account needed."
+    "demoCta": "See the full session",
+    "demoNote": "A fictional candidate and real AI output, start to finish. Five minutes of scrolling, no account needed."
   },
   "comparison": {
     "eyebrow": "A side-by-side",
@@ -504,7 +504,7 @@
     "continuePill": "Continue our chat",
     "typing": "Cairnly is typing",
     "error": "That didn't come through. Try again?",
-    "ctaCheckout": "Start assessment now",
+    "ctaCheckout": "Start now",
     "ctaNote": "Your answers carry over",
     "seeds": {
       "default": "I picked my direction at 16, and I'm wondering what I would choose now with everything I've learned since.",
@@ -625,8 +625,8 @@
         "Tailor your CV to land them",
         "Cover letters based on your profile"
       ],
-      "fullDemo": "Click through the demo yourself",
-      "cta": "Or start your own session now",
+      "fullDemo": "Try the demo",
+      "cta": "Start your session",
       "replay": "Replay"
     }
   },

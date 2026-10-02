@@ -98,7 +98,7 @@ const NewsletterConfirm: React.FC = () => {
                 <p className="text-white/40 text-sm">Confirmed for {state.email}</p>
               )}
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link to="/journal" className="lp-btn-primary" style={{ fontSize: 15 }}>
+                <Link to="/journal" className="lp-btn-primary">
                   Back to the Journal
                   <ArrowRight size={16} strokeWidth={2.4} />
                 </Link>
@@ -124,7 +124,7 @@ const NewsletterConfirm: React.FC = () => {
                 You can sign up again from the Journal page. If you've already confirmed, you're
                 all set.
               </p>
-              <Link to="/journal" className="lp-btn-primary" style={{ fontSize: 15 }}>
+              <Link to="/journal" className="lp-btn-primary">
                 Back to the Journal
                 <ArrowRight size={16} strokeWidth={2.4} />
               </Link>
