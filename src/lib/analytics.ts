@@ -256,7 +256,9 @@ export async function trackDemoMoment(moment: string, persona: string, path: str
  * that identifies the person lives in `intake_sessions` / `purchases` and
  * stays unlinked, so the pageview history remains non-identifiable.
  */
-export async function trackConversion(step: 'intake_started' | 'purchase'): Promise<void> {
+export async function trackConversion(
+  step: 'intake_started' | 'checkout_started' | 'purchase',
+): Promise<void> {
   const key = `conversion:${step}`;
   if (firedAlready(key)) return;
   const country = await getCountry();

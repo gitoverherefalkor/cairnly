@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { getStoredReferralCode } from '@/lib/referral';
+import { trackConversion } from '@/lib/analytics';
 import i18n from '@/i18n';
 
 import {
@@ -220,6 +221,12 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
   async function onSubmit(values: CheckoutFormValues) {
     setIsLoading(true);
     setError(null);
+
+    // Funnel step between "on the checkout form" and "paid": the form passed
+    // validation and was submitted. Fired here, before create-checkout, on
+    // purpose: the redirect to Stripe would abort a beacon fired right before
+    // it, and the create-checkout round trip gives this one time to land.
+    trackConversion('checkout_started');
 
     try {
       // Store country in localStorage for profile update after payment/signup
