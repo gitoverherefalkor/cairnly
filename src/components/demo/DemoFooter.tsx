@@ -67,10 +67,7 @@ export const DemoFooter: React.FC<DemoFooterProps> = ({
         {t('footer.body', { name: firstName })}
       </p>
 
-      {/* Ink colour here: the stone buttons take their outline and label from
-          the surrounding text colour, and the demo page around this cream card
-          is light-on-dark. */}
-      <div className="mt-7 grid gap-4 sm:grid-cols-2 text-[#122E3B]">
+      <div className="mt-7 grid gap-4 sm:grid-cols-2">
         <div>
           {/* Customers get her plain report; partners get the Dutch report as
               the white-label template ([partnernaam], no logo): the partner

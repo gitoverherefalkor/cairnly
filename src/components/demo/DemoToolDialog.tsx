@@ -65,7 +65,7 @@ export const DemoToolDialog: React.FC<DemoToolDialogProps> = ({
             )}
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="sm:justify-between gap-3 pt-2 text-[#122E3B]">
+        <DialogFooter className="sm:justify-between gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
