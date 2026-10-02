@@ -33,7 +33,7 @@ import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import { CALENDLY_URL, CONTACT_EMAIL, EMPLOYER_DEMO_PERSONA, employerReportLink } from './constants';
+import { CALENDLY_URL, CONTACT_EMAIL, employerDemoPersona, employerReportLink } from './constants';
 
 /*
  * The /employers page, section by section (copy v2, 2026-09-25). Same
@@ -90,8 +90,9 @@ const mailto = (subject: string) => `mailto:${CONTACT_EMAIL}?subject=${encodeURI
  * mail straight away, so the visitor reads the offer before committing.
  */
 export const EmployersHero: React.FC = () => {
-  const { t } = useTranslation('employers');
+  const { t, i18n } = useTranslation('employers');
   const pills = tArray<string>(t, 'hero.pills');
+  const persona = employerDemoPersona(i18n.language);
 
   return (
     <section className="relative bg-[#213F4F] text-white pt-16 md:pt-24 pb-20 md:pb-24 overflow-hidden">
@@ -100,7 +101,7 @@ export const EmployersHero: React.FC = () => {
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
       <div className="lp-container relative z-10">
-        <HeroPersonaProvider fixed={EMPLOYER_DEMO_PERSONA}>
+        <HeroPersonaProvider key={persona} fixed={persona}>
           <div className="grid items-center lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-12">
             <div className="lg:col-span-6">
               <Reveal as="div">
@@ -243,7 +244,7 @@ const UkOutline: React.FC<{ className?: string }> = ({ className }) => (
 const STEP_ICONS = [ClipboardList, MessagesSquare, FileText];
 
 export const EmployersHow: React.FC = () => {
-  const { t } = useTranslation('employers');
+  const { t, i18n } = useTranslation('employers');
   const steps = tArray<{ title: string; body: string }>(t, 'how.steps');
   const perRole = tArray<{ label: string; value: string }>(t, 'how.perRole');
 
@@ -291,7 +292,7 @@ export const EmployersHow: React.FC = () => {
           <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
             <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('how.languages')}</p>
             <Link
-              to={employerReportLink}
+              to={employerReportLink(employerDemoPersona(i18n.language))}
               onClick={() => trackCtaClick('employers_how_report')}
               className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#1F8282] hover:text-[#122E3B] transition-colors group"
             >
@@ -462,6 +463,9 @@ const FIT_ICONS = [Sprout, Shuffle, GitMerge, Briefcase];
 export const EmployersFits: React.FC = () => {
   const { t } = useTranslation('employers');
   const items = tArray<{ title: string; body: string }>(t, 'fits.items');
+  // The UK note is a market note, not a translation: nl/employers.json leaves
+  // it empty, so Dutch visitors don't read about the Employment Rights Act.
+  const uk = t('fits.uk');
 
   return (
     <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
@@ -480,14 +484,16 @@ export const EmployersFits: React.FC = () => {
             </div>
           ))}
         </Reveal>
-        <Reveal className="mt-8 max-w-3xl">
-          <div className="rounded-2xl px-6 py-5 flex gap-5 items-center" style={{ background: 'rgba(39,161,161,0.07)' }}>
-            <UkOutline className="shrink-0 w-12 md:w-14 h-auto" />
-            <p className="text-[15px] text-[#4B6373] font-medium leading-[1.7]">
-              <strong className="text-[#122E3B] font-bold">{t('fits.ukTitle')}:</strong> {t('fits.uk')}
-            </p>
-          </div>
-        </Reveal>
+        {uk && (
+          <Reveal className="mt-8 max-w-3xl">
+            <div className="rounded-2xl px-6 py-5 flex gap-5 items-center" style={{ background: 'rgba(39,161,161,0.07)' }}>
+              <UkOutline className="shrink-0 w-12 md:w-14 h-auto" />
+              <p className="text-[15px] text-[#4B6373] font-medium leading-[1.7]">
+                <strong className="text-[#122E3B] font-bold">{t('fits.ukTitle')}:</strong> {uk}
+              </p>
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );

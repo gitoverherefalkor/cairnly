@@ -1,0 +1,235 @@
+{
+  "seo": {
+    "title": "Cairnly voor werkgevers | Loopbaanhelderheid die van je mensen is",
+    "description": "Geef je mensen een helder antwoord op waar hun vaardigheden passen, binnen of buiten je bedrijf. Prijs per persoon, in een middag uitgerold, en je ziet nooit een individueel resultaat."
+  },
+  "hero": {
+    "eyebrow": "Cairnly voor werkgevers",
+    "title": "Geef je mensen helderheid over hun loopbaan. Ook als hun volgende stap niet bij jullie ligt.",
+    "body": "Eén assessment en één gesprek met een AI-loopbaancoach, en binnen een uur heeft elke deelnemer tien concrete beroepen die passen bij de eigen vaardigheden, persoonlijkheid en doelen, elk met een matchscore, salarisdata en een AI-impactscore. Medewerkers zijn eigenaar van het resultaat. Jij betaalt per persoon, rolt het uit met een batch codes en ziet nooit wie het gedaan heeft of wat eruit kwam.",
+    "trialCta": "Probeer het zelf",
+    "talkCta": "Praat met ons",
+    "pills": [
+      "Helderheid binnen een uur",
+      "Tien concrete beroepen",
+      "De medewerker is eigenaar van het resultaat",
+      "Vanaf 20 euro per persoon"
+    ]
+  },
+  "why": {
+    "eyebrow": "Waarom werkgevers het aanbieden",
+    "lead": "De meeste mensen weten niet of hun huidige functie nog past bij wie ze geworden zijn. Ze blijven omdat dat makkelijker is dan uitzoeken.",
+    "p1": "De cijfers zeggen hetzelfde. Volgens Gallup is 14% van de Nederlandse werknemers betrokken bij het werk, en vindt 86% het een goed moment om in de eigen regio een baan te zoeken. Dat is geen loyaliteit. Dat is personeel dat op een reden wacht. Slechts 15% van de werknemers zegt dat hun leidinggevende de afgelopen zes maanden heeft geholpen met een loopbaanplan, dus het gesprek dat duidelijkheid zou geven vindt ook niet plaats.",
+    "p2": "Cairnly geeft ze het antwoord in één sessie. Sommigen ontdekken dat hun beste volgende stap binnen je bedrijf ligt, in een rol die je zelf niet had bedacht. Anderen ontdekken dat die elders ligt, en gaan in goede verstandhouding en met een plan. In beide gevallen krijg je eerlijke gesprekken in plaats van giswerk, en krijg je ze voordat er een dossier van wordt."
+  },
+  "stats": [
+    {
+      "value": "14%",
+      "label": "van de Nederlandse werknemers is betrokken bij het werk.",
+      "source": "Gallup, 2026"
+    },
+    {
+      "value": "15%",
+      "label": "van de werknemers kreeg de afgelopen zes maanden een loopbaanplan van de leidinggevende.",
+      "source": "LinkedIn, 2025"
+    },
+    {
+      "value": "€17.500",
+      "label": "gemiddelde verzuimkosten per werknemer na een conflict op het werk.",
+      "source": "TNO, 2025"
+    }
+  ],
+  "how": {
+    "eyebrow": "Zo werkt het",
+    "title": "Drie stappen, allemaal van de medewerker",
+    "steps": [
+      {
+        "title": "Het assessment",
+        "body": "De medewerker uploadt een cv en vult het assessment in, ongeveer een halfuur. De workflows van Cairnly, gebouwd met werkende loopbaancoaches op basis van Scheins Career Anchors en Big Five-onderzoek, maken een eerste analyse."
+      },
+      {
+        "title": "Het gesprek",
+        "body": "Een AI-loopbaancoach loopt met ze door tien beroepen in vier categorieën: de beste matches, de stretchopties, de aangrenzende stappen en één wildcard. Gekozen uit duizenden echte functietitels, niet uit een lijst met categorieën. Waar het niet klopt, geven ze tegengas, en het rapport wordt herschreven voordat het definitief is."
+      },
+      {
+        "title": "De volgende stap",
+        "body": "Het definitieve rapport, plus de hulpmiddelen om ermee aan de slag te gaan: actuele vacatures per beroep, en een cv en motivatiebrief op maat voor elke sollicitatie (in beta). Of ze binnen of buiten je bedrijf kijken, is aan henzelf."
+      }
+    ],
+    "perRoleLabel": "Bij elk beroep hoort",
+    "perRole": [
+      {
+        "label": "Salaris",
+        "value": "€70k tot €90k"
+      },
+      {
+        "label": "Type bedrijf",
+        "value": "Scale-up"
+      },
+      {
+        "label": "Te ontwikkelen",
+        "value": "AI-productstrategie"
+      }
+    ],
+    "languages": "Beschikbaar in het Nederlands en Engels.",
+    "reportCta": "Bekijk een afgerond rapport"
+  },
+  "employeeSees": {
+    "eyebrow": "Wat je medewerker ziet",
+    "intro": "Het eerste scherm van een assessment dat het bedrijf aanbiedt, zegt dit, letterlijk:",
+    "quote": "Je werkgever heeft hiervoor betaald. Die ziet nooit je antwoorden, je scores of je rapport. Niemand in je bedrijf weet of je het hebt afgemaakt.",
+    "why": "Die zin staat er omdat een assessment waarvan mensen vermoeden dat HR meeleest, strategisch wordt ingevuld. Dan is het voor niemand iets waard."
+  },
+  "council": {
+    "eyebrow": "Ontworpen voor de toets van je ondernemingsraad",
+    "intro": "Drie dingen maken dit een makkelijke ja voor een OR, een medezeggenschapsraad of een vakbondsvertegenwoordiger:",
+    "items": [
+      {
+        "title": "Vrijwillig.",
+        "body": "Niemand is verplicht mee te doen en niemand wordt gevraagd waarom hij of zij het niet deed."
+      },
+      {
+        "title": "Aangeboden aan een groep.",
+        "body": "Een team, een afdeling of het hele bedrijf. Nooit aan één persoon."
+      },
+      {
+        "title": "De werkgever ziet niets.",
+        "body": "Niet de beroepen, niet de scores, niet wie een code heeft ingewisseld. Je ziet een aantal, en dat is alles."
+      }
+    ],
+    "trust": [
+      {
+        "title": "Medewerkersdata blijft bij Cairnly",
+        "detail": "nooit bij jou"
+      },
+      {
+        "title": "AVG-conform",
+        "detail": "data gehost in de EU"
+      },
+      {
+        "title": "Verwerkersovereenkomst",
+        "detail": "op verzoek van je FG"
+      }
+    ]
+  },
+  "get": {
+    "eyebrow": "Wat je krijgt",
+    "items": [
+      {
+        "title": "Een batch codes en een aantal",
+        "body": "Codes voor het aantal mensen dat je wilt bereiken. Deel ze uit hoe je wilt: HR-mail, intranet, een leidinggevende in een teamoverleg. Achteraf zie je hoeveel er zijn ingewisseld. Verder niets. Of sla de codes over en laat mensen het zelf kopen en declareren. Batches zijn goedkoper."
+      },
+      {
+        "title": "Een uitrolkit",
+        "body": "Een aankondigingsmail voor medewerkers, een alinea voor je intranet en een briefje van één pagina voor je ondernemingsraad, alles zo geschreven dat de tool wordt neergezet zoals het hoort. Kost je een kwartier, geen middag."
+      },
+      {
+        "title": "Geaggregeerde feedback, vanaf 20 medewerkers",
+        "body": "Onder dat aantal rapporteren we niets, want daaronder zou iemand uit het geheel te herleiden zijn."
+      }
+    ]
+  },
+  "fits": {
+    "eyebrow": "Waar het past",
+    "items": [
+      {
+        "title": "Inzetbaarheidsbudgetten",
+        "body": "Inzetbaarheids- en ontwikkelbudgetten, vooral waar een cao of sectorfonds van je verwacht dat je loopbaanoriëntatie aanbiedt."
+      },
+      {
+        "title": "Reorganisaties",
+        "body": "Reorganisaties en vrijwillige vertrekregelingen, als eerste stap voordat iemand bepaalt of een volledig outplacementtraject nodig is."
+      },
+      {
+        "title": "Na een fusie",
+        "body": "Onboarding na een fusie, als niemand zeker weet welke functies nog zinvol zijn."
+      },
+      {
+        "title": "Ontwikkelgesprekken",
+        "body": "Jaarlijkse ontwikkelgesprekken, met iets concreets om het over te hebben in plaats van een generiek groeiplan."
+      }
+    ],
+    "uk": "",
+    "ukTitle": ""
+  },
+  "pricing": {
+    "eyebrow": "Wat het kost",
+    "title": "Wat het kost, naast wat je nu al betaalt",
+    "compareCaption": "Per persoon, ex btw",
+    "compare": [
+      {
+        "label": "Een externe loopbaancoach, per persoon",
+        "price": "€500 tot €2.750"
+      },
+      {
+        "label": "Een outplacementtraject, per persoon",
+        "price": "€3.000 tot €6.000"
+      },
+      {
+        "label": "Cairnly, per persoon",
+        "price": "€20 tot €44",
+        "highlight": true
+      }
+    ],
+    "compareNote": "Cairnly vervangt de bovenste twee rijen niet. Het is de stap ervoor. Wie Cairnly heeft gedaan, komt bij een coach, bij outplacement of in de volgende interne rol aan met een beter idee van wat hij of zij zoekt, waardoor het dure deel korter wordt.",
+    "pricingTitle": "Prijs.",
+    "pricingBody": "Op basis van volume. €44 per persoon voor kleine groepen, aflopend tot €20 vanaf 250. Geen opstartkosten, geen abonnement, geen certificering.",
+    "examples": "Een team van 40: €33 × 40 = €1.320. Iedereen in een bedrijf van 250 mensen: €5.000.",
+    "tiersToggle": "Bekijk alle volumeprijzen",
+    "colEmployees": "Medewerkers",
+    "colPrice": "Prijs per stuk (ex btw)"
+  },
+  "trial": {
+    "title": "Probeer het eerst zelf.",
+    "body": "We sturen je een code, zodat je het assessment kunt doen voordat je iets beslist. De meeste HR-professionals die dat doen, merken dat het ook iets zegt over hun eigen loopbaan. Daarmee is de vraag meestal beantwoord.",
+    "cta": "Vraag een proefcode aan",
+    "mailSubject": "Proefcode Cairnly voor werkgevers"
+  },
+  "about": {
+    "eyebrow": "Wie erachter zit",
+    "p1": "Cairnly is gebouwd door Human in the Loop B.V. in Utrecht. Mijn vrouw en ik begonnen eraan nadat we zelf met de vraag \"is dit nog wel de juiste baan\" hadden gezeten en niets vonden dat een eerlijk antwoord gaf. Loopbaancoaches gebruiken het als openingsstap van hun eigen trajecten. Werkgevers gebruiken het om mensen hetzelfde startpunt te geven, zonder het traject.",
+    "p2Before": "Hoe de methode werkt, staat openbaar op ",
+    "p2Link": "cairnly.io/partners",
+    "p2After": ". Wil je praten? Mail ons of plan 20 minuten in.",
+    "signature": "Sjoerd Geurts, oprichter",
+    "bookCta": "Plan een gesprek",
+    "emailCta": "Mail ons",
+    "mailSubject": "Cairnly voor werkgevers"
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "items": [
+      {
+        "q": "Kunnen we zien wie het heeft gedaan?",
+        "a": "Nee. Je ziet hoeveel codes zijn ingewisseld, niet door wie. Als je namen nodig hebt, is dit niet het juiste instrument."
+      },
+      {
+        "q": "Kunnen we het op specifieke mensen richten?",
+        "a": "Het kan, maar doe het niet. Bied het aan een team, een afdeling of iedereen aan. Een loopbaantool die een leidinggevende aan één persoon geeft, leest als een boodschap, en iedereen zal het zo lezen, ook je ondernemingsraad."
+      },
+      {
+        "q": "Vervangt dit outplacement of coaching?",
+        "a": "Nee. Het is de goedkope stap ervoor. Mensen komen bij het dure deel aan met een beter idee van wat ze zoeken."
+      },
+      {
+        "q": "Is het psychometrisch gevalideerd?",
+        "a": "Het is gebouwd op onderzoek naar Career Anchors en de Big Five en beoordeeld door werkende loopbaancoaches. Het is geen gecertificeerd psychometrisch instrument en we beweren ook niet dat het dat is. Waar Career Anchors je een voorkeur geeft, geeft Cairnly concrete beroepen, salaris en AI-impact per beroep. De methode is openbaar."
+      },
+      {
+        "q": "Hoe zit het met privacy?",
+        "a": "Medewerkersdata staat bij Cairnly, niet bij jou. We delen nooit individuele resultaten met een werkgever. De AVG is van toepassing en we tekenen een verwerkersovereenkomst als je FG daarom vraagt."
+      },
+      {
+        "q": "Moeten we de ondernemingsraad erbij betrekken?",
+        "a": "Een vrijwillig ontwikkelinstrument voor de hele groep, waarbij de werkgever geen resultaten ziet, vraagt meestal niet om formele instemming, maar stem het in elk geval af. Ons briefje van één pagina is geschreven voor precies dat gesprek."
+      },
+      {
+        "q": "Wat als iemand het doet en vertrekt?",
+        "a": "Dan zouden ze toch zijn vertrokken, en nu gaan ze met een plan en in goede verstandhouding. Wie blijft, blijft met een reden. Uit het onderzoek van Resume Now uit 2025 bleek dat 58% van de werknemers er spijt van heeft te lang op een baan te zijn gebleven, en 38% spijt heeft van het opzeggen van een baan. Te lang blijven is de vaker gemaakte fout."
+      }
+    ]
+  },
+  "closing": {
+    "body": "Cairnly is een product van Human in the Loop B.V., Utrecht."
+  }
+}
