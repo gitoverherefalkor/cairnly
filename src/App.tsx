@@ -59,7 +59,7 @@ const StarterPayment = lazyWithRetry(() => import("./pages/starter/StarterPaymen
 // Encore flavor (pensioners / pre-retirees) — parallel funnel at /encore
 const EncoreIndex = lazyWithRetry(() => import("./pages/encore/EncoreIndex"));
 const EncorePayment = lazyWithRetry(() => import("./pages/encore/EncorePayment"));
-// Partner channel (re-integratie / outplacement / loopbaancoaches) — plain
+// Partner channel (outplacement / loopbaancoaches, spoor 2 for office profiles) — plain
 // public marketing routes inside the existing site, deliberately NOT a
 // starter/encore-style fork.
 const PartnersIndex = lazyWithRetry(() => import("./pages/partners/PartnersIndex"));

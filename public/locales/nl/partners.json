@@ -1,7 +1,7 @@
 {
   "seo": {
-    "title": "Cairnly voor loopbaanprofessionals | loopbaanassessment voor re-integratie en outplacement",
-    "description": "Cairnly als voorwerk in je spoor 2- of outplacementtraject: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten."
+    "title": "Cairnly voor loopbaanprofessionals | loopbaanassessment voor outplacement en loopbaanbegeleiding",
+    "description": "Cairnly als voorwerk in je outplacement- of loopbaantraject voor kantoor- en kenniswerkers: concrete beroepen met matchscore, salarisdata en AI-impact per beroep, onder jouw logo. Credits verlopen nooit, geen instapkosten."
   },
   "hero": {
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
@@ -13,7 +13,7 @@
   },
   "whoFor": {
     "title": "Voor wie",
-    "body": "Voor re-integratiebureaus (spoor 2), outplacementbureaus en zelfstandige loopbaancoaches. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
+    "body": "Voor outplacementbureaus, loopbaancoaches en adviseurs die kenniswerkers en mensen met een kantoorachtergrond begeleiden, ook als die via een vaststellingsovereenkomst of een spoor 2-traject binnenkomen. Cairnly is gebouwd voor kantoor- en kennisfuncties: de vragen en voorbeelden gaan van die wereld uit, dus voor kandidaten zonder kantoorachtergrond is het nu niet de juiste tool. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
   },
   "whatYouGet": {
     "title": "Wat je kandidaat krijgt",
@@ -74,8 +74,12 @@
         "a": "Nee, en dat claimen we ook niet. Cairnly is arbeidsmarktorientatie: het vertaalt iemands ervaring, waarden en voorkeuren naar concrete beroepsrichtingen. Het staat naast je gevalideerde (COTAN-)instrumenten, niet in plaats daarvan."
       },
       {
-        "q": "Houdt Cairnly rekening met belastbaarheid (spoor 2)?",
-        "a": "Niet medisch, wel praktisch. De kandidaat geeft zelf aan onder welke voorwaarden werk vol te houden is: een maximum aantal uren per week dat als hard criterium meeweegt, en in een open veld zaken als een rustige omgeving, grip op het eigen tempo of weinig deadlinedruk. Beroepen die daar duidelijk niet in passen zakken in de ranking. De FML en het oordeel over belastbaarheid blijven bij de bedrijfsarts en bij jou."
+        "q": "Voor welke kandidaten is Cairnly bedoeld?",
+        "a": "Voor kenniswerkers en mensen met een kantoorachtergrond: de surveyvragen en de voorbeelden in de analyse zijn daarop geschreven. Voor kandidaten uit bijvoorbeeld de zorg, het onderwijs of de productie sluit het assessment nu niet goed aan, en we sturen je liever niet door met iets wat voor die groep niet werkt. Een variant daarvoor is er niet."
+      },
+      {
+        "q": "Houdt Cairnly rekening met belastbaarheid en werkvoorwaarden?",
+        "a": "Niet medisch, wel praktisch. De kandidaat geeft zelf aan onder welke voorwaarden werk vol te houden is: een maximum aantal uren per week dat als hard criterium meeweegt, en in een open veld zaken als een rustige omgeving, grip op het eigen tempo of weinig deadlinedruk. Beroepen die daar duidelijk niet in passen zakken in de ranking. Het oordeel over belastbaarheid blijft bij de bedrijfsarts en bij jou."
       },
       {
         "q": "Hoe zit het met privacy en de AVG?",

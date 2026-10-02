@@ -1,7 +1,7 @@
 {
   "seo": {
-    "title": "Cairnly for career professionals | career assessment for return-to-work and outplacement",
-    "description": "Use Cairnly as prep work in your return-to-work (spoor 2) or outplacement program: concrete careers with match scores, salary data and AI-impact per career, under your logo. Credits never expire."
+    "title": "Cairnly for career professionals | career assessment for outplacement and career coaching",
+    "description": "Use Cairnly as prep work in your outplacement or career program for office and knowledge workers: concrete careers with match scores, salary data and AI-impact per career, under your logo. Credits never expire."
   },
   "hero": {
     "title": "Your candidate starts with direction, not a blank page",
@@ -13,7 +13,7 @@
   },
   "whoFor": {
     "title": "Who it's for",
-    "body": "For return-to-work agencies (spoor 2 in the Netherlands), outplacement firms and independent career coaches. Cairnly doesn't replace your existing toolkit, it sits in front of it: the candidate works through the assessment as prep work and arrives at your advisor with a report to talk through."
+    "body": "For outplacement firms, career coaches and advisors who guide knowledge workers and people with an office background, including those who arrive through a settlement agreement or a spoor 2 (return-to-work) track. Cairnly is built for office and knowledge roles: the questions and examples assume that world, so for candidates without an office background it is not the right tool yet. Cairnly doesn't replace your existing toolkit, it sits in front of it: the candidate works through the assessment as prep work and arrives at your advisor with a report to talk through."
   },
   "whatYouGet": {
     "title": "What your candidate gets",
@@ -74,7 +74,11 @@
         "a": "No, and we don't claim it is. Cairnly is labor-market orientation: it translates someone's experience, values and preferences into concrete career directions. It sits alongside your validated instruments (COTAN-rated in the Netherlands), not in place of them."
       },
       {
-        "q": "Does Cairnly account for what someone can sustain (spoor 2)?",
+        "q": "Which candidates is Cairnly meant for?",
+        "a": "Knowledge workers and people with an office background: the survey questions and the examples in the analysis are written for them. For candidates from, say, healthcare, education or production the assessment doesn't fit well right now, and we would rather not send you down a road that doesn't work for that group. There is no variant for them."
+      },
+      {
+        "q": "Does Cairnly account for what someone can sustain?",
         "a": "Not medically, but practically. The candidate states the conditions under which work is sustainable for them: a maximum number of hours per week that counts as a hard requirement, and in a free-text field things like a calm environment, control over their own pace or little deadline pressure. Careers that clearly do not fit are pushed down the ranking. The medical judgement about capacity stays with the occupational physician and with you."
       },
       {
