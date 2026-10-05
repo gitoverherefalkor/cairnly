@@ -74,23 +74,27 @@ Current development focus: building out the platform features and establishing n
 - Use descriptive commit messages (not "update" or "fix")
 
 ## Branch → live workflow (Sjoerd's preference)
-The stack has two worlds: **frontend code** goes to a branch first and is NOT live until
-merged to `main` (Vercel auto-deploys `main`); **n8n workflows and Supabase/DB changes are
-live immediately** — there is no branch/staging for them, so treat those with extra care
-(backups, dry-runs).
+**Commit straight to `main` and push** (Vercel auto-deploys `main`). No feature branches or
+PRs unless Sjoerd asks for one (reconfirmed 2026-10-05: "branch? since when do we operate
+like that?"). A handover doc that says "branch first" does not override this.
 
-For frontend/branch work, follow this every time:
-- **Whenever you put code on a branch, say so explicitly** — state what's on it, that it is
-  **NOT live yet**, and offer a preview (Vercel spins up a preview URL per PR). Never sit on
-  branch work silently.
-- Sjoerd will either eyeball the preview or just say "go." With a small user base he often
-  prefers to **merge to live and test there directly** rather than fuss with previews — so
-  default to offering the merge, don't assume everything needs preview sign-off first.
-- **Occasionally give a "not live yet" overview** — e.g. at the start/end of a session, or
-  whenever asked, list everything committed to a branch but not yet merged to `main`, prefixed
-  with **"Heads up, this is not live yet:"**, so nothing gets stranded on a branch and
-  forgotten. (Determine this from the net diff of the branch vs `origin/main` and any open
-  PRs — NOT `git log origin/main..HEAD`, which is misleading after a squash-merge.)
+Say plainly what a push deploys: any push to `main` that touches `supabase/functions/`
+redeploys **all** edge functions, including live ones. **n8n workflows and Supabase/DB
+changes are live immediately** — there is no branch/staging for them, so treat those with
+extra care (backups, dry-runs).
+
+If code does end up on a branch (Sjoerd asked, or another session left it), say so with
+**"Heads up, this is not live yet:"** and list it. Determine this from the net diff of the
+branch vs `origin/main` and any open PRs — NOT `git log origin/main..HEAD`, which is
+misleading after a squash-merge.
+
+## Copy approval: a doc in the sidecar
+When new or changed user-facing copy (page text, chat replies, emails, translations) needs
+Sjoerd's approval before it goes to `main`, put it in a **temporary Claude Doc opened in the
+sidecar**: in the order the visitor sees it, with real example values instead of
+`{{placeholders}}`. Never send him to repo files or file:line links. He approves, edits or
+comments there; carry his changes into the code. **Once approved and on `main`, delete the
+doc.**
 
 ## Before starting large changes
 1. Explain what you understand from the request
