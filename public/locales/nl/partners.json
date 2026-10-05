@@ -5,7 +5,7 @@
   },
   "hero": {
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
-    "body": "Cairnly is een online loopbaanassessment dat in 25 tot 40 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
+    "body": "Cairnly is een online loopbaanassessment dat in ongeveer 45 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
     "sampleCta": "Bekijk een voorbeeld",
     "demoCta": "Bekijk een sessie",
     "stageEyebrow": "De sessie op het scherm",
@@ -61,7 +61,7 @@
   },
   "pilot": {
     "title": "Eerst zien of het werkt? Logisch.",
-    "bodyBeforeEmail": "We zoeken een handvol bureaus voor een gratis pilot: 20 kandidaten, geen voorwaarden. Wat wij terugvragen is een eerlijke mening van je adviseurs. Mail naar ",
+    "bodyBeforeEmail": "We zoeken een handvol bureaus voor een gratis pilot van 10 credits, geen voorwaarden. Wat wij terugvragen is een eerlijke mening van je adviseurs. Mail naar ",
     "bodyAfterEmail": " of plan direct 20 minuten in.",
     "cta": "Plan 20 minuten",
     "mailSubject": "Cairnly pilot voor ons bureau"
@@ -71,7 +71,7 @@
     "items": [
       {
         "q": "Welk loopbaanassessment past bij outplacement en loopbaanbegeleiding?",
-        "a": "Cairnly is een online loopbaanassessment voor kenniswerkers en mensen met een kantoorachtergrond. De kandidaat vult het in 25 tot 40 minuten in en krijgt een rapport met een top 3 beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Het rapport draagt het logo van jouw bureau. Met een AI-coach bespreekt de kandidaat het rapport en past het aan waar het niet klopt. Het echte gesprek blijft van jou."
+        "a": "Cairnly is een online loopbaanassessment voor kenniswerkers en mensen met een kantoorachtergrond. De kandidaat vult het in ongeveer 45 minuten in en krijgt een rapport met een top 3 beroepen met matchscore, alternatieven, salarisranges en per beroep een inschatting van wat AI ermee gaat doen. Het rapport draagt het logo van jouw bureau. Met een AI-coach bespreekt de kandidaat het rapport en past het aan waar het niet klopt. Het echte gesprek blijft van jou."
       },
       {
         "q": "Voor welke kandidaten werkt Cairnly, en voor welke niet?",
@@ -151,7 +151,7 @@
     "partnership": "{{partner}} werkt samen met Cairnly",
     "eyebrow": "Jouw loopbaanassessment",
     "title": "Start je loopbaanassessment",
-    "body": "{{partner}} heeft dit assessment voor je klaargezet. In 25 tot 40 minuten beantwoord je vragen over je persoonlijkheid, je werkervaring en wat je zoekt in werk. Daarna krijg je een rapport met concrete beroepen die bij je passen, met per beroep een matchscore, salarisrange en een eerlijke inschatting van wat AI ermee gaat doen. Dat rapport neem je mee naar je gesprek met je adviseur.",
+    "body": "{{partner}} heeft dit assessment voor je klaargezet. In ongeveer 45 minuten beantwoord je vragen over je persoonlijkheid, je werkervaring en wat je zoekt in werk. Daarna krijg je een rapport met concrete beroepen die bij je passen, met per beroep een matchscore, salarisrange en een eerlijke inschatting van wat AI ermee gaat doen. Dat rapport neem je mee naar je gesprek met je adviseur.",
     "steps": [
       "Maak een account aan (2 minuten)",
       "Doorloop het assessment in je eigen tempo, ook in etappes",

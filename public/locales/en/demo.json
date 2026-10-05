@@ -253,7 +253,7 @@
     },
     "rest": {
       "title": "That is 3 of about 60 questions",
-      "body": "The rest works the same way: concrete, no trick questions, no right or wrong answers. Twenty-five to forty minutes in total. Then the AI reads all the answers together and delivers the report chapter by chapter in the chat.",
+      "body": "The rest works the same way: concrete, no trick questions, no right or wrong answers. About 45 minutes in total. Then the AI reads all the answers together and delivers the report chapter by chapter in the chat.",
       "toChat": "Read {{name}}'s conversation"
     }
   }
