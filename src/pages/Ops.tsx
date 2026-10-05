@@ -13,6 +13,7 @@ import {
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
+import PartnerLeadsCard from '@/components/ops/PartnerLeadsCard';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
 import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, SUBJECT_TEST_ID, codeActivation, isWarm, matchesFocus, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
@@ -264,6 +265,7 @@ const OPS_BG_URL = '/dashboard/sections/development-tilted-stone.jpg';
 const DEFAULT_OPEN: Record<string, boolean> = {
   outreach: true,
   partners: false,
+  prechat: true,
   blockers: true,
   n8n: true,
   support: false,
@@ -2029,6 +2031,16 @@ export default function Ops() {
                     onToggle={toggle}
                   >
                     <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="prechat"
+                    title="Pre-chat leads"
+                    subtitle="Practitioners who talked to the chat on /partners. Free credits are minted by hand in Partners above; set the lead to Credits sent once they are out."
+                    open={open.prechat}
+                    onToggle={toggle}
+                  >
+                    <PartnerLeadsCard />
                   </SectionCard>
                 </div>
               )}

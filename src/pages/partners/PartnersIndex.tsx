@@ -5,6 +5,7 @@ import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import PartnersHero from '@/components/partners/PartnersHero';
+import PartnersPreChat from '@/components/partners/prechat/PartnersPreChat';
 import PartnersWhoFor from '@/components/partners/PartnersWhoFor';
 import PartnersWhatYouGet from '@/components/partners/PartnersWhatYouGet';
 import PartnersCandidateStart from '@/components/partners/PartnersCandidateStart';
@@ -39,6 +40,8 @@ const PartnersIndex: React.FC = () => {
       <LandingNav variant="page" />
       <main>
         <PartnersHero />
+        {/* "Does it belong in my practice?": the demo above shows what it is. */}
+        <PartnersPreChat />
         <PartnersWhoFor />
         <PartnersWhatYouGet />
         <PartnersCandidateStart />

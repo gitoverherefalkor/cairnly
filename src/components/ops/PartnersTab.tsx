@@ -32,7 +32,7 @@ interface Partner {
 
 const MAX_LOGO_BYTES = 256 * 1024;
 
-async function callPartners(body: Record<string, unknown>): Promise<any> {
+export async function callPartners(body: Record<string, unknown>): Promise<any> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('Not authenticated');
   const url = import.meta.env.VITE_SUPABASE_URL as string;
