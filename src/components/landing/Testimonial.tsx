@@ -38,7 +38,7 @@ import { trackCtaClick } from '@/lib/analytics';
  *   address, so nothing had to be reworded to make it read on a page.
  */
 
-interface Person {
+export interface Person {
   name: string;
   /** i18n key under `testimonial` for the line under the name. */
   roleKey: string;
@@ -54,7 +54,8 @@ interface Person {
   short: string[];
 }
 
-const BRAD: Person = {
+/** Exported for the /partners pre-chat, which shows the first `full` paragraph word for word. */
+export const BRAD: Person = {
   name: 'Brad Gentry',
   roleKey: 'roleCoach',
   eyebrowKey: 'eyebrowCoach',

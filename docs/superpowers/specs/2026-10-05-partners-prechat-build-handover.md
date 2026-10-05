@@ -7,6 +7,21 @@ https://claude.ai/code/artifact/fea86b3c-b1a5-4299-a41c-24151bad8574
 Everything below is decided. Do not re-open it; ask Sjoerd only about the items under "Still
 open".
 
+## Build status (2026-10-05, branch `partners-prechat`)
+
+Built: migration (applied), `audience` switch in `intake-chat` (`partnerFlow.ts`,
+`partnerPrompts.ts`, helpers moved to `claude.ts`), offer rules + tier table in
+`_shared/partnerOffer.ts` with a drift test, the `lead` action (recap mail, push, backup mail
+to Sjoerd), the section on `/partners` (`src/components/partners/prechat/`), and the
+"Pre-chat leads" list in `/ops` with the pilot-slot setting (`ops-partners`: `leads`,
+`setLeadStatus`, `setPilotSlots`). Pilot slots start at 5 in `partner_prechat_settings`.
+
+Pitch length: the model overshoots a word count, so the closing line is appended by the server
+(`PITCH_SEND_OFF`) and the prompt sets structural limits (opening of 20 words, exactly three
+bullets, two plus the limit sentence for mixed clients). Played runs landed at 91 to 103 words.
+
+Still open: the end-to-end partner chain (item 8 below) and Sjoerd's review of the Dutch copy.
+
 ## What it is
 
 An inline chat on `/partners`, directly under `PartnersHero`, for career coaches, outplacement

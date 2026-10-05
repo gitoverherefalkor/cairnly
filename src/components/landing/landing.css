@@ -182,6 +182,16 @@ button.lp-screenshot-slot {
 }
 .lp-btn-ghost:hover { background: rgba(255,255,255,0.14); }
 
+/* Secondary on cream (the partners pre-chat's offer card): a white face with
+   a tan rim and edge, quieter than the teal button beside it. The hover edge
+   still turns gold, like every other button. */
+.lp-btn-outline {
+  --btn-bg: #fff;
+  --btn-fg: #122E3B;
+  --btn-edge: #C9B690;
+  border: 1.5px solid #C9B690;
+}
+
 .lp-btn-secondary-text {
   color: rgba(255,255,255,0.8); font-weight: 600; font-size: 15px;
   text-decoration: none;

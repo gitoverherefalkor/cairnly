@@ -9,6 +9,7 @@
 // comes in here as base64 on the JSON body and is decoded and uploaded here.
 //
 // Actions: list | save | mint | setActive | delete
+//          leads | setLeadStatus | setPilotSlots (the /partners pre-chat)
 //
 // Outreach hand-off: `save` may carry a `prospectSlug` (the bureau in the
 // Outreach tab this partner is for). The prospect is then linked to the
@@ -53,6 +54,9 @@ const MIME_CANON: Record<string, { mime: string; ext: string }> = {
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
 
 const SITE = 'https://cairnly.io';
+
+/** Lead pipeline for the /partners pre-chat; mirrors the intake_sessions CHECK constraint. */
+const LEAD_STATUSES = new Set(['new', 'credits_sent', 'pilot_call_booked', 'pilot_running', 'buying', 'lost']);
 
 type Json = Record<string, unknown>;
 
@@ -109,6 +113,50 @@ serve(async (req) => {
   const action = String(body.action ?? '');
 
   try {
+    // ── pre-chat leads (/partners chat) ─────────────────────────────────────
+    // Every partner conversation of the last 90 days, newest first: the ones
+    // that left an email are leads, the rest show what practitioners ask.
+    if (action === 'leads') {
+      const since = new Date(Date.now() - 90 * 86_400_000).toISOString();
+      const { data: rows, error } = await supabase
+        .from('intake_sessions')
+        .select('id, created_at, updated_at, intent, language, status, messages, extraction, pitch, email, offer, offer_chosen, lead_status, lead_at, user_turns')
+        .eq('audience', 'partner')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      const { data: settings } = await supabase
+        .from('partner_prechat_settings')
+        .select('pilot_slots_left')
+        .eq('id', true)
+        .maybeSingle();
+      return ok({ leads: rows ?? [], pilotSlotsLeft: settings?.pilot_slots_left ?? 0 }, corsHeaders);
+    }
+
+    if (action === 'setLeadStatus') {
+      const id = String(body.id ?? '');
+      const status = String(body.status ?? '');
+      if (!LEAD_STATUSES.has(status)) return errorResponse('Unknown status', 400, corsHeaders);
+      const { error } = await supabase
+        .from('intake_sessions')
+        .update({ lead_status: status, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .eq('audience', 'partner');
+      if (error) throw error;
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    if (action === 'setPilotSlots') {
+      const n = Number(body.pilotSlotsLeft);
+      if (!Number.isInteger(n) || n < 0 || n > 100) return errorResponse('Slots must be 0 to 100', 400, corsHeaders);
+      const { error } = await supabase
+        .from('partner_prechat_settings')
+        .upsert({ id: true, pilot_slots_left: n, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      return ok({ pilotSlotsLeft: n }, corsHeaders);
+    }
+
     // ── list ────────────────────────────────────────────────────────────────
     if (action === 'list') {
       const { data: stats, error: statsErr } = await supabase

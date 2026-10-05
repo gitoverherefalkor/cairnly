@@ -455,7 +455,7 @@ export function beatLabels(intent: IntentKey, lang: Lang): string[] {
   return beatsFor(intent).map((b) => b.label[lang]);
 }
 
-const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
+export const LANG_NAME: Record<Lang, string> = { en: 'English', nl: 'Dutch' };
 
 /**
  * The price line the intake chat is allowed to quote. One flat price: the
@@ -479,7 +479,7 @@ ${priceFact()}
 - This intake conversation is a short doorway, deliberately lighter than the product itself. The coaching chat inside the dashboard digs far deeper, with the full assessment results in hand. Never present this intake as representative of the coaching experience.`;
 }
 
-const STYLE_RULES = `
+export const STYLE_RULES = `
 STYLE RULES (absolute):
 - Never use em-dashes. Use commas, periods or parentheses instead.
 - Never use the contrast template "it's not X, it's Y" or ANY variant ("isn't only X, it's Y", "not just X, but Y", "less about X, more about Y"). State what something IS as a plain sentence, without first negating something else.
