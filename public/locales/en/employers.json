@@ -19,24 +19,24 @@
   "why": {
     "eyebrow": "Why employers offer it",
     "lead": "Most people have no idea whether the role they're in still fits the person they've become. They stay because it's easier than finding out.",
-    "p1": "The numbers say the same thing. Gallup has 14% of Dutch employees engaged at work, and 86% saying it's a good time to find a job where they live. That's not loyalty. That's a workforce waiting for a reason. Only 15% of employees say their manager helped them build a career plan in the last six months, so the conversation that would settle it isn't happening either.",
+    "p1": "The numbers say the same thing. Gallup has 10% of UK employees engaged at work, and Europe as a whole at 12%, the lowest of any region in the world. Half of UK employees say it's a good time to find a job where they live. That's not loyalty. That's a workforce waiting for a reason. And worldwide, only 15% of employees say their manager helped them build a career plan in the last six months, so the conversation that would settle it isn't happening either.",
     "p2": "Cairnly gives them the answer in one sitting. Some will find their best next step is inside your company, in a role you hadn't thought to offer. Some will find it's elsewhere, and leave on good terms with a plan. Either way you get honest conversations instead of guesswork, and you get them before anything turns into a file."
   },
   "stats": [
     {
-      "value": "14%",
-      "label": "of Dutch employees are engaged at work.",
+      "value": "10%",
+      "label": "of UK employees are engaged at work.",
       "source": "Gallup, 2026"
     },
     {
       "value": "15%",
-      "label": "of employees got a career plan from their manager in the last six months.",
+      "label": "of employees worldwide got help with a career plan from their manager in the last six months.",
       "source": "LinkedIn, 2025"
     },
     {
-      "value": "€17,500",
-      "label": "average absence cost per employee after a conflict at work.",
-      "source": "TNO, 2025"
+      "value": "£1,000+",
+      "label": "average cost of workplace conflict per UK employee, per year.",
+      "source": "Acas, 2021"
     }
   ],
   "how": {
@@ -82,7 +82,7 @@
   },
   "council": {
     "eyebrow": "Built to pass your works council",
-    "intro": "Three things make this an easy yes for an OR, a staff council or a union rep:",
+    "intro": "Three things make this an easy yes for a works council, an employee forum or a union rep:",
     "items": [
       {
         "title": "Voluntary.",
@@ -133,8 +133,8 @@
     "eyebrow": "Where it fits",
     "items": [
       {
-        "title": "Employability budgets",
-        "body": "Employability and development budgets, especially where a collective agreement or sector fund expects you to offer career orientation."
+        "title": "Development budgets",
+        "body": "Learning and development budgets, especially where you've committed to career development or internal mobility."
       },
       {
         "title": "Reorganisations",
