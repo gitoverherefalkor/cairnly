@@ -17,6 +17,8 @@ export interface PartnerMessage {
   text: string;
   /** The unedited starter line, rendered gold. */
   seeded?: boolean;
+  /** The pitch: the offer card renders right under it. */
+  pitch?: boolean;
 }
 
 export interface PartnerChips {

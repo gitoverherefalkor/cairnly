@@ -58,6 +58,8 @@ export function usePartnerChat(lang: 'en' | 'nl') {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
   const starting = useRef(false);
+  // The first 'pitched' reply is the pitch; later 'pitched' replies are follow-ups.
+  const pitchedRef = useRef(restored.current?.stage === 'pitched');
 
   useEffect(() => {
     if (!sessionId) return;
@@ -73,7 +75,9 @@ export function usePartnerChat(lang: 'en' | 'nl') {
 
   const applyReply = useCallback(
     (res: { reply: string; stage: PartnerStage; beat?: number | null; chips?: PartnerChips | null; offer?: PartnerOffer | null }) => {
-      setMessages((prev) => [...prev, { role: 'assistant', text: res.reply }]);
+      const isPitch = res.stage === 'pitched' && !pitchedRef.current;
+      if (isPitch) pitchedRef.current = true;
+      setMessages((prev) => [...prev, { role: 'assistant', text: res.reply, ...(isPitch ? { pitch: true } : {}) }]);
       setBeat(res.beat ?? null);
       setChips(res.chips ?? null);
       if (res.stage === 'pitched') {
@@ -170,6 +174,7 @@ export function usePartnerChat(lang: 'en' | 'nl') {
     setLeadChoice(null);
     setLeadState('idle');
     setError(false);
+    pitchedRef.current = false;
     try {
       localStorage.removeItem(PARTNER_CHAT_SESSION_KEY);
     } catch {

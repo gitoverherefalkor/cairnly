@@ -31,6 +31,7 @@ import {
   PARTNER_EXTRACTION_TOOL,
   PARTNER_CLOSE_MESSAGE,
   PITCH_SEND_OFF,
+  hasContrast,
 } from './partnerPrompts.ts';
 
 const MAX_USER_TURNS = 12;
@@ -205,8 +206,14 @@ export async function advancePartner(
   let pitch = row.pitch;
   let offer: PartnerOffer | null = row.offer ?? null;
 
+  // Answers tapped so far. A practice whose clients come mostly from
+  // healthcare, education or production gets the honest close right away:
+  // the remaining questions could not change an offer that is not there.
+  const tapped = chipAnswers(intent, transcript.filter((m) => m.role === 'user').map((m) => m.text));
+  const notFit = tapped.clientGroup === 'not_fit';
+
   try {
-    if (row.status === 'active' && userTurns <= plan.length) {
+    if (row.status === 'active' && userTurns <= plan.length && !notFit) {
       const resp = await callClaude({
         system: partnerQaSystem(lang, userTurns, intent),
         messages: apiMessages(row, transcript),
@@ -224,9 +231,9 @@ export async function advancePartner(
       // any of the three instead, the extraction maps it before the pitch
       // (slower, but the card must be right). All tapped: extraction runs in
       // parallel with the pitch, as on the homepage.
-      const answers = chipAnswers(intent, transcript.filter((m) => m.role === 'user').map((m) => m.text));
+      const answers = { ...tapped };
       const slots = await pilotSlotsLeft(db);
-      const complete = !!(answers.clientGroup && answers.payment && answers.volume);
+      const complete = notFit || !!(answers.clientGroup && answers.payment && answers.volume);
 
       let extractionPromise: Promise<{ extraction: Record<string, unknown> | null; tokens: number }>;
       let jobSeeker = false;
@@ -244,18 +251,42 @@ export async function advancePartner(
 
       offer = buildPartnerOffer({ ...answers, jobSeeker, pilotSlotsLeft: slots });
 
+      const pitchSystem = partnerPitchSystem(lang, intent, offer);
       const pitchResp = await callClaude({
-        system: partnerPitchSystem(lang, intent, offer),
+        system: pitchSystem,
         messages: apiMessages(row, transcript),
         maxTokens: 3000,
         thinking: { type: 'between_tools' },
         effort: 'medium',
       });
       reply = textFrom(pitchResp).trim();
+      tokens = usedTokens(pitchResp);
+
+      // The contrast template survives the prompt rule often enough that it
+      // is checked here; one rewrite, then whatever comes back stands.
+      if (hasContrast(reply)) {
+        const retry = await callClaude({
+          system: pitchSystem,
+          messages: [
+            ...apiMessages(row, transcript),
+            { role: 'assistant', content: reply },
+            {
+              role: 'user',
+              content:
+                '(Internal check, not from the visitor: this draft uses a contrast construction such as ", not X", ", niet X", "geen X", "instead of" or "in plaats van". Rewrite the same message with every such phrase removed; keep the same shape and limits. Output only the message.)',
+            },
+          ],
+          maxTokens: 3000,
+          thinking: { type: 'between_tools' },
+          effort: 'low',
+        }).catch(() => null);
+        const rewritten = retry ? textFrom(retry).trim() : '';
+        if (retry) tokens += usedTokens(retry);
+        if (rewritten) reply = rewritten;
+      }
       if (reply && (offer.kind === 'pilot' || offer.kind === 'credits')) {
         reply = `${reply}\n\n${PITCH_SEND_OFF[lang][offer.kind]}`;
       }
-      tokens = usedTokens(pitchResp);
       pitch = reply;
       stage = 'pitched';
 

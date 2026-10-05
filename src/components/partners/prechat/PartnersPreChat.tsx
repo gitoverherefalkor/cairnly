@@ -81,10 +81,12 @@ const PartnersPreChat: React.FC = () => {
 
   const seedFor = (s: Starter) => t(`prechat.seeds.${s}`);
 
-  // Index of the pitch in the transcript: opener + one answer per question,
-  // each followed by a reply, so it is the reply after the last answer.
-  const pitchIndex = chat.stage === 'pitched' ? 2 * chat.totalBeats + 1 : -1;
+  // The pitch is flagged when it arrives. It can come early: a practice with
+  // mostly healthcare, education or production clients gets the honest close
+  // straight after that answer.
   const pitched = chat.stage === 'pitched';
+  const flagged = chat.messages.findIndex((m) => m.pitch);
+  const pitchIndex = pitched ? (flagged >= 0 ? flagged : 2 * chat.totalBeats + 1) : -1;
 
   useEffect(() => {
     setShowHistory(false);

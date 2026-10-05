@@ -8,6 +8,7 @@ import {
   partnerBeatsFor,
   chipAnswers,
   matchChip,
+  hasContrast,
 } from './partnerPrompts.ts';
 
 const locale = (lang: 'en' | 'nl') =>
@@ -64,4 +65,22 @@ describe('chip answers', () => {
     ]);
     expect(a).toEqual({ clientGroup: 'office', payment: null, volume: '50_199' });
   });
+});
+
+describe('contrast check', () => {
+  it.each([
+    'gives session one concrete careers to react to, not a search.',
+    'jouw gesprek gaat over keuzes, niet over uitleg.',
+    'de matchscore is een gespreksstarter, geen meting.',
+    'clients start from a list instead of a blank page.',
+    'niet op onderbuik alleen',
+    'het is niet een test maar een oriëntatie',
+  ])('flags %s', (t) => expect(hasContrast(t)).toBe(true));
+
+  it.each([
+    'Your client arrives having already challenged what felt wrong.',
+    'Cairnly is geen psychometrisch instrument en geen COTAN-beoordeelde test.',
+    'Credits die nooit verlopen: je koopt per volume in.',
+    'Three free credits below, so you can run it on yourself first.',
+  ])('leaves %s alone', (t) => expect(hasContrast(t)).toBe(false));
 });

@@ -58,7 +58,7 @@ export const PARTNER_INTENT_LABELS: Record<Lang, Record<PartnerIntent, string>> 
 const PARTNER_INTENT_BRIEFS: Record<PartnerIntent, string> = {
   'clients-blank': `Their clients arrive without any direction. Listen for: what the first sessions look like now, how much time goes into finding directions before the real work starts.`,
   'clients-ai': `Their clients ask whether AI will take their job, and the practitioner needs a concrete answer per role. Listen for: what they tell clients now, how often it comes up.`,
-  validated: `They use validated instruments (Career Anchors, Big Five, COTAN-rated tests) and are wary of AI tools. Lead with honesty about what Cairnly is and is not. Listen for: which instruments, and where the process stalls after the test (often the step from profile to concrete jobs).`,
+  validated: `They use validated instruments (Career Anchors, Big Five, COTAN-rated tests) and are wary of AI tools. Lead with honesty about what Cairnly is and is not. Listen for: which instruments, and where the process stalls after the test. Be precise about the gap: a profile test tells candidates who they are and what drives them; it does not name jobs. Cairnly takes the next step, from that kind of self-knowledge to concrete careers.`,
   shorter: `They want shorter trajectories without losing quality. Listen for: where time goes now, how the trajectory is paid for.`,
   'ai-self': `They wonder what AI means for coaches like them. Answer honestly, never with reassurance. Listen for: what their work with a client looks like, which parts they value.`,
   other: `They typed their own opening. Take it at face value and let their framing lead; do not assume one of the preset worries.`,
@@ -300,17 +300,40 @@ Respond in ${LANG_NAME[lang]} only, regardless of the language the visitor write
 /** The partners page calls the people a practitioner guides "kandidaten"; the chat says the same. */
 const DUTCH_TERMS = (lang: Lang) =>
   lang === 'nl'
-    ? ' In Dutch, call the people they guide "kandidaten" (never "klanten" or "cliënten"), and address the visitor with "je/jij".'
+    ? ' In Dutch, call the people they guide "kandidaten" (never "klanten" or "cliënten"), address the visitor with "je/jij", and write the AI-impact scale as "van minimaal tot kritiek". No English words.'
     : '';
 
-const PARTNER_PACKAGE = [
-  'A top 3 with match scores, plus alternatives',
-  'Salary ranges and an AI-impact rating per career',
-  'An AI coach the candidate uses to correct the report',
-  'Your logo on the report and the start page',
-  'A report written to be talked through with an adviser',
-  'Credits that never expire',
-];
+const PARTNER_PACKAGE: Record<Lang, string[]> = {
+  en: [
+    'A top 3 with match scores, plus alternatives',
+    'Salary ranges and an AI-impact rating per career',
+    'An AI coach the candidate uses to correct the report',
+    'Your logo on the report and the start page',
+    'A report written to be talked through with an adviser',
+    'Credits that never expire',
+  ],
+  // The model copies these verbatim, so the Dutch chat needs Dutch leads.
+  nl: [
+    'Een top 3 met matchscores, plus alternatieven',
+    'Salarisindicaties en een AI-impactscore per beroep',
+    'Een AI-coach waarmee de kandidaat het rapport bijstelt',
+    'Jouw logo op het rapport en de startpagina',
+    'Een rapport om samen met een adviseur door te nemen',
+    'Credits die nooit verlopen',
+  ],
+};
+
+/**
+ * The "it's not X, it's Y" family, which keeps slipping into pitches despite
+ * the prompt rule ("..., not a search.", "niet over uitleg"). Checked in code;
+ * a hit gets one rewrite.
+ */
+const CONTRAST_RE = /(,|;)\s+(not|niet|geen)\s|\b(instead of|rather than|in plaats van|not only|niet alleen)\b|\bniet\s+\w+(\s+\w+)?,?\s+maar\b|\bnot\s+\w+(\s+\w+)?,\s+but\b|\bniet\b[^.,;]{0,25}\balleen\b/i;
+
+export function hasContrast(text: string): boolean {
+  return CONTRAST_RE.test(text);
+}
+
 
 /** The money argument for each payment model, with numbers from the offer. */
 function moneyLine(offer: PartnerOffer): string {
@@ -385,13 +408,15 @@ Now write THE PITCH: a short, concrete bridge from their practice to what Cairnl
 - NEVER read their answers back. No "you said", "you mentioned", no summary of their answers, no restating their volume or payment model. They know what they wrote. You may weave a few of their own words into a sentence.
 - Structure (this exact shape):
   (a) One opening sentence of AT MOST 20 words about what their clients or their practice need, built from their opening message and any gap they named. No flattery.
-  (b) EXACTLY ${offer.fit === 'mixed' ? 'TWO' : 'THREE'} markdown bullet lines (each line starts with "- "). Each bullet leads with ONE item from the PACKAGE below in bold (wrapped in double asterisks), then a colon, then ONE sentence of AT MOST 14 words on what it changes for their practice. Each bullet draws on a different part of the conversation.
+  (b) EXACTLY ${offer.fit === 'mixed' ? 'TWO' : 'THREE'} markdown bullet lines (each line starts with "- "). Each bullet leads with ONE item from the PACKAGE below in bold (wrapped in double asterisks), then a colon, then ONE sentence of AT MOST 14 words on what it changes for their practice, starting with a lowercase letter. Each bullet draws on a different part of the conversation. Keep who is who clear: "you/your" (Dutch "je/jouw") is always the practitioner; the person taking the assessment is "your client" (Dutch "je kandidaat").
   (c) NO send-off and no closing line: the interface appends one that points to the offer card. End after the bullets${offer.fit === 'mixed' ? ' (and the limit sentence)' : ''}.${limit}
 - MONEY: ${moneyLine(offer)} Use this in at most one bullet, only if it fits within the word limit. Quote no price that is not in the FACTS.
 - PACKAGE (the only capabilities you may lead a bullet with):
-${PARTNER_PACKAGE.map((p) => `  - ${p}`).join('\n')}
+${PARTNER_PACKAGE[lang].map((p) => `  - ${p}`).join('\n')}
 - Never quote or mention any testimonial. Do not use the word "solution".
-- No contrast constructions of any kind: no "instead of", "rather than", "not a blank page but", "X, not Y". Say what Cairnly does, plainly.`;
+- No contrast constructions of any kind, including a tail like "..., not a search." or "..., not guesswork.": no "instead of", "rather than", "not a blank page but", "X, not Y", "not only"; in Dutch no "in plaats van", "niet X maar Y", "niet alleen", "niet op ... alleen". Say what Cairnly does, plainly.
+- No general truths in the opening ("shorter trajectories come from..."): talk about their practice and their clients.
+- Never belittle the practitioner's current way of working (no "gut feeling", "guesswork", "onderbuik").`;
 }
 
 export function partnerPostPitchSystem(lang: Lang, offer: PartnerOffer | null): string {
@@ -400,7 +425,9 @@ export function partnerPostPitchSystem(lang: Lang, offer: PartnerOffer | null): 
       ? `The card under the pitch offers: book 20 minutes about the free pilot of ${PILOT_CREDITS} credits, or ${FREE_CREDITS} free credits.`
       : offer?.kind === 'credits'
         ? `The card under the pitch offers: ${FREE_CREDITS} free credits, or 20 minutes with Sjoerd, the founder.`
-        : 'The card under the pitch makes no offer; it links to the sample report and a recorded session.';
+        : offer?.kind === 'none'
+          ? 'Their clients come mostly from healthcare, education or production, so the card makes NO offer: never mention or offer free credits, the pilot, a call or prices. If they say some clients do come from office or knowledge work, they can mail info@cairnly.io about those. The card links to the sample report and a recorded session.'
+          : 'The card under the pitch makes no offer; it links to the sample report and a recorded session.';
   return `${PARTNER_ROLE} The pitch has been delivered; the visitor is asking follow-up questions.
 ${PARTNER_FACTS}
 ${STYLE_RULES}
