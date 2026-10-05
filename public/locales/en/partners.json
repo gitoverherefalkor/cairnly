@@ -5,7 +5,7 @@
   },
   "hero": {
     "title": "Your candidate starts with direction, not a blank page",
-    "body": "Cairnly is an online career assessment that turns 25 to 40 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
+    "body": "Cairnly is an online career assessment that turns about 45 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
     "sampleCta": "See a sample report",
     "demoCta": "Watch a session",
     "stageEyebrow": "The session on screen",
@@ -61,7 +61,7 @@
   },
   "pilot": {
     "title": "Want to see it work first? Fair enough.",
-    "bodyBeforeEmail": "We're looking for a handful of agencies for a free pilot: 20 candidates, no strings attached. What we ask back is an honest opinion from your advisors. Email ",
+    "bodyBeforeEmail": "We're looking for a handful of agencies for a free pilot of 10 credits, no strings attached. What we ask back is an honest opinion from your advisors. Email ",
     "bodyAfterEmail": " or book 20 minutes straight away.",
     "cta": "Book 20 minutes",
     "mailSubject": "Cairnly pilot for our agency"
@@ -71,7 +71,7 @@
     "items": [
       {
         "q": "Which career assessment fits outplacement and career coaching?",
-        "a": "Cairnly is an online career assessment for knowledge workers and people with an office background. The candidate completes it in 25 to 40 minutes and gets a report with a top 3 of careers with match scores, alternatives, salary ranges and, for each career, an honest read on what AI will do to it. The report carries your agency's logo. An AI coach lets the candidate discuss the report and correct it where it is wrong. The real conversation stays yours."
+        "a": "Cairnly is an online career assessment for knowledge workers and people with an office background. The candidate completes it in about 45 minutes and gets a report with a top 3 of careers with match scores, alternatives, salary ranges and, for each career, an honest read on what AI will do to it. The report carries your agency's logo. An AI coach lets the candidate discuss the report and correct it where it is wrong. The real conversation stays yours."
       },
       {
         "q": "Which candidates does Cairnly work for, and which not?",
@@ -151,7 +151,7 @@
     "partnership": "{{partner}} works with Cairnly",
     "eyebrow": "Your career assessment",
     "title": "Start your career assessment",
-    "body": "{{partner}} has set this assessment up for you. In 25 to 40 minutes you answer questions about your personality, your work history and what you are looking for in work. You then receive a report with concrete careers that fit you, each with a match score, a salary range and an honest read on what AI will do to it. You bring that report to the conversation with your advisor.",
+    "body": "{{partner}} has set this assessment up for you. In about 45 minutes you answer questions about your personality, your work history and what you are looking for in work. You then receive a report with concrete careers that fit you, each with a match score, a salary range and an honest read on what AI will do to it. You bring that report to the conversation with your advisor.",
     "steps": [
       "Create an account (2 minutes)",
       "Work through the assessment at your own pace, in stages if you like",

@@ -253,7 +253,7 @@
     },
     "rest": {
       "title": "Dit zijn 3 van de ongeveer 60 vragen",
-      "body": "De rest gaat net zo: concreet, geen strikvragen, geen goede of foute antwoorden. Samen 25 tot 40 minuten. Daarna leest de AI alle antwoorden in samenhang en levert het rapport hoofdstuk voor hoofdstuk in de chat.",
+      "body": "De rest gaat net zo: concreet, geen strikvragen, geen goede of foute antwoorden. Samen ongeveer 45 minuten. Daarna leest de AI alle antwoorden in samenhang en levert het rapport hoofdstuk voor hoofdstuk in de chat.",
       "toChat": "Lees het gesprek van {{name}}"
     }
   }
