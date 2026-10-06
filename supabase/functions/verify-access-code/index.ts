@@ -165,7 +165,11 @@ serve(async (req) => {
         id: accessCode.id,
         code: accessCode.code,
         survey_type: accessCode.survey_type,
-        remaining_uses: accessCode.max_usage - accessCode.usage_count
+        remaining_uses: accessCode.max_usage - accessCode.usage_count,
+        // An employer paid for this seat (employer_code_kind = 'seat'): the
+        // assessment's first screen shows the employer-paid notice. Mirrored
+        // in get-my-access-code.
+        sponsored: accessCode.employer_code_kind === 'seat'
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

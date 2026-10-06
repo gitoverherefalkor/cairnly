@@ -34,7 +34,7 @@ import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
-import { CALENDLY_URL, CONTACT_EMAIL, employerDemoPersona, employerReportLink } from './constants';
+import { CALENDLY_URL, CONTACT_EMAIL, TRIAL_EMAIL, employerDemoPersona, employerReportLink } from './constants';
 
 /*
  * The /employers page, section by section (copy v2, 2026-09-25). Same
@@ -81,7 +81,7 @@ const BookLink: React.FC<{ id: string; label: string }> = ({ id, label }) => (
   </a>
 );
 
-const mailto = (subject: string) => `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
+const mailto = (subject: string, to: string = CONTACT_EMAIL) => `mailto:${to}?subject=${encodeURIComponent(subject)}`;
 
 /* ------------------------------------------------------------------ Hero */
 
@@ -693,7 +693,7 @@ export const EmployersTrial: React.FC = () => {
           </h2>
           <p className="mt-7 text-base md:text-lg text-white/70 font-medium leading-relaxed">{t('trial.body')}</p>
           <div className="mt-10">
-            <a href={mailto(t('trial.mailSubject'))} onClick={() => trackCtaClick('employers_trial_code')} className="lp-btn-primary lp-btn-gold">
+            <a href={mailto(t('trial.mailSubject'), TRIAL_EMAIL)} onClick={() => trackCtaClick('employers_trial_code')} className="lp-btn-primary lp-btn-gold">
               {t('trial.cta')}
               <KeyRound size={18} strokeWidth={2.4} />
             </a>

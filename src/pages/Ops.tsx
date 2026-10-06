@@ -8,11 +8,12 @@ import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
 import {
   Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy,
-  Settings, Check, X, ChevronRight, Users, Activity, BarChart3, Wrench,
+  Settings, Check, X, ChevronRight, Users, Activity, BarChart3, Wrench, Briefcase,
 } from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
+import EmployersTab from '@/components/ops/EmployersTab';
 import PartnerLeadsCard from '@/components/ops/PartnerLeadsCard';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
 import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, SUBJECT_TEST_ID, codeActivation, isWarm, matchesFocus, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
@@ -248,7 +249,7 @@ function countryFlag(country: string | null): string {
 
 // ─── Shell config ─────────────────────────────────────────────────────────────
 
-type MainTab = 'partners' | 'platform' | 'stats';
+type MainTab = 'partners' | 'employers' | 'platform' | 'stats';
 
 /** A single "what changed" chip in the visit bar. */
 interface Delta {
@@ -263,6 +264,7 @@ const OPS_BG_URL = '/dashboard/sections/development-tilted-stone.jpg';
 
 /** Outreach and n8n errors are what you open the console for; the rest wait. */
 const DEFAULT_OPEN: Record<string, boolean> = {
+  employers: true,
   outreach: true,
   partners: false,
   prechat: true,
@@ -1295,7 +1297,7 @@ function VisitBar({ since, deltas }: { since: string | null; deltas: Delta[] }) 
   );
 }
 
-/** Partners · Platform · Stats. */
+/** Partners · Employers · Platform · Stats. */
 function MainTabs({
   active,
   onSelect,
@@ -1311,6 +1313,7 @@ function MainTabs({
 }) {
   const tabs: Array<{ id: MainTab; label: string; icon: React.ReactNode; badge: number; urgent?: boolean }> = [
     { id: 'partners', label: 'Partners', icon: <Users size={17} />, badge: partnersBadge },
+    { id: 'employers', label: 'Employers', icon: <Briefcase size={17} />, badge: 0 },
     { id: 'platform', label: 'Platform', icon: <Activity size={17} />, badge: platformBadge, urgent: platformUrgent },
     { id: 'stats', label: 'Stats', icon: <BarChart3 size={17} />, badge: 0 },
   ];
@@ -2041,6 +2044,21 @@ export default function Ops() {
                     onToggle={toggle}
                   >
                     <PartnerLeadsCard />
+                  </SectionCard>
+                </div>
+              )}
+
+              {/* ══ EMPLOYERS ═════════════════════════════════════════════ */}
+              {activeTab === 'employers' && (
+                <div className="space-y-4">
+                  <SectionCard
+                    id="employers"
+                    title="Employers"
+                    subtitle="The /employers channel: trial requests, a trial link for the HR contact, then a batch of seat codes for their people. Counts only, never names."
+                    open={open.employers}
+                    onToggle={toggle}
+                  >
+                    <EmployersTab />
                   </SectionCard>
                 </div>
               )}

@@ -416,5 +416,8 @@
     "body": "Thank you for completing the Cairnly Career Assessment. Your personalized report is being generated and you'll receive an email notification when it's ready.",
     "viewDashboard": "View Dashboard",
     "returnHome": "Return to Home"
+  },
+  "sponsored": {
+    "notice": "Your employer paid for this. They will never see your answers, your scores or your report. Nobody at your company will know whether you finished it."
   }
 }

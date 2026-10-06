@@ -416,5 +416,8 @@
     "body": "Bedankt voor het invullen van het Cairnly-loopbaanassessment. Je persoonlijke rapport wordt nu gemaakt, en je krijgt een e-mail zodra het klaarstaat.",
     "viewDashboard": "Naar je dashboard",
     "returnHome": "Terug naar de homepage"
+  },
+  "sponsored": {
+    "notice": "Je werkgever heeft hiervoor betaald. Die ziet nooit je antwoorden, je scores of je rapport. Niemand in je bedrijf weet of je het hebt afgemaakt."
   }
 }

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAIResumeUpload } from '../resume/hooks/useAIResumeUpload';
 import { useToast } from '@/hooks/use-toast';
+import { SponsoredNotice } from './SponsoredNotice';
 
 interface PreSurveyUploadProps {
   onContinue: () => void;
@@ -26,6 +27,8 @@ interface PreSurveyUploadProps {
    * the field count the parser reported).
    */
   demoPreset?: { fileName: string; fileSizeBytes: number; fieldsExtracted: number };
+  /** An employer paid for this seat: show the employer-paid notice first. */
+  sponsored?: boolean;
 }
 
 // Animated illustration showing resume → auto-fill value proposition.
@@ -117,7 +120,7 @@ const ResumeAutoFillAnimation = () => {
   );
 };
 
-export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, demoPreset }) => {
+export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, demoPreset, sponsored = false }) => {
   const { t } = useTranslation('survey');
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasUploadedResume, setHasUploadedResume] = React.useState(false);
@@ -271,6 +274,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
             />
           </a>
         )}
+
+        {sponsored && !demoPreset && <SponsoredNotice />}
 
         {/* Gold editorial eyebrow */}
         <span

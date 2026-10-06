@@ -93,7 +93,7 @@ const AssessmentPage = () => {
   if (!isStarter && !preSurveyUploadComplete) {
     return (
       <div className={isEncore ? 'survey-lg' : undefined}>
-        <PreSurveyUpload onContinue={handlePreSurveyUploadComplete} />
+        <PreSurveyUpload onContinue={handlePreSurveyUploadComplete} sponsored={accessCodeData?.sponsored === true} />
       </div>
     );
   }

@@ -23,10 +23,17 @@ export const employerDemoPersona = (language: string | undefined): DemoPersonaId
 export const employerReportLink = (persona: DemoPersonaId) => `${DEMO_DASHBOARD_ROUTE}?persona=${persona}`;
 
 /**
- * The "What your employee sees" block quotes the start screen of a
- * company-sponsored assessment word for word. That screen does NOT exist yet
- * (2026-09-25): there is no employer concept in the code, codes only carry a
- * partner_id. Keep this false until the line is really on the start screen,
- * or the page promises something the product doesn't do.
+ * Where "Get a trial code" mails to. Tasha runs the employers channel and
+ * answers these herself, from Ops > Employers (2026-10-06). The rest of the
+ * page keeps the general CONTACT_EMAIL.
  */
-export const SHOW_EMPLOYEE_SCREEN_QUOTE = false;
+export const TRIAL_EMAIL = 'natasha@cairnly.io';
+
+/**
+ * The "What your employee sees" block quotes the start screen of a
+ * company-sponsored assessment word for word. Since 2026-10-06 that line is
+ * really there: a seat code (Ops > Employers) shows SponsoredNotice on the
+ * assessment's first screen, and SponsoredNotice.test.ts keeps the two texts
+ * identical. Set this back to false if that notice ever goes away.
+ */
+export const SHOW_EMPLOYEE_SCREEN_QUOTE = true;

@@ -34,7 +34,7 @@ serve(async (req) => {
     // All access codes claimed by this user, newest first.
     const { data: codes } = await supabase
       .from('access_codes')
-      .select('id, code, survey_type, max_usage, usage_count, is_active')
+      .select('id, code, survey_type, max_usage, usage_count, is_active, employer_code_kind')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
@@ -67,6 +67,10 @@ serve(async (req) => {
         code: chosen.code,
         survey_type: chosen.survey_type,
         remaining_uses: chosen.max_usage - chosen.usage_count,
+        // An employer paid for this seat: the assessment's first screen says
+        // so (and that the employer sees nothing). Same flag verify-access-code
+        // returns, so both ways into the assessment agree.
+        sponsored: chosen.employer_code_kind === 'seat',
       },
     });
   } catch (error) {
