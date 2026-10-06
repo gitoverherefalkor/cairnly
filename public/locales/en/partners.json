@@ -5,16 +5,16 @@
   },
   "hero": {
     "title": "Your candidate starts with direction, not a blank page",
-    "body": "Cairnly is an online career assessment that turns about 45 minutes into concrete careers: a top 3 with match scores, alternatives, salary ranges and, for every career, an honest read on what AI will do to it. Your logo on the report, the real conversation stays yours.",
+    "body": "An online career assessment: in about 45 minutes, a top 3 of careers with match scores, salary and AI impact. Your logo on the report, the conversation stays yours.",
     "sampleCta": "See a sample report",
     "demoCta": "Watch a session",
     "stageEyebrow": "The session on screen",
-    "pillsLabel": "Every suggested role, rated:"
+    "startEyebrow": "How your candidate starts",
+    "startCaption": "Your logo and name, three steps, one button. No price and no paywall."
   },
   "prechat": {
     "eyebrow": "Two minutes, no email needed",
     "title": "Does Cairnly belong in your practice?",
-    "subtitle": "Pick the line that sounds most like your practice, answer three or four short questions, and see what Cairnly would do for your clients and what it would cost.",
     "pills": {
       "clients-blank": "Clients start from nothing",
       "clients-ai": "Clients ask about AI",
@@ -92,6 +92,9 @@
       "sample": "See the sample report",
       "demo": "Watch a session"
     }
+  },
+  "seeItWork": {
+    "title": "See it in action"
   },
   "whoFor": {
     "title": "Who it's for",

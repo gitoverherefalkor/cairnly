@@ -5,9 +5,8 @@ import Seo from '@/components/Seo';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
 import PartnersHero from '@/components/partners/PartnersHero';
-import PartnersPreChat from '@/components/partners/prechat/PartnersPreChat';
 import PartnersWhoFor from '@/components/partners/PartnersWhoFor';
-import PartnersWhatYouGet from '@/components/partners/PartnersWhatYouGet';
+import PartnersSeeItWork from '@/components/partners/PartnersSeeItWork';
 import PartnersCandidateStart from '@/components/partners/PartnersCandidateStart';
 import PartnersPricing from '@/components/partners/PartnersPricing';
 import Testimonial from '@/components/landing/Testimonial';
@@ -39,15 +38,16 @@ const PartnersIndex: React.FC = () => {
       <Seo title={t('seo.title')} description={t('seo.description')} path="/partners" />
       <LandingNav variant="page" />
       <main>
+        {/* The hero carries the pre-chat since 2026-10-06: "does it belong in
+            my practice?" is the question a practitioner arrives with. */}
         <PartnersHero />
-        {/* "Does it belong in my practice?": the demo above shows what it is. */}
-        <PartnersPreChat />
-        <PartnersWhoFor />
-        <PartnersWhatYouGet />
-        <PartnersCandidateStart />
-        {/* Straight before the price. Full quotes here: this reader knows what
-            Career Anchors is, and wants to hear a peer before a candidate. */}
+        <PartnersSeeItWork />
+        {/* Straight after the product proof: first what it does, then what a
+            peer and a candidate thought of it. Full quotes: this reader knows
+            what Career Anchors is. */}
         <Testimonial variant="full" audience="partner" />
+        <PartnersWhoFor />
+        <PartnersCandidateStart />
         <PartnersPricing />
         <PartnersPilot />
         <PartnersFAQ />

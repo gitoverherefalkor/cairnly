@@ -5,16 +5,16 @@
   },
   "hero": {
     "title": "Jouw kandidaat begint met richting, niet met een leeg vel",
-    "body": "Cairnly is een online loopbaanassessment dat in ongeveer 45 minuten concrete beroepen oplevert: een top 3 met matchscore, alternatieven, salarisranges en per beroep een eerlijke inschatting van wat AI ermee gaat doen. Jouw logo op het rapport, het echte gesprek blijft van jou.",
+    "body": "Een online loopbaanassessment: in ongeveer 45 minuten een top 3 beroepen met matchscore, salaris en AI-impact. Jouw logo op het rapport, het gesprek blijft van jou.",
     "sampleCta": "Bekijk een voorbeeld",
     "demoCta": "Bekijk een sessie",
     "stageEyebrow": "De sessie op het scherm",
-    "pillsLabel": "Elke voorgestelde rol, beoordeeld:"
+    "startEyebrow": "Zo start jouw kandidaat",
+    "startCaption": "Jouw logo en naam, uitleg in drie stappen, één knop. Geen prijs en geen betaalscherm."
   },
   "prechat": {
     "eyebrow": "Twee minuten, geen e-mail nodig",
     "title": "Past Cairnly in jouw praktijk?",
-    "subtitle": "Kies de zin die het meest op jouw praktijk lijkt, beantwoord drie of vier korte vragen, en zie wat Cairnly voor je kandidaten doet en wat het kost.",
     "pills": {
       "clients-blank": "Kandidaten beginnen bij nul",
       "clients-ai": "Kandidaten vragen naar AI",
@@ -92,6 +92,9 @@
       "sample": "Bekijk het voorbeeldrapport",
       "demo": "Bekijk een sessie"
     }
+  },
+  "seeItWork": {
+    "title": "Zie het werken"
   },
   "whoFor": {
     "title": "Voor wie",

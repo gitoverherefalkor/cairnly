@@ -1,57 +1,57 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Globe } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import DemoStage from '@/components/landing/demo/DemoStage';
 import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
-import { demoSessionLanguage } from '@/demo/loadFixture';
 import { trackCtaClick } from '@/lib/analytics';
-import { tArray } from '@/lib/i18nArray';
 import { PARTNER_DEMO_PERSONA, PARTNER_DEMO_SEARCH, partnerDemoLink, SAMPLE_ROUTE } from './constants';
+import CandidateStartWindow from './CandidateStartWindow';
+import PartnerChatPanel from './prechat/PartnerChatPanel';
+import { usePartnerChat } from './prechat/usePartnerChat';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 
 /**
- * Dark hero on the teal-navy canvas (#213F4F, the app's --background), same
- * atmospheric treatment as the Starter and Encore heroes so the partner page
- * reads as part of the site rather than a bolt-on.
+ * The /partners hero: headline, a two-line subtext, and one screen with two
+ * columns (reorg of 2026-10-06, after a mockup Sjoerd approved).
  *
- * The proof is the demo deck: two faux-browser windows (chat and dashboard,
- * minus the job-search screen, because a bureau buys the assessment, the
- * coach and the report). Beside it sits a brief on the session, then the
- * two CTAs.
+ * Left, the main element: the pre-chat in a blue-glass panel. A practitioner
+ * arrives with "does it belong in my practice?", and the chat is the only
+ * thing on the page that answers that and asks for something back, so it
+ * sits where the eye lands. It used to start more than a screen down.
  *
- * Pinned to Marcel (2026-09-17). It used to render the homepage's Emma /
- * Marcel persona cards with a toggle, which asked a professional buyer to
- * pick a fictional candidate and then ignored the answer: both CTAs here
- * call partnerDemoLink(), which has always hardcoded PARTNER_DEMO_PERSONA.
- * "Which one is you" is a consumer move; a bureau wants the candidate that
- * looks like its caseload, and constants.ts already decided that is Marcel.
- * Dropping the cards also lifts the CTAs to eye level instead of below the
- * whole stage block.
+ * Right, supporting: the demo deck (chat and dashboard, Marcel), the rating
+ * pills every career comes back with, and the two ways into the demo. The
+ * session brief that sat beside the deck moved to "Zie het werken" under the
+ * hero. Once the pitch lands, the column under the demo shows the candidate's
+ * start page: the offer card says "your own start page", this shows it.
  *
- * Gold belongs to the pilot booking (see landing.css on .lp-btn-gold), so
- * the sample report takes the teal primary and the demo link is an outline
- * beside it. Every click into the deck or a CTA carries `?p=partners`, so
- * the demo's own CTAs point at the pilot call and its PDF is the white-label
- * template.
+ * The two eyebrows (gold for the check, grey for the demo) share one line,
+ * and the glass panel starts level with the top of the deck.
+ *
+ * Every click into the deck or a CTA carries `?p=partners`, so the demo's own
+ * CTAs point at the pilot call and its PDF is the white-label template.
  */
 const PartnersHero: React.FC = () => {
-  const { t } = useTranslation('partners');
+  const { t, i18n } = useTranslation('partners');
+  const lang = (i18n.language || 'nl').slice(0, 2) === 'en' ? 'en' : 'nl';
+  const chat = usePartnerChat(lang);
+  const pitched = chat.stage === 'pitched';
 
   return (
-    <section className="relative bg-[#213F4F] text-white pt-16 md:pt-24 pb-20 md:pb-24 overflow-hidden">
-      {/* Atmospheric teal bloom */}
+    <section className="relative bg-[#213F4F] text-white pt-14 md:pt-20 pb-20 md:pb-24 overflow-hidden">
+      {/* Two soft blooms: the glass panel needs something behind it to read as glass. */}
       <div
         className="absolute -top-64 -right-64 w-[900px] h-[900px] rounded-full pointer-events-none"
         style={{ background: 'rgba(39,161,161,0.15)', filter: 'blur(120px)' }}
       />
+      <div
+        className="absolute top-[30%] -left-64 w-[720px] h-[720px] rounded-full pointer-events-none"
+        style={{ background: 'rgba(212,160,36,0.10)', filter: 'blur(120px)' }}
+      />
       <div className="lp-container relative z-10">
-        {/* The cairn sits in the gap the headline leaves, above the deck, and
-            is laid out rather than absolutely positioned so it cannot drift
-            across breakpoints. Hidden below lg, where there is no gap: on a
-            phone the headline uses the full width. */}
         <div className="relative">
           <Reveal as="div">
             <h1
@@ -61,150 +61,74 @@ const PartnersHero: React.FC = () => {
               {t('hero.title')}
             </h1>
           </Reveal>
-          {/* Absolute, so a portrait watermark cannot stretch the header row
-              and push the body paragraph down. It lands in the space the
-              820px headline and the 3xl paragraph both leave on the right. */}
+          {/* Absolute, so a portrait watermark cannot stretch the header row.
+              It lands in the space the 820px headline leaves on the right. */}
           <img
             src={CairnSymbolInvert}
             alt=""
             aria-hidden="true"
-            className="hidden lg:block absolute right-0 top-[-8px] w-[150px] xl:w-[180px] h-auto opacity-[0.10] pointer-events-none"
+            className="hidden lg:block absolute right-0 top-[-8px] w-[100px] xl:w-[112px] h-auto opacity-[0.10] pointer-events-none"
           />
         </div>
 
-        <Reveal as="div" className="mt-8 max-w-3xl">
-          <p className="text-base md:text-lg text-white/70 font-medium leading-relaxed">
-            {t('hero.body')}
-          </p>
+        {/* Hidden on a phone: there it ran five lines and pushed the chat's
+            starters below the fold, and the chat says the same in its reply. */}
+        <Reveal as="div" className="mt-5 max-w-3xl hidden md:block">
+          <p className="text-base md:text-lg text-white/70 font-medium leading-relaxed">{t('hero.body')}</p>
         </Reveal>
 
         <HeroPersonaProvider fixed={PARTNER_DEMO_PERSONA} baseSearch={PARTNER_DEMO_SEARCH}>
-          {/* Deck right, brief left; deck first in DOM order so phones see the
-              picture before the words about it.
-
-              Even 6/6 at the lg breakpoint, 5/7 only from xl: at 5/12 the text
-              column is 352px and the Dutch sample-report label wraps its pill
-              button onto two lines. */}
-          <div className="mt-12 grid items-start lg:grid-cols-12 gap-x-12 xl:gap-x-16 gap-y-10">
-            <div className="lg:col-span-6 lg:col-start-7 xl:col-span-7 xl:col-start-6 lg:row-start-1 lg:self-stretch">
-              <Reveal as="div" className="lg:h-full">
-                {/* step=30, not the 14px default: with only two windows the
-                    dashboard has to peek out far enough to read as a second
-                    screen rather than as the front one's drop shadow. */}
-                <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={30} />
-              </Reveal>
+          <div className="mt-8 md:mt-10 grid items-start lg:grid-cols-12 gap-x-10 xl:gap-x-14 gap-y-12">
+            {/* The check. First in DOM order, so a phone shows it before the demo. */}
+            <div id="praktijk-check" className="lg:col-span-7 scroll-mt-24 min-w-0">
+              <p className="mb-3 text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-[#EFBE48]">
+                {t('prechat.eyebrow')}
+              </p>
+              <PartnerChatPanel chat={chat} />
             </div>
-            <div className="lg:col-span-6 xl:col-span-5 lg:col-start-1 lg:row-start-1">
-              <Reveal as="div">
-                <SessionBrief t={t} />
-              </Reveal>
+
+            <div className="lg:col-span-5 min-w-0">
+              {/* step=24: with two windows the dashboard has to peek out far
+                  enough to read as a second screen, not as a drop shadow. */}
+              <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={24} />
+
+              <div className="mt-5">
+                <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                <Link
+                  to={partnerDemoLink()}
+                  onClick={() => trackCtaClick('partners_demo_chat')}
+                  className="lp-btn-primary lp-btn-ghost"
+                >
+                  {t('hero.demoCta')}
+                  <ArrowRight size={18} strokeWidth={2.4} />
+                </Link>
+                <Link
+                  to={SAMPLE_ROUTE}
+                  onClick={() => trackCtaClick('partners_sample')}
+                  className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-white/80 underline decoration-white/40 underline-offset-4 hover:text-white hover:decoration-white"
+                >
+                  {t('hero.sampleCta')}
+                  <ArrowUpRight size={15} strokeWidth={2.4} />
+                </Link>
+              </div>
+
+              {pitched && (
+                <div className="mt-14">
+                  <p className="mb-3 text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-white/55">
+                    {t('hero.startEyebrow')}
+                  </p>
+                  <CandidateStartWindow />
+                  <p className="mt-3 text-[13px] leading-relaxed text-white/65">{t('hero.startCaption')}</p>
+                </div>
+              )}
             </div>
           </div>
         </HeroPersonaProvider>
-
-        {/* What every suggested role comes back rated on, using the real
-            per-career pill row the report renders rather than a landing-only
-            restyle. Same band as the homepage's Methodology section. */}
-        <Reveal as="div" className="mt-14 md:mt-16">
-          <div
-            className="rounded-2xl px-6 py-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/50">
-              {t('hero.pillsLabel')}
-            </p>
-            <div className="flex justify-center">
-              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
-            </div>
-          </div>
-        </Reveal>
       </div>
     </section>
-  );
-};
-
-/**
- * What the visitor is looking at, and the two ways in. Same substance as the
- * persona card it replaces (who, intent, what the session shows), minus the
- * "pick one of us" framing, and rendered straight onto the dark canvas
- * rather than on a light card that read as a button.
- */
-interface SessionBriefProps {
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}
-
-const SessionBrief: React.FC<SessionBriefProps> = ({ t }) => {
-  const persona = PARTNER_DEMO_PERSONA;
-  const sees = tArray<string>(t, `heroDemo.cards.${persona}.see`);
-  const traits = tArray<string>(t, `heroDemo.cards.${persona}.traits`);
-  const sessionLang = demoSessionLanguage(persona);
-
-  return (
-    <div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="text-[10px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">
-          {t('hero.stageEyebrow')}
-        </span>
-        <span
-          className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase text-white/70"
-          title={t(`heroDemo.sessionLanguage.${sessionLang}`)}
-        >
-          <Globe size={11} strokeWidth={2.2} />
-          {sessionLang.toUpperCase()}
-        </span>
-      </div>
-
-      <p className="mt-3 font-heading font-bold text-white text-[17px] md:text-[18px] leading-snug">
-        {t(`heroDemo.cards.${persona}.who`)}
-      </p>
-      <p className="mt-1.5 text-[14px] md:text-[15px] italic text-white/60 leading-snug">
-        {t(`heroDemo.cards.${persona}.intent`)}
-      </p>
-
-      <p className="mt-6 text-[10px] font-bold tracking-[0.2em] uppercase text-[#4FC3C3]">
-        {t(`heroDemo.cards.${persona}.seeLabel`)}
-      </p>
-      <ul className="mt-2 space-y-1 text-[14px] md:text-[15px] text-white/85 font-medium leading-snug">
-        {sees.map((line) => (
-          <li key={line} className="flex gap-2">
-            <span aria-hidden="true" className="text-[#D4A024] mt-[1px]">
-              ·
-            </span>
-            <span>{line}</span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-4 flex flex-wrap items-center gap-1.5">
-        {traits.map((trait) => (
-          <span
-            key={trait}
-            className="rounded-full border border-white/25 px-2.5 py-0.5 text-[11px] font-semibold text-white/65"
-          >
-            {trait}
-          </span>
-        ))}
-      </div>
-
-      {/* The live session leads and the static PDF follows (2026-09-21). The
-          specimen report is the easier artifact to ship, which is exactly why
-          it kept winning the primary slot; the session is what actually sells
-          the product, so it takes the teal and the sample drops to an outline. */}
-      <div className="mt-8 flex flex-col items-start gap-3">
-        <Link to={partnerDemoLink()} onClick={() => trackCtaClick('partners_demo_chat')} className="lp-btn-primary">
-          {t('hero.demoCta')}
-          <ArrowRight size={18} strokeWidth={2.4} />
-        </Link>
-        <Link
-          to={SAMPLE_ROUTE}
-          onClick={() => trackCtaClick('partners_sample')}
-          className="lp-btn-primary lp-btn-ghost"
-        >
-          {t('hero.sampleCta')}
-          <ArrowUpRight size={16} strokeWidth={2.4} />
-        </Link>
-      </div>
-    </div>
   );
 };
 

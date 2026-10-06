@@ -2,26 +2,33 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackScrollDepth } from '@/lib/analytics';
 
-// Scroll-depth milestones (25/50/75/100%) on the main landing page only.
-// Fires each milestone at most once per tab session — guarded here via
+// Scroll-depth milestones (25/50/75/100%) on the landing page and /partners
+// (added 2026-10-06 with the partners hero reorg, to see how far practitioners
+// read). Fires each milestone at most once per page per tab session, guarded here via
 // sessionStorage (fast, avoids re-sending an already-crossed milestone on
 // every scroll tick) and again in the DB via a unique index, so a cleared
 // guard or a race can't double-count.
 
 const MILESTONES = [25, 50, 75, 100] as const;
+const TRACKED_PATHS = new Set(['/', '/partners']);
 const REACHED_KEY_PREFIX = 'cairnly_scroll_reached_';
 
-function hasReached(milestone: number): boolean {
+// The homepage keeps its original key shape so sessions already in flight
+// don't re-send milestones they crossed before this change.
+const reachedKey = (path: string, milestone: number) =>
+  path === '/' ? REACHED_KEY_PREFIX + milestone : `${REACHED_KEY_PREFIX}${path}_${milestone}`;
+
+function hasReached(path: string, milestone: number): boolean {
   try {
-    return sessionStorage.getItem(REACHED_KEY_PREFIX + milestone) === '1';
+    return sessionStorage.getItem(reachedKey(path, milestone)) === '1';
   } catch {
     return false;
   }
 }
 
-function markReached(milestone: number): void {
+function markReached(path: string, milestone: number): void {
   try {
-    sessionStorage.setItem(REACHED_KEY_PREFIX + milestone, '1');
+    sessionStorage.setItem(reachedKey(path, milestone), '1');
   } catch {
     /* ignore */
   }
@@ -31,7 +38,8 @@ export function useScrollDepthTracking() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname !== '/') return;
+    const path = location.pathname;
+    if (!TRACKED_PATHS.has(path)) return;
 
     let ticking = false;
 
@@ -45,9 +53,9 @@ export function useScrollDepthTracking() {
       const pct = ((window.scrollY + doc.clientHeight) / doc.scrollHeight) * 100;
 
       for (const milestone of MILESTONES) {
-        if (pct >= milestone && !hasReached(milestone)) {
-          markReached(milestone);
-          trackScrollDepth('/', milestone);
+        if (pct >= milestone && !hasReached(path, milestone)) {
+          markReached(path, milestone);
+          trackScrollDepth(path, milestone);
         }
       }
     };
