@@ -108,8 +108,7 @@
       "An AI coach the candidate uses to discuss the report and correct it where it is wrong. The report is not a static verdict.",
       "A PDF report with your logo and name on it, which the candidate brings to the conversation with you."
     ],
-    "demoLabel": "See it in the demo",
-    "sampleLabel": "See the sample report"
+    "links": ["top 3 of careers", "AI-impact rating", "AI coach", "PDF report"]
   },
   "pricing": {
     "title": "Pricing",

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import DemoStage from '@/components/landing/demo/DemoStage';
-import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
 import { trackCtaClick } from '@/lib/analytics';
 import { PARTNER_DEMO_PERSONA, PARTNER_DEMO_SEARCH, partnerDemoLink, SAMPLE_ROUTE } from './constants';
@@ -22,8 +21,9 @@ import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
  * thing on the page that answers that and asks for something back, so it
  * sits where the eye lands. It used to start more than a screen down.
  *
- * Right, supporting: the demo deck (chat and dashboard, Marcel), the rating
- * pills every career comes back with, and the two ways into the demo. The
+ * Right, supporting: the demo deck (chat and dashboard, Marcel) and the two
+ * ways into the demo. The rating pills moved down to the deliverables in
+ * "Zie het werken", next to the cards that explain them. The
  * session brief that sat beside the deck moved to "Zie het werken" under the
  * hero. Once the pitch lands, the column under the demo shows the candidate's
  * start page: the offer card says "your own start page", this shows it.
@@ -91,10 +91,6 @@ const PartnersHero: React.FC = () => {
               {/* step=24: with two windows the dashboard has to peek out far
                   enough to read as a second screen, not as a drop shadow. */}
               <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={24} />
-
-              <div className="mt-5">
-                <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
-              </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link

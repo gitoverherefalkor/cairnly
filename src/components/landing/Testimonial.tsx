@@ -180,6 +180,8 @@ const Card: React.FC<{ person: Person; variant: 'short' | 'full' }> = ({ person,
  * `audience` decides who speaks first, not who speaks. A career professional
  * reading the partner page wants to hear from a peer; someone weighing the
  * assessment for themselves wants to hear from someone who took it.
+ * On the partner page the pair also runs the full container width, in line
+ * with the sections around it; the homepage keeps its narrower 5xl column.
  */
 const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' | 'partner' }> = ({
   variant = 'short',
@@ -190,7 +192,7 @@ const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' 
   return (
     <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
-        <Reveal className="mx-auto grid max-w-5xl items-stretch gap-6 lg:grid-cols-2">
+        <Reveal className={`mx-auto grid items-stretch gap-6 lg:grid-cols-2 ${audience === 'partner' ? '' : 'max-w-5xl'}`}>
           {people.map((person) => (
             <Card key={person.name} person={person} variant={variant} />
           ))}

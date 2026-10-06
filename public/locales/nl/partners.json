@@ -108,8 +108,7 @@
       "Een AI-coach waarmee de kandidaat het rapport bespreekt en bijstelt waar het niet klopt. Het rapport is geen statische uitslag.",
       "Een pdf-rapport met jouw logo en naam erop, dat de kandidaat meeneemt naar het gesprek met jou."
     ],
-    "demoLabel": "Bekijk in de demo",
-    "sampleLabel": "Bekijk het voorbeeldrapport"
+    "links": ["top 3 aan passende beroepen", "AI-impactscore", "AI-coach", "pdf-rapport"]
   },
   "pricing": {
     "title": "Prijzen",
