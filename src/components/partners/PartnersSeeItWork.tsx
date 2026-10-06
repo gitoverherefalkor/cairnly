@@ -67,7 +67,7 @@ const PartnersSeeItWork: React.FC = () => {
   const sessionLang = demoSessionLanguage(persona);
 
   return (
-    <section className="bg-[#ECE4D2] pt-20 md:pt-28 pb-4">
+    <section className="bg-[#ECE4D2] pt-20 md:pt-28 pb-20 md:pb-28">
       <div className="lp-container">
         <Reveal className="max-w-3xl">
           <h2

@@ -181,7 +181,9 @@ const Card: React.FC<{ person: Person; variant: 'short' | 'full' }> = ({ person,
  * reading the partner page wants to hear from a peer; someone weighing the
  * assessment for themselves wants to hear from someone who took it.
  * On the partner page the pair also runs the full container width, in line
- * with the sections around it; the homepage keeps its narrower 5xl column.
+ * with the sections around it, on a darker sand band: there it sits between
+ * two sections on the same background and otherwise ran into both. The
+ * homepage keeps its narrower 5xl column on the page colour.
  */
 const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' | 'partner' }> = ({
   variant = 'short',
@@ -190,7 +192,10 @@ const Testimonial: React.FC<{ variant?: 'short' | 'full'; audience?: 'consumer' 
   const people = audience === 'partner' ? [BRAD, VALENTINA] : [VALENTINA, BRAD];
 
   return (
-    <section className="bg-[#ECE4D2] py-20 md:py-28">
+    <section
+      className="py-20 md:py-28"
+      style={{ background: audience === 'partner' ? '#E3D8C0' : '#ECE4D2' }}
+    >
       <div className="lp-container">
         <Reveal className={`mx-auto grid items-stretch gap-6 lg:grid-cols-2 ${audience === 'partner' ? '' : 'max-w-5xl'}`}>
           {people.map((person) => (

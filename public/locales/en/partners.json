@@ -4,7 +4,9 @@
     "description": "Use Cairnly as prep work in your outplacement or career program for office and knowledge workers: concrete careers with match scores, salary data and AI-impact per career, under your logo. Credits never expire."
   },
   "hero": {
-    "title": "Your candidate starts with direction, not a blank page",
+    "title": "Your client starts with ",
+    "titleHighlight": "a direction",
+    "titleB": ", not a blank page",
     "body": "An online career assessment: in about 45 minutes, a top 3 of careers with match scores, salary and AI impact. Your logo on the report, the conversation stays yours.",
     "sampleCta": "See a sample report",
     "demoCta": "Watch a session",

@@ -59,6 +59,8 @@ const PartnersHero: React.FC = () => {
               style={{ fontSize: 'clamp(28px, 3.4vw, 48px)', letterSpacing: '-0.015em', maxWidth: 820 }}
             >
               {t('hero.title')}
+              <span className="lp-text-gold-grad whitespace-nowrap">{t('hero.titleHighlight')}</span>
+              {t('hero.titleB')}
             </h1>
           </Reveal>
           {/* Absolute, so a portrait watermark cannot stretch the header row.
