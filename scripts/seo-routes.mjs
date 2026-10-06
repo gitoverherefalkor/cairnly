@@ -132,16 +132,17 @@ const STATIC_ROUTES = [
     changefreq: 'monthly',
     priority: '0.5',
   },
-  // Employer channel (2026-09-25). Out of the nav, reached from outreach.
-  // Dutch static shell, same call as /partners above: the page renders in
-  // English or Dutch (en/ + nl/employers.json) and Helmet swaps the head once
-  // the namespace loads, but one route has one prerendered shell and the first
-  // market is Dutch HR. The two strings match nl/employers.json `seo`.
+  // Employer channel (2026-09-25, in the main nav since 2026-10-06).
+  // ENGLISH static shell, unlike /partners (Sjoerd, 2026-10-06): the page
+  // renders in English or Dutch and Helmet swaps the head once the namespace
+  // loads, but one route has one prerendered shell, and that is what link
+  // previews (LinkedIn, WhatsApp, Slack) show. The two strings match
+  // en/employers.json `seo`.
   {
     path: '/employers',
-    title: 'Cairnly voor werkgevers | Loopbaanhelderheid die van je mensen is',
+    title: 'Cairnly for employers | Career clarity your people own',
     description:
-      'Geef je mensen een helder antwoord op waar hun vaardigheden passen, binnen of buiten je bedrijf. Prijs per persoon, in een middag uitgerold, en je ziet nooit een individueel resultaat.',
+      'Give your people a clear answer about where their skills fit, inside or outside your company. Per-head pricing, one afternoon to roll out, and you never see an individual result.',
     changefreq: 'monthly',
     priority: '0.6',
   },
