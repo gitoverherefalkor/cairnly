@@ -619,6 +619,29 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sections, lang, t, dismissal.bySectionId]);
 
+  // Arriving with ?open=<row id> (e.g. /demo/dashboard?open=top-1 from the
+  // /partners page) opens that report row and scrolls to it, once the rows
+  // exist. Only the first arrival: closing the row afterwards sticks.
+  const openParamDone = useRef(false);
+  useEffect(() => {
+    if (openParamDone.current) return;
+    const id = new URLSearchParams(window.location.search).get('open');
+    if (!id) return;
+    if (![...aboutRows, ...careerRows].some((row) => row.id === id)) return;
+    openParamDone.current = true;
+    setOpenSection(id);
+    // A timeout, not handleOpenSection's rAF: the row needs its expanded
+    // layout first, and the offset keeps the row's title clear of the demo's
+    // sticky header and banner.
+    // No cleanup: a later rows update would cancel the scroll, and the ref
+    // guard above stops it from being scheduled again.
+    setTimeout(() => {
+      const node = accordionRowRefs.current[id];
+      if (node) window.scrollTo({ top: node.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+    }, 350);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aboutRows, careerRows]);
+
   // ── Chart data builders ──────────────────────────────────────
   // Derivations live in reportChartData.ts so the print/PDF document
   // builds identical payloads from the same sections.

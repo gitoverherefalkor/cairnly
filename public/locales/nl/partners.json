@@ -100,7 +100,12 @@
   },
   "whoFor": {
     "title": "Voor wie",
-    "body": "Voor outplacementbureaus, loopbaancoaches en adviseurs die kenniswerkers en mensen met een kantoorachtergrond begeleiden, ook als die via een vaststellingsovereenkomst of een spoor 2-traject binnenkomen. Cairnly is gebouwd voor kantoor- en kennisfuncties: de vragen en voorbeelden gaan van die wereld uit, dus voor kandidaten zonder kantoorachtergrond is het nu niet de juiste tool. Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
+    "paragraphs": [
+      "Voor outplacementbureaus, loopbaancoaches en adviseurs die kenniswerkers en mensen met een kantoorachtergrond begeleiden, ook als die via een vaststellingsovereenkomst of een spoor 2-traject binnenkomen.",
+      "Cairnly is gebouwd voor kantoor- en kennisfuncties: de vragen en voorbeelden gaan van die wereld uit, dus voor kandidaten zonder kantoorachtergrond is het nu niet de juiste tool.",
+      "Cairnly vervangt je bestaande instrumentarium niet, het zit ervoor: de kandidaat doorloopt het assessment als voorwerk en komt bij jouw adviseur binnen met een rapport om over door te praten."
+    ],
+    "audiences": ["Outplacementbureaus", "Loopbaancoaches", "Adviseurs"]
   },
   "whatYouGet": {
     "title": "Wat je kandidaat krijgt",

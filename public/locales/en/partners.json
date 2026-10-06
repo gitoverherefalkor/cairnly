@@ -100,7 +100,12 @@
   },
   "whoFor": {
     "title": "Who it's for",
-    "body": "For outplacement firms, career coaches and advisors who guide knowledge workers and people with an office background, including those who arrive through a settlement agreement or a spoor 2 (return-to-work) track. Cairnly is built for office and knowledge roles: the questions and examples assume that world, so for candidates without an office background it is not the right tool yet. Cairnly doesn't replace your existing toolkit, it sits in front of it: the candidate works through the assessment as prep work and arrives at your advisor with a report to talk through."
+    "paragraphs": [
+      "For outplacement firms, career coaches and advisors who guide knowledge workers and people with an office background, including those who arrive through a settlement agreement or a spoor 2 (return-to-work) track.",
+      "Cairnly is built for office and knowledge roles: the questions and examples assume that world, so for candidates without an office background it is not the right tool yet.",
+      "Cairnly doesn't replace your existing toolkit, it sits in front of it: the candidate works through the assessment as prep work and arrives at your advisor with a report to talk through."
+    ],
+    "audiences": ["Outplacement firms", "Career coaches", "Advisors"]
   },
   "whatYouGet": {
     "title": "What your candidate gets",

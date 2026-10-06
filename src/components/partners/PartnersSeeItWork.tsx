@@ -33,7 +33,8 @@ import { PARTNER_DEMO_PERSONA, partnerDemoLink, SAMPLE_ROUTE } from './constants
  */
 const PROOF: { to: string; id: string; icon: LucideIcon }[] = [
   { to: partnerDemoLink(DEMO_DASHBOARD_ROUTE), id: 'dashboard', icon: Trophy },
-  { to: partnerDemoLink(DEMO_DASHBOARD_ROUTE), id: 'dashboard', icon: Bot },
+  // Straight to Marcel's top career opened in the report: its pills show the AI rating.
+  { to: `${partnerDemoLink(DEMO_DASHBOARD_ROUTE)}&open=top-1`, id: 'dashboard_ai', icon: Bot },
   { to: partnerDemoLink(DEMO_ROUTE), id: 'chat', icon: MessageCircle },
   { to: SAMPLE_ROUTE, id: 'sample', icon: FileText },
 ];

@@ -87,7 +87,9 @@ const DemoVideoStage: React.FC<DemoVideoStageProps> = ({ clip: pinned, labelOnTo
 
   return (
     <div className="select-none">
-      {labelOnTop && <div className="mb-3">{label}</div>}
+      {/* text-[11px] on the wrapper too: an inline label in a 16px box sits
+          lower than a sibling 11px eyebrow, and /partners lines them up. */}
+      {labelOnTop && <div className="mb-3 text-[11px]">{label}</div>}
       <div className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-[#15262F] flex flex-col">
         {/* Chrome bar, same as the deck's windows on /partners */}
         <div className="flex items-center gap-3 px-3.5 h-9 shrink-0 bg-[#1B2E38] border-b border-black/30">

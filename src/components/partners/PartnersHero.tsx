@@ -82,16 +82,19 @@ const PartnersHero: React.FC = () => {
         </Reveal>
 
         <HeroPersonaProvider fixed={PARTNER_DEMO_PERSONA} baseSearch={PARTNER_DEMO_SEARCH}>
-          <div className="mt-8 md:mt-10 grid items-start lg:grid-cols-12 gap-x-10 xl:gap-x-14 gap-y-12">
+          {/* Columns at 1.32 : 1, not 7/5: at that ratio the 16:10 video
+              window is as tall as the pre-chat card in its opening state, so
+              the two start and end on one line. */}
+          <div className="mt-8 md:mt-10 grid items-start lg:grid-cols-[minmax(0,1.32fr)_minmax(0,1fr)] gap-x-10 xl:gap-x-14 gap-y-12">
             {/* The check. First in DOM order, so a phone shows it before the demo. */}
-            <div id="praktijk-check" className="lg:col-span-7 scroll-mt-24 min-w-0">
+            <div id="praktijk-check" className="scroll-mt-24 min-w-0">
               <p className="mb-3 text-[11px] font-heading font-bold tracking-[0.18em] uppercase text-[#EFBE48]">
                 {t('prechat.eyebrow')}
               </p>
               <PartnerChatPanel chat={chat} />
             </div>
 
-            <div className="lg:col-span-5 min-w-0">
+            <div className="min-w-0">
               {/* The end card offers the practitioner's two next steps, not
                   the consumer "Start your session". */}
               <DemoVideoStage
