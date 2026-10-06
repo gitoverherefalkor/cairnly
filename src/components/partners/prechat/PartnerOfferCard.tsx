@@ -16,6 +16,17 @@ import type { OfferAction, PartnerOffer } from './partnerChatApi';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/**
+ * Who the candidate pays. With a fixed fee the employer pays, so the candidate
+ * pays nothing; when the practitioner bills by the hour or the client pays
+ * them directly, the candidate pays the practitioner (never Cairnly).
+ */
+function candidatesKey(payment: PartnerOffer['payment']): 'candidatesNothing' | 'candidatesYou' | 'candidatesAgreed' {
+  if (payment === 'fixed_fee') return 'candidatesNothing';
+  if (payment === 'hourly' || payment === 'client_pays') return 'candidatesYou';
+  return 'candidatesAgreed';
+}
+
 function euro(n: number, lang: string): string {
   return `€${n.toLocaleString(lang === 'nl' ? 'nl-NL' : 'en-GB')}`;
 }
@@ -180,7 +191,7 @@ const PartnerOfferCard: React.FC<Props> = ({ offer, leadState, leadChoice, onLea
           })}
         </Row>
       )}
-      <Row label={t('prechat.offer.candidates')}>{t('prechat.offer.candidatesBody')}</Row>
+      <Row label={t('prechat.offer.candidates')}>{t(`prechat.offer.${candidatesKey(offer.payment)}`)}</Row>
 
       <div className="border-t pt-4" style={{ borderColor: 'rgba(201,182,144,0.45)' }}>
         {done ? (
