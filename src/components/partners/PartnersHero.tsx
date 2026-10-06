@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
-import DemoStage from '@/components/landing/demo/DemoStage';
+import DemoVideoStage from '@/components/landing/demo/DemoVideoStage';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
 import { trackCtaClick } from '@/lib/analytics';
 import { PARTNER_DEMO_PERSONA, PARTNER_DEMO_SEARCH, partnerDemoLink, SAMPLE_ROUTE } from './constants';
@@ -21,15 +21,17 @@ import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
  * thing on the page that answers that and asks for something back, so it
  * sits where the eye lands. It used to start more than a screen down.
  *
- * Right, supporting: the demo deck (chat and dashboard, Marcel) and the two
- * ways into the demo. The rating pills moved down to the deliverables in
+ * Right, supporting: the recording of Marcel's session (survey, chat,
+ * dashboard; the same film as the homepage hero, Marcel in the page's
+ * language) and the two ways into the demo. It replaced the two-window
+ * screenshot deck on 2026-10-06. The rating pills moved down to the deliverables in
  * "Zie het werken", next to the cards that explain them. The
  * session brief that sat beside the deck moved to "Zie het werken" under the
  * hero. Once the pitch lands, the column under the demo shows the candidate's
  * start page: the offer card says "your own start page", this shows it.
  *
  * The two eyebrows (gold for the check, grey for the demo) share one line,
- * and the glass panel starts level with the top of the deck.
+ * and the glass panel starts level with the top of the video window.
  *
  * Every click into the deck or a CTA carries `?p=partners`, so the demo's own
  * CTAs point at the pilot call and its PDF is the white-label template.
@@ -90,9 +92,32 @@ const PartnersHero: React.FC = () => {
             </div>
 
             <div className="lg:col-span-5 min-w-0">
-              {/* step=24: with two windows the dashboard has to peek out far
-                  enough to read as a second screen, not as a drop shadow. */}
-              <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={24} />
+              {/* The end card offers the practitioner's two next steps, not
+                  the consumer "Start your session". */}
+              <DemoVideoStage
+                clip={{ persona: PARTNER_DEMO_PERSONA, lang }}
+                labelOnTop
+                endCard={
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <Link
+                      to={partnerDemoLink()}
+                      onClick={() => trackCtaClick('partners_video_demo')}
+                      className="lp-btn-primary lp-btn-ghost lp-btn-sm"
+                    >
+                      {t('hero.demoCta')}
+                      <ArrowRight size={15} strokeWidth={2.6} />
+                    </Link>
+                    <Link
+                      to={SAMPLE_ROUTE}
+                      onClick={() => trackCtaClick('partners_video_sample')}
+                      className="lp-btn-primary lp-btn-gold lp-btn-sm"
+                    >
+                      {t('hero.sampleCta')}
+                      <ArrowUpRight size={15} strokeWidth={2.6} />
+                    </Link>
+                  </div>
+                }
+              />
 
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link

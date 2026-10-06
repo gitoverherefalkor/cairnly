@@ -21,9 +21,13 @@ export interface HeroVideoSources {
   poster: string;
 }
 
-/** File names written by scripts/demo-record-hero.mjs, versioned for Safari. */
-export function heroVideoSources(language: string | undefined, version: string): HeroVideoSources {
-  const { persona, lang } = heroVideoClip(language);
+/**
+ * File names written by scripts/demo-record-hero.mjs, versioned for Safari.
+ * Pass a clip to pin the persona (/partners always plays Marcel); without
+ * one the visitor's language picks it.
+ */
+export function heroVideoSources(language: string | undefined, version: string, clip?: HeroClip): HeroVideoSources {
+  const { persona, lang } = clip ?? heroVideoClip(language);
   const v = `?v=${version}`;
   return {
     webm: `/videos/demo-hero-${persona}-${lang}.webm${v}`,

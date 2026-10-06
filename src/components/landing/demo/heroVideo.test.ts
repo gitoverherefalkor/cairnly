@@ -17,4 +17,8 @@ describe('hero video sources', () => {
       poster: '/images/live/landing/demo/hero-poster-marcel-nl.jpg?v=202609141200',
     });
   });
+
+  it('a pinned clip wins over the language', () => {
+    expect(heroVideoSources('nl', '1', { persona: 'marcel', lang: 'en' }).mp4).toBe('/videos/demo-hero-marcel-en.mp4?v=1');
+  });
 });

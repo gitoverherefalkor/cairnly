@@ -1,7 +1,7 @@
 // Records the demo for the homepage hero: survey → coach chat → dashboard,
 // one clip per (persona, language) the site is published in.
 //
-//   npm run demo:record                        # marcel-nl + emma-en, full quality
+//   npm run demo:record                        # marcel-nl + emma-en + marcel-en, full quality
 //   node scripts/demo-record-hero.mjs emma-en  # one clip
 //   DRAFT=1 node scripts/demo-record-hero.mjs  # 1x, 10 fps, mp4 only: a quick timing check
 //   SLOW=1.5 BASE=https://cairnly.io node scripts/demo-record-hero.mjs
@@ -51,9 +51,12 @@ const FPS = DRAFT ? 10 : 30;
 // be the surface from BEFORE the cut; they are thrown away for this long.
 const FILM_SETTLE = 220;
 
+// marcel-en plays in the /partners hero, which shows Marcel in both
+// languages; the homepage plays marcel-nl and emma-en.
 const CLIPS = [
   { persona: 'marcel', lang: 'nl' },
   { persona: 'emma', lang: 'en' },
+  { persona: 'marcel', lang: 'en' },
 ];
 // Per-language anchors, copied from public/locales/<lang>/{survey,chat,dashboard,demo}.json
 // and the survey fixture's schedule choices. Every string is matched
@@ -550,6 +553,9 @@ async function record({ persona, lang }) {
     ? await puppeteer.connect({ browserURL: `http://127.0.0.1:${CONNECT_PORT}` })
     : await puppeteer.launch({ executablePath: CHROME, headless: true });
   const page = await browser.newPage();
+  // An attached Chrome may treat the new tab as hidden, and a hidden page
+  // never fires requestAnimationFrame: painted() and the fades would hang.
+  await page.bringToFront();
   await page.setViewport({ width: W, height: H, deviceScaleFactor: SCALE });
   await page.evaluateOnNewDocument((lang) => {
     window.__CAIRNLY_DEMO_CAPTURE__ = true;
