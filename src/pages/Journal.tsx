@@ -76,7 +76,7 @@ const SubscribeForm: React.FC = () => {
         value={email}
         onChange={(ev) => setEmail(ev.target.value)}
         disabled={submitting}
-        className="flex-1 px-4 py-3 rounded-full border text-[14px] font-medium disabled:opacity-60"
+        className="flex-1 px-4 py-3 rounded-lg border text-[14px] font-medium disabled:opacity-60"
         style={{ background: '#fff', borderColor: '#C9B690', color: '#122E3B' }}
       />
       <button

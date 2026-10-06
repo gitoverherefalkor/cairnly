@@ -84,7 +84,7 @@ const IntentChips: React.FC = () => {
   // component is only ever rendered inside that block, so there is no dark
   // placement left to keep working.
   const chipBase =
-    'rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
+    'rounded-lg border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
   const chipSelected = 'bg-[#D4A024] border-[#D4A024] text-[#122E3B]';
   const chipIdle = 'border-[#C9B690] text-[#4B6373] hover:border-[#D4A024] hover:text-[#122E3B]';
   // Resting state: nothing picked, so the open input IS the live route; the

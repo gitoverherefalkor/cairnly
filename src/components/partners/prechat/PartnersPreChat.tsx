@@ -29,7 +29,7 @@ const ASSISTANT_BUBBLE: React.CSSProperties = {
   color: '#1F2937',
 };
 
-const chipBase = 'rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
+const chipBase = 'rounded-lg border px-3.5 py-1.5 text-[13px] font-semibold transition-colors duration-200 cursor-pointer';
 const chipSelected = 'bg-[#D4A024] border-[#D4A024] text-[#122E3B]';
 const chipIdle = 'border-[#C9B690] text-[#4B6373] hover:border-[#D4A024] hover:text-[#122E3B]';
 

@@ -127,10 +127,10 @@ export const EmployersHero: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackCtaClick('employers_hero_talk')}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3.5 text-[15px] font-bold text-white/85 transition-colors hover:border-white hover:text-white"
+                    className="lp-btn-primary lp-btn-ghost"
                   >
                     {t('hero.talkCta')}
-                    <CalendarClock size={16} strokeWidth={2.4} />
+                    <CalendarClock size={18} strokeWidth={2.4} />
                   </a>
                 </div>
               </Reveal>
@@ -667,10 +667,10 @@ export const EmployersAbout: React.FC = () => {
             <a
               href={mailto(t('about.mailSubject'))}
               onClick={() => trackCtaClick('employers_about_mail')}
-              className="inline-flex items-center gap-2 rounded-full border border-[#122E3B]/25 px-6 py-3.5 text-[15px] font-bold text-[#122E3B] transition-colors hover:border-[#122E3B]"
+              className="lp-btn-primary lp-btn-outline"
             >
               {t('about.emailCta')}
-              <Mail size={16} strokeWidth={2.4} />
+              <Mail size={18} strokeWidth={2.4} />
             </a>
           </div>
         </Reveal>

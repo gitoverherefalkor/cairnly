@@ -61,7 +61,7 @@ export const DemoMomentsBar: React.FC<DemoMomentsBarProps> = ({
               // Below 1460px only the number fits beside the dashboard link
               // and the honest label; the legend text is the tooltip there,
               // and the intro card lists the moments in full.
-              className={`flex items-center gap-1.5 rounded-full px-1 min-[1460px]:pr-2.5 py-1 text-[13px] font-semibold transition-colors shrink-0 ${
+              className={`flex items-center gap-1.5 rounded-lg px-1 min-[1460px]:pr-2.5 py-1 text-[13px] font-semibold transition-colors shrink-0 ${
                 reached ? 'text-[#122E3B] hover:bg-[#D4A024]/15' : 'text-gray-500 hover:text-atlas-navy hover:bg-gray-50'
               }`}
             >
@@ -86,7 +86,7 @@ export const DemoMomentsBar: React.FC<DemoMomentsBarProps> = ({
         <Link
           to={dashboardHref}
           onClick={onDashboardClick}
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-colors hover:bg-[#1F8282]/12"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-colors hover:bg-[#1F8282]/12"
           style={{
             background: 'rgba(31,130,130,0.08)',
             border: '1px solid rgba(31,130,130,0.4)',

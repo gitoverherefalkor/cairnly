@@ -87,7 +87,7 @@ const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label
           {label ?? t('heroDemo.stageLabel', { name: t(`heroDemo.cards.${persona}.name`) })}
         </span>
         {showToggle && (
-        <div role="group" aria-label={t('heroDemo.toggleAria')} className="inline-flex shrink-0 rounded-full bg-white/10 p-0.5">
+        <div role="group" aria-label={t('heroDemo.toggleAria')} className="inline-flex shrink-0 rounded-lg bg-white/10 p-0.5">
           {HERO_PERSONAS.map((id) => (
             <button
               key={id}
@@ -98,7 +98,7 @@ const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label
                 setPersona(id);
                 trackCtaClick('hero_persona_toggle');
               }}
-              className={`px-3 py-1 rounded-full text-[12px] font-semibold transition-colors ${
+              className={`px-3 py-1 rounded-md text-[12px] font-semibold transition-colors ${
                 id === persona ? 'bg-[#D4A024] text-[#122E3B]' : 'text-white/70 hover:text-white'
               }`}
             >
@@ -209,7 +209,7 @@ const DemoStage: React.FC<DemoStageProps> = ({ screens, showToggle = true, label
             type="button"
             aria-current={i === front}
             onClick={() => bringToFront(i, 'stepper')}
-            className={`rounded-full px-3 py-1 text-[12px] font-semibold transition-all duration-300 ${
+            className={`rounded-lg px-3 py-1 text-[12px] font-semibold transition-all duration-300 ${
               i === front ? 'bg-[#D4A024] text-[#122E3B]' : 'bg-white/10 text-white/70 hover:bg-white/20'
             }`}
           >
