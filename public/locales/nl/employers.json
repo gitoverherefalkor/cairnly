@@ -5,7 +5,7 @@
   },
   "hero": {
     "eyebrow": "Cairnly voor werkgevers",
-    "title": "Geef je mensen helderheid over hun loopbaan. Ook als hun volgende stap niet bij jullie ligt.",
+    "title": "Geef je mensen ",
     "body": "Eén assessment en één gesprek met een AI-loopbaancoach, en binnen een uur heeft elke deelnemer tien concrete beroepen die passen bij de eigen vaardigheden, persoonlijkheid en doelen, elk met een matchscore, salarisdata en een AI-impactscore. Medewerkers zijn eigenaar van het resultaat. Jij betaalt per persoon, rolt het uit met een batch codes en ziet nooit wie het gedaan heeft of wat eruit kwam.",
     "trialCta": "Probeer het zelf",
     "talkCta": "Praat met ons",
@@ -14,7 +14,9 @@
       "Tien concrete beroepen",
       "De medewerker is eigenaar van het resultaat",
       "Vanaf 20 euro per persoon"
-    ]
+    ],
+    "titleHighlight": "helderheid over hun loopbaan.",
+    "titleB": " Ook als hun volgende stap niet bij jullie ligt."
   },
   "why": {
     "eyebrow": "Waarom werkgevers het aanbieden",

@@ -27,7 +27,8 @@ import {
   FileSignature,
 } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
-import DemoStage from '@/components/landing/demo/DemoStage';
+import DemoVideoStage from '@/components/landing/demo/DemoVideoStage';
+import { heroVideoClip } from '@/components/landing/demo/heroVideo';
 import { HeroPersonaProvider } from '@/components/landing/demo/HeroPersonaContext';
 import { CareerScoreCard } from '@/components/chat/CareerScoreCard';
 import { trackCtaClick } from '@/lib/analytics';
@@ -85,9 +86,12 @@ const mailto = (subject: string) => `mailto:${CONTACT_EMAIL}?subject=${encodeURI
 /* ------------------------------------------------------------------ Hero */
 
 /**
- * Words left, Emma's deck right (chat + dashboard): the tech-sector persona,
- * pinned. The first CTA scrolls to the trial block rather than opening a
- * mail straight away, so the visitor reads the offer before committing.
+ * Words left, the recording of a real session right, the same player as
+ * /partners and the homepage: Emma in English, Marcel in Dutch (one clip per
+ * page language, see heroVideo.ts). The first CTA scrolls to the trial block
+ * rather than opening a mail straight away, so the visitor reads the offer
+ * before committing. The end card carries the employer's next steps, not the
+ * consumer "Start your session".
  */
 export const EmployersHero: React.FC = () => {
   const { t, i18n } = useTranslation('employers');
@@ -111,6 +115,8 @@ export const EmployersHero: React.FC = () => {
                   style={{ fontSize: 'clamp(28px, 3.4vw, 48px)', letterSpacing: '-0.015em' }}
                 >
                   {t('hero.title')}
+                  <span className="lp-text-gold-grad">{t('hero.titleHighlight')}</span>
+                  {t('hero.titleB')}
                 </h1>
                 <p className="mt-7 text-base md:text-lg text-white/70 font-medium leading-relaxed">{t('hero.body')}</p>
                 <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -137,7 +143,29 @@ export const EmployersHero: React.FC = () => {
             </div>
             <div className="lg:col-span-6">
               <Reveal as="div">
-                <DemoStage screens={['chat', 'dashboard']} showToggle={false} step={30} />
+                <DemoVideoStage
+                  clip={heroVideoClip(i18n.language)}
+                  endCard={
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <a
+                        href={`#${TRIAL_ID}`}
+                        onClick={() => trackCtaClick('employers_video_trial')}
+                        className="lp-btn-primary lp-btn-gold lp-btn-sm"
+                      >
+                        {t('hero.trialCta')}
+                        <ArrowDown size={15} strokeWidth={2.6} />
+                      </a>
+                      <Link
+                        to={employerReportLink(persona)}
+                        onClick={() => trackCtaClick('employers_video_report')}
+                        className="lp-btn-primary lp-btn-ghost lp-btn-sm"
+                      >
+                        {t('how.reportCta')}
+                        <ArrowRight size={15} strokeWidth={2.6} />
+                      </Link>
+                    </div>
+                  }
+                />
               </Reveal>
             </div>
           </div>
@@ -180,35 +208,36 @@ export const EmployersWhy: React.FC = () => {
   return (
     <section className="bg-[#ECE4D2] py-20 md:py-28">
       <div className="lp-container">
-        <Reveal className="max-w-3xl">
-          <Eyebrow>{t('why.eyebrow')}</Eyebrow>
-          <p
-            className="text-[#122E3B] font-semibold leading-[1.5]"
-            style={{ fontSize: 'clamp(20px, 2.2vw, 28px)', letterSpacing: '-0.01em' }}
-          >
-            {t('why.lead')}
-          </p>
-          <p className={`mt-8 ${BODY}`}>{t('why.p1')}</p>
-        </Reveal>
+        {/* Words left, the three numbers stacked on the right, so the stats
+            sit beside the paragraph that quotes them instead of cutting the
+            argument in two. On a phone the tiles follow the words. */}
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-14 items-start max-w-6xl">
+          <Reveal className="lg:col-span-7">
+            <Eyebrow>{t('why.eyebrow')}</Eyebrow>
+            <p
+              className="text-[#122E3B] font-semibold leading-[1.5]"
+              style={{ fontSize: 'clamp(20px, 2.2vw, 28px)', letterSpacing: '-0.01em' }}
+            >
+              {t('why.lead')}
+            </p>
+            <p className={`mt-8 ${BODY}`}>{t('why.p1')}</p>
+            <p className={`mt-6 ${BODY}`}>{t('why.p2')}</p>
+          </Reveal>
 
-        {/* The stats band: dark glass tiles, the same idiom as the hero pills. */}
-        <Reveal className="mt-12 max-w-6xl">
-          <div className="rounded-3xl bg-[#213F4F] p-3 md:p-4 grid gap-3 md:grid-cols-3">
-            {stats.map((s) => (
-              <div key={s.value} className="rounded-2xl p-6 md:p-7" style={GLASS_STYLE}>
-                <p className="font-heading font-bold text-[#E6C36A] leading-none" style={{ fontSize: 'clamp(34px, 3.6vw, 48px)' }}>
-                  {s.value}
-                </p>
-                <p className="mt-3 text-[15px] text-white/85 font-medium leading-[1.55]">{s.label}</p>
-                <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-white/45">{s.source}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-
-        <Reveal className="mt-12 max-w-3xl">
-          <p className={BODY}>{t('why.p2')}</p>
-        </Reveal>
+          <Reveal className="lg:col-span-5">
+            <div className="rounded-3xl bg-[#213F4F] p-3 md:p-4 grid gap-3">
+              {stats.map((s) => (
+                <div key={s.value} className="rounded-2xl px-6 py-5 md:px-7 md:py-6" style={GLASS_STYLE}>
+                  <p className="font-heading font-bold text-[#E6C36A] leading-none" style={{ fontSize: 'clamp(32px, 3.2vw, 44px)' }}>
+                    {s.value}
+                  </p>
+                  <p className="mt-2.5 text-[15px] text-white/85 font-medium leading-[1.5]">{s.label}</p>
+                  <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/45">{s.source}</p>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
@@ -236,6 +265,30 @@ const UkOutline: React.FC<{ className?: string }> = ({ className }) => (
       <path d="M13.9 86.0 L16.8 87.1 L23.0 83.0 L25.9 84.5 L29.6 79.7 L32.8 81.5 L38.9 79.2 L42.4 79.4 L48.5 79.4 L52.7 77.6 L55.0 75.4 L55.5 72.9 L51.1 71.7 L53.1 69.7 L54.5 67.2 L57.3 61.9 L54.6 57.4 L49.9 57.2 L48.2 58.7 L49.1 55.2 L47.7 50.9 L46.6 45.5 L43.5 41.8 L40.1 39.7 L38.7 36.7 L35.4 29.0 L31.9 26.2 L32.1 23.9 L30.2 22.2 L35.0 15.3 L36.7 11.7 L35.4 9.8 L25.0 10.2 L25.1 8.1 L29.2 2.3 L29.4 0.3 L27.5 0.0 L18.0 0.5 L16.3 7.7 L13.4 13.7 L11.0 19.7 L14.5 24.7 L13.4 33.7 L20.0 32.1 L18.8 40.3 L26.7 37.2 L25.9 41.7 L30.2 46.0 L29.3 52.7 L20.3 52.7 L19.5 58.7 L23.2 62.7 L16.3 67.9 L17.4 69.7 L22.6 71.2 L28.5 72.2 L31.4 71.7 L26.7 74.7 L20.7 76.5 L17.4 82.5Z" />
       <path d="M13.4 38.2 L11.3 34.5 L4.6 35.7 L0.0 41.7 L2.9 44.7 L8.7 46.2 L11.6 46.2 L15.1 43.2 L15.4 40.7 L12.8 40.2Z" />
     </g>
+  </svg>
+);
+
+/** Language flags for "Live in English and Dutch". Inline SVG rather than
+ *  emoji: Windows renders flag emoji as the letters "GB" / "NL". */
+const FlagUk: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 60 30" className={className} role="img" aria-label="English">
+    <clipPath id="emp-flag-uk-s"><path d="M0,0 v30 h60 v-30 z" /></clipPath>
+    <clipPath id="emp-flag-uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" /></clipPath>
+    <g clipPath="url(#emp-flag-uk-s)">
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#emp-flag-uk-t)" stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+    </g>
+  </svg>
+);
+
+const FlagNl: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 9 6" className={className} role="img" aria-label="Nederlands">
+    <rect width="9" height="2" fill="#AE1C28" />
+    <rect y="2" width="9" height="2" fill="#fff" />
+    <rect y="4" width="9" height="2" fill="#21468B" />
   </svg>
 );
 
@@ -275,30 +328,47 @@ export const EmployersHow: React.FC = () => {
             Move), plus the per-role facts that have no pill in the product,
             drawn in the same pill style so the row reads as one set. */}
         <Reveal className="mt-6 max-w-6xl">
-          <div className="rounded-2xl px-6 py-5 flex flex-col items-center gap-3 text-center" style={CARD_STYLE}>
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F8282]">{t('how.perRoleLabel')}</p>
-            <div className="flex justify-center [&>div]:m-0 [&>div]:justify-center">
-              <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+          <div
+            className="rounded-2xl px-6 py-5 flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
+            style={CARD_STYLE}
+          >
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#1F8282]">{t('how.perRoleLabel')}</p>
+              <div className="flex [&>div]:m-0">
+                <CareerScoreCard score={84} aiImpact="High" move="Ready now" />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {perRole.map((pill) => (
+                  <FactPill key={pill.label} label={pill.label} value={pill.value} />
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {perRole.map((pill) => (
-                <FactPill key={pill.label} label={pill.label} value={pill.value} />
-              ))}
-            </div>
-          </div>
-        </Reveal>
 
-        <Reveal className="mt-8 max-w-3xl">
-          <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">{t('how.languages')}</p>
-            <Link
-              to={employerReportLink(employerDemoPersona(i18n.language))}
-              onClick={() => trackCtaClick('employers_how_report')}
-              className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#1F8282] hover:text-[#122E3B] transition-colors group"
-            >
-              {t('how.reportCta')}
-              <ArrowRight size={15} strokeWidth={2.4} className="transition-transform group-hover:translate-x-1" />
-            </Link>
+            <div className="flex flex-col items-start md:items-end gap-3 md:text-right md:pl-6 md:border-l md:border-[#C9B690]/50 md:self-stretch md:justify-center">
+              <p className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-[#1F8282]">
+                {/* Flags in the order the sentence names the languages. */}
+                {(i18n.language || '').startsWith('nl') ? (
+                  <>
+                    <FlagNl className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                    <FlagUk className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                  </>
+                ) : (
+                  <>
+                    <FlagUk className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                    <FlagNl className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                  </>
+                )}
+                {t('how.languages')}
+              </p>
+              <Link
+                to={employerReportLink(employerDemoPersona(i18n.language))}
+                onClick={() => trackCtaClick('employers_how_report')}
+                className="inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#1F8282] hover:text-[#122E3B] transition-colors group"
+              >
+                {t('how.reportCta')}
+                <ArrowRight size={15} strokeWidth={2.4} className="transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
           </div>
         </Reveal>
       </div>

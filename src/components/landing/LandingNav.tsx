@@ -23,12 +23,15 @@ interface SectionLink {
 // "How it works" points at #methodology: the five-step #how-it-works section
 // was retired on 2026-09-16 (the hero video covers the same ground), and
 // methodology is now where the page explains how it works. Keeping the
-// friendlier label and dropping the separate "Methodology" item keeps the nav
-// at three items without stranding a link on a section that no longer exists.
+// friendlier label and dropping the separate "Methodology" item avoids
+// stranding a link on a section that no longer exists. Partners and Employers
+// joined the nav on 2026-10-06 (both pages were outreach-only before).
 const SECTION_LINKS: SectionLink[] = [
   { labelKey: 'nav.howItWorks', hash: '#methodology' },
   { labelKey: 'nav.journal', hash: '/journal', route: true },
   { labelKey: 'nav.pricing', hash: '#pricing' },
+  { labelKey: 'nav.partners', hash: '/partners', route: true },
+  { labelKey: 'nav.employers', hash: '/employers', route: true },
 ];
 
 const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
@@ -130,14 +133,16 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
             <img src={CairnlyWordmarkInverted} alt="Cairnly" className="h-14 md:h-16 w-auto" />
           </a>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-7 lg:gap-8">
+          {/* Desktop nav. From lg, not md: with Partners and Employers in
+              it (2026-10-06) the row no longer fits a tablet, so tablets get
+              the drawer. Tighter tracking until xl keeps it on one line. */}
+          <div className="hidden lg:flex items-center gap-5 xl:gap-8">
             {SECTION_LINKS.map((link) => (
               <a
                 key={link.labelKey}
                 href={hrefFor(link)}
                 onClick={(e) => handleSection(e, link)}
-                className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors"
+                className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.14em] xl:tracking-[0.22em] text-white/70 hover:text-white transition-colors"
               >
                 {t(link.labelKey)}
               </a>
@@ -146,19 +151,19 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
               <a
                 href="/auth"
                 onClick={(e) => { e.preventDefault(); navigate('/auth'); }}
-                className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/70 hover:text-white transition-colors"
+                className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.14em] xl:tracking-[0.22em] text-white/70 hover:text-white transition-colors"
               >
                 {t('nav.signIn')}
               </a>
             )}
             <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
-            <button onClick={getStarted} className="lp-btn-primary lp-btn-sm">
+            <button onClick={getStarted} className="lp-btn-primary lp-btn-sm whitespace-nowrap">
               {user ? t('nav.goToDashboard') : t('nav.getStarted')}
             </button>
           </div>
 
           {/* Mobile toggle + language switcher */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-1">
             <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
             <button
               className="text-white p-2 -mr-2"
@@ -173,7 +178,7 @@ const LandingNav: React.FC<LandingNavProps> = ({ variant = 'home' }) => {
 
       {/* Mobile drawer */}
       <div
-        className="fixed inset-0 z-[200] md:hidden"
+        className="fixed inset-0 z-[200] lg:hidden"
         style={{
           background: 'rgba(18, 46, 59, 0.98)',
           backdropFilter: 'blur(14px)',

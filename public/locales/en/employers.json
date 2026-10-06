@@ -5,7 +5,7 @@
   },
   "hero": {
     "eyebrow": "Cairnly for employers",
-    "title": "Give your people career path clarity. Even if it's not with you.",
+    "title": "Give your people ",
     "body": "One assessment and one conversation with an AI career coach, and within an hour someone has ten named roles that fit their skills, personality and goals, each with a match score, salary data and an AI-impact rating. Employees own the result. You pay per head, roll it out with a batch of codes, and never see who took it or what came out.",
     "trialCta": "Try it yourself",
     "talkCta": "Talk to us",
@@ -14,7 +14,9 @@
       "Ten named roles",
       "Employee owns the result",
       "From 20 euro per head"
-    ]
+    ],
+    "titleHighlight": "career path clarity.",
+    "titleB": " Even if it's not with you."
   },
   "why": {
     "eyebrow": "Why employers offer it",
