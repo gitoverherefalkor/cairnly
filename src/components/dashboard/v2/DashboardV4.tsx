@@ -1843,7 +1843,12 @@ const UnlockToolkit: React.FC<{
   const mobile = useIsMobile();
   return (
     <section style={{ marginBottom: 28 }}>
+      {/* data-demo-chrome: the referral pitch and the money-back row stay out
+          of the hero recordings (scripts/demo-record-hero.mjs hides them), so
+          the film works for practitioners and employers too. Visitors of the
+          demo itself still see both. */}
       <div
+        data-demo-chrome=""
         style={{
           background: 'linear-gradient(135deg, rgba(212,160,36,0.18) 0%, rgba(39,161,161,0.12) 100%)',
           border: '1px solid rgba(212,160,36,0.40)',
@@ -2038,12 +2043,14 @@ const UnlockToolkit: React.FC<{
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
-        <LadderRow
-          label={t('v4.toolkit.rowMoneyBack', { defaultValue: 'Money back' })}
-          items={ladder.slice(3, 6)}
-          onInvite={onInvite}
-          onNavigate={onNavigate}
-        />
+        <div data-demo-chrome="">
+          <LadderRow
+            label={t('v4.toolkit.rowMoneyBack', { defaultValue: 'Money back' })}
+            items={ladder.slice(3, 6)}
+            onInvite={onInvite}
+            onNavigate={onNavigate}
+          />
+        </div>
       </div>
     </section>
   );
