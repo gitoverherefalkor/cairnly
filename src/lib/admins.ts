@@ -15,7 +15,11 @@
 // account simply cannot sign in. falkoratlas.com is being phased out in favour
 // of bethehitl.com but stays until a bethehitl account exists and has been
 // signed in with, otherwise removing it locks Sjoerd out of Ops.
+//
+// natasha@cairnly.io (Tasha, employers channel) added 2026-10-06, also ahead of
+// her account existing: no invite sent yet.
 export const ADMIN_EMAILS = new Set([
+  'natasha@cairnly.io',
   'sjn.geurts@gmail.com',
   'sjoerd@bethehitl.com',
   'sjoerd@cairnly.io',

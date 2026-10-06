@@ -11,6 +11,7 @@
 // Keep in sync with src/lib/admins.ts. Deno and Vite cannot share a module, so
 // the two lists exist separately; src/lib/admins.test.ts fails if they drift.
 export const ADMIN_EMAILS = new Set([
+  'natasha@cairnly.io',
   'sjn.geurts@gmail.com',
   'sjoerd@bethehitl.com',
   'sjoerd@cairnly.io',
