@@ -145,6 +145,22 @@ serve(async (req) => {
     }
   }
 
+  // ── Employer-paid seat ─────────────────────────────────────────────────────
+  // A seat code (access_codes.employer_code_kind = 'seat') means the employer
+  // paid, so the closing page drops the refund ladder (they paid nothing to get
+  // back). Best effort: on any error the report keeps the consumer ending.
+  let sponsored = false;
+  {
+    const { data: seat, error: seatErr } = await supabase
+      .from('access_codes')
+      .select('id')
+      .eq('user_id', burned.user_id)
+      .eq('employer_code_kind', 'seat')
+      .limit(1);
+    if (seatErr) console.error('[report-print-data] seat lookup failed:', seatErr);
+    sponsored = (seat?.length ?? 0) > 0;
+  }
+
   return new Response(
     JSON.stringify({
       report,
@@ -167,6 +183,9 @@ serve(async (req) => {
       // null for every user today, so the print page's partner branches never
       // fire and unbranded output is byte-identical to the pre-white-label design.
       partner,
+      // true when an employer paid for this assessment; selects the employee
+      // closing page. A partner ending still wins if both are ever set.
+      sponsored,
     }),
     { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
   );

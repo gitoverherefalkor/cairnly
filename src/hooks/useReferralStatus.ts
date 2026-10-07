@@ -183,6 +183,30 @@ export function useReferralStatus() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // An employer paid for this user's assessment (a seat code from
+  // Ops > Employers). Nothing to refund then, so the dashboard toolkit shows the
+  // three tools and drops the money-back row. Reads the user's own codes, which
+  // RLS allows (access_codes_user_select_own).
+  const sponsoredQuery = useQuery({
+    queryKey: ['employer-sponsored', user?.id],
+    queryFn: async (): Promise<boolean> => {
+      if (!user?.id) return false;
+      const { data, error } = await supabase
+        .from('access_codes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('employer_code_kind', 'seat')
+        .limit(1);
+      if (error) {
+        console.error('sponsored lookup failed:', error);
+        return false;
+      }
+      return (data?.length ?? 0) > 0;
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const referralCount = countQuery.data ?? 0;
   const referralCode = codeQuery.data ?? null;
   const compUnlocks = compQuery.data ?? 0;
@@ -214,6 +238,7 @@ export function useReferralStatus() {
     referralCount,
     features,
     ladder,
+    sponsored: sponsoredQuery.data ?? false,
     isLoading: codeQuery.isLoading || countQuery.isLoading || compQuery.isLoading,
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: ['referral-count', user?.id] });

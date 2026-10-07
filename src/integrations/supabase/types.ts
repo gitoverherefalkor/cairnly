@@ -48,6 +48,8 @@ export type Database = {
           created_at: string
           currency: string | null
           discount_percent: number | null
+          employer_code_kind: string | null
+          employer_id: string | null
           expires_at: string | null
           id: string
           is_active: boolean | null
@@ -66,6 +68,8 @@ export type Database = {
           created_at?: string
           currency?: string | null
           discount_percent?: number | null
+          employer_code_kind?: string | null
+          employer_id?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -84,6 +88,8 @@ export type Database = {
           created_at?: string
           currency?: string | null
           discount_percent?: number | null
+          employer_code_kind?: string | null
+          employer_id?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -97,6 +103,20 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "access_codes_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "employer_code_status"
+            referencedColumns: ["employer_id"]
+          },
+          {
+            foreignKeyName: "access_codes_employer_id_fkey"
+            columns: ["employer_id"]
+            isOneToOne: false
+            referencedRelation: "employers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "access_codes_partner_id_fkey"
             columns: ["partner_id"]
@@ -163,6 +183,7 @@ export type Database = {
           prospect: string | null
           session_id: string
           utm_campaign: string | null
+          utm_content: string | null
           utm_medium: string | null
           utm_source: string | null
         }
@@ -179,6 +200,7 @@ export type Database = {
           prospect?: string | null
           session_id: string
           utm_campaign?: string | null
+          utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
         }
@@ -195,6 +217,7 @@ export type Database = {
           prospect?: string | null
           session_id?: string
           utm_campaign?: string | null
+          utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
         }
@@ -284,6 +307,27 @@ export type Database = {
         }
         Relationships: []
       }
+      app_flags: {
+        Row: {
+          key: string
+          note: string | null
+          updated_at: string
+          value: boolean
+        }
+        Insert: {
+          key: string
+          note?: string | null
+          updated_at?: string
+          value?: boolean
+        }
+        Update: {
+          key?: string
+          note?: string | null
+          updated_at?: string
+          value?: boolean
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -318,6 +362,120 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "chat_messages_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_next_steps: {
+        Row: {
+          career_title: string | null
+          check_in_at: string
+          check_in_sent_at: string | null
+          created_at: string
+          id: string
+          report_id: string
+          status: string
+          step: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          career_title?: string | null
+          check_in_at: string
+          check_in_sent_at?: string | null
+          created_at?: string
+          id?: string
+          report_id: string
+          status?: string
+          step: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          career_title?: string | null
+          check_in_at?: string
+          check_in_sent_at?: string | null
+          created_at?: string
+          id?: string
+          report_id?: string
+          status?: string
+          step?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_next_steps_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_notes: {
+        Row: {
+          notes: string
+          report_id: string
+          source_through: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          notes: string
+          report_id: string
+          source_through?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          notes?: string
+          report_id?: string
+          source_through?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_notes_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_usage: {
+        Row: {
+          first_message_at: string
+          last_message_at: string
+          messages_used: number
+          month: string
+          report_id: string
+          user_id: string
+        }
+        Insert: {
+          first_message_at?: string
+          last_message_at?: string
+          messages_used?: number
+          month: string
+          report_id: string
+          user_id: string
+        }
+        Update: {
+          first_message_at?: string
+          last_message_at?: string
+          messages_used?: number
+          month?: string
+          report_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_usage_report_id_fkey"
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "reports"
@@ -569,6 +727,42 @@ export type Database = {
           },
         ]
       }
+      employers: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enriched_jobs: {
         Row: {
           ai_impact_rating: string | null
@@ -704,15 +898,182 @@ export type Database = {
         }
         Relationships: []
       }
+      google_ads_campaign_daily: {
+        Row: {
+          campaign_id: number
+          campaign_name: string
+          campaign_status: string | null
+          clicks: number
+          conversion_value: number
+          conversions: number
+          cost_eur: number
+          date: string
+          impressions: number
+          synced_at: string
+        }
+        Insert: {
+          campaign_id: number
+          campaign_name: string
+          campaign_status?: string | null
+          clicks?: number
+          conversion_value?: number
+          conversions?: number
+          cost_eur?: number
+          date: string
+          impressions?: number
+          synced_at?: string
+        }
+        Update: {
+          campaign_id?: number
+          campaign_name?: string
+          campaign_status?: string | null
+          clicks?: number
+          conversion_value?: number
+          conversions?: number
+          cost_eur?: number
+          date?: string
+          impressions?: number
+          synced_at?: string
+        }
+        Relationships: []
+      }
+      google_ads_keyword_daily: {
+        Row: {
+          ad_group_id: number
+          ad_group_name: string | null
+          campaign_id: number
+          clicks: number
+          conversions: number
+          cost_eur: number
+          criterion_id: number
+          date: string
+          impressions: number
+          keyword: string
+          match_type: string | null
+          synced_at: string
+        }
+        Insert: {
+          ad_group_id: number
+          ad_group_name?: string | null
+          campaign_id: number
+          clicks?: number
+          conversions?: number
+          cost_eur?: number
+          criterion_id: number
+          date: string
+          impressions?: number
+          keyword: string
+          match_type?: string | null
+          synced_at?: string
+        }
+        Update: {
+          ad_group_id?: number
+          ad_group_name?: string | null
+          campaign_id?: number
+          clicks?: number
+          conversions?: number
+          cost_eur?: number
+          criterion_id?: number
+          date?: string
+          impressions?: number
+          keyword?: string
+          match_type?: string | null
+          synced_at?: string
+        }
+        Relationships: []
+      }
+      google_ads_search_term_daily: {
+        Row: {
+          ad_group_id: number
+          ad_group_name: string | null
+          campaign_id: number
+          clicks: number
+          conversions: number
+          cost_eur: number
+          date: string
+          impressions: number
+          search_term: string
+          synced_at: string
+          term_status: string | null
+        }
+        Insert: {
+          ad_group_id: number
+          ad_group_name?: string | null
+          campaign_id: number
+          clicks?: number
+          conversions?: number
+          cost_eur?: number
+          date: string
+          impressions?: number
+          search_term: string
+          synced_at?: string
+          term_status?: string | null
+        }
+        Update: {
+          ad_group_id?: number
+          ad_group_name?: string | null
+          campaign_id?: number
+          clicks?: number
+          conversions?: number
+          cost_eur?: number
+          date?: string
+          impressions?: number
+          search_term?: string
+          synced_at?: string
+          term_status?: string | null
+        }
+        Relationships: []
+      }
+      google_ads_sync_log: {
+        Row: {
+          campaign_rows: number | null
+          date_from: string | null
+          date_to: string | null
+          error: string | null
+          id: number
+          keyword_rows: number | null
+          ok: boolean
+          synced_at: string
+          term_rows: number | null
+        }
+        Insert: {
+          campaign_rows?: number | null
+          date_from?: string | null
+          date_to?: string | null
+          error?: string | null
+          id?: never
+          keyword_rows?: number | null
+          ok: boolean
+          synced_at?: string
+          term_rows?: number | null
+        }
+        Update: {
+          campaign_rows?: number | null
+          date_from?: string | null
+          date_to?: string | null
+          error?: string | null
+          id?: never
+          keyword_rows?: number | null
+          ok?: boolean
+          synced_at?: string
+          term_rows?: number | null
+        }
+        Relationships: []
+      }
       intake_sessions: {
         Row: {
+          audience: string
           created_at: string
           email: string | null
           extraction: Json | null
           id: string
           intent: string
           language: string
+          lead_at: string | null
+          lead_status: string | null
           messages: Json
+          offer: Json | null
+          offer_chosen: string | null
           pitch: string | null
           resume_token: string
           source: string
@@ -722,13 +1083,18 @@ export type Database = {
           user_turns: number
         }
         Insert: {
+          audience?: string
           created_at?: string
           email?: string | null
           extraction?: Json | null
           id?: string
           intent?: string
           language?: string
+          lead_at?: string | null
+          lead_status?: string | null
           messages?: Json
+          offer?: Json | null
+          offer_chosen?: string | null
           pitch?: string | null
           resume_token?: string
           source?: string
@@ -738,13 +1104,18 @@ export type Database = {
           user_turns?: number
         }
         Update: {
+          audience?: string
           created_at?: string
           email?: string | null
           extraction?: Json | null
           id?: string
           intent?: string
           language?: string
+          lead_at?: string | null
+          lead_status?: string | null
           messages?: Json
+          offer?: Json | null
+          offer_chosen?: string | null
           pitch?: string | null
           resume_token?: string
           source?: string
@@ -1021,6 +1392,60 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_push_log: {
+        Row: {
+          day: string
+          key: string
+          kind: string
+          sent_at: string
+        }
+        Insert: {
+          day: string
+          key: string
+          kind: string
+          sent_at?: string
+        }
+        Update: {
+          day?: string
+          key?: string
+          kind?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
+      ops_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          failed_count: number
+          id: string
+          last_ok_at: string | null
+          p256dh: string
+          user_email: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          failed_count?: number
+          id?: string
+          last_ok_at?: string | null
+          p256dh: string
+          user_email: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          failed_count?: number
+          id?: string
+          last_ok_at?: string | null
+          p256dh?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       outreach_clicks: {
         Row: {
           campaign: string | null
@@ -1063,8 +1488,107 @@ export type Database = {
         }
         Relationships: []
       }
+      outreach_concepts: {
+        Row: {
+          answers_mail_id: string | null
+          basis: Json
+          beoordeling: Json | null
+          bewerkt_op: string | null
+          body: string
+          body_origineel: string
+          cc: string | null
+          created_at: string
+          goedgekeurd_door: string | null
+          goedgekeurd_op: string | null
+          id: string
+          in_reply_to: string | null
+          references_hdr: string | null
+          rfc_message_id: string | null
+          skeleton: string | null
+          slug: string
+          soort: string
+          status: string
+          step: number | null
+          subject: string
+          thread_id: string | null
+          to_email: string
+          updated_at: string
+          validatie: Json
+          variant: string | null
+          verouderd_reden: string | null
+          verzonden_op: string | null
+        }
+        Insert: {
+          answers_mail_id?: string | null
+          basis?: Json
+          beoordeling?: Json | null
+          bewerkt_op?: string | null
+          body: string
+          body_origineel: string
+          cc?: string | null
+          created_at?: string
+          goedgekeurd_door?: string | null
+          goedgekeurd_op?: string | null
+          id?: string
+          in_reply_to?: string | null
+          references_hdr?: string | null
+          rfc_message_id?: string | null
+          skeleton?: string | null
+          slug: string
+          soort: string
+          status?: string
+          step?: number | null
+          subject: string
+          thread_id?: string | null
+          to_email: string
+          updated_at?: string
+          validatie?: Json
+          variant?: string | null
+          verouderd_reden?: string | null
+          verzonden_op?: string | null
+        }
+        Update: {
+          answers_mail_id?: string | null
+          basis?: Json
+          beoordeling?: Json | null
+          bewerkt_op?: string | null
+          body?: string
+          body_origineel?: string
+          cc?: string | null
+          created_at?: string
+          goedgekeurd_door?: string | null
+          goedgekeurd_op?: string | null
+          id?: string
+          in_reply_to?: string | null
+          references_hdr?: string | null
+          rfc_message_id?: string | null
+          skeleton?: string | null
+          slug?: string
+          soort?: string
+          status?: string
+          step?: number | null
+          subject?: string
+          thread_id?: string | null
+          to_email?: string
+          updated_at?: string
+          validatie?: Json
+          variant?: string | null
+          verouderd_reden?: string | null
+          verzonden_op?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_concepts_answers_mail_id_fkey"
+            columns: ["answers_mail_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_mails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       outreach_mails: {
         Row: {
+          body_text: string | null
           created_at: string
           direction: string
           draft_id: string | null
@@ -1073,6 +1597,7 @@ export type Database = {
           gmail_thread_id: string
           id: string
           kind: string
+          rfc_message_id: string | null
           samenvatting: string | null
           sent_at: string
           sentiment: string | null
@@ -1084,6 +1609,7 @@ export type Database = {
           to_email: string | null
         }
         Insert: {
+          body_text?: string | null
           created_at?: string
           direction: string
           draft_id?: string | null
@@ -1092,6 +1618,7 @@ export type Database = {
           gmail_thread_id: string
           id?: string
           kind: string
+          rfc_message_id?: string | null
           samenvatting?: string | null
           sent_at: string
           sentiment?: string | null
@@ -1103,6 +1630,7 @@ export type Database = {
           to_email?: string | null
         }
         Update: {
+          body_text?: string | null
           created_at?: string
           direction?: string
           draft_id?: string | null
@@ -1111,6 +1639,7 @@ export type Database = {
           gmail_thread_id?: string
           id?: string
           kind?: string
+          rfc_message_id?: string | null
           samenvatting?: string | null
           sent_at?: string
           sentiment?: string | null
@@ -1132,16 +1661,20 @@ export type Database = {
           contactpersoon: string | null
           created_at: string
           domain: string | null
+          email_ongeldig_op: string | null
           followup_draft_id: string | null
           followup_requested_at: string | null
           id: string
           naam: string | null
+          niet_mailen_op: string | null
           notities: string | null
           openingshaak: string | null
           partner_slug: string | null
           plaats: string | null
+          reply_dismissed_at: string | null
           slug: string
           status: string
+          subject_variant: string | null
           tier: string | null
           to_email: string | null
           updated_at: string
@@ -1155,16 +1688,20 @@ export type Database = {
           contactpersoon?: string | null
           created_at?: string
           domain?: string | null
+          email_ongeldig_op?: string | null
           followup_draft_id?: string | null
           followup_requested_at?: string | null
           id?: string
           naam?: string | null
+          niet_mailen_op?: string | null
           notities?: string | null
           openingshaak?: string | null
           partner_slug?: string | null
           plaats?: string | null
+          reply_dismissed_at?: string | null
           slug: string
           status?: string
+          subject_variant?: string | null
           tier?: string | null
           to_email?: string | null
           updated_at?: string
@@ -1178,16 +1715,20 @@ export type Database = {
           contactpersoon?: string | null
           created_at?: string
           domain?: string | null
+          email_ongeldig_op?: string | null
           followup_draft_id?: string | null
           followup_requested_at?: string | null
           id?: string
           naam?: string | null
+          niet_mailen_op?: string | null
           notities?: string | null
           openingshaak?: string | null
           partner_slug?: string | null
           plaats?: string | null
+          reply_dismissed_at?: string | null
           slug?: string
           status?: string
+          subject_variant?: string | null
           tier?: string | null
           to_email?: string | null
           updated_at?: string
@@ -1209,6 +1750,128 @@ export type Database = {
             referencedColumns: ["slug"]
           },
         ]
+      }
+      outreach_send_queue: {
+        Row: {
+          claimed_at: string | null
+          concept_id: string | null
+          created_at: string
+          direct: boolean
+          draft_id: string | null
+          fout: string | null
+          gmail_message_id: string | null
+          id: string
+          niet_voor: string | null
+          pogingen: number
+          prioriteit: number
+          sent_at: string | null
+          slug: string
+          soort: string
+          status: string
+          thread_id: string | null
+          to_email: string | null
+        }
+        Insert: {
+          claimed_at?: string | null
+          concept_id?: string | null
+          created_at?: string
+          direct?: boolean
+          draft_id?: string | null
+          fout?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          niet_voor?: string | null
+          pogingen?: number
+          prioriteit?: number
+          sent_at?: string | null
+          slug: string
+          soort: string
+          status?: string
+          thread_id?: string | null
+          to_email?: string | null
+        }
+        Update: {
+          claimed_at?: string | null
+          concept_id?: string | null
+          created_at?: string
+          direct?: boolean
+          draft_id?: string | null
+          fout?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          niet_voor?: string | null
+          pogingen?: number
+          prioriteit?: number
+          sent_at?: string | null
+          slug?: string
+          soort?: string
+          status?: string
+          thread_id?: string | null
+          to_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_send_queue_concept_id_fkey"
+            columns: ["concept_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_concepts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_send_state: {
+        Row: {
+          alarm_gepauzeerd_op: string | null
+          auto_goedkeuren: boolean
+          gepauzeerd: boolean
+          gewekt_op: string | null
+          id: boolean
+          laatste_fout: string | null
+          next_allowed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          alarm_gepauzeerd_op?: string | null
+          auto_goedkeuren?: boolean
+          gepauzeerd?: boolean
+          gewekt_op?: string | null
+          id?: boolean
+          laatste_fout?: string | null
+          next_allowed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alarm_gepauzeerd_op?: string | null
+          auto_goedkeuren?: boolean
+          gepauzeerd?: boolean
+          gewekt_op?: string | null
+          id?: boolean
+          laatste_fout?: string | null
+          next_allowed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      outreach_sync_state: {
+        Row: {
+          gevraagd_op: string | null
+          gewekt_op: string | null
+          id: boolean
+          updated_at: string
+        }
+        Insert: {
+          gevraagd_op?: string | null
+          gewekt_op?: string | null
+          id?: boolean
+          updated_at?: string
+        }
+        Update: {
+          gevraagd_op?: string | null
+          gewekt_op?: string | null
+          id?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       page_views: {
         Row: {
@@ -1237,6 +1900,24 @@ export type Database = {
           path?: string
           referrer?: string | null
           session_id?: string
+        }
+        Relationships: []
+      }
+      partner_prechat_settings: {
+        Row: {
+          id: boolean
+          pilot_slots_left: number
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          pilot_slots_left?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          pilot_slots_left?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1378,6 +2059,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          promo_code: string | null
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
         }
@@ -1389,6 +2071,7 @@ export type Database = {
           first_name: string
           id?: string
           last_name: string
+          promo_code?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
@@ -1400,6 +2083,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          promo_code?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
         }
@@ -2181,6 +2865,32 @@ export type Database = {
       }
     }
     Views: {
+      employer_code_status: {
+        Row: {
+          employer_id: string | null
+          seats_claimed: number | null
+          seats_issued: number | null
+          trial_claimed: number | null
+          trial_issued: number | null
+          trial_last_minted_at: string | null
+          trial_reports: number | null
+          trial_started: number | null
+        }
+        Relationships: []
+      }
+      outreach_prospect_demo: {
+        Row: {
+          demo_sessies: number | null
+          eerste_bezoek: string | null
+          laatste_bezoek: string | null
+          momenten_gemiddeld: number | null
+          momenten_max: number | null
+          sessies_engaged: number | null
+          sessies_met_cta: number | null
+          slug: string | null
+        }
+        Relationships: []
+      }
       outreach_prospect_stats: {
         Row: {
           bot_kliks: number | null
@@ -2194,6 +2904,18 @@ export type Database = {
           laatste_bevestigde_klik: string | null
           laatste_klik: string | null
           slug: string | null
+        }
+        Relationships: []
+      }
+      outreach_subject_stats: {
+        Row: {
+          bureaus: number | null
+          met_klik: number | null
+          momenten_gemiddeld: number | null
+          positieve_reacties: number | null
+          reacties: number | null
+          variant: string | null
+          verstuurd: number | null
         }
         Relationships: []
       }
@@ -2255,6 +2977,30 @@ export type Database = {
     Functions: {
       check_and_send_reminders: { Args: never; Returns: undefined }
       cleanup_old_chat_histories: { Args: never; Returns: undefined }
+      coach_notes_due: {
+        Args: { p_limit?: number }
+        Returns: {
+          report_id: string
+        }[]
+      }
+      coach_save_next_step: {
+        Args: {
+          p_career_title?: string
+          p_check_in_days: number
+          p_report_id: string
+          p_step: string
+        }
+        Returns: string
+      }
+      coach_usage_bump: {
+        Args: {
+          p_delta?: number
+          p_limit: number
+          p_report_id: string
+          p_user_id: string
+        }
+        Returns: number
+      }
       consume_access_code: {
         Args: { p_code_id: string }
         Returns: {
@@ -2404,6 +3150,7 @@ export type Database = {
               salary: Json
             }[]
           }
+      get_coach_snapshot: { Args: { p_report_id: string }; Returns: Json }
       is_ops_admin: { Args: { p_email: string }; Returns: boolean }
       link_and_check_entitlement: { Args: never; Returns: Json }
       match_documents: {
@@ -2413,6 +3160,18 @@ export type Database = {
           id: string
           metadata: Json
           similarity: number
+        }[]
+      }
+      mint_employer_codes: {
+        Args: {
+          p_count: number
+          p_employer_id: string
+          p_expires_at?: string
+          p_kind: string
+          p_survey_type?: string
+        }
+        Returns: {
+          code: string
         }[]
       }
       mint_partner_codes: {
@@ -2433,11 +3192,51 @@ export type Database = {
         Args: { p_at?: string; p_slug: string; p_status: string }
         Returns: string
       }
+      outreach_call_function: {
+        Args: { p_body?: Json; p_name: string }
+        Returns: undefined
+      }
       outreach_code_request: {
         Args: { p_lang?: string; p_slug: string }
         Returns: Json
       }
+      outreach_queue_lane: {
+        Args: { p_direct: boolean; p_soort: string }
+        Returns: string
+      }
+      outreach_reply_in_window: { Args: { p_at: string }; Returns: boolean }
+      outreach_send_blocked: {
+        Args: { p_lane?: string; p_max_per_dag?: number; p_now?: string }
+        Returns: string
+      }
+      outreach_send_claim: {
+        Args: { p_max_per_dag?: number; p_now?: string }
+        Returns: {
+          concept_id: string
+          draft_id: string
+          id: string
+          slug: string
+          soort: string
+          thread_id: string
+          to_email: string
+        }[]
+      }
+      outreach_send_done: {
+        Args: { p_gmail_message_id: string; p_id: string }
+        Returns: undefined
+      }
+      outreach_send_due: {
+        Args: { p_max_per_dag?: number; p_now?: string }
+        Returns: boolean
+      }
+      outreach_send_failed: {
+        Args: { p_fout: string; p_id: string }
+        Returns: undefined
+      }
+      outreach_send_in_window: { Args: { p_at: string }; Returns: boolean }
+      outreach_send_wake: { Args: { p_now?: string }; Returns: boolean }
       outreach_status_rank: { Args: { p_status: string }; Returns: number }
+      outreach_sync_wake: { Args: { p_now?: string }; Returns: boolean }
       purge_expired_assessment_data: { Args: never; Returns: Json }
       rerun_report: {
         Args: {

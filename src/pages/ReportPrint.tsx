@@ -130,6 +130,8 @@ interface PrintData {
     preferred_language?: string | null;
   };
   partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null;
+  /** An employer paid (seat code). Optional: older function versions omit it. */
+  sponsored?: boolean;
 }
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/report-print-data`;
@@ -275,6 +277,7 @@ const ReportPrint: React.FC = () => {
             : data.partner
         }
         preferredLanguage={data.profile.preferred_language ?? null}
+        sponsored={data.sponsored === true}
       />
     </>
   );

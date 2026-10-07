@@ -15,7 +15,7 @@ import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { companyContext } from '@/lib/companyContext';
 import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, EyeOff, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
-import type { ResolvedFeature, ResolvedUnlockStep } from '@/hooks/useReferralStatus';
+import { REFERRAL_DISCOUNT_PERCENT, type ResolvedFeature, type ResolvedUnlockStep } from '@/hooks/useReferralStatus';
 import { useCustomResumeList } from '@/components/custom-resume/hooks/useCustomResumeList';
 import { useCoverLetterList } from '@/components/cover-letter/hooks/useCoverLetterList';
 import { useSavedJobs } from '@/hooks/useSavedJobs';
@@ -110,6 +110,8 @@ interface DashboardV4Props {
   referralCount: number;
   features: ResolvedFeature[];
   ladder: ResolvedUnlockStep[];
+  /** An employer paid for this assessment: the toolkit drops the refund row. */
+  sponsored?: boolean;
   onNavigate: (route: string) => void;
   onProfile: () => void;
   onSignOut: () => void;
@@ -385,6 +387,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   referralCount,
   features,
   ladder,
+  sponsored = false,
   onNavigate,
   onProfile,
   onSignOut,
@@ -948,6 +951,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
             referralCode={referralCode}
             referralCount={referralCount}
             ladder={ladder}
+            sponsored={sponsored}
             pulseStepKey={pulseStepKey}
             onInvite={onInvite}
             onNavigate={onNavigate}
@@ -1856,13 +1860,18 @@ const UnlockToolkit: React.FC<{
   referralCode: string | null;
   referralCount: number;
   ladder: ResolvedUnlockStep[];
+  /** Employer-paid seat: three tools only, no money-back pitch or row. The
+   *  wording is the approved employee closing page of the PDF (PrintClosing). */
+  sponsored?: boolean;
   onInvite: () => void;
   onNavigate: (route: string) => void;
   pulseStepKey?: 'jobs' | 'resume' | 'cover-letter';
-}> = ({ referralCode, referralCount, ladder, onInvite, onNavigate, pulseStepKey }) => {
+}> = ({ referralCode, referralCount, ladder, sponsored = false, onInvite, onNavigate, pulseStepKey }) => {
   const { t } = useTranslation('dashboard');
-  const earned = Math.min(referralCount, 6);
-  const fullyRefunded = referralCount >= 6;
+  // Six steps for a buyer (three tools, three refunds); three for an employee.
+  const steps = sponsored ? 3 : 6;
+  const earned = Math.min(referralCount, steps);
+  const fullyRefunded = referralCount >= steps;
   const mobile = useIsMobile();
   return (
     <section style={{ marginBottom: 28 }}>
@@ -1904,9 +1913,11 @@ const UnlockToolkit: React.FC<{
         >
           <div>
             <Eyebrow>
-              {t('v4.toolkit.eyebrow', {
-                defaultValue: 'JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK',
-              })}
+              {sponsored
+                ? t('v4.toolkit.sponsored.eyebrow', { defaultValue: 'ALSO ON YOUR ACCOUNT' })
+                : t('v4.toolkit.eyebrow', {
+                    defaultValue: 'JOB-HUNT TOOLKIT · EARN YOUR MONEY BACK',
+                  })}
             </Eyebrow>
             <h3
               style={{
@@ -1918,9 +1929,11 @@ const UnlockToolkit: React.FC<{
                 margin: '10px 0 8px 0',
               }}
             >
-              {t('v4.toolkit.title', {
-                defaultValue: 'Six friends, and your assessment paid for itself.',
-              })}
+              {sponsored
+                ? t('v4.toolkit.sponsored.title', { defaultValue: 'Three tools for your next step' })
+                : t('v4.toolkit.title', {
+                    defaultValue: 'Six friends, and your assessment paid for itself.',
+                  })}
             </h3>
             <p
               style={{
@@ -1933,16 +1946,26 @@ const UnlockToolkit: React.FC<{
                 maxWidth: 540,
               }}
             >
-              {t('v4.toolkit.bodyBefore', {
-                defaultValue:
-                  'Your first three friends unlock the job-hunt tools. The next three refund your purchase,',
-              })}{' '}
-              <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>
-                {t('v4.toolkit.bodySplit', { defaultValue: '25% + 25% + 50%' })}
-              </em>
-              {t('v4.toolkit.bodyAfter', {
-                defaultValue: ', back to your card. They get clarity, you get paid back.',
-              })}
+              {sponsored ? (
+                t('v4.toolkit.sponsored.body', {
+                  pct: REFERRAL_DISCOUNT_PERCENT,
+                  defaultValue:
+                    'Your account comes with three tools that open up as you invite people. Every friend who joins gets {{pct}}% off, and each one you bring opens the next tool.',
+                })
+              ) : (
+                <>
+                  {t('v4.toolkit.bodyBefore', {
+                    defaultValue:
+                      'Your first three friends unlock the job-hunt tools. The next three refund your purchase,',
+                  })}{' '}
+                  <em style={{ fontStyle: 'normal', color: PALETTE.goldBright, fontWeight: 700 }}>
+                    {t('v4.toolkit.bodySplit', { defaultValue: '25% + 25% + 50%' })}
+                  </em>
+                  {t('v4.toolkit.bodyAfter', {
+                    defaultValue: ', back to your card. They get clarity, you get paid back.',
+                  })}
+                </>
+              )}
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: mobile ? 0 : 280 }}>
@@ -1958,16 +1981,21 @@ const UnlockToolkit: React.FC<{
               }}
             >
               <span style={{ whiteSpace: 'nowrap' }}>
-                {t('v4.toolkit.progress', {
-                  count: earned,
-                  defaultValue: '{{count}} of 6 friends joined',
-                })}
+                {sponsored
+                  ? t('v4.toolkit.sponsored.progress', {
+                      count: earned,
+                      defaultValue: '{{count}} of 3 friends joined',
+                    })
+                  : t('v4.toolkit.progress', {
+                      count: earned,
+                      defaultValue: '{{count}} of 6 friends joined',
+                    })}
               </span>
               <span style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.10)', borderRadius: 9999, overflow: 'hidden' }}>
                 <span
                   style={{
                     display: 'block',
-                    width: `${(earned / 6) * 100}%`,
+                    width: `${(earned / steps) * 100}%`,
                     height: '100%',
                     background: `linear-gradient(90deg, ${PALETTE.gold} 0%, ${PALETTE.goldBright} 100%)`,
                   }}
@@ -2066,14 +2094,16 @@ const UnlockToolkit: React.FC<{
           onInvite={onInvite}
           onNavigate={onNavigate}
         />
-        <div data-demo-chrome="">
-          <LadderRow
-            label={t('v4.toolkit.rowMoneyBack', { defaultValue: 'Money back' })}
-            items={ladder.slice(3, 6)}
-            onInvite={onInvite}
-            onNavigate={onNavigate}
-          />
-        </div>
+        {!sponsored && (
+          <div data-demo-chrome="">
+            <LadderRow
+              label={t('v4.toolkit.rowMoneyBack', { defaultValue: 'Money back' })}
+              items={ladder.slice(3, 6)}
+              onInvite={onInvite}
+              onNavigate={onNavigate}
+            />
+          </div>
+        )}
       </div>
     </section>
   );

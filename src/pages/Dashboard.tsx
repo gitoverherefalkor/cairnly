@@ -555,6 +555,7 @@ const Dashboard = () => {
           referralCount={referralStatus.referralCount}
           features={referralStatus.features}
           ladder={referralStatus.ladder}
+          sponsored={referralStatus.sponsored}
           onNavigate={(route) => navigate(route)}
           onProfile={() => navigate('/profile')}
           onSignOut={handleSignOut}

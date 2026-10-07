@@ -399,7 +399,13 @@
       "code": "Code",
       "invite": "Uitnodigen",
       "rowTools": "Tools",
-      "rowMoneyBack": "Geld terug"
+      "rowMoneyBack": "Geld terug",
+      "sponsored": {
+        "eyebrow": "OOK OP JE ACCOUNT",
+        "title": "Drie tools voor je volgende stap",
+        "body": "Bij je account horen drie tools die opengaan als je mensen uitnodigt. Elke vriend die meedoet krijgt {{pct}}% korting, en elke aanmelding opent de volgende tool.",
+        "progress": "{{count}} van de 3 referenties aangesloten"
+      }
     },
     "step": {
       "unlocked": "Ontgrendeld!",

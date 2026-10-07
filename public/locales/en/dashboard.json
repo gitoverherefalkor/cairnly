@@ -399,7 +399,13 @@
       "code": "Code",
       "invite": "Invite",
       "rowTools": "Tools",
-      "rowMoneyBack": "Money back"
+      "rowMoneyBack": "Money back",
+      "sponsored": {
+        "eyebrow": "ALSO ON YOUR ACCOUNT",
+        "title": "Three tools for your next step",
+        "body": "Your account comes with three tools that open up as you invite people. Every friend who joins gets {{pct}}% off, and each one you bring opens the next tool.",
+        "progress": "{{count}} of 3 friends joined"
+      }
     },
     "step": {
       "unlocked": "Unlocked!",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { Search, FileText, Mail } from 'lucide-react';
-import { UNLOCK_LADDER, REFERRAL_DISCOUNT_PERCENT } from '@/hooks/useReferralStatus';
+import { UNLOCK_LADDER, REFERRAL_DISCOUNT_PERCENT, type UnlockStep } from '@/hooks/useReferralStatus';
 import { DASHBOARD_URL } from './ReportPrintDocument';
 import type { PrintLang } from './printIntros';
 
@@ -33,8 +33,16 @@ import type { PrintLang } from './printIntros';
 //     to bring to that meeting, and the tools noted as a footnote rather than
 //     sold as a ladder.
 //
-// The two blocks keep the same shape and styling as the consumer page on
-// purpose, so the document's ending reads as the same object either way.
+// ── The employee variant ───────────────────────────────────────────────────
+//
+// A report whose seat an employer paid for (a seat code from Ops > Employers)
+// ends on SPONSORED_STRINGS: the same toolkit, minus the three refund steps,
+// because the reader paid nothing to get back. The sign-off repeats the promise
+// from the assessment's first screen: the employer never sees this report.
+// Copy approved by Sjoerd 2026-10-07.
+//
+// The blocks keep the same shape and styling as the consumer page on purpose,
+// so the document's ending reads as the same object whichever variant it is.
 
 const STRINGS: Record<
   PrintLang,
@@ -161,6 +169,64 @@ const PARTNER_STRINGS: Record<
     toolsLink: 'cairnly.io/dashboard',
     credit: (partner) =>
       `Dit assessment werd je aangeboden door ${partner}. Cairnly is een product van Human in the Loop B.V.`,
+  },
+};
+
+/** The closing page for an employer-paid seat. Tool names stay English in both
+ *  languages, like the rest of the printed report; their blurbs are localised. */
+const SPONSORED_STRINGS: Record<
+  PrintLang,
+  {
+    kicker: string;
+    heading: string;
+    signOff: string;
+    toolkitKicker: string;
+    toolkitHeading: string;
+    toolkitBlurb: (pct: number) => string;
+    tools: Record<'jobs' | 'resume' | 'cover-letter', string>;
+    stepLabel: (n: number) => string;
+    whereBefore: string;
+    whereLink: string;
+    credit: string;
+  }
+> = {
+  en: {
+    kicker: 'That is the report',
+    heading: 'You know where you stand.',
+    signOff:
+      'This report is yours. Your employer offered you the assessment, and they will never see this report, your answers or your scores. Come back to it whenever you need to, and share it with whoever you choose: a mentor, a coach, or nobody at all.',
+    toolkitKicker: 'Also on your account',
+    toolkitHeading: 'Three tools for your next step',
+    toolkitBlurb: (pct) =>
+      `Your account comes with three tools that open up as you invite people. Every friend who joins gets ${pct}% off, and each one you bring opens the next tool:`,
+    tools: {
+      jobs: 'Everyone gets 4 free searches. One referral removes the cap for good.',
+      resume: 'Rewrite your uploaded resume to fit the specific jobs you want to apply for.',
+      'cover-letter': 'Generate a tailored cover letter for each role, written to the specific posting.',
+    },
+    stepLabel: (n) => `${n} ${n === 1 ? 'friend' : 'friends'}`,
+    whereBefore: 'Everything lives on your dashboard at ',
+    whereLink: 'cairnly.io/dashboard',
+    credit: 'This assessment was offered to you by your employer. Cairnly is a product of Human in the Loop B.V.',
+  },
+  nl: {
+    kicker: 'Dat was het rapport',
+    heading: 'Je weet waar je staat.',
+    signOff:
+      'Dit rapport is van jou. Je werkgever heeft je het assessment aangeboden en ziet nooit dit rapport, je antwoorden of je scores. Kom erop terug wanneer je wilt, en deel het met wie jij kiest: een mentor, een coach, of helemaal niemand.',
+    toolkitKicker: 'Ook op je account',
+    toolkitHeading: 'Drie tools voor je volgende stap',
+    toolkitBlurb: (pct) =>
+      `Bij je account horen drie tools die opengaan als je mensen uitnodigt. Elke vriend die meedoet krijgt ${pct}% korting, en elke aanmelding opent de volgende tool:`,
+    tools: {
+      jobs: 'Iedereen krijgt 4 gratis zoekopdrachten. Eén aanbeveling haalt de limiet er voorgoed af.',
+      resume: 'Herschrijf je geüploade CV zodat het past bij de specifieke banen waarop je wilt solliciteren.',
+      'cover-letter': 'Genereer per rol een motivatiebrief op maat, geschreven op de specifieke vacature.',
+    },
+    stepLabel: (n) => `${n} ${n === 1 ? 'aanmelding' : 'aanmeldingen'}`,
+    whereBefore: 'Je vindt alles op je dashboard: ',
+    whereLink: 'cairnly.io/dashboard',
+    credit: 'Dit assessment werd je aangeboden door je werkgever. Cairnly is een product van Human in the Loop B.V.',
   },
 };
 
@@ -511,18 +577,117 @@ const ConsumerClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
   );
 };
 
+/** The employee ending: the three tools without the refund steps. */
+const SponsoredClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
+  const t = SPONSORED_STRINGS[lang];
+  const tools = UNLOCK_LADDER.filter(
+    (step): step is Extract<UnlockStep, { kind: 'tool' }> => step.kind === 'tool',
+  );
+
+  return (
+    <>
+      <SignOffPanel kicker={t.kicker} heading={t.heading} body={t.signOff} />
+
+      <CreamPanel
+        kicker={t.toolkitKicker}
+        heading={t.toolkitHeading}
+        blurb={t.toolkitBlurb(REFERRAL_DISCOUNT_PERCENT)}
+      >
+        {tools.map((step) => {
+          const key = step.featureKey;
+          return (
+            <div
+              key={step.requiredReferrals}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 10,
+                padding: '5px 0',
+                borderTop: '1px solid rgba(201, 182, 144, 0.4)',
+              }}
+            >
+              <StepBadge n={step.requiredReferrals} refund={false} />
+              <span style={{ flex: '0 0 auto', marginTop: 2, color: PALETTE.tealDeep, display: 'inline-flex' }}>
+                {key === 'jobs' ? <Search size={14} /> : key === 'resume' ? <FileText size={14} /> : <Mail size={14} />}
+              </span>
+              <span style={{ flex: '1 1 auto', minWidth: 0 }}>
+                <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 12, color: PALETTE.canvasDeep }}>
+                  {step.title}
+                </span>
+                <span style={{ fontFamily: FONT_BODY, fontSize: 9.5, color: PALETTE.inkSoft, marginLeft: 8 }}>
+                  {t.stepLabel(step.requiredReferrals)}
+                </span>
+                <span
+                  style={{
+                    display: 'block',
+                    fontFamily: FONT_BODY,
+                    fontSize: 10.5,
+                    lineHeight: 1.45,
+                    color: PALETTE.inkMuted,
+                    marginTop: 1,
+                  }}
+                >
+                  {t.tools[key]}
+                </span>
+              </span>
+            </div>
+          );
+        })}
+
+        <p
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 700,
+            fontSize: 11,
+            color: PALETTE.canvasDeep,
+            margin: '6mm 0 0 0',
+            paddingTop: '4mm',
+            borderTop: `1px solid ${PALETTE.tan}`,
+          }}
+        >
+          {t.whereBefore}
+          <a href={DASHBOARD_URL} style={{ color: PALETTE.tealDeep, textDecoration: 'underline' }}>
+            {t.whereLink}
+          </a>
+        </p>
+      </CreamPanel>
+
+      <p
+        style={{
+          fontFamily: FONT_BODY,
+          fontSize: 8.5,
+          lineHeight: 1.5,
+          color: PALETTE.inkSoft,
+          margin: '5mm 0 0 0',
+        }}
+      >
+        {t.credit}
+      </p>
+    </>
+  );
+};
+
 export const PrintClosing: React.FC<{
   lang: PrintLang;
   /** The bureau's name on a white-labelled report; null for a direct customer.
    *  Its presence is what selects the ending — see the note at the top. */
   partnerName?: string | null;
-}> = ({ lang, partnerName }) => (
+  /** An employer paid for this seat. Ignored when a partner is set: the
+   *  bureau's ending wins, since that bureau is who the reader goes back to. */
+  sponsored?: boolean;
+}> = ({ lang, partnerName, sponsored = false }) => (
   <div
     style={{
       breakBefore: 'page',
       pageBreakBefore: 'always',
     }}
   >
-    {partnerName ? <PartnerClosing lang={lang} partnerName={partnerName} /> : <ConsumerClosing lang={lang} />}
+    {partnerName ? (
+      <PartnerClosing lang={lang} partnerName={partnerName} />
+    ) : sponsored ? (
+      <SponsoredClosing lang={lang} />
+    ) : (
+      <ConsumerClosing lang={lang} />
+    )}
   </div>
 );

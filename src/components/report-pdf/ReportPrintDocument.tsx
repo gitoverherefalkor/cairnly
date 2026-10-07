@@ -201,6 +201,9 @@ export const ReportPrintDocument: React.FC<{
   /** Careers the user set aside, shipped by report-print-data. Optional: a
    *  payload written before this shipped carries no such key. */
   dismissed?: DismissedRef[];
+  /** An employer paid for this assessment: the closing page drops the refund
+   *  ladder. Shipped by report-print-data. */
+  sponsored?: boolean;
 }> = ({
   firstName,
   lastName,
@@ -210,6 +213,7 @@ export const ReportPrintDocument: React.FC<{
   preferredLanguage,
   dismissed = [],
   sample = false,
+  sponsored = false,
 }) => {
   // Dismissed runner-ups / outside-box / dream jobs never reach the document.
   // A dismissed top-3 career survives here and is marked below instead.
@@ -497,7 +501,7 @@ export const ReportPrintDocument: React.FC<{
 
         {/* Sign-off and the toolkit CTAs. Generated from UNLOCK_LADDER so the
             printed promise cannot drift from the live one. */}
-        <PrintClosing lang={lang} partnerName={partner?.name ?? null} />
+        <PrintClosing lang={lang} partnerName={partner?.name ?? null} sponsored={sponsored} />
       </div>
     </>
   );
