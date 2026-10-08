@@ -197,3 +197,8 @@ verify_jwt = false
 # the secret is unset, and can do nothing but upsert the google_ads_* tables.
 [functions.google-ads-ingest]
 verify_jwt = false
+
+# Jev AI-impact label per career (design doc 2.3b). Server-to-server only: n8n / pg_net
+# with x-shared-secret = N8N_SHARED_SECRET. Needs the TYPESAFE_API_KEY secret.
+[functions.ai-impact]
+verify_jwt = false
