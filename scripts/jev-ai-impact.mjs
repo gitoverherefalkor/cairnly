@@ -30,7 +30,12 @@ const DRY = Boolean(args['dry-run']);
 const LIMIT = args.limit ? Number(args.limit) : Infinity;
 const CONCURRENCY = Number(args.concurrency ?? 8);
 const CAP_USD = 0.25;
-const RAW_FILE = path.join(OUT, 'jev-ai-impact-raw.jsonl');
+// --scale v1 = the 2.3 scale (work change and job loss mixed); --scale work = the 2.3b scale
+// (only how much of the work AI takes over) with the orchestrator rule as a ceiling.
+const SCALE = args.scale ?? 'v1';
+if (!['v1', 'work'].includes(SCALE)) throw new Error(`unknown --scale ${SCALE}`);
+const SUFFIX = SCALE === 'v1' ? '' : `-${SCALE}`;
+const RAW_FILE = path.join(OUT, `jev-ai-impact-raw${SUFFIX}.jsonl`);
 
 loadEnvLocal();
 const sb = createClient(requireEnv('VITE_SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'), {
@@ -38,8 +43,8 @@ const sb = createClient(requireEnv('VITE_SUPABASE_URL'), requireEnv('SUPABASE_SE
 });
 
 // ---------------------------------------------------------------------------------------------
-// The questions, verbatim from 2.3.
-const QUESTIONS = {
+// The questions, verbatim from 2.3 (v1) and 2.3b (work).
+const QUESTIONS_V1 = {
   physical_role: {
     type: 'noul',
     instructions: 'Does this role require physical presence or manual dexterity as its core, such as construction, trades, landscaping, or hands-on healthcare, judged on `title`, `overview` and `typical_tasks`?',
@@ -64,14 +69,39 @@ const QUESTIONS = {
   },
 };
 
+const QUESTIONS_WORK = {
+  physical_role: QUESTIONS_V1.physical_role,
+  orchestrator_role: QUESTIONS_V1.orchestrator_role,
+  ai_impact: {
+    type: 'score',
+    instructions: {
+      context: QUESTIONS_V1.ai_impact.instructions.context,
+      question: "How much of this role's core work in `overview` and `typical_tasks` will AI take over? Judge the work itself, not how many of these jobs will exist.",
+    },
+    criteria: [
+      'AI takes over almost nothing. The work rests on physical presence, hands-on skill, or personal accountability that AI cannot carry. Think: skilled trades, emergency response, hands-on care.',
+      'AI takes over routine parts: research, drafting, analysis. The person keeps the judgment, editing and decisions, and remains essential. Think: product management, senior consulting, people leadership.',
+      'AI takes over a large part of the day-to-day work; the person directs and quality-checks the AI instead of doing that work by hand. Think: mid-level analysis, marketing execution, project coordination.',
+      'AI does most of the work; the person mainly supervises and handles exceptions. Think: standard reporting, routine QA, first-line content.',
+      'AI does the core work end to end, faster and cheaper, with little human involvement left. Think: data entry, basic customer support, routine translation.',
+    ],
+  },
+};
+const QUESTIONS = SCALE === 'v1' ? QUESTIONS_V1 : QUESTIONS_WORK;
+
 const LEVELS = ['Minimal', 'Moderate', 'High', 'Severe', 'Critical'];
 
-// The code rule from 2.3: physical > 0.8 → Minimal; else orchestrator > 0.8 → Moderate;
+// v1 (2.3): physical > 0.8 → Minimal; else orchestrator > 0.8 → Moderate;
 // else round(score) with a floor of 1 (Moderate), because Minimal is the exception.
+// work (2.3b): physical > 0.8 → Minimal; orchestrator > 0.8 → at most Moderate (Minimal allowed,
+// no floor); everyone else round(score) with the same Moderate floor.
 function designLabel(a) {
   if (a.physical_role.noul > 0.8) return { label: 'Minimal', rule: 'physical' };
-  if (a.orchestrator_role.noul > 0.8) return { label: 'Moderate', rule: 'orchestrator' };
   const lvl = Math.round(a.ai_impact.score);
+  if (a.orchestrator_role.noul > 0.8) {
+    if (SCALE === 'v1') return { label: 'Moderate', rule: 'orchestrator' };
+    return { label: LEVELS[Math.min(lvl, 1)], rule: 'orchestrator' };
+  }
   if (lvl < 1) return { label: 'Moderate', rule: 'floor' };
   return { label: LEVELS[lvl], rule: 'score' };
 }
@@ -295,6 +325,7 @@ function titleConsistency(rows, field) {
 const summary = {
   generated_at: new Date().toISOString(),
   model_pinned: JEV_MODEL,
+  scale: SCALE,
   rows_total: jobs.length,
   rows_sendable: prepared.length,
   skipped,
@@ -359,7 +390,7 @@ if (answered.length) {
   });
 }
 
-const file = writeJson(OUT, `jev-ai-impact-summary${DRY ? '-dry' : ''}.json`, summary);
-writeJson(OUT, 'jev-ai-impact-rows.json', results.map(({ state, ...r }) => r));
+const file = writeJson(OUT, `jev-ai-impact-summary${SUFFIX}${DRY ? '-dry' : ''}.json`, summary);
+writeJson(OUT, `jev-ai-impact-rows${SUFFIX}.json`, results.map(({ state, ...r }) => r));
 console.log(JSON.stringify(summary, null, 2));
 console.log(`summary: ${file}`);

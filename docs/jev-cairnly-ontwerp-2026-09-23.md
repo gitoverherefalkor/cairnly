@@ -4,6 +4,7 @@
 - **Status:** ontwerp, niets gebouwd. Geen n8n-workflow, edge function of database gewijzigd; geen call naar TypeSafe; geen gebruikersdata naar een LLM gestuurd.
 - **Vervolg op:** de brainstorm "Jev in de stack" (OutsideInput, `docs/jev-brainstorm-2026-09-23.md`) en de inventaris `handoffs_temp/jev-cairnly-inventaris-2026-09-23.md`.
 - **Auteur:** Claude (Fable) met Sonnet-subagents voor het lezen van de workflow-exports, in opdracht van Sjoerd.
+- **Aangevuld 2026-10-08:** de herziene AI-impact-schaal (2.3b) met de voorstel-regel en de meting ervan.
 - **Aangevuld 2026-10-05:** de WF6-parsefout en het CAT-0-pad (3.1, 3.4), de meetscripts (4.4), idee #11 (hoofdstuk 5) en vraag 6.
 
 ## Samenvatting in tien regels
@@ -546,6 +547,42 @@ Zonder Jev blijft: het label komt uit een tekstmodel zonder kans, drift bij elke
 ```
 
 Code: `physical_role > 0,8` → Minimal; anders `orchestrator_role > 0,8` → Moderate; anders `round(ai_impact.score)` met vloer 1 (Moderate) omdat de prompt zegt dat Minimal de uitzondering is. Opslag: `enriched_jobs.ai_impact_level`, `ai_impact_confidence`, `ai_impact_probabilities`. De Sonnet-call `ai_impact1` vervalt; de toelichtende zin per rol schrijft WF4 al in "How AI will impact this role" met het label als input.
+
+**AI-impact, herziene schaal (2.3b, besloten 2026-10-08).** Sjoerd: het label zegt hoeveel van het werk AI overneemt, niet hoeveel van deze banen er overblijven. Aanbod is een voorspelling per land en sector die Jev niet kan doen en de gebruiker niet kan gebruiken; minder werk betekent vanzelf minder mensen. De twee bovenste niveaus gaan daarom over het werk, niet over banenverlies. Eén pill, vijf niveaus. De `physical_role`- en `orchestrator_role`-vragen blijven; de Score-vraag wordt:
+
+```json
+"ai_impact": {
+  "type": "score",
+  "instructions": {
+    "context": "Project forward 18 to 24 months, assuming agentic AI that executes multi-step workflows end to end, keeps project and client context over months, and operates business software at professional level. Use `research` to calibrate.",
+    "question": "How much of this role's core work in `overview` and `typical_tasks` will AI take over? Judge the work itself, not how many of these jobs will exist."
+  },
+  "criteria": [
+    "AI takes over almost nothing. The work rests on physical presence, hands-on skill, or personal accountability that AI cannot carry. Think: skilled trades, emergency response, hands-on care.",
+    "AI takes over routine parts: research, drafting, analysis. The person keeps the judgment, editing and decisions, and remains essential. Think: product management, senior consulting, people leadership.",
+    "AI takes over a large part of the day-to-day work; the person directs and quality-checks the AI instead of doing that work by hand. Think: mid-level analysis, marketing execution, project coordination.",
+    "AI does most of the work; the person mainly supervises and handles exceptions. Think: standard reporting, routine QA, first-line content.",
+    "AI does the core work end to end, faster and cheaper, with little human involvement left. Think: data entry, basic customer support, routine translation."
+  ]
+}
+```
+
+Code: `physical_role > 0,8` → Minimal; `orchestrator_role > 0,8` → hoogstens Moderate (een plafond: Minimal mag, uit de blinde beoordeling waar Sjoerd bij EVP en CCO Minimal koos); verder `round(score)` met vloer Moderate.
+
+**Voorstel-regel (code, in `Ranking`):** Severe of Critical komt nooit in de top 3; als runner-up of dream job mag het, met een waarschuwing die WF4 als vaste input krijgt. High is geen alarm (de rol verandert, de tekst zegt wat er te leren valt). Open punt uit de meting hieronder: AI-native rollen (AI Automation Specialist, AI Safety Evaluator, Micro-SaaS Founder) scoren op deze schaal Severe, omdat AI er inderdaad het werk doet, terwijl de vraag naar die rollen groeit. Een harde top-3-ban zou ze wegdrukken. Voorstel: een extra Noul `ai_native_role` ("is working with or building AI systems the core of this role?"); boven 0,8 geldt de ban niet, wel de waarschuwing. Besluit aan Sjoerd.
+
+**Meting 2.3b (2026-10-08, 642 rijen, $0,030), naast 2.3:**
+
+| | 2.3 (oud) | 2.3b (werk) |
+| --- | --- | --- |
+| Minimal / Moderate / High / Severe / Critical | 6 / 399 / 227 / 9 / 1 | 6 / 316 / 301 / 19 / 0 |
+| Precies gelijk aan opgeslagen label | 47% | 44% |
+| Binnen één niveau | 97% | 96% |
+| Zelfde titel overal hetzelfde label (34 titels) | 79% | 74% |
+| Mediaan confidence | 0,72 | 0,68 |
+| Treffers op Sjoerds 16 blinde keuzes (opgeslagen label: 4) | 10 | 10 |
+
+549 van de 642 labels blijven gelijk; 83 schuiven van Moderate naar High en 10 naar Severe. Het plafond voor leidinggevenden verandert in de praktijk niets: Jev geeft EVP en CCO ook zonder vaste regel Moderate, dus Sjoerds Minimal komt niet uit Jev. Op de blinde keuzes wint 2.3b de Director of Program Management (High) en verliest hij de Executive Function Coach (Moderate). Conclusie: 2.3b is niet nauwkeuriger en iets minder consistent, maar meet wat het label moet zeggen; dat is de reden om hem te nemen.
 
 **Move.** Persoonsgegevens (vaardigheden, historie). Gesteld in de fit-scoring-request van hoofdstuk 1 voor de 15 carrières; voor outside-the-box en dream jobs in een kleine tweede request per gegenereerde kaart (state = `candidate` uit 1.3 plus de kaarttekst als `career.overview` en de titel).
 
