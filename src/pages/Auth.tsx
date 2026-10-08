@@ -7,6 +7,7 @@ import AuthForm from '@/components/auth/AuthForm';
 import AuthToggle from '@/components/auth/AuthToggle';
 import AuthNavigation from '@/components/auth/AuthNavigation';
 import { useTranslation } from 'react-i18next';
+import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
 
 const Auth = () => {
   const { t } = useTranslation('auth');
@@ -33,7 +34,7 @@ const Auth = () => {
 
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/dashboard');
+        navigate(takePostAuthRedirect() ?? '/dashboard');
       }
     };
     checkAuth();

@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, CheckCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
+import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
+import { isAdminEmail } from '@/lib/admins';
 
 interface EmailPasswordFormProps {
   isLogin: boolean;
@@ -142,7 +144,8 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
         if (data.user) {
           // Entitlement gate: if this user has no purchase / no product activity,
           // sign them back out and bounce to the landing page with a banner.
-          const { entitled } = await checkEntitlement();
+          // Admins pass (routing only; ops calls are checked server-side).
+          const { entitled } = isAdminEmail(data.user.email) ? { entitled: true } : await checkEntitlement();
           if (!entitled) {
             await signOutNoPurchase(data.user.email);
             return;
@@ -163,7 +166,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
             .select('id')
             .eq('id', data.user.id)
             .maybeSingle();
-          navigate(profileRow ? '/dashboard' : '/payment');
+          navigate(takePostAuthRedirect() ?? (profileRow ? '/dashboard' : '/payment'));
         }
       } else {
         // Verify passwords match

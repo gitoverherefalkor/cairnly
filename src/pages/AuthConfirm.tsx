@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import AuthShell from '@/components/auth/AuthShell';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 import { takePendingAccessCode, type PendingAccessCode } from '@/lib/pendingAccessCode';
+import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
+import { isAdminEmail } from '@/lib/admins';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 /**
@@ -42,7 +44,10 @@ async function resolvePostAuthRedirect(
   const pending = takePendingAccessCode();
   const claimError = pending ? await claimPendingCode(pending, accessToken) : null;
 
-  const { entitled } = await checkEntitlement();
+  // Admins (the /ops allowlist) never bought anything as such, and the gate
+  // used to sign them out as "no purchase". This only decides routing: every
+  // ops call is still checked server-side against the same allowlist.
+  const { entitled } = isAdminEmail(userEmail) ? { entitled: true } : await checkEntitlement();
   if (!entitled) {
     if (pending && claimError) {
       // Back to the sign-up page they came from, code still filled in, with
@@ -55,6 +60,10 @@ async function resolvePostAuthRedirect(
     await signOutNoPurchase(userEmail);
     return null;
   }
+  // A page that sent them to log in (/ops) gets them back.
+  const next = takePostAuthRedirect();
+  if (next) return next;
+
   // Entitled — keep existing behavior: new vs returning is based on whether a
   // profile row exists. (The profile trigger runs synchronously on auth user
   // insert, so by this point a profile always exists; returning users hit
