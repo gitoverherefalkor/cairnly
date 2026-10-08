@@ -36,6 +36,12 @@ verify_jwt = false
 [functions.signup-with-access-code]
 verify_jwt = false
 
+# The OAuth twin of signup-with-access-code: binds a code to the signed-in
+# caller after a Google/LinkedIn return. Identifies the caller via getUser
+# inside the function, like get-my-access-code.
+[functions.claim-access-code]
+verify_jwt = false
+
 [functions.send-confirmation-email]
 verify_jwt = false
 

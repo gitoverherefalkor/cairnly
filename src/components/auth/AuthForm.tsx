@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown } from 'lucide-react';
+import { AlertCircle, ChevronDown } from 'lucide-react';
 import SocialAuthButtons from './SocialAuthButtons';
 import EmailPasswordForm from './EmailPasswordForm';
 
@@ -32,7 +32,16 @@ const getLastAuthMethod = (): string | null => {
 
 const AuthForm = ({ isLogin }: AuthFormProps) => {
   const { t } = useTranslation('auth');
-  const [error, setError] = useState('');
+  // Starts with ?code_error= when AuthConfirm sent the person back because the
+  // code on their link could not be claimed after a Google/LinkedIn sign-in
+  // (already used, expired, …): the real reason, not "no purchase".
+  const [error, setError] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('code_error') ?? '';
+    } catch {
+      return '';
+    }
+  });
   const hasPaymentData = useMemo(() => hasPurchaseData(), []);
   const lastAuthMethod = useMemo(() => getLastAuthMethod(), []);
 
@@ -56,6 +65,17 @@ const AuthForm = ({ isLogin }: AuthFormProps) => {
             {lastMethodLabel}
           </span>
         </p>
+      )}
+
+      {error && (
+        <div
+          role="alert"
+          className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-sm"
+          style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.25)', color: '#991B1B' }}
+        >
+          <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
       {/* Social sign-on — always prominent */}

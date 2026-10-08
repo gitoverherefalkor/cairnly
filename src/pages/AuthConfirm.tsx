@@ -7,13 +7,51 @@ import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AuthShell from '@/components/auth/AuthShell';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
+import { takePendingAccessCode, type PendingAccessCode } from '@/lib/pendingAccessCode';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
+/**
+ * Binds the access code the person arrived with (remembered by
+ * SocialAuthButtons before the Google/LinkedIn redirect) to their account.
+ * Returns the user-facing error when the code could not be claimed, null when
+ * it was claimed or there was nothing to claim.
+ */
+async function claimPendingCode(pending: PendingAccessCode, accessToken?: string): Promise<string | null> {
+  try {
+    const token = accessToken ?? (await supabase.auth.getSession()).data.session?.access_token;
+    const { data, error } = await supabase.functions.invoke('claim-access-code', {
+      body: { code: pending.code, lang: pending.lang },
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    if (!error && data?.claimed) return null;
+    return (data?.error as string | undefined) ?? 'We could not activate your access code.';
+  } catch (err) {
+    console.error('Claiming the access code failed:', err);
+    return 'We could not activate your access code.';
+  }
+}
 
 // Decide where to send the user after a successful auth handshake.
 // Returns null if the caller has already signed the user out (not entitled).
-async function resolvePostAuthRedirect(userId: string, userEmail: string | null | undefined): Promise<string | null> {
+async function resolvePostAuthRedirect(
+  userId: string,
+  userEmail: string | null | undefined,
+  accessToken?: string,
+): Promise<string | null> {
+  // Claim first: a bound code is what makes a code-link signup entitled.
+  const pending = takePendingAccessCode();
+  const claimError = pending ? await claimPendingCode(pending, accessToken) : null;
+
   const { entitled } = await checkEntitlement();
   if (!entitled) {
+    if (pending && claimError) {
+      // Back to the sign-up page they came from, code still filled in, with
+      // the real reason (used, expired, …) instead of "no purchase".
+      try { await supabase.auth.signOut(); } catch { /* hard navigation below resets state anyway */ }
+      const params = new URLSearchParams({ flow: 'signup', code: pending.code, lang: pending.lang, code_error: claimError });
+      window.location.href = `/auth?${params.toString()}`;
+      return null;
+    }
     await signOutNoPurchase(userEmail);
     return null;
   }
@@ -72,7 +110,7 @@ const AuthConfirm = () => {
           setMessage('Successfully signed in!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(sessionData.user?.id, sessionData.user?.email);
+          const dest = await resolvePostAuthRedirect(sessionData.user?.id, sessionData.user?.email, sessionData.access_token);
           if (dest === null) return; // signOutNoPurchase already navigated away
           setTimeout(() => {
             window.location.href = dest;
@@ -135,7 +173,7 @@ const AuthConfirm = () => {
           setMessage('Successfully signed in!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(user.id, user.email);
+          const dest = await resolvePostAuthRedirect(user.id, user.email, accessToken);
           if (dest === null) return;
           setTimeout(() => {
             window.location.href = dest;
@@ -168,7 +206,7 @@ const AuthConfirm = () => {
         // Check if user is already logged in
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          const dest = await resolvePostAuthRedirect(session.user.id, session.user.email);
+          const dest = await resolvePostAuthRedirect(session.user.id, session.user.email, session.access_token);
           if (dest === null) return;
           navigate(dest);
           return;
@@ -204,7 +242,7 @@ const AuthConfirm = () => {
           setMessage('Your email has been confirmed successfully!');
 
           // Route new users to /payment, returning users to /dashboard
-          const dest = await resolvePostAuthRedirect(data.user.id, data.user.email);
+          const dest = await resolvePostAuthRedirect(data.user.id, data.user.email, data.session?.access_token);
           if (dest === null) return;
           setTimeout(() => {
             navigate(dest);

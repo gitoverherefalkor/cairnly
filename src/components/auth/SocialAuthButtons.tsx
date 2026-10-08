@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Loader2, Linkedin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { rememberPendingAccessCode } from '@/lib/pendingAccessCode';
 
 // OAuth redirects to frontend which handles implicit flow tokens directly
 // (No server-side exchange needed - we decode JWT on frontend to avoid CORS)
@@ -18,6 +20,7 @@ const SocialAuthButtons = ({ disabled, onError, highlightMethod }: SocialAuthBut
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLinkedInLoading, setIsLinkedInLoading] = useState(false);
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
@@ -26,6 +29,9 @@ const SocialAuthButtons = ({ disabled, onError, highlightMethod }: SocialAuthBut
     try {
       // Remember auth method before redirect
       localStorage.setItem('atlas_auth_method', 'google');
+      // A code link (/auth?flow=signup&code=…) must survive the trip to the
+      // provider and back, or AuthConfirm signs the person out as "no purchase".
+      rememberPendingAccessCode(window.location.search, i18n.language);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -56,6 +62,9 @@ const SocialAuthButtons = ({ disabled, onError, highlightMethod }: SocialAuthBut
     try {
       // Remember auth method before redirect
       localStorage.setItem('atlas_auth_method', 'linkedin');
+      // A code link (/auth?flow=signup&code=…) must survive the trip to the
+      // provider and back, or AuthConfirm signs the person out as "no purchase".
+      rememberPendingAccessCode(window.location.search, i18n.language);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
