@@ -231,6 +231,12 @@ describe('followUp', () => {
     expect(followUp(make({ ...sentWed, status: 'gesprek_gepland' }), new Date(at('2026-09-30')))).toBeNull();
     expect(followUp(make({ status: 'verzonden' }), new Date(at('2026-09-30')))).toBeNull();
   });
+
+  it('never chases a rejection, even when it is not waiting on a reply', () => {
+    const rejection: OutreachMail = { ...outMail(at('2026-09-11')), direction: 'in', sentiment: 'afwijzing' };
+    const declined = make({ ...sentWed, needs_reply: false, mails: [rejection, ...sentWed.mails] });
+    expect(followUp(declined, new Date(at('2026-09-30')))).toBeNull();
+  });
 });
 
 describe('compareWorkFirst', () => {

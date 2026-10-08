@@ -212,6 +212,14 @@ serve(async (req) => {
         // Parked ("they'll get back to me") only holds while it is newer than
         // their last mail, so a fresh mail from them re-opens the row by itself.
         const replyDismissed = isParked(p.reply_dismissed_at as string | null, latest as never);
+        // A "no" or "stop mailing me" closes the conversation: there is nothing
+        // to answer, so it never counts as Waiting on you. Same for a row
+        // already marked Declined / No fit.
+        const closed =
+          p.status === 'afgewezen' ||
+          p.status === 'geen_fit' ||
+          latest?.sentiment === 'afwijzing' ||
+          latest?.sentiment === 'stop';
         const partner = p.partner_slug ? partnerBySlug.get(p.partner_slug as string) : undefined;
         return {
           ...p,
@@ -229,7 +237,7 @@ serve(async (req) => {
           laatste_sentiment: (latestIn?.sentiment as string | null) ?? null,
           laatste_samenvatting: (latestIn?.samenvatting as string | null) ?? null,
           concept_klaar: Boolean(latestIn?.draft_id) && latest === latestIn,
-          needs_reply: theyWroteLast && !replyDismissed,
+          needs_reply: theyWroteLast && !replyDismissed && !closed,
           reply_dismissed: replyDismissed,
           kliks_totaal: Number(s?.kliks_totaal ?? 0),
           kliks_uniek_dagen: Number(s?.kliks_uniek_dagen ?? 0),

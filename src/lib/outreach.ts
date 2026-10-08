@@ -363,6 +363,12 @@ export function followUp(
     };
   }
 
+  // Never chase someone who wrote last. needs_reply covers that, except for a
+  // rejection or "stop": those close the conversation, so they are not
+  // waiting on a reply either.
+  const newest = p.mails[0];
+  if (newest?.direction === 'in' && newest.sentiment !== 'auto') return null;
+
   const step: 1 | 2 | null =
     p.status === 'verzonden' ? 1 : p.status === 'opvolging_1' ? 2 : null;
   if (!step || step > maxChases(p.tier)) return null;
