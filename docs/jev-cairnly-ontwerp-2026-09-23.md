@@ -567,9 +567,13 @@ Code: `physical_role > 0,8` → Minimal; anders `orchestrator_role > 0,8` → Mo
 }
 ```
 
-Code: `physical_role > 0,8` → Minimal; `orchestrator_role > 0,8` → hoogstens Moderate (een plafond: Minimal mag, uit de blinde beoordeling waar Sjoerd bij EVP en CCO Minimal koos); verder `round(score)` met vloer Moderate.
+Code: `physical_role > 0,8` → Minimal; `orchestrator_role > 0,8` → hoogstens Moderate (een plafond: Minimal mag, uit de blinde beoordeling waar Sjoerd bij EVP en CCO Minimal koos); verder `round(score)` met vloer Moderate. **Severe en Critical alleen als Jev zeker is:** een niveau vanaf 3 vraagt een score van minstens dat getal (2,5 tot 2,99 wordt High, 3,5 tot 3,99 wordt Severe). Reden: alle AI-rollen en founders die op Severe uitkwamen (AI Automation Specialist, AI Safety Evaluator, Micro-SaaS Founder, No-Code Builder) zaten op 2,50 tot 2,88 met een confidence rond 0,5, dus Jev twijfelde tussen High en Severe en de afronding besliste. Met deze regel blijven er op 642 rollen 3 Severe over (Junior Accountant, Customer Support Agent, HR Coordinator), 0 Critical, 317 High, 316 Moderate en 6 Minimal.
 
-**Voorstel-regel (code, in `Ranking`):** Severe of Critical komt nooit in de top 3; als runner-up of dream job mag het, met een waarschuwing die WF4 als vaste input krijgt. High is geen alarm (de rol verandert, de tekst zegt wat er te leren valt). Open punt uit de meting hieronder: AI-native rollen (AI Automation Specialist, AI Safety Evaluator, Micro-SaaS Founder) scoren op deze schaal Severe, omdat AI er inderdaad het werk doet, terwijl de vraag naar die rollen groeit. Een harde top-3-ban zou ze wegdrukken. Voorstel: een extra Noul `ai_native_role` ("is working with or building AI systems the core of this role?"); boven 0,8 geldt de ban niet, wel de waarschuwing. Besluit aan Sjoerd.
+**Wat het label betekent hangt af van wie de winst pakt (besloten 2026-10-08).** Het label is voor iedereen hetzelfde, want het meet het werk. De tekst eronder en de voorstel-regel hangen af van het soort rol. Code leidt dat af: `path_type` = `founder` of `freelance_fractional`, of `company_size_type` begint met "Own Company", telt als eigen werk; de rest (ook de 287 oude rijen zonder `path_type`) als loondienst.
+
+- **Loondienst:** veel AI betekent minder plekken. Severe of Critical komt nooit in de top 3 (code in `Ranking`); als runner-up of dream job mag het, met een waarschuwing die WF4 als vaste input krijgt. High is geen alarm: de rol verandert, de tekst zegt wat er te leren valt.
+- **Eigen werk (founder, freelance, eigen bedrijf):** veel AI is een hefboom: meer doen met minder mensen. Geen top-3-verbod. Wel een vaste kanttekening: wat voor jou makkelijk wordt, wordt ook makkelijk voor concurrenten, dus onderscheiden gebeurt op klantrelaties en vakkennis.
+- Geen uitzondering voor rollen die over AI gaan: ook dat werk wordt grotendeels door AI gedaan (Sjoerd). Het eerder voorgestelde `ai_native_role` vervalt.
 
 **Meting 2.3b (2026-10-08, 642 rijen, $0,030), naast 2.3:**
 
