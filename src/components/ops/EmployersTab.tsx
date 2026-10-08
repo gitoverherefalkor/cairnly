@@ -493,6 +493,7 @@ const EmployersTab: React.FC = () => {
   const [contacts, setContacts] = useState<EmployerContact[]>([]);
   const [events, setEvents] = useState<EmployerEvent[]>([]);
   const [touches, setTouches] = useState<EmployerTouch[]>([]);
+  const [me, setMe] = useState<string | null>(null);
 
   // `quiet` refreshes after an edit without blanking the list (and losing scroll).
   const load = useCallback(async (quiet = false) => {
@@ -514,6 +515,9 @@ const EmployersTab: React.FC = () => {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => setMe(data.session?.user?.email ?? null));
+  }, []);
   const reload = useCallback(() => { void load(true); }, [load]);
 
   const jumpTo = (id: string) => {
@@ -591,6 +595,7 @@ const EmployersTab: React.FC = () => {
               events={events}
               call={callEmployers}
               onChanged={reload}
+              account={me}
             />
 
             <MintRow employer={e} mailTo={mailTo} onMinted={reload} />

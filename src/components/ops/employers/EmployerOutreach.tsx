@@ -8,11 +8,11 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Loader2, Plus, Trash2, Linkedin, CalendarDays, BellRing, BarChart3, X, ExternalLink, MessageSquarePlus,
+  Loader2, Plus, Trash2, Linkedin, CalendarDays, BellRing, BarChart3, X, ExternalLink, MessageSquarePlus, CalendarPlus,
 } from 'lucide-react';
 import {
   CHANNEL_LABEL, KIND_LABEL, STAGE_LABEL, CLOSED_STATUSES,
-  computeStats, dueFollowUps, personLabel, suggestFollowUp, ymd,
+  computeStats, dueFollowUps, personLabel, suggestFollowUp, ymd, googleCalendarUrl, followUpDetails,
   type Channel, type TouchKind, type LinkedinStage, type Period,
   type EmployerContact, type EmployerEvent, type EmployerTouch, type EmployerLite,
 } from '@/lib/employerOutreach';
@@ -544,9 +544,11 @@ function LogTouchForm({
 }
 
 export function TouchLog({
-  employer, touches, contacts, events, call, onChanged,
+  employer, touches, contacts, events, call, onChanged, account,
 }: {
   employer: EmployerLite;
+  /** Signed-in Ops email, so the calendar link opens the right Google account. */
+  account?: string | null;
   touches: EmployerTouch[];
   contacts: EmployerContact[];
   events: EmployerEvent[];
@@ -594,6 +596,21 @@ export function TouchLog({
               <X className="h-2.5 w-2.5" />
             </button>
           </span>
+        )}
+        {fu && !closed && fu >= today && (
+          <a
+            href={googleCalendarUrl({
+              title: `Follow up: ${employer.name}`,
+              day: fu,
+              details: followUpDetails(contacts, touches[0]),
+              account,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-white/70 hover:bg-white/10 hover:text-white/90"
+          >
+            <CalendarPlus className="h-3 w-3" /> Add to Google Calendar
+          </a>
         )}
         {!logging && (
           <button

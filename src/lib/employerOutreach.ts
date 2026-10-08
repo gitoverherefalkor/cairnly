@@ -259,3 +259,38 @@ export function dueFollowUps<E extends EmployerLite>(employers: E[], today: stri
     .filter((e) => e.follow_up_on && e.follow_up_on <= today && !CLOSED_STATUSES.includes(e.status))
     .sort((a, b) => (a.follow_up_on! < b.follow_up_on! ? -1 : 1));
 }
+
+// ─── Google Calendar ─────────────────────────────────────────────────────────
+
+/**
+ * A Google Calendar "new event" link, pre-filled, as an all-day event on `day`.
+ * No integration or OAuth: it opens the viewer's own calendar and they click
+ * Save. `account` (the signed-in Ops email) picks the right Google account when
+ * the browser is signed into more than one, e.g. a work and a personal one.
+ */
+export function googleCalendarUrl(opts: { title: string; day: string; details?: string; account?: string | null }): string {
+  const start = opts.day.replace(/-/g, '');
+  const end = addDays(opts.day, 1).replace(/-/g, '');
+  const p = new URLSearchParams({ action: 'TEMPLATE', text: opts.title, dates: `${start}/${end}` });
+  if (opts.details) p.set('details', opts.details);
+  if (opts.account) p.set('authuser', opts.account);
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
+
+/** What goes in the follow-up event: who to chase, and what happened last. */
+export function followUpDetails(
+  contacts: Pick<EmployerContact, 'name' | 'role' | 'email' | 'linkedin_url'>[],
+  last: Pick<EmployerTouch, 'kind' | 'channel' | 'touched_on' | 'note'> | undefined,
+): string {
+  const lines: string[] = [];
+  for (const c of contacts) {
+    lines.push([c.name, c.role, c.email, c.linkedin_url].filter(Boolean).join(' · '));
+  }
+  if (last) {
+    lines.push('');
+    lines.push(`Last: ${KIND_LABEL[last.kind]} via ${CHANNEL_LABEL[last.channel]} on ${last.touched_on}${last.note ? `, ${last.note}` : ''}`);
+  }
+  lines.push('');
+  lines.push('Log it afterwards: https://cairnly.io/ops (Employers)');
+  return lines.join('\n');
+}

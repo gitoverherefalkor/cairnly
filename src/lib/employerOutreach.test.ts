@@ -3,6 +3,8 @@ import {
   addWorkingDays,
   computeStats,
   dueFollowUps,
+  followUpDetails,
+  googleCalendarUrl,
   personLabel,
   suggestFollowUp,
   type EmployerContact,
@@ -125,4 +127,22 @@ describe('dueFollowUps', () => {
 
 it('turns an email into a first name', () => {
   expect(personLabel('natasha@cairnly.io')).toBe('Natasha');
+});
+
+describe('googleCalendarUrl', () => {
+  it('makes an all-day event on the day, in the given account', () => {
+    const url = new URL(googleCalendarUrl({ title: 'Follow up: Acme', day: '2026-10-31', details: 'x', account: 'natasha@cairnly.io' }));
+    expect(url.searchParams.get('dates')).toBe('20261031/20261101');
+    expect(url.searchParams.get('text')).toBe('Follow up: Acme');
+    expect(url.searchParams.get('authuser')).toBe('natasha@cairnly.io');
+  });
+
+  it('lists the contacts and the last touch', () => {
+    const d = followUpDetails(
+      [{ name: 'Laura', role: 'HR', email: 'l@acme.nl', linkedin_url: null }],
+      { kind: 'first_contact', channel: 'event', touched_on: '2026-10-01', note: 'met at stand' },
+    );
+    expect(d).toContain('Laura · HR · l@acme.nl');
+    expect(d).toContain('Last: First contact via Event on 2026-10-01, met at stand');
+  });
 });
