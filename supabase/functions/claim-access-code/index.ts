@@ -124,6 +124,28 @@ serve(async (req) => {
       if (stampError) console.error('claim-access-code: partner stamp failed', stampError);
     }
 
+    // A brand-new account takes the language of the link it came in on.
+    // OAuth signups get the default 'en' profile, and useLanguage switches the
+    // whole UI to profiles.preferred_language right after login, so a Dutch
+    // employee on an NL link would otherwise land in English. "New" = no
+    // report and no other code yet: an existing user keeps the language they
+    // chose (Sjoerd's admin account stays English on an NL test link).
+    // Only lang values from the link (pickLang) can reach this column, which
+    // feeds the LLM prompts downstream.
+    if (typeof body?.lang === 'string') {
+      const [{ count: reports }, { count: otherCodes }] = await Promise.all([
+        supabase.from('reports').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('access_codes').select('id', { count: 'exact', head: true }).eq('user_id', user.id).neq('id', rec.id),
+      ]);
+      if ((reports ?? 0) === 0 && (otherCodes ?? 0) === 0) {
+        const { error: langError } = await supabase
+          .from('profiles')
+          .update({ preferred_language: lang })
+          .eq('id', user.id);
+        if (langError) console.error('claim-access-code: language set failed', langError);
+      }
+    }
+
     console.log('Access code claimed via OAuth return', { codeId: rec.id });
     return json({ claimed: true });
   } catch (err) {
