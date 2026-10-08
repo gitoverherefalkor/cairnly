@@ -94,10 +94,12 @@ const LEVELS = ['Minimal', 'Moderate', 'High', 'Severe', 'Critical'];
 // v1 (2.3): physical > 0.8 → Minimal; else orchestrator > 0.8 → Moderate;
 // else round(score) with a floor of 1 (Moderate), because Minimal is the exception.
 // work (2.3b): physical > 0.8 → Minimal; orchestrator > 0.8 → at most Moderate (Minimal allowed,
-// no floor); everyone else round(score) with the same Moderate floor.
+// no floor); everyone else round(score) with the same Moderate floor; Severe/Critical need score >= level.
 function designLabel(a) {
   if (a.physical_role.noul > 0.8) return { label: 'Minimal', rule: 'physical' };
-  const lvl = Math.round(a.ai_impact.score);
+  let lvl = Math.round(a.ai_impact.score);
+  // 2.3b: Severe and Critical only when Jev is sure (2.5-2.99 stays High, 3.5-3.99 stays Severe).
+  if (SCALE === 'work' && lvl >= 3 && a.ai_impact.score < lvl) lvl -= 1;
   if (a.orchestrator_role.noul > 0.8) {
     if (SCALE === 'v1') return { label: 'Moderate', rule: 'orchestrator' };
     return { label: LEVELS[Math.min(lvl, 1)], rule: 'orchestrator' };
