@@ -9,6 +9,10 @@
 //
 // Employers are not partners on purpose: see
 // supabase/migrations/20261006130000_employers.sql.
+//
+// Outreach (contacts, LinkedIn stages, events, the touch log, follow-up dates
+// and the stats over them) lives in ./employers/EmployerOutreach.tsx. Mostly
+// LinkedIn and events, logged by hand: see 20261008120000_employer_outreach.sql.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,8 +20,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Check, Briefcase, RefreshCw, Pencil, X, Trash2, Mail, MousePointerClick } from 'lucide-react';
-
-type EmployerStatus = 'lead' | 'trial_sent' | 'in_talks' | 'customer' | 'lost';
+import { OutreachOverview, ContactsBlock, TouchLog } from './employers/EmployerOutreach';
+import type { EmployerStatus, EmployerContact, EmployerEvent, EmployerTouch } from '@/lib/employerOutreach';
 type CodeKind = 'trial' | 'seat';
 
 interface Employer {
@@ -27,6 +31,7 @@ interface Employer {
   contact_email: string | null;
   status: EmployerStatus;
   notes: string | null;
+  follow_up_on: string | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -72,6 +77,9 @@ interface EmployersResponse {
   codes?: string[];
   links?: string[];
   codesDeleted?: number;
+  contacts?: EmployerContact[];
+  events?: EmployerEvent[];
+  touches?: EmployerTouch[];
 }
 
 async function callEmployers(body: Record<string, unknown>): Promise<EmployersResponse> {
@@ -171,7 +179,17 @@ function EmployerForm({
     setErr(null);
     setSaving(true);
     try {
-      await callEmployers({ action: 'save', id: editing?.id, name, contactName, contactEmail, status, notes });
+      const res = await callEmployers({ action: 'save', id: editing?.id, name, status, notes });
+      // A new employer's contact becomes its first contact; after that,
+      // contacts are added and edited on the card.
+      if (!editing && (contactName.trim() || contactEmail.trim()) && res.id) {
+        await callEmployers({
+          action: 'contact_save',
+          employerId: res.id,
+          name: contactName.trim() || contactEmail.split('@')[0],
+          email: contactEmail,
+        });
+      }
       toast.success(editing ? `${name} updated` : `${name} added`);
       if (!editing) {
         setName(''); setContactName(''); setContactEmail(''); setStatus('lead'); setNotes('');
@@ -191,6 +209,7 @@ function EmployerForm({
     const msg = [
       `Delete ${editing.name}?`,
       unused > 0 ? `• Unused codes are deleted: links already sent stop working.` : null,
+      'Its contacts and outreach log are deleted too.',
       'People who already signed up keep their account and report.',
     ].filter(Boolean).join('\n');
     if (!window.confirm(msg)) return;
@@ -219,11 +238,12 @@ function EmployerForm({
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className={`grid gap-3 ${editing ? '' : 'sm:grid-cols-3'}`}>
         <label className="block">
           <span className="text-xs text-white/70">Company</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme B.V." className="mt-1 bg-[#0E2531] border-white/[0.14]" />
         </label>
+        {!editing && (<>
         <label className="block">
           <span className="text-xs text-white/70">Contact person</span>
           <Input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Head of HR" className="mt-1 bg-[#0E2531] border-white/[0.14]" />
@@ -232,6 +252,7 @@ function EmployerForm({
           <span className="text-xs text-white/70">Contact email</span>
           <Input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="hr@acme.nl" className="mt-1 bg-[#0E2531] border-white/[0.14]" />
         </label>
+        </>)}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
@@ -289,7 +310,7 @@ interface MintedBatch {
   links: string[];
 }
 
-function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => void }) {
+function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: string | null; onMinted: () => void }) {
   const [kind, setKind] = useState<CodeKind>('trial');
   const [expires, setExpires] = useState(dateInDays(TRIAL_DAYS));
   // Trial: one link, one language. Seats: a count per language, because a
@@ -355,8 +376,8 @@ function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => v
   };
 
   const single = batches && batches.length === 1 && batches[0].links.length === 1 ? batches[0].links[0] : null;
-  const mailHref = single && employer.contact_email
-    ? `mailto:${employer.contact_email}?body=${encodeURIComponent(single)}`
+  const mailHref = single && mailTo
+    ? `mailto:${mailTo}?body=${encodeURIComponent(single)}`
     : null;
 
   const langMeta = (id: Lang) => LANGS.find((l) => l.id === id)!;
@@ -439,7 +460,7 @@ function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => v
             </Button>
             {mailHref && (
               <a href={mailHref} className="inline-flex h-6 items-center rounded px-2 text-[11px] text-white/80 hover:bg-white/10">
-                <Mail className="h-3 w-3 mr-1" /> Mail to {employer.contact_email}
+                <Mail className="h-3 w-3 mr-1" /> Mail to {mailTo}
               </a>
             )}
           </div>
@@ -469,15 +490,22 @@ const EmployersTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contacts, setContacts] = useState<EmployerContact[]>([]);
+  const [events, setEvents] = useState<EmployerEvent[]>([]);
+  const [touches, setTouches] = useState<EmployerTouch[]>([]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  // `quiet` refreshes after an edit without blanking the list (and losing scroll).
+  const load = useCallback(async (quiet = false) => {
+    if (!quiet) setLoading(true);
     setErr(null);
     try {
       const res = await callEmployers({ action: 'list' });
       setEmployers(res.employers ?? []);
       setClicks(res.trialClicks ?? []);
       setWindowDays(res.clickWindowDays ?? 90);
+      setContacts(res.contacts ?? []);
+      setEvents(res.events ?? []);
+      setTouches(res.touches ?? []);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to load');
     } finally {
@@ -486,16 +514,28 @@ const EmployersTab: React.FC = () => {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+  const reload = useCallback(() => { void load(true); }, [load]);
+
+  const jumpTo = (id: string) => {
+    document.getElementById(`employer-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="space-y-4">
+      {!loading && (
+        <OutreachOverview
+          employers={employers} contacts={contacts} events={events} touches={touches}
+          call={callEmployers} onChanged={reload} onJump={jumpTo}
+        />
+      )}
+
       <TrialRequests clicks={clicks} windowDays={windowDays} />
 
-      <EmployerForm editing={null} onSaved={load} />
+      <EmployerForm editing={null} onSaved={reload} />
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-white/[0.88]">Employers</h3>
-        <Button onClick={load} size="sm" variant="ghost" className="h-7 px-2 text-xs text-white/70">
+        <Button onClick={() => load()} size="sm" variant="ghost" className="h-7 px-2 text-xs text-white/70">
           <RefreshCw className="h-3 w-3 mr-1" /> Refresh
         </Button>
       </div>
@@ -511,16 +551,13 @@ const EmployersTab: React.FC = () => {
 
       {employers.map((e) => {
         const trial = trialLine(e);
+        const own = contacts.filter((c) => c.employer_id === e.id);
+        const mailTo = own.find((c) => c.email)?.email ?? e.contact_email;
         return (
-          <div key={e.id} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+          <div key={e.id} id={`employer-${e.id}`} className="scroll-mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-3">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="font-semibold text-white/[0.92]">{e.name}</span>
               <span className={`rounded px-1.5 py-0.5 text-[11px] ${STATUS_TONE[e.status]}`}>{STATUS_LABEL[e.status]}</span>
-              {(e.contact_name || e.contact_email) && (
-                <span className="text-[11px] text-white/60">
-                  {[e.contact_name, e.contact_email].filter(Boolean).join(' · ')}
-                </span>
-              )}
               <button
                 onClick={() => setEditingId(editingId === e.id ? null : e.id)}
                 className="ml-auto inline-flex items-center gap-1 text-[11px] text-white/70 hover:text-white/[0.88]"
@@ -542,11 +579,21 @@ const EmployersTab: React.FC = () => {
 
             {editingId === e.id && (
               <div className="mt-3">
-                <EmployerForm editing={e} onSaved={load} onCancel={() => setEditingId(null)} />
+                <EmployerForm editing={e} onSaved={reload} onCancel={() => setEditingId(null)} />
               </div>
             )}
 
-            <MintRow employer={e} onMinted={load} />
+            <ContactsBlock employerId={e.id} contacts={own} call={callEmployers} onChanged={reload} />
+            <TouchLog
+              employer={e}
+              touches={touches.filter((t) => t.employer_id === e.id)}
+              contacts={own}
+              events={events}
+              call={callEmployers}
+              onChanged={reload}
+            />
+
+            <MintRow employer={e} mailTo={mailTo} onMinted={reload} />
           </div>
         );
       })}
