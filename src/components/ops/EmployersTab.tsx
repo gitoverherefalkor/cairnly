@@ -277,58 +277,89 @@ function EmployerForm({
 
 // ─── Mint codes ──────────────────────────────────────────────────────────────
 
+type Lang = 'nl' | 'en';
+const LANGS: { id: Lang; flag: string; label: string }[] = [
+  { id: 'nl', flag: '🇳🇱', label: 'NL' },
+  { id: 'en', flag: '🇬🇧', label: 'EN' },
+];
+
+/** One minted batch per link language, each with its own copy button. */
+interface MintedBatch {
+  lang: Lang;
+  links: string[];
+}
+
 function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => void }) {
   const [kind, setKind] = useState<CodeKind>('trial');
-  const [count, setCount] = useState('1');
   const [expires, setExpires] = useState(dateInDays(TRIAL_DAYS));
-  const [lang, setLang] = useState<'nl' | 'en'>('nl');
+  // Trial: one link, one language. Seats: a count per language, because a
+  // Dutch company with expats wants both lists out of one batch.
+  const [lang, setLang] = useState<Lang>('nl');
+  const [seatCounts, setSeatCounts] = useState<Record<Lang, string>>({ nl: '10', en: '0' });
   const [busy, setBusy] = useState(false);
-  const [links, setLinks] = useState<string[] | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [batches, setBatches] = useState<MintedBatch[] | null>(null);
+  const [copied, setCopied] = useState<Lang | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   // A trial is one code with the 30-day default; a seat batch has no default
   // expiry, since the employer decides how long their rollout runs.
   const pickKind = (k: CodeKind) => {
     setKind(k);
-    setCount(k === 'trial' ? '1' : '10');
     setExpires(k === 'trial' ? dateInDays(TRIAL_DAYS) : '');
-    setLinks(null);
+    setBatches(null);
   };
 
   const mint = async () => {
     setErr(null);
+    const plan: { lang: Lang; count: number }[] =
+      kind === 'trial'
+        ? [{ lang, count: 1 }]
+        : LANGS.map((l) => ({ lang: l.id, count: Number(seatCounts[l.id] || 0) })).filter((p) => p.count > 0);
+    if (plan.length === 0 || plan.some((p) => !Number.isInteger(p.count) || p.count < 0)) {
+      setErr('Enter how many codes per language.');
+      return;
+    }
     setBusy(true);
+    const done: MintedBatch[] = [];
     try {
-      const res = await callEmployers({
-        action: 'mint',
-        id: employer.id,
-        kind,
-        count: Number(count),
-        lang,
-        // End of day, so a code that "expires on the 31st" works all of the 31st.
-        expiresAt: expires ? `${expires}T23:59:00` : null,
-      });
-      setLinks(res.links ?? []);
+      // One call per language: the code itself is language-free, the link
+      // carries ?lang= and decides what the person first sees.
+      for (const p of plan) {
+        const res = await callEmployers({
+          action: 'mint',
+          id: employer.id,
+          kind,
+          count: p.count,
+          lang: p.lang,
+          // End of day, so a code that "expires on the 31st" works all of the 31st.
+          expiresAt: expires ? `${expires}T23:59:00` : null,
+        });
+        done.push({ lang: p.lang, links: res.links ?? [] });
+      }
       onMinted();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Failed to mint');
+      setErr(
+        (e instanceof Error ? e.message : 'Failed to mint') +
+          (done.length ? ' (the batch above was minted before this failed)' : ''),
+      );
     } finally {
+      setBatches(done.length ? done : null);
       setBusy(false);
     }
   };
 
-  const copyAll = async () => {
-    if (!links) return;
-    await navigator.clipboard.writeText(links.join('\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+  const copy = async (b: MintedBatch) => {
+    await navigator.clipboard.writeText(b.links.join('\n'));
+    setCopied(b.lang);
+    setTimeout(() => setCopied(null), 1500);
   };
 
-  const mailHref =
-    links && links.length === 1 && employer.contact_email
-      ? `mailto:${employer.contact_email}?body=${encodeURIComponent(links[0])}`
-      : null;
+  const single = batches && batches.length === 1 && batches[0].links.length === 1 ? batches[0].links[0] : null;
+  const mailHref = single && employer.contact_email
+    ? `mailto:${employer.contact_email}?body=${encodeURIComponent(single)}`
+    : null;
+
+  const langMeta = (id: Lang) => LANGS.find((l) => l.id === id)!;
 
   return (
     <div className="mt-2 space-y-2 border-t border-white/5 pt-2">
@@ -344,26 +375,43 @@ function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => v
             </button>
           ))}
         </div>
-        {kind === 'seat' && (
-          <label className="block">
-            <span className="text-[11px] text-white/60">How many</span>
-            <Input value={count} onChange={(e) => setCount(e.target.value)} className="mt-0.5 h-8 w-20 bg-[#0E2531] border-white/[0.14] text-xs" />
-          </label>
+
+        {kind === 'trial' ? (
+          <div className="block">
+            <span className="text-[11px] text-white/60">Language</span>
+            <div className="mt-0.5 inline-flex h-8 items-center rounded-md border border-white/[0.14] p-0.5">
+              {LANGS.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => setLang(l.id)}
+                  aria-pressed={lang === l.id}
+                  className={`h-7 rounded px-2.5 text-xs inline-flex items-center gap-1.5 ${lang === l.id ? 'bg-white/[0.14] text-white' : 'text-white/60 hover:text-white/85'}`}
+                >
+                  <span aria-hidden="true">{l.flag}</span>
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          LANGS.map((l) => (
+            <label key={l.id} className="block">
+              <span className="text-[11px] text-white/60">
+                <span aria-hidden="true">{l.flag}</span> {l.label} codes
+              </span>
+              <Input
+                value={seatCounts[l.id]}
+                onChange={(e) => setSeatCounts((c) => ({ ...c, [l.id]: e.target.value }))}
+                inputMode="numeric"
+                className="mt-0.5 h-8 w-20 bg-[#0E2531] border-white/[0.14] text-xs"
+              />
+            </label>
+          ))
         )}
+
         <label className="block">
           <span className="text-[11px] text-white/60">Expires{kind === 'seat' ? ' (optional)' : ''}</span>
           <Input type="date" value={expires} onChange={(e) => setExpires(e.target.value)} className="mt-0.5 h-8 bg-[#0E2531] border-white/[0.14] text-xs" />
-        </label>
-        <label className="block">
-          <span className="text-[11px] text-white/60">Link language</span>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as 'nl' | 'en')}
-            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
-          >
-            <option value="nl">Nederlands</option>
-            <option value="en">English</option>
-          </select>
         </label>
         <Button onClick={mint} disabled={busy} size="sm" variant="outline" className="h-8 border-white/15 text-xs">
           {busy && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
@@ -373,18 +421,21 @@ function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => v
       <p className="text-[11px] text-white/50">
         {kind === 'trial'
           ? 'For the HR contact to try it themselves. Normal Cairnly experience, no employer notice.'
-          : 'For their employees. The first screen tells them their employer paid and sees nothing. Here you only see how many were redeemed.'}
+          : 'For their employees. The first screen tells them their employer paid and sees nothing. Here you only see how many were redeemed. Mint Dutch and English links in one go: each list gets its own copy button.'}
       </p>
 
       {err && <div className="text-xs text-red-400">{err}</div>}
 
-      {links && (
-        <div className="space-y-1">
+      {batches?.map((b) => (
+        <div key={b.lang} className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] text-emerald-400">{links.length === 1 ? 'Link ready' : `${links.length} links ready`}</span>
-            <Button onClick={copyAll} size="sm" variant="ghost" className="h-6 px-2 text-[11px]">
-              {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-              {copied ? 'Copied' : links.length === 1 ? 'Copy' : 'Copy all'}
+            <span className="text-[11px] text-emerald-400">
+              <span aria-hidden="true">{langMeta(b.lang).flag}</span>{' '}
+              {b.links.length === 1 ? `${langMeta(b.lang).label} link ready` : `${b.links.length} ${langMeta(b.lang).label} links ready`}
+            </span>
+            <Button onClick={() => copy(b)} size="sm" variant="ghost" className="h-6 px-2 text-[11px]">
+              {copied === b.lang ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+              {copied === b.lang ? 'Copied' : b.links.length === 1 ? 'Copy' : 'Copy all'}
             </Button>
             {mailHref && (
               <a href={mailHref} className="inline-flex h-6 items-center rounded px-2 text-[11px] text-white/80 hover:bg-white/10">
@@ -394,14 +445,16 @@ function MintRow({ employer, onMinted }: { employer: Employer; onMinted: () => v
           </div>
           <textarea
             readOnly
-            value={links.join('\n')}
-            rows={Math.min(6, links.length)}
+            value={b.links.join('\n')}
+            rows={Math.min(6, b.links.length)}
             className="w-full rounded-lg border border-white/[0.14] bg-[#0E2531] p-2 font-mono text-[11px] text-white/80"
           />
-          <p className="text-[11px] text-white/60">
-            One link is one person. Copy now: the codes stay in the database, but this list is not shown again.
-          </p>
         </div>
+      ))}
+      {batches && (
+        <p className="text-[11px] text-white/60">
+          One link is one person. Copy now: the codes stay in the database, but these lists are not shown again.
+        </p>
       )}
     </div>
   );
