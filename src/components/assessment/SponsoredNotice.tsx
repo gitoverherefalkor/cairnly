@@ -17,19 +17,28 @@ import { Lock } from 'lucide-react';
  */
 export const SponsoredNotice: React.FC = () => {
   const { t } = useTranslation('survey');
+  // Solid gold with dark text (2026-10-08): the first thing on the page,
+  // impossible to read past, not a quiet glass card among the others.
   return (
     <div
-      className="w-full flex items-start gap-3 rounded-2xl mb-7"
+      className="w-full flex items-center gap-3.5 rounded-2xl mb-7"
       style={{
         maxWidth: 640,
-        background: 'rgba(18, 46, 59, 0.55)',
-        border: '1px solid rgba(239, 190, 72, 0.38)',
-        padding: '14px 18px',
+        background: 'linear-gradient(135deg, #F2C75A 0%, #E2AE33 100%)',
+        border: '1px solid rgba(255, 236, 180, 0.7)',
+        boxShadow: '0 14px 34px -14px rgba(226, 174, 51, 0.65)',
+        padding: '16px 20px',
       }}
       role="note"
     >
-      <Lock className="h-4 w-4 mt-[3px] flex-shrink-0" style={{ color: '#EFBE48' }} aria-hidden="true" />
-      <p className="m-0 text-[14.5px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.88)', fontWeight: 500 }}>
+      <span
+        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
+        style={{ background: '#122E3B' }}
+        aria-hidden="true"
+      >
+        <Lock className="h-4 w-4" style={{ color: '#F2C75A' }} />
+      </span>
+      <p className="m-0 text-[15px] md:text-[15.5px] leading-snug" style={{ color: '#122E3B', fontWeight: 600 }}>
         {t('sponsored.notice')}
       </p>
     </div>
