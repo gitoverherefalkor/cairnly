@@ -495,6 +495,33 @@ Nee. De 108 was de som van losse puntenbanden en heeft geen betekenis; `Ranking`
 - Niet door Jev: salaris, uren, happiness-weging, non-negotiable-bodem, stretch-slot, backfill, dedup. Dat was al code of wordt code.
 - Risico's: de rubric is nieuw en ongemeten (daarom meting (a) plus een schaduwfase); de fact sheet is persoonsgegevens; een carrièreprofiel uit WF2 dat een kandidaat zou willen sturen is niet aan de orde (de tekst is door Cairnly zelf gegenereerd), maar de survey-vrije-tekst in de state is dat wel; Jev behandelt state niet als vijandig. Praktisch gevolg: geen enkele Jev-uitkomst mag iets onomkeerbaars doen, en dat is hier ook niet zo (scores sturen alleen de volgorde, en de backfill garandeert een gevuld rapport).
 
+### 1.11 Meting: de zes carrièrevragen uit blok B (2026-10-12)
+
+Vraag: zijn `interaction_load`, `hours_band`, `schedule_type`, `structure_level`, `team_scale` en `pace_pressure` een Jev-taak of mapping in code? Script: `scripts/jev-career-traits.mjs` (jev-1.13.0, alleen carrièrevelden, read-only, plafond $0,25). Advies in de Claude Doc "Jev voor carrièrekenmerken: meting en advies".
+
+**Data (387 rijen sinds 16 mei 2026).** `colleague_interaction`, `client_interaction`, `work_schedule`, `pace_of_work` en `autonomy_vs_collaboration` zijn vrije tekst: 386 verschillende waarden, gemiddeld 120 tot 135 tekens. `company_size_type` heeft 22 vaste waarden (`<grootte> / <type>`). Dus `structure_level` = mapping, de andere vijf = Jev.
+
+**Mapping `structure_level`:** Scale-up → `dynamic_scale_up`; Startup of Own Company → `early_stage_chaos`; Enterprise of Public Sector → `highly_bureaucratic`; anders `established` (178 / 67 / 48 / 37). Own Company als chaos is een open keuze voor Sjoerd.
+
+**Jev, één request per rapport (22 rapporten, 330 carrières, 11-16 per request).** Gemeten: ~19k tokens en ~350 ms per request (mediaan), totaal $0,018 inclusief tegencheck.
+
+| Vraag | Verdeling | Nooit | Confidence p50 | Zelfde titel, zelfde band (22 titels) |
+|---|---|---|---|---|
+| `interaction_load` | high 72%, very_high 18%, moderate 10% | low | 0,73 | 59% |
+| `hours_band` | full_time 73%, not_stated 13%, extreme 9%, heavy 4% | – | 0,90 | 77% |
+| `schedule_type` | standard_office 36%, project_deadline 36%, irregular 22%, flexible 6% | not_stated | 0,74 | 36% |
+| `team_scale` | large_team 75%, small_team 18%, solo 8% | – | 0,97 | 86% |
+| `pace_pressure` | deadline_driven 81%, constant_urgency 10%, steady 9% | – | 0,95 | 91% |
+
+**Bevindingen.**
+- `hours_band = extreme_or_on_call` met confidence ≥ 0,8: 13 van 28, alle 13 correct. Daaronder fouten ("standard hours, occasional on-call" → extreme), die volgens 1.6 de harde bodem raken. Bodemregel alleen bij confidence ≥ 0,8.
+- `schedule_type`: het criterium voor `irregular_or_on_call` vangt ook incidenteel piket of avondwerk, ook met hoge confidence (0,92). `standard_office` tegen `project_deadline` is ruis, omdat WF2 bijna altijd "standard hours with peaks" schrijft.
+- `team_scale`: "or coordinates across departments" maakt `large_team` de standaard.
+- `interaction_load` en `pace_pressure` onderscheiden nauwelijks; de oorzaak is vooral de eenvormige WF2-tekst.
+- Tegencheck (rapport 388d13cb, 16 carrières los tegen samen): 72 van 80 antwoorden gelijk (90%), verschillen bijna alleen bij lage confidence; losse requests kostten bijna evenveel tokens (22.018 tegen 20.209). De keuze voor één request per carrière (1.2) blijft staan.
+
+**Advies.** `structure_level` mapping; `interaction_load`, `hours_band`, `schedule_type`, `team_scale` Jev met criteria v2 (irregular alleen "a regular part of the job", `standard_office` en `project_deadline` samenvoegen, `large_team` zonder afdelingsoverstijgende coördinatie, low/moderate in WF2-woorden); `pace_pressure` uit de score (telt in 1.6 alleen voor de radar). De werkvoorkeuren-subscore (14 punten) kan daarna naar code, want de kandidaatkant (2a, 3d, 2g, 5c) is al vaste keuzes; eerst criteria v2 meten en de regeltabel lokaal op echte kandidaten toepassen om te zien of de 14 punten tussen carrières variëren.
+
 ---
 
 ## 2. Labels (idee 5)
