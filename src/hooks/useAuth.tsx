@@ -3,6 +3,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 import i18n from '@/i18n';
+import {
+  clearIntakePrefill,
+  INTAKE_PREFILL_SAVED_AT_KEY,
+} from '@/components/landing/intake/intakeApi';
 
 interface AuthContextType {
   user: User | null;
@@ -57,12 +61,19 @@ function clearUserStorage() {
   });
 }
 
+const INTAKE_PREFILL_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 // Check if localStorage data belongs to a different user and clear if so
 function handleUserSwitch(userId: string) {
   const storedUserId = localStorage.getItem('atlas_current_user');
   if (storedUserId && storedUserId !== userId) {
     // Different user signed in — wipe the previous user's data
     clearUserStorage();
+    // The intake chat happens logged out, so a chat from the last hours is
+    // most likely the person signing in now and must survive. One without a
+    // timestamp (written before it existed) or older than a day is stale.
+    const savedAt = Date.parse(localStorage.getItem(INTAKE_PREFILL_SAVED_AT_KEY) ?? '');
+    if (!(savedAt > Date.now() - INTAKE_PREFILL_MAX_AGE_MS)) clearIntakePrefill();
   }
   localStorage.setItem('atlas_current_user', userId);
 }

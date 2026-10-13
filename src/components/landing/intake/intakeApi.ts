@@ -59,6 +59,8 @@ export const intakeApi = {
 
 /** Field-name-keyed pre-fill payload, merged by useAIResumePreFill. */
 export const INTAKE_PREFILL_KEY = 'intake_prefill_data';
+/** ISO timestamp of the last storePrefill, so a stale chat can be told apart. */
+export const INTAKE_PREFILL_SAVED_AT_KEY = 'intake_prefill_saved_at';
 /** { email, firstName } for pre-filling the checkout form. */
 export const INTAKE_CONTACT_KEY = 'cairnly_intake_contact';
 /** Persisted chat state so the conversation survives reloads. */
@@ -68,8 +70,23 @@ export function storePrefill(prefill: IntakePrefill | null): void {
   if (!prefill) return;
   try {
     localStorage.setItem(INTAKE_PREFILL_KEY, JSON.stringify(prefill));
+    localStorage.setItem(INTAKE_PREFILL_SAVED_AT_KEY, new Date().toISOString());
   } catch {
     // Private mode: pre-fill is a bonus, the funnel continues without it.
+  }
+}
+
+/**
+ * Drop the intake pre-fill. It isn't tied to an account, so it must go once
+ * it has been applied to a survey, or the next person on this browser starts
+ * with someone else's answers already ticked.
+ */
+export function clearIntakePrefill(): void {
+  try {
+    localStorage.removeItem(INTAKE_PREFILL_KEY);
+    localStorage.removeItem(INTAKE_PREFILL_SAVED_AT_KEY);
+  } catch {
+    // Storage blocked: nothing was stored either.
   }
 }
 

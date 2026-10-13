@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { translatePreFillForSurvey } from '@/components/resume/utils/resumeDataMapper';
 import { mergePrefillSources } from '@/components/survey/utils/mergePrefillSources';
+import { clearIntakePrefill } from '@/components/landing/intake/intakeApi';
 
 interface UseAIResumePreFillProps {
   isSessionLoaded: boolean;
@@ -164,6 +165,12 @@ export const useAIResumePreFill = ({
       // Mark in storage that we've completed pre-fill
       sessionStorage.setItem('ai_prefill_completed', 'true');
     }
+    // The intake chat data now lives in this survey's saved answers (the
+    // session save runs on the re-render setResponses triggers). It belongs
+    // to no account, so drop it: left behind, it pre-fills the next person's
+    // survey on this browser. Resume data stays: it's cleared on a user switch
+    // and lets the same user's next assessment on this device pre-fill too.
+    if (intakeData) clearIntakePrefill();
     hasAttemptedPreFill.current = true;
   }, [isSessionLoaded, responses, setResponses, surveyId]);
 
