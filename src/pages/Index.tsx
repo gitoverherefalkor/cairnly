@@ -8,6 +8,7 @@ import WhoFor from '@/components/landing/WhoFor';
 import Methodology from '@/components/landing/Methodology';
 import ComparisonTable from '@/components/landing/ComparisonTable';
 import Testimonial from '@/components/landing/Testimonial';
+import EmployersBand from '@/components/landing/EmployersBand';
 import PricingSection from '@/components/landing/PricingSection';
 import WhyWeBuiltThis from '@/components/landing/WhyWeBuiltThis';
 import FAQ from '@/components/landing/FAQ';
@@ -37,6 +38,8 @@ import { organizationSchema, websiteSchema } from '@/lib/seo';
  *               the chat that sharpens it, and the demo CTA
  *   Comparison  the side-by-side, ending on the cost row
  *   Pricing     the ask
+ *   EmployersBand  one line + link for HR buyers, so the €59 isn't read as
+ *               their price (2026-10-15)
  *   WhyWeBuilt  the founder story, which supports the price rather than
  *               trailing behind it
  *   FAQ         last objections
@@ -66,6 +69,7 @@ const Index: React.FC = () => (
       <Methodology />
       <ComparisonTable />
       <PricingSection />
+      <EmployersBand />
       <WhyWeBuiltThis />
       <FAQ />
       <FinalCTA />

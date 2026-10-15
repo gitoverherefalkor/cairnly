@@ -24,7 +24,8 @@ import { EMPLOYERS_ROUTE, SHOW_EMPLOYEE_SCREEN_QUOTE } from '@/components/employ
  * /employers — Cairnly for employers (copy v2, 2026-09-25). Stats are
  * sourced in cairnly-employers-stats-and-article-base.md.
  *
- * Out of the nav on purpose for now: it is reached from outreach links only.
+ * In the main nav since 2026-10-06, and linked from the homepage (a band under
+ * the price) and the footer since 2026-10-15.
  * English and Dutch (nl/employers.json, 2026-10-02), following the site
  * language like every other page. The site is English unless the visitor
  * chose Dutch or the link says so, so outreach to Dutch HR contacts must link

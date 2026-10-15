@@ -14,6 +14,7 @@ const LandingFooter: React.FC = () => {
   const LINKS = [
     { label: t('footer.journal'), href: '/journal' },
     ...(isDutch ? [{ label: t('footer.partners'), href: '/partners' }] : []),
+    { label: t('footer.employers'), href: '/employers' },
     { label: t('footer.privacy'), href: '/privacy-policy' },
     { label: t('footer.terms'), href: '/terms-conditions' },
     { label: t('footer.support'), href: '/support' },

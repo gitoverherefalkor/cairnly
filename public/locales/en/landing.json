@@ -302,6 +302,12 @@
       "Found the job? Land it with our CV strength optimizer and personal cover letter assistant."
     ]
   },
+  "employersBand": {
+    "eyebrow": "For employers",
+    "title": "Buying for a team?",
+    "body": "Give your people the same clarity, from €20 per head. You hand out codes, they own the result, and you never see an individual answer.",
+    "cta": "Cairnly for employers"
+  },
   "whoFor": {
     "eyebrow": "Honest fit",
     "titleA": "Is Cairnly",
