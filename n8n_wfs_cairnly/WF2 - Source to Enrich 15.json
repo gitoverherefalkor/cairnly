@@ -3,12 +3,12 @@
   "name": "WF2 - Source to Enrich 15",
   "description": null,
   "active": true,
-  "activeVersionId": "acde3ad6-8ce9-4f8f-9282-b3dddd00e969",
+  "activeVersionId": "6571ac3a-b6eb-4bd4-811b-9d61d2bff9be",
   "createdAt": "2025-07-18T16:23:17.230Z",
-  "updatedAt": "2026-10-15T07:37:08.407Z",
+  "updatedAt": "2026-10-15T08:59:43.516Z",
   "isArchived": false,
-  "versionId": "acde3ad6-8ce9-4f8f-9282-b3dddd00e969",
-  "versionCounter": 481,
+  "versionId": "6571ac3a-b6eb-4bd4-811b-9d61d2bff9be",
+  "versionCounter": 482,
   "sourceWorkflowId": null,
   "triggerCount": 0,
   "nodes": [
@@ -340,7 +340,7 @@
         3648
       ],
       "parameters": {
-        "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 3,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n// 🔒 Deterministic salary restore.\n// Enrich B (an LLM) is told to copy `salary` verbatim from input, but it often\n// re-prices in USD / \"North America\", ignoring that instruction. The correct\n// region-aware salary (e.g. euros for a European user) was already computed\n// upstream by Salary Range1 -> 15TitSizAISal1, so here we overwrite the LLM's\n// salary with the known-good one, matched by career title (+ company size),\n// mirroring the path_type matching strategy the pipeline already uses.\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst salaryByTitleAndSize = {};\nconst salaryByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.salary) {\n      const t = normalizeKey(c.career_title);\n      // Title-only fallback is only safe for unambiguous titles: the same\n      // title at two company sizes can carry different ranges, and a\n      // last-writer-wins fallback would attach the wrong one. Conflicting\n      // titles are marked null, which the lookup below treats as a miss\n      // (the LLM's own salary is then kept).\n      if (t in salaryByTitle) {\n        if (salaryByTitle[t] !== c.salary) salaryByTitle[t] = null;\n      } else {\n        salaryByTitle[t] = c.salary;\n      }\n      salaryByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = c.salary;\n    }\n  }\n} catch (e) {\n  // If the upstream node is unavailable, leave the LLM salary as-is.\n}\n\n// 🧭 Path type restore (2026-10-15). suitable_15 decides, per candidate, whether a\n// career is an employee, freelance_fractional or founder path and writes honest\n// notes about it. Enrich B only sees the title, so it guesses the type and writes\n// generic notes; put suitable_15's values back, matched like the salary above.\nconst pathByTitleAndSize = {};\nconst pathByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.path_type) {\n      const t = normalizeKey(c.career_title);\n      const p = { path_type: c.path_type, path_type_notes: c.path_type_notes || null };\n      if (t in pathByTitle) {\n        if (!pathByTitle[t] || pathByTitle[t].path_type !== p.path_type) pathByTitle[t] = null;\n      } else {\n        pathByTitle[t] = p;\n      }\n      pathByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = p;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own path fields\n}\n\n\n// 📌 Pinned career text (live 2026-10-15, cut-off 2026-07-10 in \"Fetch pinned profiles\"). When a career title was already enriched in an earlier report\n// (rows fetched by \"Fetch pinned profiles\"), reuse the text of its FIRST stored row for the\n// generic fields, so the same career is described, and therefore scored, the same way every run.\n// Safe to share between people: Enrich B only ever receives career_title + company_size_type,\n// never the candidate. Salary (region), path_type and path_type_notes are NEVER copied.\nconst PIN_FIELDS = [\n  'overview', 'alternate_titles', 'technical_skills', 'soft_skills', 'personality_traits',\n  'work_schedule', 'client_interaction', 'colleague_interaction', 'autonomy_vs_collaboration',\n  'pace_of_work', 'core_values', 'motivational_factors', 'typical_tasks', 'leadership_challenges',\n  'education_requirements', 'certifications_requirements', 'career_progression', 'ai_impact_rating'\n];\n// Own company / freelance vs employed elsewhere describe different jobs, so they pin separately.\nfunction pinKey(title, size) {\n  const own = /^\\s*own company/i.test(String(size || '')) ? 'own' : 'org';\n  return `${normalizeKey(title)}||${own}`;\n}\n// jsonb/text columns come back as strings from PostgREST: parse-if-string (house pattern)\nfunction parseIfString(v) {\n  if (typeof v !== 'string') return v;\n  const s = v.trim();\n  if (!(s.startsWith('{') || s.startsWith('['))) return v;\n  try { return JSON.parse(s); } catch { return v; }\n}\nconst pinByKey = {};\ntry {\n  // rows arrive oldest first (order=created_at.asc): the first row per key is the pin\n  for (const it of $('Fetch pinned profiles').all()) {\n    const r = it.json;\n    if (!r || !r.career_title || !r.overview) continue;\n    const k = pinKey(r.career_title, r.company_size_type);\n    if (!(k in pinByKey)) pinByKey[k] = r;\n  }\n} catch (e) {\n  // lookup failed or node missing: behave exactly like before (fresh text)\n}\nfunction applyPin(merged) {\n  const pin = pinByKey[pinKey(merged.career_title, merged.company_size_type)];\n  if (!pin) return merged;\n  for (const f of PIN_FIELDS) {\n    let v = parseIfString(pin[f]);\n    // older stored rows carry \"N/A\" padding (e.g. a fake 4th task): drop it\n    if (Array.isArray(v)) v = v.filter((x) => x !== 'N/A' && x !== '' && x != null);\n    if (v !== undefined && v !== null && v !== '' && v !== 'N/A' && !(Array.isArray(v) && v.length === 0)) merged[f] = v;\n  }\n  merged._pinned_from = pin.id ?? true; // dropped by Supabase Insert1 (not a mapped field)\n  return merged;\n}\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n\n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      const merged = { ...schemaTemplate, ...processed };\n\n      // Restore the correct upstream salary (region + range + currency) if we have it.\n      const t = normalizeKey(merged.career_title);\n      const ts = `${t}||${normalizeKey(merged.company_size_type)}`;\n      const goodSalary = salaryByTitleAndSize[ts] || salaryByTitle[t];\n      if (goodSalary) {\n        merged.salary = goodSalary;\n      }\n\n      // Restore suitable_15's candidate-specific path type and notes.\n      const goodPath = pathByTitleAndSize[ts] || pathByTitle[t];\n      if (goodPath && goodPath.path_type) {\n        merged.path_type = goodPath.path_type;\n        if (goodPath.path_type_notes) merged.path_type_notes = goodPath.path_type_notes;\n      }\n\n      return applyPin(merged);\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));\n"
+        "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 3,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n// 🔒 Deterministic salary restore.\n// Enrich B (an LLM) is told to copy `salary` verbatim from input, but it often\n// re-prices in USD / \"North America\", ignoring that instruction. The correct\n// region-aware salary (e.g. euros for a European user) was already computed\n// upstream by Salary Range1 -> 15TitSizAISal1, so here we overwrite the LLM's\n// salary with the known-good one, matched by career title (+ company size),\n// mirroring the path_type matching strategy the pipeline already uses.\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst salaryByTitleAndSize = {};\nconst salaryByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.salary) {\n      const t = normalizeKey(c.career_title);\n      // Title-only fallback is only safe for unambiguous titles: the same\n      // title at two company sizes can carry different ranges, and a\n      // last-writer-wins fallback would attach the wrong one. Conflicting\n      // titles are marked null, which the lookup below treats as a miss\n      // (the LLM's own salary is then kept).\n      if (t in salaryByTitle) {\n        if (salaryByTitle[t] !== c.salary) salaryByTitle[t] = null;\n      } else {\n        salaryByTitle[t] = c.salary;\n      }\n      salaryByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = c.salary;\n    }\n  }\n} catch (e) {\n  // If the upstream node is unavailable, leave the LLM salary as-is.\n}\n\n// 🧭 Path type restore (2026-10-15). suitable_15 decides, per candidate, whether a\n// career is an employee, freelance_fractional or founder path and writes honest\n// notes about it. Enrich B only sees the title, so it guesses the type and writes\n// generic notes; put suitable_15's values back, matched like the salary above.\nconst pathByTitleAndSize = {};\nconst pathByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.path_type) {\n      const t = normalizeKey(c.career_title);\n      const p = { path_type: c.path_type, path_type_notes: c.path_type_notes || null };\n      if (t in pathByTitle) {\n        if (!pathByTitle[t] || pathByTitle[t].path_type !== p.path_type) pathByTitle[t] = null;\n      } else {\n        pathByTitle[t] = p;\n      }\n      pathByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = p;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own path fields\n}\n\n\n// 🤖 AI-impact rating restore (2026-10-15). ai_impact1 (Sonnet) rates every career on the\n// 5-level scale and Salary Range1 carries it into 15TitSizAISal1, but Enrich B never sees it and\n// invents a word (\"Substantial\", \"Transformative\"). Put Sonnet's rating back, matched like salary.\n// It is the fallback label; the Jev label (enriched_jobs.ai_impact_level, set by the\n// \"AI impact (Jev)\" node after the insert) wins in WF4 when present. Not pinned: Jev pins per title.\nconst aiByTitleAndSize = {};\nconst aiByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    const r = c && c.ai_impact_rating;\n    if (c && c.career_title && r && r.rating) {\n      const t = normalizeKey(c.career_title);\n      if (t in aiByTitle) {\n        if (!aiByTitle[t] || aiByTitle[t].rating !== r.rating) aiByTitle[t] = null;\n      } else {\n        aiByTitle[t] = r;\n      }\n      aiByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = r;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own rating\n}\n\n// 📌 Pinned career text (live 2026-10-15, cut-off 2026-07-10 in \"Fetch pinned profiles\"). When a career title was already enriched in an earlier report\n// (rows fetched by \"Fetch pinned profiles\"), reuse the text of its FIRST stored row for the\n// generic fields, so the same career is described, and therefore scored, the same way every run.\n// Safe to share between people: Enrich B only ever receives career_title + company_size_type,\n// never the candidate. Salary (region), path_type, path_type_notes and ai_impact_rating are NEVER copied.\nconst PIN_FIELDS = [\n  'overview', 'alternate_titles', 'technical_skills', 'soft_skills', 'personality_traits',\n  'work_schedule', 'client_interaction', 'colleague_interaction', 'autonomy_vs_collaboration',\n  'pace_of_work', 'core_values', 'motivational_factors', 'typical_tasks', 'leadership_challenges',\n  'education_requirements', 'certifications_requirements', 'career_progression'\n];\n// Own company / freelance vs employed elsewhere describe different jobs, so they pin separately.\nfunction pinKey(title, size) {\n  const own = /^\\s*own company/i.test(String(size || '')) ? 'own' : 'org';\n  return `${normalizeKey(title)}||${own}`;\n}\n// jsonb/text columns come back as strings from PostgREST: parse-if-string (house pattern)\nfunction parseIfString(v) {\n  if (typeof v !== 'string') return v;\n  const s = v.trim();\n  if (!(s.startsWith('{') || s.startsWith('['))) return v;\n  try { return JSON.parse(s); } catch { return v; }\n}\nconst pinByKey = {};\ntry {\n  // rows arrive oldest first (order=created_at.asc): the first row per key is the pin\n  for (const it of $('Fetch pinned profiles').all()) {\n    const r = it.json;\n    if (!r || !r.career_title || !r.overview) continue;\n    const k = pinKey(r.career_title, r.company_size_type);\n    if (!(k in pinByKey)) pinByKey[k] = r;\n  }\n} catch (e) {\n  // lookup failed or node missing: behave exactly like before (fresh text)\n}\nfunction applyPin(merged) {\n  const pin = pinByKey[pinKey(merged.career_title, merged.company_size_type)];\n  if (!pin) return merged;\n  for (const f of PIN_FIELDS) {\n    let v = parseIfString(pin[f]);\n    // older stored rows carry \"N/A\" padding (e.g. a fake 4th task): drop it\n    if (Array.isArray(v)) v = v.filter((x) => x !== 'N/A' && x !== '' && x != null);\n    if (v !== undefined && v !== null && v !== '' && v !== 'N/A' && !(Array.isArray(v) && v.length === 0)) merged[f] = v;\n  }\n  merged._pinned_from = pin.id ?? true; // dropped by Supabase Insert1 (not a mapped field)\n  return merged;\n}\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n\n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      const merged = { ...schemaTemplate, ...processed };\n\n      // Restore the correct upstream salary (region + range + currency) if we have it.\n      const t = normalizeKey(merged.career_title);\n      const ts = `${t}||${normalizeKey(merged.company_size_type)}`;\n      const goodSalary = salaryByTitleAndSize[ts] || salaryByTitle[t];\n      if (goodSalary) {\n        merged.salary = goodSalary;\n      }\n\n      // Restore suitable_15's candidate-specific path type and notes.\n      const goodPath = pathByTitleAndSize[ts] || pathByTitle[t];\n      if (goodPath && goodPath.path_type) {\n        merged.path_type = goodPath.path_type;\n        if (goodPath.path_type_notes) merged.path_type_notes = goodPath.path_type_notes;\n      }\n\n      const out = applyPin(merged);\n      const goodAi = aiByTitleAndSize[ts] || aiByTitle[t];\n      if (goodAi) out.ai_impact_rating = goodAi;\n      return out;\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));\n"
       }
     },
     {
@@ -707,6 +707,9 @@
       "name": "Fetch pinned profiles",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
       "position": [
         -1800,
         3648
@@ -749,10 +752,51 @@
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
         }
-      },
-      "onError": "continueRegularOutput",
+      }
+    },
+    {
+      "id": "da578307-3bf1-48ff-aa32-051960542cb5",
+      "name": "AI impact (Jev)",
+      "notes": "Jev AI-impact label per career (title-pinned). Failure never blocks: WF4 falls back to Sonnet's rating.",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
       "alwaysOutputData": true,
-      "executeOnce": true
+      "onError": "continueRegularOutput",
+      "position": [
+        -108,
+        3848
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://pcoyafgsirrznhmdaiji.functions.supabase.co/ai-impact",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"report_id\": \"{{ $('When Executed by Another Workflow').first().json.report_id }}\" }",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aiABzg04zbeDSXRc",
+          "name": "Supabase Edge Functions — Shared Secret"
+        }
+      }
+    },
+    {
+      "id": "d5ec25fc-2f9a-4e34-898e-95bfc250eae7",
+      "name": "Careers after Jev",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        92,
+        3848
+      ],
+      "parameters": {
+        "jsCode": "// Pass Aggregate3's careers on to Merge1 unchanged; the Jev call above only writes to the DB.\nreturn $('Aggregate3').all();"
+      }
     }
   ],
   "connections": {
@@ -941,7 +985,7 @@
       "main": [
         [
           {
-            "node": "Merge1",
+            "node": "AI impact (Jev)",
             "type": "main",
             "index": 0
           }
@@ -1100,6 +1144,28 @@
           }
         ]
       ]
+    },
+    "AI impact (Jev)": {
+      "main": [
+        [
+          {
+            "node": "Careers after Jev",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Careers after Jev": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "nodeGroups": [],
@@ -1154,7 +1220,7 @@
     }
   ],
   "activeVersion": {
-    "versionId": "acde3ad6-8ce9-4f8f-9282-b3dddd00e969",
+    "versionId": "6571ac3a-b6eb-4bd4-811b-9d61d2bff9be",
     "workflowId": "vVv0tsnFlBnarMdq",
     "nodes": [
       {
@@ -1485,7 +1551,7 @@
           3648
         ],
         "parameters": {
-          "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 3,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n// 🔒 Deterministic salary restore.\n// Enrich B (an LLM) is told to copy `salary` verbatim from input, but it often\n// re-prices in USD / \"North America\", ignoring that instruction. The correct\n// region-aware salary (e.g. euros for a European user) was already computed\n// upstream by Salary Range1 -> 15TitSizAISal1, so here we overwrite the LLM's\n// salary with the known-good one, matched by career title (+ company size),\n// mirroring the path_type matching strategy the pipeline already uses.\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst salaryByTitleAndSize = {};\nconst salaryByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.salary) {\n      const t = normalizeKey(c.career_title);\n      // Title-only fallback is only safe for unambiguous titles: the same\n      // title at two company sizes can carry different ranges, and a\n      // last-writer-wins fallback would attach the wrong one. Conflicting\n      // titles are marked null, which the lookup below treats as a miss\n      // (the LLM's own salary is then kept).\n      if (t in salaryByTitle) {\n        if (salaryByTitle[t] !== c.salary) salaryByTitle[t] = null;\n      } else {\n        salaryByTitle[t] = c.salary;\n      }\n      salaryByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = c.salary;\n    }\n  }\n} catch (e) {\n  // If the upstream node is unavailable, leave the LLM salary as-is.\n}\n\n// 🧭 Path type restore (2026-10-15). suitable_15 decides, per candidate, whether a\n// career is an employee, freelance_fractional or founder path and writes honest\n// notes about it. Enrich B only sees the title, so it guesses the type and writes\n// generic notes; put suitable_15's values back, matched like the salary above.\nconst pathByTitleAndSize = {};\nconst pathByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.path_type) {\n      const t = normalizeKey(c.career_title);\n      const p = { path_type: c.path_type, path_type_notes: c.path_type_notes || null };\n      if (t in pathByTitle) {\n        if (!pathByTitle[t] || pathByTitle[t].path_type !== p.path_type) pathByTitle[t] = null;\n      } else {\n        pathByTitle[t] = p;\n      }\n      pathByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = p;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own path fields\n}\n\n\n// 📌 Pinned career text (live 2026-10-15, cut-off 2026-07-10 in \"Fetch pinned profiles\"). When a career title was already enriched in an earlier report\n// (rows fetched by \"Fetch pinned profiles\"), reuse the text of its FIRST stored row for the\n// generic fields, so the same career is described, and therefore scored, the same way every run.\n// Safe to share between people: Enrich B only ever receives career_title + company_size_type,\n// never the candidate. Salary (region), path_type and path_type_notes are NEVER copied.\nconst PIN_FIELDS = [\n  'overview', 'alternate_titles', 'technical_skills', 'soft_skills', 'personality_traits',\n  'work_schedule', 'client_interaction', 'colleague_interaction', 'autonomy_vs_collaboration',\n  'pace_of_work', 'core_values', 'motivational_factors', 'typical_tasks', 'leadership_challenges',\n  'education_requirements', 'certifications_requirements', 'career_progression', 'ai_impact_rating'\n];\n// Own company / freelance vs employed elsewhere describe different jobs, so they pin separately.\nfunction pinKey(title, size) {\n  const own = /^\\s*own company/i.test(String(size || '')) ? 'own' : 'org';\n  return `${normalizeKey(title)}||${own}`;\n}\n// jsonb/text columns come back as strings from PostgREST: parse-if-string (house pattern)\nfunction parseIfString(v) {\n  if (typeof v !== 'string') return v;\n  const s = v.trim();\n  if (!(s.startsWith('{') || s.startsWith('['))) return v;\n  try { return JSON.parse(s); } catch { return v; }\n}\nconst pinByKey = {};\ntry {\n  // rows arrive oldest first (order=created_at.asc): the first row per key is the pin\n  for (const it of $('Fetch pinned profiles').all()) {\n    const r = it.json;\n    if (!r || !r.career_title || !r.overview) continue;\n    const k = pinKey(r.career_title, r.company_size_type);\n    if (!(k in pinByKey)) pinByKey[k] = r;\n  }\n} catch (e) {\n  // lookup failed or node missing: behave exactly like before (fresh text)\n}\nfunction applyPin(merged) {\n  const pin = pinByKey[pinKey(merged.career_title, merged.company_size_type)];\n  if (!pin) return merged;\n  for (const f of PIN_FIELDS) {\n    let v = parseIfString(pin[f]);\n    // older stored rows carry \"N/A\" padding (e.g. a fake 4th task): drop it\n    if (Array.isArray(v)) v = v.filter((x) => x !== 'N/A' && x !== '' && x != null);\n    if (v !== undefined && v !== null && v !== '' && v !== 'N/A' && !(Array.isArray(v) && v.length === 0)) merged[f] = v;\n  }\n  merged._pinned_from = pin.id ?? true; // dropped by Supabase Insert1 (not a mapped field)\n  return merged;\n}\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n\n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      const merged = { ...schemaTemplate, ...processed };\n\n      // Restore the correct upstream salary (region + range + currency) if we have it.\n      const t = normalizeKey(merged.career_title);\n      const ts = `${t}||${normalizeKey(merged.company_size_type)}`;\n      const goodSalary = salaryByTitleAndSize[ts] || salaryByTitle[t];\n      if (goodSalary) {\n        merged.salary = goodSalary;\n      }\n\n      // Restore suitable_15's candidate-specific path type and notes.\n      const goodPath = pathByTitleAndSize[ts] || pathByTitle[t];\n      if (goodPath && goodPath.path_type) {\n        merged.path_type = goodPath.path_type;\n        if (goodPath.path_type_notes) merged.path_type_notes = goodPath.path_type_notes;\n      }\n\n      return applyPin(merged);\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));\n"
+          "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 3,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n// 🔒 Deterministic salary restore.\n// Enrich B (an LLM) is told to copy `salary` verbatim from input, but it often\n// re-prices in USD / \"North America\", ignoring that instruction. The correct\n// region-aware salary (e.g. euros for a European user) was already computed\n// upstream by Salary Range1 -> 15TitSizAISal1, so here we overwrite the LLM's\n// salary with the known-good one, matched by career title (+ company size),\n// mirroring the path_type matching strategy the pipeline already uses.\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst salaryByTitleAndSize = {};\nconst salaryByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.salary) {\n      const t = normalizeKey(c.career_title);\n      // Title-only fallback is only safe for unambiguous titles: the same\n      // title at two company sizes can carry different ranges, and a\n      // last-writer-wins fallback would attach the wrong one. Conflicting\n      // titles are marked null, which the lookup below treats as a miss\n      // (the LLM's own salary is then kept).\n      if (t in salaryByTitle) {\n        if (salaryByTitle[t] !== c.salary) salaryByTitle[t] = null;\n      } else {\n        salaryByTitle[t] = c.salary;\n      }\n      salaryByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = c.salary;\n    }\n  }\n} catch (e) {\n  // If the upstream node is unavailable, leave the LLM salary as-is.\n}\n\n// 🧭 Path type restore (2026-10-15). suitable_15 decides, per candidate, whether a\n// career is an employee, freelance_fractional or founder path and writes honest\n// notes about it. Enrich B only sees the title, so it guesses the type and writes\n// generic notes; put suitable_15's values back, matched like the salary above.\nconst pathByTitleAndSize = {};\nconst pathByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    if (c && c.career_title && c.path_type) {\n      const t = normalizeKey(c.career_title);\n      const p = { path_type: c.path_type, path_type_notes: c.path_type_notes || null };\n      if (t in pathByTitle) {\n        if (!pathByTitle[t] || pathByTitle[t].path_type !== p.path_type) pathByTitle[t] = null;\n      } else {\n        pathByTitle[t] = p;\n      }\n      pathByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = p;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own path fields\n}\n\n\n// 🤖 AI-impact rating restore (2026-10-15). ai_impact1 (Sonnet) rates every career on the\n// 5-level scale and Salary Range1 carries it into 15TitSizAISal1, but Enrich B never sees it and\n// invents a word (\"Substantial\", \"Transformative\"). Put Sonnet's rating back, matched like salary.\n// It is the fallback label; the Jev label (enriched_jobs.ai_impact_level, set by the\n// \"AI impact (Jev)\" node after the insert) wins in WF4 when present. Not pinned: Jev pins per title.\nconst aiByTitleAndSize = {};\nconst aiByTitle = {};\ntry {\n  for (const it of $('15TitSizAISal1').all()) {\n    const c = it.json;\n    const r = c && c.ai_impact_rating;\n    if (c && c.career_title && r && r.rating) {\n      const t = normalizeKey(c.career_title);\n      if (t in aiByTitle) {\n        if (!aiByTitle[t] || aiByTitle[t].rating !== r.rating) aiByTitle[t] = null;\n      } else {\n        aiByTitle[t] = r;\n      }\n      aiByTitleAndSize[`${t}||${normalizeKey(c.company_size_type)}`] = r;\n    }\n  }\n} catch (e) {\n  // upstream unavailable: keep Enrich B's own rating\n}\n\n// 📌 Pinned career text (live 2026-10-15, cut-off 2026-07-10 in \"Fetch pinned profiles\"). When a career title was already enriched in an earlier report\n// (rows fetched by \"Fetch pinned profiles\"), reuse the text of its FIRST stored row for the\n// generic fields, so the same career is described, and therefore scored, the same way every run.\n// Safe to share between people: Enrich B only ever receives career_title + company_size_type,\n// never the candidate. Salary (region), path_type, path_type_notes and ai_impact_rating are NEVER copied.\nconst PIN_FIELDS = [\n  'overview', 'alternate_titles', 'technical_skills', 'soft_skills', 'personality_traits',\n  'work_schedule', 'client_interaction', 'colleague_interaction', 'autonomy_vs_collaboration',\n  'pace_of_work', 'core_values', 'motivational_factors', 'typical_tasks', 'leadership_challenges',\n  'education_requirements', 'certifications_requirements', 'career_progression'\n];\n// Own company / freelance vs employed elsewhere describe different jobs, so they pin separately.\nfunction pinKey(title, size) {\n  const own = /^\\s*own company/i.test(String(size || '')) ? 'own' : 'org';\n  return `${normalizeKey(title)}||${own}`;\n}\n// jsonb/text columns come back as strings from PostgREST: parse-if-string (house pattern)\nfunction parseIfString(v) {\n  if (typeof v !== 'string') return v;\n  const s = v.trim();\n  if (!(s.startsWith('{') || s.startsWith('['))) return v;\n  try { return JSON.parse(s); } catch { return v; }\n}\nconst pinByKey = {};\ntry {\n  // rows arrive oldest first (order=created_at.asc): the first row per key is the pin\n  for (const it of $('Fetch pinned profiles').all()) {\n    const r = it.json;\n    if (!r || !r.career_title || !r.overview) continue;\n    const k = pinKey(r.career_title, r.company_size_type);\n    if (!(k in pinByKey)) pinByKey[k] = r;\n  }\n} catch (e) {\n  // lookup failed or node missing: behave exactly like before (fresh text)\n}\nfunction applyPin(merged) {\n  const pin = pinByKey[pinKey(merged.career_title, merged.company_size_type)];\n  if (!pin) return merged;\n  for (const f of PIN_FIELDS) {\n    let v = parseIfString(pin[f]);\n    // older stored rows carry \"N/A\" padding (e.g. a fake 4th task): drop it\n    if (Array.isArray(v)) v = v.filter((x) => x !== 'N/A' && x !== '' && x != null);\n    if (v !== undefined && v !== null && v !== '' && v !== 'N/A' && !(Array.isArray(v) && v.length === 0)) merged[f] = v;\n  }\n  merged._pinned_from = pin.id ?? true; // dropped by Supabase Insert1 (not a mapped field)\n  return merged;\n}\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n\n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      const merged = { ...schemaTemplate, ...processed };\n\n      // Restore the correct upstream salary (region + range + currency) if we have it.\n      const t = normalizeKey(merged.career_title);\n      const ts = `${t}||${normalizeKey(merged.company_size_type)}`;\n      const goodSalary = salaryByTitleAndSize[ts] || salaryByTitle[t];\n      if (goodSalary) {\n        merged.salary = goodSalary;\n      }\n\n      // Restore suitable_15's candidate-specific path type and notes.\n      const goodPath = pathByTitleAndSize[ts] || pathByTitle[t];\n      if (goodPath && goodPath.path_type) {\n        merged.path_type = goodPath.path_type;\n        if (goodPath.path_type_notes) merged.path_type_notes = goodPath.path_type_notes;\n      }\n\n      const out = applyPin(merged);\n      const goodAi = aiByTitleAndSize[ts] || aiByTitle[t];\n      if (goodAi) out.ai_impact_rating = goodAi;\n      return out;\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));\n"
         }
       },
       {
@@ -1852,6 +1918,9 @@
         "name": "Fetch pinned profiles",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
+        "executeOnce": true,
+        "alwaysOutputData": true,
+        "onError": "continueRegularOutput",
         "position": [
           -1800,
           3648
@@ -1894,10 +1963,51 @@
             "id": "jYr9UcuCbwO8Um80",
             "name": "SB Cairnly (n8n cred)"
           }
-        },
-        "onError": "continueRegularOutput",
+        }
+      },
+      {
+        "id": "da578307-3bf1-48ff-aa32-051960542cb5",
+        "name": "AI impact (Jev)",
+        "notes": "Jev AI-impact label per career (title-pinned). Failure never blocks: WF4 falls back to Sonnet's rating.",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
         "alwaysOutputData": true,
-        "executeOnce": true
+        "onError": "continueRegularOutput",
+        "position": [
+          -108,
+          3848
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://pcoyafgsirrznhmdaiji.functions.supabase.co/ai-impact",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={ \"report_id\": \"{{ $('When Executed by Another Workflow').first().json.report_id }}\" }",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "aiABzg04zbeDSXRc",
+            "name": "Supabase Edge Functions — Shared Secret"
+          }
+        }
+      },
+      {
+        "id": "d5ec25fc-2f9a-4e34-898e-95bfc250eae7",
+        "name": "Careers after Jev",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          92,
+          3848
+        ],
+        "parameters": {
+          "jsCode": "// Pass Aggregate3's careers on to Merge1 unchanged; the Jev call above only writes to the DB.\nreturn $('Aggregate3').all();"
+        }
       }
     ],
     "connections": {
@@ -2086,7 +2196,7 @@
         "main": [
           [
             {
-              "node": "Merge1",
+              "node": "AI impact (Jev)",
               "type": "main",
               "index": 0
             }
@@ -2245,23 +2355,45 @@
             }
           ]
         ]
+      },
+      "AI impact (Jev)": {
+        "main": [
+          [
+            {
+              "node": "Careers after Jev",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Careers after Jev": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "nodeGroups": [],
-    "authors": "Sjoerd Geurts (via MCP)",
-    "name": "Path notes restored + no fake N/A task",
-    "description": "2026-10-15: 15TitSizAISal1 reads suitable_15's bare JSON (path_type/notes were lost); clean up JSON1 restores suitable_15's path_type + notes per career, pads tasks to 3 not 4, strips N/A from pinned arrays. Backup: n8n_wfs_cairnly/backups/WF2_LIVE_pre_path_and_tasks_fix_20261015.json",
+    "authors": "Sjoerd Geurts",
+    "name": null,
+    "description": null,
     "autosaved": false,
-    "createdAt": "2026-10-15T07:37:08.412Z",
-    "updatedAt": "2026-10-15T07:37:08.412Z",
+    "createdAt": "2026-10-15T08:59:43.519Z",
+    "updatedAt": "2026-10-15T08:59:43.519Z",
     "workflowPublishHistory": [
       {
-        "id": 1877,
+        "id": 1883,
         "workflowId": "vVv0tsnFlBnarMdq",
-        "versionId": "acde3ad6-8ce9-4f8f-9282-b3dddd00e969",
+        "versionId": "6571ac3a-b6eb-4bd4-811b-9d61d2bff9be",
         "event": "activated",
         "userId": "b5ff5e90-67ed-4097-a0e3-9d5c1275ac0b",
-        "createdAt": "2026-10-15T07:37:21.087Z"
+        "createdAt": "2026-10-15T08:59:43.725Z"
       }
     ]
   }
