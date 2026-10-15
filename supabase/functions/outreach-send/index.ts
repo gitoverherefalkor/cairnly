@@ -83,6 +83,19 @@ async function staleReason(db: SupabaseClient, c: Concept): Promise<string | nul
   if (p.niet_mailen_op) return 'they asked not to be mailed';
   if (p.email_ongeldig_op) return 'their address bounced';
 
+  // The global do-not-contact list (outreach_suppressions), for the actual
+  // recipients: a reply or a Cc can go to someone other than the bureau's
+  // main address. If the check cannot run, the mail does not go.
+  const recipients = [c.to_email, ...(c.cc ?? '').split(',')].map((a) => a.trim()).filter(Boolean);
+  for (const address of recipients) {
+    const { data: blocked, error: suppErr } = await db.rpc('outreach_is_suppressed', { p_email: address });
+    if (suppErr) {
+      console.error('[outreach-send] suppression check failed', suppErr);
+      return 'could not check the do-not-contact list';
+    }
+    if (blocked) return `${address} is on the do-not-contact list`;
+  }
+
   const { data: mails } = await db
     .from('outreach_mails')
     .select('id, direction, sentiment, sent_at, gmail_thread_id')

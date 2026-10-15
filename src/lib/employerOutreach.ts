@@ -7,7 +7,8 @@
 export type Channel = 'linkedin' | 'event' | 'email' | 'phone' | 'other';
 export type TouchKind = 'first_contact' | 'follow_up' | 'reply' | 'meeting';
 export type LinkedinStage = 'none' | 'invite_sent' | 'connected' | 'in_conversation';
-export type EmployerStatus = 'lead' | 'trial_sent' | 'in_talks' | 'customer' | 'lost';
+/** 'prospect' = on the hitlist, not contacted yet (see src/lib/hitlist.ts). */
+export type EmployerStatus = 'prospect' | 'lead' | 'trial_sent' | 'in_talks' | 'customer' | 'lost';
 
 export const CHANNEL_LABEL: Record<Channel, string> = {
   linkedin: 'LinkedIn',
@@ -45,6 +46,10 @@ export interface EmployerContact {
   invite_sent_at: string | null;
   connected_at: string | null;
   conversation_at: string | null;
+  /** Hitlist fields (20261015150000_employer_hitlist.sql). */
+  role_type?: 'buyer' | 'champion' | 'other' | null;
+  contact_source?: string | null;
+  tasha_link?: 'unchecked' | 'none' | 'first' | 'second';
 }
 
 export interface EmployerEvent {

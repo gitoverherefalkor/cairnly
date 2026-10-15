@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Loader2, Plus, Trash2, Linkedin, CalendarDays, BellRing, BarChart3, X, ExternalLink, MessageSquarePlus, CalendarPlus,
+  Loader2, Plus, Trash2, Linkedin, CalendarDays, BellRing, BarChart3, X, ExternalLink, MessageSquarePlus, CalendarPlus, Ban,
 } from 'lucide-react';
 import {
   CHANNEL_LABEL, KIND_LABEL, STAGE_LABEL, CLOSED_STATUSES,
@@ -16,6 +16,10 @@ import {
   type Channel, type TouchKind, type LinkedinStage, type Period,
   type EmployerContact, type EmployerEvent, type EmployerTouch, type EmployerLite,
 } from '@/lib/employerOutreach';
+import {
+  ROLE_LABEL, TASHA_LABEL, MAX_FOLLOW_UPS, followUpCount, suggestRoleType, suppressionFor, isWorkEmail,
+  type RoleType, type TashaLink, type Suppression,
+} from '@/lib/hitlist';
 
 export type CallEmployers = (body: Record<string, unknown>) => Promise<unknown>;
 
@@ -288,9 +292,62 @@ function EventsCard({
 
 // ─── Per employer: contacts ──────────────────────────────────────────────────
 
-function ContactRow({ c, call, onChanged }: { c: EmployerContact; call: CallEmployers; onChanged: () => void }) {
+/** What the contact rows need to know about the do-not-contact list. */
+export interface BlockContext {
+  suppressions: Suppression[];
+  employerDomain: string | null;
+}
+
+/**
+ * Put someone on the do-not-contact list. A buyer saying no usually means the
+ * company said no, so for a buyer the whole-company block is offered straight
+ * after.
+ */
+export async function blockContact(c: EmployerContact, call: CallEmployers, onChanged: () => void) {
+  if (!window.confirm(`Put ${c.name} on the do-not-contact list?\n\nNobody reaches out to them again, on any channel, in any track (employers and bureaus). Their replies can still be logged.`)) return;
+  try {
+    await call({ action: 'suppress', scope: 'person', contactId: c.id, reason: 'Said no' });
+    toast.success(`${c.name} is on the do-not-contact list`);
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : 'Failed to block');
+    onChanged();
+    return;
+  }
+  const ask = c.role_type === 'buyer'
+    ? `${c.name} is the buyer. Block the whole company (every address at their domain) too?`
+    : null;
+  if (ask && window.confirm(ask)) await blockCompany({ contactId: c.id }, call);
+  onChanged();
+}
+
+export async function blockCompany(target: { contactId?: string; employerId?: string }, call: CallEmployers) {
+  try {
+    await call({ action: 'suppress', scope: 'company', ...target, reason: 'Company said no' });
+    toast.success('Whole company is on the do-not-contact list');
+  } catch (e) {
+    toast.error(e instanceof Error ? e.message : 'Failed to block the company');
+  }
+}
+
+const TASHA_TONE: Record<TashaLink, string> = {
+  unchecked: 'text-white/40',
+  none: 'text-white/55',
+  first: 'text-[#EFBE48]',
+  second: 'text-[#7FBCD9]',
+};
+
+function ContactRow({
+  c, call, onChanged, block, followUps,
+}: {
+  c: EmployerContact;
+  call: CallEmployers;
+  onChanged: () => void;
+  block?: BlockContext;
+  followUps: number;
+}) {
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
+  const blocked = block ? suppressionFor(c, block.employerDomain, block.suppressions) : null;
 
   const setStage = async (stage: LinkedinStage) => {
     setBusy(true);
@@ -321,7 +378,16 @@ function ContactRow({ c, call, onChanged }: { c: EmployerContact; call: CallEmpl
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-      <span className="text-white/[0.88]">{c.name}</span>
+      <span className={blocked ? 'text-white/50 line-through' : 'text-white/[0.88]'}>{c.name}</span>
+      {blocked && (
+        <span
+          title={`${blocked.reason ?? 'On the list'}${blocked.domain ? ` (whole company: ${blocked.domain})` : ''}, since ${new Date(blocked.created_at).toLocaleDateString('en-GB')}`}
+          className="inline-flex items-center gap-1 rounded bg-red-500/15 px-1.5 py-0.5 text-red-200"
+        >
+          <Ban className="h-3 w-3" /> Do not contact
+        </span>
+      )}
+      {c.role_type && <span className={`rounded px-1 py-0.5 ${c.role_type === 'buyer' ? 'bg-[rgba(239,190,72,0.15)] text-[#EFBE48]' : 'bg-white/[0.06] text-white/70'}`}>{ROLE_LABEL[c.role_type]}</span>}
       {c.role && <span className="text-white/55">{c.role}</span>}
       {c.email && <a href={`mailto:${c.email}`} className="text-white/60 hover:text-white/85">{c.email}</a>}
       {c.linkedin_url && (
@@ -340,7 +406,19 @@ function ContactRow({ c, call, onChanged }: { c: EmployerContact; call: CallEmpl
           <option key={s} value={s}>{STAGE_LABEL[s]}</option>
         ))}
       </select>
+      {c.tasha_link && c.tasha_link !== 'unchecked' && (
+        <span className={TASHA_TONE[c.tasha_link]} title="Tasha's relationship with this person">Tasha: {TASHA_LABEL[c.tasha_link]}</span>
+      )}
+      {c.contact_source && <span className="text-white/40" title="Where this contact came from">via {c.contact_source}</span>}
+      {followUps >= MAX_FOLLOW_UPS && (
+        <span className="text-[#EFBE48]" title="Two follow-ups is the agreed maximum per person">{followUps} follow-ups</span>
+      )}
       <button onClick={() => setEditing(true)} className="text-white/55 hover:text-white/85">Edit</button>
+      {!blocked && (
+        <button onClick={() => blockContact(c, call, onChanged)} className="text-white/45 hover:text-red-300" title="They said no: never contact again">
+          Block
+        </button>
+      )}
       <button onClick={remove} aria-label={`Remove ${c.name}`} className="text-white/40 hover:text-red-300">
         <Trash2 className="h-3 w-3" />
       </button>
@@ -361,14 +439,28 @@ function ContactForm({
   const [role, setRole] = useState(existing?.role ?? '');
   const [email, setEmail] = useState(existing?.email ?? '');
   const [linkedinUrl, setLinkedinUrl] = useState(existing?.linkedin_url ?? '');
+  const [roleType, setRoleType] = useState<RoleType | ''>(existing?.role_type ?? '');
+  const [roleTouched, setRoleTouched] = useState(Boolean(existing?.role_type));
+  const [source, setSource] = useState(existing?.contact_source ?? '');
+  const [tasha, setTasha] = useState<TashaLink>(existing?.tasha_link ?? 'unchecked');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const personal = email.trim() !== '' && email.includes('@') && !isWorkEmail(email);
+
+  // The role type follows the title until it is picked by hand.
+  const onTitle = (v: string) => {
+    setRole(v);
+    if (!roleTouched) setRoleType(suggestRoleType(v) ?? '');
+  };
 
   const save = async () => {
     setBusy(true);
     setErr(null);
     try {
-      await call({ action: 'contact_save', contactId: existing?.id, employerId, name, role, email, linkedinUrl });
+      await call({
+        action: 'contact_save', contactId: existing?.id, employerId, name, role, email, linkedinUrl,
+        roleType: roleType || null, contactSource: source, tashaLink: tasha,
+      });
       onDone();
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to save');
@@ -381,10 +473,36 @@ function ContactForm({
     <div className="rounded-md border border-white/10 bg-white/[0.02] p-2 space-y-2">
       <div className="grid gap-2 sm:grid-cols-4">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" aria-label="Name" className={`h-8 text-xs ${fieldCls}`} />
-        <Input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role (Head of HR)" aria-label="Role" className={`h-8 text-xs ${fieldCls}`} />
-        <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" aria-label="Email" className={`h-8 text-xs ${fieldCls}`} />
+        <Input value={role} onChange={(e) => onTitle(e.target.value)} placeholder="Title (Head of HR)" aria-label="Title" className={`h-8 text-xs ${fieldCls}`} />
+        <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Work email" aria-label="Work email" className={`h-8 text-xs ${fieldCls}`} />
         <Input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder="https://www.linkedin.com/in/…" aria-label="LinkedIn profile" className={`h-8 text-xs ${fieldCls}`} />
       </div>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="block">
+          <span className="text-[11px] text-white/60">Role type</span>
+          <select
+            value={roleType}
+            onChange={(e) => { setRoleType(e.target.value as RoleType | ''); setRoleTouched(true); }}
+            className={`mt-0.5 block ${selectCls}`}
+          >
+            <option value="">Unknown</option>
+            <option value="buyer">Buyer (HR director / CHRO)</option>
+            <option value="champion">Champion (HRBP, L&amp;D, mobility, career)</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className="text-[11px] text-white/60">Contact source</span>
+          <Input value={source} onChange={(e) => setSource(e.target.value)} placeholder="LinkedIn, company site, event…" aria-label="Contact source" className={`mt-0.5 h-8 w-48 text-xs ${fieldCls}`} />
+        </label>
+        <label className="block">
+          <span className="text-[11px] text-white/60">Tasha knows them?</span>
+          <select value={tasha} onChange={(e) => setTasha(e.target.value as TashaLink)} className={`mt-0.5 block ${selectCls}`}>
+            {(Object.keys(TASHA_LABEL) as TashaLink[]).map((t) => <option key={t} value={t}>{TASHA_LABEL[t]}</option>)}
+          </select>
+        </label>
+      </div>
+      {personal && <div className="text-[11px] text-[#EFBE48]">That looks like a personal mailbox. Only work addresses can be saved.</div>}
       {err && <div className="text-[11px] text-red-400">{err}</div>}
       <div className="flex gap-2">
         <Button onClick={save} disabled={busy || !name.trim()} size="sm" className="h-7 bg-atlas-teal hover:bg-atlas-teal/90 text-xs">
@@ -397,12 +515,14 @@ function ContactForm({
 }
 
 export function ContactsBlock({
-  employerId, contacts, call, onChanged,
+  employerId, contacts, call, onChanged, block, touches = [],
 }: {
   employerId: string;
   contacts: EmployerContact[];
   call: CallEmployers;
   onChanged: () => void;
+  block?: BlockContext;
+  touches?: EmployerTouch[];
 }) {
   const [adding, setAdding] = useState(false);
   return (
@@ -416,7 +536,9 @@ export function ContactsBlock({
         )}
       </div>
       {contacts.length === 0 && !adding && <div className="text-[11px] text-white/45">No contacts yet.</div>}
-      {contacts.map((c) => <ContactRow key={c.id} c={c} call={call} onChanged={onChanged} />)}
+      {contacts.map((c) => (
+        <ContactRow key={c.id} c={c} call={call} onChanged={onChanged} block={block} followUps={followUpCount(touches, c.id)} />
+      ))}
       {adding && (
         <ContactForm employerId={employerId} call={call} onDone={() => { setAdding(false); onChanged(); }} onCancel={() => setAdding(false)} />
       )}
@@ -427,7 +549,7 @@ export function ContactsBlock({
 // ─── Per employer: touch log ─────────────────────────────────────────────────
 
 function LogTouchForm({
-  employer, contacts, events, call, onDone, onCancel,
+  employer, contacts, events, call, onDone, onCancel, touches, block,
 }: {
   employer: EmployerLite;
   contacts: EmployerContact[];
@@ -435,6 +557,8 @@ function LogTouchForm({
   call: CallEmployers;
   onDone: () => void;
   onCancel: () => void;
+  touches: EmployerTouch[];
+  block?: BlockContext;
 }) {
   const today = ymd(new Date());
   const closed = CLOSED_STATUSES.includes(employer.status);
@@ -449,6 +573,13 @@ function LogTouchForm({
   const [followTouched, setFollowTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const outbound = kind === 'first_contact' || kind === 'follow_up';
+  const picked = contacts.find((c) => c.id === contactId);
+  const blocked = outbound && block
+    ? suppressionFor(picked ?? {}, block.employerDomain, block.suppressions)
+    : null;
+  const priorFollowUps = picked ? followUpCount(touches, picked.id) : 0;
 
   const resuggest = (k: TouchKind, ch: Channel) => {
     if (!followTouched && !closed) setFollowUp(suggestFollowUp(k, ch, today));
@@ -531,9 +662,19 @@ function LogTouchForm({
         </label>
       </div>
       <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional): what was said, what's next" className={`h-8 text-xs ${fieldCls}`} />
+      {blocked && (
+        <div className="text-[11px] text-red-300">
+          {picked ? picked.name : employer.name} is on the do-not-contact list. Reaching out can't be logged; a reply or meeting can.
+        </div>
+      )}
+      {!blocked && kind === 'follow_up' && priorFollowUps >= MAX_FOLLOW_UPS && (
+        <div className="text-[11px] text-[#EFBE48]">
+          {picked?.name} already had {priorFollowUps} follow-ups. The agreed maximum is {MAX_FOLLOW_UPS}: this one is your call.
+        </div>
+      )}
       {err && <div className="text-[11px] text-red-400">{err}</div>}
       <div className="flex items-center gap-2">
-        <Button onClick={save} disabled={busy} size="sm" className="h-7 bg-atlas-teal hover:bg-atlas-teal/90 text-xs">
+        <Button onClick={save} disabled={busy || Boolean(blocked)} size="sm" className="h-7 bg-atlas-teal hover:bg-atlas-teal/90 text-xs">
           {busy && <Loader2 className="h-3 w-3 mr-1 animate-spin" />} Log it
         </Button>
         <button onClick={onCancel} className="text-[11px] text-white/60 hover:text-white/85">Cancel</button>
@@ -544,9 +685,10 @@ function LogTouchForm({
 }
 
 export function TouchLog({
-  employer, touches, contacts, events, call, onChanged, account,
+  employer, touches, contacts, events, call, onChanged, account, block,
 }: {
   employer: EmployerLite;
+  block?: BlockContext;
   /** Signed-in Ops email, so the calendar link opens the right Google account. */
   account?: string | null;
   touches: EmployerTouch[];
@@ -625,6 +767,7 @@ export function TouchLog({
       {logging && (
         <LogTouchForm
           employer={employer} contacts={contacts} events={events} call={call}
+          touches={touches} block={block}
           onDone={() => { setLogging(false); onChanged(); }}
           onCancel={() => setLogging(false)}
         />

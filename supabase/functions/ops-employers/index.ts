@@ -9,6 +9,14 @@
 // Actions: list | save | mint | delete
 //          contact_save | contact_delete | event_save | event_delete
 //          touch_log | touch_delete | follow_up_set
+//          signal_save | signal_delete | bulk_set | hitlist_import
+//          suppress | unsuppress
+//
+// The hitlist (cold outreach to HR buyers) lives in the same tables, with ICP
+// fields, signals and a suggested tier: see
+// supabase/migrations/20261015150000_employer_hitlist.sql. Nothing here sends
+// mail. Outbound touches to anyone on the global do-not-contact list
+// (outreach_suppressions) are refused.
 //
 // The outreach log (contacts, events, touches, follow_up_on) is filled by hand:
 // see supabase/migrations/20261008120000_employer_outreach.sql.
@@ -18,7 +26,7 @@
 // visitor then actually sent the mail is invisible to us.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
+import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import {
   getCorsHeaders,
   handleCorsPreFlight,
@@ -26,10 +34,22 @@ import {
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
 import { isAdminEmail } from '../_shared/admins.ts';
+import { emailDomain, isFreeMailDomain, isWorkEmail, normDomain, normLinkedin } from '../_shared/workEmail.ts';
 
 const SITE = 'https://cairnly.io';
 
-const STATUSES = new Set(['lead', 'trial_sent', 'in_talks', 'customer', 'lost']);
+const STATUSES = new Set(['prospect', 'lead', 'trial_sent', 'in_talks', 'customer', 'lost']);
+const COUNTRIES = new Set(['NL', 'UK']);
+const SIZE_BANDS = new Set(['lt100', '100_249', '250_499', '500_999', '1000_plus']);
+const SOURCES = new Set(['linkedin', 'news', 'event', 'referral', 'other']);
+const TASHA_LINKS = new Set(['unchecked', 'none', 'first', 'second']);
+const ROLE_TYPES = new Set(['buyer', 'champion', 'other']);
+const SIGNAL_KINDS = new Set(['reorg', 'new_hr_lead', 'ld_job_ad', 'cao_budget']);
+const TIERS = new Set(['A', 'B', 'C']);
+/** Touches that reach out; replies and meetings may always be logged. */
+const OUTBOUND = new Set(['first_contact', 'follow_up']);
+/** Most companies one import may add. */
+const IMPORT_MAX = 500;
 const KINDS = new Set(['trial', 'seat']);
 const CHANNELS = new Set(['linkedin', 'event', 'email', 'phone', 'other']);
 const TOUCH_KINDS = new Set(['first_contact', 'follow_up', 'reply', 'meeting']);
@@ -73,6 +93,55 @@ function workingDaysFromToday(n: number): string {
     if (wd !== 0 && wd !== 6) left--;
   }
   return d.toISOString().slice(0, 10);
+}
+
+/** A value from `allowed`, null for empty, 'bad' for anything else. */
+const optEnum = (v: unknown, allowed: Set<string>): string | null | 'bad' => {
+  if (v === null || v === undefined || v === '') return null;
+  const s = String(v);
+  return allowed.has(s) ? s : 'bad';
+};
+
+const optUrl = (v: unknown): string | null | 'bad' => {
+  const s = optText(v, 500);
+  if (!s) return null;
+  return /^https?:\/\/\S+$/i.test(s) ? s : 'bad';
+};
+
+/**
+ * Is this contact (or, without one, this company) on the do-not-contact list?
+ * Checks the person's email and LinkedIn, their email's domain, and the
+ * company's domain. Throws when the check itself fails: no answer is no go.
+ */
+async function isBlocked(
+  db: SupabaseClient,
+  employerId: string,
+  contactId: string | null,
+  /** Email / LinkedIn about to be saved, not in the row yet. */
+  pending: { email?: unknown; linkedin?: unknown } = {},
+): Promise<boolean> {
+  const checks: Array<{ p_email: string | null; p_linkedin: string | null }> = [];
+  if (pending.email || pending.linkedin) {
+    checks.push({ p_email: (pending.email as string) ?? null, p_linkedin: (pending.linkedin as string) ?? null });
+  }
+  const { data: emp, error: empErr } = await db.from('employers').select('domain').eq('id', employerId).maybeSingle();
+  if (empErr) throw empErr;
+  if (emp?.domain) checks.push({ p_email: `x@${emp.domain}`, p_linkedin: null });
+  if (contactId) {
+    const { data: c, error } = await db
+      .from('employer_contacts')
+      .select('email, linkedin_url')
+      .eq('id', contactId)
+      .maybeSingle();
+    if (error) throw error;
+    if (c) checks.push({ p_email: c.email as string | null, p_linkedin: c.linkedin_url as string | null });
+  }
+  for (const args of checks) {
+    const { data, error } = await db.rpc('outreach_is_suppressed', args);
+    if (error) throw error;
+    if (data === true) return true;
+  }
+  return false;
 }
 
 const optDate = (v: unknown): string | null | 'bad' => {
@@ -129,11 +198,14 @@ serve(async (req) => {
         { data: contacts, error: contactsErr },
         { data: events, error: eventsErr },
         { data: touches, error: touchesErr },
+        { data: hitlist, error: hitlistErr },
+        { data: signals, error: signalsErr },
+        { data: suppressions, error: suppErr },
       ] =
         await Promise.all([
           supabase
             .from('employers')
-            .select('id, name, contact_name, contact_email, status, notes, follow_up_on, created_by, created_at, updated_at')
+            .select('id, name, contact_name, contact_email, status, notes, follow_up_on, created_by, created_at, updated_at, country, size_band, sector, website, domain, source, source_url, frontline, tasha_link, tier_override')
             .order('updated_at', { ascending: false }),
           supabase.from('employer_code_status').select('*'),
           supabase
@@ -152,8 +224,14 @@ serve(async (req) => {
             .gte('touched_on', touchSince)
             .order('touched_on', { ascending: false })
             .order('created_at', { ascending: false }),
+          supabase.from('employer_hitlist').select('*'),
+          supabase.from('employer_signals_status').select('*').order('signal_date', { ascending: false }),
+          supabase.from('outreach_suppressions').select('*').order('created_at', { ascending: false }),
         ]);
       if (rowsErr) throw rowsErr;
+      if (hitlistErr) throw hitlistErr;
+      if (signalsErr) throw signalsErr;
+      if (suppErr) throw suppErr;
       if (statsErr) throw statsErr;
       if (clicksErr) throw clicksErr;
       if (contactsErr) throw contactsErr;
@@ -169,6 +247,9 @@ serve(async (req) => {
         contacts: contacts ?? [],
         events: events ?? [],
         touches: touches ?? [],
+        hitlist: hitlist ?? [],
+        signals: signals ?? [],
+        suppressions: suppressions ?? [],
       }, corsHeaders);
     }
 
@@ -200,8 +281,40 @@ serve(async (req) => {
       if ('contactName' in body) fields.contact_name = optText(body.contactName, 120);
       if ('contactEmail' in body) fields.contact_email = contactEmail?.toLowerCase() ?? null;
 
+      // Hitlist fields: only touched when the client sends them, so the
+      // pipeline's own form (name / status / notes) leaves them alone.
+      const enumFields: Array<[string, string, Set<string>]> = [
+        ['country', 'country', COUNTRIES],
+        ['sizeBand', 'size_band', SIZE_BANDS],
+        ['source', 'source', SOURCES],
+        ['tashaLink', 'tasha_link', TASHA_LINKS],
+        ['tierOverride', 'tier_override', TIERS],
+      ];
+      for (const [key, col, allowed] of enumFields) {
+        if (!(key in body)) continue;
+        const v = optEnum(body[key], allowed);
+        if (v === 'bad') return errorResponse(`Unknown ${key}.`, 400, corsHeaders);
+        if (col === 'tasha_link') fields[col] = v ?? 'unchecked';
+        else fields[col] = v;
+      }
+      if ('sector' in body) fields.sector = optText(body.sector, 120);
+      if ('frontline' in body) fields.frontline = Boolean(body.frontline);
+      if ('sourceUrl' in body) {
+        const u = optUrl(body.sourceUrl);
+        if (u === 'bad') return errorResponse('The source link should start with https://', 400, corsHeaders);
+        fields.source_url = u;
+      }
+      if ('website' in body) {
+        const w = optText(body.website, 300);
+        const d = normDomain(w);
+        if (w && !d) return errorResponse('That website does not look right.', 400, corsHeaders);
+        fields.website = w;
+        fields.domain = d;
+      }
+
       if (id) {
         const { data, error } = await supabase.from('employers').update(fields).eq('id', id).select('id');
+        if (error?.code === '23505') return errorResponse('Another company already has that website.', 409, corsHeaders);
         if (error) throw error;
         if (!data || data.length === 0) return errorResponse('Unknown employer.', 404, corsHeaders);
         return ok({ id }, corsHeaders);
@@ -212,6 +325,7 @@ serve(async (req) => {
         .insert({ ...fields, created_by: authed.email ?? null })
         .select('id')
         .single();
+      if (error?.code === '23505') return errorResponse('Another company already has that website.', 409, corsHeaders);
       if (error) throw error;
       return ok({ id: data.id }, corsHeaders);
     }
@@ -301,6 +415,9 @@ serve(async (req) => {
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           return errorResponse('That email does not look right.', 400, corsHeaders);
         }
+        if (email && !isWorkEmail(email)) {
+          return errorResponse('Work addresses only: that is a personal mailbox.', 400, corsHeaders);
+        }
         fields.email = email?.toLowerCase() ?? null;
       }
       if ('linkedinUrl' in body) {
@@ -309,6 +426,17 @@ serve(async (req) => {
           return errorResponse('That LinkedIn link should start with https://www.linkedin.com/', 400, corsHeaders);
         }
         fields.linkedin_url = url;
+      }
+      if ('roleType' in body) {
+        const v = optEnum(body.roleType, ROLE_TYPES);
+        if (v === 'bad') return errorResponse('Unknown role type.', 400, corsHeaders);
+        fields.role_type = v;
+      }
+      if ('contactSource' in body) fields.contact_source = optText(body.contactSource, 200);
+      if ('tashaLink' in body) {
+        const v = optEnum(body.tashaLink, TASHA_LINKS);
+        if (v === 'bad') return errorResponse('Unknown Tasha link.', 400, corsHeaders);
+        fields.tasha_link = v ?? 'unchecked';
       }
 
       let prev: { employer_id: string; linkedin_stage: string; invite_sent_at: string | null; connected_at: string | null; conversation_at: string | null } | null = null;
@@ -340,6 +468,13 @@ serve(async (req) => {
           if (!prev || !(prev as Record<string, unknown>)[col]) fields[col] = now;
         }
         inviteNow = stage === 'invite_sent' && !prev?.invite_sent_at;
+      }
+
+      // An invite is reaching out: not to someone who said no.
+      if (inviteNow && await isBlocked(supabase, prev?.employer_id ?? employerId, contactId, {
+        email: fields.email, linkedin: fields.linkedin_url,
+      })) {
+        return errorResponse('This person or company is on the do-not-contact list.', 409, corsHeaders);
       }
 
       let id = contactId;
@@ -432,6 +567,12 @@ serve(async (req) => {
       const followUpOn = optDate(body.followUpOn);
       if (followUpOn === 'bad') return errorResponse('That follow-up date does not look right.', 400, corsHeaders);
 
+      // Logging is by hand, but a block is a block: no reaching out to
+      // someone on the do-not-contact list. Their reply can still be logged.
+      if (OUTBOUND.has(kind) && await isBlocked(supabase, employerId, contactId)) {
+        return errorResponse('This person or company is on the do-not-contact list.', 409, corsHeaders);
+      }
+
       const { data, error } = await supabase
         .from('employer_touches')
         .insert({
@@ -451,6 +592,10 @@ serve(async (req) => {
       const upd: Json = { updated_at: new Date().toISOString() };
       if ('followUpOn' in body) upd.follow_up_on = followUpOn;
       await supabase.from('employers').update(upd).eq('id', employerId);
+      // First reach-out moves a hitlist company into the pipeline.
+      if (OUTBOUND.has(kind)) {
+        await supabase.from('employers').update({ status: 'lead' }).eq('id', employerId).eq('status', 'prospect');
+      }
       return ok({ id: data.id }, corsHeaders);
     }
 
@@ -470,6 +615,225 @@ serve(async (req) => {
       const { error } = await supabase.from('employers').update({ follow_up_on: followUpOn }).eq('id', employerId);
       if (error) throw error;
       return ok({ ok: true }, corsHeaders);
+    }
+
+    // ── signals ─────────────────────────────────────────────────────────────
+    if (action === 'signal_save') {
+      const employerId = String(body.employerId ?? '');
+      if (!UUID_RE.test(employerId)) return errorResponse('Unknown employer.', 400, corsHeaders);
+      const kind = String(body.kind ?? '');
+      if (!SIGNAL_KINDS.has(kind)) return errorResponse('Unknown signal type.', 400, corsHeaders);
+      const date = optDate(body.signalDate);
+      if (!date || date === 'bad') return errorResponse('A signal needs a date.', 400, corsHeaders);
+      const url = optUrl(body.sourceUrl);
+      if (!url || url === 'bad') return errorResponse('A signal needs a source link starting with https://', 400, corsHeaders);
+      const { data, error } = await supabase
+        .from('employer_signals')
+        .insert({ employer_id: employerId, kind, signal_date: date, source_url: url, note: optText(body.note, 500), created_by: authed.email ?? null })
+        .select('id')
+        .single();
+      if (error) throw error;
+      await supabase.from('employers').update({ updated_at: new Date().toISOString() }).eq('id', employerId);
+      return ok({ id: data.id }, corsHeaders);
+    }
+
+    if (action === 'signal_delete') {
+      const signalId = String(body.signalId ?? '');
+      if (!UUID_RE.test(signalId)) return errorResponse('Unknown signal.', 400, corsHeaders);
+      const { error } = await supabase.from('employer_signals').delete().eq('id', signalId);
+      if (error) throw error;
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    // ── bulk_set ────────────────────────────────────────────────────────────
+    // Tasha's cross-check and tier overrides for many companies at once.
+    if (action === 'bulk_set') {
+      const ids = Array.isArray(body.ids) ? body.ids.map(String) : [];
+      if (ids.length === 0 || ids.length > IMPORT_MAX || !ids.every((i: string) => UUID_RE.test(i))) {
+        return errorResponse('Pick at least one company.', 400, corsHeaders);
+      }
+      const fields: Json = { updated_at: new Date().toISOString() };
+      if ('tashaLink' in body) {
+        const v = optEnum(body.tashaLink, TASHA_LINKS);
+        if (!v || v === 'bad') return errorResponse('Unknown Tasha link.', 400, corsHeaders);
+        fields.tasha_link = v;
+      }
+      if ('tierOverride' in body) {
+        const v = optEnum(body.tierOverride, TIERS);
+        if (v === 'bad') return errorResponse('Unknown tier.', 400, corsHeaders);
+        fields.tier_override = v;
+      }
+      if (Object.keys(fields).length === 1) return errorResponse('Nothing to change.', 400, corsHeaders);
+      const { data, error } = await supabase.from('employers').update(fields).in('id', ids).select('id');
+      if (error) throw error;
+      return ok({ updated: data?.length ?? 0 }, corsHeaders);
+    }
+
+    // ── suppress / unsuppress ───────────────────────────────────────────────
+    // scope 'person' blocks the contact's email and LinkedIn profile (one row
+    // each). scope 'company' blocks the domain: the company's website, else
+    // the contact's work address. Either one also closes any bureau on that
+    // address in the outplacement mailer (trigger in the migration).
+    if (action === 'suppress') {
+      const scope = String(body.scope ?? '');
+      if (scope !== 'person' && scope !== 'company') return errorResponse('Unknown scope.', 400, corsHeaders);
+      const contactId = body.contactId ? String(body.contactId) : null;
+      let employerId = body.employerId ? String(body.employerId) : null;
+      if (contactId && !UUID_RE.test(contactId)) return errorResponse('Unknown contact.', 400, corsHeaders);
+      if (employerId && !UUID_RE.test(employerId)) return errorResponse('Unknown employer.', 400, corsHeaders);
+
+      let contact: { employer_id: string; email: string | null; linkedin_url: string | null } | null = null;
+      if (contactId) {
+        const { data, error } = await supabase
+          .from('employer_contacts')
+          .select('employer_id, email, linkedin_url')
+          .eq('id', contactId)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) return errorResponse('Unknown contact.', 404, corsHeaders);
+        contact = data;
+        employerId = data.employer_id;
+      }
+      if (!employerId) return errorResponse('Unknown employer.', 400, corsHeaders);
+
+      const base = {
+        reason: optText(body.reason, 300),
+        track: 'employer',
+        employer_id: employerId,
+        contact_id: contactId,
+        created_by: authed.email ?? null,
+      };
+      const rows: Json[] = [];
+      if (scope === 'person') {
+        if (!contact) return errorResponse('Pick a contact to block.', 400, corsHeaders);
+        if (contact.email) rows.push({ ...base, email: contact.email.toLowerCase() });
+        const li = normLinkedin(contact.linkedin_url);
+        if (li) rows.push({ ...base, linkedin: li });
+        if (rows.length === 0) {
+          return errorResponse('This contact has no email or LinkedIn profile to block. Add one, or block the whole company.', 400, corsHeaders);
+        }
+      } else {
+        const { data: emp, error } = await supabase.from('employers').select('domain').eq('id', employerId).maybeSingle();
+        if (error) throw error;
+        const domain = emp?.domain ?? emailDomain(contact?.email);
+        if (!domain) return errorResponse('No website or work address to block the company by. Add the website first.', 400, corsHeaders);
+        if (isFreeMailDomain(domain)) return errorResponse(`${domain} is a personal mail provider, not a company.`, 400, corsHeaders);
+        rows.push({ ...base, domain });
+      }
+      // Already blocked is fine: a unique-key clash (23505) is a repeat, not an error.
+      for (const row of rows) {
+        const { error } = await supabase.from('outreach_suppressions').insert(row);
+        if (error && error.code !== '23505') throw error;
+      }
+
+      // Nobody chases a company that said no.
+      if (scope === 'company') {
+        await supabase.from('employers').update({ follow_up_on: null, updated_at: new Date().toISOString() }).eq('id', employerId);
+      }
+      return ok({ ok: true, blocked: rows.length }, corsHeaders);
+    }
+
+    // Undo for a wrong click. Bureaus it closed stay closed: reopening one is
+    // a call for the Outreach tab, not a side effect of this.
+    if (action === 'unsuppress') {
+      const id = String(body.suppressionId ?? '');
+      if (!UUID_RE.test(id)) return errorResponse('Unknown entry.', 400, corsHeaders);
+      const { error } = await supabase.from('outreach_suppressions').delete().eq('id', id);
+      if (error) throw error;
+      return ok({ ok: true }, corsHeaders);
+    }
+
+    // ── hitlist_import ──────────────────────────────────────────────────────
+    // Companies parsed in the browser (src/lib/hitlist.ts planImport). Checked
+    // again here. A company whose domain (or, without one, name) already
+    // exists gets only its new contacts; contacts whose email or LinkedIn is
+    // already known are skipped.
+    if (action === 'hitlist_import') {
+      const companies = Array.isArray(body.companies) ? body.companies as Json[] : [];
+      if (companies.length === 0) return errorResponse('Nothing to import.', 400, corsHeaders);
+      if (companies.length > IMPORT_MAX) return errorResponse(`At most ${IMPORT_MAX} companies per import.`, 400, corsHeaders);
+
+      const [{ data: existing, error: exErr }, { data: known, error: knErr }] = await Promise.all([
+        supabase.from('employers').select('id, name, domain'),
+        supabase.from('employer_contacts').select('email, linkedin_url'),
+      ]);
+      if (exErr) throw exErr;
+      if (knErr) throw knErr;
+      const byDomain = new Map((existing ?? []).filter((e) => e.domain).map((e) => [e.domain as string, e.id as string]));
+      const byName = new Map((existing ?? []).map((e) => [String(e.name).trim().toLowerCase(), e.id as string]));
+      const knownEmails = new Set((known ?? []).map((c) => (c.email ?? '').toLowerCase()).filter(Boolean));
+      const knownLinkedin = new Set((known ?? []).map((c) => normLinkedin(c.linkedin_url)).filter(Boolean) as string[]);
+
+      let added = 0;
+      let matched = 0;
+      let contactsAdded = 0;
+      const skipped: string[] = [];
+
+      for (const c of companies) {
+        const name = String(c.name ?? '').trim().slice(0, 80);
+        if (!name) { skipped.push('A company without a name.'); continue; }
+        const domain = normDomain(c.domain as string) ?? normDomain(c.website as string);
+        const country = optEnum(c.country, COUNTRIES);
+        const size = optEnum(c.size_band, SIZE_BANDS);
+        const source = optEnum(c.source, SOURCES);
+        const sourceUrl = optUrl(c.source_url);
+
+        let employerId = (domain && byDomain.get(domain)) || byName.get(name.toLowerCase()) || null;
+        if (employerId) {
+          matched++;
+        } else {
+          const { data, error } = await supabase
+            .from('employers')
+            .insert({
+              name,
+              status: 'prospect',
+              country: country === 'bad' ? null : country,
+              size_band: size === 'bad' ? null : size,
+              sector: optText(c.sector, 120),
+              website: optText(c.website, 300),
+              domain,
+              source: source === 'bad' ? null : source,
+              source_url: sourceUrl === 'bad' ? null : sourceUrl,
+              notes: optText(c.notes, 4000),
+              created_by: authed.email ?? null,
+            })
+            .select('id')
+            .single();
+          if (error) { skipped.push(`${name}: ${error.message}`); continue; }
+          employerId = data.id as string;
+          added++;
+          if (domain) byDomain.set(domain, employerId);
+          byName.set(name.toLowerCase(), employerId);
+        }
+
+        const contacts = Array.isArray(c.contacts) ? c.contacts as Json[] : [];
+        for (const p of contacts) {
+          const cName = String(p.name ?? '').trim().slice(0, 120);
+          const email = optText(p.email, 200)?.toLowerCase() ?? null;
+          const linkedin = optText(p.linkedin_url, 300);
+          const li = normLinkedin(linkedin);
+          const source = optText(p.contact_source, 200);
+          if (!cName) continue;
+          if (!source) { skipped.push(`${cName} (${name}): no contact source.`); continue; }
+          if (email && !isWorkEmail(email)) { skipped.push(`${cName} (${name}): ${email} is not a work address.`); continue; }
+          if ((email && knownEmails.has(email)) || (li && knownLinkedin.has(li))) continue;
+          const role = optEnum(p.role_type, ROLE_TYPES);
+          const { error } = await supabase.from('employer_contacts').insert({
+            employer_id: employerId,
+            name: cName,
+            role: optText(p.title, 120),
+            role_type: role === 'bad' ? null : role,
+            email,
+            linkedin_url: li ? linkedin : null,
+            contact_source: source,
+          });
+          if (error) { skipped.push(`${cName} (${name}): ${error.message}`); continue; }
+          contactsAdded++;
+          if (email) knownEmails.add(email);
+          if (li) knownLinkedin.add(li);
+        }
+      }
+      return ok({ added, matched, contactsAdded, skipped }, corsHeaders);
     }
 
     return errorResponse('Unknown action', 400, corsHeaders);

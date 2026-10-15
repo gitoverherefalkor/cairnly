@@ -13,6 +13,10 @@
 // Outreach (contacts, LinkedIn stages, events, the touch log, follow-up dates
 // and the stats over them) lives in ./employers/EmployerOutreach.tsx. Mostly
 // LinkedIn and events, logged by hand: see 20261008120000_employer_outreach.sql.
+//
+// The Hitlist view (./employers/Hitlist.tsx) is the cold-outreach list of HR
+// buyers: the same employers, status 'prospect' until first contact. The
+// Pipeline view leaves those out so it stays Tasha's working list.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,10 +25,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Check, Briefcase, RefreshCw, Pencil, X, Trash2, Mail, MousePointerClick } from 'lucide-react';
 import { OutreachOverview, ContactsBlock, TouchLog } from './employers/EmployerOutreach';
+import Hitlist from './employers/Hitlist';
 import type { EmployerStatus, EmployerContact, EmployerEvent, EmployerTouch } from '@/lib/employerOutreach';
+import type { HitlistFields, HitlistRow, EmployerSignal, Suppression } from '@/lib/hitlist';
 type CodeKind = 'trial' | 'seat';
 
-interface Employer {
+interface Employer extends HitlistFields {
   id: string;
   name: string;
   contact_name: string | null;
@@ -50,6 +56,7 @@ interface TrialClick {
 }
 
 const STATUS_LABEL: Record<EmployerStatus, string> = {
+  prospect: 'Prospect (hitlist)',
   lead: 'Lead',
   trial_sent: 'Trial sent',
   in_talks: 'In talks',
@@ -58,6 +65,7 @@ const STATUS_LABEL: Record<EmployerStatus, string> = {
 };
 
 const STATUS_TONE: Record<EmployerStatus, string> = {
+  prospect: 'bg-white/[0.05] text-white/60',
   lead: 'bg-white/[0.08] text-white/75',
   trial_sent: 'bg-[rgba(57,137,175,0.2)] text-[#7FBCD9]',
   in_talks: 'bg-[rgba(239,190,72,0.18)] text-[#EFBE48]',
@@ -80,6 +88,9 @@ interface EmployersResponse {
   contacts?: EmployerContact[];
   events?: EmployerEvent[];
   touches?: EmployerTouch[];
+  hitlist?: HitlistRow[];
+  signals?: EmployerSignal[];
+  suppressions?: Suppression[];
 }
 
 async function callEmployers(body: Record<string, unknown>): Promise<EmployersResponse> {
@@ -494,6 +505,16 @@ const EmployersTab: React.FC = () => {
   const [events, setEvents] = useState<EmployerEvent[]>([]);
   const [touches, setTouches] = useState<EmployerTouch[]>([]);
   const [me, setMe] = useState<string | null>(null);
+  const [hitlist, setHitlist] = useState<HitlistRow[]>([]);
+  const [signals, setSignals] = useState<EmployerSignal[]>([]);
+  const [suppressions, setSuppressions] = useState<Suppression[]>([]);
+  const [view, setView] = useState<'pipeline' | 'hitlist'>(() => {
+    try { return localStorage.getItem('ops.employers.view') === 'hitlist' ? 'hitlist' : 'pipeline'; } catch { return 'pipeline'; }
+  });
+  const pickView = (v: 'pipeline' | 'hitlist') => {
+    setView(v);
+    try { localStorage.setItem('ops.employers.view', v); } catch { /* private window */ }
+  };
 
   // `quiet` refreshes after an edit without blanking the list (and losing scroll).
   const load = useCallback(async (quiet = false) => {
@@ -507,6 +528,9 @@ const EmployersTab: React.FC = () => {
       setContacts(res.contacts ?? []);
       setEvents(res.events ?? []);
       setTouches(res.touches ?? []);
+      setHitlist(res.hitlist ?? []);
+      setSignals(res.signals ?? []);
+      setSuppressions(res.suppressions ?? []);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Failed to load');
     } finally {
@@ -524,11 +548,54 @@ const EmployersTab: React.FC = () => {
     document.getElementById(`employer-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // Hitlist companies nobody has contacted yet stay out of Tasha's pipeline.
+  const pipeline = employers.filter((e) => e.status !== 'prospect');
+  const prospects = employers.length - pipeline.length;
+
+  const toggle = (
+    <div className="inline-flex rounded-md border border-white/[0.14] p-0.5">
+      {(['pipeline', 'hitlist'] as const).map((v) => (
+        <button
+          key={v}
+          onClick={() => pickView(v)}
+          aria-pressed={view === v}
+          className={`h-7 rounded px-3 text-xs ${view === v ? 'bg-white/[0.14] text-white' : 'text-white/60 hover:text-white/85'}`}
+        >
+          {v === 'pipeline' ? `Pipeline (${pipeline.length})` : `Hitlist (${prospects} to contact)`}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (view === 'hitlist') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          {toggle}
+          <Button onClick={() => load()} size="sm" variant="ghost" className="ml-auto h-7 px-2 text-xs text-white/70">
+            <RefreshCw className="h-3 w-3 mr-1" /> Refresh
+          </Button>
+        </div>
+        {err && <div className="text-xs text-red-400">{err}</div>}
+        {loading ? (
+          <div className="flex items-center gap-2 text-xs text-white/60"><Loader2 className="h-3 w-3 animate-spin" /> Loading…</div>
+        ) : (
+          <Hitlist
+            employers={employers} hitlist={hitlist} signals={signals} suppressions={suppressions}
+            contacts={contacts} touches={touches} events={events}
+            call={callEmployers} onChanged={reload} account={me}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+      {toggle}
       {!loading && (
         <OutreachOverview
-          employers={employers} contacts={contacts} events={events} touches={touches}
+          employers={pipeline} contacts={contacts} events={events} touches={touches}
           call={callEmployers} onChanged={reload} onJump={jumpTo}
         />
       )}
@@ -547,15 +614,16 @@ const EmployersTab: React.FC = () => {
       {err && <div className="text-xs text-red-400">{err}</div>}
       {loading && <div className="flex items-center gap-2 text-xs text-white/60"><Loader2 className="h-3 w-3 animate-spin" /> Loading…</div>}
 
-      {!loading && employers.length === 0 && (
+      {!loading && pipeline.length === 0 && (
         <div className="rounded-lg border border-white/10 bg-white/[0.02] p-6 text-center text-xs text-white/60">
           No employers yet. Add one above.
         </div>
       )}
 
-      {employers.map((e) => {
+      {pipeline.map((e) => {
         const trial = trialLine(e);
         const own = contacts.filter((c) => c.employer_id === e.id);
+        const block = { suppressions, employerDomain: e.domain };
         const mailTo = own.find((c) => c.email)?.email ?? e.contact_email;
         return (
           <div key={e.id} id={`employer-${e.id}`} className="scroll-mt-4 rounded-lg border border-white/10 bg-white/[0.03] p-3">
@@ -587,7 +655,10 @@ const EmployersTab: React.FC = () => {
               </div>
             )}
 
-            <ContactsBlock employerId={e.id} contacts={own} call={callEmployers} onChanged={reload} />
+            <ContactsBlock
+              employerId={e.id} contacts={own} call={callEmployers} onChanged={reload}
+              block={block} touches={touches.filter((t) => t.employer_id === e.id)}
+            />
             <TouchLog
               employer={e}
               touches={touches.filter((t) => t.employer_id === e.id)}
@@ -596,6 +667,7 @@ const EmployersTab: React.FC = () => {
               call={callEmployers}
               onChanged={reload}
               account={me}
+              block={block}
             />
 
             <MintRow employer={e} mailTo={mailTo} onMinted={reload} />
