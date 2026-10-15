@@ -953,14 +953,11 @@ const CollapsibleCareerBlocks: React.FC<{
             const isOpen = openIndices.has(idx);
             const section = findSectionByTitle(sections, block.title);
             const score = visibleCareerScore(section);
-            // Dream-job cards are assessed on Feasibility (the "reality check"),
-            // not AI impact — WF4 only emits an AI-impact line incidentally, so
-            // suppress the AI pill here to keep those cards uniform.
+            // Dream-job cards show the AI pill too since 2026-10-15: the label is
+            // set by Jev (title-pinned), same as on the dashboard and in the PDF.
             const aiImpact =
-              section?.section_type === 'dream_jobs'
-                ? null
-                : (section && extractAIImpact(section.content || '')) ||
-                  extractAIImpact(block.body || '');
+              (section && extractAIImpact(section.content || '')) ||
+              extractAIImpact(block.body || '');
             const feasibility =
               (section && extractFeasibility(section.content || '')) ||
               extractFeasibility(block.body || '');
@@ -1313,12 +1310,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           .trim();
         const section = findSectionByTitle(sections, headingText);
         const score = visibleCareerScore(section);
-        // Look for an AI Impact rating anywhere in the message body — except on
-        // dream-job cards, which are Feasibility-only (see multi-card path).
+        // Look for an AI Impact rating anywhere in the message body (dream-job
+        // cards included since 2026-10-15, see multi-card path).
         const aiImpact =
-          section?.section_type === 'dream_jobs'
-            ? null
-            : (section && extractAIImpact(section.content || '')) || extractAIImpact(sanitized);
+          (section && extractAIImpact(section.content || '')) || extractAIImpact(sanitized);
         const feasibility =
           (section && extractFeasibility(section.content || '')) || extractFeasibility(sanitized);
         return (

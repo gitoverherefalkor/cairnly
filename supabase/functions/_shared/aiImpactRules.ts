@@ -72,6 +72,12 @@ export function ownershipOf(row: { path_type?: string | null; company_size_type?
   return 'employee';
 }
 
+// Pin key for a career title: lower case, letters and digits only, so "Campervan" and "Camper Van"
+// (or stray punctuation) share one pin. Must match the SQL in migration 20261015140000.
+export function titleNorm(title: string | null | undefined): string {
+  return (title ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 // Employees: Severe or Critical never in the top 3 (enforced in WF3 Ranking). Own work: no ban.
 export function blockedFromTop3(level: AiImpactLevel | null | undefined, ownership: Ownership): boolean {
   return ownership === 'employee' && (level === 'Severe' || level === 'Critical');

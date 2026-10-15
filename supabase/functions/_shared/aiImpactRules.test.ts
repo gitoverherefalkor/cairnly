@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blockedFromTop3, designLabel, ownershipOf } from './aiImpactRules';
+import { blockedFromTop3, designLabel, ownershipOf, titleNorm } from './aiImpactRules';
 
 const ans = (score: number, physical = 0.1, orchestrator = 0.1) => ({
   physical_role: { noul: physical },
@@ -68,6 +68,20 @@ describe('ownershipOf', () => {
 
   it('other paths are employee', () => {
     expect(ownershipOf({ path_type: 'traditional', company_size_type: 'Large Enterprise' })).toBe('employee');
+  });
+});
+
+describe('titleNorm', () => {
+  it('ignores case, spaces and punctuation', () => {
+    expect(titleNorm('Founder, Campervan Conversion Company')).toBe(titleNorm('founder  camper van conversion-company'));
+  });
+
+  it('keeps different words apart', () => {
+    expect(titleNorm('Founder, Camper Van Kit Company')).not.toBe(titleNorm('Founder, Camper Van Conversion Company'));
+  });
+
+  it('handles empty input', () => {
+    expect(titleNorm(null)).toBe('');
   });
 });
 
