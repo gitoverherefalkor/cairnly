@@ -1,6 +1,6 @@
 // Jev AI-impact: the questions and the label rules from docs/jev-cairnly-ontwerp-2026-09-23.md, 2.3b.
 // Pure logic, no Deno imports, so vitest can test it. Must stay identical to designLabel in
-// scripts/jev-ai-impact.mjs (--scale work), which produced the measured distribution
+// scripts/jev-ai-impact.mjs (--scale work, minus the own-work exemption added 2026-10-15), which produced the measured distribution
 // (642 rows: 6 Minimal, 316 Moderate, 317 High, 3 Severe, 0 Critical).
 
 export const AI_IMPACT_LEVELS = ['Minimal', 'Moderate', 'High', 'Severe', 'Critical'] as const;
@@ -43,14 +43,20 @@ export type LabelRule = 'physical' | 'orchestrator' | 'floor' | 'score';
 // 2.3b:
 // - physical_role > 0.8 → Minimal.
 // - Severe and Critical only when the score reaches that level (2.5-2.99 stays High, 3.5-3.99 Severe).
-// - orchestrator_role > 0.8 → at most Moderate (Minimal allowed, no floor).
+// - orchestrator_role > 0.8 → at most Moderate (Minimal allowed, no floor), for employees only.
+//   Founders and freelancers get the honest score: for own work AI is leverage (Sjoerd, 2026-10-15).
 // - everyone else round(score) with a floor of Moderate.
-export function designLabel(a: JevAiImpactAnswers): { label: AiImpactLevel; rule: LabelRule } {
+export function designLabel(
+  a: JevAiImpactAnswers,
+  ownership: Ownership = 'employee',
+): { label: AiImpactLevel; rule: LabelRule } {
   if (a.physical_role.noul > 0.8) return { label: 'Minimal', rule: 'physical' };
   let lvl = Math.round(a.ai_impact.score);
   if (lvl >= 3 && a.ai_impact.score < lvl) lvl -= 1;
   lvl = Math.max(0, Math.min(4, lvl));
-  if (a.orchestrator_role.noul > 0.8) return { label: AI_IMPACT_LEVELS[Math.min(lvl, 1)], rule: 'orchestrator' };
+  if (a.orchestrator_role.noul > 0.8 && ownership === 'employee') {
+    return { label: AI_IMPACT_LEVELS[Math.min(lvl, 1)], rule: 'orchestrator' };
+  }
   if (lvl < 1) return { label: 'Moderate', rule: 'floor' };
   return { label: AI_IMPACT_LEVELS[lvl], rule: 'score' };
 }

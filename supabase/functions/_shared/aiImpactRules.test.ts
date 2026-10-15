@@ -40,6 +40,12 @@ describe('designLabel (2.3b)', () => {
     expect(designLabel(ans(0.2, 0.1, 0.9))).toEqual({ label: 'Minimal', rule: 'orchestrator' });
   });
 
+  it('own work skips the orchestrator ceiling', () => {
+    expect(designLabel(ans(2.2, 0.1, 0.9), 'own_work')).toEqual({ label: 'High', rule: 'score' });
+    expect(designLabel(ans(0.2, 0.1, 0.9), 'own_work')).toEqual({ label: 'Moderate', rule: 'floor' });
+    expect(designLabel(ans(2.2, 0.1, 0.9), 'employee').rule).toBe('orchestrator');
+  });
+
   it('physical wins over orchestrator', () => {
     expect(designLabel(ans(2, 0.9, 0.9)).rule).toBe('physical');
   });

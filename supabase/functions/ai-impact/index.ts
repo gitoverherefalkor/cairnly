@@ -7,6 +7,11 @@
 // Jev request per career (all in parallel), applies the 2.3b rules and writes ai_impact_level,
 // _confidence, _probabilities, _model and _at. dry_run returns the labels without writing.
 //
+// Title pin: a title that already has a label on an earlier report (same normalized title, same
+// own-work/employee split) reuses the OLDEST label instead of asking Jev again, so the same career
+// always shows the same pill. To relabel everything (new questions or rules), null out
+// enriched_jobs.ai_impact_level first.
+//
 // Only job information goes to TypeSafe (title, overview, tasks, size type, path type, research),
 // never profile, CV or chat data. The old ai_impact_rating column is not touched.
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -14,6 +19,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 import { verifySharedSecret } from '../_shared/cors.ts';
 import { callJev, JevError, requireJevKey } from '../_shared/jev.ts';
 import { AI_IMPACT_QUESTIONS, designLabel, jevState, ownershipOf } from '../_shared/aiImpactRules.ts';
+
+const normTitle = (t: string | null) => (t ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -67,16 +74,49 @@ serve(async (req) => {
   if (!jobs.length) return json({ report_id: reportId, labelled: 0, results: [] });
   const research = (researchRes.data?.[0]?.key_findings as string | null) ?? null;
 
+  // Earlier labels for these titles, oldest first; the first one per title + ownership wins.
+  const titles = [...new Set(jobs.map((j) => j.career_title).filter(Boolean))] as string[];
+  const pinned = new Map<string, Record<string, unknown>>();
+  if (titles.length) {
+    const { data: prior, error: priorErr } = await supabase
+      .from('enriched_jobs')
+      .select('career_title, company_size_type, path_type, ai_impact_level, ai_impact_confidence, ai_impact_probabilities, ai_impact_model')
+      .in('career_title', titles)
+      .neq('report_id', reportId)
+      .not('ai_impact_level', 'is', null)
+      .order('ai_impact_at', { ascending: true });
+    if (priorErr) console.error('[ai-impact] pin lookup', priorErr.message); // fall through to Jev
+    for (const r of prior ?? []) {
+      const k = `${normTitle(r.career_title)}|${ownershipOf(r)}`;
+      if (!pinned.has(k)) pinned.set(k, r);
+    }
+  }
+
   const results = await Promise.all(
     jobs.map(async (job) => {
       try {
+        const pin = pinned.get(`${normTitle(job.career_title)}|${ownershipOf(job)}`);
+        if (pin) {
+          const row = {
+            ai_impact_level: pin.ai_impact_level,
+            ai_impact_confidence: pin.ai_impact_confidence,
+            ai_impact_probabilities: pin.ai_impact_probabilities,
+            ai_impact_model: pin.ai_impact_model,
+            ai_impact_at: new Date().toISOString(),
+          };
+          if (!body.dry_run) {
+            const { error } = await supabase.from('enriched_jobs').update(row).eq('id', job.id);
+            if (error) throw new Error(`update: ${error.message}`);
+          }
+          return { id: job.id, title: job.career_title, level: pin.ai_impact_level, rule: 'pinned', ownership: ownershipOf(job) };
+        }
         const res = await callJev(
           key,
           { state: jevState(job, research), questions: AI_IMPACT_QUESTIONS },
           { tag: `report=${reportId} job=${job.id}` },
         );
         const a = res.answers;
-        const { label, rule } = designLabel(a as any);
+        const { label, rule } = designLabel(a as any, ownershipOf(job));
         const row = {
           ai_impact_level: label,
           ai_impact_confidence: a.ai_impact?.confidence ?? null,
