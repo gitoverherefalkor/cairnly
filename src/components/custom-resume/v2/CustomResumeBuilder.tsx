@@ -26,6 +26,7 @@ import {
   REyebrow,
 } from './customResumeV2Shared';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { visibleCareerScore } from '@/lib/careerScore';
 import type { CareerSelection } from '../types';
 import type { CustomResumeRow } from '../hooks/useCustomResumes';
 import { stripHtml } from '../utils';
@@ -315,7 +316,9 @@ const CareerCard: React.FC<{
     '',
   );
   const altTitles = altTitlesText ? `Alternate titles: ${altTitlesText}` : '';
-  const score = section.score != null ? Math.round(Number(section.score)) : null;
+  // Top 3 only; other careers show no number (lib/careerScore).
+  const visible = visibleCareerScore(section);
+  const score = visible != null ? Math.round(visible) : null;
   const savedCount = savedResumes?.length ?? 0;
   const hasSaved = savedCount > 0;
 

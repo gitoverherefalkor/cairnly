@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { sectionText, sectionTitle } from '@/lib/sectionText';
+import { visibleCareerScore } from '@/lib/careerScore';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -51,11 +52,10 @@ function cleanField(raw: string | null | undefined): string {
 
 // Sections that carry match / AI-impact / move pills.
 //
-// runner_ups was missing from this list, which was simply wrong: 81 of 82
-// runner-up rows in production carry a score, 61 carry a `move`, and 81 discuss
-// AI impact. They were the only ranked roles in the document rendering without
-// their numbers. dream_jobs has no score (MatchPill self-skips on a non-finite
-// value) but does carry move and AI impact.
+// runner_ups was missing from this list: 61 of 82 runner-up rows carry a
+// `move` and 81 discuss AI impact. The match number itself shows only on the
+// Top 3 (see visibleCareerScore); every other career gets its AI-impact and
+// move pills without a score.
 const CAREER_TYPES = [
   'top_career_1',
   'top_career_2',
@@ -240,7 +240,7 @@ export const PrintSection: React.FC<{
 }) => {
   const nested = level === 'nested';
   const isCareer = CAREER_TYPES.includes(section.section_type);
-  const score = section.score != null ? Number(section.score) : NaN;
+  const score = visibleCareerScore(section);
   const impact = isCareer ? extractAIImpact(section.content || '') : null;
   const move = section.metadata?.move as MoveLevel | undefined;
   const eyebrow = nested ? null : eyebrowFor(section.section_type, lang);
@@ -387,7 +387,7 @@ export const PrintSection: React.FC<{
 
         {isCareer && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '0 0 0 0' }}>
-            {Number.isFinite(score) && <MatchPill pct={score} lang={lang} />}
+            {score != null && <MatchPill pct={score} lang={lang} />}
             {impact && <AIImpactPill label={impact as AIImpactLevel} lang={lang} />}
             {move && <MovePill level={move} lang={lang} />}
           </div>

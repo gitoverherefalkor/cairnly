@@ -19,6 +19,7 @@ import { iconForSubsection } from './subsectionIcons';
 import { MessageVoiceButton } from './MessageVoiceButton';
 import { CareerComparisonCard } from './CareerComparisonCard';
 import { useTTS } from '@/contexts/TTSContext';
+import { visibleCareerScore } from '@/lib/careerScore';
 
 interface ChatMessageProps {
   // Stable id for the message — used to drive TTS state (which message is
@@ -662,7 +663,7 @@ const SequentialSubsections: React.FC<{
           .join('')
           .trim();
         const section = findSectionByTitle(sections, headingText);
-        const score = section?.score != null ? Number(section.score) : null;
+        const score = visibleCareerScore(section);
         const aiImpact =
           (section && extractAIImpact(section.content || '')) ||
           extractAIImpact(fullBody || preamble);
@@ -951,7 +952,7 @@ const CollapsibleCareerBlocks: React.FC<{
           {blocks.map((block, idx) => {
             const isOpen = openIndices.has(idx);
             const section = findSectionByTitle(sections, block.title);
-            const score = section?.score != null ? Number(section.score) : null;
+            const score = visibleCareerScore(section);
             // Dream-job cards are assessed on Feasibility (the "reality check"),
             // not AI impact — WF4 only emits an AI-impact line incidentally, so
             // suppress the AI pill here to keep those cards uniform.
@@ -1311,7 +1312,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           .join('')
           .trim();
         const section = findSectionByTitle(sections, headingText);
-        const score = section?.score != null ? Number(section.score) : null;
+        const score = visibleCareerScore(section);
         // Look for an AI Impact rating anywhere in the message body — except on
         // dream-job cards, which are Feasibility-only (see multi-card path).
         const aiImpact =

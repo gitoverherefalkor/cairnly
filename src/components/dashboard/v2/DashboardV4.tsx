@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm';
 import DOMPurify from 'dompurify';
 import { formatDate } from '@/lib/format';
 import { sectionText, sectionTitle } from '@/lib/sectionText';
+import { visibleCareerScore } from '@/lib/careerScore';
 import { companyContext } from '@/lib/companyContext';
 import { Activity, ArrowRight, BookOpen, Briefcase, CheckCircle2, ChevronRight, Clock, Coins, Download, EyeOff, FileText, FilePlus, Loader2, Lock, Map as MapIcon, Sparkles } from 'lucide-react';
 import type { ReportSection } from '@/hooks/useReportSections';
@@ -215,11 +216,12 @@ function readSalary(meta: unknown): string | null {
 }
 
 // Derive the accordion's at-a-glance strip for one career section.
-// Every field is optional in the data (outside-the-box and dream-job rows
-// have no score, older reports have no alternate_titles), so each pill is
-// rendered only when its value exists — never a placeholder.
+// Every field is optional in the data (older reports have no
+// alternate_titles), so each pill is rendered only when its value exists,
+// never a placeholder. The match number shows on the Top 3 only
+// (visibleCareerScore); runner-ups and the rest keep their other pills.
 function bodyMetaFor(s: ReportSection, lang: string): CareerBodyMeta {
-  const score = s.score != null ? Number(s.score) : NaN;
+  const score = visibleCareerScore(s);
   // `alternate_titles` comes in two shapes: legacy rows bake the caption into
   // the value ("<strong>Alternate titles:</strong> A, B"), newer rows store
   // the bare list. Strip the caption so we render exactly one label.
@@ -231,7 +233,7 @@ function bodyMetaFor(s: ReportSection, lang: string): CareerBodyMeta {
     // boundary by the same helper the hero cards use.
     shape: s.company_size_type ? companyContext(stripHtml(s.company_size_type), lang) : null,
     altTitles,
-    matchPct: Number.isFinite(score) ? Math.round(score) : null,
+    matchPct: score != null ? Math.round(score) : null,
     move: (s.metadata?.move as MoveLevel | undefined) ?? null,
     // Machine metadata is ALWAYS parsed from the canonical English content —
     // that is what keeps this regex reliable (language contract).

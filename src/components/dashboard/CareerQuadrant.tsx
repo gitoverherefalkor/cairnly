@@ -93,7 +93,10 @@ const QuadrantTooltip: React.FC<{ active?: boolean; payload?: any[] }> = ({ acti
       <div className="font-semibold text-atlas-navy">{p.title}</div>
       <div className="text-xs text-gray-500 mt-0.5">{p.rank}</div>
       <div className="flex items-center gap-3 mt-2 text-xs">
-        <span className="text-atlas-teal font-semibold">Match {p.score}/100</span>
+        {/* Only the Top 3 show their number (see lib/careerScore). */}
+        {p.rank === 'Top Career' && (
+          <span className="text-atlas-teal font-semibold">Match {p.score}/100</span>
+        )}
         <span
           className="font-semibold"
           style={{ color: IMPACT_COLOR[p.aiImpact] }}
