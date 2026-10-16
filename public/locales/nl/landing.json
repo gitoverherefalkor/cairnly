@@ -305,7 +305,7 @@
   "employersBand": {
     "eyebrow": "Voor werkgevers",
     "title": "Voor een heel team?",
-    "body": "Geef je mensen dezelfde duidelijkheid, vanaf €20 per persoon. Jij deelt codes uit, zij zijn eigenaar van de uitkomst, en jij ziet nooit een individueel antwoord.",
+    "body": "Geef je mensen dezelfde duidelijkheid, vanaf {{minPrice}} per persoon. Jij deelt codes uit, zij zijn eigenaar van de uitkomst, en jij ziet nooit een individueel antwoord.",
     "cta": "Cairnly voor werkgevers"
   },
   "whoFor": {

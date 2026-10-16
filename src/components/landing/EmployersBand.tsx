@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { EMPLOYERS_ROUTE } from '@/components/employers/constants';
+import { formatMoney, lowestPrice } from '@/components/employers/pricing';
+import { useEmployerCurrency } from '@/components/employers/useEmployerCurrency';
 import { trackCtaClick } from '@/lib/analytics';
 
 /**
@@ -15,7 +17,11 @@ import { trackCtaClick } from '@/lib/analytics';
  */
 const EmployersBand: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation('landing');
+  const { t, i18n } = useTranslation('landing');
+  // Same currency rule as /employers (GB visitors see pounds), so the price
+  // here matches the one on the page this band links to.
+  const currency = useEmployerCurrency();
+  const minPrice = formatMoney(lowestPrice(currency), currency, i18n.language);
 
   return (
     <section className="bg-[#F4ECDA] text-[#122E3B] py-12 md:py-14 border-y border-[#C9B690]/60">
@@ -29,7 +35,7 @@ const EmployersBand: React.FC = () => {
             >
               {t('employersBand.title')}
             </h2>
-            <p className="text-[15px] text-[#374151] max-w-2xl">{t('employersBand.body')}</p>
+            <p className="text-[15px] text-[#374151] max-w-2xl">{t('employersBand.body', { minPrice })}</p>
           </div>
           <a
             href={EMPLOYERS_ROUTE}
