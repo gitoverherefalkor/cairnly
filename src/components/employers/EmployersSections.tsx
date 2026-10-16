@@ -35,6 +35,8 @@ import { trackCtaClick } from '@/lib/analytics';
 import { tArray } from '@/lib/i18nArray';
 import CairnSymbolInvert from '@/logos/live/cairn_symbol_invert.png';
 import { CALENDLY_URL, CONTACT_EMAIL, TRIAL_EMAIL, employerDemoPersona, employerReportLink } from './constants';
+import { EMPLOYER_TIERS, formatMoney, priceVars } from './pricing';
+import { useEmployerCurrency } from './useEmployerCurrency';
 
 /*
  * The /employers page, section by section (copy v2, 2026-09-25). Same
@@ -95,7 +97,9 @@ const mailto = (subject: string, to: string = CONTACT_EMAIL) => `mailto:${to}?su
  */
 export const EmployersHero: React.FC = () => {
   const { t, i18n } = useTranslation('employers');
-  const pills = tArray<string>(t, 'hero.pills');
+  const currency = useEmployerCurrency();
+  const prices = priceVars(currency, i18n.language, (from, to) => t('pricing.range', { from, to }));
+  const pills = tArray<string>(t, 'hero.pills', prices);
   const persona = employerDemoPersona(i18n.language);
 
   return (
@@ -577,37 +581,38 @@ interface CompareRow {
   highlight?: boolean;
 }
 
-interface PriceRow {
-  credits: string;
-  price: string;
-}
-
 /**
- * Cost next to what the buyer already pays, then the price itself. The full
- * ladder is the /partners one, read from the partners namespace so prices
- * live in one place; it sits in a <details> because the copy leads with the
- * two ends and a worked example. If employers get their own ladder, give this
- * namespace its own rows and update `pricing.examples` with it.
+ * Cost next to what the buyer already pays, then the price itself, in pounds
+ * for UK visitors and euros for everyone else. Every number comes from
+ * ./pricing.ts; the copy only has placeholders. The full ladder sits in a
+ * <details> because the copy leads with the two ends and a worked example.
  */
 export const EmployersPricing: React.FC = () => {
-  const { t } = useTranslation(['employers', 'partners']);
-  const compare = tArray<CompareRow>(t, 'employers:pricing.compare');
-  const tiers = tArray<PriceRow>(t, 'partners:pricing.rows');
+  const { t, i18n } = useTranslation('employers');
+  const currency = useEmployerCurrency();
+  const prices = priceVars(currency, i18n.language, (from, to) => t('pricing.range', { from, to }));
+  const compare = tArray<CompareRow>(t, 'pricing.compare', prices);
+  const tiers = EMPLOYER_TIERS.map((tier) => ({
+    label: tier.max === null
+      ? t('pricing.tierFrom', { min: tier.min })
+      : t('pricing.tierRange', { min: tier.min, max: tier.max }),
+    price: formatMoney(tier.price[currency], currency, i18n.language),
+  }));
 
   return (
     <section className="py-20 md:py-28" style={{ background: '#F4ECDA' }}>
       <div className="lp-container">
         <Reveal className="max-w-3xl">
-          <Eyebrow>{t('employers:pricing.eyebrow')}</Eyebrow>
+          <Eyebrow>{t('pricing.eyebrow')}</Eyebrow>
           <h2 className="font-heading font-bold text-[#122E3B] leading-[1.15] mb-8" style={H2_STYLE}>
-            {t('employers:pricing.title')}
+            {t('pricing.title')}
           </h2>
         </Reveal>
 
         <Reveal className="max-w-2xl">
           <div className="rounded-2xl overflow-hidden" style={CARD_STYLE}>
             <p className="px-6 pt-4 pb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#4B6373]/80">
-              {t('employers:pricing.compareCaption')}
+              {t('pricing.compareCaption')}
             </p>
             {compare.map((row) => (
               <div
@@ -631,16 +636,16 @@ export const EmployersPricing: React.FC = () => {
         </Reveal>
 
         <Reveal className="mt-8 max-w-3xl space-y-6">
-          <p className={BODY}>{t('employers:pricing.compareNote')}</p>
+          <p className={BODY}>{t('pricing.compareNote')}</p>
           <p className={BODY}>
-            <strong className="text-[#122E3B] font-bold">{t('employers:pricing.pricingTitle')}</strong>{' '}
-            {t('employers:pricing.pricingBody')}
+            <strong className="text-[#122E3B] font-bold">{t('pricing.pricingTitle')}</strong>{' '}
+            {t('pricing.pricingBody', prices)}
           </p>
-          <p className="text-[#122E3B] font-semibold text-[16px] md:text-[17px] leading-[1.6]">{t('employers:pricing.examples')}</p>
+          <p className="text-[#122E3B] font-semibold text-[16px] md:text-[17px] leading-[1.6]">{t('pricing.examples', prices)}</p>
 
           <details className="lp-faq max-w-2xl">
             <summary>
-              {t('employers:pricing.tiersToggle')}
+              {t('pricing.tiersToggle')}
               <Plus className="lp-chev" size={20} strokeWidth={2.4} color="#27A1A1" />
             </summary>
             <div className="mt-2 rounded-2xl overflow-hidden" style={CARD_STYLE}>
@@ -649,17 +654,17 @@ export const EmployersPricing: React.FC = () => {
                   <thead>
                     <tr style={{ background: 'rgba(39,161,161,0.07)' }}>
                       <th scope="col" className="text-left font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-3.5">
-                        {t('employers:pricing.colEmployees')}
+                        {t('pricing.colEmployees')}
                       </th>
                       <th scope="col" className="text-right font-heading font-bold text-[#122E3B] text-[13px] tracking-[0.04em] uppercase px-6 py-3.5 whitespace-nowrap">
-                        {t('employers:pricing.colPrice')}
+                        {t('pricing.colPrice')}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {tiers.map((row, i) => (
-                      <tr key={row.credits} style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(201, 182, 144, 0.45)' }}>
-                        <td className="px-6 py-3.5 text-[15px] font-semibold text-[#122E3B] whitespace-nowrap">{row.credits}</td>
+                      <tr key={row.label} style={{ borderTop: i === 0 ? 'none' : '1px solid rgba(201, 182, 144, 0.45)' }}>
+                        <td className="px-6 py-3.5 text-[15px] font-semibold text-[#122E3B] whitespace-nowrap">{row.label}</td>
                         <td className="px-6 py-3.5 text-[15px] font-semibold text-[#1F8282] text-right whitespace-nowrap">{row.price}</td>
                       </tr>
                     ))}

@@ -89,6 +89,21 @@ export function getSessionId(): string {
 
 let countryPromise: Promise<string | null> | null = null;
 
+/**
+ * The country getCountry() already cached this session, without waiting:
+ * undefined when it has not been looked up yet, null when it is unknown. Lets
+ * a page pick the right currency on its first paint for returning visitors.
+ */
+export function peekCountry(): string | null | undefined {
+  try {
+    const cached = sessionStorage.getItem(COUNTRY_KEY);
+    if (cached === null) return undefined;
+    return cached === '' ? null : cached;
+  } catch {
+    return undefined;
+  }
+}
+
 // Country is only available via Vercel's x-vercel-ip-country header, which
 // never reaches track-view directly (that call goes browser → Supabase,
 // bypassing Vercel entirely). /api/geo is a same-origin hop through Vercel's

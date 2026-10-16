@@ -13,7 +13,7 @@
       "Clarity within one hour",
       "Ten named roles",
       "Employee owns the result",
-      "From 20 euro per head"
+      "From {{minPrice}} per head"
     ],
     "titleHighlight": "career path clarity.",
     "titleB": " Even if it's not with you."
@@ -161,25 +161,28 @@
     "compare": [
       {
         "label": "An external career coach, per person",
-        "price": "€500 to €2,750"
+        "price": "{{coachRange}}"
       },
       {
         "label": "An outplacement programme, per person",
-        "price": "€3,000 to €6,000"
+        "price": "{{outplacementRange}}"
       },
       {
         "label": "Cairnly, per person",
-        "price": "€20 to €44",
+        "price": "{{cairnlyRange}}",
         "highlight": true
       }
     ],
     "compareNote": "Cairnly doesn't replace the top two rows. It's the step before them. Someone who's taken Cairnly arrives at a coach, at outplacement or at their next internal role already knowing what they're looking for, so the expensive part gets shorter.",
     "pricingTitle": "Pricing.",
-    "pricingBody": "Volume based. €44 per person for small groups, down to €20 at 250 and above. No setup fee, no subscription, no certification.",
-    "examples": "A team of 40: €33 × 40 = €1,320. Everyone in a 250-person company: €5,000.",
+    "pricingBody": "Volume based. {{maxPrice}} per person for small groups, down to {{minPrice}} at {{minPriceFrom}} and above. No setup fee, no subscription, no certification.",
+    "examples": "A team of {{teamSize}}: {{teamPrice}} × {{teamSize}} = {{teamTotal}}. Everyone in a {{companySize}}-person company: {{companyTotal}}.",
     "tiersToggle": "See all volume tiers",
     "colEmployees": "Employees",
-    "colPrice": "Price each (excl. VAT)"
+    "colPrice": "Price each (excl. VAT)",
+    "range": "{{from}} to {{to}}",
+    "tierRange": "{{min}} to {{max}}",
+    "tierFrom": "{{min}} and up"
   },
   "trial": {
     "title": "Try it yourself first.",

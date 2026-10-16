@@ -13,7 +13,7 @@
       "Helderheid binnen een uur",
       "Tien concrete beroepen",
       "De medewerker is eigenaar van het resultaat",
-      "Vanaf 20 euro per persoon"
+      "Vanaf {{minPrice}} per persoon"
     ],
     "titleHighlight": "helderheid over hun loopbaan.",
     "titleB": " Ook als hun volgende stap niet bij jullie ligt."
@@ -161,25 +161,28 @@
     "compare": [
       {
         "label": "Een externe loopbaancoach, per persoon",
-        "price": "€500 tot €2.750"
+        "price": "{{coachRange}}"
       },
       {
         "label": "Een outplacementtraject, per persoon",
-        "price": "€3.000 tot €6.000"
+        "price": "{{outplacementRange}}"
       },
       {
         "label": "Cairnly, per persoon",
-        "price": "€20 tot €44",
+        "price": "{{cairnlyRange}}",
         "highlight": true
       }
     ],
     "compareNote": "Cairnly vervangt de bovenste twee rijen niet. Het is de stap ervoor. Wie Cairnly heeft gedaan, komt bij een coach, bij outplacement of in de volgende interne rol aan met een beter idee van wat hij of zij zoekt, waardoor het dure deel korter wordt.",
     "pricingTitle": "Prijs.",
-    "pricingBody": "Op basis van volume. €44 per persoon voor kleine groepen, aflopend tot €20 vanaf 250. Geen opstartkosten, geen abonnement, geen certificering.",
-    "examples": "Een team van 40: €33 × 40 = €1.320. Iedereen in een bedrijf van 250 mensen: €5.000.",
+    "pricingBody": "Op basis van volume. {{maxPrice}} per persoon voor kleine groepen, aflopend tot {{minPrice}} vanaf {{minPriceFrom}}. Geen opstartkosten, geen abonnement, geen certificering.",
+    "examples": "Een team van {{teamSize}}: {{teamPrice}} × {{teamSize}} = {{teamTotal}}. Iedereen in een bedrijf van {{companySize}} mensen: {{companyTotal}}.",
     "tiersToggle": "Bekijk alle volumeprijzen",
     "colEmployees": "Medewerkers",
-    "colPrice": "Prijs per stuk (ex btw)"
+    "colPrice": "Prijs per stuk (ex btw)",
+    "range": "{{from}} tot {{to}}",
+    "tierRange": "{{min}} t/m {{max}}",
+    "tierFrom": "{{min}} en meer"
   },
   "trial": {
     "title": "Probeer het eerst zelf.",
