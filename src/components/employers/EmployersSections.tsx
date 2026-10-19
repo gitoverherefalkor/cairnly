@@ -422,7 +422,7 @@ const TRUST_ICONS = [Lock, Shield, FileSignature];
 
 /**
  * The page's central promise as its own block. The third card is the dark
- * one on purpose: "the employer sees nothing" is what the employee reading
+ * one on purpose: "employees have full privacy" is what the employee reading
  * over the employer's shoulder needs to find.
  */
 export const EmployersCouncil: React.FC = () => {
@@ -478,7 +478,7 @@ export const EmployersCouncil: React.FC = () => {
         {/* Same idiom as the trust bar above the nav (LandingNav): icon, bold
             claim, muted detail, dot separators. */}
         <Reveal className="mt-6 max-w-6xl">
-          <ul className="rounded-2xl bg-[#1A1A1A] text-white/75 px-6 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] md:text-[13px] font-medium tracking-wide">
+          <ul className="rounded-2xl bg-[#1A1A1A] text-white/75 px-6 py-4 flex flex-col items-start gap-y-3 md:flex-row md:flex-wrap md:items-center md:gap-x-6 md:gap-y-2 text-[12px] md:text-[13px] font-medium tracking-wide">
             {trust.map((item, i) => {
               const Icon = TRUST_ICONS[i] ?? Shield;
               return (
@@ -488,8 +488,8 @@ export const EmployersCouncil: React.FC = () => {
                       ·
                     </li>
                   )}
-                  <li className="flex items-center gap-2">
-                    <Icon size={15} strokeWidth={2} className="text-[#D4A024] shrink-0" />
+                  <li className="flex items-start gap-2 text-left md:items-center">
+                    <Icon size={15} strokeWidth={2} className="text-[#D4A024] shrink-0 mt-[3px] md:mt-0" />
                     <span>
                       <strong className="text-white font-semibold">{item.title}</strong> · {item.detail}
                     </span>
