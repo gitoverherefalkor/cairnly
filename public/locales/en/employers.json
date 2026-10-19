@@ -58,7 +58,7 @@
         "body": "The final report, plus the tools to act on it: live openings per role, and a CV and cover letter tailored to each application (in beta). Whether they look inside or outside your company is up to them."
       }
     ],
-    "perRoleLabel": "Every role comes with",
+    "perRoleLabel": "Every job title comes with indicators:",
     "perRole": [
       {
         "label": "Salary",

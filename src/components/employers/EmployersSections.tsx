@@ -272,10 +272,14 @@ const UkOutline: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+const FLAG_CLASS = 'h-3.5 w-[21px] rounded-[2px] shadow-sm';
+
 /** Language flags for "Live in English and Dutch". Inline SVG rather than
  *  emoji: Windows renders flag emoji as the letters "GB" / "NL". */
 const FlagUk: React.FC<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 60 30" className={className} role="img" aria-label="English">
+  // preserveAspectRatio="none": the UK flag is 2:1, the NL one 3:2. Both get the
+  // same box (see FLAG_CLASS) so the pair reads as equal width.
+  <svg viewBox="0 0 60 30" preserveAspectRatio="none" className={className} role="img" aria-label="English">
     <clipPath id="emp-flag-uk-s"><path d="M0,0 v30 h60 v-30 z" /></clipPath>
     <clipPath id="emp-flag-uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" /></clipPath>
     <g clipPath="url(#emp-flag-uk-s)">
@@ -353,13 +357,13 @@ export const EmployersHow: React.FC = () => {
                 {/* Flags in the order the sentence names the languages. */}
                 {(i18n.language || '').startsWith('nl') ? (
                   <>
-                    <FlagNl className="h-3.5 w-auto rounded-[2px] shadow-sm" />
-                    <FlagUk className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                    <FlagNl className={FLAG_CLASS} />
+                    <FlagUk className={FLAG_CLASS} />
                   </>
                 ) : (
                   <>
-                    <FlagUk className="h-3.5 w-auto rounded-[2px] shadow-sm" />
-                    <FlagNl className="h-3.5 w-auto rounded-[2px] shadow-sm" />
+                    <FlagUk className={FLAG_CLASS} />
+                    <FlagNl className={FLAG_CLASS} />
                   </>
                 )}
                 {t('how.languages')}
