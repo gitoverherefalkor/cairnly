@@ -123,6 +123,24 @@ You may run Supabase CLI commands and the Supabase MCP **without per-command app
 
 Rule of thumb: if the action is reversible by re-running `supabase db push` from the repo, it's safe. If reversing it requires a backup restore or manual reconstruction, ask first.
 
+## Supabase Data API grants (required since 2026-10-30)
+Supabase no longer auto-grants API access to new objects in `public`. **Every migration that
+creates a table or view must grant access in the same file**, or supabase-js / PostgREST /
+edge functions get "permission denied":
+
+```sql
+grant select, insert, update, delete on public.your_table to authenticated;
+grant select, insert, update, delete on public.your_table to service_role;
+-- only if logged-out visitors need it (prefer RLS-scoped, minimal):
+grant select on public.your_table to anon;
+```
+
+Grant only what the feature needs: backend-only tables (CRM, outreach, logs) get
+`service_role` only. Tables with a `serial`/`bigserial` id also need
+`grant usage, select on sequence public.your_table_id_seq to <role>` for each role that inserts.
+Pre-existing objects got explicit grants in `20261020120000_explicit_data_api_grants.sql`
+(a copy of production's grants as of 2026-10-20).
+
 ## n8n integration notes
 - n8n handles the AI assessment workflows
 - Platform needs to send survey data to n8n
