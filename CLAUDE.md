@@ -206,3 +206,21 @@ Pre-existing objects got explicit grants in `20261020120000_explicit_data_api_gr
 > path `dfe2a07c-…` (workflow `nupGvBByAGh4A9tL`), a leftover from the WF1.2 → WF1
 > migration. That returned 404 on every real submission. If submissions start
 > failing with `forward-to-n8n` 502s and n8n shows no executions, check this secret first.
+## Feature coach (temporary, until 2026-12-31)
+Sjoerd wants to learn the Claude Code features from the 17 Oct 2026 update by using them,
+not by remembering a list. When a moment in the work clearly fits one of the features below,
+end your reply with **one** short line: `Tip: <feature>, <what to do right now>`.
+
+Rules: max one tip per reply, only when the fit is obvious, never the same tip twice in a
+session, and skip a feature he already uses. After 2026-12-31 ignore this section (and
+offer to delete it).
+
+| Moment | Feature to suggest |
+|---|---|
+| Task splits into 2+ independent parts (e.g. a new language: survey + report + emails) | Ask the main session to run them as parallel nested sessions; the main one merges and pushes |
+| You propose follow-up work that is out of scope | Start it in its own session with the one-click follow-up button |
+| He asks a side question mid-task | `/btw <question>` opens it in its own tab |
+| He has to stop but work is uncommitted | Continue the session in the cloud; uncommitted changes come along |
+| Bulk search across many files (n8n exports, translations) | Low-effort or Haiku subagents for searching, one high-effort agent for the judgement call |
+| An n8n call from a cloud session fails on the proxy 403 | Try a network secret in the cloud environment with `falkoratlas.app.n8n.cloud` as host (untested) |
+| A recurring check he does by hand (failed `forward-to-n8n` calls, new signups) | A Managed Agent on the monthly API credits, via `/claude-api` |
