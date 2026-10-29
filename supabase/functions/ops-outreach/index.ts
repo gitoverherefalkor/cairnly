@@ -355,6 +355,18 @@ serve(async (req) => {
         in_wachtrij: queue.filter((q) => q.status === 'queued').length,
         bezig: queue.filter((q) => q.status === 'sending').length,
         mislukt: queue.filter((q) => q.status === 'failed').length,
+        // Which mails those are, so the banner can name the agency and offer
+        // Retry / Cancel instead of only a count.
+        mislukte: queue
+          .filter((q) => q.status === 'failed')
+          .map((q) => ({
+            id: q.id,
+            slug: q.slug,
+            naam: prospects.find((p) => p.slug === q.slug)?.naam ?? null,
+            soort: q.soort,
+            fout: q.fout,
+            created_at: q.created_at,
+          })),
         vandaag_verzonden: queue.filter(
           (q) =>
             q.sent_at &&
@@ -459,6 +471,41 @@ serve(async (req) => {
         .maybeSingle();
       if (error) throw error;
       return ok({ state: data }, corsHeaders);
+    }
+
+    // ── failed sends ────────────────────────────────────────────────────────
+    // A row WF12 gave up on (two attempts) stays 'failed' until a human picks.
+    // Retry puts it back in the queue with fresh attempts; outreach-send still
+    // re-checks the concept before it goes, so a mail the agency has overtaken
+    // since (reply, click, opt-out) is dropped rather than sent.
+    // Cancel ends it for good: the queue row is cancelled and the concept is
+    // marked discarded, which also frees the agency for a new concept.
+    if (action === 'send_retry' || action === 'send_cancel') {
+      const id = String(body.id ?? '');
+      if (!id) return errorResponse('Missing id', 400, corsHeaders);
+      const retry = action === 'send_retry';
+      const { data: row, error } = await supabase
+        .from('outreach_send_queue')
+        .update(
+          retry
+            ? { status: 'queued', pogingen: 0, fout: null, claimed_at: null, niet_voor: null }
+            : { status: 'cancelled' },
+        )
+        .eq('id', id)
+        .eq('status', 'failed')
+        .select('concept_id')
+        .maybeSingle();
+      if (error) throw error;
+      if (!row) return errorResponse('This mail is no longer marked as failed.', 409, corsHeaders);
+      if (!retry && row.concept_id) {
+        const { error: cErr } = await supabase
+          .from('outreach_concepts')
+          .update({ status: 'weggegooid', updated_at: new Date().toISOString() })
+          .eq('id', row.concept_id)
+          .eq('status', 'ingepland');
+        if (cErr) throw cErr;
+      }
+      return ok({ ok: true }, corsHeaders);
     }
 
     // ── update ──────────────────────────────────────────────────────────────

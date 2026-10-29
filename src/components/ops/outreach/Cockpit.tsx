@@ -15,7 +15,7 @@ import { Bell, BellOff, Loader2, Sparkles, Wand2, AlertOctagon, MailX } from 'lu
 import { callOutreach } from './api';
 import ConceptCard from './ConceptCard';
 import { enablePush, pushState, type PushState } from './pushClient';
-import type { CockpitSend, ConceptRow, CriticAgreement, HandledToday } from './types';
+import { SOORT_LABEL, type CockpitSend, type ConceptRow, type ConceptSoort, type CriticAgreement, type HandledToday } from './types';
 import { estimateTimes, runwayDays, tomorrowSlots, COLD_CAP_PER_DAY } from '@/lib/outreachCockpit';
 import type { OutreachProspect } from '@/lib/outreach';
 
@@ -186,6 +186,20 @@ export default function Cockpit({
       onReload();
     });
 
+  const retryFailed = (id: string) =>
+    run(`retry-${id}`, async () => {
+      await callOutreach({ action: 'send_retry', id });
+      toast.success('Back in the queue');
+      onReload();
+    });
+
+  const cancelFailed = (id: string) =>
+    run(`cancel-${id}`, async () => {
+      await callOutreach({ action: 'send_cancel', id });
+      toast.success('Cancelled');
+      onReload();
+    });
+
   const toggleAuto = () =>
     run('auto', async () => {
       await callOutreach({ action: 'auto_toggle', on: !autoOn });
@@ -283,8 +297,25 @@ export default function Cockpit({
         </div>
       )}
       {send.mislukt > 0 && (
-        <div className="rounded-xl border border-red-500/40 bg-red-500/[0.07] px-3 py-2 text-xs text-red-200">
-          {send.mislukt} {send.mislukt === 1 ? 'mail' : 'mails'} failed to send twice and stopped. Last error: {send.state?.laatste_fout ?? 'unknown'}
+        <div className="rounded-xl border border-red-500/40 bg-red-500/[0.07] px-3 py-2 text-xs text-red-200 space-y-1.5">
+          <div>
+            {send.mislukt} {send.mislukt === 1 ? 'mail' : 'mails'} failed to send twice and stopped. Retry puts it back in the queue (it is re-checked before it goes); Cancel drops it.
+          </div>
+          {(send.mislukte ?? []).map((f) => (
+            <div key={f.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-red-500/20 pt-1.5">
+              <span className="font-semibold text-red-100">{f.naam ?? f.slug}</span>
+              <span className="text-red-200/70">{SOORT_LABEL[f.soort as ConceptSoort] ?? f.soort}, queued {fmtTime(f.created_at)}</span>
+              {f.fout && <span className="text-red-200/70">{f.fout}</span>}
+              <span className="ml-auto flex gap-2">
+                <button onClick={() => retryFailed(f.id)} disabled={busy !== null} className={`${pill} border-red-300/40 text-red-100 hover:bg-red-500/10`}>
+                  {busy === `retry-${f.id}` ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Retry'}
+                </button>
+                <button onClick={() => cancelFailed(f.id)} disabled={busy !== null} className={`${pill} border-white/[0.14] text-white/70 hover:bg-white/[0.06]`}>
+                  {busy === `cancel-${f.id}` ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Cancel'}
+                </button>
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

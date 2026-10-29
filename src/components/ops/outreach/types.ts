@@ -74,7 +74,18 @@ export interface CockpitSend {
   vandaag_verzonden: number;
   vandaag_koud?: number;
   mislukt: number;
+  /** The failed mails themselves, for the banner's Retry / Cancel. */
+  mislukte?: FailedSend[];
   in_wachtrij: number;
+}
+
+export interface FailedSend {
+  id: string;
+  slug: string;
+  naam: string | null;
+  soort: string;
+  fout: string | null;
+  created_at: string;
 }
 
 export const SOORT_LABEL: Record<ConceptSoort, string> = {
