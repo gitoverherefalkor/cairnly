@@ -40,13 +40,21 @@ Deno.test('a request for no contact is always stop, even when the classifier sai
     'Wij stellen geen verder contact op prijs.',
     'Please do not contact us again.',
     'Ik wil me afmelden.',
+    // The answer the opt-out line under every mail asks for.
+    'stop',
+    'Stop.',
+    'STOP graag',
+    'stop\n\nMet vriendelijke groet,\nMark',
   ]) {
     assertEquals(route({ replyOnly: s }), 'stop', s);
   }
 });
 
 Deno.test('an ordinary no is still an ordinary no', () => {
-  for (const s of ['Geen interesse, dank.', 'Past niet bij onze aanpak.', 'Wij werken al met een ander instrument.', 'Nu even niet, misschien volgend jaar contact.']) {
+  for (const s of [
+    // Our own opt-out line, left in by a quote that was not stripped.
+    "Geen interesse, dank.\n\n> Liever geen mail meer van mij? Antwoord 'stop' en ik laat je met rust.",
+    'We stoppen dit jaar met spoor 2, dus geen interesse.', 'Geen interesse, dank.', 'Past niet bij onze aanpak.', 'Wij werken al met een ander instrument.', 'Nu even niet, misschien volgend jaar contact.']) {
     assertEquals(route({ replyOnly: s }), 'auto_rejection', s);
   }
 });

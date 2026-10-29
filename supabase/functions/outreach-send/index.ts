@@ -242,6 +242,9 @@ async function next(db: SupabaseClient) {
     // A first mail, and any mail that starts its own thread (a re-angle):
     // without the block a new thread carries no contact details at all.
     signature: c.soort === 'initial' || !c.thread_id,
+    // Mail we start carries the opt-out line; a reply to them does not, they
+    // are already talking to us.
+    optOut: c.soort !== 'reply',
     quote,
   });
 

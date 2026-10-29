@@ -10,7 +10,9 @@
 //     chase can reference it;
 //   - In-Reply-To / References make the recipient's client thread it;
 //   - a reply quotes their mail below ours, the way Gmail's web client does;
-//   - only a first mail carries the full signature (see outreachSignature.ts).
+//   - only a first mail carries the full signature (see outreachSignature.ts);
+//   - every mail we start (not a reply to them) ends on one plain line telling
+//     them how to stop us, written as Sjoerd would, not a footer.
 // Both a text/plain and a text/html part, so a strict receiver has something
 // readable and the mail is not weighed as HTML-only.
 //
@@ -19,6 +21,13 @@
 
 import { escapeHtml, textToHtml, toPlainText } from './outreachHtml.ts';
 import { SIGNATURE_HTML, SIGNATURE_TEXT } from './outreachSignature.ts';
+
+/**
+ * The opt-out, as a sentence in the mail rather than a grey footer, so it reads
+ * as a person talking. A bare "stop" back is caught by asksForNoContact in
+ * outreachRouting.ts, which sets niet_mailen_op and closes the agency.
+ */
+export const OPT_OUT_LINE = "Liever geen mail meer van mij? Antwoord 'stop' en ik laat je met rust.";
 
 export const FROM_HEADER = 'Sjoerd Geurts <sjoerd@cairnly.io>';
 
@@ -43,6 +52,8 @@ export interface MimeInput {
   references?: string | null;
   /** First mail only. */
   signature: boolean;
+  /** The "answer stop" line under the sign-off. Every mail but a reply. */
+  optOut?: boolean;
   /** Replies only. */
   quote?: MimeQuote | null;
   date?: Date;
@@ -93,6 +104,7 @@ export function quoteHeader(at: string, name: string | null, email: string): str
 
 function htmlBody(i: MimeInput): string {
   let html = textToHtml(i.body);
+  if (i.optOut) html += `<br><br>${escapeHtml(OPT_OUT_LINE)}`;
   if (i.signature) html += `<br>${SIGNATURE_HTML}`;
   if (i.quote) {
     const quoted = i.quote.text
@@ -109,6 +121,7 @@ function htmlBody(i: MimeInput): string {
 
 function textBody(i: MimeInput): string {
   let text = toPlainText(i.body);
+  if (i.optOut) text += `\n\n${OPT_OUT_LINE}`;
   if (i.signature) text += `\n\n${SIGNATURE_TEXT}`;
   if (i.quote) {
     const quoted = i.quote.text

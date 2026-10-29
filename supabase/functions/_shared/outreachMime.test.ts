@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertMatch, assertStringIncludes } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { buildMime, newMessageId, quoteHeader, type MimeInput } from './outreachMime.ts';
+import { buildMime, newMessageId, quoteHeader, OPT_OUT_LINE, type MimeInput } from './outreachMime.ts';
 
 /** base64url → the RFC 2822 text, with each base64 part decoded in place. */
 function decode(raw: string): { headers: string; text: string; html: string } {
@@ -96,4 +96,13 @@ Deno.test('a Cc set in the cockpit becomes a Cc header; none means no header', (
   assert(!decode(buildMime({ ...base, cc: '  ' })).headers.includes('Cc:'));
   const { headers } = decode(buildMime({ ...base, cc: 'aveenstra@stambv.com, x@y.nl' }));
   assertStringIncludes(headers, 'Cc: aveenstra@stambv.com, x@y.nl');
+});
+
+Deno.test('the opt-out line sits under the sign-off, above the signature, only when asked for', () => {
+  const off = decode(buildMime(base));
+  assert(!off.text.includes('stop'));
+  const on = decode(buildMime({ ...base, optOut: true, signature: true }));
+  assertStringIncludes(on.text, `Groet,\nSjoerd\n\n${OPT_OUT_LINE}\n\n--`);
+  assertStringIncludes(on.html, "Antwoord 'stop'");
+  assert(on.html.indexOf('Antwoord') < on.html.indexOf('gmail_signature'));
 });

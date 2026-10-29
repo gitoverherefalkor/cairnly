@@ -74,9 +74,25 @@ const STOP_RE = new RegExp(
   'i',
 );
 
+/**
+ * The reply our opt-out line asks for: "stop" on its own first line, maybe with
+ * a "graag" or a full stop. Only the first line, so "stop" inside an ordinary
+ * sentence ("we stoppen met spoor 2") never counts.
+ */
+const BARE_STOP_RE = /^\W*stop\W*(graag|aub|alsjeblieft|svp|please)?\W*$/i;
+
+/**
+ * Our own opt-out line (OPT_OUT_LINE in outreachMime.ts) says "geen mail meer",
+ * which STOP_RE would read as their request if a quote of our mail survives
+ * the stripping. Cut it out first, quoted or not.
+ */
+const OWN_OPT_OUT_RE = /liever\s+geen\s+mail\s+meer\s+van\s+mij\?[^\n]*/gi;
+
 /** They asked, in so many words, not to be contacted again. */
 export function asksForNoContact(replyOnly: string): boolean {
-  return STOP_RE.test(replyOnly);
+  const theirs = replyOnly.replace(OWN_OPT_OUT_RE, '');
+  const firstLine = theirs.split(/\r?\n/).find((l) => l.trim()) ?? '';
+  return STOP_RE.test(theirs) || BARE_STOP_RE.test(firstLine);
 }
 
 export function routeInbound(x: {
