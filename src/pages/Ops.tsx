@@ -2039,16 +2039,6 @@ export default function Ops() {
                   </SectionCard>
 
                   <SectionCard
-                    id="freecodes"
-                    title="Free codes"
-                    subtitle="One free code for one named person, to send yourself (WhatsApp, text). No checkout, no email. Logged with their name and the date you gave it."
-                    open={open.freecodes}
-                    onToggle={toggle}
-                  >
-                    <FreeCodesTab />
-                  </SectionCard>
-
-                  <SectionCard
                     id="prechat"
                     title="Pre-chat leads"
                     subtitle="Practitioners who talked to the chat on /partners. Free credits are minted by hand in Partners above; set the lead to Credits sent once they are out."
@@ -2186,6 +2176,16 @@ export default function Ops() {
                       <strong className="text-white/75">How to read this:</strong> Category 2 (major) = WF6 significantly reworked the AI output based on user pushback. Category 1 (minor) = small refinements. The feedback text is WF6&apos;s own summary of what changed.
                     </div>
                     <Feed items={misses} onDismiss={dismissItem} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="freecodes"
+                    title="Free codes"
+                    subtitle="One free code for one named person, to send yourself (WhatsApp, text). No checkout, no email. Logged with their name and the date you gave it."
+                    open={open.freecodes}
+                    onToggle={toggle}
+                  >
+                    <FreeCodesTab />
                   </SectionCard>
 
                   <SectionCard
