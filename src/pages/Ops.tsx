@@ -14,6 +14,7 @@ import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
 import OutreachTab from '@/components/ops/OutreachTab';
 import EmployersTab from '@/components/ops/EmployersTab';
+import FreeCodesTab from '@/components/ops/FreeCodesTab';
 import PartnerLeadsCard from '@/components/ops/PartnerLeadsCard';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
 import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, SUBJECT_TEST_ID, codeActivation, isWarm, matchesFocus, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
@@ -267,6 +268,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {
   employers: true,
   outreach: true,
   partners: false,
+  freecodes: true,
   prechat: true,
   blockers: true,
   n8n: true,
@@ -2034,6 +2036,16 @@ export default function Ops() {
                     onToggle={toggle}
                   >
                     <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="freecodes"
+                    title="Free codes"
+                    subtitle="One free code for one named person, to send yourself (WhatsApp, text). No checkout, no email. Logged with their name and the date you gave it."
+                    open={open.freecodes}
+                    onToggle={toggle}
+                  >
+                    <FreeCodesTab />
                   </SectionCard>
 
                   <SectionCard
