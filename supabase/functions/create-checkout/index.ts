@@ -135,6 +135,9 @@ serve(async (req) => {
               description: product.description,
             },
             unit_amount: product.unitAmount,
+            // Advertised prices include VAT: Stripe Tax carves the VAT out of
+            // this amount instead of adding it on top.
+            tax_behavior: "inclusive",
           },
           quantity: 1,
         },
@@ -148,6 +151,11 @@ serve(async (req) => {
       // `customer` (with pre-set name) gives us the pre-fill; fall back to
       // `customer_email` only if the customer resolution above failed.
       ...(customer ? { customer: customer.id } : { customer_email: email }),
+      // Stripe Tax computes VAT from the buyer's location. Checkout collects
+      // the address it needs; with an existing Customer, `customer_update`
+      // lets Checkout save that address onto it (required by automatic_tax).
+      automatic_tax: { enabled: true },
+      ...(customer ? { customer_update: { address: "auto" as const } } : {}),
       metadata: {
         firstName,
         lastName,
