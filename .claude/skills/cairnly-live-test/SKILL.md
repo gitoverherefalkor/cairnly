@@ -43,7 +43,7 @@ Anything outside this list: log it as a proposed fix in the report, do not do it
    must give 200. A proxy 403 or `000` means the project's cloud environment does not
    allow the site. Then tell Sjoerd to add a cloud environment with full network access
    ([Project settings](#project-settings/environment), Cloud environment, Add cloud
-   environment), or to choose Mac mode. Hosts needed: `cairnly.io`, `*.supabase.co`,
+   environment), or to choose Mac mode. Hosts needed: `cairnly.io`, `www.cairnly.io` (cairnly.io redirects there), `*.supabase.co`,
    Google Fonts.
 2. **Mac (computer use)**, only when Sjoerd picks it. The tester uses the
    `mcp__remote-devices__computer_*` tools on his Mac, which takes over his screen. App
@@ -163,6 +163,19 @@ A Claude Doc "Cairnly live test <run>" with:
 7. Cost notes: number of job searches, n8n runs.
 
 Post the link in the thread.
+
+## Lessons from run 20261107
+
+- The cloud container can restart mid-run (MCP tools drop, `uptime` resets). The pw.mjs
+  browser dies with it: run `pw.mjs start <runDir>` again; the profile on the mount keeps the
+  login. The download hook is lost after a restart in practice: check the downloads folder directly.
+- Supabase MCP asks Sjoerd for approval on a DELETE (he sees an empty notification) and times
+  out after 60s. Avoid DELETEs in an unattended run; log the row for cleanup instead.
+- `/chat` after a finished chat redirects to `/dashboard`. That is expected: the
+  WelcomeBackCard is only for resuming an unfinished first chat. The "return to chat" feature is `/coach`.
+- F6-F8 showed no paywall for this account and `comp_tool_unlocks` stayed 3, so the unlocks
+  were not consumed (check whether tools are free by design).
+- The job search form defaults to country United States: change it to Netherlands every search.
 
 ## Cleanup
 
