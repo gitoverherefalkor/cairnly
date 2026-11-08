@@ -9,7 +9,7 @@ import { useReports } from '@/hooks/useReports';
 import { useReferralStatus } from '@/hooks/useReferralStatus';
 import { useJobSearchCredits } from '@/hooks/useJobSearchCredits';
 import { useReportSections, SECTION_TYPE_MAP } from '@/hooks/useReportSections';
-import { useJobSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
+import { useJobSearch, hasInterruptedSearch, type JobListing, type UserLanguage, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
@@ -136,7 +136,7 @@ const Jobs = () => {
   // renders (React error #310).
   const credits = useJobSearchCredits(latestReport?.id);
 
-  const { results, isSearching, searchJobs, restoreResults } = useJobSearch();
+  const { results, isSearching, isResuming, searchJobs, resumeInterruptedSearch, restoreResults } = useJobSearch();
   const { savedJobs, saveJob, unsaveJob, updateStatus, isJobSaved } = useSavedJobs();
 
   // Read the persisted snapshot once (lazy — runs a single time on mount).
@@ -411,6 +411,23 @@ const Jobs = () => {
       setView('results');
     }
   }, [results]);
+
+  // A reload mid-search used to drop the user back on the picker with nothing
+  // to show, while the backend had already charged + cached the results. If a
+  // search was cut off, pick it up again once the report is known; the hook
+  // waits until the re-run is a free cache hit. Runs once per mount.
+  const resumeCheckedRef = useRef(false);
+  useEffect(() => {
+    if (resumeCheckedRef.current || !latestReport?.id) return;
+    resumeCheckedRef.current = true;
+    if (!hasInterruptedSearch()) return;
+    awaitingSearchRef.current = true;
+    resumeInterruptedSearch().then((resumed) => {
+      if (!resumed) awaitingSearchRef.current = false;
+      queryClient.invalidateQueries({ queryKey: ['job-search-credits', latestReport.id] });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestReport?.id]);
 
   const handleToggleCareer = (sectionType: string) => {
     setSelectedCareers((prev) =>
@@ -720,7 +737,7 @@ const Jobs = () => {
       avoidPreferences={avoidPreferences}
       disabledAvoids={disabledAvoids}
       onToggleAvoid={toggleAvoid}
-      isSearching={isSearching}
+      isSearching={isSearching || isResuming}
       onSearch={handleSearch}
       creditsRemaining={credits.remaining}
       creditsUnlimited={credits.unlimited}

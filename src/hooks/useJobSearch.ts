@@ -96,6 +96,82 @@ export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
 //   contract   → C  (covers fractional, interim, freelance, consultant gigs)
 export type JobCommitment = 'any' | 'full_time' | 'part_time' | 'contract';
 
+// ── Interrupted-search recovery ─────────────────────────────────────────
+// A search takes ~20-90s per career and its results only live in React state.
+// If the page reloads or the user navigates away mid-search, the edge function
+// still finishes server-side: it charges the credit and caches the results,
+// but the UI never shows them. We remember the in-flight search in
+// sessionStorage so the page can pick it up again on the next mount.
+//
+// Re-running too early would be a cache MISS and fire (and charge) a second
+// n8n search for the same career. So we wait until the ledger
+// (user_job_searches) shows the interrupted career finished, or until the
+// edge function's 150s timeout has certainly passed (then it failed, which
+// never charges). The re-run is then a free cache hit for finished careers.
+const INFLIGHT_KEY = 'cairnly_jobs_inflight_v1';
+// Edge function aborts n8n at 150s; add margin for its own DB writes.
+const EDGE_TIMEOUT_MS = 165_000;
+// Older than this and we don't auto-run anything: the user has long moved on.
+const INFLIGHT_MAX_AGE_MS = 10 * 60_000;
+const RESUME_POLL_MS = 4_000;
+
+// The exact arguments of searchJobs, so a resumed search re-runs identically.
+type SearchArgs = [
+  careers: SearchCareer[],
+  countryCodes: string[],
+  location?: string,
+  workArrangement?: WorkArrangement,
+  jobCommitment?: JobCommitment,
+  userLanguages?: UserLanguage[],
+  reportId?: string,
+  avoidPreferences?: string[],
+];
+
+interface InflightSearch {
+  args: SearchArgs;
+  // When the career that was running at reload time started (ms epoch).
+  careerStartedAt: number;
+}
+
+function writeInflight(v: InflightSearch | null) {
+  try {
+    if (v) sessionStorage.setItem(INFLIGHT_KEY, JSON.stringify(v));
+    else sessionStorage.removeItem(INFLIGHT_KEY);
+  } catch {
+    /* sessionStorage unavailable — recovery is best-effort */
+  }
+}
+
+function readInflight(): InflightSearch | null {
+  try {
+    const raw = sessionStorage.getItem(INFLIGHT_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as InflightSearch;
+    if (!Array.isArray(v?.args) || typeof v.careerStartedAt !== 'number') return null;
+    if (Date.now() - v.careerStartedAt > INFLIGHT_MAX_AGE_MS) {
+      writeInflight(null);
+      return null;
+    }
+    return v;
+  } catch {
+    return null;
+  }
+}
+
+/** True when a search was cut off by a reload and can be resumed. */
+export const hasInterruptedSearch = (): boolean => readInflight() !== null;
+
+/** True once the ledger has a row (charged or cached) for this report since `since`. */
+async function ledgerHasRowSince(reportId: string, since: number): Promise<boolean> {
+  const { count, error } = await supabase
+    .from('user_job_searches')
+    .select('id', { count: 'exact', head: true })
+    .eq('report_id', reportId)
+    .gte('created_at', new Date(since).toISOString());
+  if (error) return false;
+  return (count ?? 0) > 0;
+}
+
 /**
  * Hook for searching jobs sequentially (one career at a time).
  * Returns per-career results and an overall progress state.
@@ -105,6 +181,7 @@ export const useJobSearch = () => {
   const [results, setResults] = useState<JobSearchResult[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [isSearching, setIsSearching] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
 
   const searchJobs = async (
     careers: SearchCareer[],
@@ -119,6 +196,10 @@ export const useJobSearch = () => {
     if (careers.length === 0 || countryCodes.length === 0) return;
 
     setIsSearching(true);
+    const args: SearchArgs = [
+      careers, countryCodes, location, workArrangement, jobCommitment,
+      userLanguages, reportId, avoidPreferences,
+    ];
 
     // Initialize all results as idle
     const initialResults: JobSearchResult[] = careers.map(c => ({
@@ -134,6 +215,7 @@ export const useJobSearch = () => {
     // Process sequentially, one career at a time
     for (let i = 0; i < careers.length; i++) {
       setCurrentIndex(i);
+      writeInflight({ args, careerStartedAt: Date.now() });
 
       // Mark current as searching
       setResults(prev => prev.map((r, idx) =>
@@ -200,8 +282,32 @@ export const useJobSearch = () => {
       }
     }
 
+    writeInflight(null);
     setCurrentIndex(-1);
     setIsSearching(false);
+  };
+
+  /**
+   * Pick up a search that a reload cut off (see INFLIGHT_KEY above). Waits
+   * until re-running is free, then re-runs the same search. Resolves false
+   * when there was nothing to resume.
+   */
+  const resumeInterruptedSearch = async (): Promise<boolean> => {
+    const inflight = readInflight();
+    if (!inflight) return false;
+    const reportId = inflight.args[6];
+    setIsResuming(true);
+    try {
+      const deadline = inflight.careerStartedAt + EDGE_TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        if (reportId && (await ledgerHasRowSince(reportId, inflight.careerStartedAt))) break;
+        await new Promise((r) => setTimeout(r, RESUME_POLL_MS));
+      }
+    } finally {
+      setIsResuming(false);
+    }
+    await searchJobs(...inflight.args);
+    return true;
   };
 
   const clearResults = () => {
@@ -220,7 +326,9 @@ export const useJobSearch = () => {
     results,
     currentIndex,
     isSearching,
+    isResuming,
     searchJobs,
+    resumeInterruptedSearch,
     clearResults,
     restoreResults,
   };
