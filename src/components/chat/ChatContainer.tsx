@@ -903,7 +903,12 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             // just before this on the values→career transition. The old
             // generic "Your feedback…" wording made product feedback look
             // like it went into the report, which it doesn't.
-            description: t('ui.savedSectionBody'),
+            // Career sections: say plainly that WF6 rewrites the text but the
+            // scores and order stay (live test 2026-11-07: "reflected in your
+            // final report" read as a promise of a re-rank).
+            description: /^(top_career|runner_ups|outside_box|dream_jobs)/.test(previousType ?? '')
+              ? t('ui.savedCareerBody')
+              : t('ui.savedSectionBody'),
           });
           sendMessage(sessionId, message, {
             report_id: reportId,
