@@ -4,6 +4,7 @@
 
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import type { CoverLetterJson, ResumeContact } from '../types';
+import { splitClosing } from '../splitClosing';
 
 const styles = StyleSheet.create({
   page: {
@@ -49,6 +50,7 @@ interface CoverLetterProps {
 }
 
 export function CoverLetter({ letter, contact, careerTitle }: CoverLetterProps) {
+  const closing = splitClosing(letter.closing, contact.name);
   const contactLine = [contact.email, contact.phone, contact.location, contact.linkedin]
     .filter(Boolean)
     .join('   ·   ');
@@ -70,7 +72,8 @@ export function CoverLetter({ letter, contact, careerTitle }: CoverLetterProps) 
           </Text>
         ))}
 
-        <Text style={styles.closing}>{letter.closing}</Text>
+        {closing.text ? <Text style={styles.closing}>{closing.text}</Text> : null}
+        {closing.signOff ? <Text style={styles.closing}>{closing.signOff}</Text> : null}
         <Text style={styles.signature}>{contact.name}</Text>
       </Page>
     </Document>

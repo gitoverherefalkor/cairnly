@@ -17,6 +17,7 @@ import {
 } from '@/components/report-pdf/ReportPrintDocument';
 import { PRINT_CSS } from '@/components/report-pdf/printStyles';
 import { PRINT_BUILD } from '@/components/report-pdf/printBuild';
+import { dropStaleReplacementFields } from '@/lib/dropStaleReplacementFields';
 
 declare global {
   interface Window {
@@ -177,7 +178,7 @@ const ReportPrint: React.FC = () => {
         if (!res.ok) throw new Error(`report-print-data returned ${res.status}`);
         const json = (await res.json()) as PrintData;
         if (cancelled) return;
-        setData(json);
+        setData({ ...json, sections: (json.sections ?? []).map(dropStaleReplacementFields) });
       } catch (e) {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : String(e);

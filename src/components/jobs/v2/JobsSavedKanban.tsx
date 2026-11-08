@@ -26,6 +26,7 @@ import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { SavedJob, SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DEFAULT_APPLY_LINK, JEyebrow, matchTone, type ApplyLinkOptions } from './jobsV2Shared';
+import { formatSalaryRange } from './formatSalary';
 
 interface JobsSavedKanbanProps {
   /** Replaces the signed-in app nav. The public demo (/demo/jobs) renders
@@ -341,7 +342,7 @@ const KanbanJobCard: React.FC<{
   const { t } = useTranslation('jobs');
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: job.external_job_id });
   const tone = matchTone(job.match_score, 'dark');
-  const salaryText = formatSavedSalary(job.salary_min, job.salary_max);
+  const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
 
   return (
     <article
@@ -589,10 +590,3 @@ function daysAgo(t: TFunction, iso: string | null | undefined): string {
   return t('pipeline.ago.weeks', { count: Math.floor(days / 7) });
 }
 
-function formatSavedSalary(min: number | null | undefined, max: number | null | undefined): string {
-  if (min == null && max == null) return '';
-  const k = (n: number) => Math.round(n / 1000);
-  if (min != null && max != null && max > min) return `${k(min)}–${k(max)}k`;
-  const v = (min ?? max) as number;
-  return `${k(v)}k`;
-}

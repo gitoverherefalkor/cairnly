@@ -9,6 +9,7 @@
 
 import { Document, Packer, Paragraph, TextRun, AlignmentType, PageOrientation } from 'docx';
 import type { CoverLetterJson, ResumeContact } from '@/components/custom-resume/types';
+import { splitClosing } from '@/components/custom-resume/splitClosing';
 
 // Page geometry — A4 with European default margins.
 //
@@ -32,6 +33,8 @@ export async function buildCoverLetterDocxBlob(
   const contactLine = [contact.email, contact.phone, contact.location, contact.linkedin]
     .filter(Boolean)
     .join('   ·   ');
+
+  const closing = splitClosing(letter.closing, contact.name);
 
   const para = (text: string, opts: { bold?: boolean; size?: number; spacingAfter?: number } = {}) =>
     new Paragraph({
@@ -109,8 +112,10 @@ export async function buildCoverLetterDocxBlob(
           para(letter.opening || ''),
           // Body paragraphs
           ...(letter.body_paragraphs ?? []).map((p) => para(p)),
-          // Closing
-          para(letter.closing || '', { spacingAfter: 480 }),
+          // Closing (sign-off split onto its own line, see splitClosing)
+          ...(closing.signOff
+            ? [para(closing.text), para(closing.signOff, { spacingAfter: 480 })]
+            : [para(closing.text, { spacingAfter: 480 })]),
           // Signature
           new Paragraph({
             alignment: AlignmentType.LEFT,

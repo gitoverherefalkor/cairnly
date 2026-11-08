@@ -13,7 +13,8 @@ import { useJobSearch, hasInterruptedSearch, type JobListing, type UserLanguage,
 import { useSavedJobs, type SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import { COUNTRIES, profileCountryToCode } from '@/components/jobs/LocationInput';
+import { COUNTRIES } from '@/components/jobs/LocationInput';
+import { defaultJobsCountry, REGION_QUESTION_ID } from '@/lib/jobsCountryDefault';
 import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
 import { JobsSearch, type JobsSearchCareerOption, type RecentSearch } from '@/components/jobs/v2/JobsSearch';
@@ -341,14 +342,31 @@ const Jobs = () => {
     }
   }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results]);
 
-  // Pre-fill primary country from profile — only when there's no restored
-  // snapshot, so we don't clobber a country the user already picked.
+  // Pre-fill primary country — only when there's no restored snapshot, so we
+  // don't clobber a country the user already picked. profiles.country is only
+  // set at checkout, so free-code users would get "United States"; combine it
+  // with the survey's location answer (see defaultJobsCountry).
+  const surveyRegionBand = (latestReport as any)?.payload?.responses?.[REGION_QUESTION_ID] ?? null;
   useEffect(() => {
-    if (!persisted && profile?.country) {
-      setPrimaryCountry(profileCountryToCode(profile.country));
+    if (persisted || profileLoading) return;
+    let surveyPickKey: string | null = null;
+    try {
+      surveyPickKey = localStorage.getItem(`region_pick_${REGION_QUESTION_ID}`);
+    } catch {
+      /* storage blocked */
     }
+    setPrimaryCountry(
+      defaultJobsCountry({
+        supported: COUNTRIES.map((c) => c.code),
+        profileCountry: profile?.country ?? null,
+        surveyPickKey,
+        regionBand: typeof surveyRegionBand === 'string' ? surveyRegionBand : null,
+        browserLocales: typeof navigator !== 'undefined' ? navigator.languages : [],
+        uiLanguage: i18n.language,
+      }),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.country]);
+  }, [profile?.country, profileLoading, surveyRegionBand]);
 
   // Defensive: if user picks the same country in both selects, clear the secondary.
   useEffect(() => {
@@ -377,19 +395,20 @@ const Jobs = () => {
     if (matches.length > 0) setSelectedCareers(matches);
   }, [searchParams, careerOptions]);
 
-  // Default-select the user's top 3 careers ONCE, when sections first load and
-  // nothing is already selected (no persisted snapshot or query param). Guarded
-  // by a ref so that later unselecting everything does NOT re-trigger the
-  // default — selecting none is a valid state (the search button just disables).
+  // Default-select the user's #1 career ONCE, when sections first load and
+  // nothing is already selected (no persisted snapshot or query param). Each
+  // selected career is its own search (one credit and one paid scrape), so
+  // pre-selecting all three burned 3 of the 4 free searches in one click; the
+  // user can still tick more. Guarded by a ref so that later unselecting
+  // everything does NOT re-trigger the default — selecting none is a valid
+  // state (the search button just disables).
   const didAutoSelectRef = useRef(false);
   useEffect(() => {
     if (didAutoSelectRef.current || careerOptions.length === 0) return;
     didAutoSelectRef.current = true;
     if (selectedCareers.length > 0) return;
-    const topThree = careerOptions
-      .filter((c) => c.tier === 'top-1' || c.tier === 'top-2' || c.tier === 'top-3')
-      .map((c) => c.sectionType);
-    if (topThree.length > 0) setSelectedCareers(topThree);
+    const topOne = careerOptions.find((c) => c.tier === 'top-1') ?? careerOptions[0];
+    if (topOne) setSelectedCareers([topOne.sectionType]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [careerOptions]);
 

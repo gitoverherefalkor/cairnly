@@ -30,6 +30,7 @@ import {
   type ApplyLinkOptions,
   type JobsTier,
 } from './jobsV2Shared';
+import { formatSalaryRange } from './formatSalary';
 
 export interface JobsResultsCareer {
   sectionType: string;
@@ -956,11 +957,3 @@ function formatApplicants(t: TFunction, count: number): string {
   return t('card.applicants', { count });
 }
 
-// "110–180k" with no currency symbol (per product decision — no currency in schema).
-function formatSalaryRange(min: number | null | undefined, max: number | null | undefined): string {
-  if (min == null && max == null) return '';
-  const k = (n: number) => Math.round(n / 1000);
-  if (min != null && max != null && max > min) return `${k(min)}–${k(max)}k`;
-  const v = (min ?? max) as number;
-  return `${k(v)}k`;
-}

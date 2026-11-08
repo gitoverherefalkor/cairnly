@@ -1117,7 +1117,11 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         if (years === 0 && months === 0) return t('careerHistory.duration.lessThanMonth');
         if (years === 0) return t('careerHistory.duration.months', { count: months });
         if (months === 0) return t('careerHistory.duration.years', { count: years });
-        return t('careerHistory.duration.yearsAndMonths', { years, months });
+        // Build from the pluralised parts so "1 year, 1 month" reads correctly
+        return t('careerHistory.duration.yearsAndMonths', {
+          years: t('careerHistory.duration.years', { count: years }),
+          months: t('careerHistory.duration.months', { count: months }),
+        });
       };
 
       // Parse value — keep all entries including empty ones the user just added

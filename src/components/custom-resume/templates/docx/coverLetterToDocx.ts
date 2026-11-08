@@ -9,6 +9,7 @@ import {
   TextRun,
 } from 'docx';
 import type { CoverLetterJson, ResumeJson } from '../../types';
+import { splitClosing } from '../../splitClosing';
 
 const FONT = 'Calibri';
 
@@ -62,7 +63,9 @@ export async function buildCoverLetterDocxBlob(
   for (const p of letter.body_paragraphs ?? []) {
     if ((p || '').trim()) paragraphs.push(p.trim());
   }
-  if (letter.closing?.trim()) paragraphs.push(letter.closing.trim());
+  const closing = splitClosing(letter.closing, contact?.name);
+  if (closing.text) paragraphs.push(closing.text);
+  if (closing.signOff) paragraphs.push(closing.signOff);
 
   for (const p of paragraphs) {
     body.push(
