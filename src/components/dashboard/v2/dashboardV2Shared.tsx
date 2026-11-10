@@ -701,7 +701,9 @@ export function pickShareSentences(
 // best subsection yields nothing usable drops to its next-best rather than
 // straight back to the neutral overview at the top of the body.
 const KEY_INSIGHT = ['key insight', 'kerninzicht', 'belangrijkste inzicht'];
-const WHY_FITS = ['why this role fits you', 'why this fits you', 'waarom deze rol bij je past'];
+const WHY_FITS = ['why this role fits you', 'why this fits you', 'waarom deze rol bij je past', 'waarom dit bij u past'];
+// Encore's own-idea section leads with its plain verdict.
+const HONEST_VIEW = ['our honest view', 'onze eerlijke kijk'];
 const ALIGNMENT = ['alignment with your ambitions', 'aansluiting bij je ambities'];
 
 export const SHARE_QUOTE_ANCHORS: Record<string, string[][]> = {
@@ -716,9 +718,9 @@ export const SHARE_QUOTE_ANCHORS: Record<string, string[][]> = {
   top_career_2: [WHY_FITS, ALIGNMENT],
   top_career_3: [WHY_FITS, ALIGNMENT],
   runner_ups: [WHY_FITS, ALIGNMENT],
-  dream_jobs: [WHY_FITS, ALIGNMENT],
+  dream_jobs: [WHY_FITS, HONEST_VIEW, ALIGNMENT],
   outside_box: [
-    ['why this might be a fit', 'why this could be a fit', 'why this role fits you', 'waarom dit bij je past'],
+    ['why this might be a fit', 'why this could be a fit', 'why this role fits you', 'waarom dit bij je past', 'waarom dit bij u past'],
     ALIGNMENT,
   ],
 };
