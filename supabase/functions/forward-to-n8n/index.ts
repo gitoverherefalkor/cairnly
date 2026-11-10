@@ -126,7 +126,8 @@ serve(async (req) => {
     // today's pro behavior.
     const FLAVOR_WEBHOOK_ENV_VARS: Record<string, string> = {
       '00000000-0000-0000-0000-000000000002': 'N8N_STARTER_WEBHOOK_URL', // starter
-      '00000000-0000-0000-0000-000000000003': 'N8N_ENCORE_WEBHOOK_URL', // encore
+      '00000000-0000-0000-0000-000000000003': 'N8N_ENCORE_WEBHOOK_URL', // encore v1
+      '00000000-0000-0000-0000-000000000004': 'N8N_ENCORE_WEBHOOK_URL', // encore v2
     };
     const submittedSurveyId =
       (surveyData as Record<string, unknown> | null)?.survey_id;

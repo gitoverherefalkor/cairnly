@@ -561,7 +561,7 @@ serve(async (req) => {
       session.metadata?.flavor === "starter"
         ? "Starter - First Serious Job - 2026 v1 EN"
         : session.metadata?.flavor === "encore"
-          ? "Encore - Post-Career Direction - 2026 v1 EN"
+          ? "Encore - Post-Career Direction - 2026 v2"
           : "Office / Business Pro - 2025 v1 EN";
 
     // Store the access code in the database with pricing info
