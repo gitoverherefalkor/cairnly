@@ -69,6 +69,11 @@ Prompts that change (3) plus 3 parsers:
 
 Unchanged: webhook, report-language lookup, Supabase pulls and inserts, analysis-completed call.
 
+## Added from the strategy thread (Sjoerd's answers, 2026-11-10 14:24)
+- NL first at launch: the Dutch route catalogue in WF2P is the one that matters; the UK/US lines stay as harmless fallbacks.
+- AI honesty: for paid knowledge-work options, WF4P (top 3 and runner-ups) says plainly which AI skills the role now expects, and the first step includes one small way to build them. Not for volunteering or hands-on routes. WF2P needs no change for this: its AI impact and enrich steps already cover tooling per direction.
+- Job hunting and CV help stay in Cairnly Pro: WF4P may point to Pro as an add-on when someone wants paid work and needs that help.
+
 ## Open decisions for Sjoerd
 - No idea in 3.5: DECIDED 2026-11-10 by Sjoerd: skip the idea section (Dream prep / Dream Job Feasibility only run when 3.5 has text; check the dashboard and PDF handle a missing dream_jobs section).
 - Executive summary: the v1 Encore chain ends at analysis-completed and WF7 has no Encore branch. Check whether Encore needs its own summary (the "open with the 3.1 problem" line from the plan lives there).
