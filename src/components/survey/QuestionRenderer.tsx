@@ -1558,7 +1558,9 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
             <AddRoleButton position="bottom" />
 
             <p className="text-xs text-gray-500 mt-2 text-center">
-              {t('careerHistory.footerNote')}
+              {isSlim
+                ? t('careerHistory.footerNoteSlim', { count: MAX_ACTIVE_ROLES })
+                : t('careerHistory.footerNote')}
             </p>
           </div>
         </div>

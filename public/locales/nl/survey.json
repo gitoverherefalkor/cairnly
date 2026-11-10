@@ -219,6 +219,7 @@
   "careerHistory": {
     "whatYouDid": "Wat u er deed",
     "whatYouDidPlaceholder": "Een paar woorden over wat u deed, voor wie, en wat u er mooi aan vond. Typen of inspreken.",
+    "footerNoteSlim": "Er worden maximaal {{count}} functies meegenomen. Met de pijlen verandert u de volgorde.",
     "duration": {
       "lessThanMonth": "Minder dan een maand",
       "months_one": "{{count}} maand",
