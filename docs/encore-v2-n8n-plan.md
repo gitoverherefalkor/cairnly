@@ -44,7 +44,7 @@ What could break: JSON parse in 15TitSizAISal1 if the output format drifts (keep
 
 Run both on a test submission (code TEST-ENC2-V2NL-K7Q4, one EN and one NL) with WF3P/WF4P still on v1 logic, inspect report_sections and enriched_jobs, then gate B on 3-5 profiles after WF3P/WF4P.
 
-# WF3P and WF4P (plan, waiting for Sjoerd's per-workflow yes)
+# WF3P and WF4P (applied 2026-11-10 after Sjoerd's "OK to edit WF3P and WF4P"; all four workflows still INACTIVE)
 
 Backups: `n8n_wfs_cairnly/backups/WF3P - Encore scoring directions EN_BACKUP_pre_v2_20261110.json` and `WF4P - Encore Direction selection EN_BACKUP_pre_v2_20261110.json` (commit 1ba219b). Both inactive. Every prompt in both is keyed to v1 question codes ([2b] happiness log, [4a] ranking, [5a] hours, [6e] liability, [7b] always-wanted-to-try), so this is a full prompt rewrite. The code nodes and JSON keys stay, so Ranking, Prep WF4 data and the inserts keep working.
 
@@ -77,3 +77,16 @@ Unchanged: webhook, report-language lookup, Supabase pulls and inserts, analysis
 ## Open decisions for Sjoerd
 - No idea in 3.5: DECIDED 2026-11-10 by Sjoerd: skip the idea section (Dream prep / Dream Job Feasibility only run when 3.5 has text; check the dashboard and PDF handle a missing dream_jobs section).
 - Executive summary: the v1 Encore chain ends at analysis-completed and WF7 has no Encore branch. Check whether Encore needs its own summary (the "open with the 3.1 problem" line from the plan lives there).
+
+## Status 2026-11-10 evening: WF1P, WF3P, WF4P rewritten (inactive)
+
+Review findings from the "Encore prompt review" doc (https://claude.ai/artifact/RxXqYY3ST8RyLdaGdQ11kf) are folded in. Exports on main: WF1P, WF3P (9d8584e), WF4P (e513163).
+
+- **WF1P**: the extract node now writes a structured `facts` object (region, typed location, age, stage, roles, audiences, forms, idea, role fit, picks, partner, time, calendar, place, pay, worth_it, ...) to the init_summary row's `metadata.facts`, so later prompts read answers as data. Heading parsing only matches at line start (no more splits on "key insight" mid-sentence). Personality subheaders: What People Count On You For / Where Your Energy Comes From; Your Core Strengths / What Carries Over, and What Does Not; Old Habits in a New Setting / What This Means for Your Choices; Your Values Now / Choosing With Your Values; Key Insight (NL "u" equivalents in the code).
+- **WF3P**: step 1 reweighted (usefulness 22, time/energy/people 18, experience 14, pull 10 = 64); step 2 usefulness pattern 20, strengths 14, trajectory 10, with burnout/development/feasibility penalties. Ranking now sums the parts in code with clamping and only falls back to the model total when it is 0-108 (a garbage 200 used to rank first). Facts passed on to WF4P. Outside-the-box: no product names, no idea suggested on their behalf, NL heading "Waarom dit bij u past".
+- **WF4P**: new top-3 prompt (Overview, Why this fits you, What you'll actually do, How people get in, Your first step, The Reality Check, The practical stuff with Money/Time/People/Place, AI impact, Future-proof skills only for paid desk work). Age bias, the Pro add-on sentence and "a quiet season" each owned by the top 3 only, once. Runner-ups 170-220 words, no legal claims. "Your idea" first classifies tried-and-stopped / doing it now / not yet tried, then proposes a small version to test. New IF node "Has idea?" skips the idea branch when 3.5 is empty. Parsers carry EN and NL ("u") heading lists.
+- **Frontend** (3f32987): icon map and share-quote anchors know the new EN and NL headings. headingPins untouched (Pro only).
+
+Deferred (to report with the test): WF2P passing overview/why_this_fits through, form and pay per direction, country capture in the region picker, WF2P quotas and executive assumptions in Salary/AI/enrich, pinning the Gemini model version, batching step 2, how scores are shown, fixed AOW/WW sentences (needs Sjoerd), a verified organisation list, an Encore executive summary, copy doc 2b for dashboard labels in "u".
+
+Next: end-to-end test with TEST-ENC2-V2NL-K7Q4 (EN and NL). Needs WF1P-WF4P active, which is Sjoerd's action or his explicit OK.
