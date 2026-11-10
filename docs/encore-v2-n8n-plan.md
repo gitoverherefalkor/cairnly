@@ -1,6 +1,6 @@
 # Encore v2: n8n plan for WF1P and WF2P
 
-Status: plan, waiting for Sjoerd's per-workflow yes (2026-11-10). Backups of the current state: `n8n_wfs_cairnly/backups/WF1P ... _BACKUP_pre_v2_20261110.json` and `WF2P ... _BACKUP_pre_v2_20261110.json`. Both workflows stay inactive; Sjoerd activates.
+Status: approved by Sjoerd 2026-11-10 ("yes WF1P" / "yes WF2P") and applied in n8n the same day; both workflows still inactive. Current exports: `n8n_wfs_cairnly/WF1P - Encore Profile Insert EN.json` and `n8n_wfs_cairnly/WF2P - Encore Source to Enrich 15.json`. Backups of the current state: `n8n_wfs_cairnly/backups/WF1P ... _BACKUP_pre_v2_20261110.json` and `WF2P ... _BACKUP_pre_v2_20261110.json`. Both workflows stay inactive; Sjoerd activates.
 
 Question ids and answer values: `docs/encore-v2-question-ids.md`.
 
@@ -32,6 +32,13 @@ Already Encore-framed (forms, dignity, hours, no filler). Changes, 1 node:
 Unchanged: 15 options and the JSON shape (WF3P/WF4P depend on it), AI impact, Salary Range1 (it only sees titles; whether pay is shown is a WF4P call based on 6.4), enrich prompt (already Encore-framed; first step per option belongs in WF4P), Supabase insert, WF3P trigger. Output stays English, Dutch happens in WF3P/WF4P, same as Pro.
 
 What could break: JSON parse in 15TitSizAISal1 if the output format drifts (keep the format block verbatim).
+
+## Applied beyond the plan
+
+- WF1P profile headings are new, Encore-specific: How You Work Best Now / What You Bring / What to Watch For / What Matters to You Now (NL: Hoe u nu het beste werkt / Wat u meebrengt / Waar u op moet letten / Wat nu voor u telt). Same section_types. They need Sjoerd's OK in copy doc 2b, with the dashboard one-liners per section.
+- Profile length 200-280 words per section (was 280-350), because the survey is shorter.
+- From the strategy thread (pending Sjoerd's read): one-sentence acknowledgement of 1.5 "decided for me"; banned age labels (senior, oudere, pensionado, vitaal ouder worden, nog niet afgeschreven, never too old); WF2P country routes (NL toezicht, PUM, NLvoorelkaar, ZZP; UK and US equivalents), at least one Dutch toezicht option when allowed, realistic entry route for every paid option, age bias named only where real and never "hide your age".
+- WF2P `Combine rep and profile1` also passes the report language (from report_sections.language) so the prompt can pick country routes.
 
 ## Test
 

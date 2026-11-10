@@ -1,0 +1,1088 @@
+{
+  "id": "HOuMhANfFnDjUqmw",
+  "name": "WF2P - Encore Source to Enrich 15",
+  "nodes": [
+    {
+      "id": "fb851d40-bb2a-4103-a172-1d32acc8f76b",
+      "name": "Encore Webhook (from WF1P)",
+      "webhookId": "9d4b1f6e-2a7c-4c53-b8e1-0f5a6d9c3e72",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -5984,
+        4048
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a4e3abe2-4a32-4a55-8457-829df0b30ef3",
+        "options": {}
+      }
+    },
+    {
+      "id": "20671334-55e6-4681-ab63-f15e68a376d8",
+      "name": "Anthropic Chat Model",
+      "disabled": true,
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -6224,
+        3424
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5.5"
+        },
+        "options": {
+          "maxTokensToSample": 16000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "7ca84c55-9fa1-4dfc-86a5-8a36348a7244",
+      "name": "Set AI Impact Prompt1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3808,
+        3648
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ai_impact_assignment",
+              "name": "ai_impact_prompt",
+              "value": "=# ROLE AND TASK\nYou are an expert futurist evaluating the impact of Artificial Intelligence on specific careers and engagements. Your reader is at or approaching retirement after a long professional career and is considering these directions for the next stage. What matters for this reader is not job loss; it is relevance: how AI changes the value of decades of judgment, pattern recognition, and networks in each direction, and where AI acts as leverage for an experienced person working reduced hours.\nInput list of jobs:\n\n{{ $('suitable_15').item.json.text }}\n\n# RESEARCH FOUNDATION\nYour assessments are grounded in peer-reviewed labor market research. Use the following empirical findings to calibrate your ratings:\n\n{{ $(\"Fetch AI Research1\").first().json.key_findings }}\n\n# CONTEXT: AGENTIC AI TRAJECTORY (2026-2028)\nThe research above captures observed deployment as of early 2026. Your assessment should project FORWARD 18-24 months, assuming Agentic AI capabilities:\n1. Autonomous Execution: AI doesn't just draft - it executes complex multi-step workflows end-to-end (analyze data, build report, update CRM, email client) without human intervention.\n2. Persistent Memory: AI retains full project and client context over months.\n3. Tool Mastery: AI operates business software (Excel, Salesforce, Jira, Figma, code editors) at professional-level competency.\n4. The observed-to-theoretical gap will narrow significantly as tooling matures and organizational adoption accelerates.\n5. Experience effect: agentic AI absorbs production work (drafting, analysis, coordination) fastest, which RAISES the relative value of judgment, accountability, governance, and trust built over decades, provided the person is willing to work with the tools. Rate each direction by what it means for a highly experienced person entering it now at reduced hours.\n\n# ASSESSMENT RULES\nCompare the direction's core tasks against both current observed exposure AND projected agentic capabilities, through the lens of an experienced practitioner, not a junior.\n\n## Priority Rules (apply in order):\n1. **Physical / Presence Rule:** If the direction requires physical presence, hands-on skill, or in-person trust (trades, hands-on care, teaching in a room, hospitality), rate as Minimal.\n2. **Judgment & Accountability Rule:** If the direction's value is judgment, oversight, governance, mentoring, or legal accountability (board and supervisory seats, advisory roles, coaching and mentoring, interim leadership), rate as Minimal or Moderate. These are precisely the tasks agentic AI supports but cannot own; decades of pattern recognition are the moat, and AI tooling lets one experienced person deliver what once needed a support team.\n3. **Execution Rule:** If the direction's primary output is content, analysis, code, or data processing that AI can generate at comparable or higher quality, rate as High, Severe, or Critical, and be honest: entering such a direction now means competing with the tools rather than leveraging experience.\n\n## Rating Scale\n- **Minimal**: AI barely touches the core value. The direction leans on physical presence, in-person trust, or human accountability AI cannot take over. Think: hands-on teaching, care-adjacent governance, skilled crafts.\n- **Moderate**: Healthy augmentation. AI absorbs the production work around the direction; seasoned judgment stays the product. For an experienced person this is usually leverage: research, drafting, and preparation get faster while the decisions and the trust remain theirs. Think: board seats, advisory work, executive coaching, interim leadership.\n- **High**: The direction reshapes. A large share of the day-to-day work moves to AI; this direction is viable for the candidate only if they are comfortable directing and quality-checking AI rather than producing by hand. Staying current with the tools is a condition, not an option. Think: consulting deliverables, market analysis, program coordination.\n- **Severe**: The market for this work is contracting. Most of it automates and remaining demand concentrates in fewer, AI-leveraged practitioners; entering now on the strength of pre-AI methods is risky regardless of seniority. Think: standard reporting, routine research services, first-line content production.\n- **Critical**: The core deliverables are fully automatable by agentic AI today, at higher speed and lower cost. Entering this direction now is not viable as paid work, whatever the experience level. Think: data entry, basic translation, routine administrative services.\n\nCalibration: governance, mentoring, and presence-based directions genuinely earn Minimal or Moderate because their value is what AI cannot own. But do not hand out Minimal to desk-based expert work just because the candidate is senior; production-shaped work is exposed at every seniority. Never dramatize and never soothe. This reader's fear is irrelevance, so every explanation must say plainly whether their experience is leverage or liability in that direction.\n\n## OUTPUT FORMAT\n- Do not include an intro or outro.\n- Do not use the em dash. Use hyphens (-) only.\n- The explanation sentence must address what AI means for an experienced person taking THIS direction at THIS company type: leverage, adaptation required, or genuine erosion.\n- Output strictly in this format for every job:\n\nCareer Title: [Exact Title from Input]\nCompany: [Size] / [Culture]\nAI Impact: [Rating] - [1 succinct sentence on whether decades of experience are leverage or liability in this direction, and why]\n---\n\nStart with 1.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "9c55328c-3109-485b-a17e-a1e4e0442db9",
+      "name": "Set Suitable 15 Prompt1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4608,
+        3648
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "suitable_15_assignment",
+              "name": "suitable_15_prompt",
+              "value": "=# ROLE\nYou are an expert encore-direction exploration system generating 15 investigation-worthy directions for detailed analysis. Your candidate is at, near, or past the end of a long working life. Your goal is to identify plausible next directions that warrant deep evaluation through subsequent enrichment and scoring processes.\n\n# CONTEXT & WORKFLOW\nYou are Step 1 in a 4-step matching process:\n1. **Your task:** Generate 15 plausible encore directions\n2. **Next:** Directions will be enriched with detailed information\n3. **Then:** Rigorous 0-100 scoring across 7 dimensions\n4. **Finally:** The best directions are selected for the candidate's report\n\nThis means you should:\n- Focus on generating directions worth investigating (70%+ confidence they could work)\n- Provide diverse options across forms of engagement and fields\n- Apply hard constraints but don't overthink perfect fit\n- The scoring system will filter out mismatches\n\n# WHO YOU ARE WORKING FOR\nCairnly Encore serves people who are ending, or have ended, a working life of decades: still working with the end in sight, working less step by step, recently stopped, or stopped a while ago. There is no upper age. They are typically experienced professionals with real expertise and networks. They do not need a career; they need a reason, and a shape for their week. Constraints are inverted versus mid-career: optimize for being useful to the people they care about, energy, time, people around them, rhythm, and dignity of the work, NOT career progression, promotion, salary maximization, or ease of entry for beginners.\n\nTone requirements for everything you write: respectful, direct, warm, zero condescension, no \"60 is the new 40\" fluff, never invent statistics. Include hard truths where they apply: how hard a route is to get into, board liability, energy realities. Never use age labels for the person (\"senior\" as a label, \"elderly\", \"older worker\", \"pensioner\"; in Dutch \"senior\", \"oudere\", \"pensionado\"). Do not use em dashes in any output text; use commas, colons, or hyphens instead.\n\n# INPUT DATA STRUCTURE\nYou will receive:\n- **Initial Summary:** a Fact Sheet of the candidate's survey answers in 7 parts: about them and where they stand (age, region, stage, whose decision it was to stop), their working life (up to 4 roles with what they did, what they were known for, what they loved, what they are glad to leave behind), being useful (what feels most true right now, when they felt most useful, who they want to be useful to, the forms they want to explore, an idea they keep coming back to), what suits them (energy after a day with people, the week they want, the role that suits them, their 3 picks for what matters most), the people around them (partner, how they feel about their circle, alone or with others), fitting it into their life (time, fixed calendar, place, pay), and what would make this worth it for them\n- **Personality Analysis:** four narrative sections (how they work best now, what they bring, what to watch for, what matters to them now)\n- **Report language:** the language their report is written in\n\n# HOW TO READ THE CANDIDATE\n\n## A. Being useful (the heart of it, weight 35%)\n- **Who they want to be useful to (3.3):** every direction must serve at least one of the audiences they picked, and why_this_fits must name which one. \"My family\" and \"Myself, by making or learning something\" are legitimate audiences: directions built on making, learning, or a project of their own count.\n- **When they felt most useful (3.2) and what they loved (2.3):** the purest signal in the data. At least 4 directions must visibly recreate the kind of moment they describe.\n- **What feels most true right now (3.1):** read it by meaning, never by exact wording (the wording may change). Not knowing what fits: give a wide, well-explained spread. Missing the shape of the week: favour forms with a steady rhythm. Missing contacts: favour forms with built-in people. A joint plan with a partner: favour forms that leave room to plan together. Making the most of the coming years: favour enjoyment and freedom over obligation.\n- **The idea they keep coming back to (3.5):** if present, at least one direction must be the most realistic version of that idea, assessed honestly. If they tried it and it did not work, learn from what they said about why.\n\n## B. Forms they want to explore (3.4, weight 20%)\nMap their picks to forms:\n- \"Paid work, part time or per project\" -> part-time expert roles, per-project paid work (path_type employee or freelance_fractional)\n- \"Interim or freelance work in my field\" -> interim, freelance, fractional (freelance_fractional)\n- \"A board, supervisory or advisory role\" -> supervisory board, non-executive, trustee, advisory board seats (freelance_fractional)\n- \"Mentoring or coaching\" -> structured mentoring, paid or volunteer coaching\n- \"Teaching or training\" -> guest lecturing, training, vocational instruction, course creation\n- \"Volunteering\" -> volunteering with substance, where their judgment is actually used\n- \"Starting something small of my own\" -> a small practice, studio, or business at their pace (founder)\n- \"Learning something new\" -> directions with a real learning route into a new kind of contribution (a training that leads to a role, a craft, a new field)\n- \"I don't know yet, show me what fits\" -> spread the 15 across all forms\n\nMix rules:\n- About two thirds of the directions (around 10) use forms they picked\n- At least 2 directions use forms they did NOT pick but that their evidence supports (\"options I hadn't thought of\"). Make it 4 when \"Options I hadn't thought of\" is among what would make this worth it for them (7.1), or when they picked \"show me what fits\"\n- Use at least 4 different forms across the 15\n- No direction may be a full-time career-track job pitched as progression\n- NEVER suggest filler roles that waste their experience (store greeter, shelf stacker, generic call-center work). Dignity of the work is a hard requirement\n\n## C. What suits them (weight 20%)\n- **Energy (4.1) and alone or with others (5.4):** drained by people or preferring to work alone means low-contact forms (advisory by appointment, one-to-one mentoring, making, writing, analysis); full of energy or preferring a group means forms with real company\n- **The people around them (5.3):** missing the daily contact from work, or wanting to meet people in the same phase of life, means at least 4 directions with built-in, regular contact with the same people (a team, a club, a cohort, a standing group), not just occasional meetings\n- **The week they want (4.2):** fixed days means regular weekly commitments; a steady rhythm means regular but flexible; per project or season means project, interim, or seasonal forms; completely open means flexible formats\n- **The role that suits them (4.3):** leading, doing, advising, teaching, or connecting. Weight the 15 toward that posture without making all 15 the same\n- **What they were known for (2.2):** the strengths that make an experienced entrant credible in each direction\n- **Their 3 picks for what matters most (4.4):** each of the 3 must be visibly served by several directions\n\n## D. Practical reality (hard constraints, weight 25%; see GENERATION RULES)\nTime (6.1), fixed calendar (6.2), place (6.3), pay (6.4), what they are glad to leave behind (2.4), stage (1.4), whose decision it was (1.5), partner (5.1, 5.2).\n\nTime mapping for 6.1:\n- \"A few hours a month\": roughly 1 to 2 hours a week, often in blocks; board seats, occasional mentoring, per-request advice\n- \"Half a day a week\": roughly 4 hours a week\n- \"One or two days a week\": roughly 8 to 16 hours a week\n- \"Three days or more\": 24 hours a week or more; part-time roles and interim assignments become realistic\n- \"It depends on the season\": seasonal, per-project, or term-based forms\n\n## E. Where they stand\n- **Still working, stopping in more than a year:** include 2 to 3 directions they can start building now (a board pipeline takes 6 to 18 months, a first mentee, a course outline)\n- **Still working within a year, or working less step by step:** testing mode; favour directions that can start small next quarter\n- **Recently stopped:** the loss of structure and contact is most acute; favour directions with people and early wins\n- **Stopped one to three years ago, or more than three:** something has not worked yet or the question has changed; read their idea and their own words for what is missing, and favour low-threshold starts\n- **Runs their own business and wants to step back:** directions that use what they built without running it day to day (advising, a board role, mentoring founders, a small practice)\n- **The decision was made for them (1.5):** when income also matters (6.4), weight realistic, fast entry routes; in every case avoid directions that only repeat the old organisation's world\n\n## F. Country and language\nUse the region (1.3) and the report language to pick routes that actually exist where they live. Name real routes and organisations only when you are certain they exist; otherwise describe the route generically.\n- **Netherlands** (region Northern and Western Europe and report language Dutch, unless their own words point elsewhere, for example Flanders): supervisory boards (Raad van Toezicht / Raad van Commissarissen) in healthcare, education, housing associations (woningcorporaties) and culture; PUM Netherlands senior experts (volunteer advisory missions abroad); volunteering matched through NLvoorelkaar or the local vrijwilligerscentrale; interim work through interim agencies and networks; working as a ZZP'er (registered with the KvK) for freelance and small-practice directions. When they picked a board or supervisory role, or \"show me what fits\", and their strengths fit, include at least one Dutch toezicht direction and say plainly what it involves: legal duties, required training or reading, modest fees in the semi-public sector, recruitment through networks and open vacancy procedures.\n- **United Kingdom:** charity trustee roles, school governor, non-executive director roles, magistrate (volunteer), mentoring through established schemes\n- **United States and Canada:** nonprofit boards, adjunct and community-college teaching, volunteer mentoring of small businesses (for example through SCORE in the United States)\n- **Elsewhere:** use the region's realistic equivalents; do not import Dutch, UK or US routes\n- Languages they mention in their role texts can unlock cross-border directions; do not suggest directions that need a language they did not mention, outside their region's main language\n\n## G. Distribution scenarios\nCategories for the 15 directions:\n- **Continuation:** their expertise, in a new form (advisory, board seats, interim, teaching their craft, part-time expert work in their field)\n- **Transfer:** their strengths applied to a different field, sector, or audience\n- **Renewal:** built on what they loved, when they felt most useful, their idea, or something they want to learn, rather than their CV\n\n**Scenario A: identity strongly tied to the work** (indicators: \"Not much, I liked it all\" as glad to leave behind, \"My experience being valued\" or \"My own field or profession\" among their picks, a continuation-type idea)\n- 40% continuation (6), 40% transfer (6), 20% renewal (3)\n\n**Scenario B: glad to be done with the job** (indicators: 3 things they are glad to leave behind that describe the job itself, what they loved or felt most useful about lies outside their field, \"Making or building something\" or \"Learning something new\" among their picks)\n- 20% continuation (3), 40% transfer (6), 40% renewal (6)\n\n**Scenario C: balanced or exploring** (mixed signals, \"show me what fits\", or testing mode)\n- 30% continuation, 40% transfer, 30% renewal\n\n# GENERATION RULES\n\n## Hard constraints (must apply):\n\n1. **No rerun of the old job**\n   - Do NOT suggest their last role, or a near-identical version of it at another organization\n   - Continuation of their field is allowed and often right, but the FORM must change: advisory, board, interim, teaching, mentoring, or a reduced-hours expert format\n\n2. **Respect what they are glad to leave behind (2.4)**\n   - Each item is a deal-breaker for the daily reality of a direction: managing people means no direction where they manage a team; being on call or fixed hours means no on-call or rota-based directions; a lot of travel means no travel-heavy directions; long meetings or office politics means be careful with committee-heavy board work and say so; targets and reviews means no target-driven roles; commuting means local or remote; pressure and deadlines means no deadline-driven delivery roles\n\n3. **Respect their time (6.1)**\n   - Every direction must genuinely work at their stated time; do not pitch a 3-day interim assignment to someone who wants a few hours a month\n\n4. **Respect their fixed calendar (6.2)**\n   - Days with grandchildren or caring for someone: flexible scheduling, no directions that require being available on any weekday\n   - Long trips or winters abroad: online, seasonal, or term-based forms that survive months away\n   - Clubs or volunteering they want to keep: do not duplicate them; a direction may build on them\n\n5. **Respect place (6.3)**\n   - From home, online: only directions that can be done remotely\n   - Close to home: local directions; name the kind of local organisation\n   - Within an hour's travel: regional directions\n   - Anywhere: no limit, but mention travel load honestly\n\n6. **Respect pay (6.4)**\n   - \"Yes, extra income matters to me\": at least 8 directions must carry credible compensation at their region's norms\n   - \"A little would be nice\": mix paid, modestly paid (expense allowances, small fees), and unpaid, and label each honestly\n   - \"No, money isn't the point\": optimize for fit and meaning; unpaid is fine, paid is not excluded\n\n7. **Board and supervisory seats carry legal duties**\n   - Only suggest them when they picked a board, supervisory or advisory role, or \"show me what fits\", and their strengths support it. Say plainly what the liability and time load are\n\n8. **Realistic entry routes**\n   - Every employee-type and paid direction must be reachable through a route that works at this stage: their network, former colleagues and clients, interim agencies, board vacancy procedures, volunteer matching, or their own small business. Never rely on open applications alone. The route goes in path_type_notes\n\n9. **No semantic duplicates**\n   - Each of the 15 must be functionally distinct. \"Advisory Board Member\" and \"Non-Executive Director\" at the same kind of organization occupy one slot, not two. If two directions share 80%+ of the actual work, keep the stronger fit and replace the other with a genuinely distinct direction that still satisfies every rule\n\n10. **Path Type Assignment (mandatory, exact enum)**\n\n   Each direction must be assigned a `path_type`:\n   - `employee`: a position within an organization: part-time expert roles, teaching positions on payroll, and substantive volunteer positions inside an organization\n   - `freelance_fractional`: independent engagements: advisory, interim, fractional, board and supervisory seats, paid mentoring and coaching, freelance teaching\n   - `founder`: starting a small practice, studio, business, or product, with money and build-time at risk\n\n   **Founder gating:** only suggest `founder` when there is a real signal: they picked \"Starting something small of my own\", their idea (3.5) is a business or practice, they run or ran their own business, or their roles show self-employment. Be honest about the build horizon. Favour low-capital, low-headcount models (a practice, a studio, a small consultancy, a seasonal business) over scale plays. If their idea names a specific business, at least one direction must be a `founder` path that delivers that idea in a realistic form.\n\n   **Freelance/fractional and board paths:** be explicit in `path_type_notes` about how engagements are actually won at this stage: networks, reputation, former colleagues, interim agencies, board vacancy procedures. Note income variability where real.\n\n   **Employee paths:** in `path_type_notes`, name the realistic way in (network, interim, a reduced-hours arrangement negotiated rather than advertised) and, where it is real for paid roles, that age bias in hiring exists and how this route avoids it. Mention age bias at most where it genuinely applies; never advise hiding their age.\n\n## Soft preferences (should apply when possible):\n\n1. **Field diversity:** aim for at least 6 different fields or sectors across the 15; do not cluster everything in their old field\n\n2. **Company Size/Culture Format (STRICT COMPLIANCE REQUIRED)**\n\n**MANDATORY FORMAT:** \"[SIZE] / [CULTURE]\"\n\nYou MUST use these EXACT strings (including ranges in parentheses):\n\n**SIZE options (choose ONE, use EXACTLY as written):**\n- Own Company\n- Micro (1-10)\n- Small (11-50)\n- Medium (51-200)\n- Large (201-1000)\n- Enterprise (1000+)\n\n**CULTURE options (choose ONE or maximum TWO):**\n- Boutique\n- Startup\n- Scale-up\n- Corporate\n- Mid-Market\n- Agency / Consultancy\n- Nonprofit\n- Public Sector / Gov\n\n**CRITICAL: Size and Culture are independent dimensions.**\n- A small organization (11-50) can be Corporate (law firm) or Nonprofit (foundation)\n- Judge culture by process maturity, hierarchy, pace, and decision-making style\n\n**Valid examples:**\n- \"Own Company / Boutique\" (solo advisory practice or small business)\n- \"Medium (51-200) / Nonprofit\" (foundation board seat)\n- \"Small (11-50) / Startup\" (mentoring or advising founders)\n- \"Enterprise (1000+) / Corporate\" (supervisory board or part-time expert role)\n- \"Medium (51-200) / Public Sector / Gov\" (public body governance) - note this uses the single culture \"Public Sector / Gov\"\n\n**Invalid examples (DO NOT USE):**\n- \"Large / Corporate\" (missing range in parentheses)\n- \"SME / Corporate\" (not in list)\n- \"Boutique Startup\" (missing slash separator)\n- \"Small (11-50) / Startup / Scale-up / Corporate\" (too many cultures, max 2)\n\n**Common encore defaults:**\n- Solo advisory, coaching, or small practice: \"Own Company / Boutique\"\n- Board and supervisory seats: \"Medium (51-200) / Corporate\" or \"Medium (51-200) / Nonprofit\"\n- Teaching at institutions: \"Large (201-1000) / Public Sector / Gov\" or \"Enterprise (1000+) / Corporate\"\n- Volunteering with substance: \"Small (11-50) / Nonprofit\"\n\n# GENERATE 15 DIRECTIONS\n\nFor each direction, provide:\n\n1. **career_title:** Clear, specific, REAL title\n2. **company_size_type:** Format exactly as \"[SIZE] / [CULTURE]\"\n3. **overview:** 2-3 sentences describing what the engagement actually involves at their time and rhythm\n4. **why_this_fits:** 2-3 sentences explaining the fit with specific references to their evidence, naming who it serves (from their audiences)\n5. **similarity_to_current:** Score 1-10 indicating how close this is to the work they did\n6. **similarity_explanation:** 1-2 sentences on what carries over and what changes\n7. **path_type:** One of `employee`, `freelance_fractional`, or `founder`\n8. **path_type_notes:** 1 sentence on the structural reality for this candidate: the realistic way in, liability, income variability, or build horizon\n\n**Title examples, the bar to hit (all exist in the actual market):**\n   - Non-Executive Board Member\n   - Supervisory Board Member\n   - Interim Finance Director\n   - Executive Coach\n   - Startup Mentor\n   - Guest Lecturer\n   - Vocational Instructor\n   - Museum Trustee\n   - Language Buddy (Volunteer)\n   - Management Consultant (Independent)\n\nInvented composite titles are forbidden. If the exact title would not appear on a real appointment letter, volunteer vacancy, contract, or job posting, rename it to the closest real title and put the niche angle in the overview. Titles stay in English; the report translates them later.\n\n**why_this_fits examples:**\n- \"You felt most useful sitting next to one person who was stuck; this is that, every week, with starters in your own field, at the half day you want.\"\n- \"Serves two of your three picks, being useful and having people around you, with the same small group every Tuesday, close to home.\"\n\n**similarity_to_current:**\n- 8-10 = Same field, new form\n- 5-7 = Strengths transfer to a new audience or sector\n- 1-4 = Renewal direction built on what they loved, their idea, or something new\n\n# FINAL QUALITY CHECK\n\nBefore outputting, verify:\n- All 15 directions are functionally distinct; replace any near-duplicate\n- No direction is a rerun of their last role in the same form\n- Nothing violates what they are glad to leave behind, their time, their fixed calendar, their place, or their pay answer\n- Every direction serves at least one of their chosen audiences, and why_this_fits names it\n- About two thirds use forms they picked; at least 2 (or 4, see rule B) use forms they did not pick; at least 4 forms overall\n- If they described an idea, one direction delivers its most realistic version\n- Board seats only when allowed, with liability stated\n- Every paid and employee-type direction has a realistic way in, stated in path_type_notes\n- Routes fit their country; no invented organisations\n- pattern_analysis_summary includes goal_alignment with a clear aligned / tension / contradicted call\n- Each direction has a valid `path_type`, and no `founder` path exists without a signal\n- Company size/type format is EXACTLY correct (ranges in parentheses, exact culture terms, \" / \" separator, max 2 cultures)\n- No em dashes anywhere in the output\n\n# OUTPUT FORMAT\n\nReturn a JSON object with exactly this structure (no intro/outro):\n\n```json\n{\n  \"pattern_analysis_summary\": {\n    \"happiness_pattern\": \"[Brief summary: what gives them energy and what drains them, from what they loved, when they felt most useful, and what they are glad to leave behind]\",\n    \"career_trajectory\": \"[Brief summary: where they stand, whose decision it was, and what their evidence says about the identity they are leaving]\",\n    \"burnout_indicators\": \"[Yes/No + brief note on energy and depletion signals if yes]\",\n    \"dream_job_themes\": \"[Themes from their idea, what they loved, and who they want to be useful to]\",\n    \"goal_alignment\": \"[What would make this worth it for them and their 3 picks vs the directions generated: aligned / tension flagged / contradicted - brief one-line note]\",\n    \"recommended_distribution\": \"[e.g., '40% continuation, 40% transfer, 20% renewal' with brief rationale]\"\n  },\n  \"careers\": [\n    {\n      \"career_title\": \"[Title]\",\n      \"company_size_type\": \"[SIZE] / [CULTURE]\",\n      \"overview\": \"[2-3 sentences]\",\n      \"why_this_fits\": \"[2-3 sentences with specific references]\",\n      \"similarity_to_current\": \"[1-10]\",\n      \"similarity_explanation\": \"[1-2 sentences]\",\n      \"path_type\": \"[employee | freelance_fractional | founder]\",\n      \"path_type_notes\": \"[1 sentence on structural reality and the way in]\"\n    }\n    // ... repeat for all 15 directions\n  ],\n  \"generation_metadata\": {\n    \"total_careers\": 15,\n    \"distribution_breakdown\": {\n      \"similar_roles\": \"[count of continuation directions]\",\n      \"pivot_roles\": \"[count of transfer directions]\",\n      \"transformation_roles\": \"[count of renewal directions]\"\n    }\n  }\n}\n```\n\nWrite all text fields in English, whatever the report language; a later step translates the report.\n\n# CRITICAL REMINDERS\n\n1. **Read them first:** do not generate directions until you have read who they want to help, when they felt most useful, what they loved, and their practical limits\n2. **They need a reason, not a career:** being useful, people, rhythm, and dignity outrank progression and pay unless pay matters to them\n3. **Form over title:** time, rhythm, place, and responsibility matter as much as the field\n4. **Their own words over their CV:** trust what they loved and when they felt most useful over any ambition you might infer from their roles\n5. **Honest about the way in:** name how each direction is actually reached; never soothe with fluff\n6. **No filler roles:** nothing that wastes decades of experience\n7. **Specific references:** every why_this_fits cites their evidence\n8. **No duplicates:** 15 functionally distinct directions\n9. **Format precisely:** company size/type exactly \"[SIZE] / [CULTURE]\"\n10. **No em dashes** anywhere in the output; use commas, colons, or hyphens\n\n# INPUT DATA\n\n## Report language\n{{ $json.language || 'en' }}\n\n## Candidate Initial Summary\n{{ $json.initial_summary }}\n\n## Candidate Personality Analysis\n### How You Work Best Now\n{{ $json.approach }}\n\n### What You Bring\n{{ $json.strengths }}\n\n### What to Watch For\n{{ $json.development }}\n\n### What Matters to You Now\n{{ $json.values }}\n\n## report_id\n{{ $json.report_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e66a76c7-1118-402c-ba70-2c3cc87c7cff",
+      "name": "Salary Range1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "retryOnFail": true,
+      "position": [
+        -2800,
+        3888
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=**ROLE**\nYou are a compensation-realism system for encore-stage engagements. Your reader is at or approaching retirement and is considering these directions at reduced hours: part-time expert roles, advisory and interim work, board seats, mentoring, teaching, volunteering, and small portfolio businesses. You have deep knowledge of what each engagement form actually pays for a highly experienced professional, adjusted to the applicable region selected here:\n{{ $('AI_region1').item.json.Region }}\n\n**TASK and SOP**\nYour task is to state the most likely realistic compensation in the candidate's selected region for each of the Career Titles:\n{{ $('AI_region1').item.json.text }}\n\nDetermine a realistic compensation range IN THE NATURAL UNIT OF THE ENGAGEMENT FORM. Factors to consider:\n- **Part-time employed expert roles:** pro-rated annual salary for a senior professional at the reduced hours typical for the role; state the range as an annual figure and note part-time where relevant\n- **Advisory / interim / fractional:** day rates typical for a senior independent in that domain and region (e.g. \"EUR 900 - EUR 1,400 per day\")\n- **Board and supervisory seats:** annual fee per seat typical for the organization size and sector; nonprofit and foundation seats are often modest or unpaid, say so honestly\n- **Mentoring / coaching / teaching:** hourly or per-session rates, or per-course fees, as the market actually pays them\n- **Volunteering with substance:** state \"Unpaid (voluntary)\" honestly; do not invent a wage\n- **Portfolio / passion business:** a modest realistic annual profit range for a small owner-run practice at encore hours, not a scale-up fantasy\n- The seniority premium is real: these are people with 30+ years of experience, so use senior-end rates for advisory, interim, and board forms\n- Adjust down 5% to be conservative\n\n**OUTPUT FORMAT**\nPlace the generated compensation range in the selected region's currency, rounded to the nearest whole number, with the unit stated inside the range string (per day, per year, per hour, per seat, or Unpaid (voluntary)).\n\nProvide the results in the following format:\nCareer Title: [exact title]\nCompany: [SIZE] / [CULTURE]\nAI Impact: [rating] - [brief explanation]\nExp. salary range in [selected region]: [Currency] [Compensation Range with unit]\n\n[\n  {\n    \"career_title\": \"Non-Executive Board Member\",\n    \"company_size_type\": \"Medium (51-200) / Corporate\",\n    \"salary\": {\"region\": \"Northern and Western Europe\", \"range\": \"EUR 10,000 - EUR 20,000 per year per seat\"},\n    \"ai_impact_rating\": {\"rating\": \"Minimal\", \"explanation\": \"...\"}\n  },\n  // ... more careers\n]\n\n\n\nNOTES\n\nBase your calculations on your latest knowledge of regional norms for senior independent work, board fees, teaching rates, and cost-of-living differences for each region.\n\nRegional breakdown:\n\nNorthern and Western Europe: Includes countries like Germany, Netherlands, France, and the Nordic countries. Rates based on regional averages. EUR.\n\nSouthern and Eastern Europe: Includes countries like Spain, Italy, Poland, and Greece. Typically lower regional rates. EUR.\n\nUnited Kingdom (London): Consider higher rates and cost of living. GBP.\n\nUnited Kingdom (Other): Outside London, adjust for moderately lower rates. GBP.\n\nUnited States (High-Cost Regions): Includes areas like New York, San Francisco, Los Angeles, and Boston. Increase base rates by 20-50% from average US levels.\n\nUnited States (Average-Cost Regions): Includes areas like Texas, Colorado, and Illinois. Rates remain close to the national average.\n\nUnited States (Lower-Cost Regions): Includes rural and small-town areas. Decrease base rates by 10-30%.\n\nCanada: base on Canadian norms and cost of living. CAD ($).\n\nAustralia and New Zealand: Base rates to reflect local averages. AUD/NZD.\n\nSwitzerland: Usually higher local rates and cost of living. CHF.\n\nIf precise data is unavailable, make reasonable assumptions based on general trends and relative cost-of-living differences for senior-level encore engagements.\n\nWhen presenting the range, include the local currency symbol or code, the unit of the engagement, and round to the nearest whole number for clarity.\n\nBetter conservative than overestimate the range. This reader will make real decisions on these numbers; an honest modest range beats a flattering high one. Never dress up an unpaid role with an invented wage.\n",
+        "batching": {}
+      }
+    },
+    {
+      "id": "a7aad213-9f80-4a5d-9ccc-19e21cf6cf4d",
+      "name": "Combine rep and profile1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4912,
+        3904
+      ],
+      "parameters": {
+        "jsCode": "// init_summary is now in the Supabase rows (already queried by SB extract profile)\nconst rows = $input.all().map(item => item.json);\n\nconst report = rows.reduce((acc, row) => {\n  // Map init_summary section_type to initial_summary key (for prompt compatibility)\n  if (row.section_type === 'init_summary') {\n    acc.initial_summary = row.content;\n  } else {\n    acc[row.section_type] = row.content;\n  }\n  // Encore v2: report language (WF1P writes it on every row), used for country routes\n  if (!acc.language && row.language) acc.language = row.language;\n  return acc;\n}, {\n  report_id: rows[0]?.report_id || null,\n  language: null\n});\n\nreturn [{ json: report }];\n"
+      }
+    },
+    {
+      "id": "3c44e911-cd39-49a5-804b-182080447313",
+      "name": "ai_impact1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "retryOnFail": true,
+      "position": [
+        -3616,
+        3648
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['ai_impact_prompt'] }}",
+        "batching": {}
+      }
+    },
+    {
+      "id": "bc51ffc7-8af9-404f-bcf1-f061c2136d05",
+      "name": "AI_region1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3024,
+        3888
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      }
+    },
+    {
+      "id": "ddf2aa8e-58ef-47e9-8ad7-104e325697e2",
+      "name": "Supabase Insert1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "position": [
+        -656,
+        3648
+      ],
+      "parameters": {
+        "tableId": "enriched_jobs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "career_title",
+              "fieldValue": "={{ $json.career_title }}"
+            },
+            {
+              "fieldId": "company_size_type",
+              "fieldValue": "={{ $json.company_size_type }}"
+            },
+            {
+              "fieldId": "overview",
+              "fieldValue": "={{ $json.overview }}"
+            },
+            {
+              "fieldId": "technical_skills",
+              "fieldValue": "={{ $json.technical_skills }}"
+            },
+            {
+              "fieldId": "soft_skills",
+              "fieldValue": "={{ $json.soft_skills }}"
+            },
+            {
+              "fieldId": "personality_traits",
+              "fieldValue": "={{ $json.personality_traits }}"
+            },
+            {
+              "fieldId": "work_schedule",
+              "fieldValue": "={{ $json.work_schedule }}"
+            },
+            {
+              "fieldId": "client_interaction",
+              "fieldValue": "={{ $json.client_interaction }}"
+            },
+            {
+              "fieldId": "colleague_interaction",
+              "fieldValue": "={{ $json.colleague_interaction }}"
+            },
+            {
+              "fieldId": "autonomy_vs_collaboration",
+              "fieldValue": "={{ $json.autonomy_vs_collaboration }}"
+            },
+            {
+              "fieldId": "pace_of_work",
+              "fieldValue": "={{ $json.pace_of_work }}"
+            },
+            {
+              "fieldId": "core_values",
+              "fieldValue": "={{ $json.core_values }}"
+            },
+            {
+              "fieldId": "motivational_factors",
+              "fieldValue": "={{ $json.motivational_factors }}"
+            },
+            {
+              "fieldId": "typical_tasks",
+              "fieldValue": "={{ $json.typical_tasks }}"
+            },
+            {
+              "fieldId": "education_requirements",
+              "fieldValue": "={{ $json.education_requirements }}"
+            },
+            {
+              "fieldId": "certifications_requirements",
+              "fieldValue": "={{ $json.certifications_requirements }}"
+            },
+            {
+              "fieldId": "career_progression",
+              "fieldValue": "={{ $json.career_progression }}"
+            },
+            {
+              "fieldId": "ai_impact_rating",
+              "fieldValue": "={{ $json.ai_impact_rating }}"
+            },
+            {
+              "fieldId": "salary",
+              "fieldValue": "={{ JSON.stringify($json.salary) }}"
+            },
+            {
+              "fieldId": "alternate_titles",
+              "fieldValue": "={{ $json.alternate_titles }}"
+            },
+            {
+              "fieldId": "leadership_challenges",
+              "fieldValue": "={{ $json.leadership_challenges }}"
+            },
+            {
+              "fieldId": "path_type",
+              "fieldValue": "={{ $json.path_type}}"
+            },
+            {
+              "fieldId": "path_type_notes",
+              "fieldValue": "={{ $json.path_type_notes }}"
+            },
+            {
+              "fieldId": "report_id",
+              "fieldValue": "={{ $('Combine rep and profile1').first().json.report_id }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "4f43def3-37d9-4747-abf6-1bac52f85bdf",
+      "name": "Enrich B",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "retryOnFail": true,
+      "position": [
+        -1232,
+        3648
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['enrich prompt b1'] }}",
+        "batching": {}
+      }
+    },
+    {
+      "id": "cbca9532-78ec-4e3c-9662-f80238e2bcd5",
+      "name": "15TitSizAISal1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2448,
+        3888
+      ],
+      "parameters": {
+        "jsCode": "const raw = $json.text;\n\nconst jsonMatch = raw.match(/```json\\n([\\s\\S]*?)\\n```/);\nif (!jsonMatch) {\n  throw new Error(\"Could not find a JSON block in the input text.\");\n}\n\nconst cleanJsonString = jsonMatch[1].trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanJsonString);\n} catch (e) {\n  throw new Error(\"Failed to parse extracted JSON. Error: \" + e.message);\n}\n\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Build lookup from suitable_15 with multiple matching strategies\nconst suitable15Raw = $('suitable_15').item.json.text;\nconst s15Match = suitable15Raw.match(/```json\\n([\\s\\S]*?)\\n```/);\nlet s15Careers = [];\n\nif (s15Match) {\n  try {\n    const s15Parsed = JSON.parse(s15Match[1].trim());\n    s15Careers = s15Parsed.careers || [];\n  } catch (e) {\n    // continue without path data\n  }\n}\n\nconst byTitleAndSize = {};\nconst byTitle = {};\n\ns15Careers.forEach(c => {\n  const t = normalizeKey(c.career_title);\n  const ts = `${t}||${normalizeKey(c.company_size_type)}`;\n  byTitleAndSize[ts] = c;\n  byTitle[t] = c;\n});\n\nreturn parsed.map((item, idx) => {\n  const t = normalizeKey(item.career_title);\n  const ts = `${t}||${normalizeKey(item.company_size_type)}`;\n\n  // Match by title+company first (most precise), then title alone,\n  // then fall back to position if the array lengths align\n  let match = byTitleAndSize[ts] || byTitle[t];\n  if (!match && s15Careers.length === parsed.length) {\n    match = s15Careers[idx];\n  }\n\n  const formatted =\n    `Career Title: ${item.career_title}\\n` +\n    `Company: ${item.company_size_type}\\n` +\n    `AI Impact: ${item.ai_impact_rating?.rating} - ${item.ai_impact_rating?.explanation}\\n` +\n    `Exp. salary range in ${item.salary?.region}: ${item.salary?.range}`;\n\n  return {\n    json: {\n      ...item,\n      path_type: match?.path_type || null,\n      path_type_notes: match?.path_type_notes || null,\n      formatted_output: formatted\n    }\n  };\n});"
+      }
+    },
+    {
+      "id": "43ce9d66-7234-42c7-80ca-45bc584b5ab3",
+      "name": "combine to ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        3648
+      ],
+      "parameters": {
+        "jsCode": "// Get the 15 new careers from Tit_and_Co1\nconst titAndCoItems = $(\"Tit_and_Co1\").all().map(item => item.json);\n\n// In-batch dedup (case/whitespace normalized)\nfunction normalize(str) {\n  if (!str) return '';\n  return str.toLowerCase().replace(/\\s+/g, ' ').trim();\n}\n\nconst seenKeys = new Set();\nconst uniqueCareers = [];\n\ntitAndCoItems.forEach(career => {\n  const key = normalize(`${career.career_title}||${career.company_size_type}`);\n  if (!seenKeys.has(key)) {\n    seenKeys.add(key);\n    uniqueCareers.push(career);\n  }\n});\n\n// Return one item per career so Batcher1 can group them\nreturn uniqueCareers.map(c => ({ json: c }));"
+      }
+    },
+    {
+      "id": "6489230c-187a-4eff-ac36-dde36c1172d8",
+      "name": "Batcher1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "alwaysOutputData": true,
+      "position": [
+        -1680,
+        3648
+      ],
+      "parameters": {
+        "jsCode": "const careers = items.map(i => i.json);\nconst batchSize = 5;\nconst batches = [];\n\nfor (let i = 0; i < careers.length; i += batchSize) {\n  batches.push(careers.slice(i, i + batchSize));\n}\n\nreturn batches.map(batch => ({\n  json: { careers: batch }\n}));\n"
+      }
+    },
+    {
+      "id": "d3d58085-ce8a-4239-b3be-5d72febfd53a",
+      "name": "enrich prompt1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1456,
+        3648
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "44845875-174c-4385-b507-5b2225b2f523",
+              "name": "enrich prompt b1",
+              "value": "=# ROLE\nYou are an assistant that enriches these ENCORE-STAGE career and engagement descriptions into structured JSON for a database. The reader is a professional at or approaching retirement after a career of 30 to 45 years, exploring what comes next: be respectful, direct, warm, zero condescension, no \"60 is the new 40\" fluff. Do not invent statistics. Do not use em dashes anywhere; use commas, colons, or hyphens.\n\n---\n\n# INPUT SOURCES:\nUse this for content enrichment. Copy career_title, company_size_type, salary, ai_impact_rating, path_type, and path_type_notes verbatim from input.\nEnrich all other fields with structured information extracted or reasonably inferred from this text.\n\n{{ JSON.stringify($json.careers, null, 2) }}\n\nCRITICAL: You must enrich **ALL careers provided in the input (1-5 per batch. 3 batches max.)**.\n- Do NOT invent careers.\n- Do NOT skip careers.\n\n---\n\n# !! IMPORTANT OUTPUT RULES !!\n- Output ONLY valid JSON. No markdown, no commentary, no code fences.\n- Every key MUST appear exactly as specified.\n- If information is unavailable, use `\"N/A\"`.\n- For text fields, always provide at least **one full descriptive sentence** (never leave blank).\n- For arrays:\n  * `technical_skills`: exactly 3 items\n  * `soft_skills`: exactly 3 items\n  * `core_values`: exactly 3 items\n  * `motivational_factors`: exactly 3 items\n  * `typical_tasks`: exactly 4 items\n  * `leadership_challenges`: must always be an array (empty if not relevant)\n- **`salary` and `ai_impact_rating` must remain JSON objects, not strings.** Copy their structure verbatim.\n- Do not merge, drop, or add extra sections.\n\nOutput all careers inside a single JSON array in this format (the number of objects will match the number of input careers, 1-5):\n\n[\n  { \"career_title\": \"Job 1\", ... },\n  { \"career_title\": \"Job 2\", ... }\n]\n\n---\n\n# ENCORE FRAMING (applies to every field)\n\nDescribe the ENCORE version of each direction: what it looks like for a highly experienced person doing this at reduced hours, not the full-time mid-career version.\n- **typical_tasks:** what the person actually does in the real rhythm of the engagement (board cycles, mentoring cadence, teaching terms, project sprints), including working with AI tools where that is now standard practice\n- **technical_skills:** what makes an experienced entrant credible in THIS form (governance codes, coaching frameworks, current tooling), not a junior starter stack; name real tools and frameworks\n- **education_requirements:** honest for this stage: track record usually outweighs diplomas; name formal requirements only where they truly gatekeep (registered professions, accredited teaching)\n- **certifications_requirements:** name real, recognized programs where they exist (non-executive director programs, coaching accreditations like ICF or EMCC, teaching qualifications); \"None required, track record is the credential\" is a valid honest answer\n- **career_progression:** how the engagement realistically evolves (a second and third board seat, larger mandates, choosing fewer and better clients, handing over or scaling down gracefully), never a promotion ladder\n- **work_schedule:** the hours-bounded rhythm: seasonal peaks, board-cycle intensity, term-time teaching, per-project bursts\n- **leadership_challenges:** the honest hard parts of starting this at their stage: being the new person again after decades of standing, ageism where it is real, board liability, staying current with tools, learning to say no\n- **client_interaction / colleague_interaction:** include the intergenerational reality where relevant: working with, advising, or reporting to people decades younger\n- **physical_setting / pace_of_work / autonomy_vs_collaboration:** describe the engagement as actually practiced at reduced hours\n\n# PATH TYPE AWARENESS\n\nEach input career has a `path_type` (`employee`, `freelance_fractional`, or `founder`). Several output fields must reflect the structural reality of the path at this life stage:\n\n- **physical_setting:** For `founder`, self-determined and often home- or studio-based. For `freelance_fractional`, a mix of client sites, boardrooms, and remote work. For `employee`, the typical workplace at part-time presence.\n- **work_schedule:** For `founder`, a deliberate-pace build without the survival sprint of a young startup, but with real commitment in year one. For `freelance_fractional`, variable utilization, engagement peaks, and the work behind the work (relationship upkeep, light admin). For `employee`, negotiated reduced hours and their boundaries.\n- **client_interaction:** For `founder` and `freelance_fractional`, winning work happens through networks, reputation, and referrals built over decades, not cold outreach; say so, and note it still takes deliberate effort. For `employee`, role-defined interaction.\n- **typical_tasks:** Include path-realistic tasks. Founders shape the offer, handle the money, and serve customers. Independents maintain relationships, contract, and deliver. Employees carry role responsibilities within agreed hours.\n- **leadership_challenges:** For `founder`, capital discipline, energy budgeting, and knowing the exit plan. For `freelance_fractional`, uneven income, saying no, and liability on board seats. For `employee`, being managed again, often by someone younger, and protecting the agreed hours.\n- **career_progression:** For `founder`, evolving or handing over the business. For `freelance_fractional`, better mandates and a fuller portfolio, or deliberately fewer. For `employee`, deeper expert scope or an advisory transition, not climbing.\n\nThe `path_type_notes` field already contains candidate-specific honest framing. Preserve it verbatim and let the structured fields above complement it.\n\n---\n\n## OUTPUT STRUCTURE (copy keys exactly):\n\n{\n  \"career_title\": \"\",\n  \"company_size_type\": \"\",\n  \"alternate_titles\": [],\n  \"overview\": \"\",\n  \"technical_skills\": [],\n  \"soft_skills\": [],\n  \"personality_traits\": \"\",\n  \"physical_setting\": \"\",\n  \"work_schedule\": \"\",\n  \"client_interaction\": \"\",\n  \"colleague_interaction\": \"\",\n  \"autonomy_vs_collaboration\": \"\",\n  \"pace_of_work\": \"\",\n  \"core_values\": [],\n  \"motivational_factors\": [],\n  \"typical_tasks\": [],\n  \"leadership_challenges\": [],\n  \"education_requirements\": \"\",\n  \"certifications_requirements\": \"\",\n  \"salary\": {\n    \"region\": \"\",\n    \"range\": \"\"\n  },\n  \"career_progression\": [],\n  \"ai_impact_rating\": {\n    \"rating\": \"\",\n    \"explanation\": \"\"\n  },\n  \"path_type\": \"\",\n  \"path_type_notes\": \"\"\n}\n\n---\n\n# EXAMPLE [for tone, type of content, and length consistency]:\n\n```json\n{\n  \"career_title\": \"Non-Executive Board Member\",\n  \"company_size_type\": \"Medium (51-200) / Nonprofit\",\n  \"alternate_titles\": [\n    \"Supervisory Board Member\",\n    \"Trustee\",\n    \"Advisory Board Member\"\n  ],\n  \"overview\": \"Governance role overseeing strategy, finances, and leadership of an organization without running its daily operations. Decades of executive judgment are applied in a bounded rhythm of board cycles, committee work, and preparation.\",\n  \"technical_skills\": [\n    \"Governance and fiduciary oversight, including familiarity with the local governance code\",\n    \"Financial statement literacy and risk assessment\",\n    \"Strategy review and executive performance evaluation\"\n  ],\n  \"soft_skills\": [\n    \"Asking sharp questions without taking over the wheel\",\n    \"Building trust with an executive team decades younger\",\n    \"Independent judgment under collegial pressure\"\n  ],\n  \"personality_traits\": \"Steady, curious, and comfortable with influence instead of control. Willing to challenge respectfully, patient with process, and able to hold accountability without needing the spotlight.\",\n  \"physical_setting\": \"Boardrooms and video calls, with occasional site visits. Most preparation happens at home with board papers and dashboards.\",\n  \"work_schedule\": \"Typically 6 to 12 meetings a year plus committee work and preparation: a rhythm of intense days around board cycles and quiet weeks between, fitting well under 8 hours per week on average.\",\n  \"client_interaction\": \"Moderate: regular contact with the executive team, auditors, and occasionally regulators or major stakeholders.\",\n  \"colleague_interaction\": \"High within the board itself: collective decision-making with fellow members, often across generations and disciplines.\",\n  \"autonomy_vs_collaboration\": \"High independence of judgment inside a strictly collective decision process: you advise and decide together, you do not execute.\",\n  \"pace_of_work\": \"Cyclical and deliberate. Peaks around year-end, budget approval, and any crisis; otherwise measured reading and preparation.\",\n  \"core_values\": [\n    \"Stewardship over self-interest\",\n    \"Honest challenge and transparency\",\n    \"Long-term continuity of the organization\"\n  ],\n  \"motivational_factors\": [\n    \"Putting decades of judgment to real use\",\n    \"Staying sharp on strategy and finance\",\n    \"Contribution with visible organizational impact\"\n  ],\n  \"typical_tasks\": [\n    \"Read and challenge board papers, budgets, and audit reports before meetings\",\n    \"Attend board and committee meetings and vote on key decisions\",\n    \"Advise and evaluate the executive team, including appointments\",\n    \"Represent the organization at selected external moments\"\n  ],\n  \"leadership_challenges\": [\n    \"Carrying legal liability for decisions you do not execute yourself.\",\n    \"Resisting the pull to act like an operator when the executive team struggles.\",\n    \"Staying current on digital and AI topics well enough to oversee them credibly.\"\n  ],\n  \"education_requirements\": \"No formal degree gate: boards select on track record, domain expertise, and references. A completed executive career at senior level is the actual requirement.\",\n  \"certifications_requirements\": \"Non-executive director programs (for example national governance institutes or IoD-style courses) strengthen candidacy for first-time board members [beneficial, not required].\",\n  \"salary\": {\n    \"region\": \"Northern and Western Europe\",\n    \"range\": \"EUR 8,000 - EUR 15,000 per year per seat\"\n  },\n  \"career_progression\": [\n    \"A portfolio of 2 to 4 complementary seats across sectors\",\n    \"Committee chair or board chair roles as governance experience deepens\"\n  ],\n  \"ai_impact_rating\": {\n    \"rating\": \"Minimal\",\n    \"explanation\": \"AI speeds up board-paper analysis and scenario preparation, but accountability, trust, and collective judgment cannot be delegated; experienced members who use AI for preparation gain an edge.\"\n  },\n  \"path_type\": \"freelance_fractional\",\n  \"path_type_notes\": \"First seats are won through networks and board registries rather than applications; expect 6 to 18 months from first conversations to appointment, and check liability insurance before accepting.\"\n}\n```\n\n---\n\n# NOTES\n* Always enrich ALL careers provided in the batch (1-5).\n* Use input for `career_title`, `company_size_type`, `salary`, and `ai_impact_rating` verbatim.\n* Match tone, style, and level of detail exactly to the EXAMPLE.\n* Ensure JSON validity and consistency across all items.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f5d51632-b9c7-4ab5-a874-ed3e0ce61a4b",
+      "name": "clean up JSON1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        3648
+      ],
+      "parameters": {
+        "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 4,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n  \n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      return { ...schemaTemplate, ...processed };\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));"
+      }
+    },
+    {
+      "id": "a90c6deb-71a2-495a-8b7c-c64cbf5a4473",
+      "name": "complete confirmation1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        3648
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1155fd8a-d239-475d-b145-236ab08a1b9a",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "1d6da739-9b0c-47d6-8764-7bfc8ab2c3de",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        96,
+        4000
+      ],
+      "parameters": {
+        "numberInputs": 3
+      }
+    },
+    {
+      "id": "6650ba39-e1bd-451c-886e-b4210893cb26",
+      "name": "Aggregate2",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        3888
+      ],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "Tit_co_RID_data",
+        "options": {}
+      }
+    },
+    {
+      "id": "7fe0fcde-c0bf-4b96-ad15-3b7d96132eb0",
+      "name": "Aggregate3",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        3648
+      ],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "complete",
+        "options": {}
+      }
+    },
+    {
+      "id": "c34e350c-a2d3-43ba-af9b-63da3537aca8",
+      "name": "Tit_and_Co1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2208,
+        3888
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "16f11cfa-b6e4-48df-808f-ad0b125acfec",
+              "name": "career_title",
+              "value": "={{ $json.career_title }}",
+              "type": "string"
+            },
+            {
+              "id": "70e9b009-0daa-41fc-803f-3621a9f10b5f",
+              "name": "company_size_type",
+              "value": "={{ $json.company_size_type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "74b2be61-76df-4c13-8e2c-83c550b8fcb7",
+      "name": "Extract Region (code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4032,
+        3904
+      ],
+      "parameters": {
+        "jsCode": "// Extract region from init_summary without LLM call\n// Region is question 1d - a fixed dropdown value\nconst summary = $json.initial_summary || '';\n\nconst VALID_REGIONS = [\n  'Northern and Western Europe',\n  'Southern and Eastern Europe',\n  'United Kingdom (London)',\n  'United Kingdom (Other)',\n  'United States (High-Cost Regions)',\n  'United States (Average-Cost Regions)',\n  'United States (Lower-Cost Regions)',\n  'Canada',\n  'Australia and New Zealand',\n  'Switzerland'\n];\n\n// Try to find the region in the summary text\nlet region = 'Northern and Western Europe'; // safe default\n\nfor (const r of VALID_REGIONS) {\n  if (summary.includes(r)) {\n    region = r;\n    break;\n  }\n}\n\nreturn [{ json: { Region: region } }];"
+      }
+    },
+    {
+      "id": "ea65fac3-5cdd-48ea-81be-af3132f33a9b",
+      "name": "3FP Enrich1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        3776
+      ],
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Q653Teuy9nP6VLoE",
+          "name": "Cairnly Gstudio Key"
+        }
+      }
+    },
+    {
+      "id": "c203f647-c9cd-4ea5-8e4f-404fb512ccc2",
+      "name": "3FP Sal1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2800,
+        4160
+      ],
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Q653Teuy9nP6VLoE",
+          "name": "Cairnly Gstudio Key"
+        }
+      }
+    },
+    {
+      "id": "161ab655-e31d-425f-bcce-56c890c424cc",
+      "name": "SB extract profile1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "position": [
+        -5344,
+        3904
+      ],
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "report_sections",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "report_id",
+              "condition": "eq",
+              "keyValue": "={{ $json['report id'] }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "f7f64966-f845-417f-b0f7-059a0a72fc72",
+      "name": "Fetch AI Research1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "position": [
+        -4032,
+        3648
+      ],
+      "parameters": {
+        "url": "https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/ai_research",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "is_active",
+              "value": "eq.true"
+            },
+            {
+              "name": "select",
+              "value": "key_findings"
+            },
+            {
+              "name": "order",
+              "value": "published_date.desc"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "1f7449f2-08db-4191-9d8b-6c7ac337de55",
+      "name": "OpenRouter Chat Model2",
+      "disabled": true,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -6384,
+        3424
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "id": "9e945bc3-0ebf-4200-bb6a-e9f408d89408",
+      "name": "OpenRouter Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -3616,
+        3808
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "id": "0b2daf98-66df-4381-84f4-917cab045ee4",
+      "name": "repID1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -5728,
+        4048
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cddfa179-e8ee-400a-a8fa-efe0c346b847",
+              "name": "report id",
+              "value": "={{ $json.body?.report_id || $json.report_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d8bfa80c-3256-4482-9669-dc6684ae1b16",
+      "name": "suitable_15",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "retryOnFail": true,
+      "position": [
+        -4384,
+        3648
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['suitable_15_prompt'] }}",
+        "batching": {}
+      }
+    },
+    {
+      "id": "3a1ce19b-c2b2-49ab-bcd1-9390012022f7",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -4384,
+        3808
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.5",
+          "mode": "list",
+          "cachedResultName": "gpt-5.5"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "HrtWXSGh6yZj0fJ0",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "id": "df9ff13a-8410-481d-b3e2-b57cda2742bb",
+      "name": "Check profile exists",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5136,
+        3904
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && r.report_id);\nif (rows.length === 0) {\n  throw new Error(`No report_sections found for report_id ${$('repID1').first().json['report id']} — WF1P profile insert likely incomplete`);\n}\nreturn $input.all();"
+      }
+    },
+    {
+      "id": "c882178f-74b3-4009-8194-7fab0f73df0e",
+      "name": "Call WF3P webhook (Encore scoring)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        4016
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://falkoratlas.app.n8n.cloud/webhook/c7b2b624-99be-4123-b6f8-5a10d0ec5919",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "report_id",
+              "value": "={{ $('repID1').first().json['report id'] }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Set AI Impact Prompt1": {
+      "main": [
+        [
+          {
+            "node": "ai_impact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Suitable 15 Prompt1": {
+      "main": [
+        [
+          {
+            "node": "suitable_15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salary Range1": {
+      "main": [
+        [
+          {
+            "node": "15TitSizAISal1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine rep and profile1": {
+      "main": [
+        [
+          {
+            "node": "Extract Region (code)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Suitable 15 Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai_impact1": {
+      "main": [
+        [
+          {
+            "node": "AI_region1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI_region1": {
+      "main": [
+        [
+          {
+            "node": "Salary Range1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Insert1": {
+      "main": [
+        [
+          {
+            "node": "complete confirmation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich B": {
+      "main": [
+        [
+          {
+            "node": "clean up JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "15TitSizAISal1": {
+      "main": [
+        [
+          {
+            "node": "Tit_and_Co1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine to ": {
+      "main": [
+        [
+          {
+            "node": "Batcher1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batcher1": {
+      "main": [
+        [
+          {
+            "node": "enrich prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enrich prompt1": {
+      "main": [
+        [
+          {
+            "node": "Enrich B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean up JSON1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Insert1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "complete confirmation1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Call WF3P webhook (Encore scoring)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tit_and_Co1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "combine to ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3FP Enrich1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Enrich B",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3FP Sal1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Salary Range1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SB extract profile1": {
+      "main": [
+        [
+          {
+            "node": "Check profile exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch AI Research1": {
+      "main": [
+        [
+          {
+            "node": "Set AI Impact Prompt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ai_impact1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "repID1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          },
+          {
+            "node": "SB extract profile1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "suitable_15": {
+      "main": [
+        [
+          {
+            "node": "Fetch AI Research1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Region (code)": {
+      "main": [
+        [
+          {
+            "node": "AI_region1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "suitable_15",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check profile exists": {
+      "main": [
+        [
+          {
+            "node": "Combine rep and profile1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encore Webhook (from WF1P)": {
+      "main": [
+        [
+          {
+            "node": "repID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "FbsruPbuZI2Fgtc8",
+    "availableInMCP": true
+  },
+  "active": false
+}
