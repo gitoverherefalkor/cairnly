@@ -1,0 +1,919 @@
+{
+  "id": "ID5CaNR7Ux7TEzS5",
+  "name": "WF4P - Encore Direction selection EN",
+  "active": false,
+  "isArchived": false,
+  "versionId": "e8dfe93a-2a97-428a-bde6-79992d88903a",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 29,
+  "createdAt": "2026-07-06T12:39:39.437Z",
+  "updatedAt": "2026-11-10T15:56:40.095Z",
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "FbsruPbuZI2Fgtc8",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "scopes": [
+    "execution:delete",
+    "execution:list",
+    "execution:read",
+    "execution:reveal",
+    "workflow:create",
+    "workflow:delete",
+    "workflow:disableRedaction",
+    "workflow:enableRedaction",
+    "workflow:execute",
+    "workflow:execute-chat",
+    "workflow:export",
+    "workflow:import",
+    "workflow:list",
+    "workflow:move",
+    "workflow:publish",
+    "workflow:read",
+    "workflow:share",
+    "workflow:unpublish",
+    "workflow:unshare",
+    "workflow:update"
+  ],
+  "canExecute": true,
+  "connections": {
+    "Top 3 only": {
+      "main": [
+        [
+          {
+            "node": "Pull enriched T3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull enriched T3": {
+      "main": [
+        [
+          {
+            "node": "t3 content order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "t3 content order": {
+      "main": [
+        [
+          {
+            "node": "T3 enr. combined",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "T3 enr. combined": {
+      "main": [
+        [
+          {
+            "node": "T3 Careers Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "T3 Careers Prompt": {
+      "main": [
+        [
+          {
+            "node": "Top 3 Careers Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top 3 Careers Generator": {
+      "main": [
+        [
+          {
+            "node": "Split Top3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Top3": {
+      "main": [
+        [
+          {
+            "node": "Insert Top 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Top 3": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4-10 only": {
+      "main": [
+        [
+          {
+            "node": "Pull Runner up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull Runner up": {
+      "main": [
+        [
+          {
+            "node": "Combine runners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine runners": {
+      "main": [
+        [
+          {
+            "node": "Set Runner Up Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Runner Up Prompt": {
+      "main": [
+        [
+          {
+            "node": "Runner Up Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Runner Up Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse runner up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Parse runner up": {
+      "main": [
+        [
+          {
+            "node": "Insert Runner Ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Runner Ups": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dream Job Feasibility": {
+      "main": [
+        [
+          {
+            "node": "Parse Dream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Parse Dream": {
+      "main": [
+        [
+          {
+            "node": "Insert dream",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert dream": {
+      "main": [
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Complete merge": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Top 3 Careers Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Runner Up Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Dream Job Feasibility",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Report Language": {
+      "main": [
+        [
+          {
+            "node": "Dream prep",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "4-10 only",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Top 3 only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encore WF3P Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Report Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dream prep": {
+      "main": [
+        [
+          {
+            "node": "Has idea?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has idea?": {
+      "main": [
+        [
+          {
+            "node": "Dream Job Feasibility",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "8272e7dc-ec6d-440f-867b-3b96e9e6b0b3",
+      "name": "Encore WF3P Webhook",
+      "webhookId": "2eda0a1e-d1e9-4e15-a516-4582fa090a2b",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        624
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8cffc508-118a-4a66-849c-74840c2cae8d",
+        "options": {}
+      }
+    },
+    {
+      "id": "3bc84633-d425-4df7-9fac-52d423e7f44f",
+      "name": "Top 3 only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Prep top 3 data + build RPC body for Pull enriched T3\nconst trigger = $('Encore WF3P Webhook').first().json.body;\nconst careers = trigger.top_3_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  top_3_careers: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
+      }
+    },
+    {
+      "id": "de520df6-8d37-4912-8336-e53fbc2f1be2",
+      "name": "Pull enriched T3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "position": [
+        160,
+        320
+      ],
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Encore WF3P Webhook').first().json.body.report_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "198c1088-1574-4b85-9dbe-8e20ead8c045",
+      "name": "t3 content order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// n8n Function Node - Fast reordering for LLM consumption\n// No expensive formatting - LLMs handle mixed data formats well\n\nconst items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json.career_data || item.json;\n  \n  // Simple reordering - no array formatting or parsing\n  return {\n    json: {\n      // === PRIMARY INFORMATION ===\n      career_title: data.career_title,\n      overview: data.overview,\n      salary: data.salary,\n      company_size_type: data.company_size_type,\n      \n      // === CORE WORK DETAILS ===\n      typical_tasks: data.typical_tasks,\n      technical_skills: data.technical_skills,\n      soft_skills: data.soft_skills,\n      education_requirements: data.education_requirements,\n      \n      // === WORK ENVIRONMENT ===\n      work_schedule: data.work_schedule,\n      autonomy_vs_collaboration: data.autonomy_vs_collaboration,\n      client_interaction: data.client_interaction,\n      colleague_interaction: data.colleague_interaction,\n      \n      // === CAREER DEVELOPMENT ===\n      career_progression: data.career_progression,\n      motivational_factors: data.motivational_factors,\n      leadership_challenges: data.leadership_challenges,\n      \n      // === METADATA ===\n      id: data.id,\n      ai_impact_rating: data.ai_impact_rating,\n      created_at: data.created_at,\n      updated_at: data.updated_at\n    }\n  };\n});"
+      }
+    },
+    {
+      "id": "9e2da11f-1d0d-41ee-b952-cb4413c8f209",
+      "name": "T3 enr. combined",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        672,
+        320
+      ],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "top3_enriched_combined",
+        "options": {}
+      }
+    },
+    {
+      "id": "0543a3cd-fd28-4929-ba2b-9bdaa39368fd",
+      "name": "T3 Careers Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        320
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "top_3_careers_prompt_assignment",
+              "name": "top_3_careers_prompt",
+              "value": "=# Top 3 Encore Directions\n\nYou are Cairnly, writing the three main directions in a report for someone at, near, or past the end of a long working life. They are not looking for a career; they are working out how to stay useful and what shape their week should have. Their own answers are your evidence: the roles they had, what they were known for, what they loved, when they felt most useful, who they want to be useful to, and the limits they set on time, place, calendar and pay.\n\nNot everyone was a manager or executive. A teacher, nurse, planner, craftsperson or carer has just as much depth. Write to THIS person's actual work, never to an imagined senior title.\n\nTone: respectful, warm, plain, direct and honest. Zero condescension. No \"60 is the new 40\" cheerfulness.\n\nThe three directions can be paid or unpaid: part-time or per-project work, interim or freelance work, board or supervisory roles, mentoring, teaching, substantial volunteering, something small of their own. Write about each in its real form. Never frame anything as filler to keep someone busy.\n\n---\n\n## Output structure (each direction)\n\n# [career_title]\n**Alternative titles:** [from the enriched data] | **At:** [organisation size/type from the enriched data]\n\n**Compatibility score: [XX/100]**\n\n## Overview\n[One or two sentences, max 35 words. What this direction is, in plain words, for someone who has never heard the title. No fit, no trade-offs.]\n\n## Why this fits you\n[90-120 words, 2 short paragraphs.\nParagraph 1: why this direction fits what they told us. Use, in this order of priority: who it serves from the people they want to be useful to; the kind of moment in what they loved about their work and when they felt most useful (quote a few of their own words when they carry the point, max 15 words, in the language they wrote them); their 3 picks for what matters most; why this FORM fits the time they want to spend, the week they want, the role that suits them and how they feel after a day with people.\nParagraph 2: the honest catch. What this direction does NOT give them, judged against their own 3 picks and what feels most true for them right now (for example: no income, less contact than they hope for, less structure, or the opposite). One or two sentences.]\n\n## What you'll actually do\n[3 bullets, 60-80 words total. Tasks from typical_tasks, scaled to the time they want to spend, not the full-time version. Do not repeat the Overview.\nEvery bullet starts with a short bold label (2-5 words) and a colon.]\n- **[Short task label]:** [the task, connected to something specific they did or loved]\n\n## How people get in\n[2-3 bullets, 60-90 words total. The real ways in for THIS direction at this stage. Pick only what applies:\n- **Through people you know:** write \"if you know someone who...\" and what to ask. Never state facts about their contacts or network.\n- **The usual channel:** the type of channel that matters here (vacancy procedures for supervisory roles, interim agencies, the local volunteer centre, teaching or guest-lecturer pools, a professional association). Name an organisation ONLY if it appears in the enriched direction data you were given; otherwise describe the kind of organisation and how to find it locally.\n- **A gate, only if real:** a required training, certificate or licence. If there is none, do not invent one.\nEnd with one plain sentence on how long it usually takes to a first real start, without numbers you are not sure of.]\n\n## Your first step\n[1-2 sentences. One thing they can do in the coming week: a verb, who or what kind of organisation, and what to say or bring. If they are still working, it must fit beside the job. If their partner situation means they plan together or have not talked about it yet, the first step may be that conversation. No web addresses, phone numbers, prices, course names or dates.]\n\n## The Reality Check\n[2-3 bullets, 60-90 words total. Vary the count. Every bullet starts with ⚠ and a bold label (3-7 words), then the explanation.]\n⚠ **[Risk specific to this direction and this person].** [1-2 sentences]\n\nRules:\n- Each bullet must be specific to this direction and this person. If it could be pasted onto another direction, sharpen it or cut it.\n- A watch-out must rest on an answer they gave (time, calendar, place, pay, energy after people, alone or with others, what they are glad to leave behind, their own words). If the analysis you receive says they \"tend to\" do something and no answer supports it, leave it out.\n- Time: if the honest minimum commitment exceeds the time they want to spend, or collides with what is fixed in their calendar, say so plainly.\n- Glad to leave behind: if this direction brings any of it back, say which.\n- Board or supervisory roles: write exactly \"This role carries legal duties; read up before you accept.\" Nothing more on law or liability.\n- Age bias in hiring: mention it in AT MOST ONE of the three directions, only for paid employment, only where it is real, with one way around it (for example a relationship route instead of open applications). Never suggest hiding their age. Nowhere else in the output.\n- No money here; that belongs in \"The practical stuff\".\n- No false balance: if a direction has two real risks, write two.\n\n## The practical stuff\n**Money:** [Use the salary range from the enriched data exactly as given, with its unit, and call it an indication. Do not convert it to their hours or to monthly or yearly totals. If there is no range, say \"paid\" or \"unpaid\" and nothing more. Then one clause on how this sits with whether it needs to pay for them. If they said money isn't the point, keep this to one short line.]\n\n**Time:** [The realistic rhythm at THEIR time and the week they want, and whether it fits around what is fixed in their calendar.]\n\n**People:** [How much contact the work brings, against how they feel after a day with people, whether they like to work alone or with others, and how they feel about the people around them.]\n\n**Place:** [Where it happens, against where they want it to happen.]\n\n## How AI will impact this role\n[Start with the ai_impact_rating label from the enriched data, exactly as given. Do not re-rate it. Then 1-2 sentences: what AI changes in this direction and what stays human.\nOnly when this direction is PAID and mostly desk-based: say plainly that the work now expects working with AI tools, and which task that means (for example \"having an AI assistant summarise the board papers and checking its summary against the source\"). Describe the task, never a product name. For volunteering, hands-on or in-person work, leave this out.]\n\n## Future-proof skills\n[ONLY for paid, mostly desk-based directions. Leave this section out completely for volunteering, hands-on and in-person work. Exactly 2 bullets, max 35 words total, each with a short bold label: one concrete habit that keeps their judgment useful as AI changes this work, and one small way to start building the AI skill named above this month.]\n\n## Comparison Data\n\nAs the LAST thing in each direction, output one fenced ```json code block. The platform reads it to draw a comparison; the reader never sees the raw text. Always include it.\n\n### fit_scores (every direction)\nRate THIS direction from 1 to 5 on each axis, as FIT FOR THIS PERSON (5 = excellent fit, 1 = poor fit), using their answers:\n- **autonomy**: does the freedom in this direction match the week they want and the role that suits them?\n- **social**: does the amount of contact fit how they feel after a day with people, alone or with others, and the people around them? (5 = comfortably right, 1 = will drain them or isolate them)\n- **pace**: does the rhythm fit the week they want and the time they want to spend? (5 = comfortable, 1 = mismatch)\n- **stability**: does the pay and predictability fit whether it needs to pay and whether they want a rhythm to their week?\n- **schedule**: does the time, calendar and place fit the time they want, what is fixed in their calendar, and where they want it to happen?\nScore all three directions on ONE consistent scale.\n\n### comparison (direction 2 and direction 3 ONLY)\nDirection 1 omits this. Direction 2 compares to direction 1. Direction 3 compares to directions 1 and 2.\n- **headline**: one sentence naming the single biggest way THIS direction differs from the earlier one(s).\n- **explanation**: 100 to 150 words on how it differs in their week: time, contact, pay, way in. Ground it in the axes where the fit scores differ most. Short paragraphs (2 to 4 sentences) with a blank line between them. Same voice and rules as the rest.\n\n### move (every direction)\nHow ready they are to START this direction, taking into account that AI-assisted learning shortens preparation. Use EXACTLY one of:\n- **Ready now**: they could start this quarter; what they have already done clears the bar.\n- **Reframe**: the experience is there, but how they present it still reads as their old role.\n- **Upskill**: a real but bounded gap (a training, a certificate, tool skills), months of effort.\n- **Retrain**: the direction needs a qualification or skill base they do not have; a longer route.\n\n### Format\nDirection 1:\n```json\n{\"fit_scores\":{\"autonomy\":5,\"social\":4,\"pace\":5,\"stability\":2,\"schedule\":4},\"move\":\"Ready now\"}\n```\n\nDirection 2 and Direction 3:\n```json\n{\"fit_scores\":{\"autonomy\":4,\"social\":2,\"pace\":3,\"stability\":4,\"schedule\":4},\"move\":\"Upskill\",\"comparison\":{\"headline\":\"One-sentence main difference.\",\"explanation\":\"Full 100-150 word explanation here.\"}}\n```\n\nValid JSON only inside the block: no comments, no trailing commas. It does not count toward the word target.\n\n---CAREER_SPLIT---\n\n## Path type framing\n\nEach enriched direction has a `path_type`: `employee`, `freelance_fractional`, or `founder` (treat null or \"N/A\" as employee). Use it to shape the text, but NEVER print these code words. In the text say: a paid role, freelance or independent work, your own small business, volunteering, or an appointed role.\n- **employee:** describe the role at their time, not full-time. Open applications often go less well at this stage than being asked or introduced; say so in \"How people get in\" where it applies.\n- **freelance_fractional:** one Reality Check bullet covers the client flow: even with a good name, freelance and interim work needs some selling. Frame it as how much of that they want to do.\n- **founder:** one Reality Check bullet covers starting small: test the idea before spending, and decide in advance what it may cost.\nUse `path_type_notes` from the enriched data as the source for path-specific honesty.\n\n## Items that appear at most ONCE in this output (you own them; no other part of the report mentions them)\n- **Age bias in hiring:** see the Reality Check rule. At most one direction.\n- **Cairnly Pro:** if one of the three directions is paid employment AND they said extra income matters to them, end \"How people get in\" of that ONE direction with exactly this sentence (English): \"If you want help with your CV and applications, Cairnly Pro can help with that.\" Dutch: \"Wilt u hulp bij uw cv en sollicitaties? Daar helpt Cairnly Pro bij.\" Never in more than one direction, and not at all otherwise.\n- **A quiet season first:** if their answers point to needing time before committing (for example they stopped less than a year ago, the decision was made for them, or work gave their week its shape and they do not know what will replace it), you may add one sentence in direction 1's \"Your first step\" that taking a quieter season first is a valid choice too. Once only, and only when the answers support it.\n\n## Writing rules\n\n**Tone:**\n- Direct: \"This gives you X\", not \"provides an opportunity\".\n- Respectful and plain. Never write \"at your age\", \"still sharp\", \"young at heart\", \"keeping busy\", \"well-deserved rest\", \"golden years\", \"next chapter\".\n- Never use age labels for the person: \"senior\" as a label, \"elderly\", \"older worker\", \"pensioner\"; in Dutch \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\", \"welverdiende rust\", \"derde levensfase\".\n- Short paragraphs (2-4 sentences). Active voice, second person; use their first name once or twice.\n- Target: 420-500 words per direction, excluding the json block.\n- NEVER print question numbers or survey labels.\n- Bold labels on bullets. ✓ and ⚠ symbols in bold.\n\n**Avoid:**\n- Flattery: valuable, impressive, exceptional, unique, perfect. Dutch: waardevol, uniek, indrukwekkend, bijzonder, een schat aan ervaring, rijke ervaring.\n- Corporate: serves you well, positions you, meaningful impact, leverage.\n- \"Not X, but Y\" sentences (Dutch \"niet X, maar Y\"). Say what is the case.\n- Mixing currencies.\n- Invented facts: no statistics, percentages, organisation names that are not in your input, web addresses, phone numbers, prices, course names or dates.\n- Anything about tax, benefits, pension, AOW, employment law or legal liability beyond the one board sentence above.\n- Em-dashes. Never. Use commas, periods, colons or parentheses.\n\n**Every direction must connect to:**\n- At least one person or group they want to be useful to\n- What they loved or when they felt most useful (quote only when the words carry meaning; paraphrase a one-word answer)\n- At least one of their 3 picks for what matters most\n- At least one limit: time, calendar, place or pay\n- Compatibility score always as XX/100\n\n**Country and routes:** use the region and any location they typed in the key answers. Use Dutch routes and Dutch organisations only when that location or the report language points to the Netherlands; if they typed a location elsewhere (for example Belgium), use what fits there or describe the type of organisation. Use the region's currency.\n\n---\n\n## Inputs\n\n**Key answers (structured; use these values as facts):**\n{{ JSON.stringify($('Encore WF3P Webhook').first().json.body.facts || {}) }}\n\n**Scoring analysis for the top 3 (incl. compatibility score). Treat any \"tends to\" statement here as a guess, not a fact:**\n{{ JSON.stringify($('Encore WF3P Webhook').first().json.body.top_3_careers) }}\n\n**Top 3 enriched directions:**\n{{ JSON.stringify($json.top3_enriched_combined) }}\n\n**Fact sheet (all answers, with their own words):**\n{{ $('Encore WF3P Webhook').first().json.body.init_summary_content }}\n\n---\n\nGenerate all 3 directions now. Put \"---CAREER_SPLIT---\" between them (not before the first or after the last).\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write in Dutch with the formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw), warm and plain, no em-dashes, Dutch number formatting (€39,00, €1.500). Keep brand terms in English (Cairnly, Cairnly Pro). Write the direction title, the alternative titles and the organisation type in Dutch where a common Dutch term exists.\nKeep these EXACTLY as specified so the platform can read them:\n- the ---CAREER_SPLIT--- delimiter\n- the labels \"**Alternative titles:**\", \"| **At:**\" and \"**Compatibility score: NN/100**\" (the values after them may be Dutch)\n- the ```json block (keys and values exactly as specified, including Ready now / Reframe / Upskill / Retrain)\n- the AI rating label (Minimal, Moderate, High, Severe, Critical)\nUse \"## \" for each subheader, with EXACTLY these Dutch headings:\n  Overview -> Overzicht\n  Why this fits you -> Waarom dit bij u past\n  What you'll actually do -> Wat u concreet gaat doen\n  How people get in -> Zo komt u binnen\n  Your first step -> Uw eerste stap\n  The Reality Check -> Waar u rekening mee moet houden\n  The practical stuff -> De praktische kant\n  How AI will impact this role -> AI-impact op deze rol\n  Future-proof skills -> Toekomstbestendige vaardigheden\nAnd these Dutch labels in \"De praktische kant\": Geld, Tijd, Mensen, Plek.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "2cd75cb0-f79a-4b43-b9b4-f4bbb0a69abe",
+      "name": "Top 3 Careers Generator",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        320
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.top_3_careers_prompt }}",
+        "batching": {}
+      }
+    },
+    {
+      "id": "a8b60d92-97e1-4a7e-911d-3db2623f0198",
+      "name": "Split Top3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('Encore WF3P Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n\n// Subheaders to convert to h5 tags (must match the T3 Careers Prompt).\n// \"## \" headers are converted whatever their text; this list only rescues\n// headers the model wrote as a bold line instead.\nconst CAREER_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this fits you\", \"What you'll actually do\", \"How people get in\", \"Your first step\", \"The Reality Check\", \"The practical stuff\", \"How AI will impact this role\", \"Future-proof skills\"],\n  nl: [\"Overzicht\", \"Waarom dit bij u past\", \"Wat u concreet gaat doen\", \"Zo komt u binnen\", \"Uw eerste stap\", \"Waar u rekening mee moet houden\", \"De praktische kant\", \"AI-impact op deze rol\", \"Toekomstbestendige vaardigheden\"]\n};\nconst CAREER_SUBHEADERS = CAREER_SUBHEADERS_ALL[__lang];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText.replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim() };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles ? `<strong>Alternate titles:</strong> ${alternateTitles}` : '',\n    company_size_type: companySizeType ? `<h4><strong>${companySizeType}</strong></h4>` : '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: meta1.metadata,\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: meta2.metadata,\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: meta3.metadata,\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];"
+      }
+    },
+    {
+      "id": "31205f90-595b-4875-b31a-44c19192b642",
+      "name": "Insert Top 3",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        320
+      ],
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "122022e0-92c2-4f85-be97-e15f8041a485",
+      "name": "4-10 only",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        624
+      ],
+      "parameters": {
+        "jsCode": "// Prep runner up data + build RPC body for Pull Runner up\nconst trigger = $('Encore WF3P Webhook').first().json.body;\nconst careers = trigger.runner_up_careers || [];\nconst input_careers_text = careers.map(c => ({\n  career_title: c.career_title,\n  company_size_type: c.company_size_type\n}));\nreturn [{ json: {\n  runner_up: careers,\n  rpc_body: JSON.stringify({ input_careers_text })\n} }];"
+      }
+    },
+    {
+      "id": "40a9382b-63fa-4f84-ab79-bab144ade1e3",
+      "name": "Pull Runner up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "position": [
+        160,
+        624
+      ],
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/enriched_jobs?report_id=eq.{{ $('Encore WF3P Webhook').first().json.body.report_id }}&select=*",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "1f86ac80-2bd4-42a4-b864-0fcd33839202",
+      "name": "Combine runners",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        624
+      ],
+      "parameters": {
+        "jsCode": "// Combine all items into one item\nconst allItems = $input.all();\nconst allCareers = allItems.map(item => item.json);\n\nreturn [{ \n  json: { \n    allCareers: allCareers,\n    careerCount: allCareers.length \n  } \n}];"
+      }
+    },
+    {
+      "id": "fd8e03ae-b234-411b-a637-377b6e5b661d",
+      "name": "Set Runner Up Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        624
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "runner_up_prompt_assignment",
+              "name": "=runner_up_prompt",
+              "value": "=# Runner-Up Encore Directions\n\nYou are Cairnly, presenting alternative directions beyond the top 3 for someone at, near, or past the end of a long working life. These scored well but did not make the top 3. They can be paid or unpaid: part-time or per-project work, interim or freelance work, board or supervisory roles, mentoring, teaching, substantial volunteering, something small of their own. Be concise, honest and respectful: show what is appealing, how people actually get in, and what the trade-off is. Never frame anything as filler to keep someone busy.\n\nNot everyone was a manager or executive. Write to THIS person's actual work, never to an imagined senior title.\n\n---\n\n## Output structure (each direction)\n\n# [Career Title]\n**Alternative titles:** [from the enriched data] | **At:** [organisation size/type from the enriched data]\n\n**Compatibility score: [XX/100]**\n\n## Overview\n[25-40 words. What this direction is, in plain words, based on the `overview` field (rephrase, do not quote). No fit or trade-offs.]\n\n## Why this fits you\n[60-80 words, 1-2 short paragraphs. Do not re-describe the direction.\n- What is appealing about it for them now, tied to at least one concrete answer: who they want to be useful to, what they loved, when they felt most useful, or one of their 3 picks.\n- Why it is not in the top 3: be specific (time, contact, pay, the way in, or energy).]\n\n## What works for you\n[2-3 bullets, 40-60 words total]\n✓ **[Benefit].** [1 sentence tied to their answers]\n\n## The Reality Check\n[2-3 bullets, 40-60 words total]\n⚠ **[Concern].** [1 sentence]\nOne of the ✓ or ⚠ bullets names the realistic way in: write \"if you know someone who...\" for the people route (never state facts about their contacts), or the type of channel (vacancy procedures, interim agencies, the local volunteer centre, a teaching pool), or a real gate (a required training or certificate). Name an organisation ONLY if it appears in the enriched data you were given.\n\n## The practical stuff\n**Money:** [The salary range from the enriched data exactly as given, with its unit, as an indication. No conversions or totals. No range: say \"paid\" or \"unpaid\". One clause on whether it needs to pay for them; if money isn't the point, one short line only.]\n\n**Time:** [Rhythm at their time, and whether it fits what is fixed in their calendar.]\n\n**People:** [Amount of contact, against how they feel after a day with people.]\n\n## How AI will impact this role\n[Start with the ai_impact_rating label from the enriched data, exactly as given; do not re-rate. Then one sentence on what changes and what stays human. Only for paid, mostly desk-based work: add that it now expects working with AI tools, naming the task, never a product.]\n\n**More details in your dashboard.**\n\n<!--move:[Ready now / Reframe / Upskill / Retrain]-->\n\n---CAREER_SPLIT---\n\n---\n\n## Path type\nEach direction has a `path_type` (`employee`, `freelance_fractional`, `founder`; null or \"N/A\" = employee). Never print these code words; say paid role, freelance or independent work, own small business, volunteering, or appointed role.\n- freelance_fractional: one Reality Check bullet covers the client flow, framed as how much selling they want to do.\n- founder: one Reality Check bullet covers starting small and deciding in advance what it may cost.\n- employee: being asked or introduced usually works better than open applications at this stage.\n\n## Move rating (hidden)\nHow ready they are to START this direction, taking into account that AI-assisted learning shortens preparation. Pick ONE:\n- Ready now: they could start this quarter; what they have already done clears the bar.\n- Reframe: the experience is there; how they present it still reads as their old role.\n- Upskill: a real but bounded gap (a training, a certificate, tool skills), months of effort.\n- Retrain: a qualification or skill base they do not have; a longer route.\nOutput it at the very end of each direction (after \"More details in your dashboard.\", before ---CAREER_SPLIT---) on its own line, exactly like <!--move:Upskill-->. Never show it any other way.\n\n## Rules\n\n**Length (strict):** 170-220 words per direction. Shorter than the top 3; these are alternatives. If running long, cut adjectives.\n\n**Watch-outs:** a concern must rest on an answer they gave (time, calendar, place, pay, energy after people, alone or with others, glad to leave behind, their own words). If the analysis you receive says they \"tend to\" do something and no answer supports it, leave it out. Across the runner-ups, do not lead with the same concern each time.\n\n**Owned elsewhere, never here:** age bias in hiring, Cairnly Pro, and anything about tax, benefits, pension, AOW, employment law or liability. For a board or supervisory role you may write only: \"This role carries legal duties; read up before you accept.\"\n\n**Tone:**\n- Business casual, direct, honest, no fluff, zero condescension. Active voice, second person; use their first name once.\n- Never write \"at your age\", \"still sharp\", \"keeping busy\", \"give back\", \"golden years\", \"next chapter\". No age labels: \"senior\" as a label, \"elderly\", \"older worker\", \"pensioner\"; Dutch \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\".\n- No flattery (valuable, impressive, unique; Dutch waardevol, uniek, indrukwekkend, bijzonder).\n- No \"not X, but Y\" sentences (Dutch \"niet X, maar Y\").\n- No invented facts: no statistics, organisation names that are not in your input, web addresses, prices, course names or dates.\n- No em-dashes, ever.\n- NEVER print question numbers or survey labels.\n\n**Format:**\n- Use the exact headers above. Compatibility score as XX/100.\n- ✓ for benefits, ⚠ for concerns, labels in bold.\n- Use ---CAREER_SPLIT--- between directions. Plain markdown, not JSON.\n\n---\n\n## Examples\n\n**Good \"Why this fits you\" (68 words):**\n\"This brings back the moment you described, sitting next to someone until it clicks, with a new group of learners each term. It serves the young people you want to help, and it gives your week the fixed day you asked for. It is not in your top 3 because the first year asks for a teaching certificate course, and that takes time you want to keep free.\"\n\n**Good bullets:**\n✓ **A way in exists.** If you know someone who teaches at the local vocational school, ask whether they use guest teachers for practical lessons.\n⚠ **The fixed day collides.** Lessons run on weekdays in term time, and Wednesdays are your grandchildren's day.\n\n---\n\n## Inputs\n\n**Key answers (structured; use these values as facts):**\n{{ JSON.stringify($('Encore WF3P Webhook').first().json.body.facts || {}) }}\n\n**Runner-up directions (with scores and analysis; treat any \"tends to\" statement as a guess):**\n{{ JSON.stringify($('Encore WF3P Webhook').first().json.body.runner_up_careers) }}\n\n**Enriched direction data:**\n{{ JSON.stringify($json.allCareers) }}\n\n**Fact sheet (all answers, with their own words):**\n{{ $('Encore WF3P Webhook').first().json.body.init_summary_content }}\n\n---\n\nGenerate all runner-up directions. Use ---CAREER_SPLIT--- between directions (not before the first or after the last). Markdown only.\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write in Dutch with the formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw), warm and plain, no em-dashes, Dutch number formatting (€39,00, €1.500). Keep brand terms in English (Cairnly). Write the direction title, alternative titles and organisation type in Dutch where a common Dutch term exists.\nKeep these EXACTLY as specified so the platform can read them:\n- the ---CAREER_SPLIT--- delimiter\n- the labels \"**Alternative titles:**\", \"| **At:**\" and \"**Compatibility score: NN/100**\" (the values after them may be Dutch)\n- the hidden <!--move:...--> comment (Ready now / Reframe / Upskill / Retrain)\n- the AI rating label (Minimal, Moderate, High, Severe, Critical)\n- the line \"**More details in your dashboard.**\" (the platform removes it)\nUse \"## \" for each subheader, with EXACTLY these Dutch headings:\n  Overview -> Overzicht\n  Why this fits you -> Waarom dit bij u past\n  What works for you -> Wat voor u werkt\n  The Reality Check -> Waar u rekening mee moet houden\n  The practical stuff -> De praktische kant\n  How AI will impact this role -> AI-impact op deze rol\nAnd these Dutch labels in \"De praktische kant\": Geld, Tijd, Mensen.\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d92dfe34-c58e-4142-b4d4-c1ccc61dc9f8",
+      "name": "Runner Up Analysis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        624
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.runner_up_prompt }}",
+        "batching": {}
+      }
+    },
+    {
+      "id": "0f811083-0b01-4779-9de1-331f668fe5b1",
+      "name": "OpenRouter Chat Model3",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        1680
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "id": "6e8e1b2c-b238-4d16-b0e8-f3a3451929a6",
+      "name": "Parse runner up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        624
+      ],
+      "parameters": {
+        "jsCode": "// Parse Runner-Up Careers (Markdown format with CAREER_SPLIT delimiter)\nconst input = $input.first().json.text;\n\n// Get report_id from the same node that Split Top3 uses\nconst reportId = $('Encore WF3P Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n// GUARD (2026-07-05): if no runner-up careers came in from '4-10 only', the\n// upstream pool was empty. Do NOT parse the LLM output (it hallucinates a\n// \"the list is empty\" complaint). Emit one clean, controlled placeholder row.\nconst __ru = ($('4-10 only').first().json.runner_up) || [];\nif (!Array.isArray(__ru) || __ru.length === 0) {\n  const __msg = __lang === 'nl'\n    ? 'Er zijn geen andere richtingen die hoog genoeg scoorden. Uw sterkste richtingen staan in uw top 3 hierboven.'\n    : 'No other directions scored high enough to include. Your strongest directions are in your top 3 above.';\n  return [{ json: {\n    title: '',\n    alternate_titles: '',\n    company_size_type: '',\n    content: '<p>' + __msg + '</p>',\n    score: null,\n    report_id: reportId,\n    metadata: { empty: true },\n    section_type: 'runner_ups',\n    order_number: 1,\n    language: __lang\n  } }];\n}\n\n\n// Split by the delimiter\nconst careerBlocks = input.split('---CAREER_SPLIT---').map(block => block.trim()).filter(Boolean);\n\nconst results = careerBlocks.map((block, index) => {\n  // Extract career title (first # heading, not ## subheaders)\n  const titleMatch = block.match(/^# ([^#].+)$/m);\n  const career_title = titleMatch ? titleMatch[1].trim() : `Career ${index + 1}`;\n\n  // Extract alternative titles and company size\n  const altTitlesMatch = block.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n  const alternate_titles = altTitlesMatch ? altTitlesMatch[1].trim() : '';\n  const company_size_type = altTitlesMatch ? altTitlesMatch[2].trim() : '';\n\n  // Extract compatibility score\n  const scoreMatch = block.match(/\\*\\*Compatibility score: (\\d+)\\/100\\*\\*/);\n  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null;\n\n  const moveMatch = block.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n\n  // Build content language-agnostically: from the first \"## \" subheader\n  // onward, drop any trailing \"**More details\" footer, and convert every\n  // \"## X\" header to <h5>X</h5>. Works for English and Dutch headers alike.\n  let __body = block;\n  const __fh = __body.search(/^##\\s+/m);\n  if (__fh >= 0) __body = __body.slice(__fh);\n  __body = __body.split(/\\n\\*\\*More details/)[0];\n  const sections = __body.replace(/^##\\s+(.+?)\\s*$/gm, '<h5>$1</h5>').replace(/<!--move:.*?-->/gi, '').trim();\n\n  // Return one item per career (matches report_sections table structure)\n  return {\n    json: {\n      title: `<h3><strong>${career_title}</strong></h3>`,\n      alternate_titles: alternate_titles ? `<strong>Alternate titles:</strong> ${alternate_titles}` : '',\n      company_size_type: company_size_type ? `<h4><strong>${company_size_type}</strong></h4>` : '',\n      content: sections,\n      score: score,\n      report_id: reportId,\n      metadata: move ? { move } : null,\n      section_type: \"runner_ups\",\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn results;"
+      }
+    },
+    {
+      "id": "1f954c89-a292-4c95-b619-07bffec45458",
+      "name": "Insert Runner Ups",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        624
+      ],
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "967c19be-18a5-47c8-9b3f-5e3381045b30",
+      "name": "Dream prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        928
+      ],
+      "parameters": {
+        "jsCode": "// Prepare data for the \"your idea\" step (Dream Job Feasibility).\n// Encore v2: the idea section only runs when the person wrote something in\n// 3.5. has_idea comes from WF1P's structured facts (the raw answer); for\n// reports without facts it falls back to the \"Their Idea\" section of the\n// profile summary. The \"Has idea?\" node routes on it.\nconst trigger = $('Encore WF3P Webhook').first().json.body;\nconst facts = trigger.facts || null;\n\nlet hasIdea = false;\nlet idea = '';\nif (facts && typeof facts.has_idea === 'boolean') {\n  hasIdea = facts.has_idea;\n  idea = facts.idea || '';\n} else {\n  const t = trigger.interests_history_text || '';\n  const m = t.match(/###\\s*Their Idea\\s*\\n([\\s\\S]*?)(?=\\n###|$)/i);\n  const block = m ? m[1].trim() : '';\n  hasIdea = !!block && !/no idea named/i.test(block) && !/^not provided/i.test(block);\n  idea = hasIdea ? block : '';\n}\n\nreturn [{\n  json: {\n    has_idea: hasIdea,\n    'Their idea': idea,\n    'Top 3 careers': trigger.top_3_careers_str,\n    'Runner up careers': trigger.runner_up_careers_str,\n    'Outside box careers': trigger.outside_box_careers_str\n  }\n}];"
+      }
+    },
+    {
+      "id": "231cb4d5-638c-40a8-acbb-8c54c1cc51cd",
+      "name": "Dream Job Feasibility",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1120,
+        928
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=# ROLE\nYou are Cairnly, giving an honest, warm look at the candidate's OWN idea: the thing they already tried, or an idea they keep coming back to. The reader is at, near, or past the end of a long working life. They are not looking for a career; they are working out how to stay useful and what shape their week should have. Respect the idea, be honest about it, and make it smaller and testable where that helps.\n\nNot everyone was a manager or executive. Write to THIS person's actual work and words.\n\n# TASK\n1. Read their idea in Input 1 (their own words) and Input 2 (\"Their Idea\" section). If the text holds more than one idea, take the main one, and at most two. Never add an idea they did not write.\n2. FIRST decide which situation it is, and write accordingly:\n   - **Tried and stopped:** they did it and it ended or did not work out. Learn from why it stopped, in their words. Do not pitch the same thing again; look at what was good in it and whether a different form would avoid what went wrong.\n   - **Doing it now:** they are already doing it. Look at how to make it fit their week better, or grow it carefully.\n   - **Not yet tried:** an idea they keep coming back to. Look at the smallest real way to test it.\n3. Weigh it against their answers: the time they want to spend, what is fixed in their calendar, where it should happen, whether it needs to pay, how they feel after a day with people, alone or with others, the role that suits them, and who they want to be useful to.\n4. Check whether the idea (or a form of it) already appears in Inputs 3-5, and say so if it does.\n\n**Tone:**\n- Business casual, direct, warm, zero condescension. Active voice, second person; use their first name once.\n- If they asked for \"an honest view on an idea I already have\", be especially plain about what will be hard.\n- Never write \"at your age\", \"still sharp\", \"keeping busy\", \"give back\", \"golden years\", \"next chapter\". No age labels: \"senior\" as a label, \"elderly\", \"older worker\", \"pensioner\"; Dutch \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\".\n- No flattery (valuable, impressive, unique; Dutch waardevol, uniek, indrukwekkend, bijzonder). No \"not X, but Y\" sentences (Dutch \"niet X, maar Y\").\n\n**Hard limits on facts:**\n- No invented statistics, prices, course names, web addresses, phone numbers or dates. Name an organisation only if it appears in your inputs; otherwise describe the kind of organisation and how to find it locally.\n- Nothing about tax, benefits, pension, AOW, employment law or legal liability. If the idea touches one of these (for example starting a business while receiving a benefit), write only: \"Check how this works for your situation before you start.\"\n- Use their region and any location they typed in the key answers. Use the region's currency. Do not assume the Netherlands unless the location or the report language points there.\n\n# CRITICAL FORMATTING REQUIREMENTS\n- If there are two ideas, separate them with: ---DREAM_JOB_SPLIT---\n- At the very end of each idea (before ---DREAM_JOB_SPLIT---), output a hidden move rating exactly like <!--move:Upskill--> with ONE of: Ready now (they could start this quarter with what they have), Reframe (the ability is there; how they present it needs work), Upskill (a real but bounded learning gap, months), Retrain (a qualification or skill base they do not have first). Never show it any other way.\n- Start directly with the title using a ## header. The title is their idea in a few words, close to how they put it.\n- Never use the em dash. Never print question numbers or survey labels.\n- Max 3 bullets per section. No intro or outro.\n\n# OUTPUT FORMAT\n\n## [Their idea, in a few words]\n\n**Overview**\n[2 sentences: what the idea is, in their words where possible, and which situation it is (tried and stopped, doing it now, not yet tried).]\n\n**Our honest view**\n[2-3 sentences. The plain bottom line: what makes this idea good for them, and what will be hardest. No rating label.]\n\n**How it fits your week**\n- [Contact and energy: against how they feel after a day with people and whether they like to work alone or with others]\n- [Time and rhythm: against the time they want to spend, the week they want and what is fixed in their calendar]\n- [Pay: against whether it needs to pay. If money isn't the point, keep this to one short line]\n\n**A small version to start with**\n- [The smallest real version that fits their time: a season, a pilot, a few sessions, a test with a handful of people. For \"tried and stopped\", the form that avoids what went wrong]\n- [What this small version protects them from: energy, money, or a long commitment]\n- [If the idea or a form of it already appears among their other directions, say where]\n\n**What to know before you start**\n- [What this usually pays at this scale, or that it usually pays little or nothing. Only figures you are confident of; otherwise no figure]\n- [What AI changes in this field, briefly, and what stays human. For paid desk work, the AI task it now expects, never a product name]\n- [A real gate only if there is one (a licence, a required training), or how crowded this field is locally]\n\n**How to start**\n- [One thing they can do in the coming week: a verb, who or what kind of organisation, and what to say or bring. If they are still working, it fits beside the job]\n- [What to try in the first few months, and what it may cost them in time]\n- [The moment to decide: after the small version, what would tell them to make it bigger, keep it small, or let it go]\n\n*Heads-up: [Only if the idea clashes with whether it needs to pay, or its real minimum commitment clashes with their time or calendar.]*\n\n<!--move:[label]-->\n\n---DREAM_JOB_SPLIT---\n\n# INPUTS\n1. Their idea, in their own words\n{{ $('Dream prep').first().json['Their idea'] || '' }}\n\n2. Their profile summary (see \"Their Idea\" and the other sections)\n{{ $('Encore WF3P Webhook').first().json.body.interests_history_text }}\n\nKey answers (structured; use these values as facts):\n{{ JSON.stringify($('Encore WF3P Webhook').first().json.body.facts || {}) }}\n\n3. Top 3 directions\n{{ $('Dream prep').first().json['Top 3 careers'] }}\n\n4. Runner-up directions\n{{ $('Dream prep').first().json['Runner up careers'] }}\n\n5. Outside-the-box directions\n{{ $('Dream prep').first().json['Outside box careers'] }}\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', write in English exactly as instructed above.\nIf preferred_language IS 'nl', write in Dutch with the formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw), warm and plain, no em-dashes, Dutch number formatting (€39,00, €1.500). Keep brand terms in English (Cairnly).\nKeep the ---DREAM_JOB_SPLIT--- delimiter and the hidden <!--move:...--> comment exactly (Ready now / Reframe / Upskill / Retrain). Use these EXACT Dutch subheaders, in bold on their own line, instead of the English ones:\n  Overview -> Overzicht\n  Our honest view -> Onze eerlijke kijk\n  How it fits your week -> Hoe het in uw week past\n  A small version to start with -> Uw idee in het klein\n  What to know before you start -> Wat u vooraf moet weten\n  How to start -> Zo begint u\n",
+        "batching": {}
+      }
+    },
+    {
+      "id": "3cb7af92-065a-4b07-9360-e82a13b3f169",
+      "name": "OpenRouter Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        1680
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.6",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "gGM2sOHB72WgN7UU",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "id": "04111827-9e37-4db8-a7cf-8e53003d4d90",
+      "name": "Parse Dream",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        928
+      ],
+      "parameters": {
+        "jsCode": "// Get report_id from upstream node\nconst reportId = $('Encore WF3P Webhook').first().json.body.report_id;\n\n// Get the dream jobs text from the upstream node\nconst fullText = $json.text;\n\n// Subheaders to convert to h5 tags\nconst __lr = $('Get Report Language').first().json;\nconst __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n// Encore v2 \"your idea\" headings (must match the Dream Job Feasibility prompt)\nconst DREAM_JOB_SUBHEADERS_ALL = {\n  en: [\"Overview\",\"Our honest view\",\"How it fits your week\",\"A small version to start with\",\"What to know before you start\",\"How to start\"],\n  nl: [\"Overzicht\",\"Onze eerlijke kijk\",\"Hoe het in uw week past\",\"Uw idee in het klein\",\"Wat u vooraf moet weten\",\"Zo begint u\"]\n};\nconst DREAM_JOB_SUBHEADERS = DREAM_JOB_SUBHEADERS_ALL[__lang];\n\nfunction formatDreamJobContent(content) {\n  let formatted = content;\n  \n  DREAM_JOB_SUBHEADERS.forEach(subheader => {\n    /**\n     * Updated Regex:\n     * 1. Looks for the subheader at the start of the string or after a newline\n     * 2. Allows for optional Markdown stars (**)\n     * 3. Allows for an optional colon (:)\n     * 4. Ensures it matches the whole line to avoid replacing the word mid-sentence\n     */\n    const regex = new RegExp(`(^|\\\\n)\\\\*?\\\\*?${subheader}\\\\*?\\\\*?:?\\\\s*(\\\\n|$)`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n  \n  // Convert markdown bold to <strong> — covers the feasibility rating,\n  // which the prompt now bolds in full.\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');\n  \n  return formatted.trim();\n}\n\nfunction parseDreamJob(content) {\n  const lines = content.trim().split('\\n');\n  let title = '';\n  let contentStartIndex = 0;\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    // Match ## Title or just \"Chief Product Officer\" if it's the very first line\n    if (line.match(/^##\\s*.+$/) || (i === 0 && line.length > 0)) {\n      title = line.replace(/^##\\s*/, '').trim();\n      contentStartIndex = i + 1;\n      break;\n    }\n  }\n  \n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n  \n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatDreamJobContent(rawContent);\n  \n  return {\n    title: title || 'Dream Job',\n    content: formattedContent\n  };\n}\n\nconst dreamJobSections = fullText.split('---DREAM_JOB_SPLIT---');\nconst cleanSections = dreamJobSections.filter(section => section.trim().length > 0);\n\nconst records = cleanSections.map((section, index) => {\n  const parsed = parseDreamJob(section);\n  const moveMatch = section.match(/<!--move:(.*?)-->/i);\n  const move = moveMatch ? moveMatch[1].trim() : null;\n  const content = parsed.content.replace(/<!--move:.*?-->/gi, '').trim();\n  \n  return {\n    json: {\n      section_type: \"dream_jobs\",\n      title: `<h3>${parsed.title}</h3>`,\n      content: content,\n      metadata: move ? { move } : null,\n      report_id: reportId,\n      order_number: index + 1,\n      language: __lang\n    }\n  };\n});\n\nreturn records;"
+      }
+    },
+    {
+      "id": "66e20bd2-df47-4eb3-865d-1fd266ff0482",
+      "name": "Insert dream",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        928
+      ],
+      "parameters": {
+        "tableId": "report_sections",
+        "dataToSend": "autoMapInputData"
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "02dc6615-008d-446b-a999-e1357ac8bc97",
+      "name": "Complete merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2272,
+        608
+      ],
+      "parameters": {
+        "numberInputs": 3
+      }
+    },
+    {
+      "id": "f2075da1-bebb-4ab5-a08e-9a5d5bf18cfb",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "executeOnce": true,
+      "position": [
+        2496,
+        624
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://pcoyafgsirrznhmdaiji.functions.supabase.co/analysis-completed",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "= { \"report_id\": \"{{ $('Encore WF3P Webhook').first().json.body.report_id }}\" }",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aiABzg04zbeDSXRc",
+          "name": "Supabase Edge Functions — Shared Secret"
+        }
+      }
+    },
+    {
+      "id": "1e239ace-b324-40cd-aecd-ad1ec2ba4a26",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        464
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5.5"
+        },
+        "options": {
+          "maxTokensToSample": 16000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "24281098-2118-4664-b89b-7a2ecd5ca9b8",
+      "name": "Anthropic Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        784
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5.5"
+        },
+        "options": {
+          "maxTokensToSample": 16000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "4f6a8057-64a9-4218-aed5-507716a6e05e",
+      "name": "Anthropic Chat Model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        1072
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5.5"
+        },
+        "options": {
+          "maxTokensToSample": 16000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "RhTKhZPWZ6gcGD13",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "16814ad9-c418-46eb-a48e-f5f93c96eb1b",
+      "name": "Get Report Language",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "position": [
+        -480,
+        624
+      ],
+      "parameters": {
+        "url": "=https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/report_sections?report_id=eq.{{ $('Encore WF3P Webhook').first().json.body.report_id }}&select=language&limit=1",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "jYr9UcuCbwO8Um80",
+          "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "id": "10126012-1379-444a-85e3-a7893f9777e7",
+      "name": "Has idea?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        928
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-idea-check",
+              "leftValue": "={{ $json.has_idea }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              },
+              "rightValue": ""
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          }
+        },
+        "options": {}
+      }
+    }
+  ],
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}
