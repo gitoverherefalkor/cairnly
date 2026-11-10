@@ -70,5 +70,5 @@ Prompts that change (3) plus 3 parsers:
 Unchanged: webhook, report-language lookup, Supabase pulls and inserts, analysis-completed call.
 
 ## Open decisions for Sjoerd
-- No idea in 3.5: skip the idea section (recommended), or always write one about their strongest renewal option.
+- No idea in 3.5: DECIDED 2026-11-10 by Sjoerd: skip the idea section (Dream prep / Dream Job Feasibility only run when 3.5 has text; check the dashboard and PDF handle a missing dream_jobs section).
 - Executive summary: the v1 Encore chain ends at analysis-completed and WF7 has no Encore branch. Check whether Encore needs its own summary (the "open with the 3.1 problem" line from the plan lives there).
