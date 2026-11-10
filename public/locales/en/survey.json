@@ -217,6 +217,8 @@
     "dec": "Dec"
   },
   "careerHistory": {
+    "whatYouDid": "What you did there",
+    "whatYouDidPlaceholder": "A few words on what you did, for whom, and what you enjoyed. Type or speak.",
     "duration": {
       "lessThanMonth": "Less than a month",
       "months_one": "{{count}} month",

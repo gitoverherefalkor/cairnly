@@ -107,7 +107,17 @@ export function isQuestionAnswered(question: any, response: any): boolean {
     // companySize, companyCulture and startYear. At least one active entry
     // must have a title.
     if (!Array.isArray(response)) return false;
-    const activeEntries = response.slice(0, 5);
+    // Slim mode (encore v2) only asks role, organisation and years; the
+    // description box is optional.
+    const isSlim = (question.config as any)?.slim === true;
+    const maxRoles = isSlim ? Number((question.config as any)?.maxRoles) || 4 : 5;
+    const activeEntries = response.slice(0, maxRoles);
+    if (isSlim) {
+      for (const entry of activeEntries) {
+        if (entry.title && entry.title.trim() && !entry.startYear) return false;
+      }
+      return activeEntries.some((entry: any) => entry.title && entry.title.trim());
+    }
     for (const entry of activeEntries) {
       if (entry.title && entry.title.trim()) {
         // Sector is required too — it shows a red border when empty, so it must

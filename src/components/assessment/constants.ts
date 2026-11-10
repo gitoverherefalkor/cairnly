@@ -4,6 +4,7 @@ export const SURVEY_TYPE_MAPPING: Record<string, string> = {
   'Office / Business Pro - 2025 v1 EN': '00000000-0000-0000-0000-000000000001',
   'Starter - First Serious Job - 2026 v1 EN': '00000000-0000-0000-0000-000000000002',
   'Encore - Post-Career Direction - 2026 v1 EN': '00000000-0000-0000-0000-000000000003',
+  'Encore - Post-Career Direction - 2026 v2': '00000000-0000-0000-0000-000000000004',
 };
 
 // Starter flavor (cairnly.io/starter): first/second-job seekers. Starter access
@@ -15,14 +16,22 @@ export const STARTER_SURVEY_TYPE = 'Starter - First Serious Job - 2026 v1 EN';
 // Encore flavor (cairnly.io/encore): pensioners / pre-retirees. Keeps the CV
 // upload step (their careers are the evidence) but pre-fill is translated to
 // encore question ids; routing goes to the encore n8n chain.
-export const ENCORE_SURVEY_ID = '00000000-0000-0000-0000-000000000003';
-export const ENCORE_SURVEY_TYPE = 'Encore - Post-Career Direction - 2026 v1 EN';
+// v2 (Nov 2026, EN + NL with "u") is the current Encore survey; spec in
+// docs/encore-v2-question-ids.md. v1 stays mapped as a fallback until retired.
+export const ENCORE_SURVEY_ID = '00000000-0000-0000-0000-000000000004';
+export const ENCORE_SURVEY_TYPE = 'Encore - Post-Career Direction - 2026 v2';
+export const ENCORE_V1_SURVEY_ID = '00000000-0000-0000-0000-000000000003';
+export const ENCORE_V1_SURVEY_TYPE = 'Encore - Post-Career Direction - 2026 v1 EN';
+export const isEncoreSurveyId = (surveyId: string | null | undefined): boolean =>
+  surveyId === ENCORE_SURVEY_ID || surveyId === ENCORE_V1_SURVEY_ID;
+export const isEncoreSurveyType = (surveyType: string | null | undefined): boolean =>
+  surveyType === ENCORE_SURVEY_TYPE || surveyType === ENCORE_V1_SURVEY_TYPE;
 
 // Convenience: resolve a survey id to its flavor for flavor-aware UI branches.
 export type SurveyFlavor = 'pro' | 'starter' | 'encore';
 export const getFlavorFromSurveyId = (surveyId: string | null | undefined): SurveyFlavor => {
   if (surveyId === STARTER_SURVEY_ID) return 'starter';
-  if (surveyId === ENCORE_SURVEY_ID) return 'encore';
+  if (isEncoreSurveyId(surveyId)) return 'encore';
   return 'pro';
 };
 

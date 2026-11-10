@@ -71,6 +71,17 @@ const PRO_TO_ENCORE_QUESTION_IDS: Record<string, string> = {
   '11111111-1111-1111-1111-111111111120': 'b2b2b2b2-0004-4000-a000-000000000005', // interests & hobbies
 };
 
+// Encore v2 (docs/encore-v2-question-ids.md) keeps only what its slim survey
+// asks: age, region and the career form. The pro name field is a full name and
+// v2 asks for a first name, so the name is not carried over. The slim career
+// form ignores months, company size and culture, so passing the full entries
+// through is harmless.
+const PRO_TO_ENCORE_V2_QUESTION_IDS: Record<string, string> = {
+  '11111111-1111-1111-1111-111111111113': 'c3c3c3c3-0001-4000-a000-000000000002', // age
+  '11111111-1111-1111-1111-111111111114': 'c3c3c3c3-0001-4000-a000-000000000003', // region
+  '11111111-1111-1111-1111-111111111110': 'c3c3c3c3-0002-4000-a000-000000000001', // career history (slim)
+};
+
 /**
  * Translates a pro-UUID-keyed pre-fill object to the target survey's question
  * ids. Returns the input unchanged for the pro survey; for encore, remaps the
@@ -80,12 +91,17 @@ export const translatePreFillForSurvey = (
   surveyId: string,
   preFill: Record<string, any>,
 ): Record<string, any> => {
-  const ENCORE_SURVEY_ID = '00000000-0000-0000-0000-000000000003';
-  if (surveyId !== ENCORE_SURVEY_ID) return preFill;
+  const mapping =
+    surveyId === '00000000-0000-0000-0000-000000000004'
+      ? PRO_TO_ENCORE_V2_QUESTION_IDS
+      : surveyId === '00000000-0000-0000-0000-000000000003'
+        ? PRO_TO_ENCORE_QUESTION_IDS
+        : null;
+  if (!mapping) return preFill;
 
   const translated: Record<string, any> = {};
   for (const [questionId, value] of Object.entries(preFill)) {
-    const encoreId = PRO_TO_ENCORE_QUESTION_IDS[questionId];
+    const encoreId = mapping[questionId];
     if (encoreId) translated[encoreId] = value;
   }
   return translated;

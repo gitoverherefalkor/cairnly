@@ -79,13 +79,13 @@
         "Looking ahead"
       ],
       "encore": [
-        "Getting to know you",
-        "The career you had",
-        "How you operate now",
-        "What matters now",
-        "Where you thrive",
-        "Practical reality",
-        "Looking ahead"
+        "About you",
+        "Your working life",
+        "Being useful",
+        "What suits you",
+        "The people around you",
+        "Fitting it into your life",
+        "To finish"
       ]
     },
     "flavors": {
@@ -135,7 +135,7 @@
       },
       "encore": {
         "emptySub": "In the assessment we take proper stock of the career you had, how you operate now, and what matters at this stage of life. Take your time, breaks are fine: your answers are saved automatically. After this, your AI coach walks you through a personalised report and refines it with you.",
-        "emptyEyebrow": "NEXT STEP · 25 MINUTES",
+        "emptyEyebrow": "NEXT STEP · 15 MINUTES",
         "ghostCards": [
           {
             "title": "Personality profile",

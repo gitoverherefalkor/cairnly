@@ -125,11 +125,12 @@ export const useSurveySubmission = ({
 
       // Update profile with region from survey. Each survey has its own region
       // question id: pro (11111111-...114), starter (a1a1a1a1-0001-...003) and
-      // encore (b2b2b2b2-0001-...003).
+      // encore v1 (b2b2b2b2-0001-...003) and encore v2 (c3c3c3c3-0001-...003).
       const REGION_QUESTION_IDS = [
         '11111111-1111-1111-1111-111111111114',
         'a1a1a1a1-0001-4000-a000-000000000003',
         'b2b2b2b2-0001-4000-a000-000000000003',
+        'c3c3c3c3-0001-4000-a000-000000000003',
       ];
       const regionAnswer = REGION_QUESTION_IDS.map((id) => responses[id]).find(Boolean);
       if (regionAnswer && user) {

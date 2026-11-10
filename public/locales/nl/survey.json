@@ -217,6 +217,8 @@
     "dec": "Dec"
   },
   "careerHistory": {
+    "whatYouDid": "Wat u er deed",
+    "whatYouDidPlaceholder": "Een paar woorden over wat u deed, voor wie, en wat u er mooi aan vond. Typen of inspreken.",
     "duration": {
       "lessThanMonth": "Minder dan een maand",
       "months_one": "{{count}} maand",

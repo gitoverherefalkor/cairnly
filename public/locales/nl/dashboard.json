@@ -79,13 +79,13 @@
         "Vooruitkijken"
       ],
       "encore": [
-        "Even kennismaken",
-        "De loopbaan die je had",
-        "Hoe je nu werkt",
-        "Wat nu telt",
-        "Waar je opbloeit",
-        "De praktische kant",
-        "Vooruitkijken"
+        "Over u",
+        "Uw werkzame leven",
+        "Van betekenis zijn",
+        "Wat bij u past",
+        "De mensen om u heen",
+        "Inpassen in uw leven",
+        "Tot slot"
       ]
     },
     "flavors": {
@@ -135,7 +135,7 @@
       },
       "encore": {
         "emptySub": "In het assessment maken we de balans op van de loopbaan die je had, hoe je nu werkt en wat in deze levensfase telt. Neem er rustig de tijd voor, pauzeren mag: je antwoorden worden automatisch opgeslagen. Daarna neemt je AI-coach je mee door een persoonlijk rapport en scherpt het samen met je aan.",
-        "emptyEyebrow": "VOLGENDE STAP · 25 MINUTEN",
+        "emptyEyebrow": "VOLGENDE STAP · 15 MINUTEN",
         "ghostCards": [
           {
             "title": "Persoonlijkheidsprofiel",

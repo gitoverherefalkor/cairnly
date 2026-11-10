@@ -7,7 +7,7 @@ import { AssessmentLayout } from '@/components/assessment/AssessmentLayout';
 import { AssessmentCompletion } from '@/components/assessment/AssessmentCompletion';
 import { PreSurveyUpload } from '@/components/assessment/PreSurveyUpload';
 import { useAssessmentLogic } from '@/components/assessment/useAssessmentLogic';
-import { STARTER_SURVEY_ID, ENCORE_SURVEY_ID } from '@/components/assessment/constants';
+import { STARTER_SURVEY_ID, isEncoreSurveyId } from '@/components/assessment/constants';
 import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSessionContext';
 import { useProfile } from '@/hooks/useProfile';
 
@@ -87,7 +87,7 @@ const AssessmentPage = () => {
   // its pre-fill is translated to encore question ids in useAIResumePreFill.
   const isStarter = surveyId === STARTER_SURVEY_ID;
   // Encore also gets the large-type treatment on every assessment step.
-  const isEncore = surveyId === ENCORE_SURVEY_ID;
+  const isEncore = isEncoreSurveyId(surveyId);
 
   // Always show pre-survey upload step after verification, unless explicitly completed
   if (!isStarter && !preSurveyUploadComplete) {

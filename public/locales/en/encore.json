@@ -37,7 +37,7 @@
     "steps": [
       {
         "title": "Tell us about yourself, honestly",
-        "body": "A 25-minute assessment that takes your career seriously and your current life just as seriously. Energy, hours, commitments and the things you refuse to do ever again all count."
+        "body": "A 15-minute assessment that takes your career seriously and your current life just as seriously. Energy, hours, commitments and the things you refuse to do ever again all count."
       },
       {
         "title": "AI does the analysis",
@@ -116,13 +116,13 @@
       },
       {
         "q": "How long does it take?",
-        "a": "About 25 minutes for the assessment, at your own pace, with breaks whenever you like. Your answers are saved automatically. The report is ready minutes later, and the coach is available as long as you want."
+        "a": "About 15 minutes for the assessment, at your own pace, with breaks whenever you like. Your answers are saved automatically. The report is ready minutes later, and the coach is available as long as you want."
       }
     ]
   },
   "finalCta": {
     "title": "Decades of knowing what you are doing. Let's not waste it.",
-    "body": "Twenty-five honest minutes gets you a serious answer to what comes next.",
+    "body": "Fifteen honest minutes gets you a serious answer to what comes next.",
     "cta": "Start your assessment"
   },
   "shell": {

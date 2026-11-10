@@ -70,6 +70,8 @@ interface CareerHistoryEntry {
   endMonth: string;
   endYear: number | '';
   isCurrent: boolean;
+  // Slim mode only (encore v2): a few words on what the person did in the role.
+  description?: string;
 }
 
 // Career happiness entry type (separate question)
@@ -1184,7 +1186,10 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
         onChange(newHistory);
       };
 
-      const MAX_ACTIVE_ROLES = 5;
+      // Slim mode (config.slim, encore v2): role, organisation, start/end year
+      // and a voice-enabled "what you did" box. No months, size, culture or sector.
+      const isSlim = (question.config as any)?.slim === true;
+      const MAX_ACTIVE_ROLES = isSlim ? Number((question.config as any)?.maxRoles) || 4 : 5;
 
       const addCareerRow = (position: 'top' | 'bottom' = 'bottom') => {
         // Only allow adding if fewer than 5 active (filled) entries in the top 5
@@ -1361,6 +1366,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                 </div>
 
                 {/* Row 2: Company Size + Company Culture */}
+                {!isSlim && (<>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.companySize')}</label>
@@ -1420,12 +1426,14 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     className={`w-full ${!isActive ? 'placeholder:text-gray-300' : ''} ${isActive && !entry.sector?.trim() ? 'border-red-300 focus:border-red-400' : ''}`}
                   />
                 </div>
+                </>)}
 
                 {/* Row 4: Start (Month + Year) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.start')}</label>
                     <div className="flex gap-2">
+                      {!isSlim && (
                       <Select
                         value={entry.startMonth || ''}
                         onValueChange={(val) => updateCareerHistory(index, 'startMonth', val)}
@@ -1441,6 +1449,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
+                      )}
                       <Select
                         value={entry.startYear?.toString() || ''}
                         onValueChange={(val) => updateCareerHistory(index, 'startYear', val ? parseInt(val) : '')}
@@ -1461,6 +1470,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.end')}</label>
                     <div className="flex gap-2">
+                      {!isSlim && (
                       <Select
                         value={entry.endMonth || ''}
                         onValueChange={(val) => updateCareerHistory(index, 'endMonth', val)}
@@ -1483,6 +1493,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                           ))}
                         </SelectContent>
                       </Select>
+                      )}
                       <Select
                         value={entry.endYear?.toString() || ''}
                         onValueChange={(val) => updateCareerHistory(index, 'endYear', val ? parseInt(val) : '')}
@@ -1502,6 +1513,20 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Slim mode: what you did in this role (type or speak) */}
+                {isSlim && (
+                  <div className="mb-4">
+                    <label className={`block text-sm font-medium mb-1 ${isActive ? 'text-gray-700' : 'text-gray-400'}`}>{t('careerHistory.whatYouDid')}</label>
+                    <SentimentReasonTextarea
+                      value={entry.description || ''}
+                      onChange={(text) => updateCareerHistory(index, 'description', text)}
+                      invalid={false}
+                      showHint={index === 0}
+                      placeholder={t('careerHistory.whatYouDidPlaceholder')}
+                    />
+                  </div>
+                )}
 
                 {/* Row 5: Current role checkbox + Duration */}
                 <div className="flex items-center justify-between">
@@ -2317,7 +2342,8 @@ const SentimentReasonTextarea: React.FC<{
   // Only the first role's box shows the "Try it" bubble — three copies of the
   // same nudge in one question would be noise, not help.
   showHint: boolean;
-}> = ({ value, onChange, invalid, showHint }) => {
+  placeholder?: string;
+}> = ({ value, onChange, invalid, showHint, placeholder }) => {
   const { t } = useTranslation('survey');
   const { isListening, isCleaning, isSupported, toggleListening } = useSpeechRecognition({
     onTranscript: onChange,
@@ -2332,7 +2358,7 @@ const SentimentReasonTextarea: React.FC<{
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={t('careerHappiness.reasonPlaceholder')}
+        placeholder={placeholder ?? t('careerHappiness.reasonPlaceholder')}
         rows={3}
         disabled={isCleaning}
         className={`w-full rounded-md border bg-white px-3 py-2 pr-11 text-sm leading-relaxed placeholder:text-gray-300 resize-y disabled:opacity-70 ${

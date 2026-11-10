@@ -21,8 +21,8 @@ import { DashboardEntryState, type EntryMode, type EntryFlavor } from '@/compone
 import {
   STARTER_SURVEY_ID,
   STARTER_SURVEY_TYPE,
-  ENCORE_SURVEY_ID,
-  ENCORE_SURVEY_TYPE,
+  isEncoreSurveyId,
+  isEncoreSurveyType,
 } from '@/components/assessment/constants';
 import { ShareCardModal } from '@/components/dashboard/v2/ShareCardModal';
 import {
@@ -612,9 +612,9 @@ const Dashboard = () => {
     draftSurveyId === STARTER_SURVEY_ID ||
     sessionSurveyType === STARTER_SURVEY_TYPE
       ? 'starter'
-      : entrySurveyType === ENCORE_SURVEY_TYPE ||
-          draftSurveyId === ENCORE_SURVEY_ID ||
-          sessionSurveyType === ENCORE_SURVEY_TYPE
+      : isEncoreSurveyType(entrySurveyType) ||
+          isEncoreSurveyId(draftSurveyId) ||
+          isEncoreSurveyType(sessionSurveyType)
         ? 'encore'
         : 'pro';
 
