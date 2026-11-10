@@ -43,3 +43,32 @@ What could break: JSON parse in 15TitSizAISal1 if the output format drifts (keep
 ## Test
 
 Run both on a test submission (code TEST-ENC2-V2NL-K7Q4, one EN and one NL) with WF3P/WF4P still on v1 logic, inspect report_sections and enriched_jobs, then gate B on 3-5 profiles after WF3P/WF4P.
+
+# WF3P and WF4P (plan, waiting for Sjoerd's per-workflow yes)
+
+Backups: `n8n_wfs_cairnly/backups/WF3P - Encore scoring directions EN_BACKUP_pre_v2_20261110.json` and `WF4P - Encore Direction selection EN_BACKUP_pre_v2_20261110.json` (commit 1ba219b). Both inactive. Every prompt in both is keyed to v1 question codes ([2b] happiness log, [4a] ranking, [5a] hours, [6e] liability, [7b] always-wanted-to-try), so this is a full prompt rewrite. The code nodes and JSON keys stay, so Ranking, Prep WF4 data and the inserts keep working.
+
+## WF3P (oqS22CXD84dAqwjk): scoring, 15 to top 3 + runner-ups + 3 outside-the-box
+
+Prompts that change (6):
+1. **Extract encore evidence**: v2 question list instead of the v1 codes.
+2. **Extract Interests and history** (profile summary used by outside-the-box and WF4P): same headers, filled from v2 fields; "Dream Jobs" becomes their idea (3.5).
+3. **Objective Compat score** (step 1, max 64, same 4 blocks): experience from roles, known-for and what they loved (2.1-2.3), no education or skills list; purpose from the 3 picks (4.4), audiences (3.3), 3.1 and pay (6.4); energy, time and people from 6.1, 4.1, 4.2, 5.3, 5.4, 6.2, 6.3; interest from 2.3, 3.2, 3.5. Hard limits from 2.4 and 6.1-6.4; board liability only when 3.4 allows boards. Strategy input: entry feasibility weighs more when 1.5 is "decided for me" and pay matters.
+4. **Step 2 analysis** (max 44, total stays 108): "happiness pattern" becomes "usefulness pattern" (2.3, 3.2 against the direction), transition fit from 1.4, 1.5, 3.1, 4.4; penalties read WF1P's "What to Watch For". JSON key names unchanged.
+5. **Set Outside Box Prompt**: v2 fields, Dutch "u", age-label ban, roles already held from 2.1.
+6. **Parse OOB**: Dutch heading "Waarom dit bij je past" becomes the "u" version (frontend share-quote list gets the new string too).
+
+Unchanged: webhook, Supabase pulls, Ranking (top 3 + up to 3 runner-ups at 55+), batching, inserts, WF4P call.
+
+## WF4P (ID5CaNR7Ux7TEzS5): report texts for top 3, runner-ups, the idea
+
+Prompts that change (3) plus 3 parsers:
+1. **T3 Careers Prompt** and **Set Runner Up Prompt**: v2 fields; Dutch "u". Every option gets a first step they can take next week, and one line on how people actually get in at this stage. Pay shown honestly, and kept short when 6.4 says money is not the point. Age bias named at most once, only on paid routes, with a counter-move, never "hide your age". NL users near or past AOW who want paid work: mention the lower employer risk (shorter sick pay). Partner context (5.1, 5.2) where it changes the advice. "A quiet year" is allowed as a valid conclusion when the evidence points there.
+2. **Dream Job Feasibility** becomes "your idea" (3.5): an honest look at their own idea. 3.5 is optional, so a decision is needed for people without an idea (see below).
+3. **Split Top3, Parse runner up, Parse Dream**: Dutch heading lists in "u".
+
+Unchanged: webhook, report-language lookup, Supabase pulls and inserts, analysis-completed call.
+
+## Open decisions for Sjoerd
+- No idea in 3.5: skip the idea section (recommended), or always write one about their strongest renewal option.
+- Executive summary: the v1 Encore chain ends at analysis-completed and WF7 has no Encore branch. Check whether Encore needs its own summary (the "open with the 3.1 problem" line from the plan lives there).
