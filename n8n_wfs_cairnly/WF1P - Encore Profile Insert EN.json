@@ -1,6 +1,190 @@
 {
   "id": "e8CCWoDbMuAmBId5",
   "name": "WF1P - Encore Profile Insert EN",
+  "active": false,
+  "isArchived": false,
+  "versionId": "66a61c7e-dbcf-407d-88ee-dfc34d6fe2fd",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 15,
+  "createdAt": "2026-07-06T12:39:38.205Z",
+  "updatedAt": "2026-11-10T15:49:36.076Z",
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "FbsruPbuZI2Fgtc8",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "scopes": [
+    "execution:delete",
+    "execution:list",
+    "execution:read",
+    "execution:reveal",
+    "workflow:create",
+    "workflow:delete",
+    "workflow:disableRedaction",
+    "workflow:enableRedaction",
+    "workflow:execute",
+    "workflow:execute-chat",
+    "workflow:export",
+    "workflow:import",
+    "workflow:list",
+    "workflow:move",
+    "workflow:publish",
+    "workflow:read",
+    "workflow:share",
+    "workflow:unpublish",
+    "workflow:unshare",
+    "workflow:update"
+  ],
+  "canExecute": true,
+  "connections": {
+    "Prep init_summary": {
+      "main": [
+        [
+          {
+            "node": "prompt_perso_prof1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SB insert all sections": {
+      "main": [
+        [
+          {
+            "node": "update status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pass report_id to WF2": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF2P webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Survey Data1": {
+      "main": [
+        [
+          {
+            "node": "prompt_init_summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt_init_summary1": {
+      "main": [
+        [
+          {
+            "node": "Initial_summary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initial_summary1": {
+      "main": [
+        [
+          {
+            "node": "Prep init_summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3F": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Initial_summary1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prompt_perso_prof1": {
+      "main": [
+        [
+          {
+            "node": "generate_personality_narrative1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_personality_narrative1": {
+      "main": [
+        [
+          {
+            "node": "extract_report_sections_code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "generate_personality_narrative1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_report_sections_code1": {
+      "main": [
+        [
+          {
+            "node": "SB insert all sections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update status1": {
+      "main": [
+        [
+          {
+            "node": "pass report_id to WF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encore Survey complete Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Survey Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
   "nodes": [
     {
       "parameters": {
@@ -224,7 +408,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ---------------- CONFIG ----------------\n// Encore v2 headings (2026-11-10). Must match prompt_perso_prof1 exactly, EN and NL (\"u\").\nconst SUBHEADER_PATTERNS_ALL = {\n  en: {\n    approach: [\"What People Count On You For\", \"Where Your Energy Comes From\", \"Key Insight\"],\n    strengths: [\"Your Core Strengths\", \"What Carries Over, and What Does Not\", \"Key Insight\"],\n    development: [\"Old Habits in a New Setting\", \"What This Means for Your Choices\", \"Key Insight\"],\n    values: [\"Your Values Now\", \"Choosing With Your Values\", \"Key Insight\"]\n  },\n  nl: {\n    approach: [\"Waar mensen op u rekenen\", \"Waar uw energie vandaan komt\", \"Belangrijkste inzicht\"],\n    strengths: [\"Uw kernkwaliteiten\", \"Wat u meeneemt, en wat niet\", \"Belangrijkste inzicht\"],\n    development: [\"Oude gewoonten in een nieuwe omgeving\", \"Wat dit betekent voor uw keuzes\", \"Belangrijkste inzicht\"],\n    values: [\"Uw waarden nu\", \"Kiezen met uw waarden\", \"Belangrijkste inzicht\"]\n  }\n};\nconst __lang = ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'nl' : 'en';\nconst SUBHEADER_PATTERNS = SUBHEADER_PATTERNS_ALL[__lang];\n\n// ---------------- HELPERS ----------------\nfunction cleanMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n    .replace(/__(.*?)__/g, '$1')\n    .replace(/\\*(.*?)\\*/g, '$1')\n    .trim();\n}\n\nfunction extractSections(content, sectionType) {\n  const patterns = SUBHEADER_PATTERNS[sectionType] || [];\n  if (patterns.length === 0) return [];\n\n  const regex = new RegExp(`(${patterns.join('|')}):?`, 'gi');\n  const parts = content.split(regex).filter(Boolean);\n  const sections = [];\n\n  for (let i = 0; i < parts.length; i++) {\n    const p = parts[i].trim();\n    if (patterns.some(ph => new RegExp(ph, 'i').test(p))) {\n      const subheader = p.replace(/:$/, '').trim();\n      const next = parts[i + 1] ? parts[i + 1].trim() : '';\n      sections.push({ subheader, content: next });\n      i++;\n    }\n  }\n  // Fallback: if no known subheaders matched (e.g. localized text the\n  // patterns don't cover), keep the whole section as one block instead of\n  // dropping it. Guarantees no section is ever lost to a pattern miss.\n  if (sections.length === 0) {\n    const whole = content.trim();\n    return whole ? [{ subheader: '', content: whole }] : [];\n  }\n  return sections;\n}\n\n// ---------------- SOURCE DATA ----------------\nconst narrativeData = $('generate_personality_narrative1').first().json;\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Get the init_summary content from Prep node (already cleaned HTML)\nconst initSummaryContent = $('Prep init_summary').first().json.content;\n\n// ============== Extract personality_scores tag ==============\n// The prompt appends a hidden <personality_scores>{...}</personality_scores>\n// tag at the very end of the narrative. Pull it out, parse the JSON, and\n// strip the tag from the text BEFORE we parse sections so the prose stays\n// clean. The scores get attached to the `approach` section row's metadata\n// column, where the dashboard's Personality Radar reads them from.\nlet personalityScores = null;\nlet narrativeText = narrativeData.text || '';\nconst scoresMatch = narrativeText.match(/<personality_scores>\\s*([\\s\\S]*?)\\s*<\\/personality_scores>/i);\nif (scoresMatch) {\n  try {\n    personalityScores = JSON.parse(scoresMatch[1].trim());\n  } catch (err) {\n    console.warn('[extract_report_sections] personality_scores JSON parse failed:', err.message);\n  }\n  narrativeText = narrativeText.replace(scoresMatch[0], '').trim();\n}\n// ============================================================\n\n// ---------------- NARRATIVE EXTRACTION ----------------\nconst titleRegex = /#{1,3}\\s*([^\\n#]+)/g;\nconst titles = [];\nlet match;\nwhile ((match = titleRegex.exec(narrativeText)) !== null) {\n  titles.push(match[1].trim());\n}\n\nconst contents = narrativeText.split(/#{1,3}\\s*[^\\n#]+\\n*/g);\ncontents.shift();\n\nconst sectionTypes = ['approach', 'strengths', 'development', 'values'];\nconst parsedSections = [];\n\nfor (let i = 0; i < contents.length; i++) {\n  const sectionType = sectionTypes[i];\n  const raw = cleanMarkdown(contents[i]);\n  parsedSections.push(extractSections(raw, sectionType));\n}\n\n// ---------------- OUTPUT ALL 5 SECTIONS ----------------\n// init_summary + 4 narrative sections, all inserted to SB in one batch.\n// Approach gets the personality_scores attached as metadata.\n// Other sections leave metadata null.\nconst allSections = [\n  {\n    section_type: 'init_summary',\n    title: 'Initial Summary',\n    content: initSummaryContent,\n    isRawContent: true,\n    metadata: null\n  },\n  {\n    section_type: 'approach',\n    title: titles[0] || null,\n    content: parsedSections[0] || [],\n    metadata: personalityScores ? { personality_scores: personalityScores } : null\n  },\n  { section_type: 'strengths',   title: titles[1] || null, content: parsedSections[1] || [], metadata: null },\n  { section_type: 'development', title: titles[2] || null, content: parsedSections[2] || [], metadata: null },\n  { section_type: 'values',      title: titles[3] || null, content: parsedSections[3] || [], metadata: null }\n];\n\nreturn allSections\n  .filter(s => s.content && (s.isRawContent || (Array.isArray(s.content) && s.content.length > 0)))\n  .map(s => {\n    let formatted;\n\n    if (s.isRawContent) {\n      formatted = s.content;\n    } else {\n      formatted = s.content.map(block => {\n        const subheader = block.subheader && block.subheader.trim()\n          ? `<h5>${block.subheader}</h5>\\n\\n`\n          : '';\n        const text = block.content || '';\n        return `${subheader}${text}`;\n      }).join('\\n\\n');\n    }\n\n    // CRITICAL: every row MUST have the same set of keys. PostgREST\n    // bulk insert (PGRST102) rejects arrays where keys differ across rows.\n    // metadata is always present and is null unless this is the approach row.\n    return {\n      report_id: reportId,\n      section_type: s.section_type,\n      title: s.title,\n      content: formatted,\n      metadata: s.metadata ?? null,\n      language: __lang\n    };\n  });\n"
+        "jsCode": "// ---------------- CONFIG ----------------\n// Encore v2 headings (2026-11-10). Must match prompt_perso_prof1 exactly, EN and NL (\"u\").\nconst SUBHEADER_PATTERNS_ALL = {\n  en: {\n    approach: [\"What People Count On You For\", \"Where Your Energy Comes From\", \"Key Insight\"],\n    strengths: [\"Your Core Strengths\", \"What Carries Over, and What Does Not\", \"Key Insight\"],\n    development: [\"Old Habits in a New Setting\", \"What This Means for Your Choices\", \"Key Insight\"],\n    values: [\"Your Values Now\", \"Choosing With Your Values\", \"Key Insight\"]\n  },\n  nl: {\n    approach: [\"Waar mensen op u rekenen\", \"Waar uw energie vandaan komt\", \"Belangrijkste inzicht\"],\n    strengths: [\"Uw kernkwaliteiten\", \"Wat u meeneemt, en wat niet\", \"Belangrijkste inzicht\"],\n    development: [\"Oude gewoonten in een nieuwe omgeving\", \"Wat dit betekent voor uw keuzes\", \"Belangrijkste inzicht\"],\n    values: [\"Uw waarden nu\", \"Kiezen met uw waarden\", \"Belangrijkste inzicht\"]\n  }\n};\nconst __lang = ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'nl' : 'en';\nconst SUBHEADER_PATTERNS = SUBHEADER_PATTERNS_ALL[__lang];\n\n// ---------------- HELPERS ----------------\nfunction cleanMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n    .replace(/__(.*?)__/g, '$1')\n    .replace(/\\*(.*?)\\*/g, '$1')\n    .trim();\n}\n\nfunction extractSections(content, sectionType) {\n  const patterns = SUBHEADER_PATTERNS[sectionType] || [];\n  if (patterns.length === 0) return [];\n\n  // Match a subheader only at the start of a line (so \"key insight\" inside a\n  // sentence never splits a section), with the comma optional (a dropped\n  // comma in \"What Carries Over, and What Does Not\" still matches).\n  const esc = (t) => t.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&').replace(/,/g, ',?');\n  const alt = patterns.map(esc).join('|');\n  const regex = new RegExp(`(?:^|\\\\n)[ \\\\t]*(${alt})[ \\\\t]*:?`, 'gi');\n  const isHeader = new RegExp(`^(${alt})$`, 'i');\n  const parts = content.split(regex).filter(Boolean);\n  const sections = [];\n\n  for (let i = 0; i < parts.length; i++) {\n    const p = parts[i].trim();\n    if (isHeader.test(p)) {\n      const subheader = p.replace(/:$/, '').trim();\n      const next = parts[i + 1] ? parts[i + 1].trim() : '';\n      sections.push({ subheader, content: next });\n      i++;\n    }\n  }\n  // Fallback: if no known subheaders matched (e.g. localized text the\n  // patterns don't cover), keep the whole section as one block instead of\n  // dropping it. Guarantees no section is ever lost to a pattern miss.\n  if (sections.length === 0) {\n    const whole = content.trim();\n    return whole ? [{ subheader: '', content: whole }] : [];\n  }\n  return sections;\n}\n\n// ---------------- SOURCE DATA ----------------\nconst narrativeData = $('generate_personality_narrative1').first().json;\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Get the init_summary content from Prep node (already cleaned HTML)\nconst initSummaryContent = $('Prep init_summary').first().json.content;\n\n// ---------------- FACTS OBJECT (Encore v2) ----------------\n// Structured copy of the answers later workflows need, so WF2P-WF4P read\n// facts as data instead of parsing the model-written fact sheet.\n// Stored on the init_summary row's metadata as { facts: {...} }.\nconst __qs = $('Process Survey Data1').first().json.questions || [];\nconst __q = (id) => __qs.find(q => q.questionId === id) || { chosen: [], hasAnswer: false };\nconst __one = (id) => { const c = __q(id).chosen; return (Array.isArray(c) && c.length) ? c[0] : null; };\nconst __all = (id) => { const c = __q(id).chosen; return Array.isArray(c) ? c : []; };\nconst __text = (id) => { const v = __one(id); return (typeof v === 'string' && v.trim()) ? v.trim() : null; };\nconst __age = parseInt(__one('1.2'), 10);\nconst __idea = __text('3.5');\nconst facts = {\n  language: __lang,\n  region: __one('1.3'),\n  location_typed: __text('1.3b'),\n  age: isNaN(__age) ? null : __age,\n  stage: __one('1.4'),\n  decision: __one('1.5'),\n  roles: __all('2.1').map(r => ({ title: (r && r.title) || '', organisation: (r && r.organisation) || '', years: (r && r.years) || '' })).filter(r => r.title),\n  glad_to_leave: __all('2.4'),\n  most_true: __one('3.1'),\n  audiences: __all('3.3'),\n  forms: __all('3.4'),\n  has_idea: !!__idea,\n  idea: __idea,\n  role_fit: __one('4.3'),\n  picks: __all('4.4'),\n  partner: __one('5.1'),\n  time: __one('6.1'),\n  calendar: __all('6.2'),\n  place: __one('6.3'),\n  pay: __one('6.4'),\n  worth_it: __all('7.1')\n};\n\n// ============== Extract personality_scores tag ==============\n// The prompt appends a hidden <personality_scores>{...}</personality_scores>\n// tag at the very end of the narrative. Pull it out, parse the JSON, and\n// strip the tag from the text BEFORE we parse sections so the prose stays\n// clean. The scores get attached to the `approach` section row's metadata\n// column, where the dashboard's Personality Radar reads them from.\nlet personalityScores = null;\nlet narrativeText = narrativeData.text || '';\nconst scoresMatch = narrativeText.match(/<personality_scores>\\s*([\\s\\S]*?)\\s*<\\/personality_scores>/i);\nif (scoresMatch) {\n  try {\n    personalityScores = JSON.parse(scoresMatch[1].trim());\n  } catch (err) {\n    console.warn('[extract_report_sections] personality_scores JSON parse failed:', err.message);\n  }\n  narrativeText = narrativeText.replace(scoresMatch[0], '').trim();\n}\n// ============================================================\n\n// ---------------- NARRATIVE EXTRACTION ----------------\n// Headings only at line start, so \"your #1 strength\" in a sentence is not a heading.\nconst titleRegex = /^#{1,3}\\s*([^\\n#]+)/gm;\nconst titles = [];\nlet match;\nwhile ((match = titleRegex.exec(narrativeText)) !== null) {\n  titles.push(match[1].trim());\n}\n\nconst contents = narrativeText.split(/^#{1,3}\\s*[^\\n#]+\\n*/gm);\ncontents.shift();\n\nconst sectionTypes = ['approach', 'strengths', 'development', 'values'];\nconst parsedSections = [];\n\nfor (let i = 0; i < contents.length; i++) {\n  const sectionType = sectionTypes[i];\n  const raw = cleanMarkdown(contents[i]);\n  parsedSections.push(extractSections(raw, sectionType));\n}\n\n// ---------------- OUTPUT ALL 5 SECTIONS ----------------\n// init_summary + 4 narrative sections, all inserted to SB in one batch.\n// Approach gets the personality_scores attached as metadata.\n// Other sections leave metadata null.\nconst allSections = [\n  {\n    section_type: 'init_summary',\n    title: 'Initial Summary',\n    content: initSummaryContent,\n    isRawContent: true,\n    metadata: { facts }\n  },\n  {\n    section_type: 'approach',\n    title: titles[0] || null,\n    content: parsedSections[0] || [],\n    metadata: personalityScores ? { personality_scores: personalityScores } : null\n  },\n  { section_type: 'strengths',   title: titles[1] || null, content: parsedSections[1] || [], metadata: null },\n  { section_type: 'development', title: titles[2] || null, content: parsedSections[2] || [], metadata: null },\n  { section_type: 'values',      title: titles[3] || null, content: parsedSections[3] || [], metadata: null }\n];\n\nreturn allSections\n  .filter(s => s.content && (s.isRawContent || (Array.isArray(s.content) && s.content.length > 0)))\n  .map(s => {\n    let formatted;\n\n    if (s.isRawContent) {\n      formatted = s.content;\n    } else {\n      formatted = s.content.map(block => {\n        const subheader = block.subheader && block.subheader.trim()\n          ? `<h5>${block.subheader}</h5>\\n\\n`\n          : '';\n        const text = block.content || '';\n        return `${subheader}${text}`;\n      }).join('\\n\\n');\n    }\n\n    // CRITICAL: every row MUST have the same set of keys. PostgREST\n    // bulk insert (PGRST102) rejects arrays where keys differ across rows.\n    // metadata is always present and is null unless this is the approach row.\n    return {\n      report_id: reportId,\n      section_type: s.section_type,\n      title: s.title,\n      content: formatted,\n      metadata: s.metadata ?? null,\n      language: __lang\n    };\n  });"
       },
       "id": "050a36f6-ffcf-4544-ad6e-ea797f085d64",
       "name": "extract_report_sections_code1",
@@ -318,156 +502,10 @@
       "disabled": true
     }
   ],
-  "connections": {
-    "Prep init_summary": {
-      "main": [
-        [
-          {
-            "node": "prompt_perso_prof1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "SB insert all sections": {
-      "main": [
-        [
-          {
-            "node": "update status1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "pass report_id to WF2": {
-      "main": [
-        [
-          {
-            "node": "Trigger WF2P webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Process Survey Data1": {
-      "main": [
-        [
-          {
-            "node": "prompt_init_summary1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "prompt_init_summary1": {
-      "main": [
-        [
-          {
-            "node": "Initial_summary1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Initial_summary1": {
-      "main": [
-        [
-          {
-            "node": "Prep init_summary",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "3F": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Initial_summary1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "prompt_perso_prof1": {
-      "main": [
-        [
-          {
-            "node": "generate_personality_narrative1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "generate_personality_narrative1": {
-      "main": [
-        [
-          {
-            "node": "extract_report_sections_code1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenRouter Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "generate_personality_narrative1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "extract_report_sections_code1": {
-      "main": [
-        [
-          {
-            "node": "SB insert all sections",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "update status1": {
-      "main": [
-        [
-          {
-            "node": "pass report_id to WF2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Encore Survey complete Webhook": {
-      "main": [
-        [
-          {
-            "node": "Process Survey Data1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "settings": {
-    "executionOrder": "v1",
-    "callerPolicy": "workflowsFromSameOwner",
-    "errorWorkflow": "FbsruPbuZI2Fgtc8",
-    "availableInMCP": true
-  },
-  "active": false
+  "nodeGroups": [],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
 }
