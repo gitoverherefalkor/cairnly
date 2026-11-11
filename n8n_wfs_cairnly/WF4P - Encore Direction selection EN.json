@@ -820,7 +820,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 32000
+          "maxTokensToSample": 21000
         }
       },
       "credentials": {
@@ -847,7 +847,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 32000
+          "maxTokensToSample": 21000
         }
       },
       "credentials": {
@@ -874,7 +874,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 32000
+          "maxTokensToSample": 21000
         }
       },
       "credentials": {

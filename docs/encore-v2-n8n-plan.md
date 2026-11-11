@@ -94,6 +94,6 @@ Next: end-to-end test with TEST-ENC2-V2NL-K7Q4 (EN and NL). Needs WF1P-WF4P acti
 ## Persona test round 1 (2026-11-11)
 Four personas ran end to end (findings: /mnt/project-files/encore-tests/runs/20261110/findings.md).
 - Triple runs: one WF2P call reached WF3P as 3 HTTP requests. Fixed with `claim_workflow_stage` (migration 20261111190000) and a claim + IF + restore step after each webhook in WF2P, WF3P, WF4P.
-- NL top_career_3 cut off (Henk, Marjan): output hit maxTokensToSample 16000. Raised to 32000 on all three WF4P Anthropic models; Split Top3 throws when direction 3 has no comparison JSON.
+- NL top_career_3 cut off (Henk, Marjan): output hit maxTokensToSample 16000. Raised to 21000 on all three WF4P Anthropic models (32000 failed: the Anthropic SDK requires streaming above ~21333 max tokens); Split Top3 throws when direction 3 has no comparison JSON.
 - Peter had 10 of 15 enriched rows: a stray `]` in one Enrich B batch failed the whole batch. WF2P "clean up JSON1" now repairs stray/missing brackets and trailing commas and falls back to per-object parsing; warns when fewer than 15 come out.
 - Open: ranking ignores form (3.4) and pay (proposed hard rules: 2 of top 3 in a ticked form, no unpaid in top 3 when pay matters, non-negotiable clash never #1); OOB names organisations and invents roles/quotes; NL reports show English AI labels including off-scale "Low"; scores vary between identical runs (observation).
