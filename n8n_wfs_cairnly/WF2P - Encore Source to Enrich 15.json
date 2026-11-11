@@ -3,12 +3,12 @@
   "name": "WF2P - Encore Source to Enrich 15",
   "active": true,
   "isArchived": false,
-  "versionId": "e6f94f20-0ef9-4400-9217-4ddfcb101df3",
-  "activeVersionId": "c20dafff-a25c-464a-b946-c68744015e71",
+  "versionId": "293bc5dd-69df-4c68-9017-fb1471eb313b",
+  "activeVersionId": "e6f94f20-0ef9-4400-9217-4ddfcb101df3",
   "triggerCount": 1,
   "nodeCount": 35,
   "createdAt": "2026-07-06T12:39:38.645Z",
-  "updatedAt": "2026-11-11T19:04:16.439Z",
+  "updatedAt": "2026-11-11T22:27:41.791Z",
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
@@ -779,7 +779,7 @@
         3648
       ],
       "parameters": {
-        "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    if (cleaned.startsWith(\"[\") && cleaned.endsWith(\"]\")) {\n      try { return JSON.parse(cleaned); } catch {}\n    }\n\n    const matches = cleaned.match(/\\{[\\s\\S]*?\\}(?=\\s*\\{|\\s*$)/g);\n    if (matches) {\n      const parsed = matches.map(m => safeParse(m)).filter(Boolean);\n      if (parsed.length > 0) return parsed;\n    }\n\n    const obj = safeParse(cleaned);\n    if (obj) return [obj];\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 4,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n  \n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      return { ...schemaTemplate, ...processed };\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));"
+        "jsCode": "function cleanText(str) {\n  return str\n    .replace(/```(?:json)?/g, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction safeParse(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\n// Repair the slips a model makes in long JSON: a stray or wrong closing\n// bracket, a trailing comma, or missing closers at the end (cut-off output).\n// Scans outside strings with a bracket stack; drops closers that do not\n// match, removes trailing commas, appends missing closers.\nfunction repairJson(str) {\n  let out = '';\n  const stack = [];\n  let inStr = false, esc = false;\n  for (const ch of str) {\n    if (inStr) {\n      out += ch;\n      if (esc) esc = false;\n      else if (ch === '\\\\') esc = true;\n      else if (ch === '\"') inStr = false;\n      continue;\n    }\n    if (ch === '\"') { inStr = true; out += ch; continue; }\n    if (ch === '{' || ch === '[') { stack.push(ch); out += ch; continue; }\n    if (ch === '}' || ch === ']') {\n      const want = ch === '}' ? '{' : '[';\n      if (stack.length && stack[stack.length - 1] === want) {\n        stack.pop();\n        out = out.replace(/,\\s*$/, '');\n        out += ch;\n      }\n      // else: stray closer, drop it\n      continue;\n    }\n    out += ch;\n  }\n  if (inStr) out += '\"';\n  out = out.replace(/,\\s*$/, '');\n  while (stack.length) out += stack.pop() === '{' ? '}' : ']';\n  return out;\n}\n\n// Split a top-level JSON array into its object texts by bracket depth,\n// so one broken object does not take the whole batch down with it.\nfunction topLevelObjects(str) {\n  const objs = [];\n  let depth = 0, start = -1, inStr = false, esc = false;\n  for (let i = 0; i < str.length; i++) {\n    const ch = str[i];\n    if (inStr) {\n      if (esc) esc = false;\n      else if (ch === '\\\\') esc = true;\n      else if (ch === '\"') inStr = false;\n      continue;\n    }\n    if (ch === '\"') { inStr = true; continue; }\n    if (ch === '{') { if (depth === 0) start = i; depth++; }\n    else if (ch === '}') { depth--; if (depth === 0 && start >= 0) { objs.push(str.slice(start, i + 1)); start = -1; } }\n  }\n  return objs;\n}\n\nfunction normalize(data) {\n  if (!data) return [];\n\n  if (Array.isArray(data)) return data;\n  if (typeof data === \"object\") return [data];\n\n  if (typeof data === \"string\") {\n    const cleaned = cleanText(data);\n\n    const whole = safeParse(cleaned) || safeParse(repairJson(cleaned));\n    if (Array.isArray(whole)) return whole;\n    if (whole && typeof whole === \"object\") return [whole];\n\n    // Last resort: parse object by object, repairing each.\n    const parsed = topLevelObjects(repairJson(cleaned))\n      .map(m => safeParse(m) || safeParse(repairJson(m)))\n      .filter(Boolean);\n    if (parsed.length > 0) return parsed;\n  }\n\n  return [];\n}\n\nfunction enforceMinimums(obj) {\n  const rules = {\n    technical_skills: 3,\n    soft_skills: 3,\n    core_values: 3,\n    motivational_factors: 3,\n    typical_tasks: 4,\n  };\n\n  for (const [field, minCount] of Object.entries(rules)) {\n    if (!Array.isArray(obj[field])) obj[field] = [];\n    while (obj[field].length < minCount) {\n      obj[field].push(\"N/A\");\n    }\n  }\n\n  return obj;\n}\n\nfunction sanitize(obj) {\n  if (Array.isArray(obj)) {\n    return obj.map(sanitize);\n  } else if (obj !== null && typeof obj === \"object\") {\n    const clean = {};\n    for (const [k, v] of Object.entries(obj)) {\n      clean[k] = v === undefined ? null : sanitize(v);\n    }\n    return clean;\n  }\n  return obj;\n}\n\n\n// 🔹 MAIN EXECUTION\nconst allInputs = $input.all();\nlet allItems = [];\n\nconst schemaTemplate = {\n  career_title: \"N/A\",\n  company_size_type: \"N/A\",\n  overview: \"N/A\",\n  technical_skills: [],\n  soft_skills: [],\n  personality_traits: \"N/A\",\n  work_schedule: \"N/A\",\n  client_interaction: \"N/A\",\n  colleague_interaction: \"N/A\",\n  autonomy_vs_collaboration: \"N/A\",\n  pace_of_work: \"N/A\",\n  core_values: [],\n  motivational_factors: [],\n  typical_tasks: [],\n  education_requirements: \"N/A\",\n  certifications_requirements: \"N/A\",\n  career_progression: [],\n  ai_impact_rating: { rating: \"N/A\", explanation: \"N/A\" },\n  salary: { region: \"N/A\", range: \"N/A\" },\n  alternate_titles: [],\n  leadership_challenges: [],\n  path_type: \"N/A\",\n  path_type_notes: \"N/A\"\n};\n\nfor (const item of allInputs) {\n  // 1. Get the raw input (it's in the \"text\" field based on your snippet)\n  const rawData = item.json.text || item.json;\n  \n  // 2. Use your normalize function to parse the stringified JSON\n  const parsedItems = normalize(rawData);\n\n  // 3. Process each parsed career\n  if (Array.isArray(parsedItems)) {\n    const processedBatch = parsedItems.map(obj => {\n      const processed = enforceMinimums(sanitize(obj));\n      return { ...schemaTemplate, ...processed };\n    });\n    allItems.push(...processedBatch);\n  }\n}\n\n// Encore v2: say so in the execution log when a batch came back short.\nif (allItems.length < 15) {\n  console.warn(`[clean up JSON] parsed ${allItems.length} directions, expected 15`);\n}\n\n// Final check to prevent n8n error\nif (allItems.length === 0) {\n  return [{ json: { message: \"No items found in input\" } }];\n}\n\nreturn allItems.map(i => ({ json: i }));"
       }
     },
     {
@@ -1955,6 +1955,79 @@
           },
           "options": {}
         }
+      },
+      {
+        "id": "c28835de-3eb2-4a9d-af48-927b6d189e74",
+        "name": "Claim report (dedupe)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -5984,
+          4288
+        ],
+        "parameters": {
+          "authentication": "predefinedCredentialType",
+          "jsonBody": "={{ JSON.stringify({ p_report_id: $json.body?.report_id || $json.report_id, p_stage: 'wf2p' }) }}",
+          "method": "POST",
+          "nodeCredentialType": "supabaseApi",
+          "options": {},
+          "sendBody": true,
+          "specifyBody": "json",
+          "url": "https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/rpc/claim_workflow_stage"
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "jYr9UcuCbwO8Um80",
+            "name": "SB Cairnly (n8n cred)"
+          }
+        }
+      },
+      {
+        "id": "aff2c509-d6db-4f4d-8ddd-3087d5068c63",
+        "name": "First run?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -5760,
+          4288
+        ],
+        "parameters": {
+          "conditions": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "claimed-check",
+                "leftValue": "={{ $json.claimed }}",
+                "operator": {
+                  "operation": "true",
+                  "singleValue": true,
+                  "type": "boolean"
+                },
+                "rightValue": ""
+              }
+            ],
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 2
+            }
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "17467f98-c6a6-4bfe-8a07-d9c7f90e07a1",
+        "name": "Restore webhook item",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -5536,
+          4288
+        ],
+        "parameters": {
+          "jsCode": "// Pass the original webhook payload on, so the rest of the workflow\n// sees exactly what it saw before the dedupe claim was added.\nreturn $('Encore Webhook (from WF1P)').all();"
+        }
       }
     ],
     "connections": {
@@ -2292,6 +2365,39 @@
         ]
       },
       "Encore Webhook (from WF1P)": {
+        "main": [
+          [
+            {
+              "node": "Claim report (dedupe)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claim report (dedupe)": {
+        "main": [
+          [
+            {
+              "node": "First run?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "First run?": {
+        "main": [
+          [
+            {
+              "node": "Restore webhook item",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore webhook item": {
         "main": [
           [
             {

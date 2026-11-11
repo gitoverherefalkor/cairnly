@@ -3,12 +3,12 @@
   "name": "WF4P - Encore Direction selection EN",
   "active": true,
   "isArchived": false,
-  "versionId": "ee26b001-f804-4b98-a246-5c1bc77c2dac",
-  "activeVersionId": "8757bd30-f1e3-4ff7-bf03-dbcdc24c822e",
+  "versionId": "6015f201-ba7b-4e3e-ab29-7f53b97acfda",
+  "activeVersionId": "ee26b001-f804-4b98-a246-5c1bc77c2dac",
   "triggerCount": 1,
   "nodeCount": 32,
   "createdAt": "2026-07-06T12:39:39.437Z",
-  "updatedAt": "2026-11-11T19:04:15.548Z",
+  "updatedAt": "2026-11-11T22:27:18.036Z",
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
@@ -518,7 +518,7 @@
         320
       ],
       "parameters": {
-        "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('Encore WF3P Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n\n// Subheaders to convert to h5 tags (must match the T3 Careers Prompt).\n// \"## \" headers are converted whatever their text; this list only rescues\n// headers the model wrote as a bold line instead.\nconst CAREER_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this fits you\", \"What you'll actually do\", \"How people get in\", \"Your first step\", \"The Reality Check\", \"The practical stuff\", \"How AI will impact this role\", \"Future-proof skills\"],\n  nl: [\"Overzicht\", \"Waarom dit bij u past\", \"Wat u concreet gaat doen\", \"Zo komt u binnen\", \"Uw eerste stap\", \"Waar u rekening mee moet houden\", \"De praktische kant\", \"AI-impact op deze rol\", \"Toekomstbestendige vaardigheden\"]\n};\nconst CAREER_SUBHEADERS = CAREER_SUBHEADERS_ALL[__lang];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText.replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim() };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles ? `<strong>Alternate titles:</strong> ${alternateTitles}` : '',\n    company_size_type: companySizeType ? `<h4><strong>${companySizeType}</strong></h4>` : '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: meta1.metadata,\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: meta2.metadata,\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: meta3.metadata,\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];"
+        "jsCode": "// Get the input text\nconst fullText = $json.text;\n// Get report_id from trigger\nconst reportId = $('Encore WF3P Webhook').first().json.body.report_id;\nconst __lr = $('Get Report Language').first().json; const __lang = ((__lr && __lr.language) === 'nl') ? 'nl' : 'en';\n\n\n// Subheaders to convert to h5 tags (must match the T3 Careers Prompt).\n// \"## \" headers are converted whatever their text; this list only rescues\n// headers the model wrote as a bold line instead.\nconst CAREER_SUBHEADERS_ALL = {\n  en: [\"Overview\", \"Why this fits you\", \"What you'll actually do\", \"How people get in\", \"Your first step\", \"The Reality Check\", \"The practical stuff\", \"How AI will impact this role\", \"Future-proof skills\"],\n  nl: [\"Overzicht\", \"Waarom dit bij u past\", \"Wat u concreet gaat doen\", \"Zo komt u binnen\", \"Uw eerste stap\", \"Waar u rekening mee moet houden\", \"De praktische kant\", \"AI-impact op deze rol\", \"Toekomstbestendige vaardigheden\"]\n};\nconst CAREER_SUBHEADERS = CAREER_SUBHEADERS_ALL[__lang];\n\n// Pull the machine-readable comparison JSON out of a career chunk.\n// The model appends it as a fenced ```json block, last thing in the career.\n// Returns { metadata, cleanedText }. On ANY failure metadata is null, so a\n// missing or malformed block degrades gracefully and never breaks the report.\nfunction extractMetadata(careerText) {\n  let raw = null;\n  let matchedBlock = null;\n\n  // Preferred: a fenced code block (```json ... ``` or ``` ... ```).\n  // Take the LAST one — the comparison block is the last thing in the career.\n  const fenceRegex = /```(?:json)?\\s*([\\s\\S]*?)```/gi;\n  let m;\n  while ((m = fenceRegex.exec(careerText)) !== null) {\n    raw = m[1];\n    matchedBlock = m[0];\n  }\n\n  // Fallback: a bare { ... } span (model dropped the fence).\n  if (raw === null) {\n    const bm = careerText.match(/\\{[\\s\\S]*\\}/);\n    if (bm) {\n      raw = bm[0];\n      matchedBlock = bm[0];\n    }\n  }\n\n  if (raw === null) {\n    return { metadata: null, cleanedText: careerText.replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim() };\n  }\n\n  let metadata = null;\n  try {\n    metadata = JSON.parse(raw.trim());\n  } catch (e) {\n    metadata = null;\n  }\n\n  const cleanedText = careerText.replace(matchedBlock, '').replace(/\\n+\\s*\\*{0,2}More details[^\\n]*\\s*$/i, '').trim();\n  return { metadata, cleanedText };\n}\n\n// Function to convert subheaders to h5 tags\nfunction formatSubheaders(content) {\n  let formatted = content;\n\n  // Convert ## headers to h5 tags\n  formatted = formatted.replace(/^## (.+)$/gm, '<h5>$1</h5>');\n\n  // Also convert bold-only subheaders from the predefined list\n  CAREER_SUBHEADERS.forEach(subheader => {\n    const regex = new RegExp(`(^|\\\\n)\\\\*\\\\*${subheader}\\\\*\\\\*:?\\\\s*`, 'gi');\n    formatted = formatted.replace(regex, `$1<h5>${subheader}</h5>\\n\\n`);\n  });\n\n  // Clean up any leftover markdown bold markers\n  formatted = formatted.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n\n  return formatted.trim();\n}\n\n// Function to extract career metadata and clean content\nfunction parseCareer(careerText) {\n  const lines = careerText.trim().split('\\n');\n  let title = '';\n  let alternateTitles = '';\n  let companySizeType = '';\n  let score = null;\n  let contentStartIndex = 0;\n\n  // Parse first few lines for metadata\n  for (let i = 0; i < Math.min(15, lines.length); i++) {\n    const line = lines[i].trim();\n\n    // Extract title - ONLY single # (career title), not ## (subheaders)\n    if (line.match(/^# [^#]/) ) {\n      title = line.replace(/^# /, '').trim();\n      contentStartIndex = i + 1;\n    } else if (line.match(/^-?\\s*Title:/i)) {\n      title = line.replace(/^-?\\s*Title:\\s*/i, '').trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract alternate titles\n    if (line.match(/^\\*\\*Alternative titles:\\*\\*/i) || line.match(/^-?\\s*\\*?Alternate titles:/i)) {\n      const altMatch = line.match(/\\*\\*Alternative titles:\\*\\* (.+?) \\| \\*\\*At:\\*\\* (.+)/);\n      if (altMatch) {\n        alternateTitles = altMatch[1].trim();\n        companySizeType = altMatch[2].trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      } else {\n        alternateTitles = line\n          .replace(/^-?\\s*\\*?\\*?Alternative titles:\\*?\\*?\\s*/i, '')\n          .replace(/^-?\\s*\\*?Alternate titles:\\*?\\s*/i, '')\n          .replace(/\\*/g, '')\n          .trim();\n        contentStartIndex = Math.max(contentStartIndex, i + 1);\n      }\n    }\n\n    // Extract company size - standalone \"At:\" line\n    if (line.match(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i) && !line.match(/Alternative titles/i)) {\n      companySizeType = line\n        .replace(/^-?\\s*\\*?\\*?At:\\*?\\*?\\s*/i, '')\n        .replace(/\\*\\*/g, '')\n        .trim();\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n\n    // Extract compatibility score\n    const scoreMatch = line.match(/\\*?\\*?Compatibility score:\\s*(\\d+)\\/100\\*?\\*?/i);\n    if (scoreMatch) {\n      score = parseInt(scoreMatch[1], 10);\n      contentStartIndex = Math.max(contentStartIndex, i + 1);\n    }\n  }\n\n  // Skip empty lines after metadata\n  while (contentStartIndex < lines.length && lines[contentStartIndex].trim() === '') {\n    contentStartIndex++;\n  }\n\n  // Get remaining content and format subheaders\n  const rawContent = lines.slice(contentStartIndex).join('\\n').trim();\n  const formattedContent = formatSubheaders(rawContent);\n\n  return {\n    title: `<h3><strong>${title || 'Career Option'}</strong></h3>`,\n    alternate_titles: alternateTitles ? `<strong>Alternate titles:</strong> ${alternateTitles}` : '',\n    company_size_type: companySizeType ? `<h4><strong>${companySizeType}</strong></h4>` : '',\n    content: formattedContent,\n    score: score\n  };\n}\n\n// Split by separator\nconst splitCareers = fullText.split('---CAREER_SPLIT---');\n\n// Validate we have 3 parts\nif (splitCareers.length !== 3) {\n  throw new Error(`Expected 3 careers but found ${splitCareers.length}`);\n}\n\n// Pull the comparison JSON out of each chunk BEFORE parsing the prose,\n// so the raw JSON never lands in the rendered content.\nconst meta1 = extractMetadata(splitCareers[0]);\nconst meta2 = extractMetadata(splitCareers[1]);\nconst meta3 = extractMetadata(splitCareers[2]);\n\n// The comparison JSON is the last thing the model writes. If direction 3\n// has none, the output was cut off (token limit): fail loudly so the error\n// workflow alerts us, instead of saving a half-finished direction.\nif (!meta3.metadata) {\n  throw new Error('Top 3 output looks cut off: direction 3 has no comparison JSON. Check the model token limit and rerun this report.');\n}\n\n// Parse each career from the cleaned (JSON-stripped) text\nconst career1 = parseCareer(meta1.cleanedText);\nconst career2 = parseCareer(meta2.cleanedText);\nconst career3 = parseCareer(meta3.cleanedText);\n\n// Map to structured output with all required fields.\n// `metadata` is picked up automatically by the autoMap Supabase insert.\nreturn [\n  {\n    json: {\n      title: career1.title,\n      alternate_titles: career1.alternate_titles,\n      company_size_type: career1.company_size_type,\n      content: career1.content,\n      score: career1.score,\n      metadata: meta1.metadata,\n      report_id: reportId,\n      section_type: \"top_career_1\",\n      order_number: 1,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career2.title,\n      alternate_titles: career2.alternate_titles,\n      company_size_type: career2.company_size_type,\n      content: career2.content,\n      score: career2.score,\n      metadata: meta2.metadata,\n      report_id: reportId,\n      section_type: \"top_career_2\",\n      order_number: 2,\n      language: __lang\n    }\n  },\n  {\n    json: {\n      title: career3.title,\n      alternate_titles: career3.alternate_titles,\n      company_size_type: career3.company_size_type,\n      content: career3.content,\n      score: career3.score,\n      metadata: meta3.metadata,\n      report_id: reportId,\n      section_type: \"top_career_3\",\n      order_number: 3,\n      language: __lang\n    }\n  }\n];"
       }
     },
     {
@@ -820,7 +820,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 16000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -847,7 +847,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 16000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -874,7 +874,7 @@
           "cachedResultName": "Claude Sonnet 5.5"
         },
         "options": {
-          "maxTokensToSample": 16000
+          "maxTokensToSample": 32000
         }
       },
       "credentials": {
@@ -1572,6 +1572,79 @@
           },
           "options": {}
         }
+      },
+      {
+        "id": "147d1b79-f0f4-46c6-af8c-fabfdb4d1678",
+        "name": "Claim report (dedupe)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -704,
+          864
+        ],
+        "parameters": {
+          "authentication": "predefinedCredentialType",
+          "jsonBody": "={{ JSON.stringify({ p_report_id: $json.body?.report_id || $json.report_id, p_stage: 'wf4p' }) }}",
+          "method": "POST",
+          "nodeCredentialType": "supabaseApi",
+          "options": {},
+          "sendBody": true,
+          "specifyBody": "json",
+          "url": "https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/rpc/claim_workflow_stage"
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "jYr9UcuCbwO8Um80",
+            "name": "SB Cairnly (n8n cred)"
+          }
+        }
+      },
+      {
+        "id": "951cf7a4-6243-46ac-a1ac-777fc6175060",
+        "name": "First run?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          -480,
+          864
+        ],
+        "parameters": {
+          "conditions": {
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "claimed-check",
+                "leftValue": "={{ $json.claimed }}",
+                "operator": {
+                  "operation": "true",
+                  "singleValue": true,
+                  "type": "boolean"
+                },
+                "rightValue": ""
+              }
+            ],
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 2
+            }
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "fde9563e-2029-4de5-b444-fd06b6259b37",
+        "name": "Restore webhook item",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -256,
+          864
+        ],
+        "parameters": {
+          "jsCode": "// Pass the original webhook payload on, so the rest of the workflow\n// sees exactly what it saw before the dedupe claim was added.\nreturn $('Encore WF3P Webhook').all();"
+        }
       }
     ],
     "connections": {
@@ -1848,17 +1921,6 @@
           ]
         ]
       },
-      "Encore WF3P Webhook": {
-        "main": [
-          [
-            {
-              "node": "Get Report Language",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
       "Dream prep": {
         "main": [
           [
@@ -1884,6 +1946,50 @@
               "node": "Complete merge",
               "type": "main",
               "index": 2
+            }
+          ]
+        ]
+      },
+      "Encore WF3P Webhook": {
+        "main": [
+          [
+            {
+              "node": "Claim report (dedupe)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claim report (dedupe)": {
+        "main": [
+          [
+            {
+              "node": "First run?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "First run?": {
+        "main": [
+          [
+            {
+              "node": "Restore webhook item",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Restore webhook item": {
+        "main": [
+          [
+            {
+              "node": "Get Report Language",
+              "type": "main",
+              "index": 0
             }
           ]
         ]
