@@ -1,0 +1,203 @@
+{
+  "report": {
+    "title": "Uw rapport",
+    "processing": "Uw rapport wordt gemaakt..."
+  },
+  "entry": {
+    "headline": {
+      "processing": "Uw profiel wordt opgebouwd, {{name}}.",
+      "processing_noName": "We bouwen uw profiel op.",
+      "chat": "Uw coach staat klaar, {{name}}.",
+      "chat_noName": "Uw coach staat klaar.",
+      "resume": "Ga verder waar u gebleven was, {{name}}.",
+      "resume_noName": "Ga verder waar u gebleven was."
+    },
+    "sub": {
+      "failed": "Uw antwoorden zijn opgeslagen, dus er is niets verloren. Het is deze keer niet gelukt om uw rapport af te maken. U kunt het nu meteen opnieuw starten.",
+      "processing": "We bouwen uw profiel en uw richtingen. Dat duurt meestal zo'n 5 minuten. U krijgt een mail zodra het klaar is.",
+      "chat": "Uw antwoorden zijn binnen. Rond het gesprek met uw AI-coach af om uw volledige rapport vrij te spelen.",
+      "resume": "U bent al een eind op weg. Nog een paar onderdelen, daarna neemt uw coach u mee door het rapport."
+    },
+    "cta": {
+      "chat": "Verder met uw coach",
+      "empty": "Start uw assessment"
+    },
+    "eyebrow": {
+      "processing": "BEZIG · UW RAPPORT WORDT GEBOUWD",
+      "chat": "VOLGENDE STAP · UW COACH"
+    },
+    "unlockedEyebrow": "ALS U KLAAR BENT · VRIJGESPEELD",
+    "autoSaveNote": "Voortgang automatisch opgeslagen · U kunt veilig sluiten en later terugkomen",
+    "flavors": {
+      "encore": {
+        "emptySub": "In het assessment maken we de balans op van de loopbaan die u had, hoe u nu werkt en wat in deze levensfase telt. Neem er rustig de tijd voor, pauzeren mag: uw antwoorden worden automatisch opgeslagen. Daarna neemt uw AI-coach u mee door een persoonlijk rapport en scherpt het samen met u aan.",
+        "ghostCards": {
+          "0": {
+            "sub": "Hoe u nu werkt, eerlijk bekeken"
+          },
+          "3": {
+            "sub": "Hoe u instapt op uw niveau"
+          }
+        }
+      }
+    }
+  },
+  "accessCodeModal": {
+    "errors": {
+      "emptyCode": "Vul uw toegangscode in",
+      "verifyFailed": "We konden uw toegangscode niet controleren. Probeer het opnieuw."
+    },
+    "description": "Uw toegangscode is gecontroleerd. Klik hieronder om uw persoonlijke assessment te starten."
+  },
+  "accessCodeVerifier": {
+    "errors": {
+      "verifyFailed": "We konden uw toegangscode niet controleren"
+    },
+    "toast": {
+      "verifiedDescriptionAssessment": "Uw toegangscode is geldig. U gaat nu door naar het assessment...",
+      "verifiedDescriptionSignup": "Maak een account aan om uw assessment te starten."
+    },
+    "verified": {
+      "redirectAssessment": "U gaat nu door naar het assessment...",
+      "redirectSignup": "U gaat nu door naar het aanmaken van uw account..."
+    },
+    "title": "Voer uw toegangscode in"
+  },
+  "toast": {
+    "signedOut": {
+      "description": "U bent uitgelogd."
+    },
+    "inviteLinkPending": {
+      "description": "Uw uitnodigingslink wordt nog klaargezet. Probeer het zo nog een keer."
+    },
+    "inviteLinkCopied": {
+      "description": "Deel hem met iemand om uw volgende tool te ontgrendelen."
+    },
+    "inviteLinkFallback": {
+      "title": "Uw uitnodigingslink"
+    },
+    "pdfFailed": {
+      "title": "We konden uw PDF niet maken"
+    },
+    "retryFailed": {
+      "description": "We konden uw rapport nu niet opnieuw starten. Probeer het zo nog een keer."
+    }
+  },
+  "shareCard": {
+    "modal": {
+      "title": "Deel uw resultaat",
+      "sub": "Een deelklare momentopname van uw resultaat, op maat voor LinkedIn. Laat uw netwerk de richting zien die u verkent en begin de gesprekken die iets in beweging brengen.",
+      "generating": "Deelbare citaten uit uw rapport worden gemaakt…",
+      "helper": "We openen LinkedIn met een startbericht en slaan de afbeelding op. Voeg de opgeslagen afbeelding toe aan uw bericht."
+    },
+    "card": {
+      "quoteFallback": "Een helder, eerlijk beeld van waar u op uw best bent."
+    }
+  },
+  "v4": {
+    "oneLiner": {
+      "summary": "Wie u bent en wat u drijft.",
+      "approach": "Hoe u werkt, leiding geeft en met uitdagingen omgaat.",
+      "strengths": "Wat u onderscheidt en hoe u dat inzet.",
+      "development": "Groeikansen die u helpen uw doelen te bereiken.",
+      "values": "Wat voor u het belangrijkst is en hoe dat de juiste keuze bepaalt.",
+      "top-1": "Uw sterkste match.",
+      "outside": "Onverwachte paden die aansluiten bij uw interesses.",
+      "dream": "Een eerlijke realiteitscheck van uw eigen idee."
+    },
+    "fallbackTitle": {
+      "approach": "Uw aanpak",
+      "strengths": "Uw sterke punten",
+      "values": "Uw waarden"
+    },
+    "fallback": {
+      "bestFitCareer": "Uw best passende richting"
+    },
+    "welcome": {
+      "eyebrow": "UW PROFIEL · RAPPORT KLAAR",
+      "sub": "Hieronder staan uw sterkste richtingen. Open er een voor de volledige onderbouwing."
+    },
+    "pdf": {
+      "building": "Uw pdf wordt gemaakt…"
+    },
+    "hero": {
+      "alignment": "AANSLUITING BIJ UW WENSEN",
+      "backEyebrow": "HOE DEZE VERSCHILT VAN UW ANDERE TOPRICHTINGEN",
+      "backBlurb": "Vijf assen die de dagelijkse fit bepalen. De gevulde vorm is uw sterkste match, de omlijnde vormen zijn uw andere toprichtingen. De afstand tot het midden is de score op elke as."
+    },
+    "reportHeader": {
+      "eyebrow": "UW VOLLEDIGE RAPPORT · NASLAG",
+      "title": "Alles wat u met uw coach heeft doorgenomen"
+    },
+    "radarBanner": {
+      "title": "Hoe u echt werkt",
+      "blurb": "Uw werkprofiel op vijf dimensies, opgebouwd uit de vragenlijst en getoetst door uw coach."
+    },
+    "mapBanner": {
+      "blurb": "Uw toprichtingen uitgezet naar matchsterkte tegenover AI-gevoeligheid. De sweet spot ligt linksboven, rechtsonder is de zone om te vermijden."
+    },
+    "comparison": {
+      "heading_one": "Hoe deze verschilt van uw andere toprichting",
+      "heading_other": "Hoe deze verschilt van uw andere toprichtingen"
+    },
+    "toolkit": {
+      "eyebrow": "SOLLICITATIE-TOOLKIT · VERDIEN UW GELD TERUG",
+      "title": "Zes referenties en uw assessment heeft zichzelf terugverdiend.",
+      "bodyBefore": "Uw eerste drie referenties ontgrendelen de sollicitatietools. De volgende drie betalen uw aankoop terug,",
+      "bodyAfter": ", terug op uw kaart. Zij krijgen helderheid, u krijgt uw geld terug.",
+      "sponsored": {
+        "eyebrow": "OOK OP UW ACCOUNT",
+        "title": "Drie tools voor uw volgende stap",
+        "body": "Bij uw account horen drie tools die opengaan als u mensen uitnodigt. Elke vriend die meedoet krijgt {{pct}}% korting, en elke aanmelding opent de volgende tool."
+      }
+    },
+    "step": {
+      "viewYour": "Bekijk uw {{count}} {{noun}}",
+      "cta": {
+        "resume": "Stem uw cv af"
+      }
+    },
+    "unlock": {
+      "tool": {
+        "resume": {
+          "description": "Herschrijf uw geüploade cv zodat het past bij de specifieke functies waarop u wilt solliciteren."
+        }
+      },
+      "refund": {
+        "4": {
+          "description": "Krijg een kwart van wat u betaalde terug op uw kaart."
+        },
+        "5": {
+          "description": "Nog een kwart terug, nu heeft u de helft van uw aankoop terugverdiend."
+        },
+        "6": {
+          "description": "De laatste helft terug. Uw assessment is nu volledig gratis."
+        }
+      }
+    },
+    "sharePromo": {
+      "title": "Deel wat u verraste, niet wat u vleide.",
+      "body": "Een korte, eerlijke kaart met een zin die uw coach over u schreef. Brengt meer mensen op hun pad en ontgrendelt uw toolkit."
+    },
+    "execBanner": {
+      "pendingTitle": "Uw samenvatting wordt samengesteld…",
+      "pendingBody": "De momentopname van uw hele profiel wordt nu gemaakt. Hij verschijnt zo vanzelf, verversen is niet nodig.",
+      "arrivedTitle": "Uw samenvatting is klaar.",
+      "arrivedBody": "De beknopte lezing van uw profiel is af.",
+      "timedoutTitle": "Uw samenvatting duurt iets langer dan gebruikelijk.",
+      "timedoutBody": "Hij wordt op de achtergrond nog gemaakt. Kom over een paar minuten terug. De rest van uw rapport staat hieronder klaar.",
+      "placeholderPending": "Uw momentopname wordt gemaakt, hij verschijnt vanzelf."
+    }
+  },
+  "execSummaryModal": {
+    "title": "Een momentopname van waar u staat.",
+    "sub": "De kortste lezing van uw profiel. De volledige uitwerking staat hieronder in de rapportsecties."
+  },
+  "savedResponses": {
+    "sections": {
+      "approach": "Uw aanpak",
+      "strengths": "Uw sterke punten",
+      "values": "Uw waarden"
+    }
+  }
+}

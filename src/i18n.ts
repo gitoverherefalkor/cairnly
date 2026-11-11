@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { formalAwareRequest } from './lib/formalDutch';
 
 // Custom detector: check if we're on a .nl domain → force Dutch
 const domainDetector = {
@@ -53,6 +54,9 @@ i18n
 
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
+      // Plain fetch, plus the Encore "u" overrides for Dutch when formal mode
+      // is on (see lib/formalDutch.ts).
+      request: formalAwareRequest,
     },
 
     interpolation: {

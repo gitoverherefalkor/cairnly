@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { FormalDutchSync } from "@/components/FormalDutchSync";
 import { useLanguage } from "@/hooks/useLanguage";
 import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { useScrollDepthTracking } from "@/hooks/useScrollDepthTracking";
@@ -152,6 +153,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <FormalDutchSync />
       <LanguageSync>
       <TooltipProvider>
         <Toaster />

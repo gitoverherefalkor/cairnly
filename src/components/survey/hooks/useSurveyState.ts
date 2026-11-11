@@ -4,6 +4,7 @@ import { useSurvey } from '@/hooks/useSurvey';
 import { useSurveySession } from '@/hooks/useSurveySession';
 import { supabase } from '@/integrations/supabase/client';
 import { isQuestionAnswered } from '../questionValidation';
+import { isQuestionSkipped } from '@/lib/surveySkip';
 
 export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
   const { data: survey, isLoading, error } = useSurvey(surveyId);
@@ -18,16 +19,17 @@ export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
   const [completedSections, setCompletedSections] = useState<number[]>([]);
   const [isSessionLoaded, setIsSessionLoaded] = useState(false);
 
-  // Helper function to check if a question should be skipped
-  const shouldSkipQuestion = useCallback((question: any) => {
-    const licenseKeyIndicators = ['license', 'access code', 'verification code', 'license key'];
-    const questionText = question.label?.toLowerCase() || '';
-    return licenseKeyIndicators.some(indicator => questionText.includes(indicator));
-  }, []);
+  // Hidden questions: legacy license-key questions and questions whose
+  // `show_if` rule the answers don't meet (see lib/surveySkip). `answers`
+  // defaults to the live responses; the resume walk passes the saved ones.
+  const shouldSkipQuestion = useCallback(
+    (question: any, answers?: Record<string, any>) => isQuestionSkipped(question, answers ?? responses),
+    [responses],
+  );
 
-  // Get filtered questions for current section (excluding license key questions)
-  const getFilteredQuestions = useCallback((section: any) => {
-    return section.questions.filter((q: any) => !shouldSkipQuestion(q));
+  // Get filtered questions for a section (excluding skipped questions)
+  const getFilteredQuestions = useCallback((section: any, answers?: Record<string, any>) => {
+    return section.questions.filter((q: any) => !shouldSkipQuestion(q, answers));
   }, [shouldSkipQuestion]);
 
   // Load session on mount - ONLY ONCE.
@@ -54,7 +56,7 @@ export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
 
       for (let sIdx = 0; sIdx < survey.sections.length; sIdx++) {
         const section = survey.sections[sIdx];
-        const questions = getFilteredQuestions(section);
+        const questions = getFilteredQuestions(section, savedResponses);
         // A section is complete only when every question is satisfied — an
         // empty array (cleared multi-select) is NOT a valid answer.
         const allAnswered = questions.every(
@@ -81,7 +83,7 @@ export const useSurveyState = (surveyId: string, accessCodeId?: string) => {
       if (!found && survey.sections.length > 0) {
         resumeSectionIdx = survey.sections.length - 1;
         const lastSection = survey.sections[resumeSectionIdx];
-        const lastQuestions = getFilteredQuestions(lastSection);
+        const lastQuestions = getFilteredQuestions(lastSection, savedResponses);
         resumeQIdx = Math.max(0, lastQuestions.length - 1);
       }
 

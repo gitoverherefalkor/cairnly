@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle, Lock, LockOpen, Loader2, Mountain } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAssessmentSession } from '@/components/assessment/AssessmentSessionContext';
 
 interface Section {
@@ -33,6 +34,7 @@ const MilestoneNotice: React.FC<{ message: string }> = ({ message }) => (
 // Small reassurance block — tells users their progress is safely stored and they can close
 // the tab at any time. Briefly flashes a spinner when an actual save is triggered.
 const AutoSaveNotice: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const { t } = useTranslation('survey');
   const { saveStatus } = useAssessmentSession();
   const isSaving = saveStatus === 'saving';
 
@@ -44,7 +46,7 @@ const AutoSaveNotice: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
         ) : (
           <CheckCircle className="h-3 w-3 text-atlas-gold" />
         )}
-        <span>{isSaving ? 'Saving…' : 'Progress auto-saved'}</span>
+        <span>{isSaving ? t('sidebar.saving') : t('sidebar.autoSaved')}</span>
       </div>
     );
   }
@@ -59,11 +61,11 @@ const AutoSaveNotice: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
           <CheckCircle className="h-4 w-4 text-[#EFBE48] flex-shrink-0" />
         )}
         <p className="text-[12.5px] font-semibold text-white">
-          {isSaving ? 'Saving…' : 'Progress auto-saved'}
+          {isSaving ? t('sidebar.saving') : t('sidebar.autoSaved')}
         </p>
       </div>
       <p className="text-[11px] text-white/60 leading-snug pl-7">
-        Safe to close this tab and return later. Your answers stay where you left off.
+        {t('sidebar.safeToClose')}
       </p>
     </div>
   );
@@ -78,6 +80,7 @@ export const SurveyNavigation: React.FC<SurveyNavigationProps> = ({
   totalQuestionsInSection,
   activeMilestone
 }) => {
+  const { t } = useTranslation('survey');
   const getSectionStatus = (sectionIndex: number) => {
     // `current` wins over `completed` — the section you're working on shouldn't
     // display a completion checkmark until you've actually moved past it.
@@ -115,7 +118,7 @@ export const SurveyNavigation: React.FC<SurveyNavigationProps> = ({
         className="text-[11px] font-heading font-bold uppercase mb-4 text-[#EFBE48]"
         style={{ letterSpacing: '0.24em', fontWeight: 700 }}
       >
-        Your Progress
+        {t('sidebar.yourProgress')}
       </div>
 
       <div className="space-y-3.5 flex-1">
@@ -155,11 +158,11 @@ export const SurveyNavigation: React.FC<SurveyNavigationProps> = ({
                         status === 'locked' ? 'text-white/65' : 'text-white'
                       }`}
                     >
-                      Section {index + 1}
+                      {t('sidebar.section', { number: index + 1 })}
                     </p>
                     {showProgress && (
                       <span className="text-[11px] font-bold whitespace-nowrap text-[#EFBE48]">
-                        Q{currentQuestionInSection} /{totalQuestionsInSection}
+                        {t('sidebar.questionProgress', { current: currentQuestionInSection, total: totalQuestionsInSection })}
                       </span>
                     )}
                   </div>
@@ -203,6 +206,7 @@ export const MobileStepIndicator: React.FC<{
   completedSections: number[];
   onSectionClick: (sectionIndex: number) => void;
 }> = ({ sections, currentSectionIndex, completedSections, onSectionClick }) => {
+  const { t } = useTranslation('survey');
   const getSectionStatus = (sectionIndex: number) => {
     // Same rule as the desktop sidebar: the current section never shows a checkmark
     // even if it's already been added to completedSections on intro.
@@ -224,7 +228,7 @@ export const MobileStepIndicator: React.FC<{
               key={section.id}
               onClick={() => isClickable ? onSectionClick(index) : undefined}
               disabled={!isClickable}
-              title={`Section ${index + 1}: ${section.title}`}
+              title={t('sidebar.sectionTitle', { number: index + 1, title: section.title })}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
                 status === 'current'
                   ? 'bg-atlas-teal text-white ring-2 ring-atlas-teal/30 scale-110'

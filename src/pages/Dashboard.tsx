@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useFormalDutch } from '@/hooks/useFormalDutch';
 import { useProfile } from '@/hooks/useProfile';
 import { useReports } from '@/hooks/useReports';
 import { useReportSections, type ReportSection } from '@/hooks/useReportSections';
@@ -102,6 +103,10 @@ const Dashboard = () => {
   // survey_type of the verified access code — drives flavor-aware entry copy
   // (the starter flavor gets its own section list, timing, and preview cards).
   const [entrySurveyType, setEntrySurveyType] = useState<string | null>(null);
+  // True once the access-code lookup below has finished (found or not). Until
+  // then the entry screen can't know its flavor, and rendering it would flash
+  // the default Pro copy before switching to Encore/Starter.
+  const [codeLookupDone, setCodeLookupDone] = useState(false);
   // True when this user has a 'draft' row in the answers table — i.e., they've
   // started the survey on a different device (or after clearing localStorage)
   // but haven't submitted yet.
@@ -136,6 +141,16 @@ const Dashboard = () => {
   const cameFromProcessing = location.state?.fromProcessing === true;
 
   const savedSession = getAssessmentSession();
+
+  // Encore speaks formal Dutch ("u"). Decide once the access code is known;
+  // a user without any code keeps whatever this browser had.
+  const savedSurveyType = savedSession?.accessCodeData?.survey_type ?? null;
+  const formalDutchDecision: boolean | null = entrySurveyType
+    ? isEncoreSurveyType(entrySurveyType)
+    : isEncoreSurveyId(draftSurveyId) || isEncoreSurveyType(savedSurveyType)
+      ? true
+      : null;
+  useFormalDutch(formalDutchDecision);
 
   // latestReport computed early so hooks can use it (hooks can't be conditional).
   const latestReport = !reports || reports.length === 0 ? null : reports[0];
@@ -299,6 +314,8 @@ const Dashboard = () => {
         }
       } catch (err) {
         console.warn('[Dashboard] assessment recovery failed:', err);
+      } finally {
+        setCodeLookupDone(true);
       }
     })();
 
@@ -617,6 +634,17 @@ const Dashboard = () => {
           isEncoreSurveyType(sessionSurveyType)
         ? 'encore'
         : 'pro';
+
+  // Hold the spinner until the flavor is known, unless a local session or a
+  // recovered draft already tells us. Otherwise Encore users briefly saw the
+  // Pro entry copy ("about 45 minutes", "Top career matches").
+  if (!codeLookupDone && !sessionSurveyType && !draftSurveyId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   let mode: EntryMode = 'empty';
   if (latestReport?.status === 'pending_review' && cameFromChat) {

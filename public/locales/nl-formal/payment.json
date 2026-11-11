@@ -1,0 +1,15 @@
+{
+  "shell": {
+    "title": "U maakt een slimme keuze.",
+    "subtitle": "Een kleine investering in tijd en geld voor echte duidelijkheid over wat hierna bij u past."
+  },
+  "form": {
+    "eyebrow": "Uw gegevens",
+    "intro": "Vul hieronder uw gegevens in. Zakelijke klanten kunnen hun bedrijfsgegevens invullen voor de factuur.",
+    "secureNote": "Uw betaling wordt afgehandeld door Stripe. Wij zien of bewaren uw kaartgegevens nooit.",
+    "dataNote": "Uw assessmentgegevens blijven van u. We verkopen ze niet, we delen ze niet, en u kunt op elk moment alles permanent verwijderen uit uw account."
+  },
+  "validation": {
+    "acceptTerms": "U moet akkoord gaan met het Privacybeleid en de Algemene voorwaarden."
+  }
+}

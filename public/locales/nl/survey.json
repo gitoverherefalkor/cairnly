@@ -142,7 +142,13 @@
     "failedDescription": "Je antwoorden konden niet worden verstuurd. Probeer het opnieuw, je antwoorden zijn opgeslagen.",
     "successTitle": "Assessment succesvol ingediend",
     "successDescription": "Je wordt doorgestuurd naar de verwerkingspagina...",
-    "unexpectedErrorDescription": "Er is een onverwachte fout opgetreden. Probeer het opnieuw, je antwoorden zijn opgeslagen."
+    "unexpectedErrorDescription": "Er is een onverwachte fout opgetreden. Probeer het opnieuw, je antwoorden zijn opgeslagen.",
+    "completeTitle": "Assessment afgerond!",
+    "completeDescription": "Je assessment is ingediend.",
+    "savedButReportFailed": "Je antwoorden zijn ingediend, maar je rapport kon nog niet starten. We proberen het opnieuw.",
+    "warningTitle": "Let op",
+    "missingData": "Er ontbreken gegevens om het assessment af te ronden.",
+    "errorTitle": "Er ging iets mis"
   },
   "companySize": {
     "micro": "Micro (1-10 medewerkers)",
@@ -422,5 +428,14 @@
   },
   "sponsored": {
     "notice": "Je werkgever heeft hiervoor betaald. Die ziet nooit je antwoorden, je scores of je rapport. Niemand in je bedrijf weet of je het hebt afgemaakt."
+  },
+  "sidebar": {
+    "yourProgress": "Je voortgang",
+    "section": "Deel {{number}}",
+    "sectionTitle": "Deel {{number}}: {{title}}",
+    "questionProgress": "V{{current}} /{{total}}",
+    "saving": "Opslaan…",
+    "autoSaved": "Voortgang automatisch opgeslagen",
+    "safeToClose": "Je kunt dit tabblad gerust sluiten en later terugkomen. Je antwoorden blijven staan waar je was."
   }
 }

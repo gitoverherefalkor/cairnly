@@ -16,7 +16,7 @@ Status: draft for gate A (copy approval), 2026-11-08. Based on the v2 draft in t
 
 - Stored answer values are the ENGLISH choice strings below. Dutch labels go in `questions.translations.nl.choices` (display only), the same pattern as Pro.
 - Every multiple-choice row sets `min_selections` / `max_selections` and `config.exclusive_choices` as listed. `(one)` = single choice (`allow_multiple false`).
-- No skip logic exists in the survey, so partner questions rely on the "I don't have a partner" option and the optional 5.2.
+- Skip logic: a question's `config.show_if` (`{question_id, in | not_in}`) hides it based on an earlier answer (src/lib/surveySkip.ts). 5.2 is hidden when 5.1 is "I don't have a partner" (migration 20261111230000). 3.1 still offers the partner option, because it comes before 5.1.
 - 28 questions at launch (7.2 reserved). 4 open text answers, 2 of them required (2.3, 3.2).
 
 ## Section 1: About you
@@ -72,7 +72,7 @@ Section id `c3c3c3c3-0000-4000-a000-000000000005`. Description: "Your partner, y
 | # | Id | Type | Req | Min/Max | Label (EN) | Stored values | Notes |
 |---|---|---|---|---|---|---|---|
 | 5.1 | `c3c3c3c3-0005-4000-a000-000000000001` | multiple_choice (one) | yes |  | How do your plans relate to your partner's? | `We make plans together`; `We each do our own thing, and that works`; `We haven't really talked about it yet`; `We want different things`; `I don't have a partner` |  |
-| 5.2 | `c3c3c3c3-0005-4000-a000-000000000002` | long_text | no |  | What does your partner hope for in the coming years? |  | No skip logic exists, so this stays optional for people without a partner. |
+| 5.2 | `c3c3c3c3-0005-4000-a000-000000000002` | long_text | no |  | What does your partner hope for in the coming years? |  | Hidden when 5.1 = "I don't have a partner" (`config.show_if`). |
 | 5.3 | `c3c3c3c3-0005-4000-a000-000000000003` | multiple_choice (one) | yes |  | How do you feel about the people around you? | `I have plenty of good people around me`; `Enough, but new contacts would be welcome`; `I miss the daily contact from work`; `I'd like to meet people in the same phase of life` |  |
 | 5.4 | `c3c3c3c3-0005-4000-a000-000000000004` | multiple_choice (one) | yes |  | Do you like to do things on your own or with others? | `On my own`; `With one or two others`; `As part of a group`; `It doesn't matter` |  |
 

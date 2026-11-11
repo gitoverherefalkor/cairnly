@@ -8,9 +8,11 @@ import AuthToggle from '@/components/auth/AuthToggle';
 import AuthNavigation from '@/components/auth/AuthNavigation';
 import { useTranslation } from 'react-i18next';
 import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
+import { isEncoreSurveyType } from '@/components/assessment/constants';
+import { setFormalDutch } from '@/lib/formalDutch';
 
 const Auth = () => {
-  const { t } = useTranslation('auth');
+  const { t, i18n } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
@@ -39,6 +41,23 @@ const Auth = () => {
     };
     checkAuth();
   }, [navigate, flowFromUrl, searchParams]);
+
+  // A signup link with an Encore code shows the signup page in formal Dutch
+  // ("u"). Only checked when nobody is signed in: verify-access-code links an
+  // unclaimed code to the signed-in caller, which must not happen from here.
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (!code) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session || cancelled) return;
+      const { data } = await supabase.functions.invoke('verify-access-code', { body: { code } });
+      if (cancelled || !data?.valid) return;
+      setFormalDutch(i18n, isEncoreSurveyType(data.accessCode?.survey_type));
+    })().catch(() => { /* copy choice only; never block signup */ });
+    return () => { cancelled = true; };
+  }, [searchParams, i18n]);
 
   const handleToggle = () => {
     setIsLogin(!isLogin);

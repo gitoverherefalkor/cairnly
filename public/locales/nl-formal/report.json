@@ -1,0 +1,35 @@
+{
+  "chapters": {
+    "aboutYou": "Over u",
+    "careerSuggestions": "Richtingen voor u"
+  },
+  "sections": {
+    "executiveSummary": {
+      "description": "Wie u bent en wat u drijft."
+    },
+    "personalityTeam": {
+      "title": "Uw aanpak",
+      "description": "Hoe u werkt, leiding geeft en met uitdagingen omgaat."
+    },
+    "strengths": {
+      "title": "Uw sterke punten",
+      "description": "Wat u onderscheidt en hoe u dat kunt inzetten."
+    },
+    "growth": {
+      "description": "Groeikansen die u helpen uw doelen te bereiken."
+    },
+    "values": {
+      "title": "Uw waarden",
+      "description": "Wat voor u het belangrijkst is en hoe dat de juiste keuze bepaalt."
+    },
+    "topCareers": {
+      "description": "Drie richtingen die het beste bij uw profiel, vaardigheden en wensen passen."
+    },
+    "outsideBox": {
+      "description": "Onverwachte opties die aansluiten bij uw interesses en sterke punten."
+    },
+    "dreamJobs": {
+      "description": "Een eerlijke realiteitscheck van uw eigen idee en wat ervoor nodig is."
+    }
+  }
+}

@@ -1,14 +1,5 @@
 import { isQuestionAnswered } from '@/components/survey/questionValidation';
-
-// License / access-code questions are not part of the answerable survey and
-// must not count toward progress. Mirror of the skip filter in
-// useSurveyState.shouldSkipQuestion — keep the two in sync.
-const LICENSE_KEY_INDICATORS = ['license', 'access code', 'verification code', 'license key'];
-
-function shouldSkipQuestion(question: { label?: string }): boolean {
-  const text = question?.label?.toLowerCase() || '';
-  return LICENSE_KEY_INDICATORS.some((indicator) => text.includes(indicator));
-}
+import { isQuestionSkipped } from './surveySkip';
 
 export interface SurveyProgress {
   questionsAnswered: number;
@@ -40,7 +31,7 @@ export function computeSurveyProgress(
   let sectionsComplete = 0;
 
   for (const section of survey.sections) {
-    const questions = (section.questions || []).filter((q: any) => !shouldSkipQuestion(q));
+    const questions = (section.questions || []).filter((q: any) => !isQuestionSkipped(q, responses));
     // An empty section can't be "complete" in a meaningful sense.
     let sectionAllAnswered = questions.length > 0;
     for (const q of questions) {

@@ -1,0 +1,175 @@
+{
+  "regionPicker": {
+    "placeholder": "Kies uw land…",
+    "elsewhereNote": "We hebben nog geen salarisgegevens voor uw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
+    "elsewhereWhereLabel": "In welk land woont u?"
+  },
+  "submitted": {
+    "description": "Uw antwoorden zijn opgeslagen en uw rapport wordt gemaakt.",
+    "savedNextStep": "Uw antwoorden zijn opgeslagen. U gaat door naar de volgende stap..."
+  },
+  "failed": {
+    "description": "Geen zorgen, uw antwoorden zijn opgeslagen!",
+    "descriptionRetry": "Geen zorgen, uw antwoorden zijn opgeslagen. U kunt het opnieuw proberen."
+  },
+  "loading": {
+    "survey": "Uw assessment wordt geladen...",
+    "progress": "Uw voortgang wordt geladen..."
+  },
+  "assessmentWelcome": {
+    "errors": {
+      "emptyCode": "Vul uw toegangscode in"
+    },
+    "mobileWarning": {
+      "body": "Voor de beste ervaring, en om daarna goed te kunnen praten met uw AI-coach, raden we een computer of tablet aan in plaats van een mobiel."
+    },
+    "hero": {
+      "subtitle": "Ontdek waar u sterk in bent, wat u belangrijk vindt en wat in deze fase bij u past."
+    },
+    "card": {
+      "subtitle": "Vul hieronder uw toegangscode in om uw persoonlijke assessment te starten"
+    },
+    "accessCode": {
+      "hint": "Vul de toegangscode in die u na uw aankoop heeft ontvangen"
+    },
+    "actions": {
+      "verifying": "Uw code wordt gecontroleerd..."
+    },
+    "purchase": {
+      "prompt": "Heeft u geen geldige toegangscode?"
+    },
+    "info": {
+      "duration": {
+        "caption": "In uw eigen tempo, alles wordt onderweg opgeslagen"
+      }
+    }
+  },
+  "assessmentGate": {
+    "authRequired": "U moet ingelogd zijn. Log in om verder te gaan."
+  },
+  "sectionIntro": {
+    "justFinished": "Goed gedaan. Dit heeft u afgerond:"
+  },
+  "milestones": {
+    "pct25": "Hoe eerlijker uw antwoorden, hoe bruikbaarder uw resultaten. Ga zo door.",
+    "pct50": "Goed moment om even op te staan of thee te halen. Uw voortgang wordt automatisch opgeslagen, dus kom terug wanneer het u uitkomt."
+  },
+  "toasts": {
+    "incompleteOnSubmit": {
+      "description": "We hebben u er weer naartoe gebracht. Vul hem in om te verzenden."
+    }
+  },
+  "validation": {
+    "completeRequiredFields": "Vul alle verplichte velden in voordat u verdergaat.",
+    "otherIncomplete": "Maak uw antwoord bij \"Anders\" af, of verwijder het.",
+    "otherIncompleteSingle": "Maak uw antwoord bij \"Anders\" af om verder te gaan.",
+    "roleFieldsIncomplete": "Vul de rood omlijnde velden bij uw rollen in om verder te gaan."
+  },
+  "submitToast": {
+    "failedDescription": "Uw antwoorden konden niet worden verstuurd. Probeer het opnieuw, uw antwoorden zijn opgeslagen.",
+    "successDescription": "U wordt doorgestuurd naar de verwerkingspagina...",
+    "unexpectedErrorDescription": "Er is een onverwachte fout opgetreden. Probeer het opnieuw, uw antwoorden zijn opgeslagen.",
+    "completeDescription": "Uw assessment is ingediend.",
+    "savedButReportFailed": "Uw antwoorden zijn ingediend, maar uw rapport kon nog niet starten. We proberen het opnieuw."
+  },
+  "ranking": {
+    "yourRanking": "Uw volgorde"
+  },
+  "inputs": {
+    "responsePlaceholder": "Typ uw antwoord..."
+  },
+  "careerHistory": {
+    "footerNote": "Er worden maximaal 5 rollen meegenomen in uw assessment. Gebruik de pijlen om de volgorde te wijzigen."
+  },
+  "careerHappiness": {
+    "noHistoryWarning": "Vul eerst uw loopbaan in bij de vorige vraag.",
+    "reasonCallout": "Wat u hier schrijft telt net zo zwaar als het cijfer. We lezen het aandachtig om te leren wat werk voor u goed of slecht maakt, dus een concrete zin over wat u leuk vond en wat u energie kostte helpt echt."
+  },
+  "skills": {
+    "topThreeLabel": "Uw top 3 vaardigheden",
+    "topThreeHint": "De vaardigheden hieronder komen uit uw cv. Markeer uw top drie door op 1, 2 en 3 te klikken."
+  },
+  "achievements": {
+    "sectionHint": "Noem uw belangrijkste resultaten, zoals omzetgroei, kostenbesparing of een team dat succesvol groeide.",
+    "noCareersTip": "Tip: vul eerst uw loopbaan in, dan krijgt u per organisatie een apart veld voor resultaten.",
+    "generalPlaceholder": "Beschrijf uw belangrijkste resultaten..."
+  },
+  "languages": {
+    "sectionHint": "Welke talen spreekt u, en hoe goed? Kies er minstens één."
+  },
+  "voice": {
+    "tryItHint": "Probeer het: spreek uw antwoord in",
+    "tidyingTranscript": "Uw tekst wordt opgeschoond..."
+  },
+  "reportProcessing": {
+    "steps": {
+      "reading": "Uw antwoorden worden gelezen",
+      "personality": "Uw profiel wordt opgebouwd",
+      "scoring": "Uw richtingen worden gescoord",
+      "coach": "Uw AI-coach wordt voorbereid"
+    },
+    "redirecting": {
+      "title": "Uw coach staat klaar",
+      "toastBody": "U wordt nu doorverbonden...",
+      "body": "U wordt nu doorverbonden"
+    },
+    "header": {
+      "title": "Uw profiel wordt opgebouwd"
+    },
+    "leaveNote": "U kunt deze pagina rustig sluiten. We mailen u zodra uw coach klaarstaat.",
+    "endState": {
+      "body": "Ons supportteam heeft een melding gekregen en neemt snel contact met u op.",
+      "safeTitle": "Uw gegevens zijn veilig, er is niets verloren gegaan.",
+      "safeBody": "We mailen u zodra uw coach klaarstaat."
+    },
+    "failed": {
+      "body": "Er ging iets mis bij het maken van uw rapport. Ons team heeft een melding gekregen.",
+      "safeTitle": "Uw antwoorden zijn veilig, er is niets verloren gegaan.",
+      "safeBody": "We mailen u zodra uw rapport klaar is."
+    }
+  },
+  "preSurveyUpload": {
+    "eyebrow": "Stap 1 van uw assessment",
+    "title": "Bespaar tijd met uw cv",
+    "subtitle": "Upload uw cv om uw werkervaring alvast in te vullen",
+    "editableNotice": "Alles wat vooraf is ingevuld kunt u tijdens het assessment aanpassen of overschrijven.",
+    "dropzone": {
+      "idle": "Sleep uw cv hierheen",
+      "dragging": "Laat uw bestand hier los"
+    },
+    "status": {
+      "extracted": "{{count}} velden uit uw cv gehaald"
+    },
+    "skipConfirm": {
+      "title": "Weet u het zeker?",
+      "bodyBefore": "Uw cv uploaden scheelt u",
+      "bodyAfter": "typen, en het maakt het advies nauwkeuriger."
+    },
+    "linkedIn": {
+      "toggle": "Geen cv bij de hand? Gebruik dan een export van uw LinkedIn-profiel",
+      "step1": "Ga naar uw LinkedIn-profiel",
+      "step2": "Klik op de knop \"Meer\" (•••) naast uw naam en daarna op \"Opslaan als PDF\"",
+      "note": "Op sommige profielen zit dit onder een knop \"Bronnen\". Een LinkedIn-export bevat meestal uw meest actuele werkervaring."
+    },
+    "cta": {
+      "upload": "Upload uw cv om door te gaan"
+    },
+    "toast": {
+      "completeExtracted": "{{count}} velden uit uw cv gehaald.",
+      "completeReady": "Uw gegevens staan klaar om het assessment vooraf in te vullen.",
+      "failedBody": "We konden uw bestand niet verwerken. U kunt handmatig verder.",
+      "pdfOnlyBody": "Upload uw cv als PDF. Tip: gebruik in Word \"Opslaan als\" en kies PDF."
+    }
+  },
+  "assessmentCompletion": {
+    "body": "Bedankt voor het invullen. Uw persoonlijke rapport wordt nu gemaakt, en u krijgt een e-mail zodra het klaarstaat.",
+    "viewDashboard": "Naar uw dashboard"
+  },
+  "sponsored": {
+    "notice": "Uw werkgever heeft hiervoor betaald. Die ziet nooit uw antwoorden, uw scores of uw rapport. Niemand in uw organisatie weet of u het heeft afgemaakt."
+  },
+  "sidebar": {
+    "yourProgress": "Uw voortgang",
+    "safeToClose": "U kunt dit tabblad gerust sluiten en later terugkomen. Uw antwoorden blijven staan waar u was."
+  }
+}

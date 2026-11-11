@@ -10,6 +10,7 @@ import { useAssessmentLogic } from '@/components/assessment/useAssessmentLogic';
 import { STARTER_SURVEY_ID, isEncoreSurveyId } from '@/components/assessment/constants';
 import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSessionContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useFormalDutch } from '@/hooks/useFormalDutch';
 
 const AssessmentPage = () => {
   const { t } = useTranslation('survey');
@@ -30,6 +31,10 @@ const AssessmentPage = () => {
   } = useAssessmentLogic();
 
   const { profile, isLoading: profileLoading } = useProfile();
+
+  // Encore speaks formal Dutch ("u"); switch it on as soon as the code is known.
+  const knownSurveyId = accessCodeData ? getSurveyIdFromAccessCode(accessCodeData) : null;
+  useFormalDutch(knownSurveyId ? isEncoreSurveyId(knownSurveyId) : null);
 
   // PreSurveyUpload is the optional CV upload screen between access-code
   // verification and the actual survey. We consider it "complete" if either:

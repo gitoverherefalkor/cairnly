@@ -10,6 +10,7 @@ import EncoreWhatYouGet from '@/components/encore/EncoreWhatYouGet';
 import EncorePricing from '@/components/encore/EncorePricing';
 import EncoreFAQ from '@/components/encore/EncoreFAQ';
 import EncoreFinalCTA from '@/components/encore/EncoreFinalCTA';
+import { useFormalDutch } from '@/hooks/useFormalDutch';
 
 /**
  * Cairnly Encore landing page (/encore), the pensioner / pre-retiree flavor.
@@ -18,6 +19,8 @@ import EncoreFinalCTA from '@/components/encore/EncoreFinalCTA';
  * readability (this audience reads glasses-on).
  */
 const EncoreIndex: React.FC = () => {
+  // Visitors who start here get Encore's formal Dutch ("u") on signup too.
+  useFormalDutch(true);
   return (
     <div
       className="min-h-screen font-sans overflow-x-clip"
