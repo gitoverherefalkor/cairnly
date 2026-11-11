@@ -90,3 +90,10 @@ Review findings from the "Encore prompt review" doc (https://claude.ai/artifact/
 Deferred (to report with the test): WF2P passing overview/why_this_fits through, form and pay per direction, country capture in the region picker, WF2P quotas and executive assumptions in Salary/AI/enrich, pinning the Gemini model version, batching step 2, how scores are shown, fixed AOW/WW sentences (needs Sjoerd), a verified organisation list, an Encore executive summary, copy doc 2b for dashboard labels in "u".
 
 Next: end-to-end test with TEST-ENC2-V2NL-K7Q4 (EN and NL). Needs WF1P-WF4P active, which is Sjoerd's action or his explicit OK.
+
+## Persona test round 1 (2026-11-11)
+Four personas ran end to end (findings: /mnt/project-files/encore-tests/runs/20261110/findings.md).
+- Triple runs: one WF2P call reached WF3P as 3 HTTP requests. Fixed with `claim_workflow_stage` (migration 20261111190000) and a claim + IF + restore step after each webhook in WF2P, WF3P, WF4P.
+- NL top_career_3 cut off (Henk, Marjan): output hit maxTokensToSample 16000. Raised to 32000 on all three WF4P Anthropic models; Split Top3 throws when direction 3 has no comparison JSON.
+- Peter had 10 of 15 enriched rows: a stray `]` in one Enrich B batch failed the whole batch. WF2P "clean up JSON1" now repairs stray/missing brackets and trailing commas and falls back to per-object parsing; warns when fewer than 15 come out.
+- Open: ranking ignores form (3.4) and pay (proposed hard rules: 2 of top 3 in a ticked form, no unpaid in top 3 when pay matters, non-negotiable clash never #1); OOB names organisations and invents roles/quotes; NL reports show English AI labels including off-scale "Low"; scores vary between identical runs (observation).
