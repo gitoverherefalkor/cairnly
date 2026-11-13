@@ -18,6 +18,9 @@ interface ExecSummaryModalProps {
 
 // Parse inline <strong>/<em>/<b>/<i> tags into React elements.
 function renderInlineHtml(text: string): React.ReactNode {
+  // WF7 sometimes mixes markdown bold (**x**) into its HTML; render it as bold
+  // instead of showing the asterisks.
+  text = text.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
   const parts = text.split(/(<strong>.*?<\/strong>|<em>.*?<\/em>|<b>.*?<\/b>|<i>.*?<\/i>)/g);
   if (parts.length === 1) return text;
   return parts.map((part, i) => {

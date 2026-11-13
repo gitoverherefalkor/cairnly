@@ -109,7 +109,7 @@ interface FailureEntry {
   reason: string;
 }
 
-function buildSystemPrompt(target: Lang, encore = false): string {
+function buildSystemPrompt(target: Lang, encore = false, reportTitles: string[] = []): string {
   const langName = LANG_NAMES[target] ?? target;
   const rules = encore ? (ENCORE_RULES[target] ?? RULES[target]) : RULES[target];
   const voiceRules = (rules ?? []).map((r) => `- ${r}`).join('\n');
@@ -138,7 +138,9 @@ NEVER TRANSLATE these brand terms and tokens (reproduce verbatim):
 ${doNotTranslate}
 Job/role titles: keep widely-used English job titles in English when that is how the role is named in the ${langName} job market (e.g. "Product Manager", "COO"); translate descriptive role phrases naturally.
 
-PINNED HEADINGS AND TITLES — when a heading, subheading or section title matches one of these English strings (ignoring case and surrounding tags), use EXACTLY the pinned translation, never a variant:
+${reportTitles.length
+    ? `THIS REPORT'S OWN DIRECTION TITLES — the report already names its directions in ${langName}. When the text refers to one of these directions (often by an English title with the same meaning), use exactly this title:\n${reportTitles.map((t) => `- ${t}`).join('\n')}\n\n`
+    : ''}PINNED HEADINGS AND TITLES — when a heading, subheading or section title matches one of these English strings (ignoring case and surrounding tags), use EXACTLY the pinned translation, never a variant:
 ${headingPins || '(none)'}
 
 STRUCTURAL CONTRACT — hard constraints, checked mechanically after you answer:
@@ -209,6 +211,7 @@ async function translateComparison(
   cmp: { headline: string; explanation: string },
   target: Lang,
   encore = false,
+  titles: string[] = [],
 ): Promise<{ headline: string; explanation: string } | { failure: string }> {
   const canonical = `${cmp.headline}\n\n${CMP_SPLIT}\n\n${cmp.explanation}`;
   // Encore's WF4P writes the comparison natively in the user's language: keep it as is.
@@ -216,7 +219,7 @@ async function translateComparison(
   if (!canonicalLooksEnglish(canonical)) {
     return { failure: 'comparison: canonical-not-english' };
   }
-  const system = buildSystemPrompt(target, encore);
+  const system = buildSystemPrompt(target, encore, titles);
   const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
     { role: 'user', content: buildUserMessage(null, canonical) },
   ];
@@ -259,6 +262,7 @@ async function translateOne(
   target: Lang,
   force: boolean,
   encore = false,
+  titles: string[] = [],
 ): Promise<string | null> {
   const canonicalContent = row.content ?? '';
   if (canonicalContent.trim().length === 0) return null; // nothing to translate
@@ -279,7 +283,7 @@ async function translateOne(
   // comparison failure). Translate just the pair and merge it in.
   if (!needsMain) {
     if (!needsComparison) return null;
-    const translated = await translateComparison(cmp!, target, encore);
+    const translated = await translateComparison(cmp!, target, encore, titles);
     if ('failure' in translated) return translated.failure;
     const { data: fresh } = await supabase
       .from('report_sections')
@@ -305,7 +309,7 @@ async function translateOne(
     return 'canonical-not-english: generator produced non-English canonical content';
   }
 
-  const system = buildSystemPrompt(target, encore);
+  const system = buildSystemPrompt(target, encore, titles);
   const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
     { role: 'user', content: buildUserMessage(row.title, canonicalContent) },
   ];
@@ -342,7 +346,7 @@ async function translateOne(
         let comparisonFailure: string | null = null;
         let comparisonEntry: { headline: string; explanation: string } | null = null;
         if (needsComparison) {
-          const translatedCmp = await translateComparison(cmp!, target, encore);
+          const translatedCmp = await translateComparison(cmp!, target, encore, titles);
           if ('failure' in translatedCmp) comparisonFailure = translatedCmp.failure;
           else comparisonEntry = translatedCmp;
         }
@@ -481,6 +485,17 @@ serve(async (req) => {
       );
     }
 
+    // Encore: the direction titles the report already shows in the user's
+    // language (sections Encore wrote natively), so a summary that names a
+    // direction in English gets the same title the reader sees on the card.
+    const DIRECTION_TYPES = /^(top_career_\d|runner_ups|outside_box|dream_jobs)$/;
+    const reportTitles = encore
+      ? [...new Set(sections
+          .filter((s) => DIRECTION_TYPES.test(s.section_type) && s.title && isNativeTarget(s.content ?? '', target, true))
+          .map((s) => String(s.title).replace(/<[^>]+>/g, '').trim())
+          .filter((t) => t.length > 0))]
+      : [];
+
     const eligible = sections.filter((s) => {
       if (EXEMPT_TYPES.has(s.section_type)) return false;
       if (force) return true;
@@ -499,7 +514,7 @@ serve(async (req) => {
     const workers = Array.from({ length: Math.min(CONCURRENCY, eligible.length) }, async () => {
       while (cursor < eligible.length) {
         const row = eligible[cursor++];
-        const failure = await translateOne(supabase, row, target, force, encore);
+        const failure = await translateOne(supabase, row, target, force, encore, reportTitles);
         if (failure) {
           failures.push({ section_id: row.id, section_type: row.section_type, reason: failure });
         } else {

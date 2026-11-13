@@ -75,6 +75,7 @@ export const ENCORE_RULES: Record<string, readonly string[]> = {
     'Use the formal u-form throughout: u, uw, bent u, heeft u, kunt u. Never je, jij, jou or jouw, also not in headings or quotes of advice. Write "u" in lowercase inside a sentence.',
     'Tone: warm and plain, the way a respectful Dutch adviser talks to someone of 60 or 70. Not stiff or bureaucratic: short sentences, no officialese (middels, inzake, teneinde, dienen te).',
     'Never use age labels for the reader: no "senior", "oudere", "pensionado", "vitaal ouder worden".',
+    'Translate every job, role and direction title into natural Dutch, as the rest of an Encore report does (for example "Forklift Instructor" -> "instructeur heftruck", "Part-Time Logistics Planner" -> "parttime logistiek planner"), and translate tool and system names that are ordinary words ("warehouse management system" -> "magazijnbeheersysteem"). Keep only brand names in English.',
     'Dutch number formatting: €59,00 not €59.00; €1.500 not €1,500',
     'Keep Markdown structure intact (headers, bullets, bold, links)',
     'Date format: dd-mm-yyyy',
