@@ -114,3 +114,10 @@ Four personas ran end to end (findings: /mnt/project-files/encore-tests/runs/202
 - WF4P Top 3: employee-only history + freelance direction = "first step into freelancing" line, plus one benefit/pension check sentence per report.
 - Idea section: Heads-up is a bold label line (Dutch **Let op:**), not italics.
 - Open: combine-hours threshold (Sjoerd's pick pending: 60% of minimum vs all under minimum).
+
+## Eval fixes (2026-11-13, WF3P ab5efa44)
+From the first eval run (n8n_wfs_cairnly/evals/):
+- Ranking repairs broken Step 2 JSON (stray brace, trailing commas, per-career fallback). If fewer than 3 directions, or under 70% of the expected count (Step 2 text or Pull enriched rows), survive, Ranking throws so the Error Handler alerts instead of WF4P writing an empty top 3. Margaret's broken run (eval exec 15340) recovers all 15.
+- activity_family now comes from a fixed list of 33 activities in the Step 2 prompt; equal labels = same activity (word rule only for "other: ..."). Eval after fix: variety_ok 1 for all 4 personas (Marjan was 0.33).
+- combine_needed: all three top 3 directions under the minimum wanted hours (Sjoerd 2026-11-13), was under 60% of the minimum.
+- Stability after fix (eval run 15351): top3_stability 0.78 for Marjan, Peter, Margaret, 0.56 for Henk; #1 same for Henk and Peter, 2 of 3 for Marjan and Margaret. The remaining flips are 2-5 point scoring noise between close options. Experiment: Gemini temperature 0.2 in the eval copy only (run 15379).
