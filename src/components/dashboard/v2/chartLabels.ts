@@ -10,6 +10,8 @@
 // These are axis labels, not prose, so they are NOT part of the content
 // contract and never go near content_i18n. They are UI chrome.
 
+import { isFormalDutchOn } from '@/lib/formalDutch';
+
 export type ChartLang = string | null | undefined;
 
 export const isNl = (lang: ChartLang): boolean =>
@@ -60,11 +62,21 @@ const MAP_NL: Record<string, string> = {
   'AI exposure': 'AI-gevoeligheid',
   'match strength': 'matchsterkte',
 };
-export const mapLabel = (label: string, lang: ChartLang) => pick(MAP_NL, label, lang);
+// Encore (formal Dutch): no English brand terms, and "directions" instead of
+// "runner-ups". Pro keeps SWEET SPOT per its glossary.
+const MAP_NL_ENCORE: Record<string, string> = {
+  ...MAP_NL,
+  'SWEET SPOT': 'BESTE KANS',
+  'WALK AWAY': 'LIEVER NIET',
+};
+export const mapLabel = (label: string, lang: ChartLang) =>
+  pick(isFormalDutchOn() ? MAP_NL_ENCORE : MAP_NL, label, lang);
 
 // The one full sentence the career-map legend carries (screen only — print
 // lists every runner-up by name instead, so it never needs this).
 export const runnerUpsLegend = (count: number, lang: ChartLang): string =>
   isNl(lang)
-    ? `+${count} runner-up${count === 1 ? '' : 's'} (beweeg over de stippen voor namen)`
+    ? isFormalDutchOn()
+      ? `+${count} ${count === 1 ? 'andere richting' : 'andere richtingen'} (beweeg over de stippen voor namen)`
+      : `+${count} runner-up${count === 1 ? '' : 's'} (beweeg over de stippen voor namen)`
     : `+${count} runner-up${count === 1 ? '' : 's'} (hover the dots for names)`;
