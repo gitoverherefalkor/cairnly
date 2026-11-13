@@ -116,7 +116,12 @@ function buildSystemPrompt(target: Lang, encore = false, reportTitles: string[] 
   const glossaryPairs = Object.entries(PREFERRED[`en->${target}`] ?? {})
     .map(([en, tr]) => `- "${en}" -> "${tr}"`)
     .join('\n');
-  const doNotTranslate = DO_NOT_TRANSLATE.map((t) => `- ${t}`).join('\n');
+  // Encore translates the report vocabulary (see ENCORE_RULES), so those
+  // Pro brand terms are not kept in English there.
+  const ENCORE_TRANSLATED_TERMS = new Set(['outside-the-box', 'runner-up']);
+  const doNotTranslate = DO_NOT_TRANSLATE.filter((t) => !encore || !ENCORE_TRANSLATED_TERMS.has(t))
+    .map((t) => `- ${t}`)
+    .join('\n');
   const headingPins = Object.entries(pinsFor(target, encore))
     .map(([en, tr]) => `- "${en}" -> "${tr}"`)
     .join('\n');

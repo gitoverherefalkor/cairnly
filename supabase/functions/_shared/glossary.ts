@@ -76,6 +76,7 @@ export const ENCORE_RULES: Record<string, readonly string[]> = {
     'Tone: warm and plain, the way a respectful Dutch adviser talks to someone of 60 or 70. Not stiff or bureaucratic: short sentences, no officialese (middels, inzake, teneinde, dienen te).',
     'Never use age labels for the reader: no "senior", "oudere", "pensionado", "vitaal ouder worden".',
     'Translate every job, role and direction title into natural Dutch, as the rest of an Encore report does (for example "Forklift Instructor" -> "instructeur heftruck", "Part-Time Logistics Planner" -> "parttime logistiek planner"), and translate tool and system names that are ordinary words ("warehouse management system" -> "magazijnbeheersysteem"). Keep only brand names in English.',
+    'Report vocabulary in Dutch, never in English: "top 3" stays "top 3"; "runner-up(s)" -> "andere passende richting(en)" (as a section name: "Ook interessant"); "outside-the-box" -> "verrassende richting(en)".',
     'Dutch number formatting: €59,00 not €59.00; €1.500 not €1,500',
     'Keep Markdown structure intact (headers, bullets, bold, links)',
     'Date format: dd-mm-yyyy',

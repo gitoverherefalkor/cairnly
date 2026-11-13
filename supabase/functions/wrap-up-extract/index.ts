@@ -212,7 +212,7 @@ serve(async (req) => {
     ? await getReportProduct(supabase, report_id)
     : { encore: false };
   const registerInstruction = encore
-    ? '\n\nAddress the user formally: always "u" and "uw", never "je", "jij" or "jouw".'
+    ? '\n\nAddress the user formally: always "u" and "uw", never "je", "jij" or "jouw". Write the report vocabulary in Dutch, overriding the brand-term line above: "runner-up" -> "andere passende richting", "outside-the-box" -> "verrassende richting". Only Cairnly stays in English.'
     : '';
   const finalSystemPrompt = SYSTEM_PROMPT + langInstruction + registerInstruction;
 
