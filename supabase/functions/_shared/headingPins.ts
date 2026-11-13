@@ -71,3 +71,50 @@ export const HEADING_PINS: Record<string, Record<string, string>> = {
     'Steps for Pursuing This Role': 'Stappen om deze rol na te streven',
   },
 };
+
+// Encore (survey ids ...0003 / ...0004) speaks formal Dutch ("u") and has its
+// own heading set. These are the exact Dutch headings the Encore n8n prompts
+// (WF1P, WF3P, WF4P) write natively, so a section that WF6/WF7 regenerated in
+// English and translate-section translates back lands on the SAME headings.
+// translate-section merges these over HEADING_PINS for Encore reports and
+// drops any Pro pin that uses je/jij/jouw.
+export const ENCORE_HEADING_PINS: Record<string, Record<string, string>> = {
+  nl: {
+    // ── Chapter 1 section titles (WF1P) ──
+    'How You Work Best Now': 'Hoe u nu het beste werkt',
+    'What You Bring': 'Wat u meebrengt',
+    'What to Watch For': 'Waar u op moet letten',
+    'What Matters to You Now': 'Wat nu voor u telt',
+    // ── Chapter 1 subheaders (WF1P) ──
+    'What People Count On You For': 'Waar mensen op u rekenen',
+    'Where Your Energy Comes From': 'Waar uw energie vandaan komt',
+    'Your Core Strengths': 'Uw kernkwaliteiten',
+    'What Carries Over, and What Does Not': 'Wat u meeneemt, en wat niet',
+    'Old Habits in a New Setting': 'Oude gewoonten in een nieuwe omgeving',
+    'What This Means for Your Choices': 'Wat dit betekent voor uw keuzes',
+    'Your Values Now': 'Uw waarden nu',
+    'Choosing With Your Values': 'Kiezen met uw waarden',
+    'Key Insight': 'Belangrijkste inzicht',
+    // ── Top 3 / runner-up subheaders (WF4P) ──
+    'Overview': 'Overzicht',
+    'Why this fits you': 'Waarom dit bij u past',
+    "What you'll actually do": 'Wat u concreet gaat doen',
+    'How people get in': 'Zo komt u binnen',
+    'Your first step': 'Uw eerste stap',
+    'The Reality Check': 'Waar u rekening mee moet houden',
+    'The practical stuff': 'De praktische kant',
+    'What works for you': 'Wat voor u werkt',
+    'How AI will impact this role': 'AI-impact op deze rol',
+    'Future-proof skills': 'Toekomstbestendige vaardigheden',
+    // ── Outside-the-box subheaders (WF3P) ──
+    'Why this might be a fit': 'Waarom dit bij u past',
+    'Path Type & Reality': 'Type pad & realiteit',
+    'AI Impact on this role': 'AI-impact op deze rol',
+    // ── Dream-job subheaders (WF4P) ──
+    'Our honest view': 'Onze eerlijke kijk',
+    'How it fits your week': 'Hoe het in uw week past',
+    'A small version to start with': 'Uw idee in het klein',
+    'What to know before you start': 'Wat u vooraf moet weten',
+    'How to start': 'Zo begint u',
+  },
+};

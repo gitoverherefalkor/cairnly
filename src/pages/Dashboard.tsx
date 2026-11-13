@@ -161,6 +161,7 @@ const Dashboard = () => {
   // we've timed out so a stuck/errored WF7 doesn't poll indefinitely.
   const { sections: reportSections } = useReportSections(latestReport?.id, {
     pollForExecSummary: reportCompleted && !execWaitTimedOut,
+    lang: i18n.language,
   });
   const execSummarySection = reportSections.find(
     (s) => s.section_type === 'exec_summary' || s.section_type === 'executive_summary'

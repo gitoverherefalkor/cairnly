@@ -99,7 +99,7 @@ export const SECTION_TYPE_MAP: Record<string, string> = {
 
 export const useReportSections = (
   reportId?: string,
-  opts?: { pollForExecSummary?: boolean },
+  opts?: { pollForExecSummary?: boolean; lang?: string },
 ) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -141,12 +141,20 @@ export const useReportSections = (
     refetchInterval: opts?.pollForExecSummary
       ? (query) => {
           const data = query.state.data;
-          const hasExec = !!data?.some(
+          const exec = data?.find(
             (s) =>
               s.section_type === 'exec_summary' ||
               s.section_type === 'executive_summary',
           );
-          return hasExec ? false : 15000;
+          if (!exec) return 15000;
+          // WF7 inserts the summary in canonical English and translate-section
+          // adds the user's language ~30s later. Keep polling for that
+          // translation (max 3 minutes after the row was written), otherwise a
+          // Dutch user sees the English summary until they reload.
+          const lang = (opts.lang ?? 'en').slice(0, 2).toLowerCase();
+          if (lang === 'en' || exec.content_i18n?.[lang]) return false;
+          const writtenAt = new Date(exec.updated_at ?? exec.created_at).getTime();
+          return Date.now() - writtenAt < 3 * 60 * 1000 ? 10000 : false;
         }
       : false,
   });

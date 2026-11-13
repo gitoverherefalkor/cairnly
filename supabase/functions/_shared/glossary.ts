@@ -68,6 +68,22 @@ export const RULES: Record<string, readonly string[]> = {
   ],
 };
 
+/** Voice rules for Encore reports (older readers, formal Dutch "u"). Used
+ *  by translate-section instead of RULES when the report is an Encore one. */
+export const ENCORE_RULES: Record<string, readonly string[]> = {
+  nl: [
+    'Use the formal u-form throughout: u, uw, bent u, heeft u, kunt u. Never je, jij, jou or jouw, also not in headings or quotes of advice. Write "u" in lowercase inside a sentence.',
+    'Tone: warm and plain, the way a respectful Dutch adviser talks to someone of 60 or 70. Not stiff or bureaucratic: short sentences, no officialese (middels, inzake, teneinde, dienen te).',
+    'Never use age labels for the reader: no "senior", "oudere", "pensionado", "vitaal ouder worden".',
+    'Dutch number formatting: €59,00 not €59.00; €1.500 not €1,500',
+    'Keep Markdown structure intact (headers, bullets, bold, links)',
+    'Date format: dd-mm-yyyy',
+    'No em-dashes (—): use commas, periods, colons, parentheses, or sentence breaks instead',
+    'Preserve placeholders exactly: {{variable}}, {count}, %s, etc.',
+    'AI-impact rating labels translate to EXACTLY these fixed Dutch terms (they must match the UI badge labels): Minimal -> Minimaal, Moderate -> Gemiddeld, High -> Hoog, Severe -> Ernstig, Critical -> Kritiek. This applies wherever these words appear as the rating under an AI-impact heading.',
+  ],
+};
+
 /** Human-readable language names for prompt text. */
 export const LANG_NAMES: Record<string, string> = {
   en: 'English',

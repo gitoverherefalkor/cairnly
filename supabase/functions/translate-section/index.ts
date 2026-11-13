@@ -33,9 +33,9 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { verifySharedSecret, errorResponse } from '../_shared/cors.ts';
 import { resolveLang, type Lang } from '../_shared/language.ts';
-import { DO_NOT_TRANSLATE, PREFERRED, RULES, LANG_NAMES } from '../_shared/glossary.ts';
-import { HEADING_PINS } from '../_shared/headingPins.ts';
-import { runGate, canonicalLooksEnglish } from '../_shared/translationGate.ts';
+import { DO_NOT_TRANSLATE, PREFERRED, RULES, ENCORE_RULES, LANG_NAMES } from '../_shared/glossary.ts';
+import { HEADING_PINS, ENCORE_HEADING_PINS } from '../_shared/headingPins.ts';
+import { runGate, canonicalLooksEnglish, sniffLanguage } from '../_shared/translationGate.ts';
 
 const serverHeaders = { 'Content-Type': 'application/json' };
 
@@ -50,6 +50,31 @@ const PER_CALL_TIMEOUT_MS = 100_000;
 // Everything else is user-facing generated prose and translates by default,
 // so NEW section types are covered automatically.
 const EXEMPT_TYPES = new Set(['init_summary', 'chat_highlights', 'chapter_1_feedback']);
+
+// Encore reports (older readers) get their own register: formal Dutch "u",
+// their own audience line and their own heading pins. Encore's n8n chain
+// (WF1P-WF4P) also writes Dutch natively, so for Encore a section that is
+// already in the target language is expected, not a generator regression.
+const ENCORE_SURVEY_IDS = new Set([
+  '00000000-0000-0000-0000-000000000003', // Encore v1
+  '00000000-0000-0000-0000-000000000004', // Encore v2
+]);
+
+/** Encore: the canonical is already written in the target language by the
+ *  Encore generators. Nothing to translate, nothing to alert on. */
+function isNativeTarget(text: string, target: Lang, encore: boolean): boolean {
+  return encore && sniffLanguage(text) === target;
+}
+
+/** Pro pins that address the reader as je/jij/jouw must not reach an Encore
+ *  ("u") translation; Encore's own pins replace them. */
+const INFORMAL_NL = /\b(je|jij|jou|jouw|jezelf)\b/i;
+function pinsFor(target: Lang, encore: boolean): Record<string, string> {
+  const base = HEADING_PINS[target] ?? {};
+  if (!encore) return base;
+  const kept = Object.fromEntries(Object.entries(base).filter(([, tr]) => !INFORMAL_NL.test(tr)));
+  return { ...kept, ...(ENCORE_HEADING_PINS[target] ?? {}) };
+}
 
 interface SectionRow {
   id: string;
@@ -84,21 +109,24 @@ interface FailureEntry {
   reason: string;
 }
 
-function buildSystemPrompt(target: Lang): string {
+function buildSystemPrompt(target: Lang, encore = false): string {
   const langName = LANG_NAMES[target] ?? target;
-  const voiceRules = (RULES[target] ?? []).map((r) => `- ${r}`).join('\n');
+  const rules = encore ? (ENCORE_RULES[target] ?? RULES[target]) : RULES[target];
+  const voiceRules = (rules ?? []).map((r) => `- ${r}`).join('\n');
   const glossaryPairs = Object.entries(PREFERRED[`en->${target}`] ?? {})
     .map(([en, tr]) => `- "${en}" -> "${tr}"`)
     .join('\n');
   const doNotTranslate = DO_NOT_TRANSLATE.map((t) => `- ${t}`).join('\n');
-  const headingPins = Object.entries(HEADING_PINS[target] ?? {})
+  const headingPins = Object.entries(pinsFor(target, encore))
     .map(([en, tr]) => `- "${en}" -> "${tr}"`)
     .join('\n');
 
   return `You translate career-guidance report sections for Cairnly, from English to ${langName}.
 
 AUDIENCE AND REGISTER
-The reader is a professional aged 18-55, mostly college-educated office workers, reading a paid, personalised career report about themselves. The text is read once and acted on. Warm, direct, concrete. Not marketing, not academic.
+${encore
+    ? 'The reader is around 55 to 75, at the end of or after their working life, reading a paid, personal report about what could come next for them (paid or unpaid, often a few days a week). Warm, plain, respectful, concrete. Never patronising about age. Not marketing, not academic.'
+    : 'The reader is a professional aged 18-55, mostly college-educated office workers, reading a paid, personalised career report about themselves. The text is read once and acted on. Warm, direct, concrete. Not marketing, not academic.'}
 
 VOICE RULES (${langName})
 ${voiceRules || '- Natural, contemporary register.'}
@@ -180,12 +208,15 @@ const CMP_SPLIT = '<!--CMP-SPLIT-->';
 async function translateComparison(
   cmp: { headline: string; explanation: string },
   target: Lang,
+  encore = false,
 ): Promise<{ headline: string; explanation: string } | { failure: string }> {
   const canonical = `${cmp.headline}\n\n${CMP_SPLIT}\n\n${cmp.explanation}`;
+  // Encore's WF4P writes the comparison natively in the user's language: keep it as is.
+  if (isNativeTarget(canonical, target, encore)) return { headline: cmp.headline, explanation: cmp.explanation };
   if (!canonicalLooksEnglish(canonical)) {
     return { failure: 'comparison: canonical-not-english' };
   }
-  const system = buildSystemPrompt(target);
+  const system = buildSystemPrompt(target, encore);
   const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
     { role: 'user', content: buildUserMessage(null, canonical) },
   ];
@@ -227,9 +258,13 @@ async function translateOne(
   row: SectionRow,
   target: Lang,
   force: boolean,
+  encore = false,
 ): Promise<string | null> {
   const canonicalContent = row.content ?? '';
   if (canonicalContent.trim().length === 0) return null; // nothing to translate
+  // Encore writes most sections natively in the user's language: the display
+  // fallback already shows them correctly. Skip quietly (no alert).
+  if (isNativeTarget(canonicalContent, target, encore)) return null;
 
   const existingEntry =
     row.content_i18n && typeof row.content_i18n === 'object' && target in row.content_i18n
@@ -244,7 +279,7 @@ async function translateOne(
   // comparison failure). Translate just the pair and merge it in.
   if (!needsMain) {
     if (!needsComparison) return null;
-    const translated = await translateComparison(cmp!, target);
+    const translated = await translateComparison(cmp!, target, encore);
     if ('failure' in translated) return translated.failure;
     const { data: fresh } = await supabase
       .from('report_sections')
@@ -270,7 +305,7 @@ async function translateOne(
     return 'canonical-not-english: generator produced non-English canonical content';
   }
 
-  const system = buildSystemPrompt(target);
+  const system = buildSystemPrompt(target, encore);
   const messages: Array<{ role: 'user' | 'assistant'; content: string }> = [
     { role: 'user', content: buildUserMessage(row.title, canonicalContent) },
   ];
@@ -307,7 +342,7 @@ async function translateOne(
         let comparisonFailure: string | null = null;
         let comparisonEntry: { headline: string; explanation: string } | null = null;
         if (needsComparison) {
-          const translatedCmp = await translateComparison(cmp!, target);
+          const translatedCmp = await translateComparison(cmp!, target, encore);
           if ('failure' in translatedCmp) comparisonFailure = translatedCmp.failure;
           else comparisonEntry = translatedCmp;
         }
@@ -404,16 +439,20 @@ serve(async (req) => {
     const sections = rows as SectionRow[];
     const resolvedReportId = sections[0].report_id;
 
+    // The report tells us the product (Encore gets its own register) and,
+    // when no explicit target was passed, whose profile language to use.
+    const { data: report } = await supabase
+      .from('reports')
+      .select('user_id, survey_id')
+      .eq('id', resolvedReportId)
+      .single();
+    const encore = ENCORE_SURVEY_IDS.has(String(report?.survey_id ?? ''));
+
     // Resolve the target language (explicit param, else the owner's profile).
     let target: Lang;
     if (body.target_language) {
       target = resolveLang(body.target_language);
     } else {
-      const { data: report } = await supabase
-        .from('reports')
-        .select('user_id')
-        .eq('id', resolvedReportId)
-        .single();
       const { data: profile } = await supabase
         .from('profiles')
         .select('preferred_language')
@@ -447,7 +486,7 @@ serve(async (req) => {
     const workers = Array.from({ length: Math.min(CONCURRENCY, eligible.length) }, async () => {
       while (cursor < eligible.length) {
         const row = eligible[cursor++];
-        const failure = await translateOne(supabase, row, target, force);
+        const failure = await translateOne(supabase, row, target, force, encore);
         if (failure) {
           failures.push({ section_id: row.id, section_type: row.section_type, reason: failure });
         } else {
@@ -468,6 +507,7 @@ serve(async (req) => {
       JSON.stringify({
         success: failures.length === 0,
         target_language: target,
+        encore,
         translated,
         skipped: sections.length - eligible.length,
         failed: failures,
