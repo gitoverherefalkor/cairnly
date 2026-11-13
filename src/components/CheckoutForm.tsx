@@ -51,13 +51,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Lock } from "lucide-react";
 
@@ -409,20 +402,31 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className={labelCls}>{t('form.country')}</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className={inputCls}>
-                      <SelectValue placeholder={t('form.countryPlaceholder')} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
+                {/* Native <select> on purpose (was a Radix Select). The Radix one
+                    only reacted to typing while its list was open and could drop
+                    the chosen value after a failed submit. A native select takes
+                    type-to-jump ("Neth" → Netherlands) when focused, opens the
+                    phone's own picker on mobile, and works with browser autofill. */}
+                <FormControl>
+                  <select
+                    name={field.name}
+                    ref={field.ref}
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    onBlur={field.onBlur}
+                    autoComplete="country-name"
+                    className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 ${inputCls} ${field.value ? '' : 'text-[#9CA3AF]'}`}
+                  >
+                    <option value="" disabled>
+                      {t('form.countryPlaceholder')}
+                    </option>
                     {countries.map((country) => (
-                      <SelectItem key={country} value={country}>
+                      <option key={country} value={country} className="text-[#122E3B]">
                         {country}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

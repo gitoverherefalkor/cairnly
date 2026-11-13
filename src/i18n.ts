@@ -18,7 +18,10 @@ const domainDetector = {
 const languageDetector = new LanguageDetector();
 languageDetector.addDetector(domainDetector);
 
-i18n
+// The init promise resolves once the detected language's namespaces have been
+// fetched (or failed). main.tsx waits on it before the first render, so a
+// visitor never sees raw keys like "hero.titleA" while the JSON is in flight.
+export const i18nReady = i18n
   .use(HttpBackend)
   .use(languageDetector)
   .use(initReactI18next)
