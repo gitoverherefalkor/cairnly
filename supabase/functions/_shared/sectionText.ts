@@ -42,7 +42,28 @@ export function sectionI18n(section: TranslatableSection, lang: string): Section
 /** Body prose in the user's language, falling back to canonical English. */
 export function sectionText(section: TranslatableSection, lang: string): string {
   const t = sectionI18n(section, lang)?.content;
-  return typeof t === 'string' && t.length > 0 ? t : section.content ?? '';
+  const text = typeof t === 'string' && t.length > 0 ? t : section.content ?? '';
+  return localizeAIImpactLabel(text, lang);
+}
+
+// The AI-impact rating sits right under the AI heading as a fixed English
+// label (the parsers read it). Encore writes Dutch natively but keeps that
+// label in English, so Dutch display swaps it for the UI badge's wording.
+const AI_LABEL_NL: Record<string, string> = {
+  minimal: 'Minimaal',
+  moderate: 'Gemiddeld',
+  high: 'Hoog',
+  severe: 'Ernstig',
+  critical: 'Kritiek',
+};
+
+/** Dutch display of the AI-impact label after "AI-impact op deze rol". */
+export function localizeAIImpactLabel(text: string, lang: string): string {
+  if (String(lang ?? '').slice(0, 2).toLowerCase() !== 'nl' || !text) return text;
+  return text.replace(
+    /(AI-impact op deze rol(?:\s*<\/h5>|\*\*)?\s*(?:\*\*)?)(Minimal|Moderate|High|Severe|Critical)\b/gi,
+    (_m, lead: string, label: string) => lead + (AI_LABEL_NL[label.toLowerCase()] ?? label),
+  );
 }
 
 /** Title in the user's language, falling back to canonical English. */

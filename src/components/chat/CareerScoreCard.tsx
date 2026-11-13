@@ -24,6 +24,12 @@ const AI_IMPACT_ALIASES: Record<string, AIImpactLevel> = {
   high: 'High',
   severe: 'Severe',
   critical: 'Critical',
+  // Dutch labels (Encore writes Dutch natively; display shows these)
+  minimaal: 'Minimal',
+  gemiddeld: 'Moderate',
+  hoog: 'High',
+  ernstig: 'Severe',
+  kritiek: 'Critical',
   // legacy friendly labels from old reports
   safe: 'Minimal',
   augmented: 'Moderate',
@@ -74,7 +80,7 @@ const AI_IMPACT_STYLES: Record<AIImpactLevel, { dot: string; text: string; ring:
 //   "carries a Moderate AI impact rating"        (legacy single-label)
 //   "carries a Low to Moderate AI impact rating" (legacy range — pick higher)
 const LABEL_GROUP =
-  '(minimal|moderate|high|severe|critical|safe|augmented|transforming|at\\s*risk|low|medium|substantial|supporting|enhanced|transformed|displaced)';
+  '(minimal|moderate|high|severe|critical|minimaal|gemiddeld|hoog|ernstig|kritiek|safe|augmented|transforming|at\\s*risk|low|medium|substantial|supporting|enhanced|transformed|displaced)';
 
 // Tier order — used to pick the higher-impact label when a range like
 // "Low to Moderate" produces two matches.
@@ -101,13 +107,13 @@ export function extractAIImpact(body: string): AIImpactLevel | null {
     // OR "AI Impact on this role" (outside-the-box) followed by a bare
     // (optionally bold) clinical label on the next line. Highest precision —
     // checked first so the bare-label era resolves before the old patterns.
-    new RegExp('(?:how ai will impact|ai impact on)[^\\n]*\\n+\\s*\\*{0,2}' + LABEL_GROUP + '\\*{0,2}', 'i'),
+    new RegExp('(?:how ai will impact|ai[\\s-]*impact on|ai[\\s-]*impact op)[^\\n]*\\n+\\s*\\*{0,2}' + LABEL_GROUP + '\\*{0,2}', 'i'),
     // OLD format: friendly/clinical label with a parenthetical "(X Impact)".
     new RegExp(`\\*{0,2}${LABEL_GROUP}\\*{0,2}\\s*\\((?:minimal|low|moderate|high|severe|critical)\\s*impact\\)`, 'i'),
     new RegExp(`(?:rating)\\s*[:\\-]\\s*${LABEL_GROUP}`, 'i'),
     new RegExp(`carries?\\s+a\\s+${LABEL_GROUP}\\s+ai\\s*impact`, 'i'),
     new RegExp(`\\*\\*${LABEL_GROUP}:`, 'i'),
-    new RegExp(`(?:ai\\s*impact[^.\\n]{0,40}?)${LABEL_GROUP}`, 'i'),
+    new RegExp(`(?:ai[\\s-]*impact[^.\\n]{0,40}?)${LABEL_GROUP}`, 'i'),
   ];
   for (const p of patterns) {
     const m = text.match(p);
@@ -121,7 +127,7 @@ export function extractAIImpact(body: string): AIImpactLevel | null {
   // side for a label word. Catches ranges like "Low to Moderate AI impact"
   // and other paraphrased forms. When multiple labels show up in the window,
   // pick the highest-tier one (more conservative read for the user).
-  const contextMatch = text.match(/(.{0,60})ai\s*impact(.{0,60})/i);
+  const contextMatch = text.match(/(.{0,60})ai[\s-]*impact(.{0,60})/i);
   if (contextMatch) {
     const window = `${contextMatch[1]} ${contextMatch[2]}`;
     const labelRegex = new RegExp(`\\b${LABEL_GROUP}\\b`, 'gi');
@@ -155,7 +161,7 @@ export function leadingAIImpactLevel(text: string): AIImpactLevel | null {
   // ":", "(") so we only fire on an actual rating line, not prose that merely
   // starts with a word like "High-pressure…" or "Moderate growth…".
   const bare = trimmed.match(
-    /^\*{0,2}(minimal|moderate|high|severe|critical|safe|augmented|transforming|at\s*risk)\*{0,2}(?:\s+[-—]|\s*[.:(])/i,
+    /^\*{0,2}(minimal|moderate|high|severe|critical|minimaal|gemiddeld|hoog|ernstig|kritiek|safe|augmented|transforming|at\s*risk)\*{0,2}(?:\s+[-—]|\s*[.:(])/i,
   );
   if (bare) return aliasFor(bare[1]);
   // OLD: friendly label with a "(… Impact):" parenthetical.
