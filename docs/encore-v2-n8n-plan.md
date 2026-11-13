@@ -134,3 +134,9 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF4P model calls (top 3, runner-up, idea) stream, with maxTokens 40000. Sonnet's thinking had used most of the old 21000 budget and cut off a Dutch top 3 (Henk r8). Streaming removes the SDK's ~21300 non-streaming cap.
 - Dutch prompts (WF1P profile, WF3P outside-the-box, WF4P) also ban the impersonal "je".
 - WF4P top 3: titles in plain Dutch (English term in parentheses if useful), no English words in Dutch sentences.
+
+## Round 9 fixes (2026-11-13)
+- WF4P "t3 content order" and "Combine runners" rewrite the enriched salary range in Dutch format for nl reports (EUR 32,000 - EUR 46,000 per year (part-time) becomes €32.000 tot €46.000 per jaar (deeltijd)), so top 3 and runner-ups show money the same way. English is untouched.
+- WF4P top 3 and runner-up prompts: quotation marks only for their exact words; a reworded line goes without quotes.
+- WF1P profile prompt: Dutch spelling check line (the profile wrote "disclamer").
+- App: the Dutch AI heading "AI-impact op deze rol" is now parsed (badges, career map), and the English rating label under it shows in Dutch (Minimaal, Gemiddeld, Hoog, Ernstig, Kritiek). The stored text keeps the English label for the parsers.
