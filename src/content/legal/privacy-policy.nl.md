@@ -1,6 +1,6 @@
 # Privacyverklaring
 
-Laatst bijgewerkt: 14 augustus 2026
+Laatst bijgewerkt: 13 november 2026
 
 ## 1. Inleiding
 
@@ -26,6 +26,17 @@ Door gebruik te maken van onze diensten ga je akkoord met het verzamelen en gebr
 - Vaardigheden- en competentie-evaluaties
 - Persoonlijkheids- en gedragsinzichten
 
+### 2.2a Cairnly Encore
+
+Als je Cairnly Encore doet (voor mensen aan het eind van of na hun hoofdloopbaan), gaan de vragen ook over:
+
+- Je precieze leeftijd en waar je staat in je werkende leven (nog aan het werk, binnenkort stoppen of al gestopt), en of stoppen je eigen keuze was
+- Hoeveel tijd je wilt besteden, wat al vaststaat in je agenda (bijvoorbeeld oppasdagen of zorg voor iemand) en of extra inkomen belangrijk voor je is
+- Hoe jouw plannen zich verhouden tot die van je partner, en, alleen als je dat wilt vertellen, wat je partner hoopt voor de komende jaren. Deel alleen wat je partner goedvindt. Wij gebruiken dit uitsluitend om jouw richtingen bij je huishouden te laten passen
+- Of wij na 3, 6 en/of 12 maanden contact met je mogen opnemen
+
+Wij vragen niet naar je gezondheid en vragen je ook geen gezondheidsgegevens in open antwoorden te zetten. Doe je dat toch, dan gebruiken wij die alleen om jouw rapport te schrijven.
+
 ### 2.3 Technische gegevens
 
 - IP-adres en apparaatinformatie
@@ -43,6 +54,7 @@ Op grond van de AVG (artikel 6) verwerken wij jouw gegevens op basis van de volg
 - Gerechtvaardigd belang: verbetering van onze assessment-methodologie, platformbetrouwbaarheid en fraudepreventie (onder meer ten behoeve van het Referral Programma)
 - Wettelijke verplichting: voldoen aan geldende wetgeving en bescherming van onze rechten
 - Toestemming: het versturen van marketingcommunicatie en optionele reminder-e-mails (je kunt je hiervoor op elk moment afmelden via jouw profielinstellingen)
+- Toestemming (Cairnly Encore check-ins): als je ja zegt op de check-in-vraag, mailen wij je na de gekozen periode(s) om te vragen hoe het gaat. Je kunt dit op elk moment intrekken door op de e-mail te antwoorden of contact met ons op te nemen
 - Toestemming (Journal-nieuwsbrief): als je je abonneert op de Cairnly Journal, bewaren wij jouw e-mailadres uitsluitend om drie tot vier uitgaven per jaar te versturen. We gebruiken een bevestigde double opt-in en voegen in elke e-mail een 1-klik afmeldlink toe.
 - Toestemming: het plaatsen van advertentiecookies en het meten of onze advertentiecampagnes tot aankopen leiden (Google Ads-conversiemeting, inclusief verbeterde conversies met een gehasht e-mailadres). Je kunt deze toestemming op elk moment weigeren of intrekken via de cookiebanner.
 

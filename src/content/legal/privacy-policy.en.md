@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: August 14, 2026
+Last updated: November 13, 2026
 
 ## 1. Introduction
 
@@ -26,6 +26,17 @@ By using our services, you agree to the collection and use of information in acc
 - Skills and competency assessments
 - Personality and behavioural insights
 
+### 2.2a Cairnly Encore
+
+If you take Cairnly Encore (for people at or after the end of their main career), the questions also cover:
+
+- Your exact age and where you are in your working life (still working, stopping soon, or already stopped), and whether stopping was your own decision
+- How much time you want to spend, what is already fixed in your calendar (for example days with grandchildren or caring for someone), and whether extra income matters to you
+- How your plans relate to your partner's, and, only if you choose to tell us, what your partner hopes for in the coming years. Please share only what your partner is comfortable with. We use it solely to make your directions fit your household
+- Whether we may check in with you after 3, 6 and/or 12 months
+
+We do not ask about your health, and we ask you not to include health details in open answers. If you do mention them, we use them only to write your report.
+
 ### 2.3 Technical Information
 
 - IP address and device information
@@ -43,6 +54,7 @@ Under the GDPR (Article 6), we process your data based on the following legal gr
 - Legitimate interest: Improve our assessment methodology and platform reliability, and prevent fraud (including in the context of the Referral Programme)
 - Legal obligation: Comply with applicable laws and protect our rights
 - Consent: Send marketing communications and optional reminder emails (you can opt out at any time via your profile settings)
+- Consent (Cairnly Encore check-ins): If you answer yes to the check-in question, we email you after the period(s) you chose to ask how things are going. You can withdraw this at any time by replying to the email or contacting us
 - Consent (Journal newsletter): If you subscribe to the Cairnly Journal, we store your email address solely to send three to four issues per year. We use a confirmed double opt-in and include a one-click unsubscribe link in every email.
 - Consent: Place advertising cookies and measure whether our ad campaigns lead to purchases (Google Ads conversion measurement, including enhanced conversions with a hashed email address). You can decline or withdraw this consent at any time via the cookie banner.
 
