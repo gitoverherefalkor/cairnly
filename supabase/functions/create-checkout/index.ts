@@ -43,7 +43,9 @@ serve(async (req) => {
     const resolvedFlavor: "pro" | "starter" | "encore" =
       flavor === "starter" || flavor === "encore" ? flavor : "pro";
 
-    // Per-flavor product presentation and price. Amounts come from
+    // Per-flavor product presentation and price. Every flavor shows the same
+    // product name on Stripe (checkout page, receipt): "Cairnly Assessment".
+    // Sjoerd's call 2026-11-13; the description still tells them apart. Amounts come from
     // _shared/pricing.ts, which src/lib/pricing.ts mirrors for the marketing
     // pages.
     const FLAVOR_PRODUCTS = {
@@ -54,14 +56,14 @@ serve(async (req) => {
         cancelPath: "/payment",
       },
       starter: {
-        name: "Cairnly Starter Assessment",
+        name: "Cairnly Assessment",
         description:
           "Starter assessment with career directions and entry routes for your first serious job",
         unitAmount: toCents(STARTER_PRICE),
         cancelPath: "/starter/payment",
       },
       encore: {
-        name: "Cairnly Encore Assessment",
+        name: "Cairnly Assessment",
         description:
           "Encore assessment with personality profile and post-career directions that fit this stage of life",
         unitAmount: toCents(ENCORE_PRICE),

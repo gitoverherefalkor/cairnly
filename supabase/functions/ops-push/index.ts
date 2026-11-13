@@ -15,6 +15,7 @@
 // POST, x-shared-secret = N8N_SHARED_SECRET (vault 'n8n_shared_secret').
 //   { action: 'digest', slot: 'morning' | 'afternoon', force? } → { sent, reason? }
 //   { action: 'alarm', force? }                                 → { sent, reason? }
+//   { action: 'stuck' }                                         → { sent, stuck }
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
@@ -140,6 +141,67 @@ async function alarm(db: SupabaseClient, now: Date) {
   return { sent };
 }
 
+/**
+ * A submitted survey whose report is not ready 45 minutes later. A normal run
+ * takes about 15 minutes; past 45 a customer is waiting on a run that died
+ * (n8n error, webhook never arrived, model output that failed a guard). The
+ * n8n Error Handler mails crashed executions, but it cannot see a run that
+ * never started or one that ended without flipping the report to ready.
+ * "Ready" = analysis-completed set the report to pending_review (or later,
+ * completed). One ping per submission per day; covers every product.
+ */
+const STUCK_AFTER_MIN = 45;
+const STUCK_LOOKBACK_H = 48;
+const ENCORE_SURVEY_IDS = new Set([
+  '00000000-0000-0000-0000-000000000003',
+  '00000000-0000-0000-0000-000000000004',
+]);
+
+async function stuck(db: SupabaseClient, now: Date) {
+  const newest = new Date(now.getTime() - STUCK_AFTER_MIN * 60_000).toISOString();
+  const oldest = new Date(now.getTime() - STUCK_LOOKBACK_H * 3_600_000).toISOString();
+  const { data: subs, error } = await db
+    .from('answers')
+    .select('id, survey_id, submitted_at, access_code_id')
+    .eq('status', 'submitted')
+    .gte('submitted_at', oldest)
+    .lte('submitted_at', newest);
+  if (error) throw error;
+  if (!subs?.length) return { sent: 0, stuck: 0 };
+
+  const codeIds = subs.map((s) => s.access_code_id).filter(Boolean);
+  const { data: codes } = await db.from('access_codes').select('id, user_id').in('id', codeIds);
+  const userByCode = new Map((codes ?? []).map((c) => [c.id, c.user_id as string | null]));
+  const userIds = [...new Set((codes ?? []).map((c) => c.user_id).filter(Boolean))];
+  const { data: reports } = userIds.length
+    ? await db.from('reports').select('user_id, status, created_at').in('user_id', userIds)
+    : { data: [] };
+
+  const waiting = subs.filter((s) => {
+    const userId = userByCode.get(s.access_code_id);
+    if (!userId) return true; // submitted, but nobody to show a report to: worth a look
+    const since = new Date(s.submitted_at).getTime() - 5 * 60_000;
+    return !(reports ?? []).some((r) =>
+      r.user_id === userId &&
+      new Date(r.created_at).getTime() >= since &&
+      (r.status === 'pending_review' || r.status === 'completed'));
+  });
+
+  let sent = 0;
+  for (const s of waiting) {
+    const product = ENCORE_SURVEY_IDS.has(s.survey_id) ? 'Encore' : 'Cairnly';
+    const mins = Math.round((now.getTime() - new Date(s.submitted_at).getTime()) / 60_000);
+    const ok = await notifyPush(db, 'report_stuck', s.id, {
+      title: `${product} report not ready after ${mins} min`,
+      body: 'A customer submitted the survey and is still waiting. Check n8n executions (WF1P to WF4P for Encore).',
+      url: OPS_OUTREACH_URL,
+      tag: `report-stuck-${s.id}`,
+    }, { now });
+    if (ok) sent++;
+  }
+  return { sent, stuck: waiting.length };
+}
+
 serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   const denied = verifySharedSecret(req);
@@ -166,6 +228,7 @@ serve(async (req) => {
       return json(await digest(supabase, slot, now));
     }
     if (action === 'alarm') return json(await alarm(supabase, now));
+    if (action === 'stuck') return json(await stuck(supabase, now));
     return json({ error: `Unknown action: ${action}` }, 400);
   } catch (e) {
     console.error('[ops-push]', action, e);
