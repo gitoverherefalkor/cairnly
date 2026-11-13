@@ -1,0 +1,68 @@
+{
+  "welcome": {
+    "title": "Welkom bij uw loopbaangesprek",
+    "intro": "Goedendag, ik ben uw Cairnly-coach. Ik neem uw profiel en de richtingen voor u stap voor stap met u door. Onderweg kunt u vragen stellen, het ergens niet mee eens zijn of een richting verder verkennen.",
+    "tip": "U hoeft geen aantekeningen te maken. Elk bericht heeft een Bewaren-knop, zo vindt u het later makkelijk terug. Uw volledige rapport verschijnt op uw dashboard zodra we klaar zijn.",
+    "preparing": "Uw gesprek wordt voorbereid..."
+  },
+  "session": {
+    "viewReport": "Bekijk uw rapport",
+    "completed": "Gesprek afgerond. Uw rapport staat hierboven klaar."
+  },
+  "quickReplies": {
+    "differently": {
+      "placeholder": "Vertel hoe u het ziet…"
+    },
+    "somethingElse": {
+      "placeholder": "Laat weten wat u bezighoudt…"
+    }
+  },
+  "ui": {
+    "thinking": {
+      "2": "Ik stel mijn antwoord op"
+    },
+    "savedBody": "Uw inzichten uit het gesprek staan nu in uw rapport.",
+    "phSessionCompleted": "Gesprek afgerond - uw rapport staat hierboven",
+    "phWrappingUp": "We ronden af - maak uw inzichten hierboven af om af te sluiten",
+    "phAskQuestion": "Typ uw vraag…",
+    "loadingSection": "Uw onderdeel wordt geladen",
+    "preparingMatches": "We zetten uw richtingen klaar, dit kan even duren",
+    "tapCardsHint": "Tik op een kaart hieronder om deze te openen. Heeft u ze allemaal geopend, dan kunt u verder.",
+    "savedSectionBody": "We verwerken wat u zei in dit onderdeel van uw rapport.",
+    "savedCareerBody": "We verwerken wat u zei in de beschrijving in uw rapport. De matchscores en de volgorde van uw richtingen blijven zoals ze berekend zijn.",
+    "askAboutPlaceholder": "Stel uw vraag over {{role}}…",
+    "likedTitle": "U vond dit sterk. Klik om dat ongedaan te maken.",
+    "inReportTitle": "Staat al in uw rapport, samen met de feedback die u in dit gesprek geeft",
+    "keptTitle": "Bewaard. Dit antwoord staat volledig in uw rapport. Klik om te verwijderen.",
+    "keepTitle": "Bewaar dit antwoord volledig in uw rapport"
+  },
+  "chapterFeedback": {
+    "intro": "U heeft zojuist uw profiel doorgenomen. Voordat we naar de richtingen voor u gaan: laat even weten hoe dit deel overkwam. Zo beantwoord, en voor ons goud waard.",
+    "thanks": "Dank u. We gaan verder.",
+    "submit": "Door naar de richtingen →"
+  },
+  "careerPills": {
+    "chatGeneratedCaveat": "Deze suggestie komt uit uw rapport en ons gesprek, niet uit de gescoorde matching die uw andere kaarten rangschikte. Zie het als een spoor om te verkennen, niet als een gerangschikte match."
+  },
+  "resume": {
+    "banner": "Gesprek hersteld - uw coach weet nog waar u gebleven was",
+    "wbIntro": "Het is even geleden dat we elkaar spraken. Ik sta klaar om ons gesprek over uw rapport voort te zetten.",
+    "wbSafeTitle": "Uw voortgang is veilig",
+    "wbSafeBody": "Ons eerdere gesprek is hier niet meer zichtbaar, maar al uw feedback en rapportinhoud is opgeslagen en verwerkt. Uw eindrapport bevat alles wat we hebben besproken.",
+    "wbReady": "Klaar om verder te gaan waar we gebleven waren? Stel gerust vragen over elk onderdeel van uw rapport, vraag om verduidelijking of verken nieuwe richtingen."
+  },
+  "wrapUp": {
+    "intro1": "Uw gesprek wordt niet woord voor woord bewaard. Deze hoogtepunten",
+    "introKept_one": ", plus het antwoord dat u bewaarde,",
+    "introKept_other": ", plus de {{count}} antwoorden die u bewaarde,",
+    "intro2": "komen in uw rapport zodra u hieronder op",
+    "intro3": "klikt. Wilt u een antwoord volledig bewaren? Klik er dan eerst op",
+    "addendumLabel": "Nog iets dat u wilt meegeven?",
+    "addendumPlaceholder": "Een concreet inzicht, een notitie voor later, of iets dat we nog niet hebben vastgelegd...",
+    "addendumHelper": "Dit is een notitie die bij uw rapport wordt opgeslagen. U krijgt er hier geen antwoord op; het gesprek sluit na het opslaan.",
+    "teaser": "Sla op om uw dashboard vrij te spelen.",
+    "savedBanner": "Opgeslagen in uw rapport. Bekijk hieronder nog even uw Career Signature en ga daarna naar uw dashboard.",
+    "errorFirst": "We konden geen hoogtepunten maken. U kunt opslaan met alleen uw eigen notitie hieronder, of het opnieuw proberen.",
+    "errorRetry": "Nog steeds geen succes. U kunt opslaan met alleen uw eigen notitie hieronder."
+  }
+}

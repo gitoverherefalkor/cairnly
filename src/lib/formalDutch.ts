@@ -2,8 +2,9 @@
  * Formal Dutch ("u") for Encore users.
  *
  * Cairnly's Dutch copy says "je". Encore (older professionals) says "u"
- * everywhere the user looks, except the shared AI coach chat, which stays "je"
- * until Encore has its own coach (decision 2026-11-08).
+ * everywhere the user looks. Since 2026-11-13 (round 7) that includes the
+ * coach chat's own screens (welcome, popups, wrap-up); the coach's typed
+ * replies follow WF5's register.
  *
  * How it works: overrides live in public/locales/nl-formal/<ns>.json and hold
  * ONLY the strings that differ. When formal mode is on, every Dutch namespace
@@ -35,11 +36,10 @@ export function applyFlavorHintFromUrl(): void {
 }
 
 /**
- * Namespaces with a nl-formal override file. `chat` stays "je" on purpose (it
- * frames the shared coach's own "je" voice). `coach` overrides only the UI
- * chrome (dashboard card, headers, notices); the coach's opener stays "je".
+ * Namespaces with a nl-formal override file. `coach` overrides only the UI
+ * chrome (dashboard card, headers, notices).
  */
-export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment', 'coach'];
+export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment', 'coach', 'chat'];
 
 export function isFormalDutchOn(): boolean {
   try {

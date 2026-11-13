@@ -271,6 +271,14 @@ const Dashboard = () => {
             body: { code: codeString },
           });
           if (verifyData?.valid) verifiedCode = verifyData.accessCode;
+          else {
+            // A single-use code is no longer "valid" once the survey is
+            // submitted, which left the entry screen on Pro copy for Encore
+            // users waiting on their coach (round 7). Look the code up by user
+            // id for its survey_type only; nothing else changes for a used code.
+            const { data: lookupData } = await supabase.functions.invoke('get-my-access-code');
+            if (lookupData?.found) setEntrySurveyType(lookupData.accessCode?.survey_type ?? null);
+          }
         } else {
           // No code on this device — recover it from the database by user id.
           const { data: lookupData } = await supabase.functions.invoke('get-my-access-code');

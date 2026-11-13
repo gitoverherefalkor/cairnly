@@ -26,6 +26,7 @@ import {
   checkRateLimit,
 } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
+import { getReportProduct } from '../_shared/product.ts';
 
 // Post-report coach budget per report per calendar month (decision H).
 const COACH_MONTHLY_LIMIT = 40;
@@ -90,6 +91,9 @@ interface ChatRequestBody {
     // gates career-related follow-up suggestions on personality sections.
     current_section?: string | null;
     careers_revealed?: boolean;
+    // Set here (never trusted from the client): 'u' for Encore users in
+    // Dutch, 'je' otherwise. WF5/WF5C read it for the Dutch register.
+    dutch_register?: 'u' | 'je';
     // Survey-sourced coach context (set by ChatContainer from the report's
     // survey responses). We forward the whole body verbatim, so these pass
     // straight through to WF5 without any change here — listed for clarity.
@@ -246,6 +250,13 @@ serve(async (req) => {
   // Over HTTPS this is equivalent in security to the header approach.
   const basicAuthUser = Deno.env.get('N8N_BASIC_AUTH_USER') ?? 'atlas-chat-proxy';
   const basicAuthHeader = `Basic ${btoa(`${basicAuthUser}:${sharedSecret}`)}`;
+
+  // Dutch register for the coach: Encore says "u", Pro/Starter say "je".
+  if (body.metadata && reportId) {
+    const lang = String(body.metadata.preferred_language ?? 'en');
+    const encore = lang.startsWith('nl') ? (await getReportProduct(supabase, reportId)).encore : false;
+    body.metadata.dutch_register = encore ? 'u' : 'je';
+  }
 
   // Lost-reply recovery (first chat only, not the post-report coach). WF5's
   // Postgres memory saves every turn to n8n_chat_histories (session_id =

@@ -17,6 +17,7 @@
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getReportProduct } from '../_shared/product.ts';
 import {
   getCorsHeaders,
   handleCorsPreFlight,
@@ -206,7 +207,14 @@ serve(async (req) => {
   const langInstruction = preferredLanguage !== 'en' && LANG_NAMES[preferredLanguage]
     ? `\n\nWrite your final output in ${LANG_NAMES[preferredLanguage]}. Maintain Markdown structure. Brand terms (Cairnly, outside-the-box, runner-up) stay in English.`
     : '';
-  const finalSystemPrompt = SYSTEM_PROMPT + langInstruction;
+  // Encore addresses Dutch users formally ("u"); Pro/Starter keep "je".
+  const { encore } = preferredLanguage === 'nl'
+    ? await getReportProduct(supabase, report_id)
+    : { encore: false };
+  const registerInstruction = encore
+    ? '\n\nAddress the user formally: always "u" and "uw", never "je", "jij" or "jouw".'
+    : '';
+  const finalSystemPrompt = SYSTEM_PROMPT + langInstruction + registerInstruction;
 
   const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
