@@ -20,6 +20,8 @@ interface Props {
   numbered?: boolean;
   /** Axis / quadrant label language. Print passes the document's language. */
   lang?: ChartLang;
+  /** Encore labels; omitted = follow the browser's formal-Dutch flag. */
+  encore?: boolean;
 }
 
 const W = 580;
@@ -114,7 +116,7 @@ function spread(pts: { x: number; y: number }[], minGap: number) {
   });
 }
 
-export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang }) => {
+export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang, encore }) => {
   const xPx = (x: number) => PAD_L + Math.max(0, Math.min(1, x)) * PLOT_W;
   const yPx = (y: number) => PAD_T + Math.max(0, Math.min(1, y)) * PLOT_H;
 
@@ -174,7 +176,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
         fill={PALETTE.tealDeep}
         opacity={0.85}
       >
-        {mapLabel('SWEET SPOT', lang)}
+        {mapLabel('SWEET SPOT', lang, encore)}
       </text>
 
       {/* At-risk wash — bottom-right quadrant (high AI exposure × weak match) */}
@@ -197,7 +199,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
         fill="#A53636"
         opacity={0.85}
       >
-        {mapLabel('WALK AWAY', lang)}
+        {mapLabel('WALK AWAY', lang, encore)}
       </text>
 
       {/* Quadrant gridlines */}
@@ -206,9 +208,9 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
 
       {/* X axis labels */}
       {([
-        { x: PAD_L + 8, label: mapLabel('SAFE', lang), color: PALETTE.canvasDeep, anchor: 'start' },
-        { x: cx, label: mapLabel('AUGMENTED', lang), color: PALETTE.canvasDeep, anchor: 'middle' },
-        { x: PAD_L + PLOT_W - 8, label: mapLabel('AT RISK', lang), color: PALETTE.canvasDeep, anchor: 'end' },
+        { x: PAD_L + 8, label: mapLabel('SAFE', lang, encore), color: PALETTE.canvasDeep, anchor: 'start' },
+        { x: cx, label: mapLabel('AUGMENTED', lang, encore), color: PALETTE.canvasDeep, anchor: 'middle' },
+        { x: PAD_L + PLOT_W - 8, label: mapLabel('AT RISK', lang, encore), color: PALETTE.canvasDeep, anchor: 'end' },
       ] as const).map((t) => (
         <text
           key={t.label}
@@ -224,7 +226,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
           {t.label}
         </text>
       ))}
-      <AxisSpan cx={cx} cy={H - 12} label={mapLabel('AI exposure', lang)} />
+      <AxisSpan cx={cx} cy={H - 12} label={mapLabel('AI exposure', lang, encore)} />
 
       {/* Y axis labels — pushed further left now that PAD_L gives more room. */}
       <text
@@ -237,7 +239,7 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
         letterSpacing="0.16em"
         fill={PALETTE.canvasDeep}
       >
-        {mapLabel('STRONG', lang)}
+        {mapLabel('STRONG', lang, encore)}
       </text>
       <text
         x={PAD_L - 12}
@@ -249,9 +251,9 @@ export const V4CareerMapSVG: React.FC<Props> = ({ points, numbered = false, lang
         letterSpacing="0.16em"
         fill={PALETTE.inkMuted}
       >
-        {mapLabel('WEAKER', lang)}
+        {mapLabel('WEAKER', lang, encore)}
       </text>
-      <AxisSpan cx={26} cy={cy} label={mapLabel('match strength', lang)} rotate={-90} />
+      <AxisSpan cx={26} cy={cy} label={mapLabel('match strength', lang, encore)} rotate={-90} />
 
       {/* Secondaries first. Names live in the legend / hover tooltip since
           most points cluster in the same AI-impact bucket and inline labels
@@ -372,7 +374,8 @@ export const V4CareerMapLegend: React.FC<{
   /** Label language. Print passes the document's language; the dashboard
    *  passes the UI language. Same contract as V4CareerMapSVG. */
   lang?: ChartLang;
-}> = ({ points, print = false, lang }) => {
+  encore?: boolean;
+}> = ({ points, print = false, lang, encore }) => {
   const tops = points
     .filter((p) => p.rank)
     .sort((a, b) => (a.rank! - b.rank!));
@@ -476,7 +479,7 @@ export const V4CareerMapLegend: React.FC<{
                 lineHeight: 1.3,
               }}
             >
-              {runnerUpsLegend(secondaries.length, lang)}
+              {runnerUpsLegend(secondaries.length, lang, encore)}
             </span>
           </div>
         ))}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePrintEncore } from './printFlavor';
 import { PALETTE, FONT_DISPLAY, FONT_BODY, SECTION_VISUALS } from '@/components/dashboard/v2/dashboardV2Shared';
 import { CareerSlotIcon } from '@/components/dashboard/CareerSlotIcon';
 import {
@@ -128,11 +129,15 @@ export const PrintGroupHeader: React.FC<{
   lang: PrintLang;
   count: number;
 }> = ({ sectionType, lang, count }) => {
-  const title = groupTitleFor(sectionType, lang);
-  const intro = introFor(sectionType, lang);
+  const encore = usePrintEncore();
+  const title = groupTitleFor(sectionType, lang, encore);
+  const intro = introFor(sectionType, lang, encore);
   const Icon = iconForSection(sectionType);
-  const countLabel =
-    lang === 'nl'
+  const countLabel = encore
+    ? lang === 'nl'
+      ? `${count} ${count === 1 ? 'richting' : 'richtingen'}`
+      : `${count} ${count === 1 ? 'direction' : 'directions'}`
+    : lang === 'nl'
       ? `${count} ${count === 1 ? 'rol' : 'rollen'}`
       : `${count} ${count === 1 ? 'role' : 'roles'}`;
 

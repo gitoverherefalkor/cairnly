@@ -17,6 +17,7 @@ import { stripHtml, PALETTE, FONT_BODY } from '@/components/dashboard/v2/dashboa
 import { V4ChartBanner } from '@/components/dashboard/v2/V4ChartBanner';
 import { V4PersonalityRadarSVG } from '@/components/dashboard/v2/V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend } from '@/components/dashboard/v2/V4CareerMapSVG';
+import { PrintEncoreContext } from './printFlavor';
 import { V4CompareRadarSVG, V4CompareLegend } from '@/components/dashboard/v2/V4CompareRadarSVG';
 import {
   buildRadarAxes,
@@ -126,6 +127,44 @@ const STRINGS = {
   },
 } as const;
 
+// Encore (older professionals): the next stage instead of a career move,
+// "directions" instead of roles, and formal Dutch ("u"). Same keys as STRINGS.
+const ENCORE_STRINGS: Record<'en' | 'nl', { [K in keyof (typeof STRINGS)['en']]: (typeof STRINGS)['en'][K] extends (...a: infer A) => infer R ? (...a: A) => R : string }> = {
+  en: {
+    ...STRINGS.en,
+    coverKicker: 'Next-chapter report',
+    title: (n: string) => (n ? `${n}'s next chapter` : 'Your next chapter'),
+    coverSubtitle:
+      'Where your experience, your values and this stage of life meet, and the directions that follow from it.',
+    radarTitle: 'How you work now',
+    radarBlurb:
+      'Your working profile across five dimensions, built from the assessment and tested in the conversation with your coach.',
+    mapTitle: 'Where the directions sit',
+    mapBlurb:
+      'Your directions plotted by fit against AI exposure. Your best chances are top-left; bottom-right is better avoided.',
+    compareTitle: 'How your top three compare',
+    compareBlurb: 'The same three directions measured against the conditions you said matter most.',
+  },
+  nl: {
+    ...STRINGS.nl,
+    coverKicker: 'Rapport voor uw volgende fase',
+    title: (n: string) => (n ? `De volgende fase van ${n}` : 'Uw volgende fase'),
+    coverSubtitle:
+      'Waar uw ervaring, uw waarden en deze levensfase samenkomen, en welke richtingen daaruit volgen.',
+    preparedFor: (n: string) => (n ? `Opgesteld voor ${n}` : 'Voor u opgesteld'),
+    contents: 'Wat u hier vindt',
+    radarTitle: 'Hoe u nu werkt',
+    radarBlurb:
+      'Uw werkprofiel op vijf dimensies, opgebouwd uit de vragenlijst en getoetst in het gesprek met uw coach.',
+    mapTitle: 'Waar de richtingen liggen',
+    mapBlurb:
+      'Uw richtingen uitgezet naar hoe goed ze passen tegenover het risico op AI-impact. Uw beste kansen liggen linksboven, rechtsonder liever niet.',
+    compareTitle: 'Hoe uw top drie zich verhoudt',
+    compareBlurb: 'Dezelfde drie richtingen, afgezet tegen de omstandigheden die u het belangrijkst vindt.',
+    chartMoreBefore: 'Bekijk uw ',
+  },
+};
+
 /** The printed document's language, under the language contract: the user's
  *  preferred_language, honoured only when EVERY translatable section carries
  *  that translation — all-or-nothing, so chrome and prose always agree and a
@@ -204,6 +243,9 @@ export const ReportPrintDocument: React.FC<{
   /** An employer paid for this assessment: the closing page drops the refund
    *  ladder. Shipped by report-print-data. */
   sponsored?: boolean;
+  /** Encore report (shipped by report-print-data as product.encore): its own
+   *  framing, formal Dutch, Encore map labels and closing page. */
+  encore?: boolean;
 }> = ({
   firstName,
   lastName,
@@ -214,6 +256,7 @@ export const ReportPrintDocument: React.FC<{
   dismissed = [],
   sample = false,
   sponsored = false,
+  encore = false,
 }) => {
   // Dismissed runner-ups / outside-box / dream jobs never reach the document.
   // A dismissed top-3 career survives here and is marked below instead.
@@ -239,7 +282,7 @@ export const ReportPrintDocument: React.FC<{
   // droppable set ever changes.
   const mapPoints = buildCareerMapPoints(kept, lang);
   const compare = buildCompareCareers(kept, lang);
-  const t = STRINGS[lang];
+  const t = encore ? ENCORE_STRINGS[lang] : STRINGS[lang];
 
   const dateLabel = generatedAt
     ? new Date(generatedAt).toLocaleDateString(lang === 'nl' ? 'nl-NL' : 'en-GB', {
@@ -365,8 +408,8 @@ export const ReportPrintDocument: React.FC<{
             icon={<MapIcon size={13} />}
             title={t.mapTitle}
             blurb={t.mapBlurb}
-            chart={<V4CareerMapSVG points={mapPoints} numbered lang={lang} />}
-            legend={<V4CareerMapLegend points={mapPoints} print lang={lang} />}
+            chart={<V4CareerMapSVG points={mapPoints} numbered lang={lang} encore={encore} />}
+            legend={<V4CareerMapLegend points={mapPoints} print lang={lang} encore={encore} />}
           />,
         )
       : null;
@@ -388,7 +431,7 @@ export const ReportPrintDocument: React.FC<{
   const placedMap = { done: false };
 
   return (
-    <>
+    <PrintEncoreContext.Provider value={encore}>
       {/* ── Cover ─────────────────────────────────────────────── */}
       <PrintSheet cover>
         <PrintCover
@@ -501,8 +544,13 @@ export const ReportPrintDocument: React.FC<{
 
         {/* Sign-off and the toolkit CTAs. Generated from UNLOCK_LADDER so the
             printed promise cannot drift from the live one. */}
-        <PrintClosing lang={lang} partnerName={partner?.name ?? null} sponsored={sponsored} />
+        <PrintClosing
+          lang={lang}
+          partnerName={partner?.name ?? null}
+          sponsored={sponsored}
+          encore={encore}
+        />
       </div>
-    </>
+    </PrintEncoreContext.Provider>
   );
 };

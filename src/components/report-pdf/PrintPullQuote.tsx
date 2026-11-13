@@ -2,7 +2,8 @@ import React from 'react';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { sectionText, sectionTitle } from '@/lib/sectionText';
 import { PALETTE, FONT_DISPLAY, FONT_BODY, pickSectionShareQuotes, stripHtml } from '@/components/dashboard/v2/dashboardV2Shared';
-import { SHARE_PROMPT, type PrintLang } from './printIntros';
+import { sharePromptFor, type PrintLang } from './printIntros';
+import { usePrintEncore } from './printFlavor';
 
 // The pull quote is the LinkedIn share-card line, printed.
 //
@@ -90,7 +91,7 @@ export const PrintPullQuote: React.FC<{
    *  headline, not an advert. */
   showShareCta?: boolean;
 }> = ({ quote, attribution, lang, shareUrl, showShareCta = true }) => {
-  const t = SHARE_PROMPT[lang];
+  const t = sharePromptFor(lang, usePrintEncore());
   return (
     <div
       className="print-nobreak"

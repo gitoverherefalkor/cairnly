@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePrintEncore } from './printFlavor';
 import { companyContext } from '@/lib/companyContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -243,9 +244,10 @@ export const PrintSection: React.FC<{
   const score = visibleCareerScore(section);
   const impact = isCareer ? extractAIImpact(section.content || '') : null;
   const move = section.metadata?.move as MoveLevel | undefined;
-  const eyebrow = nested ? null : eyebrowFor(section.section_type, lang);
+  const encore = usePrintEncore();
+  const eyebrow = nested ? null : eyebrowFor(section.section_type, lang, encore);
   const Icon = iconForSection(section.section_type);
-  const intro = showIntro && !nested ? introFor(section.section_type, lang) : null;
+  const intro = showIntro && !nested ? introFor(section.section_type, lang, encore) : null;
   const photoKey = photoKeyFor(section.section_type);
   // WF4 writes this as a fragment of markup, so it needs the same cleaning the
   // chat sidebar does. It answers "what kind of employer is this?", which the

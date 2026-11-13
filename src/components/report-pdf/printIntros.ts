@@ -103,8 +103,64 @@ const NL: Partial<Record<PrintSectionType, string>> = {
 
 const INTROS: Record<PrintLang, Partial<Record<PrintSectionType, string>>> = { en: EN, nl: NL };
 
-export function introFor(sectionType: string, lang: PrintLang): string | null {
-  return INTROS[lang][sectionType as PrintSectionType] ?? null;
+// Encore: directions for the next stage, "your idea" instead of a dream job,
+// and formal Dutch ("u").
+const ENCORE_INTROS: Record<PrintLang, Partial<Record<PrintSectionType, string>>> = {
+  en: {
+    exec_summary:
+      'The short version of everything that follows: what your profile points to, which directions came out on top, and a first step worth taking.',
+    approach:
+      'How you work best now: where your energy comes from, what people count on you for, and the kind of setting that suits this stage.',
+    personality_team:
+      'How you work best now: where your energy comes from, what people count on you for, and the kind of setting that suits this stage.',
+    strengths: 'What you bring from your working life, and which of it carries over to what comes next.',
+    development:
+      'What to watch for: old habits that may not fit a new setting, and what that means for your choices.',
+    values: 'What matters to you now, and how that shapes which directions will actually feel right.',
+    top_career_1:
+      'Your strongest direction, based on your profile, your values and what you want from this stage. What it involves, why it fits, and what to be honest with yourself about.',
+    top_career_2: 'Your second direction. Close to the first in fit, but different in kind, setting or rhythm.',
+    top_career_3:
+      'Your third direction, and the last of the top three. Worth reading even if the first two landed better, since it often makes clear what you really want.',
+    runner_ups:
+      'Other directions that suit you well but came in just behind the top three. A comparison set, not the surprising picks.',
+    outside_box:
+      'Sometimes the best paths are not the obvious ones. These directions fit who you are but were probably not on your radar.',
+    dream_jobs:
+      'You told us about an idea you keep coming back to. Here we look at it honestly: what it would really take, and what a version of it could look like that fits the experience you already have.',
+    chat_highlights:
+      'What came out of talking it through with your coach: a pattern you named, a correction you made, or a conclusion you reached together. Your own words shaped the report you have just read.',
+  },
+  nl: {
+    exec_summary:
+      'De korte versie van alles wat volgt: waar uw profiel op wijst, welke richtingen bovenaan eindigden, en een eerste stap die de moeite waard is.',
+    approach:
+      'Hoe u nu het beste werkt: waar uw energie vandaan komt, waar mensen op u rekenen, en welke omgeving bij deze fase past.',
+    personality_team:
+      'Hoe u nu het beste werkt: waar uw energie vandaan komt, waar mensen op u rekenen, en welke omgeving bij deze fase past.',
+    strengths: 'Wat u meebrengt uit uw werkzame leven, en wat daarvan meegaat naar wat hierna komt.',
+    development:
+      'Waar u op moet letten: oude gewoonten die niet altijd passen in een nieuwe omgeving, en wat dat betekent voor uw keuzes.',
+    values: 'Wat nu voor u telt, en hoe dat bepaalt welke richtingen echt goed zullen voelen.',
+    top_career_1:
+      'Uw sterkste richting, gebaseerd op uw profiel, uw waarden en wat u van deze fase wilt. Wat het inhoudt, waarom het past, en waar u eerlijk over moet zijn tegenover uzelf.',
+    top_career_2: 'Uw tweede richting. Qua aansluiting dicht bij de eerste, maar anders van aard, omgeving of ritme.',
+    top_career_3:
+      'Uw derde richting, en de laatste van de top drie. Ook de moeite waard als de eerste twee beter landden, omdat deze vaak duidelijk maakt wat u echt wilt.',
+    runner_ups:
+      'Andere richtingen die goed bij u passen, maar net achter de top drie eindigden. Een vergelijking, niet de verrassende keuzes.',
+    outside_box:
+      'Soms zijn de beste paden niet de meest voor de hand liggende. Deze richtingen passen bij wie u bent, maar stonden waarschijnlijk niet op uw radar.',
+    dream_jobs:
+      'U vertelde ons over een idee waar u steeds op terugkomt. Hier bekijken we het eerlijk: wat het echt zou vragen, en hoe een versie ervan eruit kan zien die aansluit bij de ervaring die u al heeft.',
+    chat_highlights:
+      'Wat er uit het gesprek met uw coach kwam: een patroon dat u benoemde, een correctie die u maakte, of een conclusie die u samen trok. Uw eigen woorden hebben het rapport gevormd dat u zojuist heeft gelezen.',
+  },
+};
+
+export function introFor(sectionType: string, lang: PrintLang, encore = false): string | null {
+  const t = sectionType as PrintSectionType;
+  return (encore ? ENCORE_INTROS[lang][t] : undefined) ?? INTROS[lang][t] ?? null;
 }
 
 // ── Chapters ────────────────────────────────────────────────────────────────
@@ -157,6 +213,41 @@ export const CHAPTERS: Record<PrintLang, Record<Chapter, { kicker: string; title
   },
 };
 
+const ENCORE_CHAPTERS: Record<PrintLang, Record<Chapter, { kicker: string; title: string; blurb: string }>> = {
+  en: {
+    'about-you': {
+      kicker: 'Chapter one',
+      title: 'About you',
+      blurb:
+        'Your profile now: how you work best, what you bring, what to watch for, and what matters to you at this stage. Everything in the second half is built on this.',
+    },
+    careers: {
+      kicker: 'Chapter two',
+      title: 'Directions for what comes next',
+      blurb:
+        'Directions matched against the profile in chapter one. Your top three first, then other good fits, then the surprising options and, if you shared one, an honest look at your own idea.',
+    },
+  },
+  nl: {
+    'about-you': {
+      kicker: 'Hoofdstuk een',
+      title: 'Over u',
+      blurb:
+        'Uw profiel nu: hoe u het beste werkt, wat u meebrengt, waar u op moet letten en wat in deze fase voor u telt. Alles in de tweede helft bouwt hierop voort.',
+    },
+    careers: {
+      kicker: 'Hoofdstuk twee',
+      title: 'Richtingen voor wat hierna komt',
+      blurb:
+        'Richtingen afgezet tegen het profiel uit hoofdstuk een. Eerst uw top drie, dan andere goede opties, dan de verrassende richtingen en, als u er een noemde, een eerlijke blik op uw eigen idee.',
+    },
+  },
+};
+
+export function chapterCopy(lang: PrintLang, chapter: Chapter, encore = false) {
+  return (encore ? ENCORE_CHAPTERS : CHAPTERS)[lang][chapter];
+}
+
 // ── Share-quote framing ─────────────────────────────────────────────────────
 // The pull quote is lifted from the LinkedIn share-card feature, so the line
 // under it points the reader back at that feature. It is deliberately phrased
@@ -171,3 +262,14 @@ export const SHARE_PROMPT: Record<PrintLang, { label: string; cta: string }> = {
     cta: 'Wil je dit delen? Kies een andere regel en maak een kant-en-klare kaart op',
   },
 };
+
+/** Encore Dutch speaks "u"; English and Pro use SHARE_PROMPT as is. */
+export function sharePromptFor(lang: PrintLang, encore = false): { label: string; cta: string } {
+  if (encore && lang === 'nl') {
+    return {
+      label: 'Uit uw rapport',
+      cta: 'Wilt u dit delen? Kies een andere regel en maak een kant-en-klare kaart op',
+    };
+  }
+  return SHARE_PROMPT[lang];
+}

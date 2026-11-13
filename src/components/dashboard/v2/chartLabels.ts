@@ -69,14 +69,20 @@ const MAP_NL_ENCORE: Record<string, string> = {
   'SWEET SPOT': 'BESTE KANS',
   'WALK AWAY': 'LIEVER NIET',
 };
-export const mapLabel = (label: string, lang: ChartLang) =>
-  pick(isFormalDutchOn() ? MAP_NL_ENCORE : MAP_NL, label, lang);
+// `encore` is passed explicitly by the printed report (its headless renderer
+// has no browser flag); on screen it falls back to the formal-Dutch flag.
+export const mapLabel = (label: string, lang: ChartLang, encore: boolean = isFormalDutchOn()) =>
+  pick(encore ? MAP_NL_ENCORE : MAP_NL, label, lang);
 
 // The one full sentence the career-map legend carries (screen only — print
 // lists every runner-up by name instead, so it never needs this).
-export const runnerUpsLegend = (count: number, lang: ChartLang): string =>
+export const runnerUpsLegend = (
+  count: number,
+  lang: ChartLang,
+  encore: boolean = isFormalDutchOn(),
+): string =>
   isNl(lang)
-    ? isFormalDutchOn()
+    ? encore
       ? `+${count} ${count === 1 ? 'andere richting' : 'andere richtingen'} (beweeg over de stippen voor namen)`
       : `+${count} runner-up${count === 1 ? '' : 's'} (beweeg over de stippen voor namen)`
     : `+${count} runner-up${count === 1 ? '' : 's'} (hover the dots for names)`;

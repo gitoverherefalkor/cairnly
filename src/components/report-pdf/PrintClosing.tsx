@@ -577,6 +577,54 @@ const ConsumerClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
   );
 };
 
+// Encore ending: the sign-off and the way back to the dashboard. No tool
+// ladder: job search, CV and cover-letter tools are Pro features (strategy
+// decision 2026-11-10), so promising them here would be false on paper.
+const ENCORE_STRINGS: Record<
+  PrintLang,
+  { kicker: string; heading: string; signOff: string; whereBefore: string; whereLink: string }
+> = {
+  en: {
+    kicker: 'That is the report',
+    heading: 'You know where you stand.',
+    signOff:
+      'Come back to this report whenever you want. You can also share it with the people around you who can help with the next step.',
+    whereBefore: 'Your report and your coach are on your dashboard at ',
+    whereLink: 'cairnly.io/dashboard',
+  },
+  nl: {
+    kicker: 'Dat was het rapport',
+    heading: 'U weet waar u staat.',
+    signOff:
+      'Kom terug naar dit rapport wanneer u wilt. U kunt het ook delen met de mensen om u heen die u kunnen helpen bij de volgende stap.',
+    whereBefore: 'Uw rapport en uw coach vindt u op uw dashboard: ',
+    whereLink: 'cairnly.io/dashboard',
+  },
+};
+
+const EncoreClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
+  const t = ENCORE_STRINGS[lang];
+  return (
+    <>
+      <SignOffPanel kicker={t.kicker} heading={t.heading} body={t.signOff} />
+      <p
+        style={{
+          fontFamily: FONT_DISPLAY,
+          fontWeight: 700,
+          fontSize: 11,
+          color: PALETTE.canvasDeep,
+          margin: '6mm 0 0 0',
+        }}
+      >
+        {t.whereBefore}
+        <a href={DASHBOARD_URL} style={{ color: PALETTE.tealDeep, textDecoration: 'underline' }}>
+          {t.whereLink}
+        </a>
+      </p>
+    </>
+  );
+};
+
 /** The employee ending: the three tools without the refund steps. */
 const SponsoredClosing: React.FC<{ lang: PrintLang }> = ({ lang }) => {
   const t = SPONSORED_STRINGS[lang];
@@ -675,7 +723,9 @@ export const PrintClosing: React.FC<{
   /** An employer paid for this seat. Ignored when a partner is set: the
    *  bureau's ending wins, since that bureau is who the reader goes back to. */
   sponsored?: boolean;
-}> = ({ lang, partnerName, sponsored = false }) => (
+  /** Encore report: its own ending (no Pro tool ladder). A partner still wins. */
+  encore?: boolean;
+}> = ({ lang, partnerName, sponsored = false, encore = false }) => (
   <div
     style={{
       breakBefore: 'page',
@@ -684,6 +734,8 @@ export const PrintClosing: React.FC<{
   >
     {partnerName ? (
       <PartnerClosing lang={lang} partnerName={partnerName} />
+    ) : encore ? (
+      <EncoreClosing lang={lang} />
     ) : sponsored ? (
       <SponsoredClosing lang={lang} />
     ) : (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
-import { CHAPTERS, type Chapter, type PrintLang } from './printIntros';
+import { chapterCopy, type Chapter, type PrintLang } from './printIntros';
+import { usePrintEncore } from './printFlavor';
 
 // Chapter opener. The chat announces the same split inline ("## CHAPTER 2:
 // CAREER RECOMMENDATIONS", embedded in top_career_1's intro); on paper it gets
@@ -15,7 +16,7 @@ export const PrintChapterDivider: React.FC<{
   lang: PrintLang;
   children?: React.ReactNode;
 }> = ({ chapter, lang, children }) => {
-  const c = CHAPTERS[lang][chapter];
+  const c = chapterCopy(lang, chapter, usePrintEncore());
   return (
     <div
       className="print-nobreak"

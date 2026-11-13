@@ -79,8 +79,31 @@ const EYEBROW: Record<PrintLang, Record<string, string>> = {
   },
 };
 
-export function eyebrowFor(sectionType: string, lang: PrintLang): string | null {
-  return EYEBROW[lang][sectionType] ?? null;
+const ENCORE_EYEBROW: Record<PrintLang, Record<string, string>> = {
+  en: {
+    top_career_1: 'Top direction · 01',
+    top_career_2: 'Top direction · 02',
+    top_career_3: 'Top direction · 03',
+    outside_box: 'Surprising directions',
+    dream_jobs: 'Your idea',
+  },
+  nl: {
+    approach: 'Over u',
+    personality_team: 'Over u',
+    strengths: 'Over u',
+    development: 'Over u',
+    values: 'Over u',
+    top_career_1: 'Toprichting · 01',
+    top_career_2: 'Toprichting · 02',
+    top_career_3: 'Toprichting · 03',
+    outside_box: 'Verrassende richtingen',
+    dream_jobs: 'Uw idee',
+    chat_highlights: 'Uit uw gesprek',
+  },
+};
+
+export function eyebrowFor(sectionType: string, lang: PrintLang, encore = false): string | null {
+  return (encore ? ENCORE_EYEBROW[lang][sectionType] : undefined) ?? EYEBROW[lang][sectionType] ?? null;
 }
 
 // ─── Anchors ────────────────────────────────────────────────────────────────
@@ -116,8 +139,21 @@ const GROUP_TITLE: Record<PrintLang, Record<string, string>> = {
   },
 };
 
-export function groupTitleFor(sectionType: string, lang: PrintLang): string | null {
-  return GROUP_TITLE[lang][sectionType] ?? null;
+const ENCORE_GROUP_TITLE: Record<PrintLang, Record<string, string>> = {
+  en: {
+    runner_ups: 'Other strong directions',
+    outside_box: 'Surprising directions',
+    dream_jobs: 'Your idea',
+  },
+  nl: {
+    runner_ups: 'Andere sterke richtingen',
+    outside_box: 'Verrassende richtingen',
+    dream_jobs: 'Uw idee',
+  },
+};
+
+export function groupTitleFor(sectionType: string, lang: PrintLang, encore = false): string | null {
+  return (encore ? ENCORE_GROUP_TITLE : GROUP_TITLE)[lang][sectionType] ?? null;
 }
 
 // ─── Section photography ────────────────────────────────────────────────────

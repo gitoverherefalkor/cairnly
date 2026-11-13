@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePrintEncore } from './printFlavor';
 import type { ReportSection } from '@/hooks/useReportSections';
 import { PALETTE, FONT_DISPLAY, FONT_BODY } from '@/components/dashboard/v2/dashboardV2Shared';
 import { iconForSection, anchorFor } from './printSectionMeta';
@@ -143,12 +144,87 @@ const RankBadge: React.FC<{ rank: number }> = ({ rank }) => (
   </span>
 );
 
+// Encore: the section titles its report actually uses (WF1P/WF4P headings),
+// "directions" instead of careers, "your idea" instead of dream jobs.
+const ENCORE_ROWS: Record<PrintLang, { group: string; rows: Row[] }[]> = {
+  en: [
+    {
+      group: 'About you',
+      rows: [
+        { types: ['exec_summary'], label: 'Summary' },
+        { types: ['approach', 'personality_team'], label: 'How You Work Best Now' },
+        { types: ['strengths'], label: 'What You Bring' },
+        { types: ['development'], label: 'What to Watch For' },
+        { types: ['values'], label: 'What Matters to You Now' },
+      ],
+    },
+    {
+      group: 'Directions for what comes next',
+      rows: [
+        { types: ['top_career_1'], label: 'Strongest direction', rank: 1 },
+        { types: ['top_career_2'], label: 'Second direction', rank: 2 },
+        { types: ['top_career_3'], label: 'Third direction', rank: 3 },
+        {
+          types: ['runner_ups'],
+          label: 'Other strong directions',
+          countLabel: (n) => `${n} ${n === 1 ? 'direction' : 'directions'}`,
+        },
+        {
+          types: ['outside_box'],
+          label: 'Surprising directions',
+          countLabel: (n) => `${n} ${n === 1 ? 'direction' : 'directions'}`,
+        },
+        {
+          types: ['dream_jobs'],
+          label: 'Your idea',
+          countLabel: (n) => `${n} ${n === 1 ? 'idea' : 'ideas'}`,
+        },
+      ],
+    },
+  ],
+  nl: [
+    {
+      group: 'Over u',
+      rows: [
+        { types: ['exec_summary'], label: 'Samenvatting' },
+        { types: ['approach', 'personality_team'], label: 'Hoe u nu het beste werkt' },
+        { types: ['strengths'], label: 'Wat u meebrengt' },
+        { types: ['development'], label: 'Waar u op moet letten' },
+        { types: ['values'], label: 'Wat nu voor u telt' },
+      ],
+    },
+    {
+      group: 'Richtingen voor wat hierna komt',
+      rows: [
+        { types: ['top_career_1'], label: 'Sterkste richting', rank: 1 },
+        { types: ['top_career_2'], label: 'Tweede richting', rank: 2 },
+        { types: ['top_career_3'], label: 'Derde richting', rank: 3 },
+        {
+          types: ['runner_ups'],
+          label: 'Andere sterke richtingen',
+          countLabel: (n) => `${n} ${n === 1 ? 'richting' : 'richtingen'}`,
+        },
+        {
+          types: ['outside_box'],
+          label: 'Verrassende richtingen',
+          countLabel: (n) => `${n} ${n === 1 ? 'richting' : 'richtingen'}`,
+        },
+        {
+          types: ['dream_jobs'],
+          label: 'Uw idee',
+          countLabel: (n) => `${n} ${n === 1 ? 'idee' : 'ideeën'}`,
+        },
+      ],
+    },
+  ],
+};
+
 export const PrintContents: React.FC<{
   sections: ReportSection[];
   lang: PrintLang;
   title: string;
 }> = ({ sections, lang, title }) => {
-  const groups = ROWS[lang];
+  const groups = (usePrintEncore() ? ENCORE_ROWS : ROWS)[lang];
 
   return (
     <div>

@@ -12,6 +12,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreFlight, errorResponse } from '../_shared/cors.ts';
+import { getReportProduct } from '../_shared/product.ts';
 
 const MAX_LOGO_BYTES = 262_144; // mirrors the partner-logos bucket cap
 
@@ -161,9 +162,14 @@ serve(async (req) => {
     sponsored = (seat?.length ?? 0) > 0;
   }
 
+  // Encore reports print with their own framing and labels. Never throws:
+  // unknown means Pro, the same default the document had before.
+  const { encore } = await getReportProduct(supabase, burned.report_id);
+
   return new Response(
     JSON.stringify({
       report,
+      product: { encore },
       sections: sections ?? [],
       // One entry per career the user set aside. The print document drops
       // dismissed runner-ups / outside-box / dream jobs entirely and marks a

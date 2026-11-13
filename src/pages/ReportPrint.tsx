@@ -133,6 +133,8 @@ interface PrintData {
   partner: { name: string; logo_data_uri: string | null; powered_by_text: string | null } | null;
   /** An employer paid (seat code). Optional: older function versions omit it. */
   sponsored?: boolean;
+  /** Which product the report belongs to. Optional: older function versions omit it. */
+  product?: { encore?: boolean };
 }
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/report-print-data`;
@@ -279,6 +281,7 @@ const ReportPrint: React.FC = () => {
         }
         preferredLanguage={data.profile.preferred_language ?? null}
         sponsored={data.sponsored === true}
+        encore={data.product?.encore === true}
       />
     </>
   );
