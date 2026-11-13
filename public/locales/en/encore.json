@@ -1,4 +1,8 @@
 {
+  "seo": {
+    "title": "Cairnly Encore: what comes after your main career?",
+    "description": "Stopping work soon, or just stopped? Cairnly Encore turns your experience into concrete next directions: board roles, advisory work, mentoring or volunteering."
+  },
   "hero": {
     "eyebrow": "Cairnly Encore",
     "titleA": "You finished the career.",
@@ -25,8 +29,8 @@
         "body": "Recruiters rarely know what to do with a 40-year CV, and ageism is real. But boards, founders, schools and nonprofits still actively look for exactly the judgment you have. You need to know where those doors are."
       },
       {
-        "title": "AI raises the value of judgment",
-        "body": "Machines are getting good at producing work. Knowing which work is worth doing, what good looks like, and when someone is fooling themselves: that is experience, and it is getting scarcer."
+        "title": "Experience alone is no longer enough",
+        "body": "AI is taking over a growing share of knowledge work. If you want to keep doing paid knowledge work, some AI skill now comes with it. That is learnable, and your sense of what good work looks like stays scarce. Encore tells you honestly, per direction, what is expected and how to start small."
       }
     ],
     "closing": "Cairnly Encore exists for this exact question: what fits you now, at the hours you want, for reasons that matter to you."
@@ -63,7 +67,7 @@
       },
       {
         "title": "What your experience is worth",
-        "body": "A clear read on the judgment and skills you built, and where they hold real value today, including in a world full of AI."
+        "body": "A clear read on the judgment and skills you built, where they hold real value today, and which AI skill now comes with that."
       },
       {
         "title": "3 directions that fit this stage",
@@ -108,7 +112,7 @@
       },
       {
         "q": "Will it patronize me with \"you earned your rest\"?",
-        "a": "No. It also will not pretend 60 is the new 40. You get an honest read: where your experience holds real value, where ageism is a factor, and what fits the energy you actually have."
+        "a": "No. It also will not pretend nothing changes. You get an honest read: where your experience holds real value, where age is a factor, which AI skill a direction asks for, and what fits the energy you actually have."
       },
       {
         "q": "Is my information safe?",

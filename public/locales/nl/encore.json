@@ -1,133 +1,137 @@
 {
+  "seo": {
+    "title": "Wat te doen na uw pensioen? | Cairnly Encore",
+    "description": "Binnenkort gestopt met werken, en dan? Cairnly Encore vertaalt uw ervaring naar concrete richtingen: toezicht, advies, mentorschap of vrijwilligerswerk."
+  },
   "hero": {
     "eyebrow": "Cairnly Encore",
-    "titleA": "You finished the career.",
-    "titleHighlight": "You are not finished.",
+    "titleA": "Het afscheid is geregeld.",
+    "titleHighlight": "En dan?",
     "titleB": "",
-    "body": "After decades of being the person people counted on, the calendar suddenly goes quiet. Nobody hands you a plan for what your experience is for now.",
-    "bodyEmphasis": "That question deserves a serious answer, not a hobby brochure.",
-    "ctaPrimary": "Find what fits now",
-    "ctaSecondary": "How it works",
-    "trust": "Built for people at or approaching retirement who are not done contributing"
+    "body": "Jarenlang was u degene op wie mensen rekenden. Dan wordt de agenda ineens stil, en niemand geeft u een plan voor wat u nu met al die ervaring doet.",
+    "bodyEmphasis": "Daar hoort een serieus antwoord bij, geen folder vol hobby's.",
+    "ctaPrimary": "Ontdek wat nu bij u past",
+    "ctaSecondary": "Hoe het werkt",
+    "trust": "Voor wie binnenkort stopt met werken of net gestopt is, en van betekenis wil blijven"
   },
   "identity": {
-    "eyebrow": "The part nobody prepares you for",
-    "title": "Retirement plans cover your money. Not your Mondays.",
-    "p1": "For forty years your week had a shape: people who needed you, problems worth solving, a reason to be sharp by nine. Then comes the farewell reception, the kind words, and a Monday morning with nothing on it.",
-    "p2": "The advice you get is either financial or decorative. Take up golf. Travel more. Enjoy it, you earned it. All fine, and none of it an answer to the real question: what do I do with everything I know?",
+    "eyebrow": "Waar niemand u op voorbereidt",
+    "title": "Uw pensioen is geregeld. Uw maandag niet.",
+    "p1": "Jarenlang had uw week een vaste vorm: mensen die u nodig hadden, problemen die het oplossen waard waren, een reden om om negen uur scherp te zijn. Dan volgen de afscheidsreceptie, de mooie woorden, en een maandagochtend zonder afspraken.",
+    "p2": "Het advies dat u krijgt gaat over geld of over vrije tijd. Ga golfen. Reis meer. Geniet ervan, u heeft het verdiend. Allemaal prima, alleen geen antwoord op de echte vraag: wat doe ik met alles wat ik weet?",
     "bullets": [
       {
-        "title": "Identity does not retire",
-        "body": "You were the engineer, the director, the one who fixed things. That does not switch off with the badge. The trick is neither clinging to the old role nor erasing it, but finding where it converts."
+        "title": "Wie u bent stopt niet met uw laatste werkdag",
+        "body": "U was de ingenieur, de directeur, degene die het oploste. Dat gaat niet uit als u uw pasje inlevert. U hoeft die rol niet vast te houden en ook niet weg te gooien. De vraag is waar hij nu van pas komt."
       },
       {
-        "title": "The market is clumsy with experience",
-        "body": "Recruiters rarely know what to do with a 40-year CV, and ageism is real. But boards, founders, schools and nonprofits still actively look for exactly the judgment you have. You need to know where those doors are."
+        "title": "De arbeidsmarkt weet slecht raad met ervaring",
+        "body": "Recruiters weten vaak niet wat ze met een lang cv moeten, en leeftijdsdiscriminatie bestaat echt. Tegelijk zoeken raden van toezicht, ondernemers, scholen en maatschappelijke organisaties actief naar precies het oordeel dat u heeft. Het helpt om te weten waar die deuren zitten."
       },
       {
-        "title": "AI raises the value of judgment",
-        "body": "Machines are getting good at producing work. Knowing which work is worth doing, what good looks like, and when someone is fooling themselves: that is experience, and it is getting scarcer."
+        "title": "Ervaring alleen is niet meer genoeg",
+        "body": "AI neemt een groeiend deel van het kenniswerk over. Wie betaald kenniswerk wil blijven doen, heeft daar nu ook enige AI-vaardigheid bij nodig. Dat is te leren, en uw oordeel over wat goed werk is blijft schaars. Encore zegt per richting eerlijk wat er van u gevraagd wordt en hoe u klein begint."
       }
     ],
-    "closing": "Cairnly Encore exists for this exact question: what fits you now, at the hours you want, for reasons that matter to you."
+    "closing": "Cairnly Encore is gemaakt voor precies deze vraag: wat past nu bij u, voor het aantal uren dat u wilt, om redenen die voor u tellen."
   },
   "how": {
-    "eyebrow": "How it works",
-    "title": "From a quiet calendar to a real plan",
+    "eyebrow": "Hoe het werkt",
+    "title": "Van een lege agenda naar een echt plan",
     "steps": [
       {
-        "title": "Tell us about yourself, honestly",
-        "body": "A 15-minute assessment that takes your career seriously and your current life just as seriously. Energy, hours, commitments and the things you refuse to do ever again all count."
+        "title": "Vertel eerlijk over uzelf",
+        "body": "Een vragenlijst van ongeveer 15 minuten die uw loopbaan serieus neemt, en uw huidige leven net zo serieus. Energie, uren, verplichtingen en de dingen die u nooit meer wilt doen tellen allemaal mee."
       },
       {
-        "title": "AI does the analysis",
-        "body": "Our engine maps your personality, your track record and what matters to you now against directions that fit this stage: paid and unpaid, from advisory work to teaching to something entirely your own."
+        "title": "AI doet de analyse",
+        "body": "Wij leggen uw persoonlijkheid, wat u heeft bereikt en wat u nu belangrijk vindt naast richtingen die bij deze fase passen. Betaald en onbetaald, van adviseur en toezichthouder tot docent of iets helemaal van uzelf."
       },
       {
-        "title": "Get honest directions",
-        "body": "Three concrete directions plus alternatives. Why they fit, what they look like at your hours, how to step in at your seniority, and where age will and will not be a factor."
+        "title": "Krijg eerlijke richtingen",
+        "body": "Drie concrete richtingen plus alternatieven. Waarom ze bij u passen, hoe ze eruitzien voor het aantal uren dat u wilt, hoe u instapt op uw niveau, en waar leeftijd wel en geen rol speelt."
       },
       {
-        "title": "Talk it through",
-        "body": "Discuss the results with your AI coach. Disagree, ask the blunt questions, and refine the advice until it holds up."
+        "title": "Praat het door",
+        "body": "Bespreek de uitkomsten met uw AI-coach. Spreek tegen, stel de lastige vragen en scherp het advies aan tot het overeind blijft."
       }
     ]
   },
   "get": {
-    "eyebrow": "What you get",
-    "title": "A serious answer to what comes next",
+    "eyebrow": "Wat u krijgt",
+    "title": "Een serieus antwoord op wat er nu komt",
     "items": [
       {
-        "title": "A personality profile with respect",
-        "body": "How you operate now: energy, structure, people, ego. An honest mirror, not flattery, and no assumption that you want to climb anything."
+        "title": "Een persoonlijkheidsprofiel met respect",
+        "body": "Hoe u nu werkt: energie, structuur, mensen, ego. Een eerlijke spiegel zonder vleierij, en zonder de aanname dat u nog ergens naar boven wilt."
       },
       {
-        "title": "What your experience is worth",
-        "body": "A clear read on the judgment and skills you built, and where they hold real value today, including in a world full of AI."
+        "title": "Wat uw ervaring waard is",
+        "body": "Een helder beeld van het oordeel en de vaardigheden die u heeft opgebouwd, waar die vandaag echt waarde hebben, en welke AI-vaardigheid daar nu bij hoort."
       },
       {
-        "title": "3 directions that fit this stage",
-        "body": "Advisory, mentoring, board work, teaching, part-time roles, volunteering with substance, or a small venture of your own. Matched to you, not to a brochure."
+        "title": "3 richtingen die bij deze fase passen",
+        "body": "Advieswerk, mentorschap, toezicht, lesgeven, een parttime rol, vrijwilligerswerk met inhoud of een kleine eigen onderneming. Afgestemd op u, niet op een folder."
       },
       {
-        "title": "The realistic way in",
-        "body": "For each direction: how people your age actually enter. Networks, registries, first conversations, and the honest word about ageism where it applies."
+        "title": "De realistische weg naar binnen",
+        "body": "Per richting: hoe mensen in uw situatie er echt in komen. Netwerk, registers, eerste gesprekken, en een eerlijk woord over leeftijd waar dat meespeelt."
       },
       {
-        "title": "A week that feels like a life",
-        "body": "Directions sized to the hours you actually want, around the grandchildren, the travel and the garden. Structure without a cage."
+        "title": "Een week die bij uw leven past",
+        "body": "Richtingen op maat van de uren die u echt wilt, naast familie, reizen en wat u verder graag doet. Structuur zonder keurslijf."
       },
       {
-        "title": "A coach that talks back",
-        "body": "An AI coach that knows your full report, answers questions at your pace, and never talks down to you."
+        "title": "Een coach die meedenkt",
+        "body": "Een AI-coach die uw volledige rapport kent, uw vragen beantwoordt in uw tempo en nooit neerbuigend doet."
       }
     ]
   },
   "pricing": {
-    "eyebrow": "Pricing",
-    "title": "One report. No subscription. No upsells.",
-    "body": "A one-time assessment with a full report and unlimited coach chat. Less than an hour with any consultant who knows half as much about you.",
-    "cta": "Get started",
-    "note": "One-time payment. Assessment, report and coach chat included. Questions first? Use the support button on any page, a human reads it."
+    "eyebrow": "Prijs",
+    "title": "Eén rapport. Geen abonnement. Geen verrassingen achteraf.",
+    "body": "Eenmalig betalen voor de vragenlijst, een volledig rapport en onbeperkt gesprekken met de coach. Minder dan een uur bij een adviseur die half zo veel van u weet.",
+    "cta": "Aan de slag",
+    "note": "Eenmalige betaling. Vragenlijst, rapport en coachgesprekken inbegrepen. Eerst een vraag? Gebruik de supportknop op elke pagina, er leest een mens mee."
   },
   "faq": {
-    "eyebrow": "FAQ",
-    "title": "Fair questions",
+    "eyebrow": "Veelgestelde vragen",
+    "title": "Terechte vragen",
     "items": [
       {
-        "q": "I am not sure I want a job at all. Is this still useful?",
-        "a": "Yes. Encore is not a job board. Directions include advisory roles, mentoring, teaching, board work, volunteering with real substance, and personal projects. The point is finding what deserves your time, whatever form it takes."
+        "q": "Ik weet niet of ik nog wel een baan wil. Heb ik hier dan iets aan?",
+        "a": "Ja. Encore is geen vacaturebank. De richtingen gaan van advieswerk, mentorschap, lesgeven en toezicht tot vrijwilligerswerk met inhoud en eigen projecten. Het gaat erom te vinden wat uw tijd waard is, in welke vorm dan ook."
       },
       {
-        "q": "How is this different from the regular Cairnly assessment?",
-        "a": "The regular assessment helps professionals plan their next career move. Encore asks different questions: it takes proper stock of the career you had, then focuses on fit with the life you want now. Energy, hours, meaning and people."
+        "q": "Wat is het verschil met de gewone Cairnly-vragenlijst?",
+        "a": "De gewone vragenlijst helpt professionals bij hun volgende loopbaanstap. Encore stelt andere vragen: eerst kijkt het goed naar de loopbaan die u had, daarna naar wat past bij het leven dat u nu wilt. Energie, uren, betekenis en mensen."
       },
       {
-        "q": "I am not great with technology. Will I manage?",
-        "a": "If you can answer an email, you can do this. One question at a time, large readable text, answers saved automatically, and a support button on every page with a human behind it."
+        "q": "Ik ben niet zo handig met computers. Lukt mij dit?",
+        "a": "Als u een e-mail kunt beantwoorden, lukt dit ook. Eén vraag tegelijk, grote leesbare letters, uw antwoorden worden automatisch bewaard, en op elke pagina zit een supportknop met een mens erachter."
       },
       {
-        "q": "Will it patronize me with \"you earned your rest\"?",
-        "a": "No. It also will not pretend 60 is the new 40. You get an honest read: where your experience holds real value, where ageism is a factor, and what fits the energy you actually have."
+        "q": "Krijg ik te horen dat ik nu maar van mijn rust moet genieten?",
+        "a": "Nee. Encore doet ook niet alsof er niets verandert. U krijgt een eerlijk beeld: waar uw ervaring echt waarde heeft, waar leeftijd meeweegt, welke AI-vaardigheid een richting vraagt, en wat past bij de energie die u werkelijk heeft."
       },
       {
-        "q": "Is my information safe?",
-        "a": "Yes. Your answers are used to generate your report and for nothing else. No subscription, no selling of data, and you can have everything deleted on request."
+        "q": "Zijn mijn gegevens veilig?",
+        "a": "Ja. Uw antwoorden worden alleen gebruikt om uw rapport te maken. Geen abonnement, geen verkoop van gegevens, en op verzoek verwijderen we alles."
       },
       {
-        "q": "How long does it take?",
-        "a": "About 15 minutes for the assessment, at your own pace, with breaks whenever you like. Your answers are saved automatically. The report is ready minutes later, and the coach is available as long as you want."
+        "q": "Hoe lang duurt het?",
+        "a": "Ongeveer 15 minuten voor de vragenlijst, in uw eigen tempo en met pauzes wanneer u wilt. Uw antwoorden worden automatisch bewaard. Het rapport staat kort daarna voor u klaar, en de coach is beschikbaar zo lang u wilt."
       }
     ]
   },
   "finalCta": {
-    "title": "Decades of knowing what you are doing. Let's not waste it.",
-    "body": "Fifteen honest minutes gets you a serious answer to what comes next.",
-    "cta": "Start your assessment"
+    "title": "Jaren van weten wat u doet. Zonde om dat te laten liggen.",
+    "body": "Een kwartier eerlijk antwoorden, en u heeft een serieus antwoord op wat er nu komt.",
+    "cta": "Start de vragenlijst"
   },
   "shell": {
     "eyebrow": "Cairnly Encore",
-    "title": "Get your Encore assessment",
-    "subtitle": "One-time payment. Assessment, report and coach chat included."
+    "title": "Start uw Encore-vragenlijst",
+    "subtitle": "Eenmalige betaling. Vragenlijst, rapport en coachgesprekken inbegrepen."
   }
 }

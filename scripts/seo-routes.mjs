@@ -73,6 +73,13 @@ function partnersStaticBody() {
 }
 
 /** Static marketing/legal routes. Mirrors the <Seo> calls in src/pages. */
+/** hreflang set for /encore (English default, Dutch via ?lang=nl). */
+const ENCORE_ALTERNATES = [
+  { hreflang: 'en', path: '/encore' },
+  { hreflang: 'nl', path: '/encore?lang=nl' },
+  { hreflang: 'x-default', path: '/encore' },
+];
+
 const STATIC_ROUTES = [
   {
     path: '/',
@@ -99,12 +106,25 @@ const STATIC_ROUTES = [
     priority: '0.8',
   },
   {
+    // English is the static shell and canonical; Dutch lives at ?lang=nl
+    // (its own canonical via Helmet, see EncoreIndex.tsx). Keep the title and
+    // description in sync with seo.* in public/locales/en/encore.json.
     path: '/encore',
-    title: 'Cairnly Encore — Find your next chapter after your main career',
+    title: 'Cairnly Encore: what comes after your main career?',
     description:
-      'Pre-retirement or newly retired and looking for meaningful work? Cairnly Encore turns a lifetime of experience into concrete next-chapter directions.',
+      'Stopping work soon, or just stopped? Cairnly Encore turns your experience into concrete next directions: board roles, advisory work, mentoring or volunteering.',
     changefreq: 'monthly',
     priority: '0.8',
+    alternates: ENCORE_ALTERNATES,
+  },
+  {
+    // Dutch version: sitemap entry only. The filesystem serves the same static
+    // shell for any query string, so inject-meta skips it (sitemapOnly).
+    path: '/encore?lang=nl',
+    changefreq: 'monthly',
+    priority: '0.8',
+    alternates: ENCORE_ALTERNATES,
+    sitemapOnly: true,
   },
   // Partner channel. Dutch-first BY CHOICE, not for lack of a translation:
   // en/partners.json is real English since 2026-09-06, so ?lang=en renders an

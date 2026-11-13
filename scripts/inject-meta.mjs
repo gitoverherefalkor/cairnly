@@ -38,6 +38,9 @@ function headBlock(route) {
   const lines = [
     `    <meta ${A} name="description" content="${esc(description)}" />`,
     `    <link ${A} rel="canonical" href="${url}" />`,
+    ...(route.alternates || []).map(
+      (a) => `    <link ${A} rel="alternate" hreflang="${a.hreflang}" href="${esc(SITE_URL + a.path)}" />`,
+    ),
     `    <meta ${A} property="og:title" content="${esc(title)}" />`,
     `    <meta ${A} property="og:description" content="${esc(description)}" />`,
     `    <meta ${A} property="og:type" content="${type}" />`,
@@ -60,7 +63,7 @@ function headBlock(route) {
 const shell = readFileSync(join(DIST, 'index.html'), 'utf8');
 let count = 0;
 
-for (const route of publicRoutes()) {
+for (const route of publicRoutes().filter((r) => !r.sitemapOnly)) {
   const html = shell
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(route.title || DEFAULT_TITLE)}</title>`)
     .replace('</head>', `${headBlock(route)}\n  </head>`)

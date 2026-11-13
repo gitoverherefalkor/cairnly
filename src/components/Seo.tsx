@@ -22,6 +22,14 @@ interface SeoProps {
   noindex?: boolean;
   /** One or more JSON-LD schema objects to embed in <head>. */
   jsonLd?: object | object[];
+  /**
+   * Language versions of this page, for hreflang. Each entry is a language
+   * code ("en", "nl" or "x-default") and the route path of that version,
+   * e.g. { hreflang: 'nl', path: '/encore?lang=nl' }. Include the page itself.
+   */
+  alternates?: { hreflang: string; path: string }[];
+  /** Language of this page version, set on <html lang>. Defaults to "en". */
+  lang?: string;
 }
 
 /**
@@ -39,6 +47,8 @@ const Seo: React.FC<SeoProps> = ({
   type = 'website',
   noindex = false,
   jsonLd,
+  alternates = [],
+  lang,
 }) => {
   const pageTitle = title || DEFAULT_TITLE;
   const pageDescription = description || DEFAULT_DESCRIPTION;
@@ -47,10 +57,13 @@ const Seo: React.FC<SeoProps> = ({
   const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
   return (
-    <Helmet>
+    <Helmet htmlAttributes={lang ? { lang } : undefined}>
       <title>{pageTitle}</title>
       <meta name="description" content={pageDescription} />
       <link rel="canonical" href={url} />
+      {alternates.map((a) => (
+        <link key={a.hreflang} rel="alternate" hrefLang={a.hreflang} href={canonical(a.path)} />
+      ))}
       {noindex && <meta name="robots" content="noindex, nofollow" />}
 
       {/* Open Graph (LinkedIn, Facebook, Slack, WhatsApp, iMessage) */}
