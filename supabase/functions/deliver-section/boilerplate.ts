@@ -260,13 +260,13 @@ const ENCORE_NL: Record<SectionType, Boilerplate> = {
   },
   runner_ups: {
     intro:
-      'Hier zijn een paar **alternatieven** die dicht bij uw top drie liggen. Ze passen ook bij uw sterke punten en wensen, maar verschillen in wat u doet, waar of hoeveel. Daarna volgen de **outside-the-box** opties: richtingen waar u misschien nog niet aan dacht. Dit zijn ze:',
+      'Hier zijn een paar **alternatieven** die dicht bij uw top drie liggen. Ze passen ook bij uw sterke punten en wensen, maar verschillen in wat u doet, waar of hoeveel. Daarna volgen de **verrassende richtingen**: richtingen waar u misschien nog niet aan dacht. Dit zijn ze:',
     outro:
       'Dat waren de alternatieven. **Heeft u vragen over een van deze richtingen**, of wilt u ergens anders over praten?',
   },
   outside_box: {
     intro:
-      '**De beste keuze is niet altijd de meest voor de hand liggende.** Hier zijn een paar **outside-the-box opties**: richtingen die bij u passen, maar misschien nog niet in beeld waren. Laten we kijken:',
+      '**De beste keuze is niet altijd de meest voor de hand liggende.** Hier zijn een paar **verrassende richtingen**: richtingen die bij u passen, maar misschien nog niet in beeld waren. Laten we kijken:',
     outro:
       '**Spreekt een van deze u aan?** Ook als ze onbekend voelen, kunnen ze een nieuwe manier zijn om in te zetten waar u goed in bent. **Laat weten wat u ervan vindt**, of vraag naar een van deze opties. Hierna kijken we eerlijk naar uw eigen idee.',
   },
