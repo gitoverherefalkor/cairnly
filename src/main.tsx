@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
-import './i18n'
+import { i18nReady } from './i18n'
+import { waitForTranslations } from './lib/waitForTranslations'
 import App from './App.tsx'
 import './index.css'
 import { initSentry, Sentry } from './lib/sentry'
@@ -15,7 +16,12 @@ initSentry();
 // duplicate, potentially conflicting tags.
 document.querySelectorAll('[data-static-seo]').forEach((el) => el.remove());
 
-createRoot(document.getElementById("root")!).render(
+// Hold the first render until the translations have loaded (react-i18next runs
+// with useSuspense: false, so rendering earlier shows raw translation keys).
+// Capped so a slow or failed locale fetch can never leave the page blank: after
+// the cap we render anyway, and react-i18next re-renders when the JSON lands.
+const I18N_WAIT_CAP_MS = 4000;
+waitForTranslations(i18nReady, I18N_WAIT_CAP_MS).then(() => createRoot(document.getElementById("root")!).render(
   <Sentry.ErrorBoundary
     fallback={({ resetError }) => <GlobalErrorFallback resetError={resetError} />}
   >
@@ -23,4 +29,4 @@ createRoot(document.getElementById("root")!).render(
       <App />
     </HelmetProvider>
   </Sentry.ErrorBoundary>
-);
+));
