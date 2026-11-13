@@ -144,6 +144,10 @@ interface ChatContainerProps {
   assessmentPurpose?: string;
   goalAlignment?: string;
   currentSectionIndex: number;
+  // Index of the last section this report has. Normally dream_jobs (10);
+  // 9 (outside_box) for an Encore report without an own idea (Q3.5 empty),
+  // which has no dream_jobs section by design.
+  lastSectionIndex?: number;
   onSectionDetected: (index: number) => void;
   onSessionComplete: () => void;
   onDreamJobsRead?: () => void;
@@ -171,6 +175,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       assessmentPurpose,
       goalAlignment,
       currentSectionIndex,
+      lastSectionIndex = LAST_SECTION_INDEX,
       onSectionDetected,
       onSessionComplete,
       onDreamJobsRead,
@@ -560,6 +565,28 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
       { phrase: 'runner-up matches', sectionIndex: 8 },
       { phrase: 'outside-the-box loopbaanopties', sectionIndex: 9 },
       { phrase: 'we vroegen naar je droombaan', sectionIndex: 10 },
+      // Encore boilerplate (EN + formal NL), deliver-section/boilerplate.ts
+      // ENCORE_EN / ENCORE_NL. Keep in sync.
+      { phrase: 'how you work best at this point in your life', sectionIndex: 1 },
+      { phrase: 'next, what you bring', sectionIndex: 2 },
+      { phrase: 'now a few things to watch for', sectionIndex: 3 },
+      { phrase: 'last in this part: what matters to you now', sectionIndex: 4 },
+      { phrase: 'the direction that fits you best is', sectionIndex: 5 },
+      { phrase: 'that was your second direction', sectionIndex: 6 },
+      { phrase: 'that was your third direction', sectionIndex: 7 },
+      { phrase: 'to your top three. they also suit', sectionIndex: 8 },
+      { phrase: "the best fit isn't always the most obvious one", sectionIndex: 9 },
+      { phrase: 'you mentioned an idea of your own', sectionIndex: 10 },
+      { phrase: 'eerst hoe u nu het beste werkt', sectionIndex: 1 },
+      { phrase: 'dan wat u meebrengt', sectionIndex: 2 },
+      { phrase: 'nu een paar aandachtspunten', sectionIndex: 3 },
+      { phrase: 'tot slot in dit deel: wat nu voor u telt', sectionIndex: 4 },
+      { phrase: 'past deze richting het beste bij u', sectionIndex: 5 },
+      { phrase: 'dat was uw tweede richting', sectionIndex: 6 },
+      { phrase: 'dat was uw derde richting', sectionIndex: 7 },
+      { phrase: 'dicht bij uw top drie liggen', sectionIndex: 8 },
+      { phrase: 'de beste keuze is niet altijd de meest voor de hand liggende', sectionIndex: 9 },
+      { phrase: 'u noemde een eigen idee', sectionIndex: 10 },
     ];
 
     // Scan bot message content for section headings and boilerplate phrases
@@ -721,6 +748,14 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         intent = inferQuickReplyIntent(message);
       }
 
+      // Past the report's last section there is nothing to deliver: a
+      // "continue" there (typed, or a stale pill) means the user is done.
+      // Without this an Encore report with no own idea (no dream_jobs rows)
+      // waited minutes for a section that never comes.
+      if (intent === 'advance' && currentSectionIndex >= lastSectionIndex) {
+        intent = 'wrap_up';
+      }
+
       // Apply the pending "Ask about <role>" prefix on free-text turns
       // only. Intent-based clicks (advance, wrap_up, etc.) shouldn't get
       // mangled. Clear the pending role after consuming it.
@@ -780,7 +815,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
         const stalledIndex = (stalled && SECTION_TYPE_TO_INDEX[stalled]) ?? currentSectionIndex + 1;
         let targetIndex = -1;
         let targetType: DeliverableSectionType | undefined;
-        for (let i = stalledIndex + 1; i <= LAST_SECTION_INDEX; i++) {
+        for (let i = stalledIndex + 1; i <= lastSectionIndex; i++) {
           const candidate = SECTION_INDEX_TO_TYPE[i];
           if (!candidate) continue;
           if (await sectionRowExists(reportId, candidate)) {
@@ -951,7 +986,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             if (attempts === 1) {
               addMessage(
                 'bot',
-                "Your career matches are taking a little longer to finalize. Hang tight — give it a moment and tap Continue again.",
+                t('errors.careerSlow'),
                 { skipPersist: true },
               );
             } else {
@@ -959,7 +994,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
               void reportStalledSection(nextType, attempts);
               addMessage(
                 'bot',
-                "This section still isn't coming through, and that's on our side, not something you did. I've flagged it to the team so they can look at it.\n\nYou don't have to sit here waiting: you can skip ahead and finish the rest of your session now. We'll follow up about this section by email.",
+                t('errors.sectionStalled'),
                 { skipPersist: true },
               );
             }
@@ -1069,11 +1104,11 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
 
         const errorMessage =
           error instanceof DOMException && error.name === 'AbortError'
-            ? 'The request timed out. The AI is taking longer than usual. Please try again.'
-            : 'Something went wrong. Tap the retry icon next to your message, or try again.';
+            ? t('errors.timeout')
+            : t('errors.retryHint');
 
         toast({
-          title: 'Message failed',
+          title: t('errors.messageFailed'),
           description: errorMessage,
           variant: 'destructive',
         });
@@ -1117,7 +1152,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           addMessage('bot', response);
           scanForSections(response);
         } else {
-          addMessage('bot', "I didn't receive a response. Please try again.");
+          addMessage('bot', t('errors.noResponse'));
         }
         lastTurnWasAdvanceRef.current = entry.intent === 'advance';
       } catch (error) {
@@ -1176,6 +1211,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           loadingMode={loadingMode}
           isUserTyping={isUserTyping}
           currentSectionIndex={currentSectionIndex}
+          lastSectionIndex={lastSectionIndex}
           onSectionDetected={onSectionDetected}
           onQuickReply={handleSend}
           onFocusInput={handleFocusInput}

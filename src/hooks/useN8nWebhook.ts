@@ -63,6 +63,31 @@ async function buildHeaders(): Promise<Record<string, string>> {
   };
 }
 
+/** n8n chat body → one object. Accepts {output}, [{output}] and a streamed
+ *  NDJSON body ({"type":"item","content":"..."} per line). */
+type ChatBody = { output?: string; text?: string; message?: string; [key: string]: unknown };
+function parseChatBody(raw: string): ChatBody {
+  const text = raw.trim();
+  if (!text) return {};
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return parsed[0] ?? {};
+    return parsed && typeof parsed === 'object' ? parsed : { output: String(parsed) };
+  } catch {
+    let joined = '';
+    for (const line of text.split('\n')) {
+      try {
+        const chunk = JSON.parse(line);
+        if (chunk?.type === 'item' && typeof chunk.content === 'string') joined += chunk.content;
+      } catch {
+        /* skip */
+      }
+    }
+    if (joined) return { output: joined };
+    throw new Error('chat-proxy returned an unreadable body');
+  }
+}
+
 export function useN8nWebhook() {
 
   // Send a chat message to n8n (via chat-proxy) and get the bot response
@@ -97,7 +122,9 @@ export function useN8nWebhook() {
         throw new Error(`chat-proxy returned ${res.status}: ${res.statusText}`);
       }
 
-      const data = await res.json();
+      // Read as text first: a streamed (NDJSON) or array body used to throw
+      // in res.json() and show "Message failed" although n8n had answered.
+      const data = parseChatBody(await res.text());
 
       // Match n8n's response parsing: try output, text, message, then stringify
       const text = data.output ?? data.text ?? data.message ?? '';

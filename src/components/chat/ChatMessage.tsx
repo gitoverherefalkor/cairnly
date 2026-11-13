@@ -234,12 +234,23 @@ function findSectionByTitle(
   const norm = normalizeTitle(headingText);
   if (!norm) return null;
 
-  for (const s of sections) {
-    if (!SCORED_SECTION_TYPES.has(s.section_type)) continue;
+  const scored = sections.filter((s) => SCORED_SECTION_TYPES.has(s.section_type));
+  // Exact matches first, across ALL sections. Only then fall back to a
+  // substring match. Before this, the first substring hit won: a runner-up
+  // card titled "Taalmaatje" matched the dream job "Taalmaatje voor
+  // nieuwkomers", the sidebar jumped to the last section and the chat offered
+  // "wrap up" right after the runner-ups (round 6, Marjan). Encore's idea
+  // section often names the same kind of role as a runner-up, so overlap is
+  // common there.
+  for (const s of scored) {
+    for (const candidate of sectionTitleCandidates(s)) {
+      if (normalizeTitle(candidate) === norm) return s;
+    }
+  }
+  for (const s of scored) {
     for (const candidate of sectionTitleCandidates(s)) {
       const candNorm = normalizeTitle(candidate);
       if (!candNorm) continue;
-      if (candNorm === norm) return s;
       if (norm.includes(candNorm) || candNorm.includes(norm)) return s;
     }
   }

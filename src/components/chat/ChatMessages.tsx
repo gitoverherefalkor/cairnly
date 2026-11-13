@@ -67,6 +67,8 @@ interface ChatMessagesProps {
   // True when the chat gave up waiting on a section whose content never
   // arrived. Swaps the quick replies for the skip-ahead escape hatch.
   isStalled?: boolean;
+  // Last section this report has (10 = dream_jobs; 9 when there is none).
+  lastSectionIndex?: number;
   // IDs of user messages whose agent call threw. ChatMessage renders a
   // small retry affordance to the right of these bubbles. Click hits
   // onRetryMessage(id) and the parent re-runs the send.
@@ -86,11 +88,12 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
-  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, isStalled = false, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+  ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, isStalled = false, lastSectionIndex = ALL_SECTIONS.length - 1, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
-    const isDreamJobsSection = currentSectionIndex >= ALL_SECTIONS.length - 1;
+    // "Last section" in practice: the wrap-up pill replaces Continue here.
+    const isDreamJobsSection = currentSectionIndex >= lastSectionIndex;
     // Tracks "every card opened at least once" for ALL multi-card sections
     // (runner_ups, outside_box, dream_jobs). Keyed by message id so navigating
     // back/forward doesn't unlock QuickReplies on a different message that

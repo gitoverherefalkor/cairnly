@@ -40,6 +40,7 @@ import {
 import type { SectionType } from './boilerplate.ts';
 import { resolveLang } from '../_shared/language.ts';
 import { sectionI18n, sectionText, sectionTitle } from '../_shared/sectionText.ts';
+import { getReportProduct } from '../_shared/product.ts';
 
 const VALID_SECTION_TYPES = new Set<SectionType>([
   'approach',
@@ -180,10 +181,22 @@ serve(async (req) => {
   //    translation would otherwise mix languages inside one chat bubble —
   //    the exact failure this contract exists to kill. Falling back to full
   //    English (body + boilerplate) is always readable.
+  //    Encore exception: Encore's n8n chain (WF1P-WF4P) writes Dutch natively
+  //    into `content` and marks the row language='nl', with no content_i18n
+  //    entry. Under the Pro rule those rows counted as "not translated", so
+  //    every Encore NL section came out with English intros/outros around a
+  //    Dutch body (round 6 finding #3). For Encore, a row already written in
+  //    the user's language counts as available; a stored translation still
+  //    wins when there is one. Pro/Starter keep the strict rule unchanged.
   const sectionRows = rows as ReportSectionRow[];
+  const product = await getReportProduct(supabase, report_id);
+  const isNativeRow = (row: ReportSectionRow, lang: string) =>
+    product.encore && String(row.language ?? '').slice(0, 2).toLowerCase() === lang;
   const deliveredLanguage =
     preferredLanguage !== 'en' &&
-    sectionRows.every((row) => sectionI18n(row, preferredLanguage) !== null)
+    sectionRows.every(
+      (row) => sectionI18n(row, preferredLanguage) !== null || isNativeRow(row, preferredLanguage),
+    )
       ? preferredLanguage
       : 'en';
   const resolvedRows = sectionRows.map((row) => ({
@@ -197,6 +210,7 @@ serve(async (req) => {
       section_type as SectionType,
       resolvedRows,
       deliveredLanguage,
+      product.encore ? { encore: true, expectsDreamJobs: product.expectsDreamJobs } : {},
     );
   } catch (e) {
     console.error('[deliver-section] render error:', e);

@@ -14,7 +14,10 @@
   "errors": {
     "noResponse": "I didn't receive a response. Please try again.",
     "timeout": "The response took too long. Please try again.",
-    "messageFailed": "Message failed"
+    "messageFailed": "Message failed",
+    "retryHint": "Something went wrong. Tap the retry icon next to your message, or try again.",
+    "careerSlow": "Your career matches are taking a little longer to finalize. Hang tight, give it a moment and tap Continue again.",
+    "sectionStalled": "This section still isn't coming through, and that's on our side, not something you did. I've flagged it to the team so they can look at it.\n\nYou don't have to sit here waiting: you can skip ahead and finish the rest of your session now. We'll follow up about this section by email."
   },
   "session": {
     "viewReport": "View Your Report",

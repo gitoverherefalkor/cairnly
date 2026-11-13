@@ -22,6 +22,9 @@ export const ENCORE_SURVEY_ID = '00000000-0000-0000-0000-000000000004';
 export const ENCORE_SURVEY_TYPE = 'Encore - Post-Career Direction - 2026 v2';
 export const ENCORE_V1_SURVEY_ID = '00000000-0000-0000-0000-000000000003';
 export const ENCORE_V1_SURVEY_TYPE = 'Encore - Post-Career Direction - 2026 v1 EN';
+// Encore v2 Q3.5 "Is there something you already tried, or an idea you keep
+// coming back to?" (optional). Empty = no dream_jobs ("Your idea") section.
+export const ENCORE_IDEA_QUESTION_ID = 'c3c3c3c3-0003-4000-a000-000000000005';
 export const isEncoreSurveyId = (surveyId: string | null | undefined): boolean =>
   surveyId === ENCORE_SURVEY_ID || surveyId === ENCORE_V1_SURVEY_ID;
 export const isEncoreSurveyType = (surveyType: string | null | undefined): boolean =>

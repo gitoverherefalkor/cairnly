@@ -157,19 +157,163 @@ const NL: Record<SectionType, Boilerplate> = {
   },
 };
 
+// Encore (older professionals, post-career direction). Its own voice: no
+// "lead teams" or "career success", the career chapter is about directions
+// (paid, freelance, volunteer), and Dutch says "u" (Sjoerd's rule for Encore).
+// Encore's dream_jobs section is "Your idea": the survey asks (optional Q3.5)
+// for something the person already tried or keeps coming back to, NOT for a
+// dream job without constraints, so the Pro intro would be untrue here.
+// The outside_box outro has a second form for people with no idea in Q3.5:
+// they have no idea section, so the outro points to wrapping up instead.
+const ENCORE_EN: Record<SectionType, Boilerplate> = {
+  approach: {
+    intro:
+      "Let's start with you. First, how you work best at this point in your life: where your energy goes, and what you'd rather leave behind.",
+    outro:
+      '**Does this feel like you?** Tell me if anything is off or missing, and I\'ll take it into your report.',
+  },
+  strengths: {
+    intro: "Next, what you bring: the qualities that keep coming back in your answers and your experience.",
+    outro:
+      "**Do you recognise yourself in this?** If you'd put something differently, just say so.",
+  },
+  development: {
+    intro: "Now a few things to watch for: habits and pitfalls worth knowing about before you start something new.",
+    outro: "**Does this ring true?** Tell me if you see it differently or want to talk about any point.",
+  },
+  values: {
+    intro: "Last in this part: what matters to you now, and what that means for the kind of activity that fits.",
+    outro:
+      "**Does this capture what matters to you?** If it does, we'll move on to the directions that suit you. Let me know how you'd like to continue.",
+  },
+  top_career_1: {
+    intro:
+      "## CHAPTER 2: DIRECTIONS FOR YOU\n\nNow for the directions we think suit you, and why. We start with your top three.\n\nBased on your answers, your experience and what you're looking for, the direction that fits you best is:",
+    outro:
+      "That was your first direction.\n\n**Does this appeal to you? Is it the kind of thing you could see yourself doing?**\n\nDid you expect this one, or is it a surprise?\n\nI can tell you more about what it looks like in practice, or how people get started. Or we can move on to the next direction. **How would you like to continue?**",
+  },
+  top_career_2: {
+    intro: null,
+    outro:
+      "That was your second direction. **How does it compare to the first? Can you picture yourself doing this?**\n\nHad you thought of it before, or is it new to you?\n\nI'm happy to go into the money, the time it takes or how to get started. Or we can move on to the next one. **What do you think?**",
+  },
+  top_career_3: {
+    intro: null,
+    outro:
+      "And that was your third direction. **What's your first reaction? Does it feel like a good fit**, or less so?\n\nDoes anything about it stand out, good or bad?\n\nAsk me about any detail you're curious about. Or we can move on to a few close alternatives for a quick comparison. **How would you like to continue?**",
+  },
+  runner_ups: {
+    intro:
+      "Here are a few **close alternatives** to your top three. They also suit your strengths and wishes, but differ in what you'd do, where or how much. After this come the **outside-the-box** options: directions you might not have considered. Here they are:",
+    outro:
+      'Those were the close alternatives. **Do you have questions about any of them**, or anything else you\'d like to talk about?',
+  },
+  outside_box: {
+    intro:
+      "**The best fit isn't always the most obvious one.** Here are a few **outside-the-box options**: directions that suit who you are, but might not have been on your radar. Let's take a look:",
+    outro:
+      "**Does any of these appeal to you?** Even if they're unfamiliar, they might be a new way to use what you're good at. **Let me know what you think**, or ask about any of them. After this, we'll take an honest look at your own idea.",
+  },
+  dream_jobs: {
+    intro:
+      "You mentioned an idea of your own: something you already tried or keep coming back to. Here's an honest look at it: what it would take, what to watch for, and a small way to try it before you commit.",
+    outro: null,
+  },
+};
+
+const ENCORE_NL: Record<SectionType, Boilerplate> = {
+  approach: {
+    intro:
+      'We beginnen bij u. Eerst hoe u nu het beste werkt: waar uw energie naartoe gaat, en wat u liever achter u laat.',
+    outro:
+      '**Herkent u zich hierin?** Laat het weten als er iets niet klopt of ontbreekt, dan neem ik dat mee in uw rapport.',
+  },
+  strengths: {
+    intro: 'Dan wat u meebrengt: de kwaliteiten die steeds terugkomen in uw antwoorden en uw ervaring.',
+    outro: '**Herkent u zich hierin?** Als u iets anders zou zeggen, laat het gerust weten.',
+  },
+  development: {
+    intro:
+      'Nu een paar aandachtspunten: gewoonten en valkuilen die goed zijn om te kennen voordat u iets nieuws begint.',
+    outro: '**Klopt dit voor u?** Laat het weten als u het anders ziet of over een punt wilt praten.',
+  },
+  values: {
+    intro: 'Tot slot in dit deel: wat nu voor u telt, en wat dat betekent voor het soort bezigheid dat bij u past.',
+    outro:
+      '**Geeft dit goed weer wat voor u belangrijk is?** Dan gaan we verder met de richtingen die bij u passen. Laat weten hoe u verder wilt.',
+  },
+  top_career_1: {
+    intro:
+      '## HOOFDSTUK 2: RICHTINGEN VOOR U\n\nNu de richtingen die volgens ons bij u passen, en waarom. We beginnen met uw top drie.\n\nOp basis van uw antwoorden, uw ervaring en wat u zoekt, past deze richting het beste bij u:',
+    outro:
+      'Dat was uw eerste richting.\n\n**Spreekt dit u aan? Ziet u zichzelf dit doen?**\n\nHad u deze verwacht, of is het een verrassing?\n\nIk kan meer vertellen over hoe dit er in de praktijk uitziet, of hoe mensen ermee beginnen. Of we gaan door naar de volgende richting. **Hoe wilt u verder?**',
+  },
+  top_career_2: {
+    intro: null,
+    outro:
+      'Dat was uw tweede richting. **Hoe verhoudt deze zich tot de eerste? Ziet u zichzelf dit doen?**\n\nHad u hier al eens aan gedacht, of is het nieuw voor u?\n\nIk ga graag in op het geld, de tijd die het kost of hoe u kunt beginnen. Of we gaan door naar de volgende. **Wat vindt u ervan?**',
+  },
+  top_career_3: {
+    intro: null,
+    outro:
+      'En dat was uw derde richting. **Wat is uw eerste reactie? Voelt dit als een goede match**, of minder?\n\nSpringt er iets uit, positief of negatief?\n\nVraag gerust naar elk detail. Of we gaan door naar een paar alternatieven die er dicht bij liggen. **Hoe wilt u verder?**',
+  },
+  runner_ups: {
+    intro:
+      'Hier zijn een paar **alternatieven** die dicht bij uw top drie liggen. Ze passen ook bij uw sterke punten en wensen, maar verschillen in wat u doet, waar of hoeveel. Daarna volgen de **outside-the-box** opties: richtingen waar u misschien nog niet aan dacht. Dit zijn ze:',
+    outro:
+      'Dat waren de alternatieven. **Heeft u vragen over een van deze richtingen**, of wilt u ergens anders over praten?',
+  },
+  outside_box: {
+    intro:
+      '**De beste keuze is niet altijd de meest voor de hand liggende.** Hier zijn een paar **outside-the-box opties**: richtingen die bij u passen, maar misschien nog niet in beeld waren. Laten we kijken:',
+    outro:
+      '**Spreekt een van deze u aan?** Ook als ze onbekend voelen, kunnen ze een nieuwe manier zijn om in te zetten waar u goed in bent. **Laat weten wat u ervan vindt**, of vraag naar een van deze opties. Hierna kijken we eerlijk naar uw eigen idee.',
+  },
+  dream_jobs: {
+    intro:
+      'U noemde een eigen idee: iets wat u al eens probeerde of waar u steeds op terugkomt. Hier kijken we er eerlijk naar: wat ervoor nodig is, waar u op moet letten, en hoe u het in het klein kunt uitproberen voordat u zich vastlegt.',
+    outro: null,
+  },
+};
+
+// Encore outside_box outro when the person left Q3.5 (their own idea) empty:
+// there is no idea section after it, so it points to wrapping up.
+const ENCORE_OUTSIDE_BOX_LAST_OUTRO: Record<Language, string> = {
+  en: "**Does any of these appeal to you?** Even if they're unfamiliar, they might be a new way to use what you're good at. **Let me know what you think**, or ask about any of them. This was the last part: when you're ready, you can wrap up the session.",
+  nl: '**Spreekt een van deze u aan?** Ook als ze onbekend voelen, kunnen ze een nieuwe manier zijn om in te zetten waar u goed in bent. **Laat weten wat u ervan vindt**, of vraag naar een van deze opties. Dit was het laatste onderdeel: als u klaar bent, kunt u de sessie afronden.',
+};
+
 export const BOILERPLATE: Record<Language, Record<SectionType, Boilerplate>> = {
   en: EN,
   nl: NL,
 };
 
+export interface BoilerplateOptions {
+  /** Encore report: use Encore's own voice ("u" in Dutch). */
+  encore?: boolean;
+  /** Encore only: false when no idea section follows outside_box. */
+  expectsDreamJobs?: boolean;
+}
+
 /**
  * Get boilerplate for a given language, falling back to English if the
  * language is unknown. Callers should pass `preferred_language` from the
- * user's profile (or 'en' if not set).
+ * user's profile (or 'en' if not set). Pro/Starter callers pass no options
+ * and get exactly the Pro copy.
  */
-export function getBoilerplate(language: string): Record<SectionType, Boilerplate> {
-  if (language === 'nl') return NL;
-  return EN;
+export function getBoilerplate(
+  language: string,
+  options: BoilerplateOptions = {},
+): Record<SectionType, Boilerplate> {
+  const lang: Language = language === 'nl' ? 'nl' : 'en';
+  if (!options.encore) return lang === 'nl' ? NL : EN;
+  const base = lang === 'nl' ? ENCORE_NL : ENCORE_EN;
+  if (options.expectsDreamJobs !== false) return base;
+  return {
+    ...base,
+    outside_box: { ...base.outside_box, outro: ENCORE_OUTSIDE_BOX_LAST_OUTRO[lang] },
+  };
 }
 
 // Wrap-up message after the user signals they're done with dream_jobs.

@@ -140,6 +140,9 @@ interface ReportSidebarProps {
   // would slide under it on short screens. The offset re-centres the panel
   // in the space below the header. Default 0 = /chat's own geometry.
   desktopTopOffset?: number;
+  // Encore with no own idea (Q3.5 empty): no dream_jobs section is written,
+  // so the sidebar must not list it or count it.
+  hideDreamJobs?: boolean;
 }
 
 export const ReportSidebar: React.FC<ReportSidebarProps> = ({
@@ -152,8 +155,11 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
   reportSections,
   allSectionsReachable = false,
   desktopTopOffset = 0,
+  hideDreamJobs = false,
 }) => {
   const { t, i18n } = useTranslation(['report', 'chat']);
+  const isShown = (id: string) => !(hideDreamJobs && id === 'dream-jobs');
+  const visibleCount = VISIBLE_SECTIONS_COUNT - (hideDreamJobs ? 1 : 0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Inline overrides for the fixed desktop panel when a taller header sits
@@ -228,7 +234,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
             style={{ letterSpacing: '0.22em', fontWeight: 700 }}
           >{t('chapters.careerSuggestions')}</p>
           <div className="space-y-1">
-            {CAREER_SECTIONS.map((section) => {
+            {CAREER_SECTIONS.filter((s) => isShown(s.id)).map((section) => {
               const state = getSectionState(section.globalIndex);
               // For CURRENT and PAST career sections, surface either the
               // actual career title + size (top-3 single-row) or a count
@@ -301,7 +307,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
           className="md:hidden fixed bottom-20 right-3 z-50 flex items-center gap-1.5 bg-white border border-gray-200 shadow-lg rounded-full px-3 py-2 text-xs font-medium text-atlas-navy hover:bg-gray-50 transition-colors"
         >
           <ListOrdered className="h-4 w-4 text-atlas-teal" />
-          <span>{Math.max(0, currentSectionIndex)}/{VISIBLE_SECTIONS_COUNT}</span>
+          <span>{Math.min(Math.max(0, currentSectionIndex), visibleCount)}/{visibleCount}</span>
         </button>
       )}
 
@@ -372,7 +378,7 @@ export const ReportSidebar: React.FC<ReportSidebarProps> = ({
           {ALL_SECTIONS.map((section, index) => {
             // Skip hidden sections (Executive Summary) — kept in
             // ALL_SECTIONS only to preserve numeric indices.
-            if (HIDDEN_SECTION_IDS.has(section.id)) return null;
+            if (HIDDEN_SECTION_IDS.has(section.id) || !isShown(section.id)) return null;
             const state = getSectionState(index);
             const clickable = isClickable(index);
 

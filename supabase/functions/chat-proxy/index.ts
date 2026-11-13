@@ -34,6 +34,44 @@ const DEFAULT_COACH_WEBHOOK_URL =
   'https://falkoratlas.app.n8n.cloud/webhook/ca944e4c-de52-46eb-bc45-e2c8405f5019/chat';
 const COACH_ENTRY_POINTS = ['chat', 'career', 'move', 'set_aside', 'checkin'];
 
+// How long we wait for n8n before switching to recovery, and how long recovery
+// may poll. Together they stay under the frontend's 120s fetch timeout.
+const N8N_TIMEOUT_MS = 85_000;
+const RECOVERY_WAIT_MS = 25_000;
+const RECOVERY_POLL_MS = 2_500;
+
+/** The reply text from an n8n chat response body, or '' when there is none.
+ *  Handles a plain object ({output}), an array ([{output}]) and a streamed
+ *  NDJSON body ({"type":"item","content":"..."} per line). */
+function extractReply(raw: string): string {
+  const text = raw.trim();
+  if (!text) return '';
+  const pick = (v: unknown): string => {
+    if (Array.isArray(v)) return pick(v[0]);
+    if (v && typeof v === 'object') {
+      const o = v as Record<string, unknown>;
+      const out = o.output ?? o.text ?? o.message;
+      return typeof out === 'string' ? out : '';
+    }
+    return '';
+  };
+  try {
+    return pick(JSON.parse(text));
+  } catch {
+    // Not one JSON document: try NDJSON stream chunks.
+    let joined = '';
+    for (const line of text.split('\n')) {
+      try {
+        const chunk = JSON.parse(line);
+        if (chunk?.type === 'item' && typeof chunk.content === 'string') joined += chunk.content;
+      } catch {
+        /* skip non-JSON lines */
+      }
+    }
+    return joined;
+  }
+}
+
 interface ChatRequestBody {
   action?: 'sendMessage' | 'loadPreviousSession';
   mode?: 'continue';
@@ -209,10 +247,71 @@ serve(async (req) => {
   const basicAuthUser = Deno.env.get('N8N_BASIC_AUTH_USER') ?? 'atlas-chat-proxy';
   const basicAuthHeader = `Basic ${btoa(`${basicAuthUser}:${sharedSecret}`)}`;
 
-  // 90s timeout (n8n agent calls are slow); shorter than the frontend's
-  // 120s so we surface a clear error before the user's fetch times out.
+  // Lost-reply recovery (first chat only, not the post-report coach). WF5's
+  // Postgres memory saves every turn to n8n_chat_histories (session_id =
+  // the chat session id). In round 6 n8n finished the turn and saved the
+  // reply, but the reply never reached the browser: once on a turn with a
+  // WF6 tool call (empty/unusable body), once on a turn slower than our
+  // timeout. The user only saw a retry icon, and each retry ran WF6 again.
+  // So: remember where the history stood before forwarding, and when n8n's
+  // answer is unusable or late, return the reply the agent saved instead.
+  const historySession = body['n8n-chat/sessionId'] ?? reportId ?? null;
+  const userTurn = body.chatInput ?? '';
+  const canRecover = !reserved && body.action === 'sendMessage' && !!historySession && !!userTurn.trim();
+  let historyBaseline = 0;
+  if (canRecover) {
+    const { data: last } = await supabase
+      .from('n8n_chat_histories')
+      .select('id')
+      .eq('session_id', historySession)
+      .order('id', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    historyBaseline = Number(last?.id ?? 0);
+  }
+
+  // The AI reply saved for THIS user turn: the first human row after the
+  // baseline with this exact text, directly followed by an ai row. Other
+  // writers (deliver-section, the background agent) can add rows meanwhile,
+  // so we never just take "the newest ai row".
+  const findSavedReply = async (): Promise<string> => {
+    const { data: rows } = await supabase
+      .from('n8n_chat_histories')
+      .select('id, message')
+      .eq('session_id', historySession)
+      .gt('id', historyBaseline)
+      .order('id', { ascending: true })
+      .limit(50);
+    const list = (rows ?? []) as Array<{ id: number; message: { type?: string; content?: unknown } }>;
+    for (let i = 0; i < list.length - 1; i++) {
+      const m = list[i].message;
+      const next = list[i + 1].message;
+      if (m?.type === 'human' && m.content === userTurn && next?.type === 'ai' && typeof next.content === 'string' && next.content.trim()) {
+        return next.content;
+      }
+    }
+    return '';
+  };
+  const recoverReply = async (waitMs: number): Promise<string> => {
+    if (!canRecover) return '';
+    const deadline = Date.now() + waitMs;
+    for (;;) {
+      const found = await findSavedReply().catch(() => '');
+      if (found) return found;
+      if (Date.now() + RECOVERY_POLL_MS > deadline) return '';
+      await new Promise((r) => setTimeout(r, RECOVERY_POLL_MS));
+    }
+  };
+  const recoveredResponse = (output: string) =>
+    new Response(JSON.stringify({ output, recovered: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  // n8n agent calls are slow; the timeout plus recovery stays shorter than
+  // the frontend's 120s so we answer before the user's fetch gives up.
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 90_000);
+  const timeout = setTimeout(() => controller.abort(), N8N_TIMEOUT_MS);
 
   let n8nResp: Response;
   try {
@@ -227,11 +326,18 @@ serve(async (req) => {
       signal: controller.signal,
     });
   } catch (e) {
-    await refund();
     if ((e as Error).name === 'AbortError') {
-      console.error('[chat-proxy] n8n timed out after 90s');
+      // n8n is usually still working: wait for the reply it will save.
+      const saved = await recoverReply(RECOVERY_WAIT_MS);
+      if (saved) {
+        console.warn('[chat-proxy] n8n slow; reply recovered from chat history');
+        return recoveredResponse(saved);
+      }
+      await refund();
+      console.error(`[chat-proxy] n8n timed out after ${N8N_TIMEOUT_MS / 1000}s, nothing to recover`);
       return errorResponse('Chat timed out. Please try again.', 504, corsHeaders);
     }
+    await refund();
     console.error('[chat-proxy] n8n fetch error:', e);
     return errorResponse('Chat service unreachable', 502, corsHeaders);
   } finally {
@@ -246,8 +352,18 @@ serve(async (req) => {
   }
 
   // Pass n8n's body through verbatim — frontend parses the same shape it
-  // used to parse from n8n directly.
+  // used to parse from n8n directly. Exception: a body without a usable
+  // reply (empty, or a shape the browser can't read) is replaced by the
+  // reply the agent saved to its memory, when there is one.
   const respBody = await n8nResp.text();
+  if (canRecover && !extractReply(respBody).trim()) {
+    const saved = await recoverReply(10_000);
+    if (saved) {
+      console.warn('[chat-proxy] n8n body had no usable reply; recovered from chat history:', respBody.slice(0, 200));
+      return recoveredResponse(saved);
+    }
+    console.error('[chat-proxy] n8n body had no usable reply and nothing to recover:', respBody.slice(0, 300));
+  }
   if (reserved) {
     // Tell the frontend how much budget is left, for the counter.
     try {

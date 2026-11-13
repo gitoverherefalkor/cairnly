@@ -10,7 +10,7 @@
 //
 // dream_jobs is "career-multi-lite" (no size/alt-titles, no <strong> on title).
 
-import { getBoilerplate, type SectionType } from './boilerplate.ts';
+import { getBoilerplate, type BoilerplateOptions, type SectionType } from './boilerplate.ts';
 import { companyContext } from './companyContext.ts';
 
 export interface ReportSectionRow {
@@ -232,12 +232,13 @@ export function renderSection(
   sectionType: SectionType,
   rows: ReportSectionRow[],
   language: string = 'en',
+  options: BoilerplateOptions = {},
 ): string {
   if (rows.length === 0) {
     throw new Error(`No rows provided for section_type=${sectionType}`);
   }
 
-  const boilerplate = getBoilerplate(language)[sectionType];
+  const boilerplate = getBoilerplate(language, options)[sectionType];
 
   if (PERSONALITY.has(sectionType)) {
     return wrap(boilerplate.intro, renderPersonality(rows[0]), boilerplate.outro);

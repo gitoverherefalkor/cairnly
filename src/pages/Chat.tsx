@@ -16,6 +16,7 @@ import { useReportSections } from '@/hooks/useReportSections';
 import { TTSProvider } from '@/contexts/TTSContext';
 import type { ChatMessagesHandle } from '@/components/chat/ChatMessages';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
+import { isEncoreSurveyId, ENCORE_IDEA_QUESTION_ID } from '@/components/assessment/constants';
 
 type ReportData = Tables<'reports'>;
 
@@ -71,6 +72,20 @@ const Chat = () => {
     ].filter(Boolean).join(' | ');
     return { assessmentPurpose: purpose, goalAlignment: goals };
   }, [reportData]);
+
+  // Encore asks for an own idea in an OPTIONAL question (Q3.5). When it is
+  // empty, WF4P writes no dream_jobs ("Your idea") section by design, so the
+  // chat must end after outside-the-box instead of waiting minutes for a
+  // section that never comes (round 6, Margaret and Henk). Pro/Starter always
+  // have a dream jobs section.
+  const hasDreamJobs = useMemo(() => {
+    const payload = (reportData?.payload ?? {}) as { survey_id?: string; responses?: Record<string, unknown> };
+    if (!isEncoreSurveyId(payload.survey_id)) return true;
+    const idea = payload.responses?.[ENCORE_IDEA_QUESTION_ID];
+    const text = Array.isArray(idea) ? idea.join(' ') : typeof idea === 'string' ? idea : '';
+    return text.trim() !== '';
+  }, [reportData]);
+  const lastSectionIndex = hasDreamJobs ? ALL_SECTIONS.length - 1 : ALL_SECTIONS.length - 2;
   // Welcome card defaults to visible for everyone. An effect below flips it
   // off once we confirm the user has actually engaged with the chat for this
   // report (per `chat_engaged_${reportId}` flag set in handleWelcomeStart) or
@@ -207,7 +222,7 @@ const Chat = () => {
     if (!reportData?.id) return;
     if (isSessionCompleted) return;
 
-    const isAtLastSection = currentSectionIndex >= ALL_SECTIONS.length - 1;
+    const isAtLastSection = currentSectionIndex >= lastSectionIndex;
     if (!isAtLastSection) return;
 
     // One-time check
@@ -246,7 +261,7 @@ const Chat = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [reportData?.id, currentSectionIndex, isSessionCompleted]);
+  }, [reportData?.id, currentSectionIndex, isSessionCompleted, lastSectionIndex]);
 
   // Auto-complete session: 30 min after all dream jobs have been read AND backend is done.
   // Timer resets on any user message (handleSectionDetected is called per message).
@@ -478,7 +493,7 @@ const Chat = () => {
 
   // Visible section count excludes the hidden Executive Summary (canonical
   // index 0), matching the sidebar's "N / M" progress label.
-  const visibleSectionCount = ALL_SECTIONS.length - 1;
+  const visibleSectionCount = lastSectionIndex;
   const chatProgressPct = Math.min(
     100,
     Math.max(0, (currentSectionIndex / visibleSectionCount) * 100)
@@ -563,6 +578,7 @@ const Chat = () => {
                 assessmentPurpose={assessmentPurpose}
                 goalAlignment={goalAlignment}
                 currentSectionIndex={currentSectionIndex}
+                lastSectionIndex={lastSectionIndex}
                 onSectionDetected={handleSectionDetected}
                 onSessionComplete={() => setShowClosing(true)}
                 onDreamJobsRead={handleDreamJobsRead}
@@ -598,6 +614,7 @@ const Chat = () => {
             onCompleteSession={() => setShowClosing(true)}
             isSessionCompleted={isSessionCompleted}
             reportSections={reportSections}
+            hideDreamJobs={!hasDreamJobs}
           />
         </div>
       )}

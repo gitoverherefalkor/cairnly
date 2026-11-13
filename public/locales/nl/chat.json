@@ -14,7 +14,10 @@
   "errors": {
     "noResponse": "Ik heb geen reactie ontvangen. Probeer het opnieuw.",
     "timeout": "De reactie duurde te lang. Probeer het opnieuw.",
-    "messageFailed": "Bericht mislukt"
+    "messageFailed": "Bericht mislukt",
+    "retryHint": "Er ging iets mis. Tik op het pijltje naast het bericht om het opnieuw te proberen.",
+    "careerSlow": "De matches zijn nog niet helemaal klaar. Even geduld, en tik zo nog een keer op Door naar de volgende sectie.",
+    "sectionStalled": "Dit onderdeel komt nog steeds niet door. Dat ligt aan ons, niet aan wat er gedaan is. Het team is ingelicht en kijkt ernaar.\n\nWachten is niet nodig: met de knop hieronder gaat het gesprek verder met de rest. Over dit onderdeel volgt later een mail."
   },
   "session": {
     "viewReport": "Bekijk je rapport",
