@@ -134,7 +134,11 @@ export const CoachCard: React.FC<{ reportId: string; access: CoachAccess }> = ({
           <ArrowRight size={15} />
         </button>
         <span style={{ fontFamily: FONT_BODY, fontSize: 12.5, color: 'rgba(236,228,210,0.6)' }}>
-          {t('card.left', { remaining: access.remaining, limit: access.limit })}
+          {/* Untouched budget reads as an allowance, not a counter that looks
+              stuck while the user is still in the report chat (which is free). */}
+          {access.remaining >= access.limit
+            ? t('card.leftFull', { limit: access.limit })
+            : t('card.left', { remaining: access.remaining, limit: access.limit })}
         </span>
       </div>
     </section>

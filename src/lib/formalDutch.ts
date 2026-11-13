@@ -18,8 +18,28 @@ import type i18nType from 'i18next';
 
 const FLAG_KEY = 'cairnly_formal_nl';
 
-/** Namespaces with a nl-formal override file. chat + coach stay "je" on purpose. */
-export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment'];
+/**
+ * Encore code links carry `flavor=encore` (Ops free codes). Read it before
+ * i18n loads its first namespaces, so a fresh browser opening such a link
+ * sees "u" from the first render (signup page, cookie banner) instead of a
+ * "je" flash until the code check returns. Only ever switches formal ON;
+ * the code check on /auth still has the final say.
+ */
+export function applyFlavorHintFromUrl(): void {
+  try {
+    const flavor = new URLSearchParams(window.location.search).get('flavor');
+    if (flavor === 'encore') localStorage.setItem(FLAG_KEY, '1');
+  } catch {
+    /* storage blocked: plain Dutch until the code check */
+  }
+}
+
+/**
+ * Namespaces with a nl-formal override file. `chat` stays "je" on purpose (it
+ * frames the shared coach's own "je" voice). `coach` overrides only the UI
+ * chrome (dashboard card, headers, notices); the coach's opener stays "je".
+ */
+export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment', 'coach'];
 
 export function isFormalDutchOn(): boolean {
   try {

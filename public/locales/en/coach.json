@@ -48,6 +48,7 @@
     "body": "Questions come up after the report: an interview, a doubt, what to do first. Your coach knows your report and helps you plan.",
     "cta": "Talk to your coach",
     "left": "{{remaining}} of {{limit}} messages left this month",
+    "leftFull": "{{limit}} coach messages a month, for after your report",
     "checkinDue": "Check-in due"
   },
   "links": {

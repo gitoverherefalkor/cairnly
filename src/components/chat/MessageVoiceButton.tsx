@@ -118,7 +118,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
             setSettingsSeen(true);
             setMenuOpen((o) => !o);
           }}
-          title="Voice settings"
+          title={t('ui.voiceSettingsTitle', 'Voice settings')}
           className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors hover:text-atlas-teal hover:bg-atlas-teal/5 ${
             pulseSettings ? 'text-atlas-teal bg-atlas-teal/5 animate-mic-hint-pulse' : 'text-gray-400'
           }`}
@@ -135,7 +135,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
               className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md hover:bg-gray-50 text-left"
             >
               <span className="text-sm text-atlas-navy">
-                Read all new responses
+                {t('ui.readAllResponses', 'Read all new responses')}
               </span>
               <span
                 className={`relative inline-flex w-8 h-[18px] rounded-full transition-colors ${
@@ -151,7 +151,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
             </button>
 
             <div className="px-3 py-2">
-              <div className="text-sm text-atlas-navy mb-1.5">Playback speed</div>
+              <div className="text-sm text-atlas-navy mb-1.5">{t('ui.playbackSpeed', 'Playback speed')}</div>
               <div className="flex items-center gap-1">
                 {PLAYBACK_RATES.map((rate) => (
                   <button
@@ -181,8 +181,8 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
             onClick={onLikeToggle}
             title={
               liked
-                ? "You marked this as impressive — click to undo"
-                : 'Impressed? Give it a thumbs up'
+                ? t('ui.likedTitle', 'You marked this as impressive. Click to undo.')
+                : t('ui.likeTitle', 'Impressed? Give it a thumbs up')
             }
             aria-pressed={liked}
             className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
@@ -199,7 +199,7 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
           // Report section straight from Supabase — already in the report, so
           // saving is redundant. Disabled indicator + explainer on hover.
           <span
-            title="Already in your report — along with any feedback you add this session"
+            title={t('ui.inReportTitle', 'Already in your report, along with any feedback you add this session')}
             className="flex items-center gap-1.5 px-2 py-1 rounded-md text-gray-400 cursor-default select-none"
           >
             <BookmarkCheck size={13} />
@@ -213,8 +213,8 @@ export const MessageVoiceButton: React.FC<MessageVoiceButtonProps> = ({
               onClick={onBookmarkToggle}
               title={
                 bookmarked
-                  ? 'Kept — this reply is preserved in full in your report. Click to remove.'
-                  : 'Keep this reply in full in your report'
+                  ? t('ui.keptTitle', 'Kept. This reply is saved in full in your report. Click to remove.')
+                  : t('ui.keepTitle', 'Keep this reply in full in your report')
               }
               aria-pressed={bookmarked}
               className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${

@@ -383,7 +383,10 @@
       "processed": "Resume processed successfully",
       "extracted": "Extracted {{count}} fields from your resume",
       "readError": "We couldn't read that file. Please make sure it's a PDF and try again.",
-      "tryAnother": "Try a different file"
+      "tryAnother": "Try a different file",
+      "processedShort": "Processed",
+      "processingShort": "Processing…",
+      "extracting": "Extracting information from your resume…"
     },
     "skipConfirm": {
       "title": "Are you sure?",

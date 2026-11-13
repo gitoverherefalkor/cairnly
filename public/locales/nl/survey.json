@@ -383,7 +383,10 @@
       "processed": "Cv succesvol verwerkt",
       "extracted": "{{count}} velden uit je cv gehaald",
       "readError": "We konden dat bestand niet lezen. Controleer of het een PDF is en probeer het opnieuw.",
-      "tryAnother": "Probeer een ander bestand"
+      "tryAnother": "Probeer een ander bestand",
+      "processedShort": "Verwerkt",
+      "processingShort": "Bezig met verwerken…",
+      "extracting": "We halen de gegevens uit je cv…"
     },
     "skipConfirm": {
       "title": "Weet je het zeker?",

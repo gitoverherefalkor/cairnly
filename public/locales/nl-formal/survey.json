@@ -138,7 +138,8 @@
       "dragging": "Laat uw bestand hier los"
     },
     "status": {
-      "extracted": "{{count}} velden uit uw cv gehaald"
+      "extracted": "{{count}} velden uit uw cv gehaald",
+      "extracting": "We halen de gegevens uit uw cv…"
     },
     "skipConfirm": {
       "title": "Weet u het zeker?",

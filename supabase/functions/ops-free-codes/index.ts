@@ -38,9 +38,11 @@ const ok = (body: Json, corsHeaders: Record<string, string>) =>
   });
 
 // Straight to the signup form with the code filled in; ?lang sets the page
-// language (i18n reads it from the querystring).
-const signupLink = (code: string, lang: string) =>
-  `${SITE}/auth?flow=signup&code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}`;
+// language (i18n reads it from the querystring). Encore links add
+// flavor=encore so the very first render is already formal Dutch ("u").
+const signupLink = (code: string, lang: string, product: string) =>
+  `${SITE}/auth?flow=signup&code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}` +
+  (product === 'encore' ? '&flavor=encore' : '');
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -108,7 +110,7 @@ serve(async (req) => {
       });
       if (error) throw error;
 
-      return ok({ code, product, link: signupLink(String(code), lang) }, corsHeaders);
+      return ok({ code, product, link: signupLink(String(code), lang, product) }, corsHeaders);
     }
 
     // ── setActive ───────────────────────────────────────────────────────────

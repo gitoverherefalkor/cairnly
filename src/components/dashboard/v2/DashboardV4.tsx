@@ -39,6 +39,7 @@ import { V4ChartBanner } from './V4ChartBanner';
 import { V4PersonalityRadarSVG, type RadarAxis } from './V4PersonalityRadarSVG';
 import { V4CareerMapSVG, V4CareerMapLegend, type CareerPoint } from './V4CareerMapSVG';
 import { V4CompareRadarSVG, V4CompareLegend, type CompareCareer } from './V4CompareRadarSVG';
+import { personalityAxisLabel } from './chartLabels';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -689,7 +690,10 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         }),
       };
     }
-    const names = leads.map((a) => a.label);
+    // Axis names are English keys; translate them for prose (no line breaks).
+    const names = leads.map((a) =>
+      personalityAxisLabel(a.label, lang).replace(/-\n/g, '').replace(/\n/g, ' '),
+    );
     if (leads.length === 1) {
       return {
         label: t('v4.radarBanner.lead1', {
@@ -717,7 +721,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         defaultValue: 'Strongest dimensions: {{head}}, and {{tail}}.',
       }),
     };
-  }, [radarAxes, t]);
+  }, [radarAxes, t, lang]);
   const sweetSpotCount = useMemo(
     () => careerMapPoints.filter((p) => p.x <= 0.5 && p.y <= 0.5 && p.rank).length,
     [careerMapPoints],

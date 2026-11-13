@@ -69,6 +69,9 @@
     "stop": "Stop",
     "loading": "Loading…",
     "voiceSettings": "Settings",
+    "voiceSettingsTitle": "Voice settings",
+    "readAllResponses": "Read all new responses",
+    "playbackSpeed": "Playback speed",
     "savedTitle": "Saved",
     "thinking": [
       "I'm thinking",
@@ -102,7 +105,12 @@
     "inputPlaceholderVoice": "Type here or dictate…",
     "micTitle": "Dictate (tip: space starts and stops)",
     "micTitleStop": "Stop dictation (space)",
-    "micStarting": "Mic is starting, one moment…"
+    "micStarting": "Mic is starting, one moment…",
+    "likedTitle": "You marked this as impressive. Click to undo.",
+    "likeTitle": "Impressed? Give it a thumbs up",
+    "inReportTitle": "Already in your report, along with any feedback you add this session",
+    "keptTitle": "Kept. This reply is saved in full in your report. Click to remove.",
+    "keepTitle": "Keep this reply in full in your report"
   },
   "chapterFeedback": {
     "kicker": "Chapter 1 complete",

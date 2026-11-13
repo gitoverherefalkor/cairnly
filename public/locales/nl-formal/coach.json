@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "Uw coach",
+    "subtitle": "Denk het door, plan uw volgende stap"
+  },
+  "counter": {
+    "tooltip": "Uw berichten worden aangevuld op {{date}}"
+  },
+  "notice": {
+    "title": "Wat uw coach onthoudt",
+    "body": "Uw coach leest uw afgeronde rapport, de berichten die u heeft bewaard en korte notities uit uw gesprekken, zodat u niets hoeft te herhalen. Uw coach kan uw rapport niet aanpassen. U kunt ons altijd via support vragen uw chatgegevens te verwijderen."
+  },
+  "error": {
+    "send": "Er ging iets mis bij het versturen. Dit telt niet mee voor uw berichten. Probeer het nog eens."
+  },
+  "limit": {
+    "title": "U heeft uw coachberichten voor deze maand gebruikt",
+    "body": "Uw berichten worden aangevuld op {{date}}. Uw rapport, bewaarde berichten en volgende stappen staan nog gewoon op uw dashboard."
+  },
+  "input": {
+    "placeholder": "Vraag uw coach alles over uw volgende stap...",
+    "hint": "Uw coach kan uw rapport niet aanpassen. Uw coach helpt u nadenken en plannen."
+  },
+  "steps": {
+    "title": "Uw volgende stappen",
+    "empty": "Als u met uw coach iets concreets afspreekt, verschijnt het hier met een datum om even terug te kijken."
+  },
+  "card": {
+    "eyebrow": "UW COACH",
+    "body": "Na het rapport komen de vragen pas echt: een eerste gesprek, twijfel, waar begint u. Uw coach kent uw rapport en helpt u plannen.",
+    "cta": "Praat met uw coach",
+    "leftFull": "{{limit}} coachberichten per maand, voor na uw rapport"
+  },
+  "links": {
+    "askSetAside": "Bespreek waarom dit niets voor u is",
+    "moveTooltip": "Klik om uw coach te vragen hoe haalbaar deze stap voor u is"
+  },
+  "chatEnd": {
+    "title": "Wilt u verder praten?",
+    "body": "Uw coach blijft beschikbaar na het rapport, om u te helpen plannen en voorbereiden.",
+    "cta": "Praat met uw coach"
+  }
+}

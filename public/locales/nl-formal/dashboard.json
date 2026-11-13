@@ -88,10 +88,12 @@
       "title": "Deel uw resultaat",
       "sub": "Een deelklare momentopname van uw resultaat, op maat voor LinkedIn. Laat uw netwerk de richting zien die u verkent en begin de gesprekken die iets in beweging brengen.",
       "generating": "Deelbare citaten uit uw rapport worden gemaakt…",
-      "helper": "We openen LinkedIn met een startbericht en slaan de afbeelding op. Voeg de opgeslagen afbeelding toe aan uw bericht."
+      "helper": "We openen LinkedIn met een startbericht en slaan de afbeelding op. Voeg de opgeslagen afbeelding toe aan uw bericht.",
+      "outsideBox": "Verrassende richting"
     },
     "card": {
-      "quoteFallback": "Een helder, eerlijk beeld van waar u op uw best bent."
+      "quoteFallback": "Een helder, eerlijk beeld van waar u op uw best bent.",
+      "outsideBox": "VERRASSENDE RICHTING"
     }
   },
   "v4": {
@@ -108,7 +110,9 @@
     "fallbackTitle": {
       "approach": "Uw aanpak",
       "strengths": "Uw sterke punten",
-      "values": "Uw waarden"
+      "values": "Uw waarden",
+      "runners": "Andere sterke richtingen",
+      "outside": "Verrassende richtingen"
     },
     "fallback": {
       "bestFitCareer": "Uw best passende richting"
@@ -127,7 +131,9 @@
     },
     "reportHeader": {
       "eyebrow": "UW VOLLEDIGE RAPPORT · NASLAG",
-      "title": "Alles wat u met uw coach heeft doorgenomen"
+      "title": "Alles wat u met uw coach heeft doorgenomen",
+      "aboutEyebrow_one": "OVER U · {{count}} SECTIE",
+      "aboutEyebrow_other": "OVER U · {{count}} SECTIES"
     },
     "radarBanner": {
       "title": "Hoe u echt werkt",
@@ -197,7 +203,9 @@
     "sections": {
       "approach": "Uw aanpak",
       "strengths": "Uw sterke punten",
-      "values": "Uw waarden"
+      "values": "Uw waarden",
+      "runner_ups": "Andere sterke richtingen",
+      "outside_box": "Verrassende richtingen"
     }
   }
 }

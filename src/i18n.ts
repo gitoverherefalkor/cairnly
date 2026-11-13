@@ -2,7 +2,10 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import { formalAwareRequest } from './lib/formalDutch';
+import { applyFlavorHintFromUrl, formalAwareRequest } from './lib/formalDutch';
+
+// Must run before init: the first namespace fetch already picks formal or not.
+applyFlavorHintFromUrl();
 
 // Custom detector: check if we're on a .nl domain → force Dutch
 const domainDetector = {

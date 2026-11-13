@@ -106,7 +106,7 @@ const ResumeAutoFillAnimation = () => {
             </div>
           ))}
         </div>
-        <span className="text-[11px] font-semibold text-white/70">Auto-filled</span>
+        <span className="text-[11px] font-semibold text-white/70">{t('preSurveyUpload.illustration.autoFilled')}</span>
       </div>
     </div>
 
@@ -448,8 +448,8 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
                         style={{ color: shownProcessed ? '#15803D' : '#6B7F8B' }}
                       >
                         {(shownFile.size / 1024 / 1024).toFixed(2)} MB
-                        {shownProcessed && ' · Processed'}
-                        {isProcessing && ' · Processing…'}
+                        {shownProcessed && ` · ${t('preSurveyUpload.status.processedShort')}`}
+                        {isProcessing && ` · ${t('preSurveyUpload.status.processingShort')}`}
                       </p>
                     </div>
                     <Button
@@ -508,7 +508,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
                     ) : (
                       <span className="flex items-center gap-2">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Extracting information from your resume…
+                        {t('preSurveyUpload.status.extracting')}
                       </span>
                     )}
                   </div>

@@ -48,6 +48,7 @@
     "body": "Na het rapport komen de vragen pas echt: een sollicitatiegesprek, twijfel, waar begin je. Je coach kent je rapport en helpt je plannen.",
     "cta": "Praat met je coach",
     "left": "Nog {{remaining}} van {{limit}} berichten deze maand",
+    "leftFull": "{{limit}} coachberichten per maand, voor na je rapport",
     "checkinDue": "Tijd om terug te kijken"
   },
   "links": {

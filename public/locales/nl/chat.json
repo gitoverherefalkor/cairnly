@@ -69,6 +69,9 @@
     "stop": "Stoppen",
     "loading": "Laden…",
     "voiceSettings": "Instellingen",
+    "voiceSettingsTitle": "Spraakinstellingen",
+    "readAllResponses": "Alle nieuwe antwoorden voorlezen",
+    "playbackSpeed": "Afspeelsnelheid",
     "savedTitle": "Opgeslagen",
     "thinking": [
       "Ik denk even na",
@@ -102,7 +105,12 @@
     "inputPlaceholderVoice": "Typ hier of dicteer…",
     "micTitle": "Dicteren (tip: spatie start en stopt)",
     "micTitleStop": "Stop dicteren (spatie)",
-    "micStarting": "Microfoon start, momentje…"
+    "micStarting": "Microfoon start, momentje…",
+    "likedTitle": "Je vond dit sterk. Klik om dat ongedaan te maken.",
+    "likeTitle": "Sterk antwoord? Geef een duim omhoog",
+    "inReportTitle": "Staat al in je rapport, samen met de feedback die je in deze sessie geeft",
+    "keptTitle": "Bewaard. Dit antwoord staat volledig in je rapport. Klik om te verwijderen.",
+    "keepTitle": "Bewaar dit antwoord volledig in je rapport"
   },
   "chapterFeedback": {
     "kicker": "Hoofdstuk 1 afgerond",

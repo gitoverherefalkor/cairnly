@@ -26,10 +26,14 @@
       "description": "Drie richtingen die het beste bij uw profiel, vaardigheden en wensen passen."
     },
     "outsideBox": {
-      "description": "Onverwachte opties die aansluiten bij uw interesses en sterke punten."
+      "description": "Onverwachte opties die aansluiten bij uw interesses en sterke punten.",
+      "title": "Verrassende richtingen"
     },
     "dreamJobs": {
       "description": "Een eerlijke realiteitscheck van uw eigen idee en wat ervoor nodig is."
+    },
+    "runnerUp": {
+      "title": "Andere sterke richtingen"
     }
   }
 }
