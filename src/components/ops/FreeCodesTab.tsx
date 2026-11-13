@@ -3,22 +3,72 @@
 // For the free access handed out by hand (usually WhatsApp), so no email: the
 // code is stored with the recipient's name and the day it was handed out.
 // Everything goes through the admin-gated ops-free-codes edge function.
+//
+// Each code unlocks one product (Pro or Encore). The list shows how far each
+// person got (signed up, survey, report, chat) so invited testers can be
+// tracked here without digging through the database.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Copy, Check, RefreshCw } from 'lucide-react';
 
+type Product = 'pro' | 'encore' | 'starter';
+
 interface FreeCode {
   id: string;
   code: string;
+  product: Product;
   issued_to: string;
   issued_on: string | null;
   created_at: string;
   is_active: boolean | null;
   user_id: string | null;
   used_at: string | null;
+  survey_started: boolean | null;
+  survey_submitted_at: string | null;
+  report_status: string | null;
+  report_ready: boolean;
+  chat_started_at: string | null;
+}
+
+const PRODUCT_LABEL: Record<Product, string> = { pro: 'Pro', encore: 'Encore', starter: 'Starter' };
+const PRODUCT_PILL: Record<Product, string> = {
+  pro: 'border-sky-400/30 bg-sky-400/10 text-sky-300',
+  encore: 'border-amber-400/30 bg-amber-400/10 text-amber-300',
+  starter: 'border-violet-400/30 bg-violet-400/10 text-violet-300',
+};
+
+// Internal test codes (persona runs, live tests) carry "test" in the name.
+const isTestCode = (c: FreeCode) => /\btest\b/i.test(c.issued_to);
+
+// The progress steps shown per code, in the order a person goes through them.
+const STEPS: { key: string; label: string; done: (c: FreeCode) => boolean; at?: (c: FreeCode) => string | null }[] = [
+  { key: 'signup', label: 'Signed up', done: (c) => !!c.user_id, at: (c) => c.used_at },
+  { key: 'survey', label: 'Survey submitted', done: (c) => !!c.survey_submitted_at, at: (c) => c.survey_submitted_at },
+  { key: 'report', label: 'Report ready', done: (c) => c.report_ready },
+  { key: 'chat', label: 'Chat started', done: (c) => !!c.chat_started_at, at: (c) => c.chat_started_at },
+];
+
+/** One line for where this person is now. */
+function stageLabel(c: FreeCode): string {
+  if (!c.user_id) return c.is_active === false ? 'Deactivated' : 'Not used yet';
+  if (c.report_status === 'completed') return 'Final report';
+  if (c.chat_started_at) return 'Chatting';
+  if (c.report_ready) return 'Report ready';
+  if (c.survey_submitted_at) return 'Report being written';
+  if (c.survey_started) return 'Filling in survey';
+  return 'Signed up';
+}
+
+const PRODUCT_KEY = 'ops.freeCodes.product';
+function initialProduct(): 'pro' | 'encore' {
+  try {
+    const v = localStorage.getItem(PRODUCT_KEY);
+    if (v === 'pro' || v === 'encore') return v;
+  } catch { /* storage blocked: use the default */ }
+  return 'encore';
 }
 
 async function callFreeCodes<T>(body: Record<string, unknown>): Promise<T> {
@@ -71,9 +121,12 @@ const FreeCodesTab: React.FC = () => {
   const [name, setName] = useState('');
   const [issuedOn, setIssuedOn] = useState(today);
   const [lang, setLang] = useState<'nl' | 'en'>('nl');
+  const [product, setProduct] = useState<'pro' | 'encore'>(initialProduct);
   const [busy, setBusy] = useState(false);
   const [mintErr, setMintErr] = useState<string | null>(null);
-  const [minted, setMinted] = useState<{ name: string; code: string; link: string } | null>(null);
+  const [minted, setMinted] = useState<{ name: string; code: string; link: string; product: Product } | null>(null);
+  const [filter, setFilter] = useState<'all' | Product>('all');
+  const [hideTests, setHideTests] = useState(true);
 
   const [codes, setCodes] = useState<FreeCode[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,8 +157,9 @@ const FreeCodesTab: React.FC = () => {
     setMintErr(null);
     setMinted(null);
     try {
-      const res = await callFreeCodes<{ code: string; link: string }>({ action: 'mint', issuedTo: who, issuedOn, lang });
-      setMinted({ name: who, code: res.code, link: res.link });
+      const res = await callFreeCodes<{ code: string; link: string }>({ action: 'mint', issuedTo: who, issuedOn, lang, product });
+      setMinted({ name: who, code: res.code, link: res.link, product });
+      try { localStorage.setItem(PRODUCT_KEY, product); } catch { /* ignore */ }
       setName('');
       setIssuedOn(today());
       void load();
@@ -124,6 +178,15 @@ const FreeCodesTab: React.FC = () => {
       setErr(e instanceof Error ? e.message : 'Failed to update');
     }
   };
+
+  const shown = useMemo(
+    () => codes.filter((c) => (filter === 'all' || c.product === filter) && !(hideTests && isTestCode(c))),
+    [codes, filter, hideTests],
+  );
+  const hiddenTests = useMemo(
+    () => codes.filter((c) => (filter === 'all' || c.product === filter) && isTestCode(c)).length,
+    [codes, filter],
+  );
 
   return (
     <div className="space-y-4">
@@ -148,6 +211,17 @@ const FreeCodesTab: React.FC = () => {
           />
         </label>
         <label className="block">
+          <span className="text-[11px] text-white/60">Product</span>
+          <select
+            value={product}
+            onChange={(e) => setProduct(e.target.value as 'pro' | 'encore')}
+            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+          >
+            <option value="encore">Encore</option>
+            <option value="pro">Pro</option>
+          </select>
+        </label>
+        <label className="block">
           <span className="text-[11px] text-white/60">Link language</span>
           <select
             value={lang}
@@ -168,7 +242,7 @@ const FreeCodesTab: React.FC = () => {
 
       {minted && (
         <div className="space-y-1 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.06] p-3">
-          <div className="text-[11px] text-emerald-400">Code for {minted.name}</div>
+          <div className="text-[11px] text-emerald-400">{PRODUCT_LABEL[minted.product]} code for {minted.name}</div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm text-white/[0.92]">{minted.code}</span>
             <CopyButton text={minted.code} label="Copy code" />
@@ -182,52 +256,95 @@ const FreeCodesTab: React.FC = () => {
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-white/[0.88]">Issued</h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as 'all' | Product)}
+            className="h-7 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+          >
+            <option value="all">All products</option>
+            <option value="encore">Encore</option>
+            <option value="pro">Pro</option>
+          </select>
+          <label className="flex items-center gap-1 text-[11px] text-white/60">
+            <input type="checkbox" checked={hideTests} onChange={(e) => setHideTests(e.target.checked)} />
+            Hide test codes{hiddenTests > 0 ? ` (${hiddenTests})` : ''}
+          </label>
         <Button onClick={load} size="sm" variant="ghost" className="h-7 px-2 text-xs text-white/70">
           <RefreshCw className="h-3 w-3 mr-1" /> Refresh
         </Button>
+        </div>
       </div>
+
+      {!loading && shown.length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-white/60">
+          <span><span className="text-white/[0.92]">{shown.length}</span> codes</span>
+          {STEPS.map((st) => (
+            <span key={st.key}>
+              <span className="text-white/[0.92]">{shown.filter(st.done).length}</span> {st.label.toLowerCase()}
+            </span>
+          ))}
+        </div>
+      )}
 
       {err && <div className="text-xs text-red-400">{err}</div>}
       {loading && <div className="flex items-center gap-2 text-xs text-white/60"><Loader2 className="h-3 w-3 animate-spin" /> Loading…</div>}
 
-      {!loading && codes.length === 0 && (
+      {!loading && shown.length === 0 && (
         <div className="rounded-lg border border-white/10 bg-white/[0.02] p-6 text-center text-xs text-white/60">
-          No free codes yet. Mint one above.
+          {codes.length === 0 ? 'No free codes yet. Mint one above.' : 'No codes match this filter.'}
         </div>
       )}
 
-      {!loading && codes.length > 0 && (
+      {!loading && shown.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="text-[11px] text-white/60">
               <tr>
                 <th className="py-1 pr-3 font-normal">Name</th>
                 <th className="py-1 pr-3 font-normal">Issued</th>
+                <th className="py-1 pr-3 font-normal">Product</th>
                 <th className="py-1 pr-3 font-normal">Code</th>
-                <th className="py-1 pr-3 font-normal">Status</th>
+                <th className="py-1 pr-3 font-normal">Progress</th>
                 <th className="py-1 font-normal" />
               </tr>
             </thead>
             <tbody>
-              {codes.map((c) => {
+              {shown.map((c) => {
                 const used = !!c.user_id;
                 const inactive = c.is_active === false;
                 return (
                   <tr key={c.id} className="border-t border-white/5 text-white/80">
                     <td className="py-1.5 pr-3 text-white/[0.92]">{c.issued_to}</td>
                     <td className="py-1.5 pr-3 whitespace-nowrap">{fmtDate(c.issued_on)}</td>
+                    <td className="py-1.5 pr-3">
+                      <span className={`rounded border px-1.5 py-0.5 text-[10px] ${PRODUCT_PILL[c.product] ?? PRODUCT_PILL.pro}`}>
+                        {PRODUCT_LABEL[c.product] ?? c.product}
+                      </span>
+                    </td>
                     <td className="py-1.5 pr-3 whitespace-nowrap font-mono text-[11px]">
                       {c.code}
                       <CopyButton text={c.code} label="Copy" />
                     </td>
                     <td className="py-1.5 pr-3 whitespace-nowrap">
-                      {used ? (
-                        <span className="text-emerald-400">Used {c.used_at ? fmtDate(c.used_at) : ''}</span>
-                      ) : inactive ? (
-                        <span className="text-red-300">Deactivated</span>
-                      ) : (
-                        <span className="text-white/60">Unused</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {STEPS.map((st) => {
+                            const done = st.done(c);
+                            const at = st.at?.(c);
+                            return (
+                              <span
+                                key={st.key}
+                                title={`${st.label}${done ? (at ? `: ${fmtDate(at)}` : '') : ': not yet'}`}
+                                className={`h-2 w-2 rounded-full ${done ? 'bg-emerald-400' : 'bg-white/15'}`}
+                              />
+                            );
+                          })}
+                        </div>
+                        <span className={inactive && !used ? 'text-red-300' : used ? 'text-white/80' : 'text-white/60'}>
+                          {stageLabel(c)}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-1.5 text-right">
                       {!used && (

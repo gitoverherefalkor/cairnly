@@ -6,6 +6,8 @@
 // signup: no Stripe checkout.
 //
 // Actions: list | mint | setActive
+// list reads the free_code_status view: product plus how far each code holder
+// got (signed up, survey, report, chat).
 // Admin-gated, all reads and writes via the service role.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -20,6 +22,13 @@ import { isAdminEmail } from '../_shared/admins.ts';
 
 const SITE = 'https://cairnly.io';
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Which product a free code unlocks. The survey_type on the code decides which
+// survey the person gets (same strings payment-success uses for bought codes).
+const PRODUCT_SURVEY_TYPE: Record<string, string> = {
+  pro: 'Office / Business Pro - 2025 v1 EN',
+  encore: 'Encore - Post-Career Direction - 2026 v2',
+};
 
 type Json = Record<string, unknown>;
 
@@ -64,12 +73,11 @@ serve(async (req) => {
 
   try {
     // ── list ────────────────────────────────────────────────────────────────
-    // Every individual free code, newest handed out first.
+    // Every individual free code with its progress, newest handed out first.
     if (action === 'list') {
       const { data, error } = await supabase
-        .from('access_codes')
-        .select('id, code, issued_to, issued_on, created_at, is_active, user_id, used_at')
-        .not('issued_to', 'is', null)
+        .from('free_code_status')
+        .select('id, code, product, issued_to, issued_on, created_at, is_active, user_id, used_at, survey_started, survey_submitted_at, report_status, report_ready, chat_started_at')
         .order('issued_on', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(500);
@@ -82,21 +90,25 @@ serve(async (req) => {
       const issuedTo = String(body.issuedTo ?? '').trim();
       const issuedOn = String(body.issuedOn ?? '').trim();
       const lang = String(body.lang ?? 'nl');
+      const product = String(body.product ?? 'pro');
+      const surveyType = PRODUCT_SURVEY_TYPE[product];
 
       if (!issuedTo) return errorResponse('Enter the name of who this code is for.', 400, corsHeaders);
       if (issuedTo.length > 120) return errorResponse('That name is too long.', 400, corsHeaders);
+      if (!surveyType) return errorResponse('Pick a product.', 400, corsHeaders);
       if (issuedOn && !DATE_RE.test(issuedOn)) {
         return errorResponse('Pick a valid date.', 400, corsHeaders);
       }
 
       const { data: code, error } = await supabase.rpc('mint_individual_code', {
         p_issued_to: issuedTo,
+        p_survey_type: surveyType,
         // Omitted means today (the function's default).
         ...(issuedOn ? { p_issued_on: issuedOn } : {}),
       });
       if (error) throw error;
 
-      return ok({ code, link: signupLink(String(code), lang) }, corsHeaders);
+      return ok({ code, product, link: signupLink(String(code), lang) }, corsHeaders);
     }
 
     // ── setActive ───────────────────────────────────────────────────────────
