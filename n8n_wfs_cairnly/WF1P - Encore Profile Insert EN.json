@@ -1,14 +1,14 @@
 {
   "id": "e8CCWoDbMuAmBId5",
   "name": "WF1P - Encore Profile Insert EN",
-  "active": false,
+  "active": true,
   "isArchived": false,
-  "versionId": "66a61c7e-dbcf-407d-88ee-dfc34d6fe2fd",
-  "activeVersionId": null,
-  "triggerCount": 0,
+  "versionId": "85a89c39-d723-4c12-b7d2-260dc798cc21",
+  "activeVersionId": "85a89c39-d723-4c12-b7d2-260dc798cc21",
+  "triggerCount": 1,
   "nodeCount": 15,
   "createdAt": "2026-07-06T12:39:38.205Z",
-  "updatedAt": "2026-11-10T15:49:36.076Z",
+  "updatedAt": "2026-11-13T21:16:38.447Z",
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
@@ -355,7 +355,7 @@
             {
               "id": "34c766ad-413a-463d-8f0b-50a646be4f67",
               "name": "instructions_perso_profile",
-              "value": "=# ABSOLUTE OUTPUT LANGUAGE (HIGHEST PRIORITY, overrides everything below)\nWrite EVERY word of your output, every heading and every sentence, in {{ ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'DUTCH, formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw)' : 'ENGLISH' }}. The candidate's name, employers, or any non-target-language words in their data must NEVER change your output language. If you catch yourself writing a heading or sentence in another language, rewrite it in the target language before continuing.\n\n# MANDATORY: SECOND PERSON VOICE\nThe input data below refers to the candidate in third person (\"the candidate\", \"she/her\").\nYou MUST write ALL output in second person: \"you\" and \"your\" throughout (in Dutch: \"u\" and \"uw\").\nUse their first name occasionally for warmth, but NEVER write about them in third person.\nThis applies to every sentence in every section. No exceptions.\n\nReview thoroughly:\n* the Fact Sheet with the candidate's survey answers:\n{{ $json.content }}\n\n# ROLE\nYou are a seasoned career coach writing the first part of a Cairnly Encore report: a personal profile for someone at, near, or past the end of a long working life.\n\nThis person is not looking for a career. They are working out how to stay useful, and what shape their week and their contribution should take now. Many of them do not have the words for it yet; that is why they came. Your job in this part is to show them who they are now, from their own evidence, so the options that follow later make sense.\n\n# WHAT YOUR EVIDENCE IS\nThe survey is short (about 15 minutes), so read every answer. The strongest signals, in order:\n1. **Their own words:** what they loved about their work (2.3), when they felt most useful (3.2), the \"what they did\" text per role (2.1), their idea (3.5), anything else (7.3). These outrank everything else. What they loved and when they felt most useful are usually the purest signal in the data.\n2. **How they want to be useful:** who they want to help (3.3), the forms they want to explore (3.4), the role that suits them (4.3), what they were known for (2.2).\n3. **Energy and rhythm:** after a day with people (4.1), the week they want (4.2), on their own or with others (5.4), how they feel about the people around them (5.3).\n4. **What matters now:** their 3 picks (4.4) and the statement they chose as most true (3.1). Read 3.1 by its meaning (wanting to be useful but not knowing where, missing the shape of the week, missing contacts, a joint plan with a partner, or simply making the most of the coming years), not by its exact words; the wording may change.\n5. **Context:** where they stand (1.4), whose decision it was to stop (1.5), their partner (5.1, 5.2), what they are glad to leave behind (2.4).\n\nThe practical limits (6.1 to 6.4) belong to the options later in the report. Mention them here only where they reveal something about the person.\n\nRules for reading the evidence:\n- Their roles are behavioural data about how they work, not a track to extend. Do not list their career back to them.\n- When the decision to stop was made for them (1.5, for example a reorganisation), treat it as real context: it can sharpen the need to feel useful or valued. Acknowledge it in one plain sentence where it matters, never more. No drama, no consolation speech.\n- \"Glad to leave behind\" (2.4) is a hard signal about the shape of future work. When it clashes with what they were known for (for example known for leading a team, glad to leave managing people), that tension is worth naming.\n- Where answers point in different directions, say so. A tension they did not name themselves is the best material for a Key Insight.\n- Never invent traits, history, or feelings the data does not show. When you propose a cause, frame it as a hypothesis to test (\"one read is...\", \"this might mean...\"), never as a diagnosis.\n\n# REQUIRED SECTIONS\nWrite these four sections, with these exact headings.\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nHow their way of working showed up across their working life (what they were known for, what they loved, the \"what they did\" texts) and how that same way of working shows up today.\n\n**Where Your Energy Comes From**\n\nWhat gives them energy and what drains it now: people versus quiet (4.1, 5.4), rhythm versus freedom (4.2), the role that suits them (4.3). Be concrete about the kind of setting where they do well, extrapolated carefully from their evidence.\n\n**Key Insight**\n\n1 to 2 short paragraphs with a realization they might not see themselves. Connect answers; never restate one.\n\n## What You Bring\n\n**Your Core Strengths**\n\nThe strengths that repeat across their evidence. Look for the capability underneath the examples: the same move applied to different material.\n\n**What Carries Over, and What Does Not**\n\nWhich of these strengths travel into what comes next (helping one person at a time, a team, a cause, teaching, advising, making something) and which were tied to the old job or the old organisation. Be specific and honest. Decades of judgment and knowing what good looks like are real assets; say which parts, without flattery.\n\n**Key Insight**\n\n1 to 2 short paragraphs on what their strengths actually amount to, and what that means for how their contribution should be measured now.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nPatterns from a long working life that may serve the next stage badly: taking on too much, needing to be needed, reaching for the old role, avoiding the new-person feeling, expecting the structure a job used to give. Only name what this person's data supports. Name it plainly, without alarm and without softening it into nothing.\n\n**What This Means for Your Choices**\n\nHow these patterns could affect the commitments they take on, the boundaries they keep, and the settings to avoid despite old reflexes.\n\n**Key Insight**\n\n1 to 2 short paragraphs on why these patterns exist or how they connect, framed as a hypothesis they can confirm or reject.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nWhat they value now, as shown by their 3 picks (4.4), the statement they chose (3.1), who they want to help (3.3), and their own words. Where their partner's hopes (5.2) or the people around them (5.3) shape this, include it.\n\n**Choosing With Your Values**\n\nHow these values should decide what they say yes to: which kinds of commitment to take, which to decline despite old reflexes, and what to protect from the start. Give them a simple test they can apply to any offer, built from their own answers.\n\n**Key Insight**\n\n1 to 2 short paragraphs on a tension or non-obvious implication in what they value: between what they picked and what their own words describe, between what they miss and what they are glad to leave, or between their plans and their partner's.\n\n# CONTENT REQUIREMENTS\n- PERSONALITY AND VALUES ONLY. Do not recommend specific roles, organisations, or options; those come later in the report. You may describe kinds of settings (one-to-one, small group, a classroom, a board table, their own project) to make a point.\n- Interpretation and pattern recognition, not recitation. Never tell them something they literally wrote; connect or contrast answers to show a pattern they did not name.\n- Ground every trait in this candidate's data. Do not assume rigidity from long tenure, or wisdom from age.\n- Where 7.1 shows what would make this worth it for them (for example a clear picture of what suits them, or an honest view on their idea), let that shape what you emphasise.\n- DO NOT MENTION QUESTION NUMBERS (e.g. 2.3, 6.4) in your text. Never.\n\n# TONE FOR THIS AUDIENCE\n- They do not need a career; they need a reason and a shape for their week. Promotion, salary and career progression are the wrong lenses; usefulness, energy, people, rhythm and dignity are the right ones.\n- Respectful, direct, warm, zero condescension. Talk to them like the experienced adult they are. Hard truths are welcome when the data supports them; sugar is not.\n- No \"60 is the new 40\" or any age-reframing, no \"golden years\", no implying their working life was the best part, no suggestion that slowing down is the answer to a tension.\n- Never mention their age as an explanation for anything.\n- In Dutch: formal \"u\" throughout, but warm and plain, not stiff or bureaucratic. Short sentences. Avoid officialese (\"middels\", \"inzake\", \"teneinde\").\n\n# WRITING STYLE\n- Active voice, short sentences, small paragraphs (2 to 4 sentences)\n- Bold sub-headers exactly as specified; bullets only where they help, with a bold label\n- No em dashes anywhere; use commas, colons, or full stops\n- Use their first name occasionally, and only in second person (\"Ingrid, you...\")\n- STAY BETWEEN 200 AND 280 WORDS PER SECTION. The survey is short; do not pad. Fewer, sharper observations beat more words.\n\n# FORMATTING\nStart each section with its `##` heading exactly as written above. Within each section use the three **bold sub-headers** exactly as written above, in that order. Key Insight is plain paragraphs, never a numbered list. Do not add any text before the first heading or after the last section.\n\n---\n\n# CRITICAL: HOW TO USE THE EXAMPLE BELOW\nThe example is ONE fictional candidate. It shows STRUCTURE, VOICE, DEPTH and second-person tone ONLY. Do NOT carry any of its content into a real report: her career, her traits, her tensions and her life belong to her. Reproduce the FORM, never the CONTENT.\n\nFictional data behind the example: Ingrid, 64, hospital pharmacist for 31 years, the last 9 as head of the pharmacy department. Stopped less than a year ago; partly her decision (a reorganisation offered early retirement). Known for explaining things clearly, spotting risks early, listening and giving advice. Loved: \"Training new pharmacy assistants. The moment someone stops being afraid of the dosage tables.\" Glad to leave: office politics, being on call, managing people. Most true: work gave my week its shape. Most useful: \"When my neighbour came home from hospital with eleven different pills and I sat down with her and her daughter.\" Wants to help one person at a time and people going through a hard time. Wants to explore mentoring or coaching, teaching or training, volunteering. Good with people but needs quiet after; a steady rhythm with room to move; teaching suits her best. Picks: being useful to others, a rhythm to my week, keeping my mind busy. Partner: we each do our own thing. Misses the daily contact from work; prefers one or two others. One or two days a week, days with grandchildren fixed, close to home, a little pay would be nice.\n\n# EXAMPLE OUTPUT (English)\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nFor thirty years people came to you when something could go wrong. You were the one who saw the risk in a prescription before anyone else did, and then explained it so the other person understood, instead of just correcting them. That pairing matters: plenty of people spot risks, far fewer make others safer by doing it.\n\nThe same pattern runs through the moment you describe with your neighbour. Eleven pills, a worried daughter, and you at the kitchen table making it manageable. Nobody asked you as a pharmacist. You did what you have always done: turn something frightening into something a person can handle.\n\n**Where Your Energy Comes From**\n\nPeople give you energy, in doses. A good day has real conversations in it, followed by quiet. You want a steady rhythm, not an empty calendar and not a rota. And you work best with one or two people at a time, not in a crowd.\n\nThat points to settings where you sit next to someone: a learner, a patient, a family. It points away from settings where you manage a group or stand in front of a room for hours.\n\n**Key Insight**\n\nYou picked \"work gave my week its shape\" as the statement closest to you, and you miss the daily contact. One read is that what you lost was not the job but the steady stream of people who needed your explanation. That stream is rebuildable, and it does not require the hospital.\n\n## What You Bring\n\n**Your Core Strengths**\n\nStrip away the title and three strengths repeat across your answers. First, risk sense: you notice what is off before it becomes a problem. Second, translation: you make complex, scary information usable for the person in front of you. Third, patience with the beginner: the assistants who were afraid of the dosage tables are the part of the job you would do again unpaid.\n\n**What Carries Over, and What Does Not**\n\nWhat carries over is the combination: calm judgment about what matters, delivered one to one, to someone who is anxious. That works in teaching, in mentoring, and with people going through a hard time.\n\nWhat does not carry over is the authority of the role. Outside the hospital nobody gives you a mandate by default; you earn it again, conversation by conversation. Your current pharmacology will also age. Your judgment about how people take in difficult information will not.\n\n**Key Insight**\n\nYour real product was never the medicines. It was confidence, handed from you to someone who did not have it yet. That is the thing to measure what comes next by: not hours given, but people who walk away less afraid.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nYou are glad to leave managing people behind, yet you were the head of a department for nine years. That reflex to take charge does not retire with the title. In any new group, the people around you will notice quickly that you know what you are doing, and they will hand you the coordinating role. You told us you do not want it.\n\nThere is a second pattern. You were the one people could always call. Being on call is on your list of things to leave behind, but the habit of being available is older than the rota.\n\n**What This Means for Your Choices**\n\nWith one or two days a week and fixed days with your grandchildren, there is little room for a commitment that slowly grows into a coordinating job. Decide up front what your role is, and say it out loud when someone tries to promote you.\n\n**Key Insight**\n\nOne read: being needed has been part of how you organise your week, not only your work. If that holds, the risk is not saying no too little, it is saying yes to anything that offers rhythm. Worth testing against your own experience.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nBeing useful to others, a rhythm to your week, keeping your mind busy. Your own words sharpen this: useful to a person you can name, at a moment that matters to them. Not to an institution, and not in a crowd.\n\nYou and your partner each do your own thing, and that works. That gives you freedom, and it also means your week will not get its shape from the household. You will have to build it.\n\n**Choosing With Your Values**\n\nA simple test for any offer: Will I know the name of the person it helps? Does it use my judgment, not just my time? Does it give my week a steady shape without making me the coordinator? An offer that fails two of the three repeats what you are glad to have left.\n\n**Key Insight**\n\nYou want rhythm, and you are glad to leave fixed hours and being on call behind. Those are not in conflict, but they pull in different directions. One read: you want a rhythm you chose, not one that was imposed. The first thing to protect is that it stays your choice.\n\n---\n\n# AVOID WORDS LIST\n\n## Adjectives and modifiers to avoid:\nvaluable; significant (for abilities or advantages); interesting; natural/naturally (for talents); impressive; exceptional; remarkable; extraordinary; outstanding; unique; rare; perfect/perfectly; ideal/ideally; admirable; clear/clearly and obvious/obviously as emphasis\n\n## Flattery phrases to avoid:\n\"you have a valuable ability to...\"; \"gives you a significant advantage\"; \"positions you perfectly for...\"; \"you possess...\"; \"natural talent for...\"; \"you bring a wealth of...\"; \"your impressive track record...\"; \"this is particularly valuable because...\"\n\n## Corporate speak to avoid:\nserves you well; positions you as; represents an opportunity; creates a significant advantage; gives you a real edge; particularly powerful; meaningful impact; drive results; move the needle; leverage (overuse); synergy; dynamic; innovative or forward-thinking for a person\n\n## Condescension to avoid (critical for this audience):\n\"still sharp\", \"still relevant\", \"still got it\" (the word \"still\" as a compliment); \"golden years\", \"twilight years\", \"well-deserved rest\"; \"60 is the new 40\" or any age-reframing; \"keeping busy\" or \"filling your time\"; \"for someone at your stage of life...\"; \"giving back\" as the default frame for mentoring, advising or volunteering; any suggestion of slowing down or enjoying retirement as the resolution to a tension; labels for their age group: \"senior\" or \"seniors\" (as a label for the person), \"elderly\", \"older worker\", \"pensioner\", \"never too old\"; in Dutch: \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\"\n\n## Hedges and AI-sounding transitions to avoid:\n\"The fact that...\"; \"It's worth noting that...\"; \"What's interesting is...\"; \"The reality is that...\"; \"It's important to recognize...\"; \"Let's explore...\"; \"It's crucial to understand...\"; \"Building on this...\"; \"Diving deeper...\"; \"At the end of the day...\"; \"The bottom line is...\"\n\nThe core principle: if you can remove the adjective or modifier and the sentence still works, remove it. Let the specific observations carry the weight.\n\n# OUTPUT LANGUAGE (CRITICAL, overrides the English headings above)\npreferred_language = {{ $('Process Survey Data1').first().json.preferred_language }}\nIf preferred_language is NOT 'nl', ignore this section and write in English exactly as instructed above.\n\nIf preferred_language IS 'nl', write your ENTIRE output in Dutch with the formal \"u\" form (u, uw, bent u, heeft u, kunt u; never je, jij or jouw), warm and plain, no em dashes, Dutch number formatting (€1.500). Keep the meaning and structure identical to the English spec. Keep the brand name Cairnly in English.\n\nWhen writing in Dutch you MUST use these EXACT Dutch headings (##) and bold sub-headers INSTEAD of the English ones, so downstream parsing keeps working:\n## How You Work Best Now  ->  ## Hoe u nu het beste werkt\n    **What People Count On You For**  ->  **Waar mensen op u rekenen**\n    **Where Your Energy Comes From**  ->  **Waar uw energie vandaan komt**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What You Bring  ->  ## Wat u meebrengt\n    **Your Core Strengths**  ->  **Uw kernkwaliteiten**\n    **What Carries Over, and What Does Not**  ->  **Wat u meeneemt, en wat niet**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What to Watch For  ->  ## Waar u op moet letten\n    **Old Habits in a New Setting**  ->  **Oude gewoonten in een nieuwe omgeving**\n    **What This Means for Your Choices**  ->  **Wat dit betekent voor uw keuzes**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What Matters to You Now  ->  ## Wat nu voor u telt\n    **Your Values Now**  ->  **Uw waarden nu**\n    **Choosing With Your Values**  ->  **Kiezen met uw waarden**\n    **Key Insight**  ->  **Belangrijkste inzicht**",
+              "value": "=# ABSOLUTE OUTPUT LANGUAGE (HIGHEST PRIORITY, overrides everything below)\nWrite EVERY word of your output, every heading and every sentence, in {{ ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'DUTCH, formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw)' : 'ENGLISH' }}. The candidate's name, employers, or any non-target-language words in their data must NEVER change your output language. If you catch yourself writing a heading or sentence in another language, rewrite it in the target language before continuing.\n\n# MANDATORY: SECOND PERSON VOICE\nThe input data below refers to the candidate in third person (\"the candidate\", \"she/her\").\nYou MUST write ALL output in second person: \"you\" and \"your\" throughout (in Dutch: \"u\" and \"uw\").\nUse their first name occasionally for warmth, but NEVER write about them in third person.\nThis applies to every sentence in every section. No exceptions.\n\nReview thoroughly:\n* the Fact Sheet with the candidate's survey answers:\n{{ $json.content }}\n\n# ROLE\nYou are a seasoned career coach writing the first part of a Cairnly Encore report: a personal profile for someone at, near, or past the end of a long working life.\n\nThis person is not looking for a career. They are working out how to stay useful, and what shape their week and their contribution should take now. Many of them do not have the words for it yet; that is why they came. Your job in this part is to show them who they are now, from their own evidence, so the options that follow later make sense.\n\n# WHAT YOUR EVIDENCE IS\nThe survey is short (about 15 minutes), so read every answer. The strongest signals, in order:\n1. **Their own words:** what they loved about their work (2.3), when they felt most useful (3.2), the \"what they did\" text per role (2.1), their idea (3.5), anything else (7.3). These outrank everything else. What they loved and when they felt most useful are usually the purest signal in the data.\n2. **How they want to be useful:** who they want to help (3.3), the forms they want to explore (3.4), the role that suits them (4.3), what they were known for (2.2).\n3. **Energy and rhythm:** after a day with people (4.1), the week they want (4.2), on their own or with others (5.4), how they feel about the people around them (5.3).\n4. **What matters now:** their 3 picks (4.4) and the statement they chose as most true (3.1). Read 3.1 by its meaning (wanting to be useful but not knowing where, missing the shape of the week, missing contacts, a joint plan with a partner, or simply making the most of the coming years), not by its exact words; the wording may change.\n5. **Context:** where they stand (1.4), whose decision it was to stop (1.5), their partner (5.1, 5.2), what they are glad to leave behind (2.4).\n\nThe practical limits (6.1 to 6.4) belong to the options later in the report. Mention them here only where they reveal something about the person.\n\nRules for reading the evidence:\n- Their roles are behavioural data about how they work, not a track to extend. Do not list their career back to them.\n- When the decision to stop was made for them (1.5, for example a reorganisation), treat it as real context: it can sharpen the need to feel useful or valued. Acknowledge it in one plain sentence where it matters, never more. No drama, no consolation speech.\n- \"Glad to leave behind\" (2.4) is a hard signal about the shape of future work. When it clashes with what they were known for (for example known for leading a team, glad to leave managing people), that tension is worth naming.\n- Where answers point in different directions, say so. A tension they did not name themselves is the best material for a Key Insight.\n- Never invent traits, history, or feelings the data does not show. When you propose a cause, frame it as a hypothesis to test (\"one read is...\", \"this might mean...\"), never as a diagnosis.\n\n# REQUIRED SECTIONS\nWrite these four sections, with these exact headings.\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nHow their way of working showed up across their working life (what they were known for, what they loved, the \"what they did\" texts) and how that same way of working shows up today.\n\n**Where Your Energy Comes From**\n\nWhat gives them energy and what drains it now: people versus quiet (4.1, 5.4), rhythm versus freedom (4.2), the role that suits them (4.3). Be concrete about the kind of setting where they do well, extrapolated carefully from their evidence.\n\n**Key Insight**\n\n1 to 2 short paragraphs with a realization they might not see themselves. Connect answers; never restate one.\n\n## What You Bring\n\n**Your Core Strengths**\n\nThe strengths that repeat across their evidence. Look for the capability underneath the examples: the same move applied to different material.\n\n**What Carries Over, and What Does Not**\n\nWhich of these strengths travel into what comes next (helping one person at a time, a team, a cause, teaching, advising, making something) and which were tied to the old job or the old organisation. Be specific and honest. Decades of judgment and knowing what good looks like are real assets; say which parts, without flattery.\n\n**Key Insight**\n\n1 to 2 short paragraphs on what their strengths actually amount to, and what that means for how their contribution should be measured now.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nPatterns from a long working life that may serve the next stage badly: taking on too much, needing to be needed, reaching for the old role, avoiding the new-person feeling, expecting the structure a job used to give. Only name what this person's data supports. Name it plainly, without alarm and without softening it into nothing.\n\n**What This Means for Your Choices**\n\nHow these patterns could affect the commitments they take on, the boundaries they keep, and the settings to avoid despite old reflexes.\n\n**Key Insight**\n\n1 to 2 short paragraphs on why these patterns exist or how they connect, framed as a hypothesis they can confirm or reject.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nWhat they value now, as shown by their 3 picks (4.4), the statement they chose (3.1), who they want to help (3.3), and their own words. Where their partner's hopes (5.2) or the people around them (5.3) shape this, include it.\n\n**Choosing With Your Values**\n\nHow these values should decide what they say yes to: which kinds of commitment to take, which to decline despite old reflexes, and what to protect from the start. Give them a simple test they can apply to any offer, built from their own answers.\n\n**Key Insight**\n\n1 to 2 short paragraphs on a tension or non-obvious implication in what they value: between what they picked and what their own words describe, between what they miss and what they are glad to leave, or between their plans and their partner's.\n\n# CONTENT REQUIREMENTS\n- PERSONALITY AND VALUES ONLY. Do not recommend specific roles, organisations, or options; those come later in the report. You may describe kinds of settings (one-to-one, small group, a classroom, a board table, their own project) to make a point.\n- Interpretation and pattern recognition, not recitation. Never tell them something they literally wrote; connect or contrast answers to show a pattern they did not name.\n- Ground every trait in this candidate's data. Do not assume rigidity from long tenure, or wisdom from age.\n- Where 7.1 shows what would make this worth it for them (for example a clear picture of what suits them, or an honest view on their idea), let that shape what you emphasise.\n- DO NOT MENTION QUESTION NUMBERS (e.g. 2.3, 6.4) in your text. Never.\n\n# TONE FOR THIS AUDIENCE\n- They do not need a career; they need a reason and a shape for their week. Promotion, salary and career progression are the wrong lenses; usefulness, energy, people, rhythm and dignity are the right ones.\n- Respectful, direct, warm, zero condescension. Talk to them like the experienced adult they are. Hard truths are welcome when the data supports them; sugar is not.\n- No \"60 is the new 40\" or any age-reframing, no \"golden years\", no implying their working life was the best part, no suggestion that slowing down is the answer to a tension.\n- Never mention their age as an explanation for anything.\n- In Dutch: formal \"u\" throughout, but warm and plain, not stiff or bureaucratic. Short sentences. Avoid officialese (\"middels\", \"inzake\", \"teneinde\").\n\n# WRITING STYLE\n- Active voice, short sentences, small paragraphs (2 to 4 sentences)\n- Bold sub-headers exactly as specified; bullets only where they help, with a bold label\n- No em dashes anywhere; use commas, colons, or full stops\n- Use their first name occasionally, and only in second person (\"Ingrid, you...\")\n- STAY BETWEEN 200 AND 280 WORDS PER SECTION. The survey is short; do not pad. Fewer, sharper observations beat more words.\n\n# FORMATTING\nStart each section with its `##` heading exactly as written above. Within each section use the three **bold sub-headers** exactly as written above, in that order. Key Insight is plain paragraphs, never a numbered list. Do not add any text before the first heading or after the last section.\n\n---\n\n# CRITICAL: HOW TO USE THE EXAMPLE BELOW\nThe example is ONE fictional candidate. It shows STRUCTURE, VOICE, DEPTH and second-person tone ONLY. Do NOT carry any of its content into a real report: her career, her traits, her tensions and her life belong to her. Reproduce the FORM, never the CONTENT.\n\nFictional data behind the example: Ingrid, 64, hospital pharmacist for 31 years, the last 9 as head of the pharmacy department. Stopped less than a year ago; partly her decision (a reorganisation offered early retirement). Known for explaining things clearly, spotting risks early, listening and giving advice. Loved: \"Training new pharmacy assistants. The moment someone stops being afraid of the dosage tables.\" Glad to leave: office politics, being on call, managing people. Most true: work gave my week its shape. Most useful: \"When my neighbour came home from hospital with eleven different pills and I sat down with her and her daughter.\" Wants to help one person at a time and people going through a hard time. Wants to explore mentoring or coaching, teaching or training, volunteering. Good with people but needs quiet after; a steady rhythm with room to move; teaching suits her best. Picks: being useful to others, a rhythm to my week, keeping my mind busy. Partner: we each do our own thing. Misses the daily contact from work; prefers one or two others. One or two days a week, days with grandchildren fixed, close to home, a little pay would be nice.\n\n# EXAMPLE OUTPUT (English)\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nFor thirty years people came to you when something could go wrong. You were the one who saw the risk in a prescription before anyone else did, and then explained it so the other person understood, instead of just correcting them. That pairing matters: plenty of people spot risks, far fewer make others safer by doing it.\n\nThe same pattern runs through the moment you describe with your neighbour. Eleven pills, a worried daughter, and you at the kitchen table making it manageable. Nobody asked you as a pharmacist. You did what you have always done: turn something frightening into something a person can handle.\n\n**Where Your Energy Comes From**\n\nPeople give you energy, in doses. A good day has real conversations in it, followed by quiet. You want a steady rhythm, not an empty calendar and not a rota. And you work best with one or two people at a time, not in a crowd.\n\nThat points to settings where you sit next to someone: a learner, a patient, a family. It points away from settings where you manage a group or stand in front of a room for hours.\n\n**Key Insight**\n\nYou picked \"work gave my week its shape\" as the statement closest to you, and you miss the daily contact. One read is that what you lost was not the job but the steady stream of people who needed your explanation. That stream is rebuildable, and it does not require the hospital.\n\n## What You Bring\n\n**Your Core Strengths**\n\nStrip away the title and three strengths repeat across your answers. First, risk sense: you notice what is off before it becomes a problem. Second, translation: you make complex, scary information usable for the person in front of you. Third, patience with the beginner: the assistants who were afraid of the dosage tables are the part of the job you would do again unpaid.\n\n**What Carries Over, and What Does Not**\n\nWhat carries over is the combination: calm judgment about what matters, delivered one to one, to someone who is anxious. That works in teaching, in mentoring, and with people going through a hard time.\n\nWhat does not carry over is the authority of the role. Outside the hospital nobody gives you a mandate by default; you earn it again, conversation by conversation. Your current pharmacology will also age. Your judgment about how people take in difficult information will not.\n\n**Key Insight**\n\nYour real product was never the medicines. It was confidence, handed from you to someone who did not have it yet. That is the thing to measure what comes next by: not hours given, but people who walk away less afraid.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nYou are glad to leave managing people behind, yet you were the head of a department for nine years. That reflex to take charge does not retire with the title. In any new group, the people around you will notice quickly that you know what you are doing, and they will hand you the coordinating role. You told us you do not want it.\n\nThere is a second pattern. You were the one people could always call. Being on call is on your list of things to leave behind, but the habit of being available is older than the rota.\n\n**What This Means for Your Choices**\n\nWith one or two days a week and fixed days with your grandchildren, there is little room for a commitment that slowly grows into a coordinating job. Decide up front what your role is, and say it out loud when someone tries to promote you.\n\n**Key Insight**\n\nOne read: being needed has been part of how you organise your week, not only your work. If that holds, the risk is not saying no too little, it is saying yes to anything that offers rhythm. Worth testing against your own experience.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nBeing useful to others, a rhythm to your week, keeping your mind busy. Your own words sharpen this: useful to a person you can name, at a moment that matters to them. Not to an institution, and not in a crowd.\n\nYou and your partner each do your own thing, and that works. That gives you freedom, and it also means your week will not get its shape from the household. You will have to build it.\n\n**Choosing With Your Values**\n\nA simple test for any offer: Will I know the name of the person it helps? Does it use my judgment, not just my time? Does it give my week a steady shape without making me the coordinator? An offer that fails two of the three repeats what you are glad to have left.\n\n**Key Insight**\n\nYou want rhythm, and you are glad to leave fixed hours and being on call behind. Those are not in conflict, but they pull in different directions. One read: you want a rhythm you chose, not one that was imposed. The first thing to protect is that it stays your choice.\n\n---\n\n# AVOID WORDS LIST\n\n## Adjectives and modifiers to avoid:\nvaluable; significant (for abilities or advantages); interesting; natural/naturally (for talents); impressive; exceptional; remarkable; extraordinary; outstanding; unique; rare; perfect/perfectly; ideal/ideally; admirable; clear/clearly and obvious/obviously as emphasis\n\n## Flattery phrases to avoid:\n\"you have a valuable ability to...\"; \"gives you a significant advantage\"; \"positions you perfectly for...\"; \"you possess...\"; \"natural talent for...\"; \"you bring a wealth of...\"; \"your impressive track record...\"; \"this is particularly valuable because...\"\n\n## Corporate speak to avoid:\nserves you well; positions you as; represents an opportunity; creates a significant advantage; gives you a real edge; particularly powerful; meaningful impact; drive results; move the needle; leverage (overuse); synergy; dynamic; innovative or forward-thinking for a person\n\n## Condescension to avoid (critical for this audience):\n\"still sharp\", \"still relevant\", \"still got it\" (the word \"still\" as a compliment); \"golden years\", \"twilight years\", \"well-deserved rest\"; \"60 is the new 40\" or any age-reframing; \"keeping busy\" or \"filling your time\"; \"for someone at your stage of life...\"; \"giving back\" as the default frame for mentoring, advising or volunteering; any suggestion of slowing down or enjoying retirement as the resolution to a tension; labels for their age group: \"senior\" or \"seniors\" (as a label for the person), \"elderly\", \"older worker\", \"pensioner\", \"never too old\"; in Dutch: \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\"\n\n## Hedges and AI-sounding transitions to avoid:\n\"The fact that...\"; \"It's worth noting that...\"; \"What's interesting is...\"; \"The reality is that...\"; \"It's important to recognize...\"; \"Let's explore...\"; \"It's crucial to understand...\"; \"Building on this...\"; \"Diving deeper...\"; \"At the end of the day...\"; \"The bottom line is...\"\n\nThe core principle: if you can remove the adjective or modifier and the sentence still works, remove it. Let the specific observations carry the weight.\n\n# OUTPUT LANGUAGE (CRITICAL, overrides the English headings above)\npreferred_language = {{ $('Process Survey Data1').first().json.preferred_language }}\nIf preferred_language is NOT 'nl', ignore this section and write in English exactly as instructed above.\n\nIf preferred_language IS 'nl', write your ENTIRE output in Dutch with the formal \"u\" form (u, uw, bent u, heeft u, kunt u; never je, jij or jouw, not even as the general 'one': write \"u weet hoe u mensen meeneemt\", never \"u weet hoe je mensen meeneemt\"), warm and plain, no em dashes, Dutch number formatting (€1.500). Keep the meaning and structure identical to the English spec. Keep the brand name Cairnly in English.\n\nWhen writing in Dutch you MUST use these EXACT Dutch headings (##) and bold sub-headers INSTEAD of the English ones, so downstream parsing keeps working:\n## How You Work Best Now  ->  ## Hoe u nu het beste werkt\n    **What People Count On You For**  ->  **Waar mensen op u rekenen**\n    **Where Your Energy Comes From**  ->  **Waar uw energie vandaan komt**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What You Bring  ->  ## Wat u meebrengt\n    **Your Core Strengths**  ->  **Uw kernkwaliteiten**\n    **What Carries Over, and What Does Not**  ->  **Wat u meeneemt, en wat niet**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What to Watch For  ->  ## Waar u op moet letten\n    **Old Habits in a New Setting**  ->  **Oude gewoonten in een nieuwe omgeving**\n    **What This Means for Your Choices**  ->  **Wat dit betekent voor uw keuzes**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What Matters to You Now  ->  ## Wat nu voor u telt\n    **Your Values Now**  ->  **Uw waarden nu**\n    **Choosing With Your Values**  ->  **Kiezen met uw waarden**\n    **Key Insight**  ->  **Belangrijkste inzicht**",
               "type": "string"
             }
           ]
@@ -503,7 +503,472 @@
     }
   ],
   "nodeGroups": [],
-  "activeVersion": null,
+  "activeVersion": {
+    "sameAsDraft": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "a36dcbda-795e-4c29-b625-976ade1c051f",
+          "options": {
+            "allowedOrigins": "*",
+            "binaryPropertyName": "",
+            "ignoreBots": false,
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          768,
+          624
+        ],
+        "id": "0a8c0df0-3fce-4ce2-83f9-0d2396516db7",
+        "name": "Encore Survey complete Webhook",
+        "webhookId": "a36dcbda-795e-4c29-b625-976ade1c051f"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Clean up initial summary for downstream use\n// This content feeds directly into prompt_perso_prof AND gets inserted to SB later\nconst summaryRaw = $('Initial_summary1').first().json.text || '';\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Clean markdown formatting, convert to HTML (same logic as original)\nlet content = summaryRaw\n  .replace(/###\\s*\\*\\*([^*]+)\\*\\*/g, '<h5>$1</h5>')\n  .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>')\n  .replace(/\\*([^*]+)\\*/g, '$1')\n  .trim();\n\nreturn [{\n  json: {\n    report_id: reportId,\n    content: content\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1872,
+          624
+        ],
+        "id": "4db5cbe1-b244-40ad-acbe-1a3be924d281",
+        "name": "Prep init_summary"
+      },
+      {
+        "parameters": {
+          "tableId": "report_sections",
+          "dataToSend": "autoMapInputData"
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          2912,
+          624
+        ],
+        "id": "bb555d97-bead-46c0-be07-0f32a55816c8",
+        "name": "SB insert all sections",
+        "credentials": {
+          "supabaseApi": {
+            "id": "jYr9UcuCbwO8Um80",
+            "name": "SB Cairnly (n8n cred)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "b2517078-26eb-406a-8d10-900e66880eb5",
+                "name": "=report_id",
+                "value": "={{ $json.id }}",
+                "type": "string"
+              },
+              {
+                "id": "e608eaae-85e8-4b81-981c-62e7895717d6",
+                "name": "preferred_language",
+                "value": "={{ $('Process Survey Data1').first().json.preferred_language }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          3360,
+          624
+        ],
+        "id": "2271daf9-8ab3-4d4c-b55b-b4c43479729c",
+        "name": "pass report_id to WF2",
+        "executeOnce": false
+      },
+      {
+        "parameters": {
+          "jsCode": "// Encore v2 survey parser (survey 00000000-0000-0000-0000-000000000004).\n// Question ids and stored values: docs/encore-v2-question-ids.md in the cairnly repo.\n// Rewritten 2026-11-10 for v2; the v1 parser (b2b2b2b2 ids) is in\n// n8n_wfs_cairnly/backups/WF1P - Encore Profile Insert EN_BACKUP_pre_v2_20261110.json\n// Output shape is unchanged: {report_id, user_id, preferred_language, summary, questions[]}.\n\n// 1. MASTER SCHEMA - key = question number as shown in the survey (7.2 is reserved, not in the launch survey)\n  const SURVEY_SCHEMA = {\n    // --- SECTION 1: About you ---\n    \"1.1\": { uuid: \"c3c3c3c3-0001-4000-a000-000000000001\", question: \"What is your first name?\", type: \"short_text\", options: [], description: \"\" },\n    \"1.2\": { uuid: \"c3c3c3c3-0001-4000-a000-000000000002\", question: \"How old are you?\", type: \"number\", options: [], description: \"\" },\n    \"1.3\": { uuid: \"c3c3c3c3-0001-4000-a000-000000000003\", question: \"Where do you live?\", type: \"dropdown\", options: [\"Northern and Western Europe\", \"Southern and Eastern Europe\", \"United Kingdom (London)\", \"United Kingdom (Other)\", \"United States (High-Cost Regions)\", \"United States (Average-Cost Regions)\", \"United States (Lower-Cost Regions)\", \"Canada\", \"Australia and New Zealand\", \"Switzerland\"], description: \"So we can suggest options near you.\" },\n    \"1.4\": { uuid: \"c3c3c3c3-0001-4000-a000-000000000004\", question: \"Where are you in your working life?\", type: \"multiple_choice\", options: [\"Still working, I stop in more than a year\", \"Still working, I stop within a year\", \"Working less, step by step\", \"Stopped less than a year ago\", \"Stopped one to three years ago\", \"Stopped more than three years ago\", \"I run my own business and want to step back\"], description: \"\" },\n    \"1.5\": { uuid: \"c3c3c3c3-0001-4000-a000-000000000005\", question: \"Whose decision is it to stop working?\", type: \"multiple_choice\", options: [\"My own\", \"Partly mine\", \"It was decided for me, for example in a reorganisation\", \"Nothing is decided yet\"], description: \"\" },\n    // --- SECTION 2: Your working life ---\n    \"2.1\": { uuid: \"c3c3c3c3-0002-4000-a000-000000000001\", question: \"Which roles shaped your working life?\", type: \"career_history\", options: [], description: \"Up to 4 roles. For each: the role, the organisation, start and end year, and a few words on what you did there (type or speak). Paid and unpaid work both count, including years spent caring for family. Speak other languages? Mention them in any box. If you uploaded your CV, we filled this in: check it and add what matters to you.\" },\n    \"2.2\": { uuid: \"c3c3c3c3-0002-4000-a000-000000000002\", question: \"What were you known for at work?\", type: \"multiple_choice\", options: [\"Explaining things clearly\", \"Organising and planning\", \"Listening and giving advice\", \"Solving practical problems\", \"Leading a team\", \"Bringing people together\", \"Numbers and money\", \"Writing\", \"Selling and convincing\", \"Making or building things\", \"Looking after people\", \"Spotting risks early\", \"Starting new things\"], description: \"What colleagues came to you for. Pick up to 5.\" },\n    \"2.3\": { uuid: \"c3c3c3c3-0002-4000-a000-000000000003\", question: \"What did you love about your work?\", type: \"long_text\", options: [], description: \"The parts you would gladly do again, even unpaid. For example: \\\"Sitting down with a new colleague and seeing it click.\\\"\" },\n    \"2.4\": { uuid: \"c3c3c3c3-0002-4000-a000-000000000004\", question: \"What are you glad to leave behind?\", type: \"multiple_choice\", options: [\"Long meetings\", \"Office politics\", \"Targets and reviews\", \"Commuting\", \"Being on call\", \"Fixed hours\", \"A lot of travel\", \"Pressure and deadlines\", \"Managing people\", \"Not much, I liked it all\"], description: \"Pick up to 3.\" },\n    // --- SECTION 3: Being useful ---\n    \"3.1\": { uuid: \"c3c3c3c3-0003-4000-a000-000000000001\", question: \"Which of these feels most true for you right now?\", type: \"multiple_choice\", options: [\"I want to stay useful, but not in a job like my old one. I don't know what fits me.\", \"Work gave my week its shape. I'm not sure what will replace it.\", \"Most of my contacts came through work. I don't want to lose that.\", \"My partner and I need to figure this out together.\", \"None of these. I mostly want to make the most of the coming years.\"], description: \"Pick the one that comes closest.\" },\n    \"3.2\": { uuid: \"c3c3c3c3-0003-4000-a000-000000000002\", question: \"When did you feel most useful?\", type: \"long_text\", options: [], description: \"At work or outside it, recently or long ago. What were you doing, and for whom? For example: \\\"Coaching the youth team at our hockey club.\\\"\" },\n    \"3.3\": { uuid: \"c3c3c3c3-0003-4000-a000-000000000003\", question: \"Who would you most like to be useful to?\", type: \"multiple_choice\", options: [\"One person at a time, like a student or a starter\", \"A team or organisation\", \"Young people\", \"People going through a hard time\", \"My own field or profession\", \"My town or neighbourhood\", \"A cause, like nature, culture or health\", \"My family\", \"Myself, by making or learning something\"], description: \"Pick up to 3.\" },\n    \"3.4\": { uuid: \"c3c3c3c3-0003-4000-a000-000000000004\", question: \"Which of these would you like to explore?\", type: \"multiple_choice\", options: [\"Paid work, part time or per project\", \"Interim or freelance work in my field\", \"A board, supervisory or advisory role\", \"Mentoring or coaching\", \"Teaching or training\", \"Volunteering\", \"Starting something small of my own\", \"Learning something new\", \"I don't know yet, show me what fits\"], description: \"Pick all that appeal. Board and supervisory roles come with legal duties; your report explains what that means.\" },\n    \"3.5\": { uuid: \"c3c3c3c3-0003-4000-a000-000000000005\", question: \"Is there something you already tried, or an idea you keep coming back to?\", type: \"long_text\", options: [], description: \"Tell us how it went. Skip this if nothing comes to mind.\" },\n    // --- SECTION 4: What suits you ---\n    \"4.1\": { uuid: \"c3c3c3c3-0004-4000-a000-000000000001\", question: \"After a day with lots of people, how do you feel?\", type: \"multiple_choice\", options: [\"Full of energy\", \"Good, but I need some quiet after\", \"A bit tired\", \"Drained, I need time alone\"], description: \"\" },\n    \"4.2\": { uuid: \"c3c3c3c3-0004-4000-a000-000000000002\", question: \"What should your week look like?\", type: \"multiple_choice\", options: [\"Fixed days and set appointments\", \"A steady rhythm with room to move\", \"Free, I commit per project or season\", \"Completely open\"], description: \"\" },\n    \"4.3\": { uuid: \"c3c3c3c3-0004-4000-a000-000000000003\", question: \"Which role suits you best?\", type: \"multiple_choice\", options: [\"Leading, taking charge\", \"Doing, rolling up my sleeves\", \"Advising, being the sounding board\", \"Teaching, helping someone grow\", \"Connecting, bringing people together\", \"It depends on the setting\"], description: \"\" },\n    \"4.4\": { uuid: \"c3c3c3c3-0004-4000-a000-000000000004\", question: \"What matters most to you in the coming years?\", type: \"multiple_choice\", options: [\"Being useful to others\", \"Keeping my mind busy\", \"Having people around me\", \"A rhythm to my week\", \"My experience being valued\", \"Some extra income\", \"Freedom for travel and family\", \"Making or building something\", \"Giving back to a cause\", \"Learning something new\"], description: \"Pick 3.\" },\n    // --- SECTION 5: The people around you ---\n    \"5.1\": { uuid: \"c3c3c3c3-0005-4000-a000-000000000001\", question: \"How do your plans relate to your partner's?\", type: \"multiple_choice\", options: [\"We make plans together\", \"We each do our own thing, and that works\", \"We haven't really talked about it yet\", \"We want different things\", \"I don't have a partner\"], description: \"\" },\n    \"5.2\": { uuid: \"c3c3c3c3-0005-4000-a000-000000000002\", question: \"What does your partner hope for in the coming years?\", type: \"long_text\", options: [], description: \"In their words, if you can. Skip this if it doesn't apply.\" },\n    \"5.3\": { uuid: \"c3c3c3c3-0005-4000-a000-000000000003\", question: \"How do you feel about the people around you?\", type: \"multiple_choice\", options: [\"I have plenty of good people around me\", \"Enough, but new contacts would be welcome\", \"I miss the daily contact from work\", \"I'd like to meet people in the same phase of life\"], description: \"\" },\n    \"5.4\": { uuid: \"c3c3c3c3-0005-4000-a000-000000000004\", question: \"Do you like to do things on your own or with others?\", type: \"multiple_choice\", options: [\"On my own\", \"With one or two others\", \"As part of a group\", \"It doesn't matter\"], description: \"\" },\n    // --- SECTION 6: Fitting it into your life ---\n    \"6.1\": { uuid: \"c3c3c3c3-0006-4000-a000-000000000001\", question: \"How much time would you like to spend on what comes next?\", type: \"multiple_choice\", options: [\"A few hours a month\", \"Half a day a week\", \"One or two days a week\", \"Three days or more\", \"It depends on the season\"], description: \"\" },\n    \"6.2\": { uuid: \"c3c3c3c3-0006-4000-a000-000000000002\", question: \"What is already fixed in your calendar?\", type: \"multiple_choice\", options: [\"Days with grandchildren\", \"Caring for someone\", \"Long trips or winters abroad\", \"Clubs or volunteering I want to keep\", \"Nothing fixed\"], description: \"Pick all that apply.\" },\n    \"6.3\": { uuid: \"c3c3c3c3-0006-4000-a000-000000000003\", question: \"Where would you like this to happen?\", type: \"multiple_choice\", options: [\"From home, online\", \"Close to home\", \"Within an hour's travel\", \"Anywhere, for the right thing\"], description: \"\" },\n    \"6.4\": { uuid: \"c3c3c3c3-0006-4000-a000-000000000004\", question: \"Does it need to pay?\", type: \"multiple_choice\", options: [\"No, money isn't the point\", \"A little would be nice\", \"Yes, extra income matters to me\"], description: \"\" },\n    // --- SECTION 7: To finish ---\n    \"7.1\": { uuid: \"c3c3c3c3-0007-4000-a000-000000000001\", question: \"What would make this worth it for you?\", type: \"multiple_choice\", options: [\"A clear picture of what suits me now\", \"Options I hadn't thought of\", \"A first step I can take next week\", \"Help to talk it over with my partner\", \"Someone checking in with me in the coming months\", \"An honest view on an idea I already have\"], description: \"Pick up to 2.\" },\n    \"7.3\": { uuid: \"c3c3c3c3-0007-4000-a000-000000000003\", question: \"Anything else you'd like us to know?\", type: \"long_text\", options: [], description: \"\" }\n  };\n\n  // Keep only the fields the slim career form (2.1) actually collects.\n  function slimRole(r) {\n      if (!r || typeof r !== 'object') return r;\n      const end = r.isCurrent ? 'now' : (r.endYear || '');\n      return {\n          title: r.title || '',\n          organisation: r.companyName || '',\n          years: [r.startYear || '', end].filter(Boolean).join(' - '),\n          what_they_did: (r.description || '').trim()\n      };\n  }\n\n  // --- DATA PROCESSING ---\n  const inputItem = $input.first().json;\n  const rawResponses = inputItem.survey_responses?.responses || inputItem.body?.survey_responses?.responses || {};\n\n  const reportId = inputItem.report_id || inputItem.body?.report_id || null;\n  const userId = inputItem.user_id || inputItem.body?.user_id || null;\n\n  const formattedQuestions = [];\n  let answeredCount = 0;\n\n  for (const [id, config] of Object.entries(SURVEY_SCHEMA)) {\n      const answer = rawResponses[config.uuid];\n\n      const result = {\n          questionId: id,\n          question: config.question,\n          type: config.type,\n          description: config.description || \"\",\n          chosen: [],\n          notChosen: [],\n          hasAnswer: false\n      };\n\n      const isEmpty = answer === undefined || answer === null || answer === \"\" ||\n          (Array.isArray(answer) && answer.length === 0);\n\n      if (!isEmpty) {\n          result.hasAnswer = true;\n          answeredCount++;\n\n          if (config.type === \"career_history\") {\n              const roles = Array.isArray(answer) ? answer : [answer];\n              result.chosen = roles.map(slimRole).filter(r => r && (typeof r !== 'object' || r.title));\n          } else {\n              const answerArray = Array.isArray(answer) ? answer : [answer];\n              const cleanAnswers = answerArray.map(a => typeof a === 'string' ? a.replace(/\\*\\*/g, '').trim() : a);\n              result.chosen = cleanAnswers;\n\n              if (config.options && config.options.length > 0) {\n                  result.notChosen = config.options.filter(opt =>\n                      !cleanAnswers.some(userAns => String(userAns).trim() === opt));\n              }\n          }\n      } else {\n          result.notChosen = config.options || [];\n      }\n\n      formattedQuestions.push(result);\n  }\n\n  // Country typed in when the person picked \"Elsewhere\" in the region picker (sidecar answer, not a question).\n  const elsewhere = rawResponses['__elsewhere_location'];\n  if (typeof elsewhere === 'string' && elsewhere.trim()) {\n      formattedQuestions.push({\n          questionId: \"1.3b\",\n          question: \"Country or city typed in (region picker 'Elsewhere')\",\n          type: \"short_text\",\n          description: \"\",\n          chosen: [elsewhere.trim()],\n          notChosen: [],\n          hasAnswer: true\n      });\n  }\n\n  return [{\n      report_id: reportId,\n      user_id: userId,\n      preferred_language: inputItem.preferred_language || inputItem.body?.preferred_language || 'en',\n      summary: {\n          totalQuestions: Object.keys(SURVEY_SCHEMA).length,\n          answeredQuestions: answeredCount\n      },\n      questions: formattedQuestions\n  }];\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1024,
+          624
+        ],
+        "id": "7c58dc3a-b0b7-41eb-8854-ac52ade77019",
+        "name": "Process Survey Data1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7aa95d3a-1db7-4d83-a689-72a703d056a5",
+                "name": "initi summ prompt",
+                "value": "=# ROLE\nYou are a Lead Data Architect specializing in candidate profile normalization. Your goal is to transform structured JSON survey data into a high-fidelity, judgment-free \"Source of Truth\" Fact Sheet.\n\n# TASK\nExtract every specific detail from the input JSON. Preserve verbatim free-text entries, \"Other\" answers, role details, and personal comments. This candidate is at, near, or past the end of a long working life and is mapping what comes next. Their roles and their own words about what they loved and when they felt useful are prime evidence. Do not interpret or coach; your job is to make sure the downstream coach has 100% of the facts in a readable format.\n\nThe survey is short on purpose (15 minutes), so every answer counts. Multiple-choice answers list what was chosen; where useful, also note what was clearly NOT chosen (for example in 3.4 and 4.4), because the gaps are data too.\n\n# OUTPUT FORMAT\n\n### **1. About You & Where You Stand**\n- **Name:** [1.1]\n- **Age:** [1.2]\n- **Region:** [1.3] (copy the region value EXACTLY as given, character for character; if 1.3b exists, add it in brackets after the region)\n- **Where They Are in Their Working Life:** [1.4]\n- **Whose Decision It Is to Stop:** [1.5]\n\n### **2. Working Life**\n- **Roles That Shaped Their Working Life:** [Extract every role from 2.1: title, organisation, years, and the verbatim \"what they did\" text. Note any languages or unpaid or care years mentioned in these texts.]\n- **Known For at Work:** [2.2, including any \"Other\" text verbatim]\n- **What They Loved About Their Work:** [Extract verbatim from 2.3]\n- **Glad to Leave Behind:** [2.4, including any \"Other\" text verbatim]\n\n### **3. Being Useful**\n- **What Feels Most True Right Now:** [3.1, verbatim]\n- **When They Felt Most Useful:** [Extract verbatim from 3.2]\n- **Who They Want to Be Useful To:** [3.3]\n- **Forms They Want to Explore:** [3.4; also list the forms NOT chosen]\n- **Something Already Tried, or an Idea They Keep Coming Back To:** [Extract verbatim from 3.5]\n\n### **4. What Suits Them**\n- **After a Day With Lots of People:** [4.1]\n- **The Week They Want:** [4.2]\n- **Role That Suits Them Best:** [4.3]\n- **What Matters Most in the Coming Years (their 3 picks):** [4.4]\n\n### **5. The People Around Them**\n- **Plans Relative to Partner:** [5.1]\n- **What the Partner Hopes For:** [Extract verbatim from 5.2]\n- **How They Feel About the People Around Them:** [5.3]\n- **On Their Own or With Others:** [5.4]\n\n### **6. Fitting It Into Their Life**\n- **Time They Want to Spend:** [6.1]\n- **Already Fixed in Their Calendar:** [6.2]\n- **Where It Should Happen:** [6.3]\n- **Does It Need to Pay:** [6.4]\n\n### **7. What They Want From Cairnly**\n- **What Would Make This Worth It:** [7.1]\n- **Anything Else:** [Extract verbatim from 7.3]\n\n# CRITICAL INSTRUCTIONS\n- **Reference IDs:** Keep the question number (e.g. 2.3, 6.4) in brackets next to each fact\n- **Region verbatim:** The Region line must contain the 1.3 value exactly as given. A later step reads it from this text\n- **Verbatim Content:** If the person wrote text, do not summarize it. Use their exact words, in the language they wrote them\n- **Completeness:** Extract every role in 2.1 fully, including the \"what they did\" text\n- **Judgment-Free:** Do not use words like \"appears to be\" or \"struggles with.\" Simply state: \"Candidate reports [X]\"\n- **No Fabrication:** If a field has no answer, write \"Not provided\". Never invent data\n- **Evidence Parity:** What they loved (2.3), when they felt most useful (3.2), their idea (3.5) and what their partner hopes for (5.2) are first-class facts. Extract them fully and without editorializing\n- Write the Fact Sheet in English, but keep the person's own words in the language they used\n\n\n# INPUT:\n\n{{ JSON.stringify($json.questions, null, 2) }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1264,
+          624
+        ],
+        "id": "308eb890-9f2b-4799-8e13-3870a7cbf9cb",
+        "name": "prompt_init_summary1"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json[\"initi summ prompt\"] }}",
+          "batching": {}
+        },
+        "id": "01564a9f-d77e-402f-95be-11493989861e",
+        "name": "Initial_summary1",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          1504,
+          624
+        ]
+      },
+      {
+        "parameters": {
+          "modelName": "models/gemini-flash-latest",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1,
+        "position": [
+          1504,
+          784
+        ],
+        "id": "3147d3a2-b2d7-4cfc-a758-f8e430d08440",
+        "name": "3F",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "Q653Teuy9nP6VLoE",
+            "name": "Cairnly Gstudio Key"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "34c766ad-413a-463d-8f0b-50a646be4f67",
+                "name": "instructions_perso_profile",
+                "value": "=# ABSOLUTE OUTPUT LANGUAGE (HIGHEST PRIORITY, overrides everything below)\nWrite EVERY word of your output, every heading and every sentence, in {{ ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'DUTCH, formal \"u\" form (u, uw, bent u, heeft u; never je, jij or jouw)' : 'ENGLISH' }}. The candidate's name, employers, or any non-target-language words in their data must NEVER change your output language. If you catch yourself writing a heading or sentence in another language, rewrite it in the target language before continuing.\n\n# MANDATORY: SECOND PERSON VOICE\nThe input data below refers to the candidate in third person (\"the candidate\", \"she/her\").\nYou MUST write ALL output in second person: \"you\" and \"your\" throughout (in Dutch: \"u\" and \"uw\").\nUse their first name occasionally for warmth, but NEVER write about them in third person.\nThis applies to every sentence in every section. No exceptions.\n\nReview thoroughly:\n* the Fact Sheet with the candidate's survey answers:\n{{ $json.content }}\n\n# ROLE\nYou are a seasoned career coach writing the first part of a Cairnly Encore report: a personal profile for someone at, near, or past the end of a long working life.\n\nThis person is not looking for a career. They are working out how to stay useful, and what shape their week and their contribution should take now. Many of them do not have the words for it yet; that is why they came. Your job in this part is to show them who they are now, from their own evidence, so the options that follow later make sense.\n\n# WHAT YOUR EVIDENCE IS\nThe survey is short (about 15 minutes), so read every answer. The strongest signals, in order:\n1. **Their own words:** what they loved about their work (2.3), when they felt most useful (3.2), the \"what they did\" text per role (2.1), their idea (3.5), anything else (7.3). These outrank everything else. What they loved and when they felt most useful are usually the purest signal in the data.\n2. **How they want to be useful:** who they want to help (3.3), the forms they want to explore (3.4), the role that suits them (4.3), what they were known for (2.2).\n3. **Energy and rhythm:** after a day with people (4.1), the week they want (4.2), on their own or with others (5.4), how they feel about the people around them (5.3).\n4. **What matters now:** their 3 picks (4.4) and the statement they chose as most true (3.1). Read 3.1 by its meaning (wanting to be useful but not knowing where, missing the shape of the week, missing contacts, a joint plan with a partner, or simply making the most of the coming years), not by its exact words; the wording may change.\n5. **Context:** where they stand (1.4), whose decision it was to stop (1.5), their partner (5.1, 5.2), what they are glad to leave behind (2.4).\n\nThe practical limits (6.1 to 6.4) belong to the options later in the report. Mention them here only where they reveal something about the person.\n\nRules for reading the evidence:\n- Their roles are behavioural data about how they work, not a track to extend. Do not list their career back to them.\n- When the decision to stop was made for them (1.5, for example a reorganisation), treat it as real context: it can sharpen the need to feel useful or valued. Acknowledge it in one plain sentence where it matters, never more. No drama, no consolation speech.\n- \"Glad to leave behind\" (2.4) is a hard signal about the shape of future work. When it clashes with what they were known for (for example known for leading a team, glad to leave managing people), that tension is worth naming.\n- Where answers point in different directions, say so. A tension they did not name themselves is the best material for a Key Insight.\n- Never invent traits, history, or feelings the data does not show. When you propose a cause, frame it as a hypothesis to test (\"one read is...\", \"this might mean...\"), never as a diagnosis.\n\n# REQUIRED SECTIONS\nWrite these four sections, with these exact headings.\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nHow their way of working showed up across their working life (what they were known for, what they loved, the \"what they did\" texts) and how that same way of working shows up today.\n\n**Where Your Energy Comes From**\n\nWhat gives them energy and what drains it now: people versus quiet (4.1, 5.4), rhythm versus freedom (4.2), the role that suits them (4.3). Be concrete about the kind of setting where they do well, extrapolated carefully from their evidence.\n\n**Key Insight**\n\n1 to 2 short paragraphs with a realization they might not see themselves. Connect answers; never restate one.\n\n## What You Bring\n\n**Your Core Strengths**\n\nThe strengths that repeat across their evidence. Look for the capability underneath the examples: the same move applied to different material.\n\n**What Carries Over, and What Does Not**\n\nWhich of these strengths travel into what comes next (helping one person at a time, a team, a cause, teaching, advising, making something) and which were tied to the old job or the old organisation. Be specific and honest. Decades of judgment and knowing what good looks like are real assets; say which parts, without flattery.\n\n**Key Insight**\n\n1 to 2 short paragraphs on what their strengths actually amount to, and what that means for how their contribution should be measured now.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nPatterns from a long working life that may serve the next stage badly: taking on too much, needing to be needed, reaching for the old role, avoiding the new-person feeling, expecting the structure a job used to give. Only name what this person's data supports. Name it plainly, without alarm and without softening it into nothing.\n\n**What This Means for Your Choices**\n\nHow these patterns could affect the commitments they take on, the boundaries they keep, and the settings to avoid despite old reflexes.\n\n**Key Insight**\n\n1 to 2 short paragraphs on why these patterns exist or how they connect, framed as a hypothesis they can confirm or reject.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nWhat they value now, as shown by their 3 picks (4.4), the statement they chose (3.1), who they want to help (3.3), and their own words. Where their partner's hopes (5.2) or the people around them (5.3) shape this, include it.\n\n**Choosing With Your Values**\n\nHow these values should decide what they say yes to: which kinds of commitment to take, which to decline despite old reflexes, and what to protect from the start. Give them a simple test they can apply to any offer, built from their own answers.\n\n**Key Insight**\n\n1 to 2 short paragraphs on a tension or non-obvious implication in what they value: between what they picked and what their own words describe, between what they miss and what they are glad to leave, or between their plans and their partner's.\n\n# CONTENT REQUIREMENTS\n- PERSONALITY AND VALUES ONLY. Do not recommend specific roles, organisations, or options; those come later in the report. You may describe kinds of settings (one-to-one, small group, a classroom, a board table, their own project) to make a point.\n- Interpretation and pattern recognition, not recitation. Never tell them something they literally wrote; connect or contrast answers to show a pattern they did not name.\n- Ground every trait in this candidate's data. Do not assume rigidity from long tenure, or wisdom from age.\n- Where 7.1 shows what would make this worth it for them (for example a clear picture of what suits them, or an honest view on their idea), let that shape what you emphasise.\n- DO NOT MENTION QUESTION NUMBERS (e.g. 2.3, 6.4) in your text. Never.\n\n# TONE FOR THIS AUDIENCE\n- They do not need a career; they need a reason and a shape for their week. Promotion, salary and career progression are the wrong lenses; usefulness, energy, people, rhythm and dignity are the right ones.\n- Respectful, direct, warm, zero condescension. Talk to them like the experienced adult they are. Hard truths are welcome when the data supports them; sugar is not.\n- No \"60 is the new 40\" or any age-reframing, no \"golden years\", no implying their working life was the best part, no suggestion that slowing down is the answer to a tension.\n- Never mention their age as an explanation for anything.\n- In Dutch: formal \"u\" throughout, but warm and plain, not stiff or bureaucratic. Short sentences. Avoid officialese (\"middels\", \"inzake\", \"teneinde\").\n\n# WRITING STYLE\n- Active voice, short sentences, small paragraphs (2 to 4 sentences)\n- Bold sub-headers exactly as specified; bullets only where they help, with a bold label\n- No em dashes anywhere; use commas, colons, or full stops\n- Use their first name occasionally, and only in second person (\"Ingrid, you...\")\n- STAY BETWEEN 200 AND 280 WORDS PER SECTION. The survey is short; do not pad. Fewer, sharper observations beat more words.\n\n# FORMATTING\nStart each section with its `##` heading exactly as written above. Within each section use the three **bold sub-headers** exactly as written above, in that order. Key Insight is plain paragraphs, never a numbered list. Do not add any text before the first heading or after the last section.\n\n---\n\n# CRITICAL: HOW TO USE THE EXAMPLE BELOW\nThe example is ONE fictional candidate. It shows STRUCTURE, VOICE, DEPTH and second-person tone ONLY. Do NOT carry any of its content into a real report: her career, her traits, her tensions and her life belong to her. Reproduce the FORM, never the CONTENT.\n\nFictional data behind the example: Ingrid, 64, hospital pharmacist for 31 years, the last 9 as head of the pharmacy department. Stopped less than a year ago; partly her decision (a reorganisation offered early retirement). Known for explaining things clearly, spotting risks early, listening and giving advice. Loved: \"Training new pharmacy assistants. The moment someone stops being afraid of the dosage tables.\" Glad to leave: office politics, being on call, managing people. Most true: work gave my week its shape. Most useful: \"When my neighbour came home from hospital with eleven different pills and I sat down with her and her daughter.\" Wants to help one person at a time and people going through a hard time. Wants to explore mentoring or coaching, teaching or training, volunteering. Good with people but needs quiet after; a steady rhythm with room to move; teaching suits her best. Picks: being useful to others, a rhythm to my week, keeping my mind busy. Partner: we each do our own thing. Misses the daily contact from work; prefers one or two others. One or two days a week, days with grandchildren fixed, close to home, a little pay would be nice.\n\n# EXAMPLE OUTPUT (English)\n\n## How You Work Best Now\n\n**What People Count On You For**\n\nFor thirty years people came to you when something could go wrong. You were the one who saw the risk in a prescription before anyone else did, and then explained it so the other person understood, instead of just correcting them. That pairing matters: plenty of people spot risks, far fewer make others safer by doing it.\n\nThe same pattern runs through the moment you describe with your neighbour. Eleven pills, a worried daughter, and you at the kitchen table making it manageable. Nobody asked you as a pharmacist. You did what you have always done: turn something frightening into something a person can handle.\n\n**Where Your Energy Comes From**\n\nPeople give you energy, in doses. A good day has real conversations in it, followed by quiet. You want a steady rhythm, not an empty calendar and not a rota. And you work best with one or two people at a time, not in a crowd.\n\nThat points to settings where you sit next to someone: a learner, a patient, a family. It points away from settings where you manage a group or stand in front of a room for hours.\n\n**Key Insight**\n\nYou picked \"work gave my week its shape\" as the statement closest to you, and you miss the daily contact. One read is that what you lost was not the job but the steady stream of people who needed your explanation. That stream is rebuildable, and it does not require the hospital.\n\n## What You Bring\n\n**Your Core Strengths**\n\nStrip away the title and three strengths repeat across your answers. First, risk sense: you notice what is off before it becomes a problem. Second, translation: you make complex, scary information usable for the person in front of you. Third, patience with the beginner: the assistants who were afraid of the dosage tables are the part of the job you would do again unpaid.\n\n**What Carries Over, and What Does Not**\n\nWhat carries over is the combination: calm judgment about what matters, delivered one to one, to someone who is anxious. That works in teaching, in mentoring, and with people going through a hard time.\n\nWhat does not carry over is the authority of the role. Outside the hospital nobody gives you a mandate by default; you earn it again, conversation by conversation. Your current pharmacology will also age. Your judgment about how people take in difficult information will not.\n\n**Key Insight**\n\nYour real product was never the medicines. It was confidence, handed from you to someone who did not have it yet. That is the thing to measure what comes next by: not hours given, but people who walk away less afraid.\n\n## What to Watch For\n\n**Old Habits in a New Setting**\n\nYou are glad to leave managing people behind, yet you were the head of a department for nine years. That reflex to take charge does not retire with the title. In any new group, the people around you will notice quickly that you know what you are doing, and they will hand you the coordinating role. You told us you do not want it.\n\nThere is a second pattern. You were the one people could always call. Being on call is on your list of things to leave behind, but the habit of being available is older than the rota.\n\n**What This Means for Your Choices**\n\nWith one or two days a week and fixed days with your grandchildren, there is little room for a commitment that slowly grows into a coordinating job. Decide up front what your role is, and say it out loud when someone tries to promote you.\n\n**Key Insight**\n\nOne read: being needed has been part of how you organise your week, not only your work. If that holds, the risk is not saying no too little, it is saying yes to anything that offers rhythm. Worth testing against your own experience.\n\n## What Matters to You Now\n\n**Your Values Now**\n\nBeing useful to others, a rhythm to your week, keeping your mind busy. Your own words sharpen this: useful to a person you can name, at a moment that matters to them. Not to an institution, and not in a crowd.\n\nYou and your partner each do your own thing, and that works. That gives you freedom, and it also means your week will not get its shape from the household. You will have to build it.\n\n**Choosing With Your Values**\n\nA simple test for any offer: Will I know the name of the person it helps? Does it use my judgment, not just my time? Does it give my week a steady shape without making me the coordinator? An offer that fails two of the three repeats what you are glad to have left.\n\n**Key Insight**\n\nYou want rhythm, and you are glad to leave fixed hours and being on call behind. Those are not in conflict, but they pull in different directions. One read: you want a rhythm you chose, not one that was imposed. The first thing to protect is that it stays your choice.\n\n---\n\n# AVOID WORDS LIST\n\n## Adjectives and modifiers to avoid:\nvaluable; significant (for abilities or advantages); interesting; natural/naturally (for talents); impressive; exceptional; remarkable; extraordinary; outstanding; unique; rare; perfect/perfectly; ideal/ideally; admirable; clear/clearly and obvious/obviously as emphasis\n\n## Flattery phrases to avoid:\n\"you have a valuable ability to...\"; \"gives you a significant advantage\"; \"positions you perfectly for...\"; \"you possess...\"; \"natural talent for...\"; \"you bring a wealth of...\"; \"your impressive track record...\"; \"this is particularly valuable because...\"\n\n## Corporate speak to avoid:\nserves you well; positions you as; represents an opportunity; creates a significant advantage; gives you a real edge; particularly powerful; meaningful impact; drive results; move the needle; leverage (overuse); synergy; dynamic; innovative or forward-thinking for a person\n\n## Condescension to avoid (critical for this audience):\n\"still sharp\", \"still relevant\", \"still got it\" (the word \"still\" as a compliment); \"golden years\", \"twilight years\", \"well-deserved rest\"; \"60 is the new 40\" or any age-reframing; \"keeping busy\" or \"filling your time\"; \"for someone at your stage of life...\"; \"giving back\" as the default frame for mentoring, advising or volunteering; any suggestion of slowing down or enjoying retirement as the resolution to a tension; labels for their age group: \"senior\" or \"seniors\" (as a label for the person), \"elderly\", \"older worker\", \"pensioner\", \"never too old\"; in Dutch: \"senior\", \"oudere\", \"pensionado\", \"vitaal ouder worden\", \"nog niet afgeschreven\"\n\n## Hedges and AI-sounding transitions to avoid:\n\"The fact that...\"; \"It's worth noting that...\"; \"What's interesting is...\"; \"The reality is that...\"; \"It's important to recognize...\"; \"Let's explore...\"; \"It's crucial to understand...\"; \"Building on this...\"; \"Diving deeper...\"; \"At the end of the day...\"; \"The bottom line is...\"\n\nThe core principle: if you can remove the adjective or modifier and the sentence still works, remove it. Let the specific observations carry the weight.\n\n# OUTPUT LANGUAGE (CRITICAL, overrides the English headings above)\npreferred_language = {{ $('Process Survey Data1').first().json.preferred_language }}\nIf preferred_language is NOT 'nl', ignore this section and write in English exactly as instructed above.\n\nIf preferred_language IS 'nl', write your ENTIRE output in Dutch with the formal \"u\" form (u, uw, bent u, heeft u, kunt u; never je, jij or jouw), warm and plain, no em dashes, Dutch number formatting (€1.500). Keep the meaning and structure identical to the English spec. Keep the brand name Cairnly in English.\n\nWhen writing in Dutch you MUST use these EXACT Dutch headings (##) and bold sub-headers INSTEAD of the English ones, so downstream parsing keeps working:\n## How You Work Best Now  ->  ## Hoe u nu het beste werkt\n    **What People Count On You For**  ->  **Waar mensen op u rekenen**\n    **Where Your Energy Comes From**  ->  **Waar uw energie vandaan komt**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What You Bring  ->  ## Wat u meebrengt\n    **Your Core Strengths**  ->  **Uw kernkwaliteiten**\n    **What Carries Over, and What Does Not**  ->  **Wat u meeneemt, en wat niet**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What to Watch For  ->  ## Waar u op moet letten\n    **Old Habits in a New Setting**  ->  **Oude gewoonten in een nieuwe omgeving**\n    **What This Means for Your Choices**  ->  **Wat dit betekent voor uw keuzes**\n    **Key Insight**  ->  **Belangrijkste inzicht**\n## What Matters to You Now  ->  ## Wat nu voor u telt\n    **Your Values Now**  ->  **Uw waarden nu**\n    **Choosing With Your Values**  ->  **Kiezen met uw waarden**\n    **Key Insight**  ->  **Belangrijkste inzicht**",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2112,
+          624
+        ],
+        "id": "c61ad8f0-f68f-4bf0-9eb2-41ec589ed7fd",
+        "name": "prompt_perso_prof1"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.instructions_perso_profile }}",
+          "batching": {}
+        },
+        "id": "749b16ca-6338-46d5-b1da-839b8c976ea3",
+        "name": "generate_personality_narrative1",
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.7,
+        "position": [
+          2336,
+          624
+        ]
+      },
+      {
+        "parameters": {
+          "model": "anthropic/claude-sonnet-4.6",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          2336,
+          800
+        ],
+        "id": "de87e7f7-dbcf-4c42-b140-4d7bcfd85462",
+        "name": "OpenRouter Chat Model1",
+        "credentials": {
+          "openRouterApi": {
+            "id": "gGM2sOHB72WgN7UU",
+            "name": "OpenRouter account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// ---------------- CONFIG ----------------\n// Encore v2 headings (2026-11-10). Must match prompt_perso_prof1 exactly, EN and NL (\"u\").\nconst SUBHEADER_PATTERNS_ALL = {\n  en: {\n    approach: [\"What People Count On You For\", \"Where Your Energy Comes From\", \"Key Insight\"],\n    strengths: [\"Your Core Strengths\", \"What Carries Over, and What Does Not\", \"Key Insight\"],\n    development: [\"Old Habits in a New Setting\", \"What This Means for Your Choices\", \"Key Insight\"],\n    values: [\"Your Values Now\", \"Choosing With Your Values\", \"Key Insight\"]\n  },\n  nl: {\n    approach: [\"Waar mensen op u rekenen\", \"Waar uw energie vandaan komt\", \"Belangrijkste inzicht\"],\n    strengths: [\"Uw kernkwaliteiten\", \"Wat u meeneemt, en wat niet\", \"Belangrijkste inzicht\"],\n    development: [\"Oude gewoonten in een nieuwe omgeving\", \"Wat dit betekent voor uw keuzes\", \"Belangrijkste inzicht\"],\n    values: [\"Uw waarden nu\", \"Kiezen met uw waarden\", \"Belangrijkste inzicht\"]\n  }\n};\nconst __lang = ($('Process Survey Data1').first().json.preferred_language === 'nl') ? 'nl' : 'en';\nconst SUBHEADER_PATTERNS = SUBHEADER_PATTERNS_ALL[__lang];\n\n// ---------------- HELPERS ----------------\nfunction cleanMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n    .replace(/__(.*?)__/g, '$1')\n    .replace(/\\*(.*?)\\*/g, '$1')\n    .trim();\n}\n\nfunction extractSections(content, sectionType) {\n  const patterns = SUBHEADER_PATTERNS[sectionType] || [];\n  if (patterns.length === 0) return [];\n\n  // Match a subheader only at the start of a line (so \"key insight\" inside a\n  // sentence never splits a section), with the comma optional (a dropped\n  // comma in \"What Carries Over, and What Does Not\" still matches).\n  const esc = (t) => t.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&').replace(/,/g, ',?');\n  const alt = patterns.map(esc).join('|');\n  const regex = new RegExp(`(?:^|\\\\n)[ \\\\t]*(${alt})[ \\\\t]*:?`, 'gi');\n  const isHeader = new RegExp(`^(${alt})$`, 'i');\n  const parts = content.split(regex).filter(Boolean);\n  const sections = [];\n\n  for (let i = 0; i < parts.length; i++) {\n    const p = parts[i].trim();\n    if (isHeader.test(p)) {\n      const subheader = p.replace(/:$/, '').trim();\n      const next = parts[i + 1] ? parts[i + 1].trim() : '';\n      sections.push({ subheader, content: next });\n      i++;\n    }\n  }\n  // Fallback: if no known subheaders matched (e.g. localized text the\n  // patterns don't cover), keep the whole section as one block instead of\n  // dropping it. Guarantees no section is ever lost to a pattern miss.\n  if (sections.length === 0) {\n    const whole = content.trim();\n    return whole ? [{ subheader: '', content: whole }] : [];\n  }\n  return sections;\n}\n\n// ---------------- SOURCE DATA ----------------\nconst narrativeData = $('generate_personality_narrative1').first().json;\nconst reportId = $('Process Survey Data1').first().json.report_id;\n\n// Get the init_summary content from Prep node (already cleaned HTML)\nconst initSummaryContent = $('Prep init_summary').first().json.content;\n\n// ---------------- FACTS OBJECT (Encore v2) ----------------\n// Structured copy of the answers later workflows need, so WF2P-WF4P read\n// facts as data instead of parsing the model-written fact sheet.\n// Stored on the init_summary row's metadata as { facts: {...} }.\nconst __qs = $('Process Survey Data1').first().json.questions || [];\nconst __q = (id) => __qs.find(q => q.questionId === id) || { chosen: [], hasAnswer: false };\nconst __one = (id) => { const c = __q(id).chosen; return (Array.isArray(c) && c.length) ? c[0] : null; };\nconst __all = (id) => { const c = __q(id).chosen; return Array.isArray(c) ? c : []; };\nconst __text = (id) => { const v = __one(id); return (typeof v === 'string' && v.trim()) ? v.trim() : null; };\nconst __age = parseInt(__one('1.2'), 10);\nconst __idea = __text('3.5');\nconst facts = {\n  language: __lang,\n  region: __one('1.3'),\n  location_typed: __text('1.3b'),\n  age: isNaN(__age) ? null : __age,\n  stage: __one('1.4'),\n  decision: __one('1.5'),\n  roles: __all('2.1').map(r => ({ title: (r && r.title) || '', organisation: (r && r.organisation) || '', years: (r && r.years) || '' })).filter(r => r.title),\n  glad_to_leave: __all('2.4'),\n  most_true: __one('3.1'),\n  audiences: __all('3.3'),\n  forms: __all('3.4'),\n  has_idea: !!__idea,\n  idea: __idea,\n  role_fit: __one('4.3'),\n  picks: __all('4.4'),\n  partner: __one('5.1'),\n  time: __one('6.1'),\n  calendar: __all('6.2'),\n  place: __one('6.3'),\n  pay: __one('6.4'),\n  worth_it: __all('7.1')\n};\n\n// ============== Extract personality_scores tag ==============\n// The prompt appends a hidden <personality_scores>{...}</personality_scores>\n// tag at the very end of the narrative. Pull it out, parse the JSON, and\n// strip the tag from the text BEFORE we parse sections so the prose stays\n// clean. The scores get attached to the `approach` section row's metadata\n// column, where the dashboard's Personality Radar reads them from.\nlet personalityScores = null;\nlet narrativeText = narrativeData.text || '';\nconst scoresMatch = narrativeText.match(/<personality_scores>\\s*([\\s\\S]*?)\\s*<\\/personality_scores>/i);\nif (scoresMatch) {\n  try {\n    personalityScores = JSON.parse(scoresMatch[1].trim());\n  } catch (err) {\n    console.warn('[extract_report_sections] personality_scores JSON parse failed:', err.message);\n  }\n  narrativeText = narrativeText.replace(scoresMatch[0], '').trim();\n}\n// ============================================================\n\n// ---------------- NARRATIVE EXTRACTION ----------------\n// Headings only at line start, so \"your #1 strength\" in a sentence is not a heading.\nconst titleRegex = /^#{1,3}\\s*([^\\n#]+)/gm;\nconst titles = [];\nlet match;\nwhile ((match = titleRegex.exec(narrativeText)) !== null) {\n  titles.push(match[1].trim());\n}\n\nconst contents = narrativeText.split(/^#{1,3}\\s*[^\\n#]+\\n*/gm);\ncontents.shift();\n\nconst sectionTypes = ['approach', 'strengths', 'development', 'values'];\nconst parsedSections = [];\n\nfor (let i = 0; i < contents.length; i++) {\n  const sectionType = sectionTypes[i];\n  const raw = cleanMarkdown(contents[i]);\n  parsedSections.push(extractSections(raw, sectionType));\n}\n\n// ---------------- OUTPUT ALL 5 SECTIONS ----------------\n// init_summary + 4 narrative sections, all inserted to SB in one batch.\n// Approach gets the personality_scores attached as metadata.\n// Other sections leave metadata null.\nconst allSections = [\n  {\n    section_type: 'init_summary',\n    title: 'Initial Summary',\n    content: initSummaryContent,\n    isRawContent: true,\n    metadata: { facts }\n  },\n  {\n    section_type: 'approach',\n    title: titles[0] || null,\n    content: parsedSections[0] || [],\n    metadata: personalityScores ? { personality_scores: personalityScores } : null\n  },\n  { section_type: 'strengths',   title: titles[1] || null, content: parsedSections[1] || [], metadata: null },\n  { section_type: 'development', title: titles[2] || null, content: parsedSections[2] || [], metadata: null },\n  { section_type: 'values',      title: titles[3] || null, content: parsedSections[3] || [], metadata: null }\n];\n\nreturn allSections\n  .filter(s => s.content && (s.isRawContent || (Array.isArray(s.content) && s.content.length > 0)))\n  .map(s => {\n    let formatted;\n\n    if (s.isRawContent) {\n      formatted = s.content;\n    } else {\n      formatted = s.content.map(block => {\n        const subheader = block.subheader && block.subheader.trim()\n          ? `<h5>${block.subheader}</h5>\\n\\n`\n          : '';\n        const text = block.content || '';\n        return `${subheader}${text}`;\n      }).join('\\n\\n');\n    }\n\n    // CRITICAL: every row MUST have the same set of keys. PostgREST\n    // bulk insert (PGRST102) rejects arrays where keys differ across rows.\n    // metadata is always present and is null unless this is the approach row.\n    return {\n      report_id: reportId,\n      section_type: s.section_type,\n      title: s.title,\n      content: formatted,\n      metadata: s.metadata ?? null,\n      language: __lang\n    };\n  });"
+        },
+        "id": "050a36f6-ffcf-4544-ad6e-ea797f085d64",
+        "name": "extract_report_sections_code1",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2688,
+          624
+        ],
+        "executeOnce": false
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "reports",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "status",
+                "condition": "eq",
+                "keyValue": "=processing"
+              },
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $json.report_id }}"
+              }
+            ]
+          },
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "status",
+                "fieldValue": "pending_review"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          3136,
+          624
+        ],
+        "id": "1e82c018-ac14-4a67-b64b-96c769209f16",
+        "name": "update status1",
+        "executeOnce": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "jYr9UcuCbwO8Um80",
+            "name": "SB Cairnly (n8n cred)"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://falkoratlas.app.n8n.cloud/webhook/a4e3abe2-4a32-4a55-8457-829df0b30ef3",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ report_id: $json.report_id, preferred_language: $json.preferred_language }) }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          3584,
+          624
+        ],
+        "id": "8ed2c944-69f1-4cca-a0f7-532623048621",
+        "name": "Trigger WF2P webhook"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "claude-haiku-4-5-20251001",
+            "mode": "list",
+            "cachedResultName": "Claude Haiku 4.5"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+        "typeVersion": 1.3,
+        "position": [
+          2336,
+          976
+        ],
+        "id": "cd6bacee-4523-404c-992c-5ca496da1941",
+        "name": "Anthropic Chat Model1",
+        "disabled": true
+      }
+    ],
+    "connections": {
+      "Prep init_summary": {
+        "main": [
+          [
+            {
+              "node": "prompt_perso_prof1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SB insert all sections": {
+        "main": [
+          [
+            {
+              "node": "update status1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "pass report_id to WF2": {
+        "main": [
+          [
+            {
+              "node": "Trigger WF2P webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Survey Data1": {
+        "main": [
+          [
+            {
+              "node": "prompt_init_summary1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "prompt_init_summary1": {
+        "main": [
+          [
+            {
+              "node": "Initial_summary1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Initial_summary1": {
+        "main": [
+          [
+            {
+              "node": "Prep init_summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "3F": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Initial_summary1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "prompt_perso_prof1": {
+        "main": [
+          [
+            {
+              "node": "generate_personality_narrative1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "generate_personality_narrative1": {
+        "main": [
+          [
+            {
+              "node": "extract_report_sections_code1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "generate_personality_narrative1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "extract_report_sections_code1": {
+        "main": [
+          [
+            {
+              "node": "SB insert all sections",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "update status1": {
+        "main": [
+          [
+            {
+              "node": "pass report_id to WF2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Encore Survey complete Webhook": {
+        "main": [
+          [
+            {
+              "node": "Process Survey Data1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": []
+  },
   "meta": {
     "aiBuilderAssisted": true,
     "builderVariant": "mcp"
