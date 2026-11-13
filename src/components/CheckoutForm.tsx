@@ -66,6 +66,13 @@ const buildFormSchema = (t: (key: string) => string) =>
     acceptTerms: z.literal(true, {
       errorMap: () => ({ message: t('validation.acceptTerms') }),
     }),
+    // EU consumer law: for digital content the 14-day right of withdrawal only
+    // ends when the buyer explicitly asks to start right away and confirms
+    // they lose that right. Required, separate from the terms box (signed off
+    // by Sjoerd 2026-11-13, see terms section 4.3).
+    acceptWithdrawalWaiver: z.literal(true, {
+      errorMap: () => ({ message: t('validation.acceptWithdrawalWaiver') }),
+    }),
   });
 
 type CheckoutFormValues = z.infer<ReturnType<typeof buildFormSchema>>;
@@ -167,6 +174,7 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
       businessName: '',
       vatNumber: '',
       acceptTerms: undefined as unknown as true,
+      acceptWithdrawalWaiver: undefined as unknown as true,
     },
   });
 
@@ -500,6 +508,31 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
                     >
                       {t('form.termsOfService')}
                     </a>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="acceptWithdrawalWaiver"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-1">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value === true}
+                    onCheckedChange={(checked) => field.onChange(checked === true ? true : undefined)}
+                    className="border-atlas-teal/60 data-[state=checked]:bg-atlas-teal data-[state=checked]:border-atlas-teal"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel
+                    className="text-[13px] font-medium leading-snug"
+                    style={{ color: '#4B6373' }}
+                  >
+                    {t('form.withdrawalWaiver')}
                   </FormLabel>
                   <FormMessage />
                 </div>

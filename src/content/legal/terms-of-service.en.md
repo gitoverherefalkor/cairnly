@@ -1,6 +1,6 @@
 # Terms of Service
 
-Last updated: September 16, 2026
+Last updated: November 13, 2026
 
 ## 1. Acceptance of Terms
 
@@ -43,14 +43,14 @@ Access to our assessment services requires a valid access code, which can be obt
 
 ### 4.2 Payment Terms
 
-- All fees are non-refundable unless otherwise stated
+- Fees are refundable only as described in section 4.3
 - Prices are subject to change with notice
 - Payment processing is handled by secure third-party providers
 - Access codes have expiration dates as specified at purchase
 
 ### 4.3 Refund Policy
 
-Due to the nature of our digital assessment services, all sales are final. Refunds may be considered on a case-by-case basis for technical issues that prevent service delivery, subject to our discretion and investigation.
+Our assessments are digital content that starts as soon as you begin the survey. At checkout you ask us to start right away and confirm that you then lose the 14-day right of withdrawal. If a technical problem on our side stops you from getting your report, we fix it or refund you in full. Contact info@cairnly.io within 30 days of purchase.
 
 Notwithstanding the above, partial refunds may be issued to users who participate in the Cairnly Referral Programme. Such refunds are governed by the separate [Referral Programme Terms](/referral-terms) and are treated as retroactive reductions of the original purchase price.
 
