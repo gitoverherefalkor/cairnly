@@ -36,5 +36,29 @@
     "notConfigured": "Payment system is not properly configured. Please try again later or contact support.",
     "notActivated": "Payment system is not activated yet. Please try again later.",
     "generic": "An unexpected error occurred"
+  },
+  "success": {
+    "eyebrow": "Payment successful",
+    "title": "Thank you for your purchase!",
+    "toastTitle": "Purchase successful",
+    "toastBody": "Check your email for your access code.",
+    "errorToastTitle": "Payment processing error",
+    "errorToastBody": "An unexpected error occurred",
+    "processingEyebrow": "One moment",
+    "processingTitle": "Processing payment...",
+    "processingBody": "Please wait while we confirm your payment and generate your access code.",
+    "errorEyebrow": "Payment error",
+    "errorTitle": "Something went wrong",
+    "errorBody": "We were unable to process your payment. You will be redirected back to the homepage shortly.",
+    "returnHomeNow": "Return to home now",
+    "returnHome": "Return to home",
+    "codeLabel": "Your access code",
+    "codeNote": "This code will be filled in and checked for you later. As a backup we also sent it to your email.",
+    "otherDeviceBody": "Your payment went through. To continue, go back to the device where you started. Your assessment is ready and waiting for you there.",
+    "otherDeviceBackup": "We also emailed your access code as a backup.",
+    "continueHere": "Continue on this device instead",
+    "createAccountFirst": "To start your assessment, you first need to create an account.",
+    "createAccount": "Create account",
+    "startNow": "Start the assessment now"
   }
 }

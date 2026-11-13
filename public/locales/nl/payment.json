@@ -36,5 +36,29 @@
     "notConfigured": "Het betaalsysteem is niet juist geconfigureerd. Probeer het later opnieuw of neem contact op met support.",
     "notActivated": "Het betaalsysteem is nog niet geactiveerd. Probeer het later opnieuw.",
     "generic": "Er is een onverwachte fout opgetreden"
+  },
+  "success": {
+    "eyebrow": "Betaling gelukt",
+    "title": "Bedankt voor je aankoop!",
+    "toastTitle": "Aankoop gelukt",
+    "toastBody": "Je toegangscode staat in je e-mail.",
+    "errorToastTitle": "Fout bij verwerken betaling",
+    "errorToastBody": "Er ging iets onverwachts mis",
+    "processingEyebrow": "Een moment",
+    "processingTitle": "Betaling verwerken...",
+    "processingBody": "Even geduld, we bevestigen je betaling en maken je toegangscode aan.",
+    "errorEyebrow": "Betaalfout",
+    "errorTitle": "Er ging iets mis",
+    "errorBody": "We konden je betaling niet verwerken. Je gaat zo terug naar de homepage.",
+    "returnHomeNow": "Nu terug naar home",
+    "returnHome": "Terug naar home",
+    "codeLabel": "Je toegangscode",
+    "codeNote": "Deze code wordt straks automatisch ingevuld en gecontroleerd. Voor de zekerheid hebben we hem ook naar je e-mail gestuurd.",
+    "otherDeviceBody": "Je betaling is gelukt. Ga terug naar het apparaat waarop je begon om verder te gaan. Je assessment staat daar voor je klaar.",
+    "otherDeviceBackup": "We hebben je toegangscode ook gemaild, voor de zekerheid.",
+    "continueHere": "Toch op dit apparaat verder",
+    "createAccountFirst": "Om met je assessment te beginnen, maak je eerst een account aan.",
+    "createAccount": "Account aanmaken",
+    "startNow": "Start nu met het assessment"
   }
 }

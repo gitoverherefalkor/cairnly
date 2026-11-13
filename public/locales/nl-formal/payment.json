@@ -11,5 +11,17 @@
   },
   "validation": {
     "acceptTerms": "U moet akkoord gaan met het Privacybeleid en de Algemene voorwaarden."
+  },
+  "success": {
+    "title": "Bedankt voor uw aankoop!",
+    "toastBody": "Uw toegangscode staat in uw e-mail.",
+    "processingBody": "Een ogenblik geduld, we bevestigen uw betaling en maken uw toegangscode aan.",
+    "errorBody": "We konden uw betaling niet verwerken. U gaat zo terug naar de homepage.",
+    "codeLabel": "Uw toegangscode",
+    "codeNote": "Deze code wordt straks automatisch ingevuld en gecontroleerd. Voor de zekerheid hebben we hem ook naar uw e-mail gestuurd.",
+    "otherDeviceBody": "Uw betaling is gelukt. Ga terug naar het apparaat waarop u begon om verder te gaan. Uw assessment staat daar voor u klaar.",
+    "otherDeviceBackup": "We hebben uw toegangscode ook gemaild, voor de zekerheid.",
+    "createAccountFirst": "Om met uw assessment te beginnen, maakt u eerst een account aan.",
+    "startNow": "Begin nu met het assessment"
   }
 }

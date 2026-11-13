@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { clearStoredReferralCode } from '@/lib/referral';
 import { trackConversion } from '@/lib/analytics';
 import AuthShell from '@/components/auth/AuthShell';
+import { useTranslation } from 'react-i18next';
 
 // The "Purchase" conversion action from the Ads UI (created as "Page view" in
 // August, renamed and recategorised 2026-09-18; the label did not change).
@@ -56,6 +57,7 @@ const PaymentSuccess = () => {
   }>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('payment');
   const { user } = useAuth();
   // Did THIS device/browser start the checkout? CheckoutForm sets this flag
   // right before the Stripe redirect. If it's missing, the buyer almost
@@ -128,14 +130,14 @@ const PaymentSuccess = () => {
         trackConversion('purchase');
         setIsComplete(true);
         toast({
-          title: 'Purchase Successful!',
-          description: 'Check your email for your access code.',
+          title: t('success.toastTitle'),
+          description: t('success.toastBody'),
         });
       } catch (error) {
         console.error('Payment processing error:', error);
         toast({
-          title: 'Payment Processing Error',
-          description: error instanceof Error ? error.message : 'An unexpected error occurred',
+          title: t('success.errorToastTitle'),
+          description: error instanceof Error ? error.message : t('success.errorToastBody'),
           variant: 'destructive',
         });
 
@@ -147,7 +149,7 @@ const PaymentSuccess = () => {
     };
 
     processPayment();
-  }, [searchParams, navigate, toast]);
+  }, [searchParams, navigate, toast, t]);
 
   const handleStartAssessment = () => {
     if (!user) {
@@ -177,7 +179,7 @@ const PaymentSuccess = () => {
   // --- Loading state ---
   if (isProcessing) {
     return (
-      <AuthShell eyebrow="One moment" title="Processing Payment...">
+      <AuthShell eyebrow={t('success.processingEyebrow')} title={t('success.processingTitle')}>
         <div className="flex justify-center mb-4">
           <div
             className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
@@ -193,7 +195,7 @@ const PaymentSuccess = () => {
           className="text-center text-[15px] font-medium mx-auto"
           style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 360 }}
         >
-          Please wait while we confirm your payment and generate your access code.
+          {t('success.processingBody')}
         </p>
       </AuthShell>
     );
@@ -202,7 +204,7 @@ const PaymentSuccess = () => {
   // --- Error state ---
   if (!isComplete) {
     return (
-      <AuthShell eyebrow="Payment error" title="Something went wrong">
+      <AuthShell eyebrow={t('success.errorEyebrow')} title={t('success.errorTitle')}>
         <div className="flex justify-center mb-4">
           <div
             className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
@@ -218,10 +220,10 @@ const PaymentSuccess = () => {
           className="text-center text-[15px] font-medium mx-auto mb-6"
           style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 380 }}
         >
-          We were unable to process your payment. You will be redirected back to the homepage shortly.
+          {t('success.errorBody')}
         </p>
         <Button onClick={() => navigate('/')} className={primaryBtnCls}>
-          Return to Home Now
+          {t('success.returnHomeNow')}
         </Button>
       </AuthShell>
     );
@@ -234,7 +236,7 @@ const PaymentSuccess = () => {
         className="block text-center font-heading uppercase text-[11px] mb-2.5"
         style={{ color: '#C8891A', letterSpacing: '0.24em', fontWeight: 700 }}
       >
-        Your Access Code
+        {t('success.codeLabel')}
       </span>
       <div
         className="text-center rounded-xl"
@@ -264,7 +266,7 @@ const PaymentSuccess = () => {
       >
         {searchParams.get('demo') === 'true'
           ? 'This is a demo access code for testing purposes only.'
-          : 'This code will be automatically pre-filled and verified later, but as a backup it is also sent to your email.'}
+          : t('success.codeNote')}
       </p>
     </div>
   ) : null;
@@ -277,7 +279,7 @@ const PaymentSuccess = () => {
   // here if they really want to.
   if (!initiatedHere && searchParams.get('demo') !== 'true') {
     return (
-      <AuthShell eyebrow="Payment successful" title="Thank you for your purchase!" width="wide">
+      <AuthShell eyebrow={t('success.eyebrow')} title={t('success.title')} width="wide">
         <div className="flex justify-center mb-5">
           <div
             className="h-[72px] w-[72px] rounded-full flex items-center justify-center border"
@@ -293,14 +295,13 @@ const PaymentSuccess = () => {
           className="text-center text-[15px] font-medium mx-auto mb-2"
           style={{ color: '#1F2937', lineHeight: 1.5, maxWidth: 380 }}
         >
-          Your payment went through. To continue, head back to the device where
-          you started. Your assessment is ready and waiting for you there.
+          {t('success.otherDeviceBody')}
         </p>
         <p
           className="text-center text-[13px] font-medium mx-auto mb-5"
           style={{ color: '#6B7F8B', maxWidth: 380 }}
         >
-          We also emailed your access code as a backup.
+          {t('success.otherDeviceBackup')}
         </p>
 
         <div className="space-y-2.5">
@@ -310,7 +311,7 @@ const PaymentSuccess = () => {
             className={ghostBtnCls}
             style={ghostBtnStyle}
           >
-            Continue on this device instead
+            {t('success.continueHere')}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
           <Button
@@ -320,7 +321,7 @@ const PaymentSuccess = () => {
             style={ghostBtnStyle}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Return to Home
+            {t('success.returnHome')}
           </Button>
         </div>
       </AuthShell>
@@ -330,8 +331,8 @@ const PaymentSuccess = () => {
   // --- Success state ---
   return (
     <AuthShell
-      eyebrow="Payment successful"
-      title="Thank you for your purchase!"
+      eyebrow={t('success.eyebrow')}
+      title={t('success.title')}
       width="wide"
     >
       <div className="flex justify-center mb-5">
@@ -354,18 +355,18 @@ const PaymentSuccess = () => {
             className="text-[14px] font-medium text-center mb-1"
             style={{ color: '#1F2937', lineHeight: 1.5 }}
           >
-            To start your assessment, you'll need to create an account first.
+            {t('success.createAccountFirst')}
           </p>
         )}
         <Button onClick={handleStartAssessment} size="lg" className={primaryBtnCls}>
           {!user ? (
             <>
-              Create Account
+              {t('success.createAccount')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </>
           ) : (
             <>
-              Start Assessment Now
+              {t('success.startNow')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </>
           )}
@@ -378,7 +379,7 @@ const PaymentSuccess = () => {
           style={ghostBtnStyle}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Return to Home
+          {t('success.returnHome')}
         </Button>
       </div>
     </AuthShell>
