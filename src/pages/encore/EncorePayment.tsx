@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckoutForm } from '../../components/CheckoutForm';
 import AuthShell from '@/components/auth/AuthShell';
 import AuthNavigation from '@/components/auth/AuthNavigation';
+import { useFormalDutch } from '@/hooks/useFormalDutch';
 
 /**
  * Checkout for the Encore flavor (cairnly.io/encore). Same machinery as the
@@ -11,6 +12,7 @@ import AuthNavigation from '@/components/auth/AuthNavigation';
  */
 export default function EncorePayment() {
   const { t } = useTranslation('encore');
+  useFormalDutch(true);
 
   return (
     <AuthShell

@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { getSurveyIdFromAccessCode } from '../constants';
 
 export const useSurveyCompletion = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation('survey');
 
   const handleSurveyComplete = async (
     responses: Record<string, any>,
@@ -18,8 +20,8 @@ export const useSurveyCompletion = () => {
     if (!accessCodeData || !user) {
       console.error('Missing required data for survey completion:', { accessCodeData, user });
       toast({
-        title: "Error",
-        description: "Missing required data to complete survey.",
+        title: t('submitToast.errorTitle'),
+        description: t('submitToast.missingData'),
         variant: "destructive",
       });
       return;
@@ -55,16 +57,16 @@ export const useSurveyCompletion = () => {
       onSessionClear();
       
       toast({
-        title: "Assessment Complete!",
-        description: "Your assessment has been submitted successfully.",
+        title: t('submitToast.completeTitle'),
+        description: t('submitToast.completeDescription'),
       });
       
       setIsCompleted(true);
     } catch (error) {
       console.error('Error saving report:', error);
       toast({
-        title: "Warning",
-        description: "Assessment completed but failed to save report. Your responses were submitted successfully.",
+        title: t('submitToast.warningTitle'),
+        description: t('submitToast.savedButReportFailed'),
         variant: "destructive",
       });
       setIsCompleted(true); // Still mark as completed even if report save failed
