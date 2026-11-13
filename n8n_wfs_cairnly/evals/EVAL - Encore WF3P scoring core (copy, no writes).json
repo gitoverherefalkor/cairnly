@@ -1,7 +1,7 @@
 {
   "id": "yoRGLPj80geyRZTS",
   "name": "EVAL - Encore WF3P scoring core (copy, no writes)",
-  "versionId": "25bc30ee-4860-4418-b8da-373cec3d7414",
+  "versionId": "f3377f7c-fb53-41e8-9509-05affceba20b",
   "nodes": [
     {
       "parameters": {
@@ -150,7 +150,9 @@
     {
       "parameters": {
         "modelName": "models/gemini-flash-latest",
-        "options": {}
+        "options": {
+          "temperature": 0.2
+        }
       },
       "id": "7762c6b2-99d5-4b99-b289-d64274ad3335",
       "name": "Google Gemini Chat Model",
@@ -170,7 +172,9 @@
     {
       "parameters": {
         "modelName": "models/gemini-flash-latest",
-        "options": {}
+        "options": {
+          "temperature": 0.2
+        }
       },
       "id": "9f9db966-bc6f-4e2d-ab63-56b865fcf509",
       "name": "Google Gemini Chat Model2",
@@ -207,7 +211,9 @@
     {
       "parameters": {
         "modelName": "models/gemini-flash-latest",
-        "options": {}
+        "options": {
+          "temperature": 0.2
+        }
       },
       "id": "f1dc38dc-4d79-4281-ace7-088214196418",
       "name": "Google Gemini Chat Model3",
