@@ -179,6 +179,7 @@ Pre-existing objects got explicit grants in `20261020120000_explicit_data_api_gr
 
   Still required: present a brief plan (nodes + prompt + Supabase update shape) in chat before calling the API, so the user can spot anything obviously wrong before it lands. Do not activate the workflow yourself — that's a user action.
 - **Workflow exports**: JSON backups are in `n8n_wfs_cairnly/` folder
+- **Publishing Encore workflows (Sjoerd, 2026-11-13):** Claude may publish its own tested changes to the Encore workflows (WF1P `e8CCWoDbMuAmBId5`, WF2P `HOuMhANfFnDjUqmw`, WF3P `oqS22CXD84dAqwjk`, WF4P `ID5CaNR7Ux7TEzS5`) with the n8n connector's `publish_workflow`, without asking Sjoerd to press Publish. Export first, test, then publish. Never publish Pro/Starter workflows (WF0-WF9, WFX, Error Handler) without Sjoerd's explicit per-workflow yes.
 
 ### Workflow IDs (current architecture)
 | Workflow | ID | Purpose |
