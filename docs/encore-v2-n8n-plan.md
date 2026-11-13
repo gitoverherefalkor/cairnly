@@ -97,3 +97,9 @@ Four personas ran end to end (findings: /mnt/project-files/encore-tests/runs/202
 - NL top_career_3 cut off (Henk, Marjan): output hit maxTokensToSample 16000. Raised to 21000 on all three WF4P Anthropic models (32000 failed: the Anthropic SDK requires streaming above ~21333 max tokens); Split Top3 throws when direction 3 has no comparison JSON.
 - Peter had 10 of 15 enriched rows: a stray `]` in one Enrich B batch failed the whole batch. WF2P "clean up JSON1" now repairs stray/missing brackets and trailing commas and falls back to per-object parsing; warns when fewer than 15 come out.
 - Open: ranking ignores form (3.4) and pay (proposed hard rules: 2 of top 3 in a ticked form, no unpaid in top 3 when pay matters, non-negotiable clash never #1); OOB names organisations and invents roles/quotes; NL reports show English AI labels including off-scale "Low"; scores vary between identical runs (observation).
+
+## Persona test round 3 fixes (2026-11-13, need Publish of WF2P, WF3P, WF4P)
+- WF2P: Enrich B only received title and company, so it invented salary (one batch of five in US dollars), AI ratings (off-scale "Low") and path types. "combine to " now feeds it the 15TitSizAISal1 items, and "clean up JSON1" puts the upstream salary, ai_impact_rating, path_type and path_type_notes back after enrichment.
+- WF3P OOB prompt: new HARD LIMITS ON FACTS block (no named organisations, no quotes, only real searchable titles, never refer to "the personality profile").
+- WF4P idea prompt: Dutch bullet lead-ins (Contact en energie, Tijd en ritme, Geld), no English words, Dutch titles for other directions.
+- Not changed: AI labels stay English in the report text by design (CareerScoreCard parses them; pills translate). Showing them in Dutch in the body is a frontend display change that also affects Pro NL. Hours steering, spread rule and score stability wait on Sjoerd's ranking decision.
