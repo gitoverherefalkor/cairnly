@@ -73,6 +73,9 @@ export interface ReportSection {
       model?: string;
     }
   > | null;
+  // Language the `content` itself is written in. 'en' for the canonical
+  // pipeline; Encore writes Dutch natively ('nl', no content_i18n needed).
+  language?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -21,6 +21,7 @@ import { extractAIImpact } from '@/components/chat/CareerScoreCard';
 import { iconForSubsection } from '@/components/chat/subsectionIcons';
 import { iconForSection, eyebrowFor, anchorFor, photoKeyFor } from './printSectionMeta';
 import { PrintChip } from './PrintGroupHeader';
+import { stripSavedFollowUps } from './printSavedResponses';
 import { introFor, type PrintLang } from './printIntros';
 
 /** The AI sometimes emits HTML instead of Markdown. Normalise to Markdown so
@@ -402,7 +403,11 @@ export const PrintSection: React.FC<{
         remarkPlugins={[remarkGfm]}
         components={nested ? MD_COMPONENTS_NESTED : MD_COMPONENTS_TOP}
       >
-        {htmlToMarkdown(sectionText(section, lang))}
+        {htmlToMarkdown(
+          section.section_type === 'chat_highlights'
+            ? stripSavedFollowUps(sectionText(section, lang))
+            : sectionText(section, lang),
+        )}
       </ReactMarkdown>
     </section>
   );

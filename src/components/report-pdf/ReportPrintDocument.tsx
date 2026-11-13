@@ -169,8 +169,16 @@ const ENCORE_STRINGS: Record<'en' | 'nl', { [K in keyof (typeof STRINGS)['en']]:
  *  preferred_language, honoured only when EVERY translatable section carries
  *  that translation — all-or-nothing, so chrome and prose always agree and a
  *  PDF is never mixed-language. Anything else renders fully in English (the
- *  canonical content, always present). chat_highlights is natively in the
+ *  canonical content, always present). A section whose own content is in the
+ *  language already (Encore's native Dutch) counts as translated.
+ *  chat_highlights is natively in the
  *  user's language and never translated, so it is excluded from the check. */
+/** True when the section's own content is already written in `lang`
+ *  (Encore writes Dutch natively, language='nl', with no content_i18n). */
+function isNativeIn(s: ReportSection, lang: string): boolean {
+  return String(s.language ?? '').slice(0, 2).toLowerCase() === lang;
+}
+
 export function resolveLang(sections: ReportSection[], preferred: string | null | undefined): PrintLang {
   const lang = String(preferred ?? 'en').slice(0, 2).toLowerCase();
   if (lang !== 'nl') return 'en'; // PrintLang currently supports en | nl
@@ -181,7 +189,8 @@ export function resolveLang(sections: ReportSection[], preferred: string | null 
       (s.content ?? '').length > 0,
   );
   const complete =
-    translatable.length > 0 && translatable.every((s) => hasTranslation(s, lang));
+    translatable.length > 0 &&
+    translatable.every((s) => hasTranslation(s, lang) || isNativeIn(s, lang));
   return complete ? 'nl' : 'en';
 }
 

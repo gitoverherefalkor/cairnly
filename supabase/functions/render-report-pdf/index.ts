@@ -115,7 +115,7 @@ serve(async (req) => {
   if (preferred !== 'en') {
     const { data: sectionRows } = await supabase
       .from('report_sections')
-      .select('section_type, content, content_i18n')
+      .select('section_type, content, content_i18n, language')
       .eq('report_id', reportId);
     const translatable = (sectionRows ?? []).filter(
       (s) =>
@@ -124,7 +124,12 @@ serve(async (req) => {
         !/_feedback$/.test(s.section_type) &&
         (s.content ?? '').length > 0,
     );
-    if (translatable.length > 0 && translatable.every((s) => sectionI18n(s, preferred) !== null)) {
+    if (translatable.length > 0 && translatable.every(
+        (s) =>
+          sectionI18n(s, preferred) !== null ||
+          // Encore writes Dutch natively: content already in the language.
+          String(s.language ?? '').slice(0, 2).toLowerCase() === preferred,
+      )) {
       reportLanguage = preferred;
     }
   }
