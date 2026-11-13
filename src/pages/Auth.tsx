@@ -20,6 +20,9 @@ const Auth = () => {
   useEffect(() => {
     if (flowFromUrl === 'signup') {
       setIsLogin(false);
+    } else if (flowFromUrl === 'signin') {
+      // Sent here from the signup step when the email already has an account.
+      setIsLogin(true);
     }
 
     // Only check auth if NOT coming from payment flow

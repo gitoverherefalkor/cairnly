@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
 import { isAdminEmail } from '@/lib/admins';
+import { rememberPendingAccessCode, takePendingAccessCode } from '@/lib/pendingAccessCode';
+import { claimPendingCode } from '@/lib/claimAccessCode';
 
 interface EmailPasswordFormProps {
   isLogin: boolean;
@@ -87,6 +89,10 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
   const [emailSent, setEmailSent] = useState(false);
   const [sentToEmail, setSentToEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
+  // Set when a buyer's signup hits "email already registered": they paid with
+  // an email that already has an account. The new code is remembered and we
+  // offer sign-in, which claims it, instead of a dead end.
+  const [existingAccount, setExistingAccount] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -142,6 +148,19 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
         }
 
         if (data.user) {
+          // A code waiting to be added to this account (bought with an email
+          // that already had an account): bind it first, so the entitlement
+          // check below counts it and the dashboard offers the new assessment.
+          const pending = takePendingAccessCode();
+          if (pending) {
+            const claimError = await claimPendingCode(pending, data.session?.access_token);
+            if (claimError) {
+              toast({ title: t('errors.codeNotAdded'), description: claimError, variant: 'destructive' });
+            } else {
+              toast({ title: t('toasts.purchaseAdded'), description: t('toasts.purchaseAddedDesc') });
+            }
+          }
+
           // Entitlement gate: if this user has no purchase / no product activity,
           // sign them back out and bounce to the landing page with a banner.
           // Admins pass (routing only; ops calls are checked server-side).
@@ -211,11 +230,21 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
           // registered, password rejected) sits on error.context, so read it there
           // or the user gets a meaningless message and just retries forever.
           const body = await readFunctionError(signupError);
+          if (body?.code === 'email_exists') {
+            rememberPendingAccessCode(`?code=${encodeURIComponent(accessCode)}`, i18n.language);
+            setExistingAccount(true);
+            return;
+          }
           setError(mapSignupError(body, t));
           return;
         }
 
         if (signupData?.error) {
+          if (signupData.code === 'email_exists') {
+            rememberPendingAccessCode(`?code=${encodeURIComponent(accessCode)}`, i18n.language);
+            setExistingAccount(true);
+            return;
+          }
           setError(mapSignupError(signupData, t));
           return;
         }
@@ -272,6 +301,32 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
       setIsResending(false);
     }
   };
+
+  // Paid with an email that already has an account: send them to sign in.
+  // Their password stays theirs; the code is claimed after the sign-in.
+  if (existingAccount && !isLogin) {
+    return (
+      <div className="space-y-4 py-2 text-center">
+        <h3 className="text-lg font-bold" style={{ color: '#122E3B' }}>
+          {t('existingAccount.title')}
+        </h3>
+        <p className="text-sm" style={{ color: '#4B6373' }}>
+          {t('existingAccount.body', { email: formData.email })}
+        </p>
+        <Button
+          type="button"
+          onClick={() => {
+            setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }));
+            setExistingAccount(false);
+            navigate('/auth?flow=signin');
+          }}
+          className="w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold"
+        >
+          {t('existingAccount.signIn')}
+        </Button>
+      </div>
+    );
+  }
 
   // Show confirmation screen after successful signup
   if (emailSent) {

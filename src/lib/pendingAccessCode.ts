@@ -12,6 +12,12 @@
  * browsing context. The entry expires so a code from an abandoned attempt
  * cannot attach itself to an unrelated sign-in days later.
  */
+/*
+ * Also used by email sign-in: a buyer who pays with an email that already has
+ * an account is sent from the signup step to sign in, with the new code
+ * remembered here, and EmailPasswordForm claims it right after the password
+ * sign-in (before the entitlement check).
+ */
 const KEY = 'cairnly_pending_access_code';
 export const PENDING_CODE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 
@@ -55,3 +61,4 @@ export function takePendingAccessCode(now = Date.now()): PendingAccessCode | nul
     return null;
   }
 }
+

@@ -36,3 +36,17 @@ describe('pending access code across an OAuth round trip', () => {
     expect(takePendingAccessCode(PENDING_CODE_MAX_AGE_MS + 1)).toBeNull();
   });
 });
+
+describe('code bought with an email that already has an account', () => {
+  it('is remembered from the signup step and survives the switch to sign-in', () => {
+    // EmailPasswordForm builds this query from the code on the signup page.
+    rememberPendingAccessCode('?code=hn4r-ff3a-t783-dumr', 'nl-NL', 5_000);
+    expect(takePendingAccessCode(6_000)).toEqual({ code: 'HN4R-FF3A-T783-DUMR', lang: 'nl' });
+  });
+
+  it('is not overwritten when the sign-in page (no code in the URL) starts an OAuth sign-in', () => {
+    rememberPendingAccessCode('?code=HN4R-FF3A-T783-DUMR', 'en', 5_000);
+    rememberPendingAccessCode('?flow=signin', 'en', 6_000);
+    expect(takePendingAccessCode(7_000)?.code).toBe('HN4R-FF3A-T783-DUMR');
+  });
+});
