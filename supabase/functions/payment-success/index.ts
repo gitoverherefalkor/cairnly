@@ -73,10 +73,33 @@ const ACCESS_CODE_COPY = {
   },
 } as const;
 
+// Encore buyers (older readers) get their own wording; Dutch in formal "u"
+// (Sjoerd 2026-11-08: Encore Dutch is "u" everywhere it is cheap).
+const ACCESS_CODE_COPY_ENCORE = {
+  en: {
+    ...ACCESS_CODE_COPY.en,
+    subject: "Your Cairnly Encore access code",
+    p1: "Thank you for choosing Cairnly Encore. Your questions are ready for you on the platform, and you can pick up where you left off.",
+  },
+  nl: {
+    subject: "Uw Cairnly Encore-toegangscode",
+    preheader: "Uw aankoop is gelukt. Bewaar uw toegangscode goed.",
+    heading: "Uw aankoop is gelukt",
+    greeting: (f: string, l: string) => `Beste ${f} ${l},`,
+    p1: "Dank u wel voor uw aankoop van Cairnly Encore. Uw vragenlijst staat klaar op het platform en u kunt verdergaan waar u was gebleven.",
+    keepSafe:
+      '<strong style="color:#122E3B;font-weight:700;">Bewaar deze toegangscode goed.</strong> Hiermee kunt u altijd opnieuw inloggen en verdergaan.',
+    backToDashboard:
+      'Wilt u later verder? Ga naar uw <a href="https://cairnly.io/dashboard" style="color:#1F8282;text-decoration:underline;font-weight:600;">dashboard</a>. Daar vindt u uw vragenlijst en later uw rapport.',
+    fineprint:
+      "Uw toegangscode is vanaf vandaag een jaar geldig. Heeft u vragen? Mail ons gerust via info@cairnly.io.",
+  },
+} as const;
+
 // Function to send the access code email
-async function sendAccessCodeEmail(email: string, firstName: string, lastName: string, accessCode: string, lang: Lang) {
+async function sendAccessCodeEmail(email: string, firstName: string, lastName: string, accessCode: string, lang: Lang, encore = false) {
   try {
-    const c = ACCESS_CODE_COPY[lang];
+    const c = encore ? ACCESS_CODE_COPY_ENCORE[lang] : ACCESS_CODE_COPY[lang];
     const bodyHtml = bodyRow(
       h1(c.heading) +
       paragraph(c.greeting(firstName, lastName)) +
@@ -758,7 +781,7 @@ serve(async (req) => {
 
     // Send the access code via email
     if (customerEmail) {
-      const emailSent = await sendAccessCodeEmail(customerEmail, firstName, lastName, accessCode, buyerLang);
+      const emailSent = await sendAccessCodeEmail(customerEmail, firstName, lastName, accessCode, buyerLang, session.metadata?.flavor === "encore");
       if (!emailSent) {
         console.warn("Warning: Email could not be sent, but purchase was successful");
       }

@@ -150,7 +150,40 @@ serve(async (req) => {
         fineprint: 'Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren.',
       },
     } as const;
-    const c = COPY[lang];
+    // Encore (older readers): own wording, Dutch in formal "u". reports.survey_id
+    // is often NULL, so the owner's most recent access code names the product
+    // (same check as translate-section).
+    const { data: lastCode } = await supabase
+      .from('access_codes')
+      .select('survey_type')
+      .eq('user_id', report.user_id)
+      .order('used_at', { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+    const isEncore = /^encore/i.test(String(lastCode?.survey_type ?? ''));
+    const ENCORE_COPY = {
+      en: {
+        subject: 'Your Cairnly Encore report is ready',
+        preheader: 'Your answers have been read and your directions are ready.',
+        h1: `Your Encore report is ready, ${firstName}`,
+        p1: `We have read your answers and worked out a profile of who you are now, plus directions that fit this stage of your life. Your coach is ready to go through them with you, one part at a time.`,
+        calloutTitle: 'Takes about 20 to 30 minutes',
+        calloutBody: 'Everything is saved, so you can stop and come back whenever you like.',
+        cta: 'Open your report',
+        fineprint: COPY.en.fineprint,
+      },
+      nl: {
+        subject: 'Uw Cairnly Encore-rapport is klaar',
+        preheader: 'Uw antwoorden zijn verwerkt en uw richtingen staan klaar.',
+        h1: `Uw Encore-rapport is klaar, ${firstName}`,
+        p1: `We hebben uw antwoorden gelezen en een beeld gemaakt van wie u nu bent, met richtingen die passen bij deze fase van uw leven. Uw coach loopt ze graag stap voor stap met u door.`,
+        calloutTitle: 'Duurt ongeveer 20 tot 30 minuten',
+        calloutBody: 'Alles wordt bewaard, dus u kunt op elk moment stoppen en later verdergaan.',
+        cta: 'Open uw rapport',
+        fineprint: 'Heeft u dit niet aangevraagd? Dan kunt u deze e-mail negeren.',
+      },
+    } as const;
+    const c = isEncore ? ENCORE_COPY[lang] : COPY[lang];
     const subject = c.subject;
 
     const bodyHtml =
