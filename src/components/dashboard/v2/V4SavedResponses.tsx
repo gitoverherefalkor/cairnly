@@ -96,7 +96,7 @@ function htmlToMarkdown(text: string): string {
 // supabase/functions/wrap-up-save/index.ts.
 const SAVED_RESPONSES_HEADING = /\n*#{3,5}\s*(?:Saved Responses|Bewaarde antwoorden)/i;
 const ALSO_FLAGGED_HEADING =
-  /\n*#{3,5}\s*(?:Also flagged by you|Ook door jou aangemerkt)[\s\S]*$/i;
+  /\n*#{3,5}\s*(?:Also flagged by you|Ook door (?:jou|u) aangemerkt)[\s\S]*$/i;
 
 function summaryOnly(content: string): string {
   const savedIdx = content.search(SAVED_RESPONSES_HEADING);

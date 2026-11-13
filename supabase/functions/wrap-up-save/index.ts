@@ -31,6 +31,7 @@ import {
   errorResponse,
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
+import { getReportProduct } from '../_shared/product.ts';
 
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
@@ -110,13 +111,16 @@ serve(async (req) => {
     .select('preferred_language')
     .eq('id', authUserId)
     .maybeSingle();
+  // Encore speaks Dutch in the formal "u" form; Pro Dutch uses "je".
+  const encore =
+    langRow?.preferred_language === 'nl' ? (await getReportProduct(supabase, report_id)).encore : false;
   const wrapUpLabels =
     langRow?.preferred_language === 'nl'
       ? {
           title: '<h3>Gespreksinzichten</h3>',
           savedResponses: 'Bewaarde antwoorden',
           savedResponse: 'Bewaard antwoord',
-          alsoFlagged: 'Ook door jou aangemerkt',
+          alsoFlagged: encore ? 'Ook door u aangemerkt' : 'Ook door jou aangemerkt',
         }
       : {
           title: '<h3>Discussion Highlights</h3>',
