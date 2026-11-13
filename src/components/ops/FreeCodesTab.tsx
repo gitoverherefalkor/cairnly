@@ -215,7 +215,7 @@ const FreeCodesTab: React.FC = () => {
           <select
             value={product}
             onChange={(e) => setProduct(e.target.value as 'pro' | 'encore')}
-            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+            className="mt-0.5 block h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
           >
             <option value="encore">Encore</option>
             <option value="pro">Pro</option>
@@ -226,7 +226,7 @@ const FreeCodesTab: React.FC = () => {
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as 'nl' | 'en')}
-            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+            className="mt-0.5 block h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
           >
             <option value="nl">Nederlands</option>
             <option value="en">English</option>
