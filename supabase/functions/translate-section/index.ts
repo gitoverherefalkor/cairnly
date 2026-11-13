@@ -446,7 +446,20 @@ serve(async (req) => {
       .select('user_id, survey_id')
       .eq('id', resolvedReportId)
       .single();
-    const encore = ENCORE_SURVEY_IDS.has(String(report?.survey_id ?? ''));
+    // reports.survey_id is often NULL (all round 6 Encore reports had none),
+    // so fall back to the owner's most recent access code, whose survey_type
+    // names the product ("Encore - Post-Career Direction - 2026 v2").
+    let encore = ENCORE_SURVEY_IDS.has(String(report?.survey_id ?? ''));
+    if (!encore && !report?.survey_id && report?.user_id) {
+      const { data: code } = await supabase
+        .from('access_codes')
+        .select('survey_type')
+        .eq('user_id', report.user_id)
+        .order('used_at', { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      encore = /^encore/i.test(String(code?.survey_type ?? ''));
+    }
 
     // Resolve the target language (explicit param, else the owner's profile).
     let target: Lang;
