@@ -187,6 +187,8 @@ export function useReferralStatus() {
   // Ops > Employers). Nothing to refund then, so the dashboard toolkit shows the
   // three tools and drops the money-back row. Reads the user's own codes, which
   // RLS allows (access_codes_user_select_own).
+  // Same for a free code (bypass_payment, e.g. Encore test codes): the user
+  // paid nothing, so "earn your money back" makes no sense (round 6, #14).
   const sponsoredQuery = useQuery({
     queryKey: ['employer-sponsored', user?.id],
     queryFn: async (): Promise<boolean> => {
@@ -195,7 +197,7 @@ export function useReferralStatus() {
         .from('access_codes')
         .select('id')
         .eq('user_id', user.id)
-        .eq('employer_code_kind', 'seat')
+        .or('employer_code_kind.eq.seat,bypass_payment.eq.true')
         .limit(1);
       if (error) {
         console.error('sponsored lookup failed:', error);

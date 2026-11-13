@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, Mail, AlertCircle, ArrowRight } from 'lucide-react';
 import CairnProgress from '@/components/survey/CairnProgress';
+import { isEncoreSurveyId } from '@/components/assessment/constants';
 
 // Stepper stages — timed to feel like real progress through the n8n pipeline
 // (WF1 personality → WF2 research → WF3 scoring → WF4 career narratives).
@@ -24,9 +25,14 @@ const STEPS = [
   { id: 'coach', labelKey: 'reportProcessing.steps.coach', delay: 240 },
 ];
 
-// Timeout thresholds (seconds)
-const SOFT_WARNING_AT = 5 * 60;   // 5 minutes — the normal pipeline finishes around here
-const END_STATE_AT = 8 * 60;      // 8 minutes — genuine "something's wrong" threshold
+// Timeout thresholds (seconds). Pro/Starter finish WF3 around 5 minutes.
+// Encore's WF3P (scoring + outside-the-box) lands 8-10 minutes after submit
+// (round 6, 2026-11-13), so the Pro thresholds showed "support notified"
+// while the coach was about to open. Encore gets its own, later thresholds.
+const THRESHOLDS = {
+  pro: { soft: 5 * 60, end: 8 * 60 },
+  encore: { soft: 9 * 60, end: 16 * 60 },
+};
 const POLL_INTERVAL = 15_000;     // 15 seconds
 
 type Phase = 'normal' | 'soft-warning' | 'end-state' | 'redirecting' | 'failed';
@@ -34,6 +40,8 @@ type Phase = 'normal' | 'soft-warning' | 'end-state' | 'redirecting' | 'failed';
 const ReportProcessing = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [phase, setPhase] = useState<Phase>('normal');
+  const [isEncore, setIsEncore] = useState(false);
+  const { soft: SOFT_WARNING_AT, end: END_STATE_AT } = isEncore ? THRESHOLDS.encore : THRESHOLDS.pro;
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -67,7 +75,7 @@ const ReportProcessing = () => {
     try {
       const { data: reports, error } = await supabase
         .from('reports')
-        .select('id, status')
+        .select('id, status, payload')
         .eq('user_id', user.id)
         .in('status', ['processing', 'completed', 'pending_review', 'failed'])
         .order('created_at', { ascending: false })
@@ -78,6 +86,8 @@ const ReportProcessing = () => {
       if (!reports || reports.length === 0) return; // report row not created yet — keep waiting
 
       const report = reports[0];
+      const surveyId = (report.payload as { survey_id?: string } | null)?.survey_id;
+      if (isEncoreSurveyId(surveyId)) setIsEncore(true);
 
       if (report.status === 'failed') {
         setPhase('failed');
@@ -137,7 +147,7 @@ const ReportProcessing = () => {
     if (phase === 'redirecting') return;
     if (timeElapsed >= END_STATE_AT) setPhase('end-state');
     else if (timeElapsed >= SOFT_WARNING_AT) setPhase('soft-warning');
-  }, [timeElapsed, phase]);
+  }, [timeElapsed, phase, SOFT_WARNING_AT, END_STATE_AT]);
 
   if (authLoading) {
     return (
@@ -162,6 +172,8 @@ const ReportProcessing = () => {
               <NormalState
                 timeElapsed={timeElapsed}
                 phase={phase}
+                softWarningAt={SOFT_WARNING_AT}
+                isEncore={isEncore}
                 onDashboard={goToDashboard}
               />
             )}
@@ -176,10 +188,14 @@ const ReportProcessing = () => {
 function NormalState({
   timeElapsed,
   phase,
+  softWarningAt,
+  isEncore,
   onDashboard,
 }: {
+  isEncore: boolean;
   timeElapsed: number;
   phase: Phase;
+  softWarningAt: number;
   onDashboard: () => void;
 }) {
   const { t } = useTranslation('survey');
@@ -200,7 +216,7 @@ function NormalState({
         <p className="text-sm text-gray-500">
           {phase === 'soft-warning'
             ? t('reportProcessing.header.subtitleSoftWarning')
-            : t('reportProcessing.header.subtitle')}
+            : t(isEncore ? 'reportProcessing.header.subtitleEncore' : 'reportProcessing.header.subtitle')}
         </p>
       </div>
 
@@ -243,7 +259,7 @@ function NormalState({
         <div
           className="h-full bg-atlas-teal/60 rounded-full transition-all duration-1000 ease-out"
           style={{
-            width: `${Math.min(100, phase === 'soft-warning' ? 100 : (timeElapsed / SOFT_WARNING_AT) * 100)}%`,
+            width: `${Math.min(100, phase === 'soft-warning' ? 100 : (timeElapsed / softWarningAt) * 100)}%`,
           }}
         />
       </div>

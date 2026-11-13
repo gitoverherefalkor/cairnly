@@ -344,7 +344,8 @@
       "eyebrow": "Alle zeven onderdelen afgerond",
       "title": "Je profiel wordt opgebouwd",
       "subtitleSoftWarning": "Bijna klaar, we ronden het laatste af.",
-      "subtitle": "Dit duurt meestal ongeveer 5 minuten."
+      "subtitle": "Dit duurt meestal ongeveer 5 minuten.",
+      "subtitleEncore": "Dit duurt meestal ongeveer 10 minuten."
     },
     "leaveNote": "Je kunt deze pagina rustig sluiten. We mailen je zodra je coach klaarstaat.",
     "goToDashboard": "Naar dashboard",

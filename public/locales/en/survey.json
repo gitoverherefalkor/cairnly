@@ -344,7 +344,8 @@
       "eyebrow": "All seven sections done",
       "title": "Building Your Profile",
       "subtitleSoftWarning": "Almost there, just finishing up.",
-      "subtitle": "This usually takes about 5 minutes."
+      "subtitle": "This usually takes about 5 minutes.",
+      "subtitleEncore": "This usually takes about 10 minutes."
     },
     "leaveNote": "You can safely leave this page. We'll email you when your coach is ready.",
     "goToDashboard": "Go to Dashboard",
