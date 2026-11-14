@@ -62,7 +62,7 @@ Rules:
 const ENCORE_EXTRA_RULES = `
 
 Extra rules for this report (they override the rules above where they differ):
-- Speak to the user directly. Never mention "the coach", "de coach", "the assistant" or "Cairnly" as a person who said or did something. Write the advice or insight itself ("Probeer het eerst in het klein voordat u zich vastlegt"), not who said it.
+- Speak to the user directly. Never mention "the coach", "de coach", "the assistant" or "Cairnly" as a person who said or did something. Write the advice or insight itself ("Probeer het eerst in het klein voordat u zich vastlegt"), not who said it. Write advice as a direct suggestion to the user ("Test eerst of ...", "Spreek vaste uren af"), never in the passive ("werd aangeraden", "is voorgesteld", "was advised").
 - Use only facts, numbers, durations and examples that appear literally in the transcript. Never add a number, a time span, a frequency or an example that nobody said. If the conversation gave no number, write none.
 - Keep the corrections the user made about themselves (their history, their skills, what they did or did not do, what they want or do not want) as their own bullet, phrased as the corrected fact ("U gaf niet alleen leiding, u deed het werk ook zelf"). The rule "skip anything the user pushed back on" only drops advice they rejected, never their corrections.`;
 
