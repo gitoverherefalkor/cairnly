@@ -381,15 +381,25 @@ async function translateOne(
           if ('failure' in translatedCmp) comparisonFailure = translatedCmp.failure;
           else comparisonEntry = translatedCmp;
         }
-        // Write, guarded on the content we translated: if the section was
-        // rewritten mid-flight, this update matches 0 rows and we skip.
+        // A section title that has a pinned translation always gets it, also
+        // when the model kept the English (round 13: Encore's exec summary
+        // stayed "Executive Summary" on the Dutch dashboard).
+        const pinnedTitle = (() => {
+          if (!row.title) return parsed.title;
+          const plain = row.title.replace(/<[^>]+>/g, '').trim();
+          const pins = pinsFor(target, encore);
+          const key = Object.keys(pins).find((k) => k.toLowerCase() === plain.toLowerCase());
+          return key ? row.title.replace(plain, pins[key]) : parsed.title;
+        })();
         const entry = {
-          title: parsed.title,
+          title: pinnedTitle,
           content: parsed.content,
           translated_at: new Date().toISOString(),
           model: MODEL,
           ...(comparisonEntry ? { comparison: comparisonEntry } : {}),
         };
+        // Write, guarded on the content we translated: if the section was
+        // rewritten mid-flight, this update matches 0 rows and we skip.
         const { data: fresh } = await supabase
           .from('report_sections')
           .select('content_i18n')
