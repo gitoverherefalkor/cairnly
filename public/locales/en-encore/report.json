@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "values": {
+      "title": "Your Values"
+    },
+    "firstCareer": "Strongest Direction",
+    "secondCareer": "Second Direction",
+    "thirdCareer": "Third Direction",
+    "runnerUp": {
+      "title": "Other Strong Directions"
+    },
+    "outsideBox": {
+      "title": "Surprising Directions"
+    },
+    "dreamJobs": {
+      "title": "Your Idea"
+    }
+  }
+}

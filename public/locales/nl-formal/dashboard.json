@@ -112,7 +112,8 @@
       "strengths": "Uw sterke punten",
       "values": "Uw waarden",
       "runners": "Andere sterke richtingen",
-      "outside": "Verrassende richtingen"
+      "outside": "Verrassende richtingen",
+      "dream": "Uw idee"
     },
     "fallback": {
       "bestFitCareer": "Uw best passende richting"
@@ -205,7 +206,11 @@
       "strengths": "Uw sterke punten",
       "values": "Uw waarden",
       "runner_ups": "Andere sterke richtingen",
-      "outside_box": "Verrassende richtingen"
+      "outside_box": "Verrassende richtingen",
+      "top_career_1": "Sterkste richting",
+      "top_career_2": "Tweede richting",
+      "top_career_3": "Derde richting",
+      "dream_jobs": "Uw idee"
     }
   }
 }

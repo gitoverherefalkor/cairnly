@@ -79,6 +79,21 @@ const nsFromUrl = (url: string): { lng: string; ns: string } | null => {
  * `request` option for i18next-http-backend: a plain fetch, plus the formal
  * override merged in for Dutch formal namespaces when the flag is on.
  */
+/**
+ * English has a smaller Encore override set (public/locales/en-encore/), for
+ * labels where Pro wording is wrong for Encore ("Primary Career Match" ->
+ * "Strongest direction"). Same flag: it marks an Encore browser in any language.
+ */
+export const EN_ENCORE_NAMESPACES = ['report', 'dashboard'];
+
+/** Which override folder applies to this locale file, if any. */
+function overrideDirFor(target: { lng: string; ns: string } | null): string | null {
+  if (!target || !isFormalDutchOn()) return null;
+  if (target.lng === 'nl' && FORMAL_NAMESPACES.includes(target.ns)) return 'nl-formal';
+  if (target.lng === 'en' && EN_ENCORE_NAMESPACES.includes(target.ns)) return 'en-encore';
+  return null;
+}
+
 export function formalAwareRequest(
   _options: unknown,
   url: string,
@@ -86,8 +101,8 @@ export function formalAwareRequest(
   callback: (err: any, res?: { status: number; data: any }) => void,
 ): void {
   const target = nsFromUrl(url);
-  const wantsFormal =
-    !!target && target.lng === 'nl' && FORMAL_NAMESPACES.includes(target.ns) && isFormalDutchOn();
+  const overrideDir = overrideDirFor(target);
+  const wantsFormal = !!overrideDir;
 
   fetch(url)
     .then(async (res) => {
@@ -95,7 +110,7 @@ export function formalAwareRequest(
       const base = await res.json();
       if (!wantsFormal) return callback(null, { status: 200, data: base });
       try {
-        const overRes = await fetch(url.replace('/locales/nl/', '/locales/nl-formal/'));
+        const overRes = await fetch(url.replace(`/locales/${target!.lng}/`, `/locales/${overrideDir}/`));
         const over = overRes.ok ? await overRes.json() : {};
         callback(null, { status: 200, data: deepMerge(base, over) });
       } catch {
@@ -117,10 +132,14 @@ export function setFormalDutch(i18n: typeof i18nType, on: boolean): void {
   } catch {
     return; // storage blocked: stay on plain Dutch
   }
-  const loaded = FORMAL_NAMESPACES.filter((ns) => i18n.hasResourceBundle('nl', ns));
-  if (loaded.length === 0) return;
-  i18n.reloadResources(['nl'], loaded).then(() => {
+  const nl = FORMAL_NAMESPACES.filter((ns) => i18n.hasResourceBundle('nl', ns));
+  const en = EN_ENCORE_NAMESPACES.filter((ns) => i18n.hasResourceBundle('en', ns));
+  const reloads: Promise<unknown>[] = [];
+  if (nl.length) reloads.push(i18n.reloadResources(['nl'], nl));
+  if (en.length) reloads.push(i18n.reloadResources(['en'], en));
+  if (reloads.length === 0) return;
+  Promise.all(reloads).then(() => {
     // Re-render translated components (react-i18next listens for languageChanged).
-    if (i18n.language?.startsWith('nl')) i18n.changeLanguage(i18n.language);
+    if (i18n.language) i18n.changeLanguage(i18n.language);
   });
 }

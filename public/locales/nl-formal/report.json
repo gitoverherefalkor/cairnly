@@ -30,10 +30,14 @@
       "title": "Verrassende richtingen"
     },
     "dreamJobs": {
-      "description": "Een eerlijke realiteitscheck van uw eigen idee en wat ervoor nodig is."
+      "description": "Een eerlijke realiteitscheck van uw eigen idee en wat ervoor nodig is.",
+      "title": "Uw idee"
     },
     "runnerUp": {
       "title": "Andere sterke richtingen"
-    }
+    },
+    "firstCareer": "Sterkste richting",
+    "secondCareer": "Tweede richting",
+    "thirdCareer": "Derde richting"
   }
 }

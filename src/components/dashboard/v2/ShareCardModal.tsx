@@ -46,6 +46,10 @@ export interface RoleShare {
   // Cached AI-summarized quotes from the report_sections.share_quotes column.
   // Null means the modal needs to call generate-share-quotes to populate them.
   quotes: string[] | null;
+  /** Encore only: lines taken straight from the "Why this fits you" text, so
+   *  the card shows the real fit while the AI quotes are still generating (or
+   *  if generation fails). Empty/absent = previous behaviour. */
+  localQuotes?: string[];
   isOutsideBox: boolean;
 }
 
@@ -98,7 +102,8 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
   const effectiveRoleQuotes = (role: RoleShare | undefined): string[] | null => {
     if (!role) return null;
     if (generatedQuotes[role.sectionId]) return generatedQuotes[role.sectionId];
-    return role.quotes;
+    if (role.quotes && role.quotes.length > 0) return role.quotes;
+    return role.localQuotes && role.localQuotes.length > 0 ? role.localQuotes : role.quotes;
   };
 
   // Body scroll lock + Escape to close.

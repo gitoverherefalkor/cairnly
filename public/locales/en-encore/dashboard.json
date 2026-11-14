@@ -1,0 +1,20 @@
+{
+  "savedResponses": {
+    "sections": {
+      "top_career_1": "Strongest Direction",
+      "top_career_2": "Second Direction",
+      "top_career_3": "Third Direction",
+      "runner_ups": "Other Strong Directions",
+      "outside_box": "Surprising Directions",
+      "dream_jobs": "Your Idea"
+    }
+  },
+  "v4": {
+    "fallbackTitle": {
+      "values": "Your Values",
+      "runners": "Other Strong Directions",
+      "outside": "Surprising Directions",
+      "dream": "Your Idea"
+    }
+  }
+}

@@ -462,9 +462,14 @@ const Dashboard = () => {
       aiImpact: AIImpactLevel | null;
       move: MoveLevel | null;
       quotes: string[] | null;
+      localQuotes?: string[];
       isOutsideBox: boolean;
     };
     const out: Role[] = [];
+    // Encore: real fit lines from the report text, shown until the AI quotes
+    // arrive (the card used to show only the generic fallback meanwhile).
+    const localQuotesFor = (s: (typeof reportSections)[number], title: string) =>
+      encoreReport ? pickSectionShareQuotes(s.section_type, sectionText(s, i18n.language), title, 3) : undefined;
     const cleanTitle = (raw: string | null | undefined) =>
       stripHtml(raw || '').replace(/^\d+[.)]\s*/, '').trim();
 
@@ -481,6 +486,7 @@ const Dashboard = () => {
         aiImpact: extractAIImpact(s.content || ''),
         move: (s.metadata?.move as MoveLevel | undefined) ?? null,
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
+        localQuotes: localQuotesFor(s, title),
         isOutsideBox: false,
       });
     }
@@ -496,6 +502,7 @@ const Dashboard = () => {
         aiImpact: extractAIImpact(s.content || ''),
         move: (s.metadata?.move as MoveLevel | undefined) ?? null,
         quotes: Array.isArray(s.share_quotes) ? s.share_quotes : null,
+        localQuotes: localQuotesFor(s, title),
         isOutsideBox: true,
       });
     }
