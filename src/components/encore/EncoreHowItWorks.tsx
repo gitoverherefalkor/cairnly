@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ClipboardList, Sparkles, Compass, MessagesSquare, type LucideIcon } from 'lucide-react';
 import Reveal from '@/components/landing/Reveal';
 import { tArray } from '@/lib/i18nArray';
 
@@ -8,7 +9,10 @@ interface StepCopy {
   body: string;
 }
 
-/** Four numbered steps from assessment to coach chat. Anchor target for the hero's secondary CTA. */
+/** One icon per step, in step order: questionnaire, AI analysis, directions, coach chat. */
+const STEP_ICONS: LucideIcon[] = [ClipboardList, Sparkles, Compass, MessagesSquare];
+
+/** Four steps from assessment to coach chat. Anchor target for the hero's secondary CTA. */
 const EncoreHowItWorks: React.FC = () => {
   const { t } = useTranslation('encore');
   const steps = tArray<StepCopy>(t, 'how.steps');
@@ -30,8 +34,12 @@ const EncoreHowItWorks: React.FC = () => {
           {steps.map((step, i) => (
             <Reveal key={i}>
               <div className="flex items-start gap-5">
-                <span className="font-heading font-bold text-[#C9B690] text-[52px] leading-none shrink-0">
-                  {String(i + 1).padStart(2, '0')}
+                <span
+                  className="shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl"
+                  style={{ background: 'rgba(39,161,161,0.12)', border: '1px solid rgba(39,161,161,0.35)' }}
+                  aria-hidden="true"
+                >
+                  {React.createElement(STEP_ICONS[i] ?? ClipboardList, { size: 32, strokeWidth: 2, color: '#1F8282' })}
                 </span>
                 <div>
                   <h3
