@@ -670,3 +670,22 @@ button.lp-screenshot-slot {
 .lp-container p {
   text-wrap: pretty;
 }
+
+/* Encore facts band (EncoreFacts.tsx): tiles and CSS bar charts on navy.
+   Bars sit at width 0 and grow to --w once the tile's Reveal wrapper gets
+   .lp-reveal-in. Reduced motion: no growth animation, bars show at full width. */
+.enc-fact-tile {
+  border-radius: 24px; padding: 30px 30px 26px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.enc-bar { display: block; height: 14px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow: hidden; }
+.enc-bar > i {
+  display: block; height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, #C8891A 0%, #F0C040 100%);
+  transition: width 1100ms cubic-bezier(0.22, 1, 0.36, 1) 200ms;
+}
+.lp-reveal-in .enc-bar > i { width: var(--w); }
+@media (prefers-reduced-motion: reduce) {
+  .enc-bar > i { transition: none; width: var(--w); }
+}
