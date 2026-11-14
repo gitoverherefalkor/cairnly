@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { getStoredReferralCode } from '@/lib/referral';
 import { trackConversion } from '@/lib/analytics';
+import RedeemCodeForm from '@/components/redeem/RedeemCodeForm';
 
 // "Begin checkout" conversion action in Google Ads (created 2026-10-02).
 // Secondary signal for measuring drop-off at Stripe; the Purchase action in
@@ -338,6 +339,12 @@ export function CheckoutForm({ flavor = 'pro' }: CheckoutFormProps = {}) {
 
   return (
     <div>
+      {/* Already holds a code (employer, partner, gift)? Then they shouldn't
+          pay: offer the code field before the form. */}
+      <div className="mb-5 pb-4" style={{ borderBottom: '1px solid rgba(201,182,144,0.5)' }}>
+        <RedeemCodeForm />
+      </div>
+
       {/* Section eyebrow */}
       <div className="mb-4">
         <span

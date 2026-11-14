@@ -29,6 +29,7 @@ import { ChunkLoadErrorBoundary } from "./components/ChunkLoadErrorBoundary";
 
 // Lazy load all other routes — only downloaded when the user navigates to them
 const PaymentSuccess = lazyWithRetry(() => import("./components/PaymentSuccess"));
+const Redeem = lazyWithRetry(() => import("./pages/Redeem"));
 const Assessment = lazyWithRetry(() => import("./pages/Assessment"));
 const Auth = lazyWithRetry(() => import("./pages/Auth"));
 const AuthConfirm = lazyWithRetry(() => import("./pages/AuthConfirm"));
@@ -187,6 +188,7 @@ const App = () => {
               <Route path="/support" element={<Support />} />
               <Route path="/security" element={<Security />} />
               <Route path="/payment" element={<Payment />} />
+              <Route path="/redeem" element={<Redeem />} />
               <Route path="/color-test" element={<ColorTest />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/custom-resume" element={<CustomResume />} />

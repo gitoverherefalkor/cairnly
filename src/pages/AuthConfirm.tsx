@@ -7,31 +7,11 @@ import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AuthShell from '@/components/auth/AuthShell';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
-import { takePendingAccessCode, type PendingAccessCode } from '@/lib/pendingAccessCode';
+import { takePendingAccessCode } from '@/lib/pendingAccessCode';
+import { claimPendingCode } from '@/lib/claimAccessCode';
 import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
 import { isAdminEmail } from '@/lib/admins';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-
-/**
- * Binds the access code the person arrived with (remembered by
- * SocialAuthButtons before the Google/LinkedIn redirect) to their account.
- * Returns the user-facing error when the code could not be claimed, null when
- * it was claimed or there was nothing to claim.
- */
-async function claimPendingCode(pending: PendingAccessCode, accessToken?: string): Promise<string | null> {
-  try {
-    const token = accessToken ?? (await supabase.auth.getSession()).data.session?.access_token;
-    const { data, error } = await supabase.functions.invoke('claim-access-code', {
-      body: { code: pending.code, lang: pending.lang },
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
-    if (!error && data?.claimed) return null;
-    return (data?.error as string | undefined) ?? 'We could not activate your access code.';
-  } catch (err) {
-    console.error('Claiming the access code failed:', err);
-    return 'We could not activate your access code.';
-  }
-}
 
 // Decide where to send the user after a successful auth handshake.
 // Returns null if the caller has already signed the user out (not entitled).

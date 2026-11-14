@@ -8,6 +8,7 @@ import AuthToggle from '@/components/auth/AuthToggle';
 import AuthNavigation from '@/components/auth/AuthNavigation';
 import { useTranslation } from 'react-i18next';
 import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
+import RedeemCodeForm from '@/components/redeem/RedeemCodeForm';
 import { isEncoreSurveyType } from '@/components/assessment/constants';
 import { setFormalDutch } from '@/lib/formalDutch';
 
@@ -73,6 +74,14 @@ const Auth = () => {
     >
       <AuthForm isLogin={isLogin} />
       <AuthToggle isLogin={isLogin} onToggle={handleToggle} />
+      {/* Someone holding a code without a link (employer, partner, gift):
+          give them a place to type it instead of only "buy first". Hidden
+          when the URL already carries the code. */}
+      {!searchParams.get('code') && (
+        <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}>
+          <RedeemCodeForm />
+        </div>
+      )}
     </AuthShell>
   );
 };
