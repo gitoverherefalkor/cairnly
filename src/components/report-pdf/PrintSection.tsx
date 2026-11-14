@@ -242,10 +242,11 @@ export const PrintSection: React.FC<{
 }) => {
   const nested = level === 'nested';
   const isCareer = CAREER_TYPES.includes(section.section_type);
-  const score = visibleCareerScore(section);
+  const encore = usePrintEncore();
+  // Encore prints no match number (same as its dashboard).
+  const score = encore ? null : visibleCareerScore(section);
   const impact = isCareer ? extractAIImpact(section.content || '') : null;
   const move = section.metadata?.move as MoveLevel | undefined;
-  const encore = usePrintEncore();
   const eyebrow = nested ? null : eyebrowFor(section.section_type, lang, encore);
   const Icon = iconForSection(section.section_type);
   const intro = showIntro && !nested ? introFor(section.section_type, lang, encore) : null;

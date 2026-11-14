@@ -17,6 +17,7 @@ import { TTSProvider } from '@/contexts/TTSContext';
 import type { ChatMessagesHandle } from '@/components/chat/ChatMessages';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 import { isEncoreSurveyId, ENCORE_IDEA_QUESTION_ID } from '@/components/assessment/constants';
+import { HideMatchScoresContext } from '@/lib/matchScoreVisibility';
 
 type ReportData = Tables<'reports'>;
 
@@ -85,6 +86,10 @@ const Chat = () => {
     const text = Array.isArray(idea) ? idea.join(' ') : typeof idea === 'string' ? idea : '';
     return text.trim() !== '';
   }, [reportData]);
+  // Encore hides the match number on career cards (lib/matchScoreVisibility).
+  const encoreReport = isEncoreSurveyId(
+    ((reportData?.payload ?? {}) as { survey_id?: string }).survey_id,
+  );
   const lastSectionIndex = hasDreamJobs ? ALL_SECTIONS.length - 1 : ALL_SECTIONS.length - 2;
   // Welcome card defaults to visible for everyone. An effect below flips it
   // off once we confirm the user has actually engaged with the chat for this
@@ -500,6 +505,7 @@ const Chat = () => {
   );
 
   return (
+    <HideMatchScoresContext.Provider value={encoreReport}>
     <div className="min-h-screen flex flex-col">
       {/* Fixed background — cairn-trail photo with the shared 3-stop V4
           overlay so /chat reads as one family with /assessment, /dashboard,
@@ -619,6 +625,7 @@ const Chat = () => {
         </div>
       )}
     </div>
+    </HideMatchScoresContext.Provider>
   );
 };
 

@@ -145,6 +145,8 @@ interface DashboardV4Props {
    *  belonging to somebody else — polluting the /ops aggregate with
    *  demo-browsing noise. The career simply does not offer the control. */
   readOnly?: boolean;
+  /** Encore reports: hide the match number on every card (order unchanged). */
+  hideMatchScores?: boolean;
 }
 
 /** Download-the-PDF action, sitting beside the full-report header.
@@ -221,8 +223,8 @@ function readSalary(meta: unknown): string | null {
 // alternate_titles), so each pill is rendered only when its value exists,
 // never a placeholder. The match number shows on the Top 3 only
 // (visibleCareerScore); runner-ups and the rest keep their other pills.
-function bodyMetaFor(s: ReportSection, lang: string): CareerBodyMeta {
-  const score = visibleCareerScore(s);
+function bodyMetaFor(s: ReportSection, lang: string, hideScore = false): CareerBodyMeta {
+  const score = hideScore ? null : visibleCareerScore(s);
   // `alternate_titles` comes in two shapes: legacy rows bake the caption into
   // the value ("<strong>Alternate titles:</strong> A, B"), newer rows store
   // the bare list. Strip the caption so we render exactly one label.
@@ -403,6 +405,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
   pulseStepKey,
   toolkitBanner,
   readOnly = false,
+  hideMatchScores = false,
 }) => {
   const { t, i18n } = useTranslation('dashboard');
   // Language for report prose/titles: after login this converges with
@@ -446,8 +449,15 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
     const hero = getMatch(sections, 'top_career_1', 1, true, lang, fb);
     const second = getMatch(sections, 'top_career_2', 2, false, lang, fb);
     const third = getMatch(sections, 'top_career_3', 3, false, lang, fb);
-    return { hero, secondary: [second, third].filter(Boolean) as CareerMatch[] };
-  }, [sections, lang, t]);
+    // Encore shows no match number: its top scores sit within a few points of
+    // each other and move a little between runs, so a number reads as more
+    // precise than it is. The order still comes from the scores.
+    const hide = (m: CareerMatch | null) => (m && hideMatchScores ? { ...m, matchPct: null } : m);
+    return {
+      hero: hide(hero),
+      secondary: [hide(second), hide(third)].filter(Boolean) as CareerMatch[],
+    };
+  }, [sections, lang, t, hideMatchScores]);
 
   // "More paths" — one tile per group. Each section_type repeats in the DB
   // (one row per career, split by WF4), so we collect ALL matching rows and
@@ -582,7 +592,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
         comparison,
         sectionId: s.id,
         sectionType: s.section_type,
-        meta: bodyMetaFor(s, lang),
+        meta: bodyMetaFor(s, lang, hideMatchScores),
       });
     }
 
@@ -616,7 +626,7 @@ export const DashboardV4: React.FC<DashboardV4Props> = ({
           content: sectionText(s, lang),
           sectionId: s.id,
           sectionType: s.section_type,
-          meta: bodyMetaFor(s, lang),
+          meta: bodyMetaFor(s, lang, hideMatchScores),
         })),
         careerSlot: slot,
       });
@@ -1317,7 +1327,7 @@ const HeroMatch: React.FC<{
 
           {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-            <MatchPill pct={match.matchPct} />
+            {match.matchPct != null && <MatchPill pct={match.matchPct} />}
             {match.move && <MovePill level={match.move} careerTitle={match.title} />}
             {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
             {match.salary && <SalaryPill range={match.salary} />}
@@ -1647,7 +1657,7 @@ const SecondaryMatch: React.FC<{
     )}
     {/* Metric pills — Match · Readiness · AI risk, in one scannable row */}
     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-      <MatchPill pct={match.matchPct} />
+      {match.matchPct != null && <MatchPill pct={match.matchPct} />}
       {match.move && <MovePill level={match.move} careerTitle={match.title} />}
       {match.aiImpact && <AIImpactPill label={match.aiImpact} />}
       {match.salary && <SalaryPill range={match.salary} />}

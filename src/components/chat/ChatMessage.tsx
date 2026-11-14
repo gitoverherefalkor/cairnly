@@ -1,3 +1,4 @@
+import { useHideMatchScores } from '@/lib/matchScoreVisibility';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -614,6 +615,7 @@ const SequentialSubsections: React.FC<{
   // has been revealed.
   comparisonSlot?: React.ReactNode;
 }> = ({ preamble, subsections, onRevealStateChange, sections, fullBody, forceFullReveal, intro, outro, onAskAboutRole, onAskFeasibility, comparisonSlot }) => {
+  const hideScores = useHideMatchScores();
   const { t, i18n } = useTranslation('chat');
   // revealedCount = number of sub-sections currently visible. Starts at 1
   // so the user sees the preamble + first h2 + first body on first render.
@@ -674,7 +676,7 @@ const SequentialSubsections: React.FC<{
           .join('')
           .trim();
         const section = findSectionByTitle(sections, headingText);
-        const score = visibleCareerScore(section);
+        const score = hideScores ? null : visibleCareerScore(section);
         const aiImpact =
           (section && extractAIImpact(section.content || '')) ||
           extractAIImpact(fullBody || preamble);
@@ -707,7 +709,7 @@ const SequentialSubsections: React.FC<{
         );
       },
     };
-  }, [sections, fullBody, preamble]);
+  }, [sections, fullBody, preamble, hideScores]);
 
   const allRevealed = revealedCount >= subsections.length;
 
@@ -883,6 +885,7 @@ const CollapsibleCareerBlocks: React.FC<{
   onAskAboutRole,
   onAskFeasibility,
 }) => {
+  const hideScores = useHideMatchScores();
   const { t, i18n } = useTranslation('chat');
   // All blocks are uniform collapsible cards, all closed by default. User
   // gets a clean scannable list of options (title + size + score + AI
@@ -963,7 +966,7 @@ const CollapsibleCareerBlocks: React.FC<{
           {blocks.map((block, idx) => {
             const isOpen = openIndices.has(idx);
             const section = findSectionByTitle(sections, block.title);
-            const score = visibleCareerScore(section);
+            const score = hideScores ? null : visibleCareerScore(section);
             // Dream-job cards show the AI pill too since 2026-10-15: the label is
             // set by Jev (title-pinned), same as on the dashboard and in the PDF.
             const aiImpact =
@@ -1120,6 +1123,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
   voiceSettingsHint = false,
   forceFullReveal = false,
 }) => {
+  const hideScores = useHideMatchScores();
   const { t, i18n } = useTranslation('chat');
   const messageRef = useRef<HTMLDivElement>(null);
   const tts = useTTS();
@@ -1320,7 +1324,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           .join('')
           .trim();
         const section = findSectionByTitle(sections, headingText);
-        const score = visibleCareerScore(section);
+        const score = hideScores ? null : visibleCareerScore(section);
         // Look for an AI Impact rating anywhere in the message body (dream-job
         // cards included since 2026-10-15, see multi-card path).
         const aiImpact =
@@ -1353,7 +1357,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
         );
       },
     };
-  }, [hasMultipleBlocks, sections, sanitized]);
+  }, [hasMultipleBlocks, sections, sanitized, hideScores]);
 
   return (
     <div className="flex justify-start mb-4">

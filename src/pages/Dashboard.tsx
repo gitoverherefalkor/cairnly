@@ -155,6 +155,11 @@ const Dashboard = () => {
   // latestReport computed early so hooks can use it (hooks can't be conditional).
   const latestReport = !reports || reports.length === 0 ? null : reports[0];
   const reportCompleted = latestReport?.status === 'completed';
+  // Encore reports hide the match number (see DashboardV4 hideMatchScores).
+  // The survey id lives in the payload; the column is empty on current rows.
+  const encoreReport = isEncoreSurveyId(
+    latestReport?.survey_id ?? (latestReport?.payload as { survey_id?: string } | null)?.survey_id,
+  );
 
   // Poll for the exec summary while the report is complete but the summary
   // hasn't landed yet. The hook self-stops once it appears; we also stop once
@@ -467,7 +472,7 @@ const Dashboard = () => {
       const s = reportSections.find((x) => x.section_type === type);
       if (!s) continue;
       const title = cleanTitle(sectionTitle(s, i18n.language)) || t('shareCard.fallbackTitle.bestFitCareer');
-      const matchPct = s.score != null ? Math.round(Number(s.score)) || 0 : null;
+      const matchPct = !encoreReport && s.score != null ? Math.round(Number(s.score)) || 0 : null;
       out.push({
         sectionId: s.id,
         sectionType: type,
@@ -495,7 +500,7 @@ const Dashboard = () => {
       });
     }
     return out;
-  }, [reportSections, t]);
+  }, [reportSections, t, encoreReport]);
 
   // Copy the personal invite link to the clipboard.
   const handleInvite = async () => {
@@ -589,6 +594,7 @@ const Dashboard = () => {
           onOpenShareCard={() => setShowShareCard(true)}
           onDownloadPdf={handleDownloadPdf}
           pdfLoading={pdfLoading}
+          hideMatchScores={encoreReport}
         />
 
 

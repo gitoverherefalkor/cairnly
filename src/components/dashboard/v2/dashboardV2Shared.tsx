@@ -89,7 +89,8 @@ export interface CareerMatch {
   // `title` above is the display title (translated when available).
   canonicalTitle: string;
   shape: string | null;
-  matchPct: number;
+  /** null when the product hides match numbers (Encore). */
+  matchPct: number | null;
   aiImpact: AIImpactLevel | null;
   move?: MoveLevel | null;
   // Region-calibrated AI salary estimate (compact range string, e.g.

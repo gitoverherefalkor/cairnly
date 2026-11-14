@@ -7,6 +7,7 @@ vi.mock('@/i18n', () => ({ default: {} }));
 
 import { PrintClosing } from './PrintClosing';
 import { PrintChapterDivider } from './PrintChapterDivider';
+import { PrintSection } from './PrintSection';
 import { PrintEncoreContext } from './printFlavor';
 import { V4CareerMapSVG } from '@/components/dashboard/v2/V4CareerMapSVG';
 
@@ -35,5 +36,25 @@ describe('Encore print framing', () => {
     );
     expect(html).toContain('Richtingen voor wat hierna komt');
     expect(html).not.toMatch(/\b(je|jouw)\b/i);
+  });
+
+  it('Encore prints no match number on a top 3 direction; Pro does', () => {
+    const section = {
+      id: 's1',
+      report_id: 'r1',
+      section_type: 'top_career_1',
+      title: 'Taalcoach',
+      content: '### Overzicht\nTekst.',
+      score: 91,
+      metadata: {},
+    } as any;
+    const encore = renderToStaticMarkup(
+      <PrintEncoreContext.Provider value>
+        <PrintSection section={section} lang="nl" />
+      </PrintEncoreContext.Provider>,
+    );
+    expect(encore).not.toContain('91%');
+    const pro = renderToStaticMarkup(<PrintSection section={section} lang="nl" />);
+    expect(pro).toContain('91%');
   });
 });
