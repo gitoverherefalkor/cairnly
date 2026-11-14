@@ -22,16 +22,14 @@
     "submit": "Proceed to Checkout",
     "submitting": "Processing…",
     "secureNote": "Your payment is handled by Stripe. We never see or store your card details.",
-    "dataNote": "Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time.",
-    "withdrawalWaiver": "I want my assessment to start right away. I understand that I then lose my 14-day right of withdrawal."
+    "dataNote": "Your assessment data stays yours. We don't sell it, we don't share it, and you can permanently delete everything from your account at any time."
   },
   "validation": {
     "firstName": "First name must be at least 2 characters.",
     "lastName": "Last name must be at least 2 characters.",
     "email": "Please enter a valid email address.",
     "country": "Please select a country.",
-    "acceptTerms": "You must accept the Privacy Policy and Terms of Service.",
-    "acceptWithdrawalWaiver": "Please confirm that your assessment may start right away."
+    "acceptTerms": "You must accept the Privacy Policy and Terms of Service."
   },
   "errors": {
     "title": "Checkout Failed",

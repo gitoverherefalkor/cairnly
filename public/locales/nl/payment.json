@@ -22,16 +22,14 @@
     "submit": "Doorgaan naar afrekenen",
     "submitting": "Bezig…",
     "secureNote": "Je betaling wordt afgehandeld door Stripe. Wij zien of bewaren je kaartgegevens nooit.",
-    "dataNote": "Je assessmentgegevens blijven van jou. We verkopen ze niet, we delen ze niet, en je kunt op elk moment alles permanent verwijderen uit je account.",
-    "withdrawalWaiver": "Ik wil dat mijn assessment direct start. Ik begrijp dat ik daarmee mijn bedenktijd van 14 dagen verlies."
+    "dataNote": "Je assessmentgegevens blijven van jou. We verkopen ze niet, we delen ze niet, en je kunt op elk moment alles permanent verwijderen uit je account."
   },
   "validation": {
     "firstName": "Voornaam moet minstens 2 tekens bevatten.",
     "lastName": "Achternaam moet minstens 2 tekens bevatten.",
     "email": "Vul een geldig e-mailadres in.",
     "country": "Selecteer een land.",
-    "acceptTerms": "Je moet akkoord gaan met het Privacybeleid en de Algemene voorwaarden.",
-    "acceptWithdrawalWaiver": "Bevestig dat je assessment direct mag starten."
+    "acceptTerms": "Je moet akkoord gaan met het Privacybeleid en de Algemene voorwaarden."
   },
   "errors": {
     "title": "Afrekenen mislukt",
