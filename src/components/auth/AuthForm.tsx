@@ -52,18 +52,21 @@ const AuthForm = ({ isLogin }: AuthFormProps) => {
   // Show hint about previous auth method
   const lastMethodLabel = lastAuthMethod === 'google' ? 'Google'
     : lastAuthMethod === 'linkedin' ? 'LinkedIn'
-    : lastAuthMethod === 'email' ? 'email & password'
+    : lastAuthMethod === 'email' ? t('social.emailPassword')
     : null;
+  // Split the translated sentence around the provider so it can stay bold.
+  const [lastBefore, lastAfter = ''] = t('social.lastSignedInWith', { provider: '\u0000' }).split('\u0000');
 
   return (
     <div className="space-y-4">
       {/* Hint about previous sign-in method */}
       {isLogin && lastMethodLabel && (
         <p className="text-xs text-center" style={{ color: '#6B7F8B' }}>
-          You last signed in with{' '}
+          {lastBefore}
           <span className="font-semibold" style={{ color: '#122E3B' }}>
             {lastMethodLabel}
           </span>
+          {lastAfter}
         </p>
       )}
 

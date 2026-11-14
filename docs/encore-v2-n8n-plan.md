@@ -140,3 +140,10 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF4P top 3 and runner-up prompts: quotation marks only for their exact words; a reworded line goes without quotes.
 - WF1P profile prompt: Dutch spelling check line (the profile wrote "disclamer").
 - App: the Dutch AI heading "AI-impact op deze rol" is now parsed (badges, career map), and the English rating label under it shows in Dutch (Minimaal, Gemiddeld, Hoog, Ernstig, Kritiek). The stored text keeps the English label for the parsers.
+
+## Round 10 fixes (2026-11-14)
+- WF4P salary converter also handles hours and other units (~20 hrs/wk -> ca. 20 uur per week, pro-rata, per session, unpaid/voluntary); the prompts say to write any English word left in the range in Dutch.
+- WF4P runner-ups: the variety sentence describes the similar top 3 direction by its kind of work, never by title (titles can change after a coach correction), and is worded differently per direction; the copied EN/NL example is gone.
+- WF4P and WF3P (surprise cards) Dutch: no English words in titles, no English term in parentheses, no organisation or programme names in titles, wider English-word ban (Heads-up -> Let op, parttime, fulltime, trackrecord, scope, runnen), never invent history (years, what they managed), spelling examples (het ritme, het maatje, VOG, achter u laten).
+- WF3P surprise cards: Dutch path heading is now "Werkvorm en realiteit" (Parse OOB accepts both old and new).
+- translate-section (Encore NL): fixed labels Geld/Tijd/Mensen/Plek, WF6 heading variants pinned, same English-word ban, reflexive "u".

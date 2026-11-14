@@ -2,7 +2,8 @@
   "regionPicker": {
     "placeholder": "Kies uw land…",
     "elsewhereNote": "We hebben nog geen salarisgegevens voor uw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
-    "elsewhereWhereLabel": "In welk land woont u?"
+    "elsewhereWhereLabel": "In welk land woont u?",
+    "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen."
   },
   "submitted": {
     "description": "Uw antwoorden zijn opgeslagen en uw rapport wordt gemaakt.",

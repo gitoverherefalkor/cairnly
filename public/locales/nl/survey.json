@@ -12,7 +12,19 @@
     "elsewhereNote": "We hebben nog geen salarisdata voor jouw markt, dus schattingen gebruiken Europa (EUR) als ruwe richtlijn.",
     "confirmSet": "Nu ingesteld op: {{region}}. Kies hierboven een land om dit te wijzigen.",
     "elsewhereWhereLabel": "In welk land woon je?",
-    "elsewhereOptional": "Optioneel"
+    "elsewhereOptional": "Optioneel",
+    "band": {
+      "nwEurope": "Noord- en West-Europa",
+      "seEurope": "Zuid- en Oost-Europa",
+      "ukLondon": "Verenigd Koninkrijk (Londen)",
+      "ukOther": "Verenigd Koninkrijk (overig)",
+      "usHigh": "Verenigde Staten (dure regio's)",
+      "usAvg": "Verenigde Staten (gemiddelde regio's)",
+      "usLow": "Verenigde Staten (goedkopere regio's)",
+      "canada": "Canada",
+      "ausNz": "Australië en Nieuw-Zeeland",
+      "switzerland": "Zwitserland"
+    }
   },
   "submitted": {
     "title": "Assessment succesvol ingediend!",

@@ -103,12 +103,15 @@ export const ENCORE_HEADING_PINS: Record<string, Record<string, string>> = {
     'Your first step': 'Uw eerste stap',
     'The Reality Check': 'Waar u rekening mee moet houden',
     'The practical stuff': 'De praktische kant',
+    // The coach's rewrite (WF6) writes these variants of the same headings.
+    'The practical side': 'De praktische kant',
+    'What you will actually do': 'Wat u concreet gaat doen',
     'What works for you': 'Wat voor u werkt',
     'How AI will impact this role': 'AI-impact op deze rol',
     'Future-proof skills': 'Toekomstbestendige vaardigheden',
     // ── Outside-the-box subheaders (WF3P) ──
     'Why this might be a fit': 'Waarom dit bij u past',
-    'Path Type & Reality': 'Type pad & realiteit',
+    'Path Type & Reality': 'Werkvorm en realiteit',
     'AI Impact on this role': 'AI-impact op deze rol',
     // ── Dream-job subheaders (WF4P) ──
     'Our honest view': 'Onze eerlijke kijk',

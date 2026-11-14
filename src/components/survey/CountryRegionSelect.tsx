@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  REGION,
   REGION_OPTIONS,
   KEY_TO_OPTION,
   keyForCheckoutCountry,
@@ -36,6 +37,12 @@ interface Props {
 // back-navigation. We remember the exact option key here (best-effort) so the
 // picker restores their actual choice; the answer sent to n8n is unaffected.
 const hintKey = (qid: string) => `region_pick_${qid}`;
+
+// Stored band string → survey.json regionPicker.band.* key, so the
+// "currently set to" line shows the band in the user's language.
+const BAND_LABEL_KEY: Record<string, string> = Object.fromEntries(
+  Object.entries(REGION).map(([key, band]) => [band, key]),
+);
 
 // Non-country option keys → survey.json regionPicker.* keys. The plain
 // two-letter keys are ISO region codes, localized for free via Intl.DisplayNames.
@@ -80,6 +87,11 @@ export const CountryRegionSelect: React.FC<Props> = ({
     }
     const k = TIER_LABEL_KEY[o.key];
     return k ? t(`regionPicker.${k}`) : o.label;
+  };
+
+  const bandLabel = (band: string): string => {
+    const k = BAND_LABEL_KEY[band];
+    return k ? t(`regionPicker.band.${k}`, { defaultValue: band }) : band;
   };
 
   // Resolve what to show once on mount: exact remembered key → reverse the
@@ -157,7 +169,7 @@ export const CountryRegionSelect: React.FC<Props> = ({
 
       {confirmOnly && (
         <p className="text-sm text-atlas-teal mt-2">
-          {t('regionPicker.confirmSet', { region: value })}
+          {t('regionPicker.confirmSet', { region: bandLabel(value) })}
         </p>
       )}
 

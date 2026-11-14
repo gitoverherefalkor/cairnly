@@ -150,6 +150,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   overzicht: Eye,
   'waarom dit bij je past': Puzzle,
   'type pad & realiteit': Signpost,
+  'werkvorm en realiteit': Signpost,
   'ai-impact op deze rol': Bot,
 
   // dream jobs ('overzicht' shared with outside-the-box, above)
