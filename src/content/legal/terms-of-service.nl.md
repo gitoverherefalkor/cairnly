@@ -1,6 +1,6 @@
 # Algemene Voorwaarden
 
-Laatst bijgewerkt: 13 november 2026
+Laatst bijgewerkt: 14 november 2026
 
 ## 1. Aanvaarding van de voorwaarden
 
@@ -50,7 +50,9 @@ Voor toegang tot onze assessmentdiensten is een geldige toegangscode vereist. De
 
 ### 4.3 Restitutiebeleid
 
-Onze assessments zijn digitale inhoud die start zodra je aan de vragenlijst begint. Bij het afrekenen vraag je ons direct te starten en bevestig je dat je daarmee je bedenktijd van 14 dagen verliest. Krijg je door een technisch probleem aan onze kant je rapport niet, dan lossen we dat op of betalen we het volledige bedrag terug. Neem binnen 30 dagen na aankoop contact op via info@cairnly.io.
+Onze assessments zijn digitale inhoud die start zodra je aan de vragenlijst begint. Je kunt je nog bedenken: binnen 14 dagen na aankoop vraag je het volledige bedrag terug door te mailen naar info@cairnly.io. We horen graag kort waarom, dat helpt ons Cairnly beter te maken, maar je bent niet verplicht een reden te geven. We betalen binnen 14 dagen na je verzoek terug, via de betaalmethode waarmee je hebt betaald.
+
+Krijg je door een technisch probleem aan onze kant je rapport niet, dan lossen we dat op of betalen we het volledige bedrag terug. Neem binnen 30 dagen na aankoop contact op via info@cairnly.io.
 
 In afwijking van het voorgaande kunnen gedeeltelijke terugbetalingen worden uitgekeerd aan gebruikers die deelnemen aan het Cairnly Referral Programma. Deze terugbetalingen worden geregeld door de afzonderlijke [Voorwaarden Referral Programma](/referral-terms) en worden behandeld als terugwerkende verlaging van de oorspronkelijke aankoopprijs.
 

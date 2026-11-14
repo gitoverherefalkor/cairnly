@@ -1,6 +1,6 @@
 # Terms of Service
 
-Last updated: November 13, 2026
+Last updated: November 14, 2026
 
 ## 1. Acceptance of Terms
 
@@ -50,7 +50,9 @@ Access to our assessment services requires a valid access code, which can be obt
 
 ### 4.3 Refund Policy
 
-Our assessments are digital content that starts as soon as you begin the survey. At checkout you ask us to start right away and confirm that you then lose the 14-day right of withdrawal. If a technical problem on our side stops you from getting your report, we fix it or refund you in full. Contact info@cairnly.io within 30 days of purchase.
+Our assessments are digital content that starts as soon as you begin the survey. You can still change your mind: within 14 days of purchase you can ask for a full refund by emailing info@cairnly.io. We'd like to hear briefly why, as it helps us improve Cairnly, but you don't have to give a reason. We refund you within 14 days of your request, using the payment method you paid with.
+
+If a technical problem on our side stops you from getting your report, we fix it or refund you in full. Contact info@cairnly.io within 30 days of purchase.
 
 Notwithstanding the above, partial refunds may be issued to users who participate in the Cairnly Referral Programme. Such refunds are governed by the separate [Referral Programme Terms](/referral-terms) and are treated as retroactive reductions of the original purchase price.
 
