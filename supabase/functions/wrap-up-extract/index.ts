@@ -62,7 +62,8 @@ Rules:
 const ENCORE_EXTRA_RULES = `
 
 Extra rules for this report (they override the rules above where they differ):
-- Speak to the user directly. Never mention "the coach", "de coach", "the assistant" or "Cairnly" as a person who said or did something. Write the advice or insight itself ("Probeer het eerst in het klein voordat u zich vastlegt"), not who said it. Write advice as a direct suggestion to the user ("Test eerst of ...", "Spreek vaste uren af"), never in the passive ("werd aangeraden", "is voorgesteld", "was advised").
+- Speak to the user directly. Never mention "the coach", "de coach", "the assistant" or "Cairnly" as a person who said or did something. Write the advice or insight itself ("Probeer het eerst in het klein voordat u zich vastlegt"), not who said it. Write advice as a direct suggestion to the user ("Test eerst of ...", "Spreek vaste uren af"), never in the passive ("werd aangeraden", "is voorgesteld", "was advised"). In English: "Try one session first", never "The coach suggested".
+- What the user said they will do stays theirs, in their own strength: "I will try" becomes "You plan to try", never "You agreed to".
 - Use only facts, numbers, durations and examples that appear literally in the transcript. Never add a number, a time span, a frequency or an example that nobody said. If the conversation gave no number, write none.
 - Keep the corrections the user made about themselves (their history, their skills, what they did or did not do, what they want or do not want) as their own bullet, phrased as the corrected fact ("U gaf niet alleen leiding, u deed het werk ook zelf"). The rule "skip anything the user pushed back on" only drops advice they rejected, never their corrections.`;
 
@@ -217,14 +218,12 @@ serve(async (req) => {
   const langInstruction = preferredLanguage !== 'en' && LANG_NAMES[preferredLanguage]
     ? `\n\nWrite your final output in ${LANG_NAMES[preferredLanguage]}. Maintain Markdown structure. Brand terms (Cairnly, outside-the-box, runner-up) stay in English.`
     : '';
-  // Encore addresses Dutch users formally ("u"); Pro/Starter keep "je".
-  const { encore } = preferredLanguage === 'nl'
-    ? await getReportProduct(supabase, report_id)
-    : { encore: false };
-  const registerInstruction = encore
+  // Encore gets its own highlight rules in every language; Dutch Encore also
+  // addresses the user formally ("u"). Pro/Starter are unchanged.
+  const { encore } = await getReportProduct(supabase, report_id);
+  const registerInstruction = (encore && preferredLanguage === 'nl'
     ? '\n\nAddress the user formally: always "u" and "uw", never "je", "jij" or "jouw", not even as the general "one". Write the report vocabulary in Dutch, overriding the brand-term line above: "runner-up" -> "andere sterke richting", "outside-the-box" -> "verrassende richting". Only Cairnly stays in English.'
-      + ENCORE_EXTRA_RULES
-    : '';
+    : '') + (encore ? ENCORE_EXTRA_RULES : '');
   const finalSystemPrompt = SYSTEM_PROMPT + langInstruction + registerInstruction;
 
   const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
