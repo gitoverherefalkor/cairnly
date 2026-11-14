@@ -23,6 +23,8 @@ interface WebhookMetadata {
    */
   current_section?: string | null;
   careers_revealed?: boolean;
+  /** True when the current section is the last one in this chat (no 'Continue'). */
+  is_last_section?: boolean;
   /**
    * Survey-sourced context for the coach's SESSION DATA header. Both come from
    * the report's survey responses (extracted in Chat.tsx):

@@ -70,13 +70,17 @@ const FIRST_CAREER_INDEX = Math.min(
 // where the user is and whether any career has been revealed yet. Without this
 // WF5 can't honor its "don't suggest careers from upcoming sections" rule — it
 // has no way to know careers are still locked. Consumed in WF5's SESSION DATA.
-function sectionMetadata(currentSectionIndex: number): {
+// is_last_section tells WF5 there is no next section here (e.g. Encore without
+// an idea section ends after outside-the-box), so it points to wrap-up.
+function sectionMetadata(currentSectionIndex: number, lastSectionIndex: number): {
   current_section: DeliverableSectionType | null;
   careers_revealed: boolean;
+  is_last_section: boolean;
 } {
   return {
     current_section: SECTION_INDEX_TO_TYPE[currentSectionIndex] ?? null,
     careers_revealed: currentSectionIndex >= FIRST_CAREER_INDEX,
+    is_last_section: currentSectionIndex >= lastSectionIndex,
   };
 }
 
@@ -951,7 +955,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
             country,
             assessment_purpose: assessmentPurpose,
             goal_alignment: goalAlignment,
-            ...sectionMetadata(currentSectionIndex),
+            ...sectionMetadata(currentSectionIndex, lastSectionIndex),
           }).catch((err) => {
             console.error('[advance] background agent failed:', err);
           });
@@ -1082,7 +1086,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           country,
           assessment_purpose: assessmentPurpose,
           goal_alignment: goalAlignment,
-          ...sectionMetadata(currentSectionIndex),
+          ...sectionMetadata(currentSectionIndex, lastSectionIndex),
         });
 
         if (response) {
@@ -1146,7 +1150,7 @@ export const ChatContainer = forwardRef<ChatMessagesHandle, ChatContainerProps>(
           country,
           assessment_purpose: assessmentPurpose,
           goal_alignment: goalAlignment,
-          ...sectionMetadata(currentSectionIndex),
+          ...sectionMetadata(currentSectionIndex, lastSectionIndex),
         });
         if (response) {
           addMessage('bot', response);
