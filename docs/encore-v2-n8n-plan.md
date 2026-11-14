@@ -163,6 +163,12 @@ From the first eval run (n8n_wfs_cairnly/evals/):
   runner-ups describe the new work only from the enriched data. Published WF3P e7e95e6b, WF4P 774f6ed6.
 - translate-section: a section title that matches a heading pin always gets the pinned translation (the Dutch
   dashboard showed "Executive Summary"). Edge functions deployed from 759ef1ec.
+- Ranking (WF3P 68dd499c): "adult literacy and digital skills" and "language teaching and conversation practice"
+  count as one activity for variety (Marjan's twin runs put both adult-language directions at #1 and #2). Eval copy
+  synced, diffs 0.
+- WF4P 7850bdce: the organisation line under each title starts every part with a capital in Dutch reports.
+- Repeatability: identical answers can give different titles from the same themes, because WF2P generates the 15
+  options fresh and the top scores sit close together. Accepted for now (decision log call 55).
 
 ## Load fix: chain stages as sub-workflows (2026-11-14)
 Round 12 sent 5 submits within 2 minutes and the coach froze. Cause: the n8n plan runs at most 5 production
