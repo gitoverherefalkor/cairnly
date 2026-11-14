@@ -325,7 +325,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return {\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput,\n      report_id: $('Parse Query').item.json.report_id,\n      section_type: $('Parse Query').item.json.section_type\n    }\n  };\n}\n// Build the row payload. metadata is only set when the AI returned a\n// non-null personality_scores object — typically only for section_type\n// \"approach\". Other sections leave metadata untouched on the existing row.\nconst out = {\n  feedback_category: aiResponse.category,\n  content: aiResponse.content,\n  feedback: aiResponse.feedback || 'No changes needed based on your feedback.',\n  explore: aiResponse.explore || '',\n  report_id: aiResponse.report_id || $('Parse Query').item.json.report_id,\n  section_type: aiResponse.section_type || $('Parse Query').item.json.section_type\n};\nif (aiResponse.personality_scores && typeof aiResponse.personality_scores === 'object') {\n  out.metadata = { personality_scores: aiResponse.personality_scores };\n}\nreturn { json: out };"
+        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return {\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput,\n      report_id: $('Parse Query').item.json.report_id,\n      section_type: $('Parse Query').item.json.section_type\n    }\n  };\n}\n// Category 0 = nothing to change: keep the stored text exactly (no re-wording,\n// no language switch for sections written natively in Dutch).\nconst original = $('Get Personality Section').first().json;\nconst keepOriginal = Number(aiResponse.category) === 0 && original && typeof original.content === 'string';\n// Build the row payload. metadata is only set when the AI returned a\n// non-null personality_scores object — typically only for section_type\n// \"approach\". Other sections leave metadata untouched on the existing row.\nconst out = {\n  feedback_category: aiResponse.category,\n  content: keepOriginal ? original.content : aiResponse.content,\n  feedback: aiResponse.feedback || 'No changes needed based on your feedback.',\n  explore: aiResponse.explore || '',\n  report_id: aiResponse.report_id || $('Parse Query').item.json.report_id,\n  section_type: aiResponse.section_type || $('Parse Query').item.json.section_type\n};\nif (aiResponse.personality_scores && typeof aiResponse.personality_scores === 'object') {\n  out.metadata = { personality_scores: aiResponse.personality_scores };\n}\nreturn { json: out };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -338,7 +338,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\nconst combineData = $('Separator2').first().json;\n\n// AI returns runner_ups array\nconst outputCareers = aiResponse.runner_ups || [];\n\nconst updates = outputCareers.map((aiCareer) => {\n  return {\n    json: {\n      id: aiCareer.id,\n      section_type: 'runner_ups',\n      title: aiCareer.title,\n      feedback_category: aiCareer.category,\n      content: aiCareer.content,\n      feedback: aiCareer.feedback || 'No changes needed.',\n      explore: aiCareer.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
+        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\nconst combineData = $('Separator2').first().json;\nconst careers = combineData.careers || [];\n\n// AI returns runner_ups array\nconst outputCareers = aiResponse.runner_ups || [];\n\nconst updates = outputCareers.map((aiCareer, index) => {\n  // Category 0 = nothing to change for this career: keep its stored text.\n  const original = careers.find(c => c.id === aiCareer.id) || careers[index] || {};\n  const keepOriginal = Number(aiCareer.category) === 0 && typeof original.content === 'string' && original.content !== '';\n  return {\n    json: {\n      id: aiCareer.id,\n      section_type: 'runner_ups',\n      title: keepOriginal ? (original.title || aiCareer.title) : aiCareer.title,\n      feedback_category: aiCareer.category,\n      content: keepOriginal ? original.content : aiCareer.content,\n      feedback: aiCareer.feedback || 'No changes needed.',\n      explore: aiCareer.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -351,7 +351,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get data from the Combine node\nconst combineData = $('Separator4').first().json;\nconst careers = combineData.careers || [];\nconst outputCareers = aiResponse.outside_box || [];\n\n// UUID validation regex\nconst uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n\nconst updates = outputCareers.map((aiCareer, index) => {\n  let careerId = aiCareer.id;\n  \n  // Validate UUID - fallback to matching by title if invalid\nconst original = careers.find(c => c.title === aiCareer.title) || careers[index] || {};\n  const wasReplaced = (!!(aiCareer.explore && String(aiCareer.explore).trim())) || (!!original.title && !!aiCareer.title && original.title !== aiCareer.title);\n  const metadata = wasReplaced ? { origin: 'chat_replacement' } : Object.assign({}, original.metadata || {});\n  if (!careerId || !uuidRegex.test(careerId)) {\n    careerId = original.id;\n  }\n  \n  return {\n    json: {\n      id: careerId,\n      section_type: 'outside_box',\n      title: wasReplaced ? aiCareer.title : (original.title || aiCareer.title),\n      metadata: metadata,\n      feedback_category: aiCareer.category,\n      content: aiCareer.content,\n      feedback: aiCareer.feedback || 'No changes needed based on your feedback.',\n      explore: aiCareer.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
+        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get data from the Combine node\nconst combineData = $('Separator4').first().json;\nconst careers = combineData.careers || [];\nconst outputCareers = aiResponse.outside_box || [];\n\n// UUID validation regex\nconst uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n\nconst updates = outputCareers.map((aiCareer, index) => {\n  let careerId = aiCareer.id;\n  \n  // Validate UUID - fallback to matching by title if invalid\nconst original = careers.find(c => c.id === aiCareer.id) || careers.find(c => c.title === aiCareer.title) || careers[index] || {};\n  const wasReplaced = (!!(aiCareer.explore && String(aiCareer.explore).trim())) || (!!original.title && !!aiCareer.title && original.title !== aiCareer.title);\n  const metadata = wasReplaced ? { origin: 'chat_replacement' } : Object.assign({}, original.metadata || {});\n  if (!careerId || !uuidRegex.test(careerId)) {\n    careerId = original.id;\n  }\n  // Category 0 and not replaced = nothing to change: keep the stored text.\n  const keepOriginal = Number(aiCareer.category) === 0 && !wasReplaced && typeof original.content === 'string' && original.content !== '';\n  \n  return {\n    json: {\n      id: careerId,\n      section_type: 'outside_box',\n      title: wasReplaced ? aiCareer.title : (original.title || aiCareer.title),\n      metadata: metadata,\n      feedback_category: aiCareer.category,\n      content: keepOriginal ? original.content : aiCareer.content,\n      feedback: aiCareer.feedback || 'No changes needed based on your feedback.',\n      explore: aiCareer.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -364,7 +364,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get data from the Combine node\nconst combineData = $('Separator5').first().json;\nconst jobs = combineData.jobs || [];\n\n// Handle both possible keys from AI response\nconst outputJobs = aiResponse.dream_jobs || aiResponse.jobs || [];\n\n// UUID validation regex\nconst uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n\nconst updates = outputJobs.map((aiJob, index) => {\n  let jobId = aiJob.id;\n  \n  // Validate UUID - fallback to matching by title if invalid\n  if (!jobId || !uuidRegex.test(jobId)) {\n    const original = jobs.find(j => j.title === aiJob.title) || jobs[index] || {};\n    jobId = original.id;\n  }\n  \n  return {\n    json: {\n      id: jobId,\n      section_type: 'dream_jobs',\n      title: aiJob.title,\n      feedback_category: aiJob.category,\n      content: aiJob.content,\n      feedback: aiJob.feedback || 'No changes needed.',\n      explore: aiJob.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
+        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get data from the Combine node\nconst combineData = $('Separator5').first().json;\nconst jobs = combineData.jobs || [];\n\n// Handle both possible keys from AI response\nconst outputJobs = aiResponse.dream_jobs || aiResponse.jobs || [];\n\n// UUID validation regex\nconst uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n\nconst updates = outputJobs.map((aiJob, index) => {\n  let jobId = aiJob.id;\n  const original = jobs.find(j => j.id === aiJob.id) || jobs.find(j => j.title === aiJob.title) || jobs[index] || {};\n  \n  // Validate UUID - fallback to matching by title if invalid\n  if (!jobId || !uuidRegex.test(jobId)) {\n    jobId = original.id;\n  }\n  // Category 0 = nothing to change for this job: keep its stored text.\n  const keepOriginal = Number(aiJob.category) === 0 && typeof original.content === 'string' && original.content !== '';\n  \n  return {\n    json: {\n      id: jobId,\n      section_type: 'dream_jobs',\n      title: keepOriginal ? (original.title || aiJob.title) : aiJob.title,\n      feedback_category: aiJob.category,\n      content: keepOriginal ? original.content : aiJob.content,\n      feedback: aiJob.feedback || 'No changes needed.',\n      explore: aiJob.explore || '',\n      report_id: aiResponse.report_id || combineData.report_id,\n      first_name: combineData.first_name || ''\n    }\n  };\n});\n\nreturn updates;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -520,7 +520,7 @@
     },
     {
       "parameters": {
-        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get career ID and first_name from the Build prompt node\nconst buildData = $('Build Top Career Prompt').first().json;\n\nreturn [{\n  json: {\n    id: buildData.career_id,\n    section_type: aiResponse.section_type || buildData.section_type,\n    feedback_category: aiResponse.category,\n    content: aiResponse.content,\n    feedback: aiResponse.feedback || 'No changes needed based on your feedback.',\n    explore: aiResponse.explore || '',\n    report_id: aiResponse.report_id || buildData.report_id,\n    first_name: buildData.first_name || ''\n  }\n}];"
+        "jsCode": "let aiOutput = $input.first().json.text;\naiOutput = aiOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n\nlet aiResponse;\ntry {\n  aiResponse = JSON.parse(aiOutput);\n} catch (error) {\n  return [{\n    json: {\n      error: 'AI response was not valid JSON',\n      raw_output: aiOutput\n    }\n  }];\n}\n\n// Get career ID and first_name from the Build prompt node\nconst buildData = $('Build Top Career Prompt').first().json;\nconst sectionType = aiResponse.section_type || $('Parse Query').first().json.section_type;\n\n// The row we edited (whichever Get TopN ran). Category 0 = nothing to change:\n// keep the stored text exactly, so a \"looks good\" never rewrites the card\n// (it used to come back re-worded, and Encore's Dutch cards came back English).\nlet original = null;\nfor (const n of ['Get Top1', 'Get Top2', 'Get Top3']) {\n  try {\n    const row = $(n).first().json;\n    if (row && row.section_type === sectionType) { original = row; break; }\n  } catch (e) { /* node did not run */ }\n}\nconst keepOriginal = Number(aiResponse.category) === 0 && original && typeof original.content === 'string';\n\nreturn [{\n  json: {\n    id: buildData.career_id,\n    section_type: sectionType,\n    feedback_category: aiResponse.category,\n    content: keepOriginal ? original.content : aiResponse.content,\n    feedback: aiResponse.feedback || 'No changes needed based on your feedback.',\n    explore: aiResponse.explore || '',\n    report_id: aiResponse.report_id || $('Parse Query').first().json.report_id,\n    first_name: $('Parse Query').first().json.first_name || ''\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -904,7 +904,7 @@
             {
               "id": "top123_prompt",
               "name": "prompt",
-              "value": "=# ROLE\nYou are an expert editor for career assessment feedback.\n\n# TASK\nProcess feedback for TOP CAREER: {{ $json.title }}\n\n## CATEGORIES:\n- CAT. 0: No actionable feedback (\"looks good\", \"accurate\") - return original unchanged\n- CAT. 1: Minor feedback - small adjustments\n- CAT. 2: Significant feedback or exploration request - detailed adjustments/additions\n\n# RULES:\n- DO NOT invent feedback\n- Keep adjusted content similar length (unless adding exploration content)\n- Business casual tone\n- **NEVER use survey question lables in your output! eg. '4l', '7e'**\n- Use user's name  {{ $('Parse Query').item.json.first_name }} and 'you'. SECOND PERSON perspective!\n- If explore contains a new career suggestion from the agent, integrate it properly\n\n# OUTPUT FORMAT\nReturn ONLY JSON:\n```json\n{\n  \"section_type\": \"{{ $json.section_type }}\",\n  \"category\": 0, 1, or 2,\n  \"content\": \"adjusted or original content\",\n  \"feedback\": \"summary of feedback addressed or 'No changes needed based on your feedback.'\",\n  \"explore\": \"new content generated from exploration request, or empty string if none\",\n  \"report_id\": {{ $json.report_id }}\n}\n```\n\n# OTHER INPUT\n**Section Type:** {{ $json.section_type }}\n\n**Original Content:**\n{{ $json.content }}\n\n**Feedback:**\n{{ $('Route by Section Type').item.json.feedback }}\n\n**Explore Request:**\n{{ $('Route by Section Type').item.json.explore }}\n\n\n# OUTPUT LANGUAGE\npreferred_language = {{ $('Get Report Language').first().json.language }}\nIf preferred_language is NOT 'nl', produce the regenerated content in English as instructed above.\nIf preferred_language IS 'nl', the content you produce must be in Dutch: informal je/jij/jouw (never 'u'), no em-dashes, Dutch number/date formatting (€39,00, €1.500, dd-mm-jjjj). Match the language and structure of the existing section content shown above: keep the same <h5>/<h3>/<h4>/<strong> subheaders and HTML tags, translate only the visible text. Keep brand and feature names in English (Cairnly, outside-the-box, runner-up) and keep AI-impact rating labels in English (Minimal, Moderate, High, Severe, Critical). Do NOT change the required JSON output structure - only the natural-language text inside it.",
+              "value": "=# ROLE\nYou are an expert editor for career assessment feedback.\n\n# TASK\nProcess feedback for TOP CAREER: {{ $json.title }}\n\n## CATEGORIES:\n- CAT. 0: No actionable feedback (\"looks good\", \"accurate\") - return original unchanged\n- CAT. 1: Minor feedback - small adjustments\n- CAT. 2: Significant feedback or exploration request - detailed adjustments/additions\n\n# RULES:\n- DO NOT invent feedback\n- Keep adjusted content similar length (unless adding exploration content)\n- Business casual tone\n- Never use the false-contrast \"It's not X, it's Y\" structure (or \"not just X, but Y\") — it's an AI tell\n- **NEVER use survey question lables in your output! eg. '4l', '7e'**\n- Use user's name  {{ $('Parse Query').item.json.first_name }} and 'you'. SECOND PERSON perspective!\n- If explore contains a new career suggestion from the agent, integrate it properly\n- If the user rejected or doubted part of this career (a setting, a route such as self-employment, the hours), say so honestly in the content and adjust the advice to what they told you. Do not keep recommending what they ruled out.\n\n# OUTPUT FORMAT\nReturn ONLY JSON:\n```json\n{\n  \"section_type\": \"{{ $json.section_type }}\",\n  \"category\": 0, 1, or 2,\n  \"content\": \"adjusted or original content\",\n  \"feedback\": \"summary of feedback addressed or 'No changes needed based on your feedback.'\",\n  \"explore\": \"new content generated from exploration request, or empty string if none\",\n  \"report_id\": {{ $json.report_id }}\n}\n```\n\n# OTHER INPUT\n**Section Type:** {{ $json.section_type }}\n\n**Original Content:**\n{{ $json.content }}\n\n**Feedback:**\n{{ $('Parse Query').item.json.feedback }}\n\n**Explore Request:**\n{{ $('Parse Query').item.json.explore }}\n\n\n# OUTPUT LANGUAGE\nProduce the regenerated content in English. Always. The existing section content above is the canonical English version; match its structure (<h5>/<h3>/<h4>/<strong> subheaders, rating labels, any JSON structure) exactly. The user's feedback may be in another language — understand it, but write English. The platform re-translates the section afterwards (language contract).",
               "type": "string"
             }
           ]
@@ -1055,6 +1055,36 @@
         "supabaseApi": {
           "id": "jYr9UcuCbwO8Um80",
           "name": "SB Cairnly (n8n cred)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://pcoyafgsirrznhmdaiji.functions.supabase.co/translate-section",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"report_id\": \"{{ $('Parse Query').first().json.report_id }}\"}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -4876,
+        -395
+      ],
+      "id": "ccf36c65-e622-482f-b851-78df1afa42ce",
+      "name": "Translate Updated Section",
+      "onError": "continueRegularOutput",
+      "notes": "Language contract: re-translate the section(s) WF6 just rewrote (the DB trigger wiped their stored translations). Batch mode: translates whatever is missing for this report. Failure falls back to English display + alert email — never fails the feedback flow.",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "aiABzg04zbeDSXRc",
+          "name": "Supabase Edge Functions — Shared Secret"
         }
       }
     }
@@ -1423,7 +1453,13 @@
     },
     "Update Section in DB": {
       "main": [
-        []
+        [
+          {
+            "node": "Translate Updated Section",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Get Top1": {
@@ -1472,7 +1508,13 @@
     },
     "Update Section in DB1": {
       "main": [
-        []
+        [
+          {
+            "node": "Translate Updated Section",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Get Report Language": {
@@ -1480,6 +1522,17 @@
         [
           {
             "node": "Route by Section Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Section in DB2": {
+      "main": [
+        [
+          {
+            "node": "Translate Updated Section",
             "type": "main",
             "index": 0
           }
@@ -1499,7 +1552,7 @@
   },
   "nodeGroups": [],
   "pinData": {},
-  "versionId": "1d9a652a-e445-4571-803d-c25e71ec768f",
+  "versionId": "d7a3c696-e410-4bc8-aeac-ee4e6704aecf",
   "activeVersionId": "1d9a652a-e445-4571-803d-c25e71ec768f",
   "versionCounter": 34,
   "triggerCount": 0,
