@@ -147,3 +147,4 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF4P and WF3P (surprise cards) Dutch: no English words in titles, no English term in parentheses, no organisation or programme names in titles, wider English-word ban (Heads-up -> Let op, parttime, fulltime, trackrecord, scope, runnen), never invent history (years, what they managed), spelling examples (het ritme, het maatje, VOG, achter u laten).
 - WF3P surprise cards: Dutch path heading is now "Werkvorm en realiteit" (Parse OOB accepts both old and new).
 - translate-section (Encore NL): fixed labels Geld/Tijd/Mensen/Plek, WF6 heading variants pinned, same English-word ban, reflexive "u".
+- WF3P Ranking: runner-ups are also one per activity among themselves (Marjan had two language-buddy cards). A runner-up may still share its activity with a top 3 pick; that is why it was held back. Too few distinct ones: they fill up. Top 3 logic unchanged, eval copy re-synced (diffs 0). Published ecb352d2.
