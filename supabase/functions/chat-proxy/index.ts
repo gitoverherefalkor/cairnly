@@ -94,6 +94,8 @@ interface ChatRequestBody {
     // Set here (never trusted from the client): 'u' for Encore users in
     // Dutch, 'je' otherwise. WF5/WF5C read it for the Dutch register.
     dutch_register?: 'u' | 'je';
+    // Set here: true for Encore, which hides match scores on every surface.
+    hide_scores?: boolean;
     // Survey-sourced coach context (set by ChatContainer from the report's
     // survey responses). We forward the whole body verbatim, so these pass
     // straight through to WF5 without any change here — listed for clarity.
@@ -252,10 +254,12 @@ serve(async (req) => {
   const basicAuthHeader = `Basic ${btoa(`${basicAuthUser}:${sharedSecret}`)}`;
 
   // Dutch register for the coach: Encore says "u", Pro/Starter say "je".
+  // hide_scores: Encore never shows match scores, so the coach must not mention them.
   if (body.metadata && reportId) {
     const lang = String(body.metadata.preferred_language ?? 'en');
-    const encore = lang.startsWith('nl') ? (await getReportProduct(supabase, reportId)).encore : false;
-    body.metadata.dutch_register = encore ? 'u' : 'je';
+    const encore = (await getReportProduct(supabase, reportId)).encore;
+    body.metadata.dutch_register = encore && lang.startsWith('nl') ? 'u' : 'je';
+    body.metadata.hide_scores = encore;
   }
 
   // Lost-reply recovery (first chat only, not the post-report coach). WF5's
