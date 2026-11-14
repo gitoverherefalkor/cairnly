@@ -56,6 +56,16 @@ Rules:
 - Use second person ("you"). No em-dashes; use commas, colons, or parentheses.
 - Output ONLY the bullet list (or the no-substance fallback line). No intro, no outro, no headings.`;
 
+// Encore-only additions (round 11, 2026-11-14). The highlights are read by the
+// user as part of their own report, so they speak to the user directly and
+// stay strictly inside what the conversation said.
+const ENCORE_EXTRA_RULES = `
+
+Extra rules for this report (they override the rules above where they differ):
+- Speak to the user directly. Never mention "the coach", "de coach", "the assistant" or "Cairnly" as a person who said or did something. Write the advice or insight itself ("Probeer het eerst in het klein voordat u zich vastlegt"), not who said it.
+- Use only facts, numbers, durations and examples that appear literally in the transcript. Never add a number, a time span, a frequency or an example that nobody said. If the conversation gave no number, write none.
+- Keep the corrections the user made about themselves (their history, their skills, what they did or did not do, what they want or do not want) as their own bullet, phrased as the corrected fact ("U gaf niet alleen leiding, u deed het werk ook zelf"). The rule "skip anything the user pushed back on" only drops advice they rejected, never their corrections.`;
+
 interface ChatMessageRow {
   sender: 'user' | 'bot';
   content: string;
@@ -213,6 +223,7 @@ serve(async (req) => {
     : { encore: false };
   const registerInstruction = encore
     ? '\n\nAddress the user formally: always "u" and "uw", never "je", "jij" or "jouw", not even as the general "one". Write the report vocabulary in Dutch, overriding the brand-term line above: "runner-up" -> "andere sterke richting", "outside-the-box" -> "verrassende richting". Only Cairnly stays in English.'
+      + ENCORE_EXTRA_RULES
     : '';
   const finalSystemPrompt = SYSTEM_PROMPT + langInstruction + registerInstruction;
 

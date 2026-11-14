@@ -69,6 +69,17 @@ function isNativeTarget(text: string, target: Lang, encore: boolean): boolean {
 /** Pro pins that address the reader as je/jij/jouw must not reach an Encore
  *  ("u") translation; Encore's own pins replace them. */
 const INFORMAL_NL = /\b(je|jij|jou|jouw|jezelf)\b/i;
+/** Encore NL: find "je/jij/jouw" addressing the reader. Quoted words are the
+ *  user's own (e.g. "met die jongens kon je lachen") and are left alone. */
+function informalOutsideQuotes(text: string): string[] {
+  const unquoted = text.replace(/"[^"\n]*"|“[^”\n]*”|„[^”"\n]*[”"]|‘[^’\n]*’/g, ' ');
+  const hits: string[] = [];
+  const re = /[^.!?\n]{0,40}\b(je|jij|jou|jouw|jezelf)\b[^.!?\n]{0,30}/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(unquoted)) && hits.length < 5) hits.push(m[0].trim());
+  return hits;
+}
+
 function pinsFor(target: Lang, encore: boolean): Record<string, string> {
   const base = HEADING_PINS[target] ?? {};
   if (!encore) return base;
@@ -246,6 +257,8 @@ async function translateComparison(
       const parts = parsed.content.split(CMP_SPLIT);
       const failures = [...gate.failures];
       if (parts.length !== 2) failures.push('comparison: split marker missing from answer');
+      const informal = encore && target === 'nl' && attempt === 0 ? informalOutsideQuotes(parsed.content) : [];
+      if (informal.length > 0) failures.push(`informal Dutch found, rewrite in the u-form: ${informal.map((h) => `"${h}"`).join('; ')}`);
       if (failures.length === 0) {
         return { headline: parts[0].trim(), explanation: parts[1].trim() };
       }
@@ -342,6 +355,19 @@ async function translateOne(
       // checks matter, but an all-English job title is legitimate — runGate's
       // sniff returns 'unknown' for short strings, so this stays permissive.
       const failures = [...contentGate.failures, ...(titleGate.ok ? [] : titleGate.failures)];
+      // Encore Dutch is "u" only. A stray "je" (often the general "one", as in
+      // "dit zie je terug") gets one corrective pass. On the last attempt it
+      // does not block the write: a near-perfect "u" text beats English.
+      const informal = encore && target === 'nl'
+        ? informalOutsideQuotes(`${parsed.title ?? ''}\n${parsed.content}`)
+        : [];
+      if (informal.length > 0) {
+        if (attempt === 0) {
+          failures.push(`informal Dutch found, rewrite these in the u-form (also the general "je", e.g. "dit ziet u terug" or "dit is terug te zien"): ${informal.map((h) => `"${h}"`).join('; ')}`);
+        } else {
+          console.warn(`[translate-section] ${row.section_type} ${row.id}: informal Dutch left after retry: ${informal.join(' | ')}`);
+        }
+      }
 
       if (failures.length === 0) {
         // The comparison prose rides along with the main entry when present.
