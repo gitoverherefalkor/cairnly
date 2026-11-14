@@ -155,6 +155,15 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF4P code: the organisation-type line under each title (Split Top3, Parse runner up) is translated to Dutch in code for Dutch reports ("Non-profit" -> "Maatschappelijke organisatie", sizes, sectors).
 - App: the role counter on the work-history question uses the real maximum (4 for Encore, 5 for Pro) instead of a fixed "/5".
 
+## Round 13 fixes (2026-11-14)
+- Prompts (surprise in WF3P, top 3 and runner-ups in WF4P): no parentheses in any direction title, and Dutch titles
+  give only the first word a capital. The old "sector qualifier in parentheses is fine" line is gone.
+- Top 3 and runner-ups: when the salary range names hours or days, the Time line uses the same ones.
+- All four prompts: past jobs keep the titles they gave (operations manager is not "vestigingsmanager"); top 3 and
+  runner-ups describe the new work only from the enriched data. Published WF3P e7e95e6b, WF4P 774f6ed6.
+- translate-section: a section title that matches a heading pin always gets the pinned translation (the Dutch
+  dashboard showed "Executive Summary"). Edge functions deployed from 759ef1ec.
+
 ## Load fix: chain stages as sub-workflows (2026-11-14)
 Round 12 sent 5 submits within 2 minutes and the coach froze. Cause: the n8n plan runs at most 5 production
 executions at once (webhook and trigger starts count; sub-workflow and error runs do not, per
