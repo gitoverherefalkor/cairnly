@@ -1254,8 +1254,8 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
           </svg>
           {t('careerHistory.addRole')}{' '}
           {activeFilledCount >= MAX_ACTIVE_ROLES
-            ? t('careerHistory.addRoleMax')
-            : t('careerHistory.addRoleCount', { count: activeFilledCount })}
+            ? t('careerHistory.addRoleMax', { max: MAX_ACTIVE_ROLES })
+            : t('careerHistory.addRoleCount', { count: activeFilledCount, max: MAX_ACTIVE_ROLES })}
         </button>
       );
 

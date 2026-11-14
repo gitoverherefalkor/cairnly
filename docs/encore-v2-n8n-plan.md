@@ -148,3 +148,9 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF3P surprise cards: Dutch path heading is now "Werkvorm en realiteit" (Parse OOB accepts both old and new).
 - translate-section (Encore NL): fixed labels Geld/Tijd/Mensen/Plek, WF6 heading variants pinned, same English-word ban, reflexive "u".
 - WF3P Ranking: runner-ups are also one per activity among themselves (Marjan had two language-buddy cards). A runner-up may still share its activity with a top 3 pick; that is why it was held back. Too few distinct ones: they fill up. Top 3 logic unchanged, eval copy re-synced (diffs 0). Published ecb352d2.
+
+## Round 11 fixes (2026-11-14)
+- WF3P Ranking: runner-ups also avoid the activity of a top 3 pick (Marjan's "Voorlezer in de bibliotheek" next to #1 read as a duplicate to both reviewers). Repeats only fill up when fewer than 3 distinct ones exist, and then get the "similar to your top 3" sentence. Top 3 unchanged; eval copy synced (diffs 0). Published 2c9ef882.
+- WF4P and WF3P prompts: a stricter facts line (no years other than theirs, no staff types or "reports to" they did not write, no added anecdotes, nothing they "already" do more often than they wrote); Time lines always carry "per week" or "per maand"; Dutch titles must be terms people recognise from listings (no "Getuigeniswerker"); "supply chain" and "non-profit" added to the English-word ban. WF4P published f316de08.
+- WF4P code: the organisation-type line under each title (Split Top3, Parse runner up) is translated to Dutch in code for Dutch reports ("Non-profit" -> "Maatschappelijke organisatie", sizes, sectors).
+- App: the role counter on the work-history question uses the real maximum (4 for Encore, 5 for Pro) instead of a fixed "/5".
