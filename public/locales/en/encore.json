@@ -133,5 +133,103 @@
     "eyebrow": "Cairnly Encore",
     "title": "Get your Encore assessment",
     "subtitle": "One-time payment. Assessment, report and coach chat included."
+  },
+  "facts": {
+    "eyebrow": "The Dutch picture",
+    "title": "You are not the exception. You are the new normal.",
+    "intro": "Working past 65 used to be rare. Now it is common, and the options are wider than most people expect. Figures for the Netherlands, from official sources.",
+    "work": {
+      "num": "49.6%",
+      "text": "of 65-year-olds were still working in 2024. In 2013 it was 14.9%.",
+      "source": "CBS, 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk"
+    },
+    "life": {
+      "num": "21 years",
+      "text": "is how long a 65-year-old in the Netherlands is expected to live on, on current forecasts for 2030. Enough time for a second act.",
+      "source": "CBS, forecast 2030",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/45/prognose-levensverwachting-65-jarigen-20-96-jaar-in-2030"
+    },
+    "age": {
+      "num": "+77%",
+      "text": "more age discrimination reports to the Netherlands Institute for Human Rights in 2025 than in 2024 (175 reports). Age is on the radar.",
+      "source": "College voor de Rechten van de Mens, 2025",
+      "href": "https://www.mensenrechten.nl/actueel/nieuws/2026/02/05/starter-gezocht-leeftijd-steeds-vaker-reden-voor-discriminatie"
+    },
+    "ageBars": {
+      "title": "Share of people in work, by age",
+      "note": "Fewer people work as they age, but a real group carries on, often part time.",
+      "source": "CBS, Q2 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk",
+      "bars": [
+        {
+          "label": "55 to 60",
+          "value": "81%",
+          "pct": 81.2
+        },
+        {
+          "label": "60 to 65",
+          "value": "69%",
+          "pct": 69.0
+        },
+        {
+          "label": "65 to 70",
+          "value": "29%",
+          "pct": 29.2
+        },
+        {
+          "label": "70 to 75",
+          "value": "10%",
+          "pct": 10.0
+        }
+      ]
+    },
+    "aiBars": {
+      "title": "Share who use AI like ChatGPT, by age",
+      "note": "Experience alone is no longer enough for paid knowledge work. AI skills close that gap, and they can be learned.",
+      "source": "CBS, 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/36/bijna-kwart-nederlanders-gebruikt-kunstmatige-intelligentie-zoals-chatgpt",
+      "bars": [
+        {
+          "label": "18 to 25",
+          "value": "49%",
+          "pct": 48.7
+        },
+        {
+          "label": "45 to 55",
+          "value": "21%",
+          "pct": 21.0
+        },
+        {
+          "label": "55 to 65",
+          "value": "12%",
+          "pct": 12.1
+        },
+        {
+          "label": "65 to 75",
+          "value": "5%",
+          "pct": 5.2
+        }
+      ]
+    },
+    "sourceLabel": "Source"
+  },
+  "preview": {
+    "eyebrow": "A look inside",
+    "title": "This is what one direction in your report looks like",
+    "intro": "An example from a fictional profile. Your own report has three of these, written for you.",
+    "card": {
+      "tag": "Direction 1 of 3",
+      "exampleNote": "Example, fictional profile: retired finance director, 63",
+      "title": "Independent adviser to supervisory boards",
+      "fitLabel": "Why it fits you",
+      "fit": "You spent twenty years being the person who asked the uncomfortable question in the budget meeting. Boards pay for exactly that, and your low need for the spotlight suits a role where the value is in the questions, not the title.",
+      "hoursLabel": "At your hours",
+      "hours": "6 to 10 hours a week, in blocks you plan around family and travel.",
+      "wayInLabel": "How people in your position get in",
+      "wayIn": "Through the commissaris registers, two or three former colleagues who now sit on boards, and one advisory seat at a smaller organisation to build a track record.",
+      "honestLabel": "The honest part",
+      "honest": "Age rarely blocks this route, and often helps. What is asked of you now is basic comfort with AI tools for reading board papers. Start small: one hour a week."
+    }
   }
 }

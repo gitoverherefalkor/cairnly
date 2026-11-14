@@ -133,5 +133,103 @@
     "eyebrow": "Cairnly Encore",
     "title": "Start uw Encore-vragenlijst",
     "subtitle": "Eenmalige betaling. Vragenlijst, rapport en coachgesprekken inbegrepen."
+  },
+  "facts": {
+    "eyebrow": "Het Nederlandse beeld",
+    "title": "U bent niet de uitzondering. U bent de nieuwe norm.",
+    "intro": "Doorwerken na uw 65e was zeldzaam. Nu is het gewoon, en de mogelijkheden zijn breder dan de meeste mensen denken. Cijfers voor Nederland, uit officiële bronnen.",
+    "work": {
+      "num": "49,6%",
+      "text": "van de 65-jarigen werkte in 2024 nog. In 2013 was dat 14,9%.",
+      "source": "CBS, 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk"
+    },
+    "life": {
+      "num": "21 jaar",
+      "text": "verwacht een 65-jarige in Nederland nog te leven, volgens de huidige prognose voor 2030. Tijd genoeg voor een tweede bedrijf.",
+      "source": "CBS, prognose 2030",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/45/prognose-levensverwachting-65-jarigen-20-96-jaar-in-2030"
+    },
+    "age": {
+      "num": "+77%",
+      "text": "meer meldingen van leeftijdsdiscriminatie bij het College voor de Rechten van de Mens in 2025 dan in 2024 (175 meldingen). Leeftijd staat op de kaart.",
+      "source": "College voor de Rechten van de Mens, 2025",
+      "href": "https://www.mensenrechten.nl/actueel/nieuws/2026/02/05/starter-gezocht-leeftijd-steeds-vaker-reden-voor-discriminatie"
+    },
+    "ageBars": {
+      "title": "Aandeel werkenden per leeftijd",
+      "note": "Met de jaren werken er minder mensen, maar een serieuze groep gaat door, vaak in deeltijd.",
+      "source": "CBS, 2e kwartaal 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk",
+      "bars": [
+        {
+          "label": "55 tot 60",
+          "value": "81%",
+          "pct": 81.2
+        },
+        {
+          "label": "60 tot 65",
+          "value": "69%",
+          "pct": 69.0
+        },
+        {
+          "label": "65 tot 70",
+          "value": "29%",
+          "pct": 29.2
+        },
+        {
+          "label": "70 tot 75",
+          "value": "10%",
+          "pct": 10.0
+        }
+      ]
+    },
+    "aiBars": {
+      "title": "Aandeel dat AI gebruikt, zoals ChatGPT",
+      "note": "Ervaring alleen is niet genoeg voor betaald kenniswerk. AI-vaardigheid vult dat aan, en is te leren.",
+      "source": "CBS, 2024",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/36/bijna-kwart-nederlanders-gebruikt-kunstmatige-intelligentie-zoals-chatgpt",
+      "bars": [
+        {
+          "label": "18 tot 25",
+          "value": "49%",
+          "pct": 48.7
+        },
+        {
+          "label": "45 tot 55",
+          "value": "21%",
+          "pct": 21.0
+        },
+        {
+          "label": "55 tot 65",
+          "value": "12%",
+          "pct": 12.1
+        },
+        {
+          "label": "65 tot 75",
+          "value": "5%",
+          "pct": 5.2
+        }
+      ]
+    },
+    "sourceLabel": "Bron"
+  },
+  "preview": {
+    "eyebrow": "Een kijkje binnen",
+    "title": "Zo ziet één richting in uw rapport eruit",
+    "intro": "Een voorbeeld bij een fictief profiel. Uw eigen rapport bevat er drie, geschreven voor u.",
+    "card": {
+      "tag": "Richting 1 van 3",
+      "exampleNote": "Voorbeeld, fictief profiel: gepensioneerd financieel directeur, 63",
+      "title": "Onafhankelijk adviseur voor raden van toezicht",
+      "fitLabel": "Waarom dit bij u past",
+      "fit": "U was twintig jaar degene die in het budgetoverleg de ongemakkelijke vraag stelde. Toezichthouders betalen precies daarvoor, en dat u weinig behoefte heeft aan een podium past bij een rol waarin de waarde in de vragen zit, niet in de titel.",
+      "hoursLabel": "Bij uw uren",
+      "hours": "6 tot 10 uur per week, in blokken die u om gezin en reizen heen plant.",
+      "wayInLabel": "Hoe mensen in uw positie binnenkomen",
+      "wayIn": "Via de commissarissenregisters, twee of drie oud-collega's die nu in raden zitten, en één adviserende rol bij een kleinere organisatie om een staat van dienst op te bouwen.",
+      "honestLabel": "Het eerlijke deel",
+      "honest": "Leeftijd blokkeert deze route zelden en helpt vaak. Wat nu van u gevraagd wordt is basisgemak met AI-hulpmiddelen om bestuursstukken te lezen. Begin klein: één uur per week."
+    }
   }
 }

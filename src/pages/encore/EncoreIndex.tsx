@@ -7,6 +7,9 @@ import EncoreHero from '@/components/encore/EncoreHero';
 import IdentitySection from '@/components/encore/IdentitySection';
 import EncoreHowItWorks from '@/components/encore/EncoreHowItWorks';
 import EncoreWhatYouGet from '@/components/encore/EncoreWhatYouGet';
+import EncoreFacts from '@/components/encore/EncoreFacts';
+import EncoreReportPreview from '@/components/encore/EncoreReportPreview';
+import CairnRail from '@/components/landing/CairnRail';
 import EncorePricing from '@/components/encore/EncorePricing';
 import EncoreFAQ from '@/components/encore/EncoreFAQ';
 import EncoreFinalCTA from '@/components/encore/EncoreFinalCTA';
@@ -19,6 +22,9 @@ import { useTranslation } from 'react-i18next';
  * the visual language of the pro landing page but rendered a size up for
  * readability (this audience reads glasses-on).
  */
+/** Sections the cairn counts: five stones, then the capstone on pricing. */
+const ENCORE_RAIL_SECTIONS = ['identity', 'facts', 'how-it-works', 'what-you-get', 'report-preview', 'pricing'];
+
 const EncoreIndex: React.FC = () => {
   // Visitors who start here get Encore's formal Dutch ("u") on signup too.
   useFormalDutch(true);
@@ -43,11 +49,15 @@ const EncoreIndex: React.FC = () => {
         ]}
       />
       <LandingNav variant="page" />
+      {/* Scroll-built cairn, wide screens only (see CairnRail). */}
+      <CairnRail sectionIds={ENCORE_RAIL_SECTIONS} />
       <main>
         <EncoreHero />
         <IdentitySection />
+        <EncoreFacts />
         <EncoreHowItWorks />
         <EncoreWhatYouGet />
+        <EncoreReportPreview />
         <EncorePricing />
         <EncoreFAQ />
         <EncoreFinalCTA />

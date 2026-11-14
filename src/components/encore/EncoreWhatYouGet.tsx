@@ -15,7 +15,7 @@ const EncoreWhatYouGet: React.FC = () => {
   const items = tArray<GetItem>(t, 'get.items');
 
   return (
-    <section className="bg-[#FAF5E8] py-24 md:py-32">
+    <section id="what-you-get" className="bg-[#FAF5E8] py-24 md:py-32 scroll-mt-32">
       <div className="lp-container">
         <Reveal className="max-w-3xl mb-16">
           <div className="lp-eyebrow text-[#1F8282] mb-5">{t('get.eyebrow')}</div>

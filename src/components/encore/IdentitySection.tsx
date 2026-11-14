@@ -17,7 +17,7 @@ const IdentitySection: React.FC = () => {
   const bullets = tArray<IdentityBullet>(t, 'identity.bullets');
 
   return (
-    <section className="bg-[#FAF5E8] py-24 md:py-32">
+    <section id="identity" className="bg-[#FAF5E8] py-24 md:py-32 scroll-mt-32">
       <div className="lp-container">
         <Reveal className="max-w-3xl mb-14">
           <div className="lp-eyebrow text-[#1F8282] mb-5">{t('identity.eyebrow')}</div>

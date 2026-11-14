@@ -19,9 +19,14 @@ import CairnProgress from '@/components/survey/CairnProgress';
 /** Six pieces for six sections: five stones, then the capstone. Just the
  *  stones, no label: the section eyebrow that sat above the cairn was dropped
  *  on 2026-09-28 because each section already names itself. */
-const SECTION_IDS = ['why-cairnly', 'is-it-for-you', 'methodology', 'comparison', 'pricing', 'about'] as const;
+const HOME_SECTION_IDS = ['why-cairnly', 'is-it-for-you', 'methodology', 'comparison', 'pricing', 'about'];
 
-const STONES = 5;
+interface CairnRailProps {
+  /** Section element ids to count, in page order. The last one lands the
+   *  capstone, every id before it drops a stone (max 5 stones). Defaults to
+   *  the homepage's six sections; the Encore landing passes its own. */
+  sectionIds?: string[];
+}
 
 /** Luminance of a computed rgb()/rgba() colour, 0-1. Transparent counts as light. */
 function isDarkBackground(color: string): boolean {
@@ -32,7 +37,9 @@ function isDarkBackground(color: string): boolean {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.4;
 }
 
-const CairnRail: React.FC = () => {
+const CairnRail: React.FC<CairnRailProps> = ({ sectionIds = HOME_SECTION_IDS }) => {
+  const STONES = Math.min(5, sectionIds.length - 1);
+  const idsKey = sectionIds.join('|');
   const [placed, setPlaced] = useState(0);
   const [dark, setDark] = useState(false);
   const [overPage, setOverPage] = useState(false);
@@ -45,7 +52,7 @@ const CairnRail: React.FC = () => {
       // scrolled past a line ~42% down the viewport.
       const line = window.innerHeight * 0.42;
       let count = 0;
-      SECTION_IDS.forEach((id, i) => {
+      sectionIds.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top <= line) count = i + 1;
       });
@@ -72,7 +79,7 @@ const CairnRail: React.FC = () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [idsKey]);
 
   const crowned = placed > STONES;
 
