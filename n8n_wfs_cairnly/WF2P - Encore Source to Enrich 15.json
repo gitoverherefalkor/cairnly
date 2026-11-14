@@ -3,12 +3,12 @@
   "name": "WF2P - Encore Source to Enrich 15",
   "active": true,
   "isArchived": false,
-  "versionId": "1c9907a0-b7c9-4275-b847-b0ee0f20da67",
-  "activeVersionId": "7bd0ad70-1b1a-4b6c-bcee-1746057ccaf8",
+  "versionId": "4b125a62-f777-4bb9-91ef-4af43a48f73f",
+  "activeVersionId": "4b125a62-f777-4bb9-91ef-4af43a48f73f",
   "triggerCount": 1,
-  "nodeCount": 33,
+  "nodeCount": 36,
   "createdAt": "2026-07-06T12:39:38.645Z",
-  "updatedAt": "2026-11-13T12:28:29.928Z",
+  "updatedAt": "2026-11-14T10:32:29.404Z",
   "settings": {
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner",
@@ -201,17 +201,6 @@
         ]
       ]
     },
-    "Merge1": {
-      "main": [
-        [
-          {
-            "node": "Call WF3P webhook (Encore scoring)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Aggregate2": {
       "main": [
         [
@@ -365,17 +354,6 @@
         ]
       ]
     },
-    "Encore Webhook (from WF1P)": {
-      "main": [
-        [
-          {
-            "node": "Claim report (dedupe)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Claim report (dedupe)": {
       "main": [
         [
@@ -408,25 +386,53 @@
           }
         ]
       ]
+    },
+    "Encore Webhook (from WF1P)": {
+      "main": [
+        [
+          {
+            "node": "Claim report (dedupe)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rerun webhook (old URL)": {
+      "main": [
+        [
+          {
+            "node": "Start this workflow (rerun)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Hand-off body for WF3P",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hand-off body for WF3P": {
+      "main": [
+        [
+          {
+            "node": "Start WF3P (no wait)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "a4e3abe2-4a32-4a55-8457-829df0b30ef3",
-        "options": {}
-      },
-      "id": "fb851d40-bb2a-4103-a172-1d32acc8f76b",
-      "name": "Encore Webhook (from WF1P)",
-      "webhookId": "9d4b1f6e-2a7c-4c53-b8e1-0f5a6d9c3e72",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        -6384,
-        4224
-      ]
-    },
     {
       "parameters": {
         "assignments": {
@@ -1069,30 +1075,6 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://falkoratlas.app.n8n.cloud/webhook/c7b2b624-99be-4123-b6f8-5a10d0ec5919",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "report_id",
-              "value": "={{ $('repID1').first().json['report id'] }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "c882178f-74b3-4009-8194-7fab0f73df0e",
-      "name": "Call WF3P webhook (Encore scoring)",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -48,
-        4240
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "https://pcoyafgsirrznhmdaiji.supabase.co/rest/v1/rpc/claim_workflow_stage",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
@@ -1162,6 +1144,93 @@
         -5712,
         4224
       ]
+    },
+    {
+      "id": "ca607868-768d-43c9-aeaf-ac0e6f400087",
+      "name": "Encore Webhook (from WF1P)",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -6384,
+        4224
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      }
+    },
+    {
+      "id": "b0678a41-af99-485f-9390-3309d67e971c",
+      "name": "Rerun webhook (old URL)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -6384,
+        4544
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "options": {},
+        "path": "a4e3abe2-4a32-4a55-8457-829df0b30ef3"
+      },
+      "notes": "Old webhook URL, kept for manual reruns and old callers. It starts this same workflow as a sub-workflow, so the run does not hold one of the 5 n8n slots.",
+      "webhookId": "fb23af73-d7a5-4561-a6ea-d8dc900d4a94"
+    },
+    {
+      "id": "a0e934f6-d8ba-4452-ac98-00d0ab189254",
+      "name": "Start this workflow (rerun)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -6144,
+        4544
+      ],
+      "parameters": {
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "HOuMhANfFnDjUqmw"
+        }
+      }
+    },
+    {
+      "id": "6df62458-0372-4539-8852-8d0eea8fb056",
+      "name": "Hand-off body for WF3P",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        4240
+      ],
+      "parameters": {
+        "jsCode": "// Load fix (2026-11-14): the next stage starts as a sub-workflow that\n// does not wait. Sub-workflow runs do not count toward the n8n plan's\n// limit of 5 running executions, so the report chain no longer fills\n// every slot and blocks the coach chat. One item = one start.\nreturn [{ json: { body: { report_id: $('repID1').first().json['report id'] } } }];"
+      }
+    },
+    {
+      "id": "c95fa5b5-6c0b-448e-93b8-cfbf03f5438f",
+      "name": "Start WF3P (no wait)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        4240
+      ],
+      "parameters": {
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": false
+        },
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "oqS22CXD84dAqwjk"
+        }
+      }
     }
   ],
   "nodeGroups": [],
@@ -1428,7 +1497,7 @@
       },
       {
         "parameters": {
-          "jsCode": "const raw = $json.text;\n\nconst jsonMatch = raw.match(/```json\\n([\\s\\S]*?)\\n```/);\nif (!jsonMatch) {\n  throw new Error(\"Could not find a JSON block in the input text.\");\n}\n\nconst cleanJsonString = jsonMatch[1].trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleanJsonString);\n} catch (e) {\n  throw new Error(\"Failed to parse extracted JSON. Error: \" + e.message);\n}\n\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Build lookup from suitable_15 with multiple matching strategies\nconst suitable15Raw = $('suitable_15').item.json.text;\nconst s15Match = suitable15Raw.match(/```json\\n([\\s\\S]*?)\\n```/);\nlet s15Careers = [];\n\nif (s15Match) {\n  try {\n    const s15Parsed = JSON.parse(s15Match[1].trim());\n    s15Careers = s15Parsed.careers || [];\n  } catch (e) {\n    // continue without path data\n  }\n}\n\nconst byTitleAndSize = {};\nconst byTitle = {};\n\ns15Careers.forEach(c => {\n  const t = normalizeKey(c.career_title);\n  const ts = `${t}||${normalizeKey(c.company_size_type)}`;\n  byTitleAndSize[ts] = c;\n  byTitle[t] = c;\n});\n\nreturn parsed.map((item, idx) => {\n  const t = normalizeKey(item.career_title);\n  const ts = `${t}||${normalizeKey(item.company_size_type)}`;\n\n  // Match by title+company first (most precise), then title alone,\n  // then fall back to position if the array lengths align\n  let match = byTitleAndSize[ts] || byTitle[t];\n  if (!match && s15Careers.length === parsed.length) {\n    match = s15Careers[idx];\n  }\n\n  const formatted =\n    `Career Title: ${item.career_title}\\n` +\n    `Company: ${item.company_size_type}\\n` +\n    `AI Impact: ${item.ai_impact_rating?.rating} - ${item.ai_impact_rating?.explanation}\\n` +\n    `Exp. salary range in ${item.salary?.region}: ${item.salary?.range}`;\n\n  return {\n    json: {\n      ...item,\n      path_type: match?.path_type || null,\n      path_type_notes: match?.path_type_notes || null,\n      formatted_output: formatted\n    }\n  };\n});"
+          "jsCode": "// Pull the JSON out of a model answer: a fenced block if there is one,\n// otherwise the whole text, otherwise the span from the first { or [ to the\n// last } or ]. Encore v2: suitable_15 stopped fencing its JSON, which made\n// the old fence-only match return nothing and left path_type empty.\nfunction extractJson(text) {\n  const t = String(text || '');\n  const fence = t.match(/```(?:json)?\\s*([\\s\\S]*?)```/i);\n  const candidates = [];\n  if (fence) candidates.push(fence[1]);\n  candidates.push(t);\n  const first = t.search(/[\\[{]/);\n  const last = Math.max(t.lastIndexOf('}'), t.lastIndexOf(']'));\n  if (first >= 0 && last > first) candidates.push(t.slice(first, last + 1));\n  for (const cnd of candidates) {\n    try { return JSON.parse(cnd.trim()); } catch (e) { /* try the next */ }\n  }\n  return null;\n}\n\nconst parsed = extractJson($json.text);\nif (!Array.isArray(parsed)) {\n  throw new Error(\"Could not read the salary JSON array from Salary Range1.\");\n}\n\nfunction normalizeKey(str) {\n  if (!str) return '';\n  return str\n    .toLowerCase()\n    .replace(/[—–-]/g, '-')\n    .replace(/&/g, 'and')\n    .replace(/[^\\w\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Build lookup from suitable_15 with multiple matching strategies\nconst s15Parsed = extractJson($('suitable_15').item.json.text);\nconst s15Careers = (s15Parsed && Array.isArray(s15Parsed.careers)) ? s15Parsed.careers : [];\n\nconst byTitleAndSize = {};\nconst byTitle = {};\n\ns15Careers.forEach(c => {\n  const t = normalizeKey(c.career_title);\n  const ts = `${t}||${normalizeKey(c.company_size_type)}`;\n  byTitleAndSize[ts] = c;\n  byTitle[t] = c;\n});\n\nreturn parsed.map((item, idx) => {\n  const t = normalizeKey(item.career_title);\n  const ts = `${t}||${normalizeKey(item.company_size_type)}`;\n\n  // Match by title+company first (most precise), then title alone,\n  // then fall back to position if the array lengths align\n  let match = byTitleAndSize[ts] || byTitle[t];\n  if (!match && s15Careers.length === parsed.length) {\n    match = s15Careers[idx];\n  }\n\n  const formatted =\n    `Career Title: ${item.career_title}\\n` +\n    `Company: ${item.company_size_type}\\n` +\n    `AI Impact: ${item.ai_impact_rating?.rating} - ${item.ai_impact_rating?.explanation}\\n` +\n    `Exp. salary range in ${item.salary?.region}: ${item.salary?.range}`;\n\n  return {\n    json: {\n      ...item,\n      path_type: match?.path_type || null,\n      path_type_notes: match?.path_type_notes || null,\n      formatted_output: formatted\n    }\n  };\n});"
         },
         "id": "cbca9532-78ec-4e3c-9662-f80238e2bcd5",
         "name": "15TitSizAISal1",

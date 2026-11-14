@@ -154,3 +154,20 @@ From the first eval run (n8n_wfs_cairnly/evals/):
 - WF4P and WF3P prompts: a stricter facts line (no years other than theirs, no staff types or "reports to" they did not write, no added anecdotes, nothing they "already" do more often than they wrote); Time lines always carry "per week" or "per maand"; Dutch titles must be terms people recognise from listings (no "Getuigeniswerker"); "supply chain" and "non-profit" added to the English-word ban. WF4P published f316de08.
 - WF4P code: the organisation-type line under each title (Split Top3, Parse runner up) is translated to Dutch in code for Dutch reports ("Non-profit" -> "Maatschappelijke organisatie", sizes, sectors).
 - App: the role counter on the work-history question uses the real maximum (4 for Encore, 5 for Pro) instead of a fixed "/5".
+
+## Load fix: chain stages as sub-workflows (2026-11-14)
+Round 12 sent 5 submits within 2 minutes and the coach froze. Cause: the n8n plan runs at most 5 production
+executions at once (webhook and trigger starts count; sub-workflow and error runs do not, per
+docs.n8n.io/manage-cloud/concurrency). Each stage called the next stage's webhook over HTTP and waited until
+that run started, so callers held slots, got Cloudflare 524s after 120 s, and WF5 (coach) queued behind them.
+- WF1P -> WF2P -> WF3P -> WF4P now hand off with an Execute Workflow node ("Start WFxP (no wait)", wait off),
+  fed by a small Code node that wraps the old HTTP body as `{ body: ... }`.
+- WF2P/WF3P/WF4P triggers are now Execute Workflow Triggers (passthrough) with the SAME node names as the old
+  webhooks, so every `$('<trigger>').first().json.body` reference keeps working.
+- The old webhook URLs stay as "Rerun webhook (old URL)" in each workflow: it starts the same workflow as a
+  sub-workflow. Manual reruns: n8n execute_workflow, production, triggerNodeName "Rerun webhook (old URL)",
+  webhookData.body as before.
+- Only WF1P (about a minute, started by the app) and the coach still use slots. Pro (WF1-WF4) still chains by
+  webhook and shares the same 5 slots.
+- Open: the n8n docs do not say whether a failing sub-workflow run fires its error workflow; check on the first
+  real failure.
