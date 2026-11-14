@@ -167,7 +167,7 @@ that run started, so callers held slots, got Cloudflare 524s after 120 s, and WF
 - The old webhook URLs stay as "Rerun webhook (old URL)" in each workflow: it starts the same workflow as a
   sub-workflow. Manual reruns: n8n execute_workflow, production, triggerNodeName "Rerun webhook (old URL)",
   webhookData.body as before.
-- Only WF1P (about a minute, started by the app) and the coach still use slots. Pro (WF1-WF4) still chains by
-  webhook and shares the same 5 slots.
+- Only WF1P (about a minute, started by the app) and the coach still use slots. Pro (WF1-WF4) already used
+  no-wait sub-workflows; this brings Encore in line with it.
 - Open: the n8n docs do not say whether a failing sub-workflow run fires its error workflow; check on the first
   real failure.
