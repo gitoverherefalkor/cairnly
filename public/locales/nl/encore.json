@@ -135,20 +135,20 @@
     "subtitle": "Eenmalige betaling. Vragenlijst, rapport en coachgesprekken inbegrepen."
   },
   "facts": {
-    "eyebrow": "Het Nederlandse beeld",
+    "eyebrow": "De cijfers",
     "title": "U bent niet de uitzondering. U bent de nieuwe norm.",
-    "intro": "Doorwerken na uw 65e was zeldzaam. Nu is het gewoon, en de mogelijkheden zijn breder dan de meeste mensen denken. Cijfers voor Nederland, uit officiële bronnen.",
+    "intro": "Doorwerken na uw 65e was zeldzaam. Nu is het gewoon, en de mogelijkheden zijn breder dan de meeste mensen denken. Cijfers uit officiële bronnen, vooral Nederlands, één Europees.",
     "work": {
-      "num": "49,6%",
-      "text": "van de 65-jarigen werkte in 2024 nog. In 2013 was dat 14,9%.",
-      "source": "CBS, 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk"
+      "num": "66 jaar",
+      "text": "en 4 maanden was de gemiddelde pensioenleeftijd in Nederland in 2025, ruim twee maanden later dan een jaar eerder.",
+      "source": "CBS, cijfers 2025",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2026/17/gemiddelde-pensioenleeftijd-gestegen-naar-66-jaar-en-4-maanden"
     },
     "life": {
       "num": "21 jaar",
-      "text": "verwacht een 65-jarige in Nederland nog te leven, volgens de huidige prognose voor 2030. Tijd genoeg voor een tweede bedrijf.",
-      "source": "CBS, prognose 2030",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/45/prognose-levensverwachting-65-jarigen-20-96-jaar-in-2030"
+      "text": "verwacht een 65-jarige in Nederland nog te leven, volgens de CBS-prognose voor 2032 (in 2025: 20,1 jaar). Tijd genoeg voor een tweede bedrijf.",
+      "source": "CBS, prognose nov 2026",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2026/46/prognose-levensverwachting-65-jarigen-21-jaar-in-2032"
     },
     "age": {
       "num": "+77%",
@@ -159,56 +159,46 @@
     "ageBars": {
       "title": "Aandeel werkenden per leeftijd",
       "note": "Met de jaren werken er minder mensen, maar een serieuze groep gaat door, vaak in deeltijd.",
-      "source": "CBS, 2e kwartaal 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk",
+      "source": "CBS, 3e kwartaal 2026",
+      "href": "https://www.cbs.nl/nl-nl/cijfers/detail/85267NED",
       "bars": [
         {
-          "label": "55 tot 60",
-          "value": "81%",
-          "pct": 81.2
+          "label": "55 tot 65",
+          "value": "76%",
+          "pct": 75.8
         },
         {
-          "label": "60 tot 65",
-          "value": "69%",
-          "pct": 69.0
+          "label": "65 tot 75",
+          "value": "21%",
+          "pct": 21.1
         },
         {
-          "label": "65 tot 70",
-          "value": "29%",
-          "pct": 29.2
-        },
-        {
-          "label": "70 tot 75",
-          "value": "10%",
-          "pct": 10.0
+          "label": "75 en ouder",
+          "value": "4%",
+          "pct": 3.8
         }
       ]
     },
     "aiBars": {
-      "title": "Aandeel dat AI gebruikt, zoals ChatGPT",
+      "title": "Aandeel dat generatieve AI gebruikte, zoals ChatGPT (EU)",
       "note": "Ervaring alleen is niet genoeg voor betaald kenniswerk. AI-vaardigheid vult dat aan, en is te leren.",
-      "source": "CBS, 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/36/bijna-kwart-nederlanders-gebruikt-kunstmatige-intelligentie-zoals-chatgpt",
+      "source": "Eurostat, 2025",
+      "href": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/edn-20260210-1",
       "bars": [
         {
-          "label": "18 tot 25",
-          "value": "49%",
-          "pct": 48.7
+          "label": "16 tot 24",
+          "value": "64%",
+          "pct": 63.8
         },
         {
-          "label": "45 tot 55",
-          "value": "21%",
-          "pct": 21.0
+          "label": "16 tot 74",
+          "value": "33%",
+          "pct": 32.7
         },
         {
-          "label": "55 tot 65",
-          "value": "12%",
-          "pct": 12.1
-        },
-        {
-          "label": "65 tot 75",
-          "value": "5%",
-          "pct": 5.2
+          "label": "65 tot 74",
+          "value": "7%",
+          "pct": 7.0
         }
       ]
     },
