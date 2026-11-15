@@ -135,20 +135,20 @@
     "subtitle": "One-time payment. Assessment, report and coach chat included."
   },
   "facts": {
-    "eyebrow": "The Dutch picture",
+    "eyebrow": "The numbers",
     "title": "You are not the exception. You are the new normal.",
-    "intro": "Working past 65 used to be rare. Now it is common, and the options are wider than most people expect. Figures for the Netherlands, from official sources.",
+    "intro": "Working past 65 used to be rare. Now it is common, and the options are wider than most people expect. Figures from official sources, mostly Dutch, one European.",
     "work": {
-      "num": "49.6%",
-      "text": "of 65-year-olds were still working in 2024. In 2013 it was 14.9%.",
-      "source": "CBS, 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk"
+      "num": "66 years",
+      "text": "and 4 months was the average retirement age in the Netherlands in 2025, about two and a half months later than a year before.",
+      "source": "CBS, 2025 figures",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2026/17/gemiddelde-pensioenleeftijd-gestegen-naar-66-jaar-en-4-maanden"
     },
     "life": {
       "num": "21 years",
-      "text": "is how long a 65-year-old in the Netherlands is expected to live on, on current forecasts for 2030. Enough time for a second act.",
-      "source": "CBS, forecast 2030",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/45/prognose-levensverwachting-65-jarigen-20-96-jaar-in-2030"
+      "text": "is how long a 65-year-old in the Netherlands is expected to live on, on the CBS forecast for 2032 (in 2025: 20.1 years). Enough time for a second act.",
+      "source": "CBS, forecast Nov 2026",
+      "href": "https://www.cbs.nl/nl-nl/nieuws/2026/46/prognose-levensverwachting-65-jarigen-21-jaar-in-2032"
     },
     "age": {
       "num": "+77%",
@@ -159,56 +159,46 @@
     "ageBars": {
       "title": "Share of people in work, by age",
       "note": "Fewer people work as they age, but a real group carries on, often part time.",
-      "source": "CBS, Q2 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/38/helft-65-jarigen-aan-het-werk",
+      "source": "CBS, Q3 2026",
+      "href": "https://www.cbs.nl/nl-nl/cijfers/detail/85267NED",
       "bars": [
         {
-          "label": "55 to 60",
-          "value": "81%",
-          "pct": 81.2
+          "label": "55 to 65",
+          "value": "76%",
+          "pct": 75.8
         },
         {
-          "label": "60 to 65",
-          "value": "69%",
-          "pct": 69.0
+          "label": "65 to 75",
+          "value": "21%",
+          "pct": 21.1
         },
         {
-          "label": "65 to 70",
-          "value": "29%",
-          "pct": 29.2
-        },
-        {
-          "label": "70 to 75",
-          "value": "10%",
-          "pct": 10.0
+          "label": "75 and up",
+          "value": "4%",
+          "pct": 3.8
         }
       ]
     },
     "aiBars": {
-      "title": "Share who use AI like ChatGPT, by age",
+      "title": "Share who used generative AI like ChatGPT, EU",
       "note": "Experience alone is no longer enough for paid knowledge work. AI skills close that gap, and they can be learned.",
-      "source": "CBS, 2024",
-      "href": "https://www.cbs.nl/nl-nl/nieuws/2024/36/bijna-kwart-nederlanders-gebruikt-kunstmatige-intelligentie-zoals-chatgpt",
+      "source": "Eurostat, 2025",
+      "href": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/edn-20260210-1",
       "bars": [
         {
-          "label": "18 to 25",
-          "value": "49%",
-          "pct": 48.7
+          "label": "16 to 24",
+          "value": "64%",
+          "pct": 63.8
         },
         {
-          "label": "45 to 55",
-          "value": "21%",
-          "pct": 21.0
+          "label": "16 to 74",
+          "value": "33%",
+          "pct": 32.7
         },
         {
-          "label": "55 to 65",
-          "value": "12%",
-          "pct": 12.1
-        },
-        {
-          "label": "65 to 75",
-          "value": "5%",
-          "pct": 5.2
+          "label": "65 to 74",
+          "value": "7%",
+          "pct": 7.0
         }
       ]
     },
