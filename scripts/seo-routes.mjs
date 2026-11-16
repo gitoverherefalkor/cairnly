@@ -23,7 +23,7 @@ export const SITE_URL = 'https://www.cairnly.io';
 
 export const DEFAULT_TITLE = 'Cairnly: career path clarity. Find a career that fits.';
 export const DEFAULT_DESCRIPTION =
-  "Looking for career path clarity? Cairnly's assessment matches your personality, skills and goals to careers that actually fit, with an AI career coach to talk it through.";
+  "Looking for career path clarity? The Cairnly assessment matches your personality, skills and goals to careers that actually fit, with an AI career coach to talk it through.";
 export const DEFAULT_OG_IMAGE = '/og-card.jpg';
 
 const organizationSchema = {
@@ -160,7 +160,7 @@ const STATIC_ROUTES = [
   // en/employers.json `seo`.
   {
     path: '/employers',
-    title: 'Cairnly for employers | Career clarity your people own',
+    title: 'Cairnly for employers | Career clarity for your people',
     description:
       'Give your people a clear answer about where their skills fit, inside or outside your company. Per-head pricing, one afternoon to roll out, and you never see an individual result.',
     changefreq: 'monthly',
