@@ -64,6 +64,7 @@ describe('trial email', () => {
     expect(m.html).toContain('Hoi Jane,');
     expect(m.html).toContain('Je Cairnly trial staat klaar');
     expect(m.html).toContain('Hier is je persoonlijke link voor Cairnly');
+    expect(m.html).toContain('Wat de trial je geeft');
     expect(m.html).toContain('geldig tot 17 december 2026');
     expect(m.html).toContain(EMPLOYER_SUPPORT_EMAIL);
   });

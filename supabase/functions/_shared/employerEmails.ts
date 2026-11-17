@@ -159,7 +159,7 @@ const COPY: Record<EmployerEmailLang, Copy> = {
       preheader: (d) => (d ? `Probeer Cairnly zelf uit. Je link is geldig tot ${d}.` : 'Probeer Cairnly zelf uit.'),
       heading: 'Je Cairnly trial staat klaar',
       intro: (c) => `Hier is je persoonlijke link voor Cairnly, zodat je het zelf kunt uitproberen voordat je het bij ${c} uitrolt.`,
-      eyebrow: 'Wat de proef je geeft',
+      eyebrow: 'Wat de trial je geeft',
       bullets: [
         'Het volledige Cairnly loopbaanassessment',
         'Je persoonlijkheidsprofiel en een uitgebreid rapport met loopbaanadvies',
