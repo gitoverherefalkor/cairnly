@@ -3,6 +3,7 @@ import {
   buildEmployerEmail,
   firstNameFor,
   formatExpiry,
+  pickEmailLang,
   EMPLOYER_SUPPORT_EMAIL,
   type EmployerEmailInput,
 } from './employerEmails.ts';
@@ -60,11 +61,12 @@ describe('trial email', () => {
 
   it('Dutch: uses the approved wording, including the edited heading and intro', () => {
     const m = buildEmployerEmail({ ...base, lang: 'nl' });
-    expect(m.subject).toBe('Je Cairnly-proeflink');
+    expect(m.subject).toBe('Je Cairnly trial-link');
     expect(m.html).toContain('Hoi Jane,');
     expect(m.html).toContain('Je Cairnly trial staat klaar');
     expect(m.html).toContain('Hier is je persoonlijke link voor Cairnly');
     expect(m.html).toContain('Wat de trial je geeft');
+    expect(m.html).toContain('Start je trial');
     expect(m.html).toContain('geldig tot 17 december 2026');
     expect(m.html).toContain(EMPLOYER_SUPPORT_EMAIL);
   });
@@ -123,6 +125,64 @@ describe('seat email', () => {
     const m = buildEmployerEmail({ ...seats, links });
     expect(m.text).toContain('500. https://cairnly.io/auth?code=ACME-499');
     expect(m.html).toContain('You have 500 links');
+  });
+});
+
+describe('no "proef" anywhere in the Dutch emails', () => {
+  it('trial and seat emails, subject, html and text', () => {
+    const nl = { ...base, lang: 'nl' as const };
+    for (const m of [
+      buildEmployerEmail(nl),
+      buildEmployerEmail({ ...nl, kind: 'seat', links: [LINK_A, LINK_B] }),
+      buildEmployerEmail({ ...nl, kind: 'seat', links: [], seatGroups: [{ lang: 'nl', links: [LINK_A] }, { lang: 'en', links: [LINK_B] }] }),
+    ]) {
+      expect(m.subject.toLowerCase()).not.toContain('proef');
+      expect(m.html.toLowerCase()).not.toContain('proef');
+      expect(m.text.toLowerCase()).not.toContain('proef');
+    }
+  });
+});
+
+describe('seats in several languages go out as ONE email', () => {
+  const NL1 = 'https://cairnly.io/auth?flow=signup&code=ACME-AAAA-AAAA-AAA1&lang=nl';
+  const NL2 = 'https://cairnly.io/auth?flow=signup&code=ACME-AAAA-AAAA-AAA2&lang=nl';
+  const EN1 = 'https://cairnly.io/auth?flow=signup&code=ACME-BBBB-BBBB-BBB1&lang=en';
+  const mixed: EmployerEmailInput = {
+    ...base,
+    lang: 'nl',
+    kind: 'seat',
+    links: [],
+    expiresOn: '2027-01-31',
+    seatGroups: [{ lang: 'nl', links: [NL1, NL2] }, { lang: 'en', links: [EN1] }],
+  };
+
+  it('has every link of both batches, a total count and a heading per batch', () => {
+    const m = buildEmployerEmail(mixed);
+    for (const url of [NL1, NL2, EN1]) expect(m.text).toContain(url);
+    expect(m.html).toContain('Je hebt 3 links, geldig tot 31 januari 2027.');
+    expect(m.html).toContain('Nederlandse versie (NL): 2 links');
+    expect(m.html).toContain('Engelse versie (EN): 1 link');
+    expect(m.text).toContain('Nederlandse versie (NL): 2 links');
+    expect(m.text).toContain('Engelse versie (EN): 1 link');
+  });
+
+  it('English email: headings in English', () => {
+    const m = buildEmployerEmail({ ...mixed, lang: 'en' });
+    expect(m.html).toContain('You have 3 links, valid until 31 January 2027.');
+    expect(m.html).toContain('Dutch version (NL): 2 links');
+    expect(m.html).toContain('English version (EN): 1 link');
+  });
+
+  it('a single batch keeps the plain layout, with no batch heading', () => {
+    const m = buildEmployerEmail({ ...mixed, seatGroups: [{ lang: 'nl', links: [NL1, NL2] }] });
+    expect(m.html).not.toContain('Nederlandse versie');
+    expect(m.html).toContain('Je hebt 2 links');
+  });
+
+  it('writes the email in the language of the biggest batch, Dutch on a tie', () => {
+    expect(pickEmailLang([{ lang: 'nl', links: [NL1, NL2] }, { lang: 'en', links: [EN1] }])).toBe('nl');
+    expect(pickEmailLang([{ lang: 'nl', links: [NL1] }, { lang: 'en', links: [EN1, EN1] }])).toBe('en');
+    expect(pickEmailLang([{ lang: 'en', links: [EN1] }, { lang: 'nl', links: [NL1] }])).toBe('nl');
   });
 });
 

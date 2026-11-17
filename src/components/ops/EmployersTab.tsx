@@ -89,6 +89,9 @@ interface EmployersResponse {
   /** mint: who the email went to, or why it did not. */
   emailed?: { to: string } | null;
   emailError?: string | null;
+  /** mint: one entry per language; mintError when a later batch failed. */
+  batches?: Array<{ lang: Lang; codes: string[]; links: string[] }>;
+  mintError?: string | null;
   contacts?: EmployerContact[];
   events?: EmployerEvent[];
   touches?: EmployerTouch[];
@@ -183,6 +186,7 @@ function EmployerForm({
 }) {
   const [name, setName] = useState(editing?.name ?? '');
   const [contactName, setContactName] = useState(editing?.contact_name ?? '');
+  const [contactRole, setContactRole] = useState('');
   const [contactEmail, setContactEmail] = useState(editing?.contact_email ?? '');
   const [status, setStatus] = useState<EmployerStatus>(editing?.status ?? 'lead');
   const [notes, setNotes] = useState(editing?.notes ?? '');
@@ -203,11 +207,13 @@ function EmployerForm({
           employerId: res.id,
           name: contactName.trim() || contactEmail.split('@')[0],
           email: contactEmail,
+          // Optional job title, kept apart from the name: the email greets the name.
+          role: contactRole.trim() || undefined,
         });
       }
       toast.success(editing ? `${name} updated` : `${name} added`);
       if (!editing) {
-        setName(''); setContactName(''); setContactEmail(''); setStatus('lead'); setNotes('');
+        setName(''); setContactName(''); setContactRole(''); setContactEmail(''); setStatus('lead'); setNotes('');
       }
       onSaved();
       onCancel?.();
@@ -253,7 +259,7 @@ function EmployerForm({
         )}
       </div>
 
-      <div className={`grid gap-3 ${editing ? '' : 'sm:grid-cols-3'}`}>
+      <div className={`grid gap-3 ${editing ? '' : 'sm:grid-cols-4'}`}>
         <label className="block">
           <span className="text-xs text-white/70">Company</span>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme B.V." className="mt-1 bg-[#0E2531] border-white/[0.14]" />
@@ -261,7 +267,11 @@ function EmployerForm({
         {!editing && (<>
         <label className="block">
           <span className="text-xs text-white/70">Contact person</span>
-          <Input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Head of HR" className="mt-1 bg-[#0E2531] border-white/[0.14]" />
+          <Input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Jane de Vries" className="mt-1 bg-[#0E2531] border-white/[0.14]" />
+        </label>
+        <label className="block">
+          <span className="text-xs text-white/70">Title (optional)</span>
+          <Input value={contactRole} onChange={(e) => setContactRole(e.target.value)} placeholder="Head of HR" className="mt-1 bg-[#0E2531] border-white/[0.14]" />
         </label>
         <label className="block">
           <span className="text-xs text-white/70">Contact email</span>
@@ -323,9 +333,6 @@ const LANGS: { id: Lang; flag: string; label: string }[] = [
 interface MintedBatch {
   lang: Lang;
   links: string[];
-  /** Address the email went to, when one was sent. */
-  emailedTo: string | null;
-  emailError: string | null;
 }
 
 function MintRow({
@@ -347,6 +354,8 @@ function MintRow({
   const [seatCounts, setSeatCounts] = useState<Record<Lang, string>>({ nl: '10', en: '0' });
   const [busy, setBusy] = useState(false);
   const [batches, setBatches] = useState<MintedBatch[] | null>(null);
+  // One email carries every batch, so what happened to it is per mint, not per list.
+  const [sent, setSent] = useState<{ to: string | null; error: string | null } | null>(null);
   const [copied, setCopied] = useState<Lang | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -366,6 +375,7 @@ function MintRow({
     setKind(k);
     setExpires(k === 'trial' ? dateInDays(TRIAL_DAYS) : '');
     setBatches(null);
+    setSent(null);
   };
 
   const mint = async () => {
@@ -379,36 +389,28 @@ function MintRow({
       return;
     }
     setBusy(true);
-    const done: MintedBatch[] = [];
+    setSent(null);
     try {
-      // One call per language: the code itself is language-free, the link
+      // One call for every language: the server mints each batch and sends ONE
+      // email with all of them. The code itself is language-free, the link
       // carries ?lang= and decides what the person first sees.
-      for (const p of plan) {
-        const res = await callEmployers({
-          action: 'mint',
-          id: employer.id,
-          kind,
-          count: p.count,
-          lang: p.lang,
-          emailContactId: emailContactId || undefined,
-          // End of day, so a code that "expires on the 31st" works all of the 31st.
-          expiresAt: expires ? `${expires}T23:59:00` : null,
-        });
-        done.push({
-          lang: p.lang,
-          links: res.links ?? [],
-          emailedTo: res.emailed?.to ?? null,
-          emailError: res.emailError ?? null,
-        });
-      }
+      const res = await callEmployers({
+        action: 'mint',
+        id: employer.id,
+        kind,
+        batches: plan,
+        emailContactId: emailContactId || undefined,
+        // End of day, so a code that "expires on the 31st" works all of the 31st.
+        expiresAt: expires ? `${expires}T23:59:00` : null,
+      });
+      setBatches((res.batches ?? []).map((b) => ({ lang: b.lang, links: b.links })));
+      setSent({ to: res.emailed?.to ?? null, error: res.emailError ?? null });
+      if (res.mintError) setErr(res.mintError);
       onMinted();
     } catch (e) {
-      setErr(
-        (e instanceof Error ? e.message : 'Failed to mint') +
-          (done.length ? ' (the batch above was minted before this failed)' : ''),
-      );
+      setBatches(null);
+      setErr(e instanceof Error ? e.message : 'Failed to mint');
     } finally {
-      setBatches(done.length ? done : null);
       setBusy(false);
     }
   };
@@ -421,7 +423,7 @@ function MintRow({
 
   const single = batches && batches.length === 1 && batches[0].links.length === 1 ? batches[0].links[0] : null;
   // The hand-sent mailto is only for a link that was not already emailed.
-  const mailHref = single && mailTo && !batches?.[0]?.emailedTo
+  const mailHref = single && mailTo && !sent?.to
     ? `mailto:${mailTo}?body=${encodeURIComponent(single)}`
     : null;
 
@@ -506,13 +508,25 @@ function MintRow({
       </p>
       <p className="text-[11px] text-white/50">
         {emailContact
-          ? `Will be emailed to ${emailContact.email} in the language of the link${kind === 'seat' ? ' (one email per language)' : ''}. Replies go to natasha@cairnly.io. It is logged as a touch.`
+          ? `Will be emailed to ${emailContact.email} in the language of the link${kind === 'seat' ? ' (one email with every list)' : ''}. Replies go to natasha@cairnly.io. It is logged as a touch.`
           : mailable.length === 0
             ? 'No contact with a work email yet. Add one below to email the link from here, or copy it.'
             : 'Nothing is emailed: copy the link and send it yourself.'}
       </p>
 
       {err && <div className="text-xs text-red-400">{err}</div>}
+
+      {sent?.to && (
+        <div className="text-[11px] text-emerald-400">
+          <Mail className="mr-1 inline h-3 w-3" />
+          Emailed to {sent.to}{batches && batches.length > 1 ? ' (one email with both lists)' : ''}
+        </div>
+      )}
+      {sent?.error && (
+        <div className="text-[11px] text-amber-300">
+          {sent.error} Copy the links below and send them yourself.
+        </div>
+      )}
 
       {batches?.map((b) => (
         <div key={b.lang} className="space-y-1">
@@ -531,16 +545,6 @@ function MintRow({
               </a>
             )}
           </div>
-          {b.emailedTo && (
-            <div className="text-[11px] text-emerald-400">
-              <Mail className="mr-1 inline h-3 w-3" /> Emailed to {b.emailedTo}
-            </div>
-          )}
-          {b.emailError && (
-            <div className="text-[11px] text-amber-300">
-              {b.emailError} Copy the links below and send them yourself.
-            </div>
-          )}
           <textarea
             readOnly
             value={b.links.join('\n')}

@@ -37,8 +37,30 @@ export interface EmployerEmailInput {
   contactEmail: string;
   /** Signup links: exactly one for a trial, one per seat otherwise. */
   links: string[];
+  /**
+   * Seats only: one batch per link language, all in the SAME email. When set,
+   * `links` is ignored. `lang` is the language the email itself is written in
+   * (see pickEmailLang).
+   */
+  seatGroups?: { lang: EmployerEmailLang; links: string[] }[];
   /** yyyy-mm-dd the codes stop working (inclusive), or null for no expiry. */
   expiresOn: string | null;
+}
+
+/**
+ * Language the email text is written in when seat batches in several
+ * languages go out together: the language of the biggest batch, Dutch on a tie.
+ */
+export function pickEmailLang(groups: { lang: EmployerEmailLang; links: string[] }[]): EmployerEmailLang {
+  let best: EmployerEmailLang = 'nl';
+  let bestN = -1;
+  for (const g of groups) {
+    if (g.links.length > bestN || (g.links.length === bestN && g.lang === 'nl')) {
+      best = g.lang;
+      bestN = g.links.length;
+    }
+  }
+  return best;
 }
 
 export interface BuiltEmail {
@@ -110,6 +132,8 @@ interface Copy {
     bullets: (company: string) => string[];
     howTo: string;
     howToBody: (n: number, date: string | null) => string;
+    /** Heading above one language's batch, when an email carries several. */
+    groupTitle: (lang: EmployerEmailLang, n: number) => string;
   };
   support: string;
   signoff: string;
@@ -148,6 +172,7 @@ const COPY: Record<EmployerEmailLang, Copy> = {
       howTo: 'How to use them',
       howToBody: (n, d) =>
         `Send one link to each person. A link works for one person only, so please do not share one link with several colleagues. You have ${n} ${n === 1 ? 'link' : 'links'}${d ? `, valid until ${d}` : '. These links do not expire'}.`,
+      groupTitle: (l, n) => `${l === 'nl' ? 'Dutch' : 'English'} version (${l.toUpperCase()}): ${n} ${n === 1 ? 'link' : 'links'}`,
     },
     support: `Questions or need a hand? Email ${EMPLOYER_SUPPORT_EMAIL}.`,
     signoff: 'The Cairnly team',
@@ -155,7 +180,7 @@ const COPY: Record<EmployerEmailLang, Copy> = {
   nl: {
     hi: (n) => (n ? `Hoi ${n},` : 'Hoi,'),
     trial: {
-      subject: 'Je Cairnly-proeflink',
+      subject: 'Je Cairnly trial-link',
       preheader: (d) => (d ? `Probeer Cairnly zelf uit. Je link is geldig tot ${d}.` : 'Probeer Cairnly zelf uit.'),
       heading: 'Je Cairnly trial staat klaar',
       intro: (c) => `Hier is je persoonlijke link voor Cairnly, zodat je het zelf kunt uitproberen voordat je het bij ${c} uitrolt.`,
@@ -165,7 +190,7 @@ const COPY: Record<EmployerEmailLang, Copy> = {
         'Je persoonlijkheidsprofiel en een uitgebreid rapport met loopbaanadvies',
         'Een gesprek met de Cairnly coach om je resultaten door te nemen',
       ],
-      cta: 'Start je proef',
+      cta: 'Start je trial',
       linkHint: 'Werkt de knop niet? Kopieer dan deze link in je browser:',
       validity: (d) => (d ? `Deze link is voor één persoon en geldig tot ${d}.` : 'Deze link is voor één persoon en verloopt niet.'),
     },
@@ -184,6 +209,7 @@ const COPY: Record<EmployerEmailLang, Copy> = {
       howTo: 'Zo gebruik je ze',
       howToBody: (n, d) =>
         `Stuur elke persoon één link. Een link werkt voor één persoon, dus deel een link niet met meerdere collega's. Je hebt ${n} ${n === 1 ? 'link' : 'links'}${d ? `, geldig tot ${d}` : '. Deze links verlopen niet'}.`,
+      groupTitle: (l, n) => `${l === 'nl' ? 'Nederlandse' : 'Engelse'} versie (${l.toUpperCase()}): ${n} ${n === 1 ? 'link' : 'links'}`,
     },
     support: `Vragen of hulp nodig? Mail ${EMPLOYER_SUPPORT_EMAIL}.`,
     signoff: 'Het Cairnly-team',
@@ -260,15 +286,31 @@ function buildTrial(input: EmployerEmailInput, c: Copy, date: string | null): Bu
 function buildSeats(input: EmployerEmailInput, c: Copy, date: string | null): BuiltEmail {
   const s = c.seat;
   const company = oneLine(input.company);
-  const n = input.links.length;
+  const groups = input.seatGroups?.length ? input.seatGroups : [{ lang: input.lang, links: input.links }];
+  const n = groups.reduce((sum, g) => sum + g.links.length, 0);
+  const several = groups.length > 1;
   const greeting = c.hi(firstNameFor(input.contactName, input.contactEmail));
   const subject = s.subject(company);
 
-  const linkRows = input.links
+  const linkBox = (links: string[]) => {
+    const rows = links
+      .map(
+        (url, i) =>
+          `<tr><td style="padding:6px 10px 6px 0;vertical-align:top;color:#6B7480;font-size:13px;font-family:${FONT};white-space:nowrap;">${i + 1}.</td>` +
+          `<td style="padding:6px 0;font-size:12px;line-height:1.5;word-break:break-all;font-family:${MONO};"><a href="${escapeHtml(url)}" style="color:#1F8282;text-decoration:none;">${escapeHtml(url)}</a></td></tr>`,
+      )
+      .join('');
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F6EFD8;border:1px solid #DCCFAE;border-radius:8px;"><tr><td style="padding:10px 14px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table></td></tr></table>`;
+  };
+
+  // One box per language; with several, each gets a heading saying which
+  // version of Cairnly its links open.
+  const boxes = groups
     .map(
-      (url, i) =>
-        `<tr><td style="padding:6px 10px 6px 0;vertical-align:top;color:#6B7480;font-size:13px;font-family:${FONT};white-space:nowrap;">${i + 1}.</td>` +
-        `<td style="padding:6px 0;font-size:12px;line-height:1.5;word-break:break-all;font-family:${MONO};"><a href="${escapeHtml(url)}" style="color:#1F8282;text-decoration:none;">${escapeHtml(url)}</a></td></tr>`,
+      (g) =>
+        (several ? paragraph(escapeHtml(s.groupTitle(g.lang, g.links.length)), { size: 14, weight: 700, mb: 8, color: '#122E3B' }) : '') +
+        linkBox(g.links) +
+        (several ? '<div style="height:18px;line-height:18px;font-size:0;">&nbsp;</div>' : ''),
     )
     .join('');
 
@@ -278,7 +320,7 @@ function buildSeats(input: EmployerEmailInput, c: Copy, date: string | null): Bu
     plainRow(
       paragraph(escapeHtml(s.howTo), { size: 15, weight: 700, mb: 8, color: '#122E3B' }) +
         paragraph(escapeHtml(s.howToBody(n, date)), { size: 15, mb: 14 }) +
-        `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F6EFD8;border:1px solid #DCCFAE;border-radius:8px;"><tr><td style="padding:10px 14px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${linkRows}</table></td></tr></table>`,
+        boxes,
       12,
     ) +
     closing(c);
@@ -301,8 +343,11 @@ function buildSeats(input: EmployerEmailInput, c: Copy, date: string | null): Bu
     s.howTo,
     s.howToBody(n, date),
     '',
-    ...input.links.map((url, i) => `${i + 1}. ${url}`),
-    '',
+    ...groups.flatMap((g) => [
+      ...(several ? [s.groupTitle(g.lang, g.links.length)] : []),
+      ...g.links.map((url, i) => `${i + 1}. ${url}`),
+      '',
+    ]),
     c.support,
     '',
     c.signoff,

@@ -39,7 +39,7 @@ import {
 import { Resend } from 'https://esm.sh/resend@2.0.0';
 import { isAdminEmail } from '../_shared/admins.ts';
 import { emailDomain, isFreeMailDomain, isWorkEmail, normDomain, normLinkedin } from '../_shared/workEmail.ts';
-import { buildEmployerEmail, EMPLOYER_SUPPORT_EMAIL } from '../_shared/employerEmails.ts';
+import { buildEmployerEmail, pickEmailLang, EMPLOYER_SUPPORT_EMAIL } from '../_shared/employerEmails.ts';
 
 const SITE = 'https://cairnly.io';
 
@@ -340,23 +340,41 @@ serve(async (req) => {
     }
 
     // ── mint ────────────────────────────────────────────────────────────────
+    // `batches` = one entry per link language ([{lang:'nl',count:10},{lang:'en',count:5}]),
+    // all minted here so ONE email can carry every batch. The older single
+    // `lang` + `count` shape still works. The code itself is language-free: the
+    // link carries ?lang= and decides what the person first sees.
     if (action === 'mint') {
       const id = String(body.id ?? '');
       const kind = String(body.kind ?? '');
-      const count = Number(body.count ?? 0);
-      const lang = String(body.lang ?? 'nl');
       const expiresAt = body.expiresAt ? String(body.expiresAt) : null;
 
       if (!UUID_RE.test(id)) return errorResponse('Unknown employer.', 400, corsHeaders);
       if (!KINDS.has(kind)) return errorResponse('Unknown code kind.', 400, corsHeaders);
-      if (!Number.isInteger(count) || count < 1 || count > 500) {
-        return errorResponse('Choose a number of codes between 1 and 500.', 400, corsHeaders);
+
+      const rawBatches: Array<{ lang?: unknown; count?: unknown }> = Array.isArray(body.batches)
+        ? (body.batches as Array<{ lang?: unknown; count?: unknown }>)
+        : [{ lang: body.lang ?? 'nl', count: body.count }];
+      const plan: Array<{ lang: 'nl' | 'en'; count: number }> = [];
+      for (const b of rawBatches) {
+        const bl = b.lang === 'en' ? 'en' : b.lang === 'nl' || b.lang === undefined ? 'nl' : null;
+        const bc = Number(b.count ?? 0);
+        if (!bl) return errorResponse('Unknown language.', 400, corsHeaders);
+        if (!Number.isInteger(bc) || bc < 1 || bc > 500) {
+          return errorResponse('Choose a number of codes between 1 and 500.', 400, corsHeaders);
+        }
+        if (plan.some((p) => p.lang === bl)) return errorResponse('Each language can only be in once.', 400, corsHeaders);
+        plan.push({ lang: bl, count: bc });
+      }
+      const total = plan.reduce((n, p) => n + p.count, 0);
+      if (plan.length === 0 || total > 500) {
+        return errorResponse('Choose between 1 and 500 codes in total.', 400, corsHeaders);
       }
       if (expiresAt && Number.isNaN(Date.parse(expiresAt))) {
         return errorResponse('That expiry date does not look right.', 400, corsHeaders);
       }
-      // The trial email carries exactly one link.
-      if (body.emailContactId && kind === 'trial' && count !== 1) {
+      // A trial is one link for one person; the trial email carries exactly one.
+      if (kind === 'trial' && body.emailContactId && total !== 1) {
         return errorResponse('A trial email is for one code.', 400, corsHeaders);
       }
 
@@ -387,30 +405,44 @@ serve(async (req) => {
         employerName = String(emp.name ?? '');
       }
 
-      const { data, error } = await supabase.rpc('mint_employer_codes', {
-        p_employer_id: id,
-        p_kind: kind,
-        p_count: count,
-        p_expires_at: expiresAt,
-      });
-      if (error) throw error;
+      // Mint every batch. If a later one fails after an earlier one worked,
+      // keep what exists (those codes are real) and say what failed.
+      const minted: Array<{ lang: 'nl' | 'en'; codes: string[]; links: string[] }> = [];
+      let mintError: string | null = null;
+      for (const p of plan) {
+        const { data, error } = await supabase.rpc('mint_employer_codes', {
+          p_employer_id: id,
+          p_kind: kind,
+          p_count: p.count,
+          p_expires_at: expiresAt,
+        });
+        if (error) {
+          if (minted.length === 0) throw error;
+          console.error('[ops-employers] mint batch failed', p.lang, error);
+          mintError = `The ${p.lang.toUpperCase()} batch could not be made (${error.message}). The batches above were made.`;
+          break;
+        }
+        const codes = (data ?? []).map((r: { code: string }) => r.code);
+        minted.push({ lang: p.lang, codes, links: codes.map((c: string) => signupLink(c, p.lang)) });
+      }
+      const mintedTotal = minted.reduce((n, m) => n + m.codes.length, 0);
 
-      const codes = (data ?? []).map((r: { code: string }) => r.code);
-      const links = codes.map((c: string) => signupLink(c, lang));
-
-      // Send the email. A failure here must not lose the codes: they are
-      // minted, so report it and let the Ops console show the links to copy.
+      // Send ONE email with every batch. A failure here must not lose the
+      // codes: they are minted, so report it and let the Ops console show the
+      // links to copy.
       let emailed: { to: string } | null = null;
       let emailError: string | null = null;
       if (recipient) {
         try {
+          const groups = minted.map((m) => ({ lang: m.lang, links: m.links }));
           const mail = buildEmployerEmail({
-            lang: lang === 'nl' ? 'nl' : 'en',
+            lang: pickEmailLang(groups),
             kind: kind as 'trial' | 'seat',
             company: employerName,
             contactName: recipient.name,
             contactEmail: recipient.email,
-            links,
+            links: groups[0]?.links ?? [],
+            seatGroups: kind === 'seat' ? groups : undefined,
             expiresOn: expiresAt
               ? (/^\d{4}-\d{2}-\d{2}/.test(expiresAt) ? expiresAt.slice(0, 10) : new Date(expiresAt).toISOString().slice(0, 10))
               : null,
@@ -454,14 +486,15 @@ serve(async (req) => {
             .from('employer_touches')
             .select('id', { count: 'exact', head: true })
             .eq('contact_id', recipient.id);
+          const perLang = minted.map((m) => `${m.lang.toUpperCase()} ${m.codes.length}`).join(', ');
           await supabase.from('employer_touches').insert({
             employer_id: id,
             contact_id: recipient.id,
             channel: 'email',
             kind: (prior ?? 0) > 0 ? 'follow_up' : 'first_contact',
             note: kind === 'trial'
-              ? `Trial link emailed (${lang === 'nl' ? 'NL' : 'EN'})`
-              : `${codes.length} seat links emailed (${lang === 'nl' ? 'NL' : 'EN'})`,
+              ? `Trial link emailed (${minted[0]?.lang.toUpperCase()})`
+              : `${mintedTotal} seat links emailed (${perLang})`,
             created_by: authed.email ?? null,
           });
           const today = new Date().toISOString().slice(0, 10);
@@ -475,7 +508,14 @@ serve(async (req) => {
         }
       }
 
-      return ok({ codes, links, emailed, emailError }, corsHeaders);
+      return ok({
+        batches: minted,
+        codes: minted.flatMap((m) => m.codes),
+        links: minted.flatMap((m) => m.links),
+        emailed,
+        emailError,
+        mintError,
+      }, corsHeaders);
     }
 
     // ── delete ──────────────────────────────────────────────────────────────
