@@ -2,7 +2,9 @@
 //
 // Add an employer, mint a trial code for the HR prospect or a batch of seat
 // codes for their employees, move the lead along, and see how far the codes
-// got. Admin-gated, all writes via the service role. See
+// got. A mint can also email the link(s) straight to one of the employer's
+// contacts (`emailContactId`): see ../_shared/employerEmails.ts. Admin-gated,
+// all writes via the service role. See
 // supabase/migrations/20261006130000_employers.sql for why employers are not
 // partners.
 //
@@ -14,9 +16,10 @@
 //
 // The hitlist (cold outreach to HR buyers) lives in the same tables, with ICP
 // fields, signals and a suggested tier: see
-// supabase/migrations/20261015150000_employer_hitlist.sql. Nothing here sends
-// mail. Outbound touches to anyone on the global do-not-contact list
-// (outreach_suppressions) are refused.
+// supabase/migrations/20261015150000_employer_hitlist.sql. The only mail this
+// function sends is the trial / seat email after a mint (cold outreach is never
+// sent from here). Outbound touches, and that email, to anyone on the global
+// do-not-contact list (outreach_suppressions) are refused.
 //
 // The outreach log (contacts, events, touches, follow_up_on) is filled by hand:
 // see supabase/migrations/20261008120000_employer_outreach.sql.
@@ -33,10 +36,16 @@ import {
   errorResponse,
   getAuthenticatedUser,
 } from '../_shared/cors.ts';
+import { Resend } from 'https://esm.sh/resend@2.0.0';
 import { isAdminEmail } from '../_shared/admins.ts';
 import { emailDomain, isFreeMailDomain, isWorkEmail, normDomain, normLinkedin } from '../_shared/workEmail.ts';
+import { buildEmployerEmail, EMPLOYER_SUPPORT_EMAIL } from '../_shared/employerEmails.ts';
 
 const SITE = 'https://cairnly.io';
+
+// Same sender as every other Cairnly email; replies go to Tasha.
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+const MAIL_FROM = 'Cairnly <no-reply@cairnly.io>';
 
 const STATUSES = new Set(['prospect', 'lead', 'trial_sent', 'in_talks', 'customer', 'lost']);
 const COUNTRIES = new Set(['NL', 'UK']);
@@ -346,6 +355,37 @@ serve(async (req) => {
       if (expiresAt && Number.isNaN(Date.parse(expiresAt))) {
         return errorResponse('That expiry date does not look right.', 400, corsHeaders);
       }
+      // The trial email carries exactly one link.
+      if (body.emailContactId && kind === 'trial' && count !== 1) {
+        return errorResponse('A trial email is for one code.', 400, corsHeaders);
+      }
+
+      // Optional: email the link(s) to one of the employer's contacts. Every
+      // check that can refuse runs BEFORE minting, so a refusal never leaves
+      // a batch of unsent codes behind.
+      const emailContactId = body.emailContactId ? String(body.emailContactId) : null;
+      let recipient: { id: string; name: string | null; email: string } | null = null;
+      let employerName = '';
+      if (emailContactId) {
+        if (!UUID_RE.test(emailContactId)) return errorResponse('Unknown contact.', 400, corsHeaders);
+        const [{ data: c, error: cErr }, { data: emp, error: eErr }] = await Promise.all([
+          supabase.from('employer_contacts').select('id, employer_id, name, email').eq('id', emailContactId).maybeSingle(),
+          supabase.from('employers').select('name').eq('id', id).maybeSingle(),
+        ]);
+        if (cErr) throw cErr;
+        if (eErr) throw eErr;
+        if (!emp) return errorResponse('Unknown employer.', 404, corsHeaders);
+        if (!c || c.employer_id !== id) return errorResponse('Unknown contact.', 404, corsHeaders);
+        if (!c.email) return errorResponse('This contact has no email address.', 400, corsHeaders);
+        if (!isWorkEmail(c.email)) {
+          return errorResponse('Work addresses only: that is a personal mailbox.', 400, corsHeaders);
+        }
+        if (await isBlocked(supabase, id, c.id)) {
+          return errorResponse('This person or company is on the do-not-contact list.', 409, corsHeaders);
+        }
+        recipient = { id: c.id as string, name: (c.name as string | null) ?? null, email: c.email as string };
+        employerName = String(emp.name ?? '');
+      }
 
       const { data, error } = await supabase.rpc('mint_employer_codes', {
         p_employer_id: id,
@@ -355,9 +395,47 @@ serve(async (req) => {
       });
       if (error) throw error;
 
+      const codes = (data ?? []).map((r: { code: string }) => r.code);
+      const links = codes.map((c: string) => signupLink(c, lang));
+
+      // Send the email. A failure here must not lose the codes: they are
+      // minted, so report it and let the Ops console show the links to copy.
+      let emailed: { to: string } | null = null;
+      let emailError: string | null = null;
+      if (recipient) {
+        try {
+          const mail = buildEmployerEmail({
+            lang: lang === 'nl' ? 'nl' : 'en',
+            kind: kind as 'trial' | 'seat',
+            company: employerName,
+            contactName: recipient.name,
+            contactEmail: recipient.email,
+            links,
+            expiresOn: expiresAt
+              ? (/^\d{4}-\d{2}-\d{2}/.test(expiresAt) ? expiresAt.slice(0, 10) : new Date(expiresAt).toISOString().slice(0, 10))
+              : null,
+          });
+          const { error: sendErr } = await resend.emails.send({
+            from: MAIL_FROM,
+            to: [recipient.email],
+            reply_to: EMPLOYER_SUPPORT_EMAIL,
+            subject: mail.subject,
+            html: mail.html,
+            text: mail.text,
+          });
+          if (sendErr) throw new Error(sendErr.message ?? 'Resend refused the email');
+          emailed = { to: recipient.email };
+        } catch (e) {
+          console.error('[ops-employers] mint email failed', e);
+          emailError = 'The codes were made, but the email could not be sent.';
+        }
+      }
+
       // A trial going out moves a fresh lead along. Never moves anything back:
       // an employer already in talks stays in talks when you send a second trial.
-      if (kind === 'trial') {
+      // When an email was asked for and failed, nothing went out, so it stays a lead.
+      const emailFailed = recipient !== null && emailed === null;
+      if (kind === 'trial' && !emailFailed) {
         await supabase
           .from('employers')
           .update({ status: 'trial_sent', updated_at: new Date().toISOString() })
@@ -367,8 +445,37 @@ serve(async (req) => {
         await supabase.from('employers').update({ updated_at: new Date().toISOString() }).eq('id', id);
       }
 
-      const codes = (data ?? []).map((r: { code: string }) => r.code);
-      return ok({ codes, links: codes.map((c: string) => signupLink(c, lang)) }, corsHeaders);
+      // The email IS reaching out: log it like a LinkedIn invite is, and set a
+      // follow-up if none is pending, so Tasha does not log it twice. Best
+      // effort: the codes are minted and the mail is sent either way.
+      if (emailed && recipient) {
+        try {
+          const { count: prior } = await supabase
+            .from('employer_touches')
+            .select('id', { count: 'exact', head: true })
+            .eq('contact_id', recipient.id);
+          await supabase.from('employer_touches').insert({
+            employer_id: id,
+            contact_id: recipient.id,
+            channel: 'email',
+            kind: (prior ?? 0) > 0 ? 'follow_up' : 'first_contact',
+            note: kind === 'trial'
+              ? `Trial link emailed (${lang === 'nl' ? 'NL' : 'EN'})`
+              : `${codes.length} seat links emailed (${lang === 'nl' ? 'NL' : 'EN'})`,
+            created_by: authed.email ?? null,
+          });
+          const today = new Date().toISOString().slice(0, 10);
+          await supabase
+            .from('employers')
+            .update({ follow_up_on: workingDaysFromToday(5) })
+            .eq('id', id)
+            .or(`follow_up_on.is.null,follow_up_on.lt.${today}`);
+        } catch (e) {
+          console.error('[ops-employers] mint touch log failed', e);
+        }
+      }
+
+      return ok({ codes, links, emailed, emailError }, corsHeaders);
     }
 
     // ── delete ──────────────────────────────────────────────────────────────

@@ -28,6 +28,7 @@ import { OutreachOverview, ContactsBlock, TouchLog } from './employers/EmployerO
 import Hitlist from './employers/Hitlist';
 import type { EmployerStatus, EmployerContact, EmployerEvent, EmployerTouch } from '@/lib/employerOutreach';
 import type { HitlistFields, HitlistRow, EmployerSignal, Suppression } from '@/lib/hitlist';
+import { isWorkEmail } from '../../../supabase/functions/_shared/workEmail.ts';
 type CodeKind = 'trial' | 'seat';
 
 interface Employer extends HitlistFields {
@@ -85,6 +86,9 @@ interface EmployersResponse {
   codes?: string[];
   links?: string[];
   codesDeleted?: number;
+  /** mint: who the email went to, or why it did not. */
+  emailed?: { to: string } | null;
+  emailError?: string | null;
   contacts?: EmployerContact[];
   events?: EmployerEvent[];
   touches?: EmployerTouch[];
@@ -319,9 +323,22 @@ const LANGS: { id: Lang; flag: string; label: string }[] = [
 interface MintedBatch {
   lang: Lang;
   links: string[];
+  /** Address the email went to, when one was sent. */
+  emailedTo: string | null;
+  emailError: string | null;
 }
 
-function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: string | null; onMinted: () => void }) {
+function MintRow({
+  employer,
+  mailTo,
+  contacts,
+  onMinted,
+}: {
+  employer: Employer;
+  mailTo: string | null;
+  contacts: EmployerContact[];
+  onMinted: () => void;
+}) {
   const [kind, setKind] = useState<CodeKind>('trial');
   const [expires, setExpires] = useState(dateInDays(TRIAL_DAYS));
   // Trial: one link, one language. Seats: a count per language, because a
@@ -332,6 +349,16 @@ function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: s
   const [batches, setBatches] = useState<MintedBatch[] | null>(null);
   const [copied, setCopied] = useState<Lang | null>(null);
   const [err, setErr] = useState<string | null>(null);
+
+  // Who the email goes to. Only contacts with a work address can get one (the
+  // server refuses personal mailboxes and the do-not-contact list too).
+  // null = not chosen yet, so the first of them is pre-selected; '' = the user
+  // chose to copy the link and send it themselves.
+  const mailable = contacts.filter((c) => isWorkEmail(c.email));
+  const [emailTo, setEmailTo] = useState<string | null>(null);
+  const emailContactId =
+    emailTo === null ? (mailable[0]?.id ?? '') : mailable.some((c) => c.id === emailTo) ? emailTo : '';
+  const emailContact = mailable.find((c) => c.id === emailContactId) ?? null;
 
   // A trial is one code with the 30-day default; a seat batch has no default
   // expiry, since the employer decides how long their rollout runs.
@@ -363,10 +390,16 @@ function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: s
           kind,
           count: p.count,
           lang: p.lang,
+          emailContactId: emailContactId || undefined,
           // End of day, so a code that "expires on the 31st" works all of the 31st.
           expiresAt: expires ? `${expires}T23:59:00` : null,
         });
-        done.push({ lang: p.lang, links: res.links ?? [] });
+        done.push({
+          lang: p.lang,
+          links: res.links ?? [],
+          emailedTo: res.emailed?.to ?? null,
+          emailError: res.emailError ?? null,
+        });
       }
       onMinted();
     } catch (e) {
@@ -387,7 +420,8 @@ function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: s
   };
 
   const single = batches && batches.length === 1 && batches[0].links.length === 1 ? batches[0].links[0] : null;
-  const mailHref = single && mailTo
+  // The hand-sent mailto is only for a link that was not already emailed.
+  const mailHref = single && mailTo && !batches?.[0]?.emailedTo
     ? `mailto:${mailTo}?body=${encodeURIComponent(single)}`
     : null;
 
@@ -445,15 +479,37 @@ function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: s
           <span className="text-[11px] text-white/60">Expires{kind === 'seat' ? ' (optional)' : ''}</span>
           <Input type="date" value={expires} onChange={(e) => setExpires(e.target.value)} className="mt-0.5 h-8 bg-[#0E2531] border-white/[0.14] text-xs" />
         </label>
+        <label className="block">
+          <span className="text-[11px] text-white/60">Email it to</span>
+          <select
+            value={emailContactId}
+            onChange={(e) => setEmailTo(e.target.value)}
+            className="mt-0.5 h-8 max-w-[260px] rounded-md border border-white/[0.14] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+          >
+            <option value="">Nobody, I will copy the link</option>
+            {mailable.map((c) => (
+              <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
+            ))}
+          </select>
+        </label>
         <Button onClick={mint} disabled={busy} size="sm" variant="outline" className="h-8 border-white/15 text-xs">
           {busy && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
-          {kind === 'trial' ? 'Make trial link' : 'Mint'}
+          {kind === 'trial'
+            ? (emailContact ? 'Make link and email it' : 'Make trial link')
+            : (emailContact ? 'Mint and email' : 'Mint')}
         </Button>
       </div>
       <p className="text-[11px] text-white/50">
         {kind === 'trial'
           ? 'For the HR contact to try it themselves. Normal Cairnly experience, no employer notice.'
           : 'For their employees. The first screen tells them their employer paid and sees nothing. Here you only see how many were redeemed. Mint Dutch and English links in one go: each list gets its own copy button.'}
+      </p>
+      <p className="text-[11px] text-white/50">
+        {emailContact
+          ? `Will be emailed to ${emailContact.email} in the language of the link${kind === 'seat' ? ' (one email per language)' : ''}. Replies go to natasha@cairnly.io. It is logged as a touch.`
+          : mailable.length === 0
+            ? 'No contact with a work email yet. Add one below to email the link from here, or copy it.'
+            : 'Nothing is emailed: copy the link and send it yourself.'}
       </p>
 
       {err && <div className="text-xs text-red-400">{err}</div>}
@@ -475,6 +531,16 @@ function MintRow({ employer, mailTo, onMinted }: { employer: Employer; mailTo: s
               </a>
             )}
           </div>
+          {b.emailedTo && (
+            <div className="text-[11px] text-emerald-400">
+              <Mail className="mr-1 inline h-3 w-3" /> Emailed to {b.emailedTo}
+            </div>
+          )}
+          {b.emailError && (
+            <div className="text-[11px] text-amber-300">
+              {b.emailError} Copy the links below and send them yourself.
+            </div>
+          )}
           <textarea
             readOnly
             value={b.links.join('\n')}
@@ -670,7 +736,7 @@ const EmployersTab: React.FC = () => {
               block={block}
             />
 
-            <MintRow employer={e} mailTo={mailTo} onMinted={reload} />
+            <MintRow employer={e} mailTo={mailTo} contacts={own} onMinted={reload} />
           </div>
         );
       })}
