@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { mapExtractedDataToSurvey } from '../utils/resumeDataMapper';
+import { rememberCvCountry } from '@/lib/countryToRegion';
 
 // Resume extraction is proxied through a Supabase Edge Function
 // (eliminates CORS issues and hides the n8n webhook URL from the client)
@@ -123,6 +124,8 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
         // Option A: parsed_raw exists — use frontend mapper
         console.log('[ResumeUpload] Using parsed_raw with frontend mapper');
         surveyPreFillData = mapExtractedDataToSurvey(payload.parsed_raw);
+        // Let the survey's country picker show the exact country, not just the band
+        rememberCvCountry(payload.parsed_raw.country);
       } else if (payload?.resume_parsed_data) {
         // Option B: n8n already mapped to UUIDs — unwrap {value: ...} wrappers
         console.log('[ResumeUpload] Using pre-mapped resume_parsed_data from n8n');

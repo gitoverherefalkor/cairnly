@@ -6,6 +6,8 @@
  * Output: object keyed by survey question UUIDs, formatted for survey pre-fill
  */
 
+import { optionForCountryCode } from '@/lib/countryToRegion';
+
 // Question ID mappings matching the survey structure
 const QUESTION_MAPPINGS = {
   name: '11111111-1111-1111-1111-11111111111a',
@@ -135,14 +137,25 @@ export const mapExtractedDataToSurvey = (extractedData: Record<string, any>): Re
     surveyData[QUESTION_MAPPINGS.name] = extractedData.name;
   }
 
-  // Region - validate against allowed options
-  if (extractedData.region) {
-    const matchedRegion = SURVEY_OPTIONS.region.find(r =>
-      r.toLowerCase() === extractedData.region?.toLowerCase() ||
-      extractedData.region?.toLowerCase().includes(r.toLowerCase())
-    );
-    if (matchedRegion) {
-      surveyData[QUESTION_MAPPINGS.region] = matchedRegion;
+  // Region. The CV parser returns a country (ISO code); the salary band is
+  // derived from it with the same mapping the survey's country picker uses.
+  // US/UK need a city to pick the band, so for those we trust the parser's own
+  // band guess. A country we can't price yet leaves the question empty so the
+  // user picks "Elsewhere" themselves, instead of inheriting a wrong EUR band.
+  // Older parser output without a country keeps the previous band-only behaviour.
+  const country = typeof extractedData.country === 'string' ? extractedData.country.trim().toUpperCase() : '';
+  const countryOption = optionForCountryCode(country);
+  if (countryOption) {
+    surveyData[QUESTION_MAPPINGS.region] = countryOption.region;
+  } else if (!country || country === 'US' || country === 'GB' || country === 'UK') {
+    if (extractedData.region) {
+      const matchedRegion = SURVEY_OPTIONS.region.find(r =>
+        r.toLowerCase() === extractedData.region?.toLowerCase() ||
+        extractedData.region?.toLowerCase().includes(r.toLowerCase())
+      );
+      if (matchedRegion) {
+        surveyData[QUESTION_MAPPINGS.region] = matchedRegion;
+      }
     }
   }
 

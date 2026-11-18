@@ -133,3 +133,38 @@ export function keyForRegion(region: string | null | undefined): string | null {
     default: return null;
   }
 }
+
+// --- CV-extracted country -> picker option -----------------------------------
+// The CV parser (WF0) returns an ISO 3166 two-letter country code. Countries
+// that map to exactly one band resolve straight to their dropdown option.
+// US and UK return null on purpose (the band depends on the city, so the
+// caller falls back to the parser's own US/UK band guess), and so does any
+// country we can't price yet.
+export function optionForCountryCode(code: string | null | undefined): RegionOption | null {
+  const c = (code ?? '').trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(c)) return null;
+  return KEY_TO_OPTION[c] ?? null;
+}
+
+// Every survey flavor has its own region question id (pro, starter, encore v1
+// and v2). The picker reads its "which exact country" hint per question id.
+export const REGION_QUESTION_IDS = [
+  '11111111-1111-1111-1111-111111111114',
+  'a1a1a1a1-0001-4000-a000-000000000003',
+  'b2b2b2b2-0001-4000-a000-000000000003',
+  'c3c3c3c3-0001-4000-a000-000000000003',
+];
+
+// Remember the CV country as the picker hint so it shows "Netherlands" instead
+// of the "currently set to <band>" fallback. Best-effort, like the picker itself.
+export function rememberCvCountry(code: string | null | undefined): void {
+  const option = optionForCountryCode(code);
+  if (!option) return;
+  try {
+    REGION_QUESTION_IDS.forEach((qid) =>
+      localStorage.setItem(`region_pick_${qid}`, option.key),
+    );
+  } catch {
+    /* storage blocked: the picker falls back to the band confirmation */
+  }
+}
