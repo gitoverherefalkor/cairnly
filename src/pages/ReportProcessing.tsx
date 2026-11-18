@@ -28,7 +28,8 @@ const STEPS = [
 // after it, WF2 (~4 min) then WF3 run, timed from the moment WF1 finished.
 // WF3 finishing redirects to the chat, so the last step never shows a
 // checkmark — the page never claims "done" while workflows are still running.
-const SINCE_WF1 = { scoring: 4 * 60, coach: 6 * 60 }; // seconds after WF1 done
+// WF2 takes ~4 min, WF3 ~4.5 min (Pro, measured 2026-11-18).
+const SINCE_WF1 = { scoring: 4 * 60, coach: 7 * 60 }; // seconds after WF1 done
 
 function currentStepIndex(timeElapsed: number, wf1DoneAt: number | null): number {
   if (wf1DoneAt === null) return timeElapsed < 10 ? 0 : 1;
@@ -50,12 +51,14 @@ function progressPercent(timeElapsed: number, wf1DoneAt: number | null, expected
   return Math.max(curve, 30);
 }
 
-// Timeout thresholds (seconds). Pro/Starter finish WF3 around 5 minutes.
+// Timeout thresholds (seconds). Pro/Starter: WF1 ~2 min + WF2 ~4 min + WF3
+// ~4.5 min ≈ 10.5 min to the redirect (measured 2026-11-18; the old 5/8 min
+// thresholds showed "support notified" while WF3 was still running normally).
 // Encore's WF3P (scoring + outside-the-box) lands 8-10 minutes after submit
 // (round 6, 2026-11-13), so the Pro thresholds showed "support notified"
 // while the coach was about to open. Encore gets its own, later thresholds.
 const THRESHOLDS = {
-  pro: { soft: 5 * 60, end: 8 * 60 },
+  pro: { soft: 11 * 60, end: 16 * 60 },
   encore: { soft: 9 * 60, end: 16 * 60 },
 };
 const POLL_INTERVAL = 15_000;     // 15 seconds
@@ -202,9 +205,8 @@ const ReportProcessing = () => {
               <NormalState
                 timeElapsed={timeElapsed}
                 phase={phase}
-                isEncore={isEncore}
                 wf1DoneAt={wf1DoneAt}
-                expectedDuration={END_STATE_AT}
+                expectedDuration={SOFT_WARNING_AT}
               />
             )}
           </CardContent>
@@ -218,11 +220,9 @@ const ReportProcessing = () => {
 function NormalState({
   timeElapsed,
   phase,
-  isEncore,
   wf1DoneAt,
   expectedDuration,
 }: {
-  isEncore: boolean;
   timeElapsed: number;
   phase: Phase;
   wf1DoneAt: number | null;
@@ -247,7 +247,10 @@ function NormalState({
         <p className="text-sm text-gray-500">
           {phase === 'soft-warning'
             ? t('reportProcessing.header.subtitleSoftWarning')
-            : t(isEncore ? 'reportProcessing.header.subtitleEncore' : 'reportProcessing.header.subtitle')}
+            // Both tiers now take ~10 min, so both use the already-approved
+            // "about 10 minutes" line (subtitleEncore). The old "about 5 minutes"
+            // key (header.subtitle) is unused for now.
+            : t('reportProcessing.header.subtitleEncore')}
         </p>
       </div>
 
