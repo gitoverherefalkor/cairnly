@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreFlight, checkRateLimit, errorResponse, getAuthenticatedUser } from "../_shared/cors.ts";
 import { decideSearchCharge, FREE_SEARCH_LIMIT } from "../_shared/searchCredits.ts";
-import { normalizeDistanceKm, linkedInDistanceMiles, locationCacheSuffix } from "../_shared/searchLocation.ts";
+import { normalizeDistance, normalizeDistanceUnit, linkedInDistanceMiles, locationCacheSuffix } from "../_shared/searchLocation.ts";
 
 // Cache duration: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -84,10 +84,15 @@ serve(async (req) => {
       ? String(job_commitment)
       : 'any';
 
-    // Radius around the city, in km (UI: 10/25/50/100, 0 = none). Converted to
-    // LinkedIn's mileage steps, and dropped entirely when there's no city.
+    // Distance around the city (UI: 10/25/50/100, 0 = none) in km or miles
+    // depending on the user's country. Converted to LinkedIn's mileage steps,
+    // and dropped entirely when there's no city.
     const cityTrimmed: string = typeof location === 'string' ? location.trim() : '';
-    const distanceMiles = linkedInDistanceMiles(normalizeDistanceKm(body.distance_km), cityTrimmed);
+    const distanceMiles = linkedInDistanceMiles(
+      normalizeDistance(body.distance),
+      normalizeDistanceUnit(body.distance_unit),
+      cityTrimmed,
+    );
 
     // User languages — the frontend extracts these from the user's report payload
     // when the survey collected them. Format: [{ language: 'Dutch', proficiency: 'fluent' }, ...]

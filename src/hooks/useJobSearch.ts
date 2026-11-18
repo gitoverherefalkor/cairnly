@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { DistanceUnit } from '@/lib/distanceUnit';
 
 export interface JobListing {
   id: string;
@@ -125,9 +126,10 @@ type SearchArgs = [
   userLanguages?: UserLanguage[],
   reportId?: string,
   avoidPreferences?: string[],
-  // Radius around the city in km (0 = none). Last on purpose: an in-flight
-  // search saved by an older tab simply has no 9th entry and reads as 0.
-  distanceKm?: number,
+  // Distance around the city (0 = none) and its unit. Last on purpose: an
+  // in-flight search saved by an older tab simply has no 9th/10th entry.
+  distance?: number,
+  distanceUnit?: DistanceUnit,
 ];
 
 interface InflightSearch {
@@ -195,14 +197,15 @@ export const useJobSearch = () => {
     userLanguages?: UserLanguage[],
     reportId?: string,
     avoidPreferences?: string[],
-    distanceKm?: number,
+    distance?: number,
+    distanceUnit?: DistanceUnit,
   ) => {
     if (careers.length === 0 || countryCodes.length === 0) return;
 
     setIsSearching(true);
     const args: SearchArgs = [
       careers, countryCodes, location, workArrangement, jobCommitment,
-      userLanguages, reportId, avoidPreferences, distanceKm,
+      userLanguages, reportId, avoidPreferences, distance, distanceUnit,
     ];
 
     // Initialize all results as idle
@@ -238,7 +241,8 @@ export const useJobSearch = () => {
             work_arrangement: workArrangement || 'any',
             job_commitment: jobCommitment || 'any',
             location: location || '',
-            distance_km: location ? (distanceKm || 0) : 0,
+            distance: location ? (distance || 0) : 0,
+            distance_unit: distanceUnit || 'km',
             alternate_titles: careers[i].alternateTitles || [],
             career_overview: careers[i].overview || '',
             user_languages: userLanguages || [],

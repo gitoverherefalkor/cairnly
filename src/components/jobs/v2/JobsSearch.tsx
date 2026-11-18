@@ -17,6 +17,7 @@ import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier } from './jobsV2Shared';
 import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { DISTANCE_CHOICES, type DistanceUnit } from '@/lib/distanceUnit';
 
 // A previously-run search the user can replay in one click. Lives in
 // localStorage on the page side; the type is declared here so both Jobs.tsx
@@ -26,7 +27,7 @@ export interface RecentSearch {
   primaryCountry: string;
   secondaryCountry: string;
   city: string;
-  distanceKm?: number; // optional: entries saved before the radius existed
+  distance?: number; // optional: entries saved before the distance filter existed
   workArrangement: WorkArrangement;
   jobCommitment: JobCommitment;
   ranAt: number;
@@ -53,9 +54,6 @@ export interface JobsSearchCountry {
 // search.commitment.*), so the option value is the only constant here.
 const WORK_OPTIONS: WorkArrangement[] = ['any', 'remote_friendly', 'remote_only'];
 const COMMITMENT_OPTIONS: JobCommitment[] = ['any', 'full_time', 'part_time', 'contract'];
-// Radius around the city, in km. Must match DISTANCE_KM_OPTIONS in
-// supabase/functions/_shared/searchLocation.ts (the edge function rejects others).
-const DISTANCE_KM_CHOICES = [10, 25, 50, 100];
 
 // Collapsible panel showing the "avoid" preferences pulled from the user's
 // assessment. Each item is a toggle — unchecking it means "don't filter this
@@ -72,8 +70,9 @@ interface JobsSearchProps {
   onSecondaryCountryChange: (code: string) => void;
   city: string;
   onCityChange: (city: string) => void;
-  distanceKm: number; // 0 = no radius
-  onDistanceKmChange: (km: number) => void;
+  distance: number; // 0 = no distance filter
+  onDistanceChange: (distance: number) => void;
+  distanceUnit: DistanceUnit; // km or miles, follows the country
   workArrangement: WorkArrangement;
   onWorkArrangementChange: (v: WorkArrangement) => void;
   jobCommitment: JobCommitment;
@@ -116,8 +115,9 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onSecondaryCountryChange,
   city,
   onCityChange,
-  distanceKm,
-  onDistanceKmChange,
+  distance,
+  onDistanceChange,
+  distanceUnit,
   workArrangement,
   onWorkArrangementChange,
   jobCommitment,
@@ -281,7 +281,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               paddingRight: avoidPreferences.length > 0 && !mobile ? 24 : 0,
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr 1fr', gap: 12, alignItems: 'end' }}>
+            {/* City column is wider: it holds the city field plus the distance dropdown. */}
+            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr 1.4fr', gap: 12, alignItems: 'end' }}>
               <FormField label={t('search.country')}>
                 <CreamSelect value={primaryCountry} onChange={onPrimaryCountryChange} options={countries} />
               </FormField>
@@ -293,23 +294,24 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                 />
               </FormField>
               <FormField label={t('search.city')}>
-                {/* City + radius share one cell. The radius only means something
-                    around a city, so it stays greyed out until one is typed. */}
+                {/* City + distance share one cell. The distance only means
+                    something around a city, so it stays greyed out until one
+                    is typed. Unit (km / mi) follows the chosen country. */}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <CreamInput value={city} onChange={onCityChange} placeholder={t('search.cityPlaceholder')} />
                   </div>
-                  <div style={{ width: 104, flexShrink: 0 }}>
+                  <div style={{ width: 118, flexShrink: 0 }}>
                     <CreamSelect
-                      value={city.trim() ? String(distanceKm || '') : ''}
-                      onChange={(v) => onDistanceKmChange(Number(v) || 0)}
+                      value={city.trim() ? String(distance || '') : ''}
+                      onChange={(v) => onDistanceChange(Number(v) || 0)}
                       disabled={!city.trim()}
                       ariaLabel={t('search.distanceLabel')}
                       options={[
                         { code: '', label: t('search.distanceAny') },
-                        ...DISTANCE_KM_CHOICES.map((km) => ({
-                          code: String(km),
-                          label: t('search.distanceOption', { km }),
+                        ...DISTANCE_CHOICES.map((value) => ({
+                          code: String(value),
+                          label: t(`search.distanceOption_${distanceUnit}`, { value }),
                         })),
                       ]}
                     />
