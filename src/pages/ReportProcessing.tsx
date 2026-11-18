@@ -10,20 +10,45 @@ import { Loader2, CheckCircle2, Mail, AlertCircle, ArrowRight } from 'lucide-rea
 import CairnProgress from '@/components/survey/CairnProgress';
 import { isEncoreSurveyId } from '@/components/assessment/constants';
 
-// Stepper stages — timed to feel like real progress through the n8n pipeline
-// (WF1 personality → WF2 research → WF3 scoring → WF4 career narratives).
-// The delays are structure, so STEPS stays at module level (useTranslation
-// cannot run there) and carries a stable id plus a labelKey instead of an
-// English label. The id is what the React key uses: keying on the label would
-// change it on a language switch, remounting every row and replaying the
-// fade-in animation.
+// Stepper stages through the n8n pipeline (WF1 personality → WF2 research →
+// WF3 scoring). STEPS stays at module level (useTranslation cannot run there)
+// and carries a stable id plus a labelKey instead of an English label. The id
+// is what the React key uses: keying on the label would change it on a
+// language switch, remounting every row and replaying the fade-in animation.
 const STEPS = [
-  { id: 'reading', labelKey: 'reportProcessing.steps.reading', delay: 0 },
-  { id: 'personality', labelKey: 'reportProcessing.steps.personality', delay: 10 },
-  { id: 'research', labelKey: 'reportProcessing.steps.research', delay: 60 },
-  { id: 'scoring', labelKey: 'reportProcessing.steps.scoring', delay: 150 },
-  { id: 'coach', labelKey: 'reportProcessing.steps.coach', delay: 240 },
+  { id: 'reading', labelKey: 'reportProcessing.steps.reading' },
+  { id: 'personality', labelKey: 'reportProcessing.steps.personality' },
+  { id: 'research', labelKey: 'reportProcessing.steps.research' },
+  { id: 'scoring', labelKey: 'reportProcessing.steps.scoring' },
+  { id: 'coach', labelKey: 'reportProcessing.steps.coach' },
 ];
+
+// Which step is "current", driven by the one real signal the page can see:
+// WF1 done (report status → pending_review). Before that we're in steps 0-1;
+// after it, WF2 (~4 min) then WF3 run, timed from the moment WF1 finished.
+// WF3 finishing redirects to the chat, so the last step never shows a
+// checkmark — the page never claims "done" while workflows are still running.
+const SINCE_WF1 = { scoring: 4 * 60, coach: 6 * 60 }; // seconds after WF1 done
+
+function currentStepIndex(timeElapsed: number, wf1DoneAt: number | null): number {
+  if (wf1DoneAt === null) return timeElapsed < 10 ? 0 : 1;
+  const since = timeElapsed - wf1DoneAt;
+  if (since >= SINCE_WF1.coach) return 4;
+  if (since >= SINCE_WF1.scoring) return 3;
+  return 2;
+}
+
+// Progress bar: follows real progress instead of a fixed timer.
+// - While WF1 runs, the bar can't pass 30%.
+// - Once WF1 is done it jumps to at least 30%, then creeps toward (never
+//   reaching) 95% — it slows down as it goes, so it is never "full" while WF3
+//   is still running. It only hits 100% on the redirect to the chat.
+// `expected` is the typical total run time; at that point the bar sits ~80%.
+function progressPercent(timeElapsed: number, wf1DoneAt: number | null, expected: number): number {
+  const curve = 95 * (1 - Math.exp(-timeElapsed / (expected / 2)));
+  if (wf1DoneAt === null) return Math.min(curve, 30);
+  return Math.max(curve, 30);
+}
 
 // Timeout thresholds (seconds). Pro/Starter finish WF3 around 5 minutes.
 // Encore's WF3P (scoring + outside-the-box) lands 8-10 minutes after submit
@@ -41,6 +66,10 @@ const ReportProcessing = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [phase, setPhase] = useState<Phase>('normal');
   const [isEncore, setIsEncore] = useState(false);
+  // Seconds-on-page at which we first saw WF1 finish (status pending_review).
+  const [wf1DoneAt, setWf1DoneAt] = useState<number | null>(null);
+  const timeElapsedRef = useRef(0);
+  timeElapsedRef.current = timeElapsed;
   const { soft: SOFT_WARNING_AT, end: END_STATE_AT } = isEncore ? THRESHOLDS.encore : THRESHOLDS.pro;
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -107,6 +136,7 @@ const ReportProcessing = () => {
       // the 'outside_box' section row, so its existence is our "WF3 done" signal — WF4
       // then finishes in the background while the user reads the personality chapter.
       if (report.status === 'pending_review') {
+        setWf1DoneAt(prev => prev ?? timeElapsedRef.current);
         const { data: oobRows, error: oobError } = await supabase
           .from('report_sections')
           .select('id')
@@ -172,9 +202,9 @@ const ReportProcessing = () => {
               <NormalState
                 timeElapsed={timeElapsed}
                 phase={phase}
-                softWarningAt={SOFT_WARNING_AT}
                 isEncore={isEncore}
-                onDashboard={goToDashboard}
+                wf1DoneAt={wf1DoneAt}
+                expectedDuration={END_STATE_AT}
               />
             )}
           </CardContent>
@@ -188,17 +218,18 @@ const ReportProcessing = () => {
 function NormalState({
   timeElapsed,
   phase,
-  softWarningAt,
   isEncore,
-  onDashboard,
+  wf1DoneAt,
+  expectedDuration,
 }: {
   isEncore: boolean;
   timeElapsed: number;
   phase: Phase;
-  softWarningAt: number;
-  onDashboard: () => void;
+  wf1DoneAt: number | null;
+  expectedDuration: number;
 }) {
   const { t } = useTranslation('survey');
+  const current = currentStepIndex(timeElapsed, wf1DoneAt);
   return (
     <div className="space-y-6">
       {/* Completed cairn — the payoff for finishing all seven sections. Full
@@ -223,10 +254,9 @@ function NormalState({
       {/* Stepper */}
       <div className="space-y-0">
         {STEPS.map((step, i) => {
-          const isVisible = timeElapsed >= step.delay;
-          const nextStep = STEPS[i + 1];
-          const isComplete = nextStep ? timeElapsed >= nextStep.delay : phase === 'soft-warning';
-          const isActive = isVisible && !isComplete;
+          const isVisible = i <= current;
+          const isComplete = i < current;
+          const isActive = i === current;
 
           if (!isVisible) return null;
 
@@ -254,27 +284,27 @@ function NormalState({
         })}
       </div>
 
-      {/* Progress bar — subtle, fills over ~3 min */}
+      {/* Progress bar — follows real progress, never full until the redirect */}
       <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
         <div
           className="h-full bg-atlas-teal/60 rounded-full transition-all duration-1000 ease-out"
           style={{
-            width: `${Math.min(100, phase === 'soft-warning' ? 100 : (timeElapsed / softWarningAt) * 100)}%`,
+            width: `${progressPercent(timeElapsed, wf1DoneAt, expectedDuration)}%`,
           }}
         />
       </div>
 
-      {/* Leave-page reassurance + dashboard, kept inside the card */}
-      <div className="space-y-3 border-t border-border pt-4">
+      {/* Leave-page reassurance. No "Go to Dashboard" button here on purpose:
+          it read as an end point, so users left instead of waiting for the
+          coach. The button stays on the end/failed states, where leaving is
+          the right move. */}
+      <div className="border-t border-border pt-4">
         <div className="flex items-start gap-2.5">
           <Mail className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-gray-500">
             {t('reportProcessing.leaveNote')}
           </p>
         </div>
-        <Button variant="outline" onClick={onDashboard} className="w-full">
-          {t('reportProcessing.goToDashboard')}
-        </Button>
       </div>
     </div>
   );
