@@ -79,7 +79,8 @@
   "employeeSees": {
     "eyebrow": "Wat je medewerker ziet",
     "intro": "Het eerste scherm van een assessment dat het bedrijf aanbiedt, zegt dit, letterlijk:",
-    "quote": "Je werkgever heeft hiervoor betaald. Die ziet nooit je antwoorden, je scores of je rapport. Niemand in je bedrijf weet of je het hebt afgemaakt.",
+    "quote": "Je krijgt dit gratis assessment aangeboden als medewerker van {{company}}. {{company}} ziet nooit je antwoorden, je aanbevelingen of je rapport.",
+    "quoteExampleCompany": "Acme",
     "why": "Die zin staat er omdat een assessment waarvan mensen vermoeden dat HR meeleest, strategisch wordt ingevuld. Dan is het voor niemand iets waard."
   },
   "council": {

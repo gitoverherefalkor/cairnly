@@ -34,7 +34,7 @@ serve(async (req) => {
     // All access codes claimed by this user, newest first.
     const { data: codes } = await supabase
       .from('access_codes')
-      .select('id, code, survey_type, max_usage, usage_count, is_active, employer_code_kind')
+      .select('id, code, survey_type, max_usage, usage_count, is_active, employer_code_kind, employer_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
@@ -60,6 +60,18 @@ serve(async (req) => {
       codes.find((c) => c.is_active !== false) ??
       codes[0];
 
+    // Seat codes carry the employer's name for the first-screen notice
+    // (mirrors verify-access-code). Best-effort: null falls back to "your employer".
+    let employerName: string | null = null;
+    if (chosen.employer_code_kind === 'seat' && chosen.employer_id) {
+      const { data: employer } = await supabase
+        .from('employers')
+        .select('name')
+        .eq('id', chosen.employer_id)
+        .maybeSingle();
+      employerName = employer?.name?.trim() || null;
+    }
+
     return json({
       found: true,
       accessCode: {
@@ -71,6 +83,7 @@ serve(async (req) => {
         // so (and that the employer sees nothing). Same flag verify-access-code
         // returns, so both ways into the assessment agree.
         sponsored: chosen.employer_code_kind === 'seat',
+        employer_name: employerName,
       },
     });
   } catch (error) {

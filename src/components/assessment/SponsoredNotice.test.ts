@@ -16,4 +16,15 @@ describe('employer-paid notice', () => {
       expect(notice).toBe(read(lang, 'employers').employeeSees.quote);
     });
   }
+
+  // The notice names the employer; a seat code without a name needs a
+  // fallback, in every language the assessment runs in.
+  for (const lang of ['en', 'nl', 'nl-formal']) {
+    it(`names the employer and has a no-name fallback (${lang})`, () => {
+      const sponsored = read(lang, 'survey').sponsored;
+      expect(sponsored.notice).toContain('{{company}}');
+      expect(sponsored.noticeNoName).toBeTruthy();
+      expect(sponsored.noticeNoName).not.toContain('{{');
+    });
+  }
 });

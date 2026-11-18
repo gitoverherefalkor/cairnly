@@ -159,6 +159,19 @@ serve(async (req) => {
       console.warn('Could not link access code to user:', linkErr);
     }
 
+    // Seat codes carry the employer's name so the first screen can say who is
+    // offering the assessment ("Settly will never see your answers…").
+    // Best-effort: without a name the notice falls back to "your employer".
+    let employerName: string | null = null;
+    if (accessCode.employer_code_kind === 'seat' && accessCode.employer_id) {
+      const { data: employer } = await supabase
+        .from('employers')
+        .select('name')
+        .eq('id', accessCode.employer_id)
+        .maybeSingle();
+      employerName = employer?.name?.trim() || null;
+    }
+
     return new Response(JSON.stringify({
       valid: true,
       accessCode: {
@@ -169,7 +182,8 @@ serve(async (req) => {
         // An employer paid for this seat (employer_code_kind = 'seat'): the
         // assessment's first screen shows the employer-paid notice. Mirrored
         // in get-my-access-code.
-        sponsored: accessCode.employer_code_kind === 'seat'
+        sponsored: accessCode.employer_code_kind === 'seat',
+        employer_name: employerName,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -29,6 +29,8 @@ interface PreSurveyUploadProps {
   demoPreset?: { fileName: string; fileSizeBytes: number; fieldsExtracted: number };
   /** An employer paid for this seat: show the employer-paid notice first. */
   sponsored?: boolean;
+  /** Employer behind a seat code, named in the sponsored notice. */
+  employerName?: string | null;
 }
 
 // Animated illustration showing resume → auto-fill value proposition.
@@ -120,7 +122,7 @@ const ResumeAutoFillAnimation = () => {
   );
 };
 
-export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, demoPreset, sponsored = false }) => {
+export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, demoPreset, sponsored = false, employerName = null }) => {
   const { t } = useTranslation('survey');
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [hasUploadedResume, setHasUploadedResume] = React.useState(false);
@@ -275,7 +277,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
           </a>
         )}
 
-        {sponsored && !demoPreset && <SponsoredNotice />}
+        {sponsored && !demoPreset && <SponsoredNotice employerName={employerName} />}
 
         {/* Gold editorial eyebrow */}
         <span

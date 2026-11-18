@@ -6,16 +6,23 @@ import { Lock } from 'lucide-react';
  * The employer-paid notice on the first screen of a company-sponsored
  * assessment (a seat code, access_codes.employer_code_kind = 'seat').
  *
- * The /employers page quotes this line word for word ("What your employee
- * sees"), so the wording lives in survey.json as `sponsored.notice` and must
- * stay identical to employers.json `employeeSees.quote` in both languages.
+ * Names the employer (employers.name, sent along by verify-access-code /
+ * get-my-access-code) in `sponsored.notice`; without a name it falls back to
+ * `sponsored.noticeNoName` ("your employer").
+ *
+ * The /employers page quotes `sponsored.notice` word for word ("What your
+ * employee sees"), with an example name filled in, so it must stay identical
+ * to employers.json `employeeSees.quote` in every language.
  * Change one, change the other.
+ *
+ * Seat codes only: partner (outplacement / coaching) codes never carry
+ * employer_code_kind = 'seat', so their candidates never see this.
  *
  * It is on the first screen on purpose: an assessment people suspect HR reads
  * is one they answer strategically, so the reassurance has to come before the
  * first question, not in a privacy page nobody opens.
  */
-export const SponsoredNotice: React.FC = () => {
+export const SponsoredNotice: React.FC<{ employerName?: string | null }> = ({ employerName }) => {
   const { t } = useTranslation('survey');
   // Solid gold with dark text (2026-10-08): the first thing on the page,
   // impossible to read past, not a quiet glass card among the others.
@@ -39,7 +46,9 @@ export const SponsoredNotice: React.FC = () => {
         <Lock className="h-4 w-4" style={{ color: '#F2C75A' }} />
       </span>
       <p className="m-0 text-[15px] md:text-[15.5px] leading-snug" style={{ color: '#122E3B', fontWeight: 600 }}>
-        {t('sponsored.notice')}
+        {employerName
+          ? t('sponsored.notice', { company: employerName, interpolation: { escapeValue: false } })
+          : t('sponsored.noticeNoName')}
       </p>
     </div>
   );

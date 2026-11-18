@@ -168,7 +168,8 @@
     "viewDashboard": "Naar uw dashboard"
   },
   "sponsored": {
-    "notice": "Uw werkgever heeft hiervoor betaald. Die ziet nooit uw antwoorden, uw scores of uw rapport. Niemand in uw organisatie weet of u het heeft afgemaakt."
+    "notice": "U krijgt dit gratis assessment aangeboden als medewerker van {{company}}. {{company}} ziet nooit uw antwoorden, uw aanbevelingen of uw rapport.",
+    "noticeNoName": "U krijgt dit gratis assessment aangeboden door uw werkgever. Die ziet nooit uw antwoorden, uw aanbevelingen of uw rapport."
   },
   "sidebar": {
     "yourProgress": "Uw voortgang",

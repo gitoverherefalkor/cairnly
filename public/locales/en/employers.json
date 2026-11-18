@@ -79,7 +79,8 @@
   "employeeSees": {
     "eyebrow": "What your employee sees",
     "intro": "The first screen of a company-sponsored assessment says this, word for word:",
-    "quote": "Your employer paid for this. They will never see your answers, your scores or your report. Nobody at your company will know whether you finished it.",
+    "quote": "You are being offered this free assessment as an employee of {{company}}. {{company}} will never see your answers, your recommendations or your report.",
+    "quoteExampleCompany": "Acme",
     "why": "That line is there because an assessment people suspect is being read by HR is an assessment people answer strategically. Then it's worthless to everyone."
   },
   "council": {

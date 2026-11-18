@@ -405,7 +405,10 @@ export const EmployersEmployeeSees: React.FC = () => {
               className="mt-4 font-heading font-semibold leading-[1.45]"
               style={{ fontSize: 'clamp(19px, 2vw, 25px)' }}
             >
-              {t('employeeSees.quote')}
+              {t('employeeSees.quote', {
+                company: t('employeeSees.quoteExampleCompany'),
+                interpolation: { escapeValue: false },
+              })}
             </blockquote>
           </figure>
           <p className={`mt-7 ${BODY}`}>{t('employeeSees.why')}</p>

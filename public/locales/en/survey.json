@@ -443,7 +443,8 @@
     "returnHome": "Return to Home"
   },
   "sponsored": {
-    "notice": "Your employer paid for this. They will never see your answers, your scores or your report. Nobody at your company will know whether you finished it."
+    "notice": "You are being offered this free assessment as an employee of {{company}}. {{company}} will never see your answers, your recommendations or your report.",
+    "noticeNoName": "You are being offered this free assessment by your employer. They will never see your answers, your recommendations or your report."
   },
   "sidebar": {
     "yourProgress": "Your Progress",

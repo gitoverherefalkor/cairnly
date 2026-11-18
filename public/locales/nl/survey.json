@@ -443,7 +443,8 @@
     "returnHome": "Terug naar de homepage"
   },
   "sponsored": {
-    "notice": "Je werkgever heeft hiervoor betaald. Die ziet nooit je antwoorden, je scores of je rapport. Niemand in je bedrijf weet of je het hebt afgemaakt."
+    "notice": "Je krijgt dit gratis assessment aangeboden als medewerker van {{company}}. {{company}} ziet nooit je antwoorden, je aanbevelingen of je rapport.",
+    "noticeNoName": "Je krijgt dit gratis assessment aangeboden door je werkgever. Die ziet nooit je antwoorden, je aanbevelingen of je rapport."
   },
   "sidebar": {
     "yourProgress": "Je voortgang",
