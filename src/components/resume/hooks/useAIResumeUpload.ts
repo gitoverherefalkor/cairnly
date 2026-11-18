@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { mapExtractedDataToSurvey } from '../utils/resumeDataMapper';
+import { mapExtractedDataToSurvey, resolveRegionBand } from '../utils/resumeDataMapper';
 import { rememberCvCountry } from '@/lib/countryToRegion';
 
 // Resume extraction is proxied through a Supabase Edge Function
@@ -14,6 +14,8 @@ import { rememberCvCountry } from '@/lib/countryToRegion';
 const SKIP_PREFILL_QUESTION_IDS = new Set([
   '44444444-4444-4444-4444-444444444444',
 ]);
+
+const REGION_QUESTION_ID = '11111111-1111-1111-1111-111111111114';
 
 interface UseAIResumeUploadProps {
   onSuccess?: (data: any) => void;
@@ -133,6 +135,15 @@ export const useAIResumeUpload = ({ onSuccess, onError }: UseAIResumeUploadProps
         for (const [questionId, wrapper] of Object.entries(payload.resume_parsed_data)) {
           if (SKIP_PREFILL_QUESTION_IDS.has(questionId)) continue;
           surveyPreFillData[questionId] = (wrapper as any)?.value ?? wrapper;
+        }
+        // WF0 also returns the CV country. Re-derive the band from it (the
+        // parser's own band guess can be wrong, e.g. for countries we can't
+        // price) and remember the country for the survey's picker.
+        if (payload.country) {
+          const band = resolveRegionBand(payload.country, surveyPreFillData[REGION_QUESTION_ID]);
+          if (band) surveyPreFillData[REGION_QUESTION_ID] = band;
+          else delete surveyPreFillData[REGION_QUESTION_ID];
+          rememberCvCountry(payload.country);
         }
       } else {
         console.error('[ResumeUpload] No parsed_raw or resume_parsed_data found. Keys:', Object.keys(payload || {}));

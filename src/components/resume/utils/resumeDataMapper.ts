@@ -125,6 +125,29 @@ const EMPTY_CAREER_ENTRY = {
 };
 
 /**
+ * Picks the salary band for a CV. The parser returns a country (ISO code); the
+ * band is derived with the same mapping the survey's country picker uses.
+ * US/UK need a city to choose the band, so for those we trust the parser's own
+ * band guess. A country we can't price yet returns null so the user picks
+ * "Elsewhere" themselves, instead of inheriting a wrong EUR band. Parser output
+ * without a country keeps the older band-only behaviour.
+ */
+export const resolveRegionBand = (
+  country: unknown,
+  parserBand: unknown,
+): string | null => {
+  const code = typeof country === 'string' ? country.trim().toUpperCase() : '';
+  const option = optionForCountryCode(code);
+  if (option) return option.region;
+  if (code && code !== 'US' && code !== 'GB' && code !== 'UK') return null;
+  if (typeof parserBand !== 'string') return null;
+  const band = parserBand.toLowerCase();
+  return (
+    SURVEY_OPTIONS.region.find(r => r.toLowerCase() === band || band.includes(r.toLowerCase())) ?? null
+  );
+};
+
+/**
  * Maps raw AI-extracted data to survey question IDs with proper formatting.
  * Handles validation of multiple choice fields, career history padding,
  * skills/achievements formatting, and interests formatting.
@@ -137,26 +160,10 @@ export const mapExtractedDataToSurvey = (extractedData: Record<string, any>): Re
     surveyData[QUESTION_MAPPINGS.name] = extractedData.name;
   }
 
-  // Region. The CV parser returns a country (ISO code); the salary band is
-  // derived from it with the same mapping the survey's country picker uses.
-  // US/UK need a city to pick the band, so for those we trust the parser's own
-  // band guess. A country we can't price yet leaves the question empty so the
-  // user picks "Elsewhere" themselves, instead of inheriting a wrong EUR band.
-  // Older parser output without a country keeps the previous band-only behaviour.
-  const country = typeof extractedData.country === 'string' ? extractedData.country.trim().toUpperCase() : '';
-  const countryOption = optionForCountryCode(country);
-  if (countryOption) {
-    surveyData[QUESTION_MAPPINGS.region] = countryOption.region;
-  } else if (!country || country === 'US' || country === 'GB' || country === 'UK') {
-    if (extractedData.region) {
-      const matchedRegion = SURVEY_OPTIONS.region.find(r =>
-        r.toLowerCase() === extractedData.region?.toLowerCase() ||
-        extractedData.region?.toLowerCase().includes(r.toLowerCase())
-      );
-      if (matchedRegion) {
-        surveyData[QUESTION_MAPPINGS.region] = matchedRegion;
-      }
-    }
+  // Region: from the CV country when we have one (see resolveRegionBand)
+  const regionBand = resolveRegionBand(extractedData.country, extractedData.region);
+  if (regionBand) {
+    surveyData[QUESTION_MAPPINGS.region] = regionBand;
   }
 
   // Education - validate and map with fuzzy matching
