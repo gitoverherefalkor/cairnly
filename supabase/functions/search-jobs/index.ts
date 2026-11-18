@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreFlight, checkRateLimit, errorResponse, getAuthenticatedUser } from "../_shared/cors.ts";
 import { decideSearchCharge, FREE_SEARCH_LIMIT } from "../_shared/searchCredits.ts";
+import { normalizeDistanceKm, linkedInDistanceMiles, locationCacheSuffix } from "../_shared/searchLocation.ts";
 
 // Cache duration: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -82,6 +83,11 @@ serve(async (req) => {
     const jobCommitment = VALID_COMMITMENTS.has(String(job_commitment))
       ? String(job_commitment)
       : 'any';
+
+    // Radius around the city, in km (UI: 10/25/50/100, 0 = none). Converted to
+    // LinkedIn's mileage steps, and dropped entirely when there's no city.
+    const cityTrimmed: string = typeof location === 'string' ? location.trim() : '';
+    const distanceMiles = linkedInDistanceMiles(normalizeDistanceKm(body.distance_km), cityTrimmed);
 
     // User languages — the frontend extracts these from the user's report payload
     // when the survey collected them. Format: [{ language: 'Dutch', proficiency: 'fluent' }, ...]
@@ -170,7 +176,10 @@ serve(async (req) => {
     //      scorer enforces work arrangement + job commitment, real salary parsing (2026-08-10).
     // v15: 30-day f_TPR window on every search URL + applicant count surfaced
     //      and used as a tiebreak (2026-08-10).
-    const SEARCH_LOGIC_VERSION = 'v15';
+    // v16: cache key now includes the city + radius. Before, it ignored location,
+    //      so a Berlin search within 24h of an Amsterdam one got Amsterdam's
+    //      results. Bumping also retires every entry cached under the old key (2026-11-18).
+    const SEARCH_LOGIC_VERSION = 'v16';
 
     // Avoid-prefs signature: stable per user, so users with different avoid
     // lists don't share each other's scored cache. Sorted so order doesn't matter.
@@ -179,14 +188,15 @@ serve(async (req) => {
       : 'none';
 
     // Cache key: logic version + sorted country list + arrangement + language
-    // signature. Same query in NL+DE hits the same cache regardless of which
-    // order the user picked; same query for users with the same language
-    // profile reuses.
+    // signature + city/radius. Same query in NL+DE hits the same cache
+    // regardless of which order the user picked; same query for users with the
+    // same language profile reuses.
     const searchQuery = career_title.toLowerCase().trim();
     const countryNormalized = SEARCH_LOGIC_VERSION + ':'
       + countries.join('+')
       + (workArrangement !== 'any' ? ':' + workArrangement : '')
       + (jobCommitment !== 'any' ? ':jt=' + jobCommitment : '')
+      + locationCacheSuffix(cityTrimmed, distanceMiles)
       + ':lang=' + langSignature
       + ':avoid=' + avoidSignature;
 
@@ -305,6 +315,9 @@ serve(async (req) => {
           career_overview: careerOverview,
           avoid_preferences: avoidPreferences,
           location: location || '',
+          // LinkedIn `distance` value in miles; 0 = don't send one. WF8 ignores
+          // unknown fields, so this is harmless until its URL builder reads it.
+          distance_miles: distanceMiles,
           // user_languages drives the scoring step's language-awareness.
           // Forwarded as-is; n8n decides how aggressively to weight it.
           user_languages: userLanguages,

@@ -125,6 +125,9 @@ type SearchArgs = [
   userLanguages?: UserLanguage[],
   reportId?: string,
   avoidPreferences?: string[],
+  // Radius around the city in km (0 = none). Last on purpose: an in-flight
+  // search saved by an older tab simply has no 9th entry and reads as 0.
+  distanceKm?: number,
 ];
 
 interface InflightSearch {
@@ -192,13 +195,14 @@ export const useJobSearch = () => {
     userLanguages?: UserLanguage[],
     reportId?: string,
     avoidPreferences?: string[],
+    distanceKm?: number,
   ) => {
     if (careers.length === 0 || countryCodes.length === 0) return;
 
     setIsSearching(true);
     const args: SearchArgs = [
       careers, countryCodes, location, workArrangement, jobCommitment,
-      userLanguages, reportId, avoidPreferences,
+      userLanguages, reportId, avoidPreferences, distanceKm,
     ];
 
     // Initialize all results as idle
@@ -234,6 +238,7 @@ export const useJobSearch = () => {
             work_arrangement: workArrangement || 'any',
             job_commitment: jobCommitment || 'any',
             location: location || '',
+            distance_km: location ? (distanceKm || 0) : 0,
             alternate_titles: careers[i].alternateTitles || [],
             career_overview: careers[i].overview || '',
             user_languages: userLanguages || [],

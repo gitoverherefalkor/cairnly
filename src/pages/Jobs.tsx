@@ -58,6 +58,7 @@ interface PersistedJobsState {
   primaryCountry: string;
   secondaryCountry: string;
   city: string;
+  distanceKm?: number; // optional: snapshots saved before the radius existed
   workArrangement: WorkArrangement;
   jobCommitment: JobCommitment;
   disabledAvoids: string[];
@@ -95,6 +96,7 @@ function snapshotsEqual(a: RecentSearch, b: Omit<RecentSearch, 'ranAt'>): boolea
     a.primaryCountry === b.primaryCountry &&
     a.secondaryCountry === b.secondaryCountry &&
     a.city === b.city &&
+    (a.distanceKm ?? 0) === (b.distanceKm ?? 0) &&
     a.workArrangement === b.workArrangement &&
     a.jobCommitment === b.jobCommitment &&
     a.selectedCareers.length === b.selectedCareers.length &&
@@ -180,6 +182,7 @@ const Jobs = () => {
   const [primaryCountry, setPrimaryCountry] = useState(() => persisted?.primaryCountry ?? 'us');
   const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
   const [city, setCity] = useState(() => persisted?.city ?? '');
+  const [distanceKm, setDistanceKm] = useState<number>(() => persisted?.distanceKm ?? 0);
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
   const [jobCommitment, setJobCommitment] = useState<JobCommitment>(() => persisted?.jobCommitment ?? 'any');
   // Avoid items the user has unchecked for this search (so they can override
@@ -335,12 +338,12 @@ const Jobs = () => {
     try {
       sessionStorage.setItem(
         JOBS_STATE_KEY,
-        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results }),
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, distanceKm, workArrangement, jobCommitment, disabledAvoids, results }),
       );
     } catch {
       // sessionStorage full or unavailable — non-fatal, just skip persisting.
     }
-  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results]);
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, distanceKm, workArrangement, jobCommitment, disabledAvoids, results]);
 
   // Pre-fill primary country — only when there's no restored snapshot, so we
   // don't clobber a country the user already picked. profiles.country is only
@@ -524,11 +527,12 @@ const Jobs = () => {
         primaryCountry,
         secondaryCountry,
         city,
+        distanceKm: city.trim() ? distanceKm : 0,
         workArrangement,
         jobCommitment,
       }),
     );
-    await searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
+    await searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids, city.trim() ? distanceKm : 0);
     // Each career that actually reached n8n spent a credit, so re-read the
     // ledger and let the counter (and the out-of-searches screen) catch up.
     if (latestReport?.id) {
@@ -544,6 +548,7 @@ const Jobs = () => {
     setPrimaryCountry(s.primaryCountry);
     setSecondaryCountry(s.secondaryCountry);
     setCity(s.city);
+    setDistanceKm(s.distanceKm ?? 0);
     setWorkArrangement(s.workArrangement);
     setJobCommitment(s.jobCommitment);
   };
@@ -749,6 +754,8 @@ const Jobs = () => {
       onSecondaryCountryChange={setSecondaryCountry}
       city={city}
       onCityChange={setCity}
+      distanceKm={distanceKm}
+      onDistanceKmChange={setDistanceKm}
       workArrangement={workArrangement}
       onWorkArrangementChange={setWorkArrangement}
       jobCommitment={jobCommitment}

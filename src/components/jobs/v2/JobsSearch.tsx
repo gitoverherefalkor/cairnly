@@ -26,6 +26,7 @@ export interface RecentSearch {
   primaryCountry: string;
   secondaryCountry: string;
   city: string;
+  distanceKm?: number; // optional: entries saved before the radius existed
   workArrangement: WorkArrangement;
   jobCommitment: JobCommitment;
   ranAt: number;
@@ -52,6 +53,9 @@ export interface JobsSearchCountry {
 // search.commitment.*), so the option value is the only constant here.
 const WORK_OPTIONS: WorkArrangement[] = ['any', 'remote_friendly', 'remote_only'];
 const COMMITMENT_OPTIONS: JobCommitment[] = ['any', 'full_time', 'part_time', 'contract'];
+// Radius around the city, in km. Must match DISTANCE_KM_OPTIONS in
+// supabase/functions/_shared/searchLocation.ts (the edge function rejects others).
+const DISTANCE_KM_CHOICES = [10, 25, 50, 100];
 
 // Collapsible panel showing the "avoid" preferences pulled from the user's
 // assessment. Each item is a toggle — unchecking it means "don't filter this
@@ -68,6 +72,8 @@ interface JobsSearchProps {
   onSecondaryCountryChange: (code: string) => void;
   city: string;
   onCityChange: (city: string) => void;
+  distanceKm: number; // 0 = no radius
+  onDistanceKmChange: (km: number) => void;
   workArrangement: WorkArrangement;
   onWorkArrangementChange: (v: WorkArrangement) => void;
   jobCommitment: JobCommitment;
@@ -110,6 +116,8 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
   onSecondaryCountryChange,
   city,
   onCityChange,
+  distanceKm,
+  onDistanceKmChange,
   workArrangement,
   onWorkArrangementChange,
   jobCommitment,
@@ -285,7 +293,28 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                 />
               </FormField>
               <FormField label={t('search.city')}>
-                <CreamInput value={city} onChange={onCityChange} placeholder={t('search.cityPlaceholder')} />
+                {/* City + radius share one cell. The radius only means something
+                    around a city, so it stays greyed out until one is typed. */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <CreamInput value={city} onChange={onCityChange} placeholder={t('search.cityPlaceholder')} />
+                  </div>
+                  <div style={{ width: 104, flexShrink: 0 }}>
+                    <CreamSelect
+                      value={city.trim() ? String(distanceKm || '') : ''}
+                      onChange={(v) => onDistanceKmChange(Number(v) || 0)}
+                      disabled={!city.trim()}
+                      ariaLabel={t('search.distanceLabel')}
+                      options={[
+                        { code: '', label: t('search.distanceAny') },
+                        ...DISTANCE_KM_CHOICES.map((km) => ({
+                          code: String(km),
+                          label: t('search.distanceOption', { km }),
+                        })),
+                      ]}
+                    />
+                  </div>
+                </div>
               </FormField>
             </div>
 
@@ -717,11 +746,17 @@ const CreamSelect: React.FC<{
   value: string;
   onChange: (v: string) => void;
   options: { code: string; label: string }[];
-}> = ({ value, onChange, options }) => (
+  disabled?: boolean;
+  ariaLabel?: string;
+}> = ({ value, onChange, options, disabled, ariaLabel }) => (
   <select
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    disabled={disabled}
+    aria-label={ariaLabel}
+    title={ariaLabel}
     style={{
+      opacity: disabled ? 0.5 : 1,
       width: '100%',
       height: 42,
       background: PALETTE.cream,
@@ -739,7 +774,7 @@ const CreamSelect: React.FC<{
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'right 14px center',
       paddingRight: 36,
-      cursor: 'pointer',
+      cursor: disabled ? 'not-allowed' : 'pointer',
     }}
   >
     {options.map((o) => (
