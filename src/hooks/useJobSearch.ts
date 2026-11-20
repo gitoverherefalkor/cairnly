@@ -95,7 +95,33 @@ export type WorkArrangement = 'any' | 'remote_friendly' | 'remote_only';
 //   full_time  → F
 //   part_time  → P
 //   contract   → C  (covers fractional, interim, freelance, consultant gigs)
-export type JobCommitment = 'any' | 'full_time' | 'part_time' | 'contract';
+//
+// Multi-select (2026-11-20): the value is either 'any' or a comma-joined list
+// in canonical order, e.g. 'part_time,contract' → f_JT=P,C. A single choice
+// stays a plain 'part_time', so saved searches and cache keys from before
+// still work unchanged.
+export type JobCommitmentOption = 'full_time' | 'part_time' | 'contract';
+export type JobCommitment = 'any' | JobCommitmentOption | `${JobCommitmentOption},${string}`;
+export const JOB_COMMITMENT_OPTIONS: JobCommitmentOption[] = ['full_time', 'part_time', 'contract'];
+
+/** The selected options in canonical order; [] means "any hours". */
+export function commitmentList(v: string | null | undefined): JobCommitmentOption[] {
+  const parts = String(v ?? '').split(',').map((s) => s.trim());
+  return JOB_COMMITMENT_OPTIONS.filter((o) => parts.includes(o));
+}
+
+/** Back from a list to the stored/wire value. */
+export function commitmentValue(list: JobCommitmentOption[]): JobCommitment {
+  const ordered = JOB_COMMITMENT_OPTIONS.filter((o) => list.includes(o));
+  return ordered.length ? (ordered.join(',') as JobCommitment) : 'any';
+}
+
+/** Chip click: 'any' clears the rest, any other chip toggles itself. */
+export function toggleCommitment(current: JobCommitment, opt: 'any' | JobCommitmentOption): JobCommitment {
+  if (opt === 'any') return 'any';
+  const list = commitmentList(current);
+  return commitmentValue(list.includes(opt) ? list.filter((o) => o !== opt) : [...list, opt]);
+}
 
 // ── Interrupted-search recovery ─────────────────────────────────────────
 // A search takes ~20-90s per career and its results only live in React state.
@@ -239,7 +265,7 @@ export const useJobSearch = () => {
             section_type: careers[i].sectionType,
             country_codes: countryCodes,
             work_arrangement: workArrangement || 'any',
-            job_commitment: jobCommitment || 'any',
+            job_commitment: commitmentValue(commitmentList(jobCommitment)),
             location: location || '',
             distance: location ? (distance || 0) : 0,
             distance_unit: distanceUnit || 'km',

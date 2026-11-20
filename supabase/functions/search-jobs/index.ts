@@ -76,13 +76,14 @@ serve(async (req) => {
       ? String(work_arrangement)
       : (body.remote_only ? 'remote_only' : 'any');
 
-    // Hours / commitment: 'any' (no filter) | 'full_time' | 'part_time' |
-    // 'contract' (covers fractional/interim/freelance/consultant). Defaults
-    // to 'any'.
-    const VALID_COMMITMENTS = new Set(['any', 'full_time', 'part_time', 'contract']);
-    const jobCommitment = VALID_COMMITMENTS.has(String(job_commitment))
-      ? String(job_commitment)
-      : 'any';
+    // Hours / commitment: 'any' (no filter), or one or more of 'full_time' |
+    // 'part_time' | 'contract' (covers fractional/interim/freelance/consultant)
+    // comma-joined, e.g. 'part_time,contract'. Normalized to canonical order so
+    // 'contract,part_time' shares a cache entry with 'part_time,contract'.
+    // Unknown values are dropped; nothing valid left means 'any'.
+    const COMMITMENT_ORDER = ['full_time', 'part_time', 'contract'];
+    const requestedCommitments = String(job_commitment ?? '').split(',').map((s) => s.trim());
+    const jobCommitment = COMMITMENT_ORDER.filter((c) => requestedCommitments.includes(c)).join(',') || 'any';
 
     // Distance around the city (UI: 10/25/50/100, 0 = none) in km or miles
     // depending on the user's country. Converted to LinkedIn's mileage steps,

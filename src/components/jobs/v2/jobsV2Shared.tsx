@@ -7,6 +7,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Award, Lightbulb } from 'lucide-react';
+import { commitmentList } from '@/hooks/useJobSearch';
 import {
   PALETTE,
   FONT_DISPLAY,
@@ -299,9 +300,10 @@ export function searchSummary(
     opts?.workArrangement && opts.workArrangement !== 'any'
       ? t(`summary.arrangement.${opts.workArrangement}`, { defaultValue: '' })
       : null,
-    opts?.jobCommitment && opts.jobCommitment !== 'any'
-      ? t(`summary.commitment.${opts.jobCommitment}`, { defaultValue: '' })
-      : null,
+    commitmentList(opts?.jobCommitment)
+      .map((c) => t(`summary.commitment.${c}`, { defaultValue: '' }))
+      .filter(Boolean)
+      .join(' + ') || null,
   ]
     .filter(Boolean)
     .join(' · ');

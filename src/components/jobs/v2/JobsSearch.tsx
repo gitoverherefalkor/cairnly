@@ -15,7 +15,7 @@ import {
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { CareerTierBadge, JEyebrow, type JobsTier } from './jobsV2Shared';
-import type { WorkArrangement, JobCommitment } from '@/hooks/useJobSearch';
+import { commitmentList, toggleCommitment, type WorkArrangement, type JobCommitment } from '@/hooks/useJobSearch';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DISTANCE_CHOICES, type DistanceUnit } from '@/lib/distanceUnit';
 
@@ -53,7 +53,7 @@ export interface JobsSearchCountry {
 // Labels resolve through t() at render time (search.location.* /
 // search.commitment.*), so the option value is the only constant here.
 const WORK_OPTIONS: WorkArrangement[] = ['any', 'remote_friendly', 'remote_only'];
-const COMMITMENT_OPTIONS: JobCommitment[] = ['any', 'full_time', 'part_time', 'contract'];
+const COMMITMENT_OPTIONS = ['any', 'full_time', 'part_time', 'contract'] as const;
 
 // Collapsible panel showing the "avoid" preferences pulled from the user's
 // assessment. Each item is a toggle — unchecking it means "don't filter this
@@ -396,12 +396,16 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
               </div>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 8 }}>
                 {COMMITMENT_OPTIONS.map((opt) => {
-                  const active = jobCommitment === opt;
+                  // Multi-select: Part-time + Contract can both be on.
+                  // "Any hours" is exclusive and clears the others.
+                  const selected = commitmentList(jobCommitment);
+                  const active = opt === 'any' ? selected.length === 0 : selected.includes(opt);
                   return (
                     <button
                       key={opt}
                       type="button"
-                      onClick={() => onJobCommitmentChange(opt)}
+                      aria-pressed={active}
+                      onClick={() => onJobCommitmentChange(toggleCommitment(jobCommitment, opt))}
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -604,11 +608,9 @@ export const JobsSearch: React.FC<JobsSearchProps> = ({
                   .map(countryLabelByCode)
                   .join(' + '),
                 s.workArrangement !== 'any' ? t(`search.location.${s.workArrangement}`) : null,
-                s.jobCommitment !== 'any'
-                  ? s.jobCommitment === 'contract'
-                    ? t('search.commitmentShort.contract')
-                    : t(`search.commitment.${s.jobCommitment}`)
-                  : null,
+                commitmentList(s.jobCommitment)
+                  .map((c) => (c === 'contract' ? t('search.commitmentShort.contract') : t(`search.commitment.${c}`)))
+                  .join(' + ') || null,
                 relativeAgo(t, s.ranAt),
               ].filter(Boolean);
               return (
