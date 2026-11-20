@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { checkEntitlement, signOutNoPurchase } from '@/lib/entitlement';
 import { takePostAuthRedirect } from '@/lib/postAuthRedirect';
 import { isAdminEmail } from '@/lib/admins';
+import { PASSWORD_MIN_LENGTH, useLeakCheck } from '@/lib/passwordRules';
+import PasswordChecklist from './PasswordChecklist';
 
 interface EmailPasswordFormProps {
   isLogin: boolean;
@@ -95,6 +97,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
     lastName: ''
   });
 
+  // Live leak check only matters when creating a password, not on login.
+  const leakStatus = useLeakCheck(isLogin ? '' : formData.password);
+  const passwordBlocked =
+    !isLogin && (formData.password.length < PASSWORD_MIN_LENGTH || leakStatus === 'leaked');
+
   // Memoize purchase data - only read from URL/localStorage once
   const purchaseData = useMemo(() => getPurchaseData(), []);
 
@@ -169,6 +176,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
           navigate(takePostAuthRedirect() ?? (profileRow ? '/dashboard' : '/payment'));
         }
       } else {
+        if (leakStatus === 'leaked') {
+          setError(t('errors.weakPassword'));
+          return;
+        }
+
         // Verify passwords match
         if (formData.password !== formData.confirmPassword) {
           setError(t('errors.passwordsDoNotMatch'));
@@ -392,7 +404,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
 
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label htmlFor="password" className="block text-sm font-medium">
+          <label htmlFor="password" className="block text-[13px] font-semibold text-[#122E3B]">
             {t('password')}
           </label>
           {isLogin && (
@@ -428,9 +440,11 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
           </button>
         </div>
         {!isLogin && (
-          <p className="text-[11.5px] font-medium mt-1.5" style={{ color: '#6B7F8B' }}>
-            {t('passwordMinLength')}
-          </p>
+          <PasswordChecklist
+            password={formData.password}
+            confirmPassword={formData.confirmPassword}
+            leakStatus={leakStatus}
+          />
         )}
       </div>
 
@@ -464,7 +478,7 @@ const EmailPasswordForm = ({ isLogin, disabled }: EmailPasswordFormProps) => {
 
       <Button
         type="submit"
-        disabled={isLoading || disabled}
+        disabled={isLoading || disabled || passwordBlocked}
         className="w-full mt-1 rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
       >
         {isLoading ? (

@@ -1,14 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
+import PasswordChecklist from '@/components/auth/PasswordChecklist';
+import { PASSWORD_MIN_LENGTH, useLeakCheck } from '@/lib/passwordRules';
 
 const ResetPassword = () => {
+  const { t } = useTranslation('auth');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +22,8 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState(false);
   const [validSession, setValidSession] = useState(false);
   const navigate = useNavigate();
+  const leakStatus = useLeakCheck(password);
+  const passwordBlocked = password.length < PASSWORD_MIN_LENGTH || leakStatus === 'leaked';
 
   useEffect(() => {
     // Check if user has a valid recovery session
@@ -26,10 +32,11 @@ const ResetPassword = () => {
       if (session) {
         setValidSession(true);
       } else {
-        setError('Invalid or expired reset link. Please request a new password reset.');
+        setError(t('resetPasswordPage.invalidLink'));
       }
     };
     checkSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,13 +45,19 @@ const ResetPassword = () => {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('errors.passwordsDoNotMatch'));
       setIsLoading(false);
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      setError(t('resetPasswordPage.tooShort'));
+      setIsLoading(false);
+      return;
+    }
+
+    if (leakStatus === 'leaked') {
+      setError(t('errors.weakPassword'));
       setIsLoading(false);
       return;
     }
@@ -55,7 +68,8 @@ const ResetPassword = () => {
       });
 
       if (error) {
-        setError(error.message);
+        // Supabase's leaked/weak password rejection gets the friendly translated text.
+        setError(error.code === 'weak_password' ? t('errors.weakPassword') : error.message);
         return;
       }
 
@@ -67,7 +81,7 @@ const ResetPassword = () => {
       }, 2000);
     } catch (error) {
       console.error('Password reset error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('resetPasswordPage.unexpected'));
     } finally {
       setIsLoading(false);
     }
@@ -82,8 +96,8 @@ const ResetPassword = () => {
 
   return (
     <AuthShell
-      eyebrow="Reset password"
-      title={success ? 'Password Reset Successful!' : 'Set new password'}
+      eyebrow={t('resetPasswordPage.eyebrow')}
+      title={success ? t('resetPasswordPage.successTitle') : t('resetPasswordPage.title')}
     >
       {success ? (
         <div className="space-y-4 text-center">
@@ -100,11 +114,11 @@ const ResetPassword = () => {
           </div>
           <Alert className="bg-transparent">
             <AlertDescription className="text-center" style={{ color: '#1F2937' }}>
-              Your password has been reset successfully. You can now sign in with your new password.
+              {t('resetPasswordPage.success')}
             </AlertDescription>
           </Alert>
           <p className="text-sm text-center" style={{ color: '#4B6373' }}>
-            Redirecting to sign in…
+            {t('resetPasswordPage.redirecting')}
           </p>
         </div>
       ) : (
@@ -130,18 +144,18 @@ const ResetPassword = () => {
                 onClick={() => navigate('/forgot-password')}
                 className={primaryBtn}
               >
-                Request New Reset Link
+                {t('resetPasswordPage.requestNewLink')}
               </Button>
             </>
           ) : (
             <>
               <p className="text-sm text-center" style={{ color: '#4B6373' }}>
-                Please enter your new password below.
+                {t('resetPasswordPage.intro')}
               </p>
 
               <div>
                 <label htmlFor="password" className={labelCls} style={labelStyle}>
-                  New Password
+                  {t('resetPasswordPage.newPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
@@ -152,7 +166,7 @@ const ResetPassword = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={inputCls}
-                    placeholder="Enter new password"
+                    placeholder={t('resetPasswordPage.placeholderNew')}
                     minLength={8}
                   />
                   <button
@@ -163,14 +177,16 @@ const ResetPassword = () => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="text-[11.5px] font-medium mt-1.5" style={{ color: '#6B7F8B' }}>
-                  Password must be at least 8 characters long
-                </p>
+                <PasswordChecklist
+                  password={password}
+                  confirmPassword={confirmPassword}
+                  leakStatus={leakStatus}
+                />
               </div>
 
               <div>
                 <label htmlFor="confirmPassword" className={labelCls} style={labelStyle}>
-                  Confirm New Password
+                  {t('resetPasswordPage.confirmNewPassword')}
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
@@ -181,7 +197,7 @@ const ResetPassword = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className={inputCls}
-                    placeholder="Confirm new password"
+                    placeholder={t('resetPasswordPage.placeholderConfirm')}
                     minLength={8}
                   />
                   <button
@@ -200,14 +216,14 @@ const ResetPassword = () => {
                 </Alert>
               )}
 
-              <Button type="submit" disabled={isLoading} className={primaryBtn}>
+              <Button type="submit" disabled={isLoading || passwordBlocked} className={primaryBtn}>
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Resetting password…
+                    {t('resetPasswordPage.submitting')}
                   </>
                 ) : (
-                  'Reset Password'
+                  t('resetPasswordPage.submit')
                 )}
               </Button>
             </>
