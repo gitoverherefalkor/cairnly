@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import { COUNTRIES } from '@/components/jobs/LocationInput';
 import { defaultJobsCountry, REGION_QUESTION_ID } from '@/lib/jobsCountryDefault';
+import { distanceUnitForCountry } from '@/lib/distanceUnit';
 import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
 import { JobsSearch, type JobsSearchCareerOption, type RecentSearch } from '@/components/jobs/v2/JobsSearch';
@@ -58,6 +59,7 @@ interface PersistedJobsState {
   primaryCountry: string;
   secondaryCountry: string;
   city: string;
+  distance?: number; // optional: snapshots saved before the distance filter existed
   workArrangement: WorkArrangement;
   jobCommitment: JobCommitment;
   disabledAvoids: string[];
@@ -95,6 +97,7 @@ function snapshotsEqual(a: RecentSearch, b: Omit<RecentSearch, 'ranAt'>): boolea
     a.primaryCountry === b.primaryCountry &&
     a.secondaryCountry === b.secondaryCountry &&
     a.city === b.city &&
+    (a.distance ?? 0) === (b.distance ?? 0) &&
     a.workArrangement === b.workArrangement &&
     a.jobCommitment === b.jobCommitment &&
     a.selectedCareers.length === b.selectedCareers.length &&
@@ -180,6 +183,17 @@ const Jobs = () => {
   const [primaryCountry, setPrimaryCountry] = useState(() => persisted?.primaryCountry ?? 'us');
   const [secondaryCountry, setSecondaryCountry] = useState(() => persisted?.secondaryCountry ?? '');
   const [city, setCity] = useState(() => persisted?.city ?? '');
+  // Distance around the city. The unit isn't stored: it follows the country
+  // (miles for US/UK, km elsewhere), see handlePrimaryCountryChange below.
+  const [distance, setDistance] = useState<number>(() => persisted?.distance ?? 0);
+  const distanceUnit = distanceUnitForCountry(primaryCountry);
+  // Picking a country that speaks a different unit would silently turn "25 km"
+  // into "25 miles", so clear the distance instead. Only for the user's own
+  // country change: restoring a recent search sets both values together.
+  const handlePrimaryCountryChange = (code: string) => {
+    if (distanceUnitForCountry(code) !== distanceUnit) setDistance(0);
+    setPrimaryCountry(code);
+  };
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement>(() => persisted?.workArrangement ?? 'any');
   const [jobCommitment, setJobCommitment] = useState<JobCommitment>(() => persisted?.jobCommitment ?? 'any');
   // Avoid items the user has unchecked for this search (so they can override
@@ -335,12 +349,12 @@ const Jobs = () => {
     try {
       sessionStorage.setItem(
         JOBS_STATE_KEY,
-        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results }),
+        JSON.stringify({ view, selectedCareers, primaryCountry, secondaryCountry, city, distance, workArrangement, jobCommitment, disabledAvoids, results }),
       );
     } catch {
       // sessionStorage full or unavailable — non-fatal, just skip persisting.
     }
-  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, workArrangement, jobCommitment, disabledAvoids, results]);
+  }, [view, selectedCareers, primaryCountry, secondaryCountry, city, distance, workArrangement, jobCommitment, disabledAvoids, results]);
 
   // Pre-fill primary country — only when there's no restored snapshot, so we
   // don't clobber a country the user already picked. profiles.country is only
@@ -524,11 +538,12 @@ const Jobs = () => {
         primaryCountry,
         secondaryCountry,
         city,
+        distance: city.trim() ? distance : 0,
         workArrangement,
         jobCommitment,
       }),
     );
-    await searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids);
+    await searchJobs(careers, countryCodes, city || undefined, workArrangement, jobCommitment, userLanguages, latestReport?.id, activeAvoids, city.trim() ? distance : 0, distanceUnit);
     // Each career that actually reached n8n spent a credit, so re-read the
     // ledger and let the counter (and the out-of-searches screen) catch up.
     if (latestReport?.id) {
@@ -544,6 +559,7 @@ const Jobs = () => {
     setPrimaryCountry(s.primaryCountry);
     setSecondaryCountry(s.secondaryCountry);
     setCity(s.city);
+    setDistance(s.distance ?? 0);
     setWorkArrangement(s.workArrangement);
     setJobCommitment(s.jobCommitment);
   };
@@ -744,11 +760,14 @@ const Jobs = () => {
       onToggleSelected={handleToggleCareer}
       countries={COUNTRIES}
       primaryCountry={primaryCountry}
-      onPrimaryCountryChange={setPrimaryCountry}
+      onPrimaryCountryChange={handlePrimaryCountryChange}
       secondaryCountry={secondaryCountry}
       onSecondaryCountryChange={setSecondaryCountry}
       city={city}
       onCityChange={setCity}
+      distance={distance}
+      onDistanceChange={setDistance}
+      distanceUnit={distanceUnit}
       workArrangement={workArrangement}
       onWorkArrangementChange={setWorkArrangement}
       jobCommitment={jobCommitment}
