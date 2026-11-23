@@ -334,6 +334,7 @@
     "placeholder3": "e.g., Lego"
   },
   "voice": {
+    "micHint": "Rather talk than type? Use the microphone at the bottom right of the box.",
     "tryItHint": "Try it — speak your answer",
     "stopRecording": "Stop recording",
     "voiceInput": "Voice input",

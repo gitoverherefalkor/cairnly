@@ -2421,6 +2421,15 @@ const LongTextWithVoice: React.FC<{
         dangerouslySetInnerHTML={formatTextWithEmphasis(question.label)}
       />
       {renderDescription()}
+      {/* Standing hint (not the one-time bubble): many older users never notice
+          the mic icon, so every open question says it plainly. Only shown where
+          the browser can dictate (e.g. not Firefox). */}
+      {isSupported && (
+        <p className="flex items-center gap-1.5 text-sm text-gray-500 mb-2">
+          <Mic size={14} className="text-atlas-teal shrink-0" />
+          {t('voice.micHint')}
+        </p>
+      )}
       <div className="relative">
         <textarea
           value={value || ''}

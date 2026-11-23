@@ -99,6 +99,7 @@
     "sectionHint": "Welke talen spreekt u, en hoe goed? Kies er minstens één."
   },
   "voice": {
+    "micHint": "Liever praten dan typen? Gebruik de microfoon rechtsonder in het vak, en spreek uw antwoord in.",
     "tryItHint": "Probeer het: spreek uw antwoord in",
     "tidyingTranscript": "Uw tekst wordt opgeschoond..."
   },
