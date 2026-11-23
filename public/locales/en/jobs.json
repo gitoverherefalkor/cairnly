@@ -97,7 +97,7 @@
     "arrangementNote": "\"Remote\" surfaces remote roles posted for the countries you picked. We don't yet search for roles that are remote",
     "arrangementNoteEmphasis": "anywhere in the world",
     "hours": "Hours / commitment",
-    "hoursNote": "Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract roles are rarer than full-time, so these can return noticeably fewer results. Leave it on \"Any hours\" for the widest search.",
+    "hoursNote": "Pick one or more. Filtering by hours narrows to roles tagged that way on LinkedIn. Part-time and contract roles are rarer than full-time, so these can return noticeably fewer results. Leave it on \"Any hours\" for the widest search.",
     "avoidTitle": "Hiding roles you said you'd avoid",
     "avoidNote": "From your assessment. We lower the score of roles matching these, so they drop off your list. Uncheck any you'd actually consider for this search.",
     "timingNote": "Typical search takes 20 to 40 seconds. Live results stream in as each career completes.",
