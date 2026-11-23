@@ -19,21 +19,33 @@ const IdentitySection: React.FC = () => {
   return (
     <section id="identity" className="bg-[#FAF5E8] py-24 md:py-32 scroll-mt-32">
       <div className="lp-container">
-        <Reveal className="max-w-3xl mb-14">
-          <div className="lp-eyebrow text-[#1F8282] mb-5">{t('identity.eyebrow')}</div>
-          <h2
-            className="font-heading font-bold text-[#122E3B] leading-[1.12]"
-            style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', letterSpacing: '-0.012em' }}
-          >
-            {t('identity.title')}
-          </h2>
-          <p className="mt-6 text-lg md:text-xl text-[#4B6373] font-medium leading-relaxed">
-            {t('identity.p1')}
-          </p>
-          <p className="mt-4 text-lg md:text-xl text-[#4B6373] font-medium leading-relaxed">
-            {t('identity.p2')}
-          </p>
-        </Reveal>
+        <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-10 lg:gap-16 items-center mb-14">
+          <Reveal className="max-w-3xl">
+            <div className="lp-eyebrow text-[#1F8282] mb-5">{t('identity.eyebrow')}</div>
+            <h2
+              className="font-heading font-bold text-[#122E3B] leading-[1.12]"
+              style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', letterSpacing: '-0.012em' }}
+            >
+              {t('identity.title')}
+            </h2>
+            <p className="mt-6 text-lg md:text-xl text-[#4B6373] font-medium leading-relaxed">
+              {t('identity.p1')}
+            </p>
+            <p className="mt-4 text-lg md:text-xl text-[#4B6373] font-medium leading-relaxed">
+              {t('identity.p2')}
+            </p>
+          </Reveal>
+
+          {/* The answer to the question above, set large in gold beside the intro. */}
+          <Reveal>
+            <p
+              className="font-heading font-bold leading-[1.3] text-[#B07A0A] lg:border-l-4 lg:border-[#D4A024] lg:pl-8"
+              style={{ fontSize: 'clamp(24px, 2.6vw, 36px)', letterSpacing: '-0.01em' }}
+            >
+              {t('identity.closing')}
+            </p>
+          </Reveal>
+        </div>
 
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
           {bullets.map((b, i) => (
@@ -57,12 +69,6 @@ const IdentitySection: React.FC = () => {
             </Reveal>
           ))}
         </div>
-
-        <Reveal className="max-w-3xl mt-14">
-          <p className="text-lg md:text-xl text-[#122E3B] font-semibold leading-relaxed">
-            {t('identity.closing')}
-          </p>
-        </Reveal>
       </div>
     </section>
   );
