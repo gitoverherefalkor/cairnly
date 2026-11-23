@@ -33,7 +33,7 @@ const EncoreHero: React.FC = () => {
       </div>
 
       <div className="lp-container relative z-10">
-        <div className={showVideo ? 'grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] gap-12 lg:gap-14 items-center' : ''}>
+        <div className={showVideo ? 'grid lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-12 lg:gap-12 items-center' : ''}>
         <div className="max-w-3xl">
           <Reveal className="flex items-center gap-3 mb-8">
             <span className="text-[11px] font-heading font-bold tracking-[0.22em] uppercase text-[#D4A024]">

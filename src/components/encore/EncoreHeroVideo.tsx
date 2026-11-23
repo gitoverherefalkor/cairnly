@@ -1,69 +1,72 @@
-import React, { useRef, useState } from 'react';
-import { Play } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Close as DialogClose } from '@radix-ui/react-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 
 // Bump when the video file is replaced, so browsers do not serve the old one.
 const VIDEO_VERSION = '202611231';
+const POSTER = `/videos/encore-explainer-nl-poster.jpg?v=${VIDEO_VERSION}`;
 
 /**
- * Click-to-play explainer for the Encore hero.
- * Nothing downloads until the visitor presses play (only the small poster
- * loads), and it never autoplays: the soundtrack should be a choice, and
- * the native controls give a clear pause/volume/fullscreen for this audience.
- * The video is Dutch, so the parent only renders it on the Dutch page.
+ * Explainer video for the Encore hero.
+ * The hero shows a large poster with a play button; pressing it opens the
+ * video in a modal that fills most of the screen. Nothing but the small
+ * poster loads until then, and it never autoplays before the visitor asks.
+ * Closes with the big "Sluiten" button, Esc, or a click outside the video.
+ * The video is Dutch, so the parent only renders this on the Dutch page.
  */
 const EncoreHeroVideo: React.FC = () => {
   const { t } = useTranslation('encore');
-  const [started, setStarted] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const start = () => {
-    setStarted(true);
-    // Play right after the <video> mounts; the click counts as the user gesture.
-    requestAnimationFrame(() => { videoRef.current?.play().catch(() => {}); });
-  };
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/15 bg-black">
-      {started ? (
-        <video
-          ref={videoRef}
-          className="absolute inset-0 w-full h-full"
-          controls
-          playsInline
-          preload="auto"
-          poster={`/videos/encore-explainer-nl-poster.jpg?v=${VIDEO_VERSION}`}
-          aria-label={t('hero.videoLabel')}
-        >
-          <source src={`/videos/encore-explainer-nl.webm?v=${VIDEO_VERSION}`} type="video/webm" />
-          <source src={`/videos/encore-explainer-nl.mp4?v=${VIDEO_VERSION}`} type="video/mp4" />
-        </video>
-      ) : (
-        <button
-          type="button"
-          onClick={start}
-          aria-label={t('hero.videoPlay')}
-          className="group absolute inset-0 w-full h-full"
-        >
-          <img
-            src={`/videos/encore-explainer-nl-poster.jpg?v=${VIDEO_VERSION}`}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-            width={1280}
-            height={720}
-          />
-          <span className="absolute inset-0 bg-[#122E3B]/25 group-hover:bg-[#122E3B]/10 transition-colors" />
-          <span className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <span className="flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#D4A024] text-[#122E3B] shadow-xl group-hover:scale-105 transition-transform">
-              <Play size={38} strokeWidth={0} fill="currentColor" className="ml-1.5" />
-            </span>
-            <span className="px-4 py-1.5 rounded-full bg-[#122E3B]/80 text-white text-base md:text-lg font-semibold">
-              {t('hero.videoPlay')}
-            </span>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={t('hero.videoPlay')}
+        className="group relative block w-full aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/15 bg-black"
+      >
+        <img src={POSTER} alt="" className="absolute inset-0 w-full h-full object-cover" width={1280} height={720} />
+        <span className="absolute inset-0 bg-[#122E3B]/25 group-hover:bg-[#122E3B]/10 transition-colors" />
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+          <span className="flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full bg-[#D4A024] text-[#122E3B] shadow-xl group-hover:scale-105 transition-transform">
+            <Play size={44} strokeWidth={0} fill="currentColor" className="ml-2" />
           </span>
-        </button>
-      )}
-    </div>
+          <span className="px-5 py-2 rounded-full bg-[#122E3B]/80 text-white text-lg md:text-xl font-semibold">
+            {t('hero.videoPlay')}
+          </span>
+        </span>
+      </button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="max-w-none w-[96vw] md:w-[92vw] lg:w-[88vw] max-w-[1600px] p-3 md:p-4 gap-3 bg-[#122E3B] border-white/10 sm:rounded-2xl [&>button.absolute]:hidden"
+        >
+          <DialogTitle className="sr-only">{t('hero.videoLabel')}</DialogTitle>
+          <DialogDescription className="sr-only">{t('hero.videoLabel')}</DialogDescription>
+          <div className="w-full aspect-video max-h-[calc(100vh-7rem)] mx-auto rounded-xl overflow-hidden bg-black">
+            {/* Mounted only while open, so closing the modal stops the video. */}
+            <video
+              className="w-full h-full"
+              controls
+              autoPlay
+              playsInline
+              poster={POSTER}
+              aria-label={t('hero.videoLabel')}
+            >
+              <source src={`/videos/encore-explainer-nl.webm?v=${VIDEO_VERSION}`} type="video/webm" />
+              <source src={`/videos/encore-explainer-nl.mp4?v=${VIDEO_VERSION}`} type="video/mp4" />
+            </video>
+          </div>
+          <DialogClose className="justify-self-center inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#D4A024]">
+            <X size={20} />
+            {t('hero.videoClose')}
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
