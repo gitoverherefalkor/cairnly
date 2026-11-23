@@ -334,6 +334,7 @@
     "placeholder3": "bijv. Lego"
   },
   "voice": {
+    "micHint": "Liever praten dan typen? Gebruik de microfoon rechtsonder in het vak, en spreek je antwoord in.",
     "tryItHint": "Probeer het, spreek je antwoord in",
     "stopRecording": "Stoppen met opnemen",
     "voiceInput": "Spraakinvoer",
