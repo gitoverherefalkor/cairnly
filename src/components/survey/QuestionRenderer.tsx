@@ -55,6 +55,9 @@ interface QuestionRendererProps {
   // Also a sidecar (responses.__elsewhere_location) — the answer itself must
   // stay one of the region-band strings n8n expects.
   onElsewhereLocationChange?: (value: string) => void;
+  // Optional free-text note under a single-select question (config.note_field).
+  // Sidecar (responses.__notes[questionId]) so the answer stays a plain choice.
+  onNoteChange?: (value: string) => void;
 }
 
 // Career history entry type - comprehensive (satisfaction is separate question)
@@ -349,6 +352,7 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
   showValidation,
   onNonNegotiableChange,
   onElsewhereLocationChange,
+  onNoteChange,
 }) => {
   const { t } = useTranslation('survey');
   const [otherValue, setOtherValue] = useState('');
@@ -803,6 +807,25 @@ export const QuestionRenderer: React.FC<QuestionRendererProps> = ({
                   placeholder={hoursField.placeholder || ''}
                   className="w-20 bg-white text-center"
                   aria-label={hoursField.label}
+                />
+              </div>
+            )}
+            {question.config?.note_field && (
+              <div className="mt-6">
+                <Label
+                  htmlFor={`note-${question.id}`}
+                  className="block mb-2 text-sm font-light leading-relaxed text-gray-700"
+                >
+                  {question.config.note_field.label}
+                </Label>
+                {/* bg-white for the same dark-mode reason as the hours box above. */}
+                <Textarea
+                  id={`note-${question.id}`}
+                  value={allResponses?.['__notes']?.[question.id] ?? ''}
+                  onChange={(e) => onNoteChange?.(e.target.value.slice(0, 1000))}
+                  placeholder={question.config.note_field.placeholder || ''}
+                  rows={3}
+                  className="w-full bg-white"
                 />
               </div>
             )}

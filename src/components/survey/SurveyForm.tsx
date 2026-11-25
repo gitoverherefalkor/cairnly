@@ -652,6 +652,12 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                     onElsewhereLocationChange={(location) =>
                       handleResponseChange('__elsewhere_location', location)
                     }
+                    onNoteChange={(note) =>
+                      handleResponseChange('__notes', {
+                        ...(responses['__notes'] || {}),
+                        [currentQuestion.id]: note,
+                      })
+                    }
                   />
                 </div>
 

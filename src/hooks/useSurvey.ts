@@ -37,6 +37,14 @@ export interface Question {
      */
     hours_field?: { label: string; placeholder?: string };
     /**
+     * When set, a single-select question shows an optional free-text box
+     * under the options ("toelichting"). Like the non-negotiable flag the text
+     * is a sidecar (`responses.__notes[questionId]`), so the answer itself
+     * stays a plain choice string. Never required. `label`/`placeholder` are
+     * localizable via translations.<lang>.note_field.
+     */
+    note_field?: { label: string; placeholder?: string };
+    /**
      * career_happiness only: the career_history question whose roles it rates.
      * Read by QuestionRenderer through `allResponses`; the seeded question
      * carries it, so it belongs on the type (a plain `tsc --noEmit` at the
@@ -83,6 +91,7 @@ interface QuestionTranslation {
   choices?: Record<string, string>;
   non_negotiable_rider?: string;
   hours_field?: { label: string; placeholder?: string };
+  note_field?: { label: string; placeholder?: string };
   languages_presets?: Record<string, string>;
   languages_other?: Record<string, string>;
   languages_proficiency_levels?: Record<string, string>;
@@ -159,6 +168,7 @@ export const useSurvey = (surveyId: string) => {
                     // Display-only override too: the label is translated, but the
                     // "(max N hours/week)" suffix written into the answer is not.
                     hours_field: qt.hours_field || baseConfig.hours_field,
+                    note_field: qt.note_field || baseConfig.note_field,
                   },
                   choiceLabels: qt.choices ?? {},
                   langLabels: useTranslations
