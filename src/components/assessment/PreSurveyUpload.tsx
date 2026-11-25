@@ -667,7 +667,7 @@ export const PreSurveyUpload: React.FC<PreSurveyUploadProps> = ({ onContinue, de
                       style={{ borderTop: '1px solid rgba(201,182,144,0.5)' }}
                     >
                       <img
-                        src="/uploads/linkedin-save-to-pdf-more-menu.png"
+                        src={t('preSurveyUpload.linkedIn.imageSrc')}
                         alt={t('preSurveyUpload.linkedIn.imageAlt')}
                         className="w-48 mx-auto rounded shadow-sm"
                       />
