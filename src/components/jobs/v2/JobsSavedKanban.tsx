@@ -25,7 +25,7 @@ import {
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import type { SavedJob, SavedJobStatus } from '@/hooks/useSavedJobs';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { DEFAULT_APPLY_LINK, JEyebrow, matchTone, type ApplyLinkOptions } from './jobsV2Shared';
+import { DEFAULT_APPLY_LINK, JEyebrow, matchTone, useHideCvTools, type ApplyLinkOptions } from './jobsV2Shared';
 import { formatSalaryRange } from './formatSalary';
 
 interface JobsSavedKanbanProps {
@@ -340,6 +340,7 @@ const KanbanJobCard: React.FC<{
   applyLink,
 }) => {
   const { t } = useTranslation('jobs');
+  const hideCvTools = useHideCvTools();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: job.external_job_id });
   const tone = matchTone(job.match_score, 'dark');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
@@ -437,6 +438,8 @@ const KanbanJobCard: React.FC<{
               <ExternalLink size={11} /> {t('pipeline.apply')}
             </a>
           )}
+          {!hideCvTools && (
+          <>
           <MiniNextStep
             label={resumeCount > 1 ? t('pipeline.resumes', { count: resumeCount }) : t('pipeline.resume')}
             unlocked={resumeUnlocked}
@@ -462,6 +465,8 @@ const KanbanJobCard: React.FC<{
               else onCreateLetter(job);
             }}
           />
+          </>
+          )}
         </div>
       )}
     </article>
