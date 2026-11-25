@@ -32,6 +32,9 @@ interface JobsLockedProps {
   onShare: () => void;
   onProfile: () => void;
   onSignOut: () => void;
+  // True when the CV tools are already open (Encore includes them), so the
+  // "one invite gets you" list only shows unlimited searches.
+  toolsIncluded?: boolean;
 }
 
 export const JobsLocked: React.FC<JobsLockedProps> = ({
@@ -45,6 +48,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
   onShare,
   onProfile,
   onSignOut,
+  toolsIncluded = false,
 }) => {
   const mobile = useIsMobile();
   const { t } = useTranslation('jobs');
@@ -220,7 +224,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           {t('locked.whenUnlocked')}
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile || toolsIncluded ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
         {(
           [
             {
@@ -239,7 +243,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
               d: t('locked.perk3Body'),
             },
           ] as const
-        ).map((step, i) => (
+        ).filter((_, i) => !toolsIncluded || i === 0).map((step, i) => (
           <div
             key={i}
             style={{

@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "pipeline": "Uw pijplijn"
+  },
+  "results": {
+    "noOpenings": "Nu geen vacatures gevonden voor deze loopbaan. Probeer uw locatiefilters te verbreden.",
+    "limitReached": "Uw gratis zoekopdrachten zijn op, dus deze loopbaan is niet doorzocht. Nodig één persoon uit om de limiet eraf te halen."
+  },
+  "invite": {
+    "resumeAfter": "gaat open zodra uw 2e uitgenodigde vriend zich aanmeldt"
+  },
+  "search": {
+    "intro": "Kies maximaal 3 loopbanen uit uw rapport, geef aan waar u zou willen werken en start de zoekopdracht. Resultaten worden gerangschikt met een AI-score tegen uw profiel.",
+    "noCareers": "Uw rapport heeft nog geen loopbaansuggesties. Rond eerst het coachgesprek af.",
+    "arrangementNote": "\"Remote\" toont remote rollen die zijn geplaatst voor de landen die u koos. We zoeken nog niet naar rollen die remote zijn",
+    "avoidTitle": "Rollen verbergen die u wilde vermijden",
+    "avoidNote": "Uit uw assessment. We verlagen de score van rollen die hierop matchen, zodat ze van uw lijst vallen. Vink uit wat u voor deze zoekopdracht toch zou overwegen.",
+    "arrangementNoteTail": "Wilt u dat? Laat het weten via de knop Feedback & Support rechtsonder.",
+    "creditsShort_one": "U koos {{selected}} loopbanen maar hebt nog 1 zoekopdracht. Alleen de eerste wordt uitgevoerd.",
+    "creditsShort_other": "U koos {{selected}} loopbanen maar hebt nog {{count}} zoekopdrachten. Alleen de eerste {{count}} worden uitgevoerd."
+  },
+  "locked": {
+    "title": "Uw 4 gratis zoekopdrachten zijn op",
+    "yourCode": "Uw code",
+    "seeSaved_one": "Bekijk uw 1 bewaarde vacature",
+    "seeSaved_other": "Bekijk uw {{count}} bewaarde vacatures",
+    "whenUnlocked": "MET ÉÉN UITNODIGING · KRIJGT U",
+    "perk2Title": "Uw cv afstemmen",
+    "perk1Body": "Nooit meer een limiet. Dagelijks ververst, gematcht met uw top 3 loopbanen + runner-ups, gerangschikt met een AI-score tegen uw profiel.",
+    "cta": "Haal uw uitnodigingslink"
+  },
+  "pipeline": {
+    "eyebrow": "UW PIJPLIJN",
+    "columns": {
+      "appliedEmpty": "Zet hier zodra u hebt gesolliciteerd."
+    }
+  },
+  "toast": {
+    "inviteNoLink": "Nodig vrienden uit om deze tool te ontgrendelen. Open uw toolkit voor uw uitnodigingslink en uw voortgang.",
+    "inviteCopied": "Uitnodigingslink gekopieerd. Open uw toolkit om uw voortgang naar de volgende ontgrendeling te volgen."
+  }
+}
