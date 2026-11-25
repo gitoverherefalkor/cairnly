@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
 import { ResumeUploadCard } from '@/components/resume/ResumeUploadCard';
 import { useSurveyDerivedProfile } from '@/hooks/useSurveyDerivedProfile';
+import { COUNTRY_NAME_TO_ISO, regionBandKey } from '@/lib/countryToRegion';
 
 // ----- Shared cream card shell for every Profile section -----
 interface ProfileCardProps {
@@ -112,7 +113,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     first_name: profile?.first_name || '',
     last_name: profile?.last_name || '',
-    country: profile?.country || '',
+    country: profile?.country || surveyDerived.country || '',
     region: profile?.region || '',
     pronouns: profile?.pronouns || surveyDerived.pronouns || '',
     age_range: profile?.age_range || surveyDerived.ageRange || '',
@@ -127,7 +128,8 @@ const Profile = () => {
       setFormData({
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
-        country: profile.country || '',
+        // Free-code users never see the payment form: fall back to the survey.
+        country: profile.country || surveyDerived.country || '',
         region: profile.region || '',
         // Fall back to survey-derived values when the profile field is empty.
         pronouns: profile.pronouns || surveyDerived.pronouns || '',
@@ -135,7 +137,7 @@ const Profile = () => {
       });
       setEmailReminders((profile as any)?.email_reminders_enabled ?? true);
     }
-  }, [profile, surveyDerived.pronouns, surveyDerived.ageRange]);
+  }, [profile, surveyDerived.pronouns, surveyDerived.ageRange, surveyDerived.country]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -217,6 +219,24 @@ const Profile = () => {
   }
 
   const firstName = profile?.first_name || '';
+
+  // Country names in the user's language, sorted by that label. A stored value
+  // outside the checkout list (older free-text entries) stays selectable as is.
+  const countryNames = new Intl.DisplayNames([i18n.language || 'en'], { type: 'region' });
+  const countryOptions = Object.entries(COUNTRY_NAME_TO_ISO)
+    .map(([value, iso]) => ({ value, label: countryNames.of(iso) ?? value }))
+    .concat(
+      formData.country && !COUNTRY_NAME_TO_ISO[formData.country]
+        ? [{ value: formData.country, label: formData.country }]
+        : [],
+    )
+    .sort((a, b) => a.label.localeCompare(b.label, i18n.language));
+
+  // The region band is stored in English (n8n reads it); show the survey's own label.
+  const bandKey = regionBandKey(formData.region);
+  const regionLabel = bandKey
+    ? t(`survey:regionPicker.band.${bandKey}`, { defaultValue: formData.region })
+    : formData.region;
 
   return (
     <div className="min-h-screen survey-bg">
@@ -436,13 +456,21 @@ const Profile = () => {
                   <label htmlFor="country" className={labelCls} style={labelStyle}>
                     {tp('personal.country')}
                   </label>
-                  <Input
-                    id="country"
+                  {/* Stores the checkout's English country name (payment and the
+                      survey's region picker key off it); shows it in the user's language. */}
+                  <Select
                     value={formData.country}
-                    onChange={(e) => handleInputChange('country', e.target.value)}
-                    placeholder={tp('personal.countryPlaceholder')}
-                    className={inputCls}
-                  />
+                    onValueChange={(value) => handleInputChange('country', value)}
+                  >
+                    <SelectTrigger id="country" className={inputCls}>
+                      <SelectValue placeholder={tp('personal.countryPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countryOptions.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <p className={helperCls} style={helperStyle}>
                     {tp('personal.countryHint')}
                   </p>
@@ -453,7 +481,7 @@ const Profile = () => {
                   </label>
                   <Input
                     id="region"
-                    value={formData.region}
+                    value={regionLabel}
                     disabled
                     className={inputDisabledCls}
                     placeholder={tp('personal.regionPlaceholder')}
