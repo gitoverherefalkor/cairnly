@@ -62,5 +62,13 @@
     "learnMore": "Learn more",
     "essentialOnly": "Essential Only",
     "acceptAll": "Accept All"
+  },
+  "errorScreen": {
+    "title": "Something went wrong",
+    "notified": "We've been notified and will look into it. You can try reloading, or come back in a few minutes.",
+    "tryAgain": "Try again",
+    "goHome": "Go home",
+    "refreshHint": "Please refresh the page to continue.",
+    "refresh": "Refresh"
   }
 }

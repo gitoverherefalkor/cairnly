@@ -62,5 +62,13 @@
     "learnMore": "Meer informatie",
     "essentialOnly": "Alleen essentieel",
     "acceptAll": "Alles accepteren"
+  },
+  "errorScreen": {
+    "title": "Er is iets misgegaan",
+    "notified": "We hebben een melding gekregen en zoeken het uit. Probeer de pagina opnieuw te laden, of kom over een paar minuten terug.",
+    "tryAgain": "Opnieuw proberen",
+    "goHome": "Naar de homepage",
+    "refreshHint": "Vernieuw de pagina om verder te gaan.",
+    "refresh": "Vernieuwen"
   }
 }

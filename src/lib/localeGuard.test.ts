@@ -49,6 +49,8 @@ const TRANSLATED_FILES = [
   'src/pages/AuthConfirm.tsx',
   'src/components/chat/ClosingCard.tsx',
   'src/components/resume/ResumeUploadCard.tsx',
+  'src/components/GlobalErrorFallback.tsx',
+  'src/components/ChunkLoadErrorBoundary.tsx',
 ];
 
 // A JSX text line of 3+ words starting with a capital, or such text between
