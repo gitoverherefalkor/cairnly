@@ -225,9 +225,10 @@
       "lastNamePlaceholder": "Vul uw achternaam in",
       "emailHint": "Uw e-mailadres kunt u hier niet wijzigen",
       "signInHint": "Hiermee hebt u uw account aangemaakt",
-      "countryPlaceholder": "Vul uw land in",
+      "countryPlaceholder": "Kies uw land",
       "pronounsPlaceholder": "Kies uw voornaamwoorden",
-      "ageRangePlaceholder": "Kies uw leeftijdsgroep"
+      "ageRangePlaceholder": "Kies uw leeftijdsgroep",
+      "countryHint": "Uit uw betaling of de vragenlijst"
     },
     "emailPrefs": {
       "remindersHint": "Ontvang af en toe een herinnering om verder te gaan met uw vragenlijst en uw rapport te bekijken"

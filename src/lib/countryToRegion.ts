@@ -168,3 +168,60 @@ export function rememberCvCountry(code: string | null | undefined): void {
     /* storage blocked: the picker falls back to the band confirmation */
   }
 }
+
+// --- Country for the profile page ---------------------------------------------
+// profiles.country holds the checkout's English country name ("Netherlands").
+// The survey only stores a region band, so the exact country comes from the
+// picker's restore hint (same browser) or, for 1:1 bands, from the band itself.
+
+/** Checkout country name -> ISO code, for every country checkout offers. */
+export const COUNTRY_NAME_TO_ISO: Record<string, string> = {
+  ...CHECKOUT_COUNTRY_TO_KEY,
+  'United Kingdom': 'GB',
+  'United States': 'US',
+  Japan: 'JP',
+  China: 'CN',
+  India: 'IN',
+};
+
+const ISO_TO_COUNTRY_NAME: Record<string, string> = Object.fromEntries(
+  Object.entries(COUNTRY_NAME_TO_ISO).map(([name, iso]) => [iso, name]),
+);
+
+/** Picker option key -> checkout country name, or null for "elsewhere"/unknown. */
+export function countryNameForPickKey(key: string | null | undefined): string | null {
+  if (!key) return null;
+  if (key.startsWith('uk-')) return 'United Kingdom';
+  if (key.startsWith('us-')) return 'United States';
+  return ISO_TO_COUNTRY_NAME[key] ?? null;
+}
+
+/**
+ * Best guess at the country the user picked in the survey's region question:
+ * the remembered picker choice when it matches the stored band, else the band
+ * itself when it maps to one country (UK, US, CH, CA). Never guesses a country
+ * inside a shared band such as "Northern and Western Europe".
+ */
+export function countryFromSurveyPick(band: string | null | undefined): string | null {
+  for (const qid of REGION_QUESTION_IDS) {
+    let key: string | null = null;
+    try {
+      key = localStorage.getItem(`region_pick_${qid}`);
+    } catch {
+      /* storage blocked */
+    }
+    const opt = key ? KEY_TO_OPTION[key] : undefined;
+    if (opt && (!band || opt.region === band)) {
+      const name = countryNameForPickKey(key);
+      if (name) return name;
+    }
+  }
+  return countryNameForPickKey(keyForRegion(band));
+}
+
+/** Stored band string -> its key in REGION (also the survey.json regionPicker.band.* key). */
+export function regionBandKey(band: string | null | undefined): string | null {
+  if (!band) return null;
+  const hit = Object.entries(REGION).find(([, v]) => v === band);
+  return hit ? hit[0] : null;
+}

@@ -8,19 +8,36 @@
 // Currently exposes:
 //   - pronouns  (mapped to the Profile dropdown value: he/him, she/her, ...)
 //   - ageRange  (bucketed from the numeric age into 18-24, 25-34, ...)
+//   - country   (checkout country name, when the survey pick pins one down)
+//
+// Works for every survey flavor: pro, starter, encore v1 and encore v2 each
+// have their own age / region question ids.
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { REGION_QUESTION_IDS, countryFromSurveyPick } from '@/lib/countryToRegion';
 
 // Section 1 question UUIDs — kept in sync with useAIResumePreFill.ts.
 const QID_PRONOUN = '11111111-1111-1111-1111-11111111111b';
-const QID_AGE = '11111111-1111-1111-1111-111111111113';
+// Age question per survey: pro, starter, encore v1, encore v2.
+const AGE_QUESTION_IDS = [
+  '11111111-1111-1111-1111-111111111113',
+  'a1a1a1a1-0001-4000-a000-000000000002',
+  'b2b2b2b2-0001-4000-a000-000000000002',
+  'c3c3c3c3-0001-4000-a000-000000000002',
+];
 
 interface SurveyDerivedProfile {
   pronouns: string | null;
   ageRange: string | null;
+  country: string | null;
 }
+
+const EMPTY: SurveyDerivedProfile = { pronouns: null, ageRange: null, country: null };
+
+const firstAnswer = (payload: Record<string, unknown>, ids: string[]) =>
+  ids.map((id) => payload[id]).find((v) => v !== undefined && v !== null && v !== '');
 
 function normalizePronoun(raw: unknown): string | null {
   if (typeof raw !== 'string') return null;
@@ -55,7 +72,7 @@ export function useSurveyDerivedProfile(): {
   const query = useQuery({
     queryKey: ['survey-derived-profile', user?.id],
     queryFn: async (): Promise<SurveyDerivedProfile> => {
-      if (!user?.id) return { pronouns: null, ageRange: null };
+      if (!user?.id) return EMPTY;
 
       // Find access_codes for this user, then the latest submitted answers
       // row. We pull only the two columns we need from the payload via the
@@ -66,7 +83,7 @@ export function useSurveyDerivedProfile(): {
         .eq('user_id', user.id);
 
       const codeIds = (codes ?? []).map((c) => c.id);
-      if (codeIds.length === 0) return { pronouns: null, ageRange: null };
+      if (codeIds.length === 0) return EMPTY;
 
       const { data: answers } = await supabase
         .from('answers')
@@ -77,11 +94,12 @@ export function useSurveyDerivedProfile(): {
         .limit(1);
 
       const payload = (answers?.[0]?.payload ?? null) as Record<string, unknown> | null;
-      if (!payload) return { pronouns: null, ageRange: null };
+      if (!payload) return EMPTY;
 
       return {
         pronouns: normalizePronoun(payload[QID_PRONOUN]),
-        ageRange: bucketAge(payload[QID_AGE]),
+        ageRange: bucketAge(firstAnswer(payload, AGE_QUESTION_IDS)),
+        country: countryFromSurveyPick(firstAnswer(payload, REGION_QUESTION_IDS) as string | undefined),
       };
     },
     enabled: !!user?.id,
@@ -90,7 +108,7 @@ export function useSurveyDerivedProfile(): {
   });
 
   return {
-    data: query.data ?? { pronouns: null, ageRange: null },
+    data: query.data ?? EMPTY,
     isLoading: query.isLoading,
   };
 }

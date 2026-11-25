@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { REGION_QUESTION_IDS, countryFromSurveyPick } from '@/lib/countryToRegion';
 import { useEngagementTracking } from '@/hooks/useEngagementTracking';
 
 interface UseSurveySubmissionProps {
@@ -124,14 +125,7 @@ export const useSurveySubmission = ({
       await markAccessCodeAsUsed();
 
       // Update profile with region from survey. Each survey has its own region
-      // question id: pro (11111111-...114), starter (a1a1a1a1-0001-...003) and
-      // encore v1 (b2b2b2b2-0001-...003) and encore v2 (c3c3c3c3-0001-...003).
-      const REGION_QUESTION_IDS = [
-        '11111111-1111-1111-1111-111111111114',
-        'a1a1a1a1-0001-4000-a000-000000000003',
-        'b2b2b2b2-0001-4000-a000-000000000003',
-        'c3c3c3c3-0001-4000-a000-000000000003',
-      ];
+      // question id (pro, starter, encore v1, encore v2): see REGION_QUESTION_IDS.
       const regionAnswer = REGION_QUESTION_IDS.map((id) => responses[id]).find(Boolean);
       if (regionAnswer && user) {
         try {
@@ -140,6 +134,18 @@ export const useSurveySubmission = ({
             .update({ region: regionAnswer })
             .eq('id', user.id);
           console.log('Profile updated with region:', regionAnswer);
+
+          // Also fill the profile country when it is still empty (free-code
+          // users never see the payment form). Only when the picked country is
+          // known; a shared band like "Northern and Western Europe" is not enough.
+          const pickedCountry = countryFromSurveyPick(regionAnswer);
+          if (pickedCountry) {
+            await supabase
+              .from('profiles')
+              .update({ country: pickedCountry })
+              .eq('id', user.id)
+              .is('country', null);
+          }
         } catch (error) {
           console.error('Error updating profile with region:', error);
           // Don't fail submission if profile update fails
