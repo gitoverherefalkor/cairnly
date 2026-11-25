@@ -747,6 +747,7 @@ const Jobs = () => {
         onShare={handleInvite}
         onProfile={() => navigate('/profile')}
         onSignOut={() => navigate('/auth')}
+        toolsIncluded={resumeUnlocked && coverUnlocked}
       />
     );
   }

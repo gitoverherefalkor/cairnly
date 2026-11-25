@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { ENCORE_SURVEY_TYPE, ENCORE_V1_SURVEY_TYPE } from '@/components/assessment/constants';
 
 export interface ReferralFeature {
   // NOTE on `jobs`: this feature is no longer a wall. Job search is open to
@@ -209,6 +210,32 @@ export function useReferralStatus() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Encore (€79) includes the CV tools (tailored resume, cover letter) as
+  // standard, no invites needed (Sjoerd, 2026-11-25). Unlimited job search
+  // still comes from an invite, like everyone else.
+  const encoreQuery = useQuery({
+    queryKey: ['encore-user', user?.id],
+    queryFn: async (): Promise<boolean> => {
+      if (!user?.id) return false;
+      const { data, error } = await supabase
+        .from('access_codes')
+        .select('id')
+        .eq('user_id', user.id)
+        .in('survey_type', [ENCORE_SURVEY_TYPE, ENCORE_V1_SURVEY_TYPE])
+        .limit(1);
+      if (error) {
+        console.error('encore lookup failed:', error);
+        return false;
+      }
+      return (data?.length ?? 0) > 0;
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+  const encoreTools = encoreQuery.data ?? false;
+  const includedTool = (key: ReferralFeature['key']) =>
+    encoreTools && (key === 'resume' || key === 'cover-letter');
+
   const referralCount = countQuery.data ?? 0;
   const referralCode = codeQuery.data ?? null;
   const compUnlocks = compQuery.data ?? 0;
@@ -220,7 +247,7 @@ export function useReferralStatus() {
   // Tool gating (Jobs page, teaser cards) — keyed off the three tool features.
   const features: ResolvedFeature[] = REFERRAL_FEATURES.map((f) => ({
     ...f,
-    unlocked: toolCount >= f.requiredReferrals,
+    unlocked: includedTool(f.key) || toolCount >= f.requiredReferrals,
   }));
 
   // The full 6-step ladder for the dashboard toolkit (3 tools + 3 refunds).
@@ -229,7 +256,9 @@ export function useReferralStatus() {
   // earned, since payment-success sizes payouts off the referrals table.
   const ladder: ResolvedUnlockStep[] = UNLOCK_LADDER.map((step) => ({
     step,
-    unlocked: (step.kind === 'tool' ? toolCount : referralCount) >= step.requiredReferrals,
+    unlocked:
+      (step.kind === 'tool' && includedTool(step.featureKey)) ||
+      (step.kind === 'tool' ? toolCount : referralCount) >= step.requiredReferrals,
   }));
 
   const referralLink = referralCode ? `${PRODUCTION_ORIGIN}/?ref=${referralCode}` : null;
