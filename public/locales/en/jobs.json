@@ -132,7 +132,8 @@
     "arrangementNoteTail": "Want that? Let us know via the Feedback & Support button, bottom-right.",
     "creditsLeft": "{{count}} of 4 free searches left",
     "creditsShort_one": "You picked {{selected}} careers but have 1 search left. Only the first one will run.",
-    "creditsShort_other": "You picked {{selected}} careers but have {{count}} searches left. Only the first {{count}} will run."
+    "creditsShort_other": "You picked {{selected}} careers but have {{count}} searches left. Only the first {{count}} will run.",
+    "restoredToast": "Filters restored. Use the search button to run it again."
   },
   "summary": {
     "careers_one": "{{count}} career",

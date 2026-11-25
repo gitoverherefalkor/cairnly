@@ -552,8 +552,10 @@ const Jobs = () => {
   };
 
   // Clicking a recent-search chip restores the inputs (selection + filters).
-  // The user then clicks Search to actually run it — keeps behavior explicit
-  // and avoids any state/effect timing issues with auto-firing.
+  // For the latest search whose results are still in this tab, it opens those
+  // results straight away (no new search, no credit). For older ones the user
+  // then clicks Search; we scroll up and say so, because restoring filters that
+  // already match the form looked like the click did nothing.
   const applyRecentSearch = (s: RecentSearch) => {
     setSelectedCareers(s.selectedCareers);
     setPrimaryCountry(s.primaryCountry);
@@ -562,6 +564,13 @@ const Jobs = () => {
     setDistance(s.distance ?? 0);
     setWorkArrangement(s.workArrangement);
     setJobCommitment(s.jobCommitment);
+    const isLatest = recentSearches[0] && snapshotsEqual(recentSearches[0], s);
+    if (isLatest && results.some((r) => r.status === 'done')) {
+      setView('results');
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast({ title: t('search.restoredToast') });
   };
 
   const handleInvite = async () => {
