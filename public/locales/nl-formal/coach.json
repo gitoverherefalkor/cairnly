@@ -6,6 +6,10 @@
   "counter": {
     "tooltip": "Uw berichten worden aangevuld op {{date}}"
   },
+  "opener": {
+    "default": "Goedendag {{name}}, uw rapport is klaar, maar het nadenken meestal nog niet. Vraag mij gerust naar een beroep uit uw rapport, een keuze waar u mee zit, een sollicitatiegesprek dat eraan komt of waar u het beste kunt beginnen. Ik ken uw rapport, dus u hoeft niets opnieuw uit te leggen.",
+    "checkin": "Vorige keer nam u zich voor: **{{step}}**. Hoe ging het?"
+  },
   "notice": {
     "title": "Wat uw coach onthoudt",
     "body": "Uw coach leest uw afgeronde rapport, de berichten die u heeft bewaard en korte notities uit uw gesprekken, zodat u niets hoeft te herhalen. Uw coach kan uw rapport niet aanpassen. U kunt ons altijd via support vragen uw chatgegevens te verwijderen."
