@@ -184,7 +184,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({
                   <button
                     type="button"
                     onClick={onCancelAskAboutRole}
-                    aria-label="Cancel asking about this role"
+                    aria-label={t('misc.cancelAskRole')}
                     className="shrink-0 rounded-full p-0.5 text-gray-400 hover:text-atlas-navy hover:bg-gray-100 transition-colors"
                   >
                     <X size={14} />

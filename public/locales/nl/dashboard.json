@@ -512,5 +512,94 @@
       "init_summary": "Overzicht",
       "executive_summary": "Samenvatting"
     }
+  },
+  "profilePage": {
+    "pageLabel": "Profielinstellingen",
+    "backToDashboard": "Terug naar dashboard",
+    "eyebrow": "Je account",
+    "title": "Profielinstellingen",
+    "intro": "Beheer wat we over je weten, hoe we je mailen en wat we met je gegevens doen.",
+    "resume": {
+      "title": "Cv-status",
+      "uploaded": "Cv geüpload",
+      "uploadedOn": "Geüpload op {{date}}",
+      "remove": "Verwijderen",
+      "none": "Geen cv geüpload",
+      "noneHint": "Upload er hier een, of doe het bij de start van je volgende Cairnly-assessment. Dan vullen we je antwoorden alvast in.",
+      "uploadTitle": "Cv uploaden",
+      "uploadDescription": "Alleen pdf. We gebruiken je cv om je assessment alvast in te vullen en om cv's op maat te maken voor gekozen beroepen."
+    },
+    "personal": {
+      "title": "Persoonlijke gegevens",
+      "firstName": "Voornaam",
+      "firstNamePlaceholder": "Vul je voornaam in",
+      "lastName": "Achternaam",
+      "lastNamePlaceholder": "Vul je achternaam in",
+      "email": "E-mailadres",
+      "emailHint": "Je e-mailadres kun je hier niet wijzigen",
+      "signInMethod": "Inlogmethode",
+      "emailPassword": "E-mail en wachtwoord",
+      "signInHint": "Hiermee heb je je account aangemaakt",
+      "country": "Land",
+      "countryPlaceholder": "Vul je land in",
+      "countryHint": "Uit het betaalformulier",
+      "region": "Regio",
+      "regionPlaceholder": "Geen regio ingesteld",
+      "regionHint": "Uit deel 1 van de vragenlijst",
+      "pronouns": "Voornaamwoorden",
+      "pronounsPlaceholder": "Kies je voornaamwoorden",
+      "pronounOptions": {
+        "heHim": "hij/hem",
+        "sheHer": "zij/haar",
+        "theyThem": "die/hen",
+        "other": "Anders",
+        "preferNot": "Zeg ik liever niet"
+      },
+      "ageRange": "Leeftijd",
+      "ageRangePlaceholder": "Kies je leeftijdsgroep",
+      "saving": "Opslaan...",
+      "save": "Wijzigingen opslaan"
+    },
+    "emailPrefs": {
+      "title": "E-mailvoorkeuren",
+      "reminders": "E-mailherinneringen",
+      "remindersHint": "Ontvang af en toe een herinnering om verder te gaan met je assessment en je loopbaaninzichten te bekijken"
+    },
+    "data": {
+      "title": "Je gegevens",
+      "bodyBefore": "Je hebt het recht om een kopie van al je persoonsgegevens te downloaden, of ze definitief te laten verwijderen. Meer hierover lees je in ons",
+      "privacyLink": "privacybeleid",
+      "bodyAfter": ".",
+      "exporting": "Exporteren...",
+      "download": "Mijn gegevens downloaden"
+    },
+    "delete": {
+      "title": "Account verwijderen",
+      "body": "Verwijder je account en alle bijbehorende gegevens definitief, inclusief resultaten, loopbaanrapporten, chatgeschiedenis en geüploade documenten. Dit kan niet ongedaan worden gemaakt.",
+      "button": "Mijn account verwijderen",
+      "confirmTitle": "Weet je het zeker? Dit verwijdert definitief:",
+      "items": {
+        "profile": "Je profiel en persoonlijke gegevens",
+        "responses": "Al je antwoorden op de vragenlijst",
+        "reports": "Loopbaanrapporten en aanbevelingen",
+        "chat": "Je chatgeschiedenis",
+        "files": "Geüploade cv-bestanden"
+      },
+      "confirmNote": "Dit kan niet ongedaan worden gemaakt. Je wordt direct uitgelogd.",
+      "deleting": "Verwijderen...",
+      "confirmButton": "Ja, alles verwijderen"
+    },
+    "toasts": {
+      "exported": "Gegevens gedownload",
+      "exportedDesc": "Je gegevens zijn gedownload als JSON-bestand.",
+      "exportFailed": "Downloaden mislukt",
+      "exportFailedDesc": "Er ging iets mis. Probeer het opnieuw of neem contact op met support.",
+      "deleteFailed": "Verwijderen mislukt",
+      "deleteFailedDesc": "Er ging iets mis. Neem contact op via privacy@cairnly.io",
+      "updated": "Profiel bijgewerkt",
+      "updatedDesc": "Je profiel is opgeslagen.",
+      "updateFailed": "Fout",
+      "updateFailedDesc": "Je profiel kon niet worden opgeslagen. Probeer het opnieuw."
+    }
   }
 }

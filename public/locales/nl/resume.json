@@ -48,5 +48,30 @@
       "allDone": "Alle verbeteringen verwerkt. Dit cv is nu onmiskenbaar van jou.",
       "close": "Sluiten"
     }
+  },
+  "uploadCard": {
+    "toastSuccess": "Cv geüpload ✅",
+    "toastSuccessDesc": "{{count}} vragen alvast ingevuld vanuit {{file}}.",
+    "toastFailed": "Verwerken mislukt",
+    "toastFailedDesc": "We konden je cv niet verwerken. Je kunt gewoon handmatig verder.",
+    "pdfOnly": "Alleen pdf-bestanden",
+    "pdfOnlyDesc": "Upload je cv als pdf. Tip: kies in Word \"Opslaan als\" en dan pdf.",
+    "tooLarge": "Bestand te groot",
+    "tooLargeDesc": "Upload een bestand kleiner dan 10 MB.",
+    "processed": " - Verwerkt ✓",
+    "processingShort": " - Bezig met verwerken...",
+    "processing": "Je document wordt verwerkt...",
+    "readError": "We konden dit bestand niet lezen",
+    "readErrorDesc": "Controleer of het een pdf is en probeer het opnieuw.",
+    "tryOther": "Ander bestand kiezen",
+    "success": "Cv geüpload!",
+    "prefilled": "{{count}} vragen alvast ingevuld",
+    "tailorReady": "Klaar om cv's op maat te maken",
+    "uploadPrompt": "Upload je document",
+    "limits": "Alleen pdf, maximaal 10 MB",
+    "autoStart": "Het verwerken start vanzelf na het uploaden",
+    "select": "Bestand kiezen",
+    "defaultTitle": "Cv uploaden",
+    "defaultDescription": "Upload je cv als pdf."
   }
 }

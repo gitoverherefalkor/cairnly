@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileText, CheckCircle, Loader2, X, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import { useAIResumeUpload } from './hooks/useAIResumeUpload';
 
 interface ResumeUploadCardProps {
@@ -15,10 +16,13 @@ interface ResumeUploadCardProps {
 
 export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
   onProcessingComplete,
-  title = "Resume Upload",
-  description = "Upload your resume as a PDF.",
+  title,
+  description,
   showSuccessMessage = true
 }) => {
+  // Copy lives in resume:uploadCard (Encore "u" via nl-formal/resume.json).
+  const { t } = useTranslation('resume');
+  const tu = (key: string, opts?: Record<string, unknown>) => t(`uploadCard.${key}`, opts);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -36,16 +40,16 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
     onSuccess: (data) => {
       if (showSuccessMessage) {
         toast({
-          title: "Resume uploaded successfully! ✅",
-          description: `Pre-filled ${data.fieldsExtracted ?? 0} survey questions from your ${uploadedFile?.name}.`,
+          title: tu('toastSuccess'),
+          description: tu('toastSuccessDesc', { count: data.fieldsExtracted ?? 0, file: uploadedFile?.name ?? '' }),
         });
       }
       onProcessingComplete?.(data);
     },
     onError: (error) => {
       toast({
-        title: "Processing failed",
-        description: error || "Failed to process your resume. You can continue manually.",
+        title: tu('toastFailed'),
+        description: error || tu('toastFailedDesc'),
         variant: "destructive",
       });
     }
@@ -62,8 +66,8 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
 
     if (!isPdf) {
       toast({
-        title: "PDF files only",
-        description: 'Please upload your resume as a PDF. Tip: in Word, use "Save As" and choose PDF.',
+        title: tu('pdfOnly'),
+        description: tu('pdfOnlyDesc'),
         variant: "destructive",
       });
       return;
@@ -72,8 +76,8 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
     // Validate file size (10MB max)
     if (file.size > 10 * 1024 * 1024) {
       toast({
-        title: "File too large",
-        description: "Please upload a file smaller than 10MB.",
+        title: tu('tooLarge'),
+        description: tu('tooLargeDesc'),
         variant: "destructive",
       });
       return;
@@ -97,12 +101,12 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center">
           <FileText className="h-5 w-5 mr-2" />
-          {title}
+          {title ?? t('uploadCard.defaultTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">{description}</p>
+          <p className="text-sm text-gray-600">{description ?? t('uploadCard.defaultDescription')}</p>
 
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             {uploadedFile ? (
@@ -114,8 +118,8 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                     <p className="font-medium">{uploadedFile.name}</p>
                     <p className="text-sm text-gray-500">
                       {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                      {hasProcessed && " - Successfully processed ✓"}
-                      {isProcessing && " - Processing..."}
+                      {hasProcessed && tu('processed')}
+                      {isProcessing && tu('processingShort')}
                     </p>
                   </div>
                   <Button
@@ -131,7 +135,7 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                 {isProcessing && (
                   <div className="flex items-center justify-center space-x-2 text-sm text-atlas-gold">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Processing your document...</span>
+                    <span>{tu('processing')}</span>
                   </div>
                 )}
 
@@ -139,14 +143,14 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
                     <div className="flex items-center space-x-2 text-red-800 mb-2">
                       <AlertTriangle className="h-4 w-4" />
-                      <span className="font-medium">We couldn't read that file</span>
+                      <span className="font-medium">{tu('readError')}</span>
                     </div>
                     <p className="text-red-700 mb-3">
-                      Please make sure it's a PDF and try again.
+                      {tu('readErrorDesc')}
                     </p>
                     <Button size="sm" onClick={() => fileInputRef.current?.click()}>
                       <Upload className="h-4 w-4 mr-2" />
-                      Try a different file
+                      {tu('tryOther')}
                     </Button>
                   </div>
                 )}
@@ -155,11 +159,11 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
                     <div className="flex items-center space-x-2 text-green-800 mb-2">
                       <CheckCircle className="h-4 w-4" />
-                      <span className="font-medium">Resume uploaded successfully!</span>
+                      <span className="font-medium">{tu('success')}</span>
                     </div>
                     <div className="text-green-700 space-y-1">
-                      <p>• Pre-filled {processingResult.fieldsExtracted || 0} survey questions</p>
-                      <p>• Ready to use for tailored résumé generation</p>
+                      <p>• {tu('prefilled', { count: processingResult.fieldsExtracted || 0 })}</p>
+                      <p>• {tu('tailorReady')}</p>
                     </div>
                   </div>
                 )}
@@ -168,12 +172,12 @@ export const ResumeUploadCard: React.FC<ResumeUploadCardProps> = ({
               <div className="space-y-4">
                 <Upload className="h-12 w-12 text-gray-400 mx-auto" />
                 <div>
-                  <p className="text-lg font-medium">Upload your document</p>
-                  <p className="text-sm text-gray-500">PDF files only, up to 10MB</p>
-                  <p className="text-xs text-gray-400 mt-1">Processing will start automatically after upload</p>
+                  <p className="text-lg font-medium">{tu('uploadPrompt')}</p>
+                  <p className="text-sm text-gray-500">{tu('limits')}</p>
+                  <p className="text-xs text-gray-400 mt-1">{tu('autoStart')}</p>
                 </div>
                 <Button onClick={() => fileInputRef.current?.click()}>
-                  Select File
+                  {tu('select')}
                 </Button>
                 <input
                   ref={fileInputRef}

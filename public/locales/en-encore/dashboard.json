@@ -16,5 +16,14 @@
       "outside": "Surprising Directions",
       "dream": "Your Idea"
     }
+  },
+  "profilePage": {
+    "resume": {
+      "noneHint": "Upload one here, or when you start a new questionnaire, and we will pre-fill your answers.",
+      "uploadDescription": "PDF only. Used to pre-fill your questionnaire."
+    },
+    "emailPrefs": {
+      "remindersHint": "Receive helpful reminders to continue your questionnaire and view your report"
+    }
   }
 }

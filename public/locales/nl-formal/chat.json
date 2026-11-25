@@ -64,5 +64,23 @@
     "savedBanner": "Opgeslagen in uw rapport. Bekijk hieronder nog even uw Career Signature en ga daarna naar uw dashboard.",
     "errorFirst": "We konden geen hoogtepunten maken. U kunt opslaan met alleen uw eigen notitie hieronder, of het opnieuw proberen.",
     "errorRetry": "Nog steeds geen succes. U kunt opslaan met alleen uw eigen notitie hieronder."
+  },
+  "closing": {
+    "thanks": "Bedankt voor het afronden van uw vragenlijst!",
+    "saved": "Uw sessie is klaar. Alle feedback en inzichten uit ons gesprek zijn veilig opgeslagen en worden verwerkt in uw eindrapport.",
+    "next1": "Uw eindrapport staat binnenkort klaar in uw dashboard",
+    "next2": "U krijgt een e-mail zodra het klaar is",
+    "next3": "Al uw feedback en rapportinhoud wordt veilig bewaard",
+    "note": "Dit chatgesprek bewaren we om privacyredenen niet, maar uw resultaten en alle feedback die u gaf zijn opgeslagen en komen terug in uw eindrapport.",
+    "howToLead": "Hoe u dit gebruikt:",
+    "howTo": "onze aanbevelingen zijn richtinggevend, geen definitieve antwoorden. Gebruik ze om over na te denken, naast uw eigen ervaring en uw verdere verkenning."
+  },
+  "noReport": {
+    "body": "Rond uw vragenlijst af om met uw AI-loopbaancoach te chatten."
+  },
+  "misc": {
+    "loadingCoach": "Uw loopbaancoach wordt geladen...",
+    "emptyThread": "Stuur een bericht om uw sessie te starten",
+    "otherHint": "Vertel ons in het tekstveld hieronder wat u bedoelt."
   }
 }

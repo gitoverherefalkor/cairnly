@@ -204,5 +204,33 @@
     "unconventional_other": "{{count}} onconventionele paden",
     "dreamJobs_one": "{{count}} droombaan",
     "dreamJobs_other": "{{count}} droombanen"
+  },
+  "closing": {
+    "title": "Sessie afgerond!",
+    "titleNamed": "Sessie afgerond, {{name}}!",
+    "thanks": "Bedankt voor het afronden van je Cairnly-assessment!",
+    "saved": "Je sessie is klaar. Alle feedback en inzichten uit ons gesprek zijn veilig opgeslagen en worden verwerkt in je eindrapport.",
+    "nextTitle": "Wat gebeurt er nu?",
+    "next1": "Je eindrapport staat binnenkort klaar in je dashboard",
+    "next2": "Je krijgt een e-mail zodra het klaar is",
+    "next3": "Al je feedback en rapportinhoud wordt veilig bewaard",
+    "noteTitle": "Goed om te weten:",
+    "note": "Dit chatgesprek bewaren we om privacyredenen niet, maar je resultaten en alle feedback die je gaf zijn opgeslagen en komen terug in je eindrapport.",
+    "howToLead": "Hoe je dit gebruikt:",
+    "howTo": "onze aanbevelingen zijn richtinggevend, geen definitieve antwoorden. Gebruik ze om over na te denken, naast je eigen ervaring en je verdere verkenning.",
+    "viewReport": "Eindrapport bekijken",
+    "toDashboard": "Terug naar dashboard"
+  },
+  "noReport": {
+    "title": "Nog geen rapport",
+    "body": "Rond je assessment af om met je AI-loopbaancoach te chatten.",
+    "cta": "Naar dashboard"
+  },
+  "misc": {
+    "loadingCoach": "Je loopbaancoach wordt geladen...",
+    "emptyThread": "Stuur een bericht om je sessie te starten",
+    "otherHint": "Vertel ons in het tekstveld hieronder wat je bedoelt.",
+    "retry": "Dit bericht opnieuw versturen",
+    "cancelAskRole": "Vraag over deze rol annuleren"
   }
 }

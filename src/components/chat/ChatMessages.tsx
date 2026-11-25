@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { ALL_SECTIONS } from './ReportSidebar';
 import type { ChatMessage as ChatMessageType } from '@/hooks/useChatMessages';
 import type { ReportSection } from '@/hooks/useReportSections';
+import { useTranslation } from 'react-i18next';
 
 export interface ChatMessagesHandle {
   scrollToSection: (sectionId: string) => void;
@@ -89,6 +90,7 @@ interface ChatMessagesProps {
 
 export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
   ({ messages, isLoading, isWaitingForResponse, isUserTyping, loadingMode = 'agent', currentSectionIndex, onSectionDetected, onQuickReply, onFocusInput, onDreamJobsRead, showWelcome, isReturningUser, welcomeFirstName, welcomeCompletedSectionIndex = -1, onWelcomeReady, sections, onSequentialRevealStateChange, onMultiCardLockChange, onCardOpenProgressChange, hasUnrevealedSubsections = false, onAskAboutRole, reportId, wrapUpState = 'idle', onWrapUpCompleted, isStalled = false, lastSectionIndex = ALL_SECTIONS.length - 1, failedMessageIds, onRetryMessage, bookmarkedMessageIds, onBookmarkToggle, likedMessageIds, onLikeToggle, onComparisonExplain }, ref) => {
+    const { t } = useTranslation('chat');
     const failedSet = new Set(failedMessageIds ?? []);
     const likedSet = new Set(likedMessageIds ?? []);
     const bookmarkedSet = new Set(bookmarkedMessageIds ?? []);
@@ -276,7 +278,7 @@ export const ChatMessages = forwardRef<ChatMessagesHandle, ChatMessagesProps>(
         <div className="max-w-[800px] mx-auto px-3 sm:px-6 pt-4 sm:pt-8 pb-[180px] sm:pb-[140px]">
           {messages.length === 0 && !isWaitingForResponse && (
             <div className="text-center text-blue-100/70 text-sm py-12">
-              Send a message to start your session
+              {t('misc.emptyThread')}
             </div>
           )}
 

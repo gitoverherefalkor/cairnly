@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
@@ -79,6 +80,7 @@ async function resolvePostAuthRedirect(
 const AuthConfirm = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation('auth');
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
@@ -116,7 +118,7 @@ const AuthConfirm = () => {
           window.history.replaceState(null, '', window.location.pathname);
 
           setStatus('success');
-          setMessage('Successfully signed in!');
+          setMessage(t('confirm.signedIn'));
 
           // Route new users to /payment, returning users to /dashboard
           const dest = await resolvePostAuthRedirect(sessionData.user?.id, sessionData.user?.email, sessionData.access_token);
@@ -128,7 +130,7 @@ const AuthConfirm = () => {
         } catch (err) {
           console.error('Error parsing session:', err);
           setStatus('error');
-          setMessage('Failed to process sign in. Please try again.');
+          setMessage(t('confirm.signInFailed'));
           return;
         }
       }
@@ -179,7 +181,7 @@ const AuthConfirm = () => {
           window.history.replaceState(null, '', window.location.pathname);
 
           setStatus('success');
-          setMessage('Successfully signed in!');
+          setMessage(t('confirm.signedIn'));
 
           // Route new users to /payment, returning users to /dashboard
           const dest = await resolvePostAuthRedirect(user.id, user.email, accessToken);
@@ -191,7 +193,7 @@ const AuthConfirm = () => {
         } catch (err) {
           console.error('Error processing OAuth tokens:', err);
           setStatus('error');
-          setMessage('Failed to process sign in. Please try again.');
+          setMessage(t('confirm.signInFailed'));
           return;
         }
       }
@@ -203,7 +205,7 @@ const AuthConfirm = () => {
         // but keep as fallback
         console.log('Code param detected - redirecting through edge function');
         setStatus('error');
-        setMessage('Please use social login buttons to sign in.');
+        setMessage(t('confirm.useSocial'));
         return;
       }
 
@@ -222,7 +224,7 @@ const AuthConfirm = () => {
         }
 
         setStatus('error');
-        setMessage('Invalid confirmation link. Please try signing up again.');
+        setMessage(t('confirm.invalidLink'));
         return;
       }
 
@@ -235,7 +237,7 @@ const AuthConfirm = () => {
         if (error) {
           console.error('Confirmation error:', error);
           setStatus('error');
-          setMessage(error.message || 'Failed to confirm your email. Please try again.');
+          setMessage(error.message || t('confirm.confirmFailed'));
           return;
         }
 
@@ -248,7 +250,7 @@ const AuthConfirm = () => {
 
           // Regular email confirmation
           setStatus('success');
-          setMessage('Your email has been confirmed successfully!');
+          setMessage(t('confirm.confirmed'));
 
           // Route new users to /payment, returning users to /dashboard
           const dest = await resolvePostAuthRedirect(data.user.id, data.user.email, data.session?.access_token);
@@ -260,7 +262,7 @@ const AuthConfirm = () => {
       } catch (error) {
         console.error('Unexpected error during confirmation:', error);
         setStatus('error');
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage(t('confirm.unexpected'));
       }
     };
 
@@ -269,10 +271,10 @@ const AuthConfirm = () => {
 
   const titleByStatus =
     status === 'loading'
-      ? 'Confirming your email…'
+      ? t('confirm.loading')
       : status === 'success'
-        ? 'Email Confirmed!'
-        : 'Confirmation Failed';
+        ? t('confirm.successTitle')
+        : t('confirm.errorTitle');
 
   const iconCircleStyles =
     status === 'success'
@@ -282,7 +284,7 @@ const AuthConfirm = () => {
         : { bg: 'rgba(39,161,161,0.10)', border: 'rgba(39,161,161,0.30)', color: '#1F8282' };
 
   return (
-    <AuthShell eyebrow="Email confirmation" title={titleByStatus}>
+    <AuthShell eyebrow={t('confirm.eyebrow')} title={titleByStatus}>
       <div className="text-center space-y-4">
         <div className="flex justify-center">
           <div
@@ -309,7 +311,7 @@ const AuthConfirm = () => {
 
         {status === 'success' && (
           <p className="text-sm" style={{ color: '#4B6373' }}>
-            Redirecting you to your dashboard…
+            {t('confirm.redirecting')}
           </p>
         )}
 
@@ -319,7 +321,7 @@ const AuthConfirm = () => {
               onClick={() => navigate('/auth')}
               className="w-full rounded-full bg-atlas-teal text-white hover:bg-atlas-teal/90 font-bold text-[14.5px] py-[13px] shadow-[0_10px_24px_-8px_rgba(39,161,161,0.55)]"
             >
-              Try Signing Up Again
+              {t('confirm.tryAgain')}
             </Button>
             <Button
               variant="ghost"
@@ -327,7 +329,7 @@ const AuthConfirm = () => {
               className="w-full rounded-full border bg-transparent font-bold"
               style={{ color: '#1F8282', borderColor: 'rgba(31,130,130,0.32)' }}
             >
-              Back to Homepage
+              {t('confirm.home')}
             </Button>
           </div>
         )}

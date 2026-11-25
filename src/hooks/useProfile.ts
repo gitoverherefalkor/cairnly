@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface Profile {
   id: string;
@@ -23,6 +24,7 @@ interface Profile {
 export const useProfile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
   const queryClient = useQueryClient();
 
   const {
@@ -70,15 +72,15 @@ export const useProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: t('profilePage.toasts.updated'),
+        description: t('profilePage.toasts.updatedDesc'),
       });
     },
     onError: (error) => {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t('profilePage.toasts.updateFailed'),
+        description: t('profilePage.toasts.updateFailedDesc'),
         variant: "destructive",
       });
     },
