@@ -412,9 +412,10 @@
     "linkedIn": {
       "toggle": "No resume handy? Use your LinkedIn profile export instead",
       "step1": "Go to your LinkedIn profile",
-      "step2": "Click the \"More\" (•••) button near your name, then \"Save to PDF\"",
+      "step2": "Click the three dots (•••) next to your name, then \"Save to PDF\"",
       "step3": "Upload the downloaded PDF here",
-      "imageAlt": "LinkedIn profile More menu showing the Save to PDF option",
+      "imageAlt": "LinkedIn profile three-dots menu showing the Save to PDF option",
+      "imageSrc": "/uploads/linkedin-save-to-pdf-menu-en.png",
       "note": "On some profiles this sits under a \"Resources\" button instead. A LinkedIn export usually has your most up-to-date work history.",
       "apology": "We'd love a one-click LinkedIn import. LinkedIn's platform doesn't allow it, so this export step is the only way."
     },

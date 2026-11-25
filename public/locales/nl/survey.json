@@ -412,9 +412,10 @@
     "linkedIn": {
       "toggle": "Geen cv bij de hand? Gebruik dan een export van je LinkedIn-profiel",
       "step1": "Ga naar je LinkedIn-profiel",
-      "step2": "Klik op de knop \"Meer\" (•••) naast je naam en daarna op \"Opslaan als PDF\"",
+      "step2": "Klik op de drie puntjes (•••) naast je naam en daarna op \"Opslaan als PDF\"",
       "step3": "Upload de gedownloade PDF hier",
-      "imageAlt": "LinkedIn-profielmenu met de optie Opslaan als PDF",
+      "imageAlt": "LinkedIn-profielmenu (drie puntjes) met de optie Opslaan als PDF",
+      "imageSrc": "/uploads/linkedin-save-to-pdf-menu-nl.png",
       "note": "Op sommige profielen zit dit onder een knop \"Bronnen\". Een LinkedIn-export bevat meestal je meest actuele werkervaring.",
       "apology": "We zouden graag een LinkedIn-import met één klik aanbieden. Het platform van LinkedIn staat dat niet toe, dus deze exportstap is de enige manier."
     },

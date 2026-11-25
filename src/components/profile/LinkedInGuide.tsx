@@ -37,8 +37,8 @@ export const LinkedInGuide = () => {
                   2
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium">Open the "More" (•••) menu</p>
-                  <p className="text-gray-600">Click the "More" (•••) button near your name (some profiles label it "Resources")</p>
+                  <p className="font-medium">Open the three-dots (•••) menu</p>
+                  <p className="text-gray-600">Click the three dots (•••) next to your name</p>
                 </div>
               </div>
               
@@ -55,8 +55,8 @@ export const LinkedInGuide = () => {
 
             <div className="mt-4 p-3 bg-white rounded border">
               <img 
-                src="/uploads/linkedin-save-to-pdf-more-menu.png"
-                alt="LinkedIn profile More menu showing the Save to PDF option"
+                src="/uploads/linkedin-save-to-pdf-menu-en.png"
+                alt="LinkedIn profile three-dots menu showing the Save to PDF option"
                 className="w-full max-w-sm mx-auto rounded shadow-sm"
               />
             </div>
