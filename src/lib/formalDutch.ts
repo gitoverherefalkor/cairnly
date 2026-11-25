@@ -39,7 +39,7 @@ export function applyFlavorHintFromUrl(): void {
  * Namespaces with a nl-formal override file. `coach` overrides only the UI
  * chrome (dashboard card, headers, notices).
  */
-export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment', 'coach', 'chat'];
+export const FORMAL_NAMESPACES = ['auth', 'common', 'dashboard', 'survey', 'report', 'payment', 'coach', 'chat', 'jobs'];
 
 export function isFormalDutchOn(): boolean {
   try {
