@@ -512,5 +512,94 @@
       "init_summary": "Overview",
       "executive_summary": "Executive Summary"
     }
+  },
+  "profilePage": {
+    "pageLabel": "Profile settings",
+    "backToDashboard": "Back to dashboard",
+    "eyebrow": "Your account",
+    "title": "Profile settings",
+    "intro": "Manage what we know about you, how we email you, and your data.",
+    "resume": {
+      "title": "Resume / CV status",
+      "uploaded": "Resume uploaded successfully",
+      "uploadedOn": "Uploaded on {{date}}",
+      "remove": "Remove",
+      "none": "No resume uploaded",
+      "noneHint": "Upload one here, or do it when starting your next Cairnly Assessment for automatic pre-filling.",
+      "uploadTitle": "Upload résumé",
+      "uploadDescription": "PDF only. Used to pre-fill your assessment and to tailor résumés for selected careers."
+    },
+    "personal": {
+      "title": "Personal information",
+      "firstName": "First name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Enter your last name",
+      "email": "Email address",
+      "emailHint": "Email cannot be changed from this page",
+      "signInMethod": "Sign-in method",
+      "emailPassword": "Email/Password",
+      "signInHint": "The authentication method used to create your account",
+      "country": "Country",
+      "countryPlaceholder": "Enter your country",
+      "countryHint": "From payment form",
+      "region": "Region",
+      "regionPlaceholder": "No region set",
+      "regionHint": "From survey Section 1",
+      "pronouns": "Pronouns",
+      "pronounsPlaceholder": "Select your pronouns",
+      "pronounOptions": {
+        "heHim": "he/him",
+        "sheHer": "she/her",
+        "theyThem": "they/them",
+        "other": "Other",
+        "preferNot": "Prefer not to say"
+      },
+      "ageRange": "Age range",
+      "ageRangePlaceholder": "Select your age range",
+      "saving": "Saving...",
+      "save": "Save changes"
+    },
+    "emailPrefs": {
+      "title": "Email preferences",
+      "reminders": "Email reminders",
+      "remindersHint": "Receive helpful reminders to continue your assessment and explore your career insights"
+    },
+    "data": {
+      "title": "Your data",
+      "bodyBefore": "You have the right to download a copy of all your personal data, or request its permanent deletion. See our",
+      "privacyLink": "Privacy Policy",
+      "bodyAfter": " for more details.",
+      "exporting": "Exporting...",
+      "download": "Download my data"
+    },
+    "delete": {
+      "title": "Delete account",
+      "body": "Permanently delete your account and all associated data including assessment results, career reports, chat history, and uploaded documents. This action cannot be undone.",
+      "button": "Delete my account",
+      "confirmTitle": "Are you sure? This will permanently delete:",
+      "items": {
+        "profile": "Your profile and personal information",
+        "responses": "All assessment responses",
+        "reports": "Career reports and recommendations",
+        "chat": "Chat conversation history",
+        "files": "Uploaded resume/CV files"
+      },
+      "confirmNote": "This cannot be undone. You will be signed out immediately.",
+      "deleting": "Deleting...",
+      "confirmButton": "Yes, delete everything"
+    },
+    "toasts": {
+      "exported": "Data exported",
+      "exportedDesc": "Your data has been downloaded as a JSON file.",
+      "exportFailed": "Export failed",
+      "exportFailedDesc": "Something went wrong. Please try again or contact support.",
+      "deleteFailed": "Deletion failed",
+      "deleteFailedDesc": "Something went wrong. Please contact support at privacy@cairnly.io",
+      "updated": "Profile updated",
+      "updatedDesc": "Your profile has been updated successfully.",
+      "updateFailed": "Error",
+      "updateFailedDesc": "Failed to update profile. Please try again."
+    }
   }
 }

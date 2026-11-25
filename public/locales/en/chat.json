@@ -204,5 +204,33 @@
     "unconventional_other": "{{count}} unconventional paths",
     "dreamJobs_one": "{{count}} dream job",
     "dreamJobs_other": "{{count}} dream jobs"
+  },
+  "closing": {
+    "title": "Session complete!",
+    "titleNamed": "Session complete, {{name}}!",
+    "thanks": "Thank you for completing your Cairnly Career Assessment!",
+    "saved": "Your session is complete. All your feedback and insights from our conversation have been securely saved and are being incorporated into your final report.",
+    "nextTitle": "What happens next?",
+    "next1": "Your final report will be available in your dashboard shortly",
+    "next2": "You'll receive an email notification when it's ready",
+    "next3": "All your feedback and report content is stored securely",
+    "noteTitle": "Please note:",
+    "note": "This chat conversation won't be preserved for privacy reasons, but your assessment results and all feedback you provided have been saved and will be reflected in your final report.",
+    "howToLead": "A note on how to use this:",
+    "howTo": "our recommendations are exploratory guidance, not definitive answers. Use this as a reflection tool alongside your own experience and ongoing career exploration.",
+    "viewReport": "View final report",
+    "toDashboard": "Return to dashboard"
+  },
+  "noReport": {
+    "title": "No report available",
+    "body": "Complete your assessment to start chatting with your AI career coach.",
+    "cta": "Go to dashboard"
+  },
+  "misc": {
+    "loadingCoach": "Loading your career coach...",
+    "emptyThread": "Send a message to start your session",
+    "otherHint": "Tell us what you mean in the text field below.",
+    "retry": "Retry sending this message",
+    "cancelAskRole": "Cancel asking about this role"
   }
 }

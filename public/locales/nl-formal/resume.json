@@ -1,0 +1,9 @@
+{
+  "uploadCard": {
+    "toastFailedDesc": "We konden uw cv niet verwerken. U kunt gewoon handmatig verder.",
+    "pdfOnlyDesc": "Upload uw cv als pdf. Tip: kies in Word \"Opslaan als\" en dan pdf.",
+    "processing": "Uw document wordt verwerkt...",
+    "uploadPrompt": "Upload uw document",
+    "defaultDescription": "Upload uw cv als pdf."
+  }
+}

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileDown, LayoutDashboard, Info, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import atlasFigure from '@/logos/live/cairnly_logo_symbol_only.png';
 
 interface ClosingCardProps {
@@ -11,6 +12,7 @@ interface ClosingCardProps {
 
 export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('chat');
 
   const handleDownloadReport = () => {
     // Navigate to dashboard where the report can be downloaded
@@ -29,36 +31,36 @@ export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
         <CardHeader className="text-center pb-4">
           <img src={atlasFigure} alt="Cairnly" className="mx-auto mb-4 h-40 w-auto" />
           <CardTitle className="text-2xl font-bold text-atlas-navy">
-            Session Complete{firstName ? `, ${firstName}` : ''}!
+            {firstName ? t('closing.titleNamed', { name: firstName }) : t('closing.title')}
           </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6 text-center">
           <p className="text-lg text-gray-700 leading-relaxed">
-            Thank you for completing your Cairnly Career Assessment!
+            {t('closing.thanks')}
           </p>
 
           <p className="text-gray-700 leading-relaxed">
-            Your session is complete. All your feedback and insights from our conversation have been securely saved and are being incorporated into your final report.
+            {t('closing.saved')}
           </p>
 
           <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-r-lg text-left">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
               <div className="space-y-3">
-                <p className="font-semibold text-green-900">What happens next?</p>
+                <p className="font-semibold text-green-900">{t('closing.nextTitle')}</p>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">•</span>
-                    <span>Your final report will be available in your dashboard shortly</span>
+                    <span>{t('closing.next1')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">•</span>
-                    <span>You'll receive an email notification when it's ready</span>
+                    <span>{t('closing.next2')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">•</span>
-                    <span>All your feedback and report content is stored securely</span>
+                    <span>{t('closing.next3')}</span>
                   </li>
                 </ul>
               </div>
@@ -69,9 +71,9 @@ export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
               <div className="space-y-2">
-                <p className="font-semibold text-amber-900">Please note:</p>
+                <p className="font-semibold text-amber-900">{t('closing.noteTitle')}</p>
                 <p className="text-sm text-gray-700">
-                  This chat conversation won't be preserved for privacy reasons, but your assessment results and all feedback you provided have been saved and will be reflected in your final report.
+                  {t('closing.note')}
                 </p>
               </div>
             </div>
@@ -79,7 +81,7 @@ export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
 
           <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg text-left">
             <p className="text-sm text-gray-700 leading-relaxed">
-              <strong>A note on how to use this:</strong> our recommendations are exploratory guidance, not definitive answers. Use this as a reflection tool alongside your own experience and ongoing career exploration.
+              <strong>{t('closing.howToLead')}</strong> {t('closing.howTo')}
             </p>
           </div>
 
@@ -90,7 +92,7 @@ export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
               className="bg-gradient-to-r from-atlas-blue to-atlas-teal text-white hover:opacity-90 transition-opacity px-6 py-6 text-base font-semibold"
             >
               <FileDown className="h-5 w-5 mr-2" />
-              View Final Report
+              {t('closing.viewReport')}
             </Button>
             <Button
               onClick={handleReturnToDashboard}
@@ -99,7 +101,7 @@ export const ClosingCard: React.FC<ClosingCardProps> = ({ firstName }) => {
               className="border-2 border-atlas-navy text-atlas-navy hover:bg-atlas-navy hover:text-white px-6 py-6 text-base font-semibold"
             >
               <LayoutDashboard className="h-5 w-5 mr-2" />
-              Return to Dashboard
+              {t('closing.toDashboard')}
             </Button>
           </div>
         </CardContent>

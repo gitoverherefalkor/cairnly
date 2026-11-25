@@ -470,7 +470,7 @@ const Chat = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-atlas-blue" />
-          <p className="text-gray-600">Loading your career coach...</p>
+          <p className="text-gray-600">{t('misc.loadingCoach')}</p>
         </div>
       </div>
     );
@@ -482,13 +482,13 @@ const Chat = () => {
         <Card className="max-w-md w-full mx-4">
           <CardContent className="text-center p-8">
             <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h1 className="text-xl font-bold mb-2">No Report Available</h1>
+            <h1 className="text-xl font-bold mb-2">{t('noReport.title')}</h1>
             <p className="text-gray-600 mb-6">
-              Complete your assessment to start chatting with your AI career coach.
+              {t('noReport.body')}
             </p>
             <Button onClick={() => navigate('/dashboard', { state: { fromChat: true } })} className="w-full">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Go to Dashboard
+              {t('noReport.cta')}
             </Button>
           </CardContent>
         </Card>

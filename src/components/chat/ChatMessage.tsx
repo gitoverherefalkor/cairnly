@@ -1207,8 +1207,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({
           <button
             type="button"
             onClick={() => onRetry(messageId)}
-            title="Retry sending this message"
-            aria-label="Retry sending this message"
+            title={t('misc.retry')}
+            aria-label={t('misc.retry')}
             className="text-gray-400 hover:text-atlas-teal transition-colors p-1 rounded-full"
           >
             <RotateCw size={14} />

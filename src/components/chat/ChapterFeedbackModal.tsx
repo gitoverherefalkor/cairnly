@@ -283,7 +283,7 @@ export const ChapterFeedbackModal: React.FC<ChapterFeedbackModalProps> = ({
               </div>
               {quality.includes('other') && (
                 <p className="mt-2 text-xs text-indigo-600">
-                  Tell us what you mean in the text field below.
+                  {t('misc.otherHint')}
                 </p>
               )}
             </div>

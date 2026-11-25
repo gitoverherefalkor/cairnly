@@ -93,7 +93,9 @@ const helperCls = 'text-[11.5px] font-medium mt-1.5';
 const helperStyle = { color: '#6B7F8B' };
 
 const Profile = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation(['dashboard', 'common']);
+  // All page copy lives under dashboard:profilePage (Encore "u" via nl-formal/dashboard.json)
+  const tp = (key: string, opts?: Record<string, unknown>) => t(`profilePage.${key}`, opts);
   const { user } = useAuth();
   const { profile, updateProfile, isUpdating } = useProfile();
   // Survey-derived fallbacks for fields that already exist as Section 1 answers
@@ -164,12 +166,12 @@ const Profile = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({ title: 'Data exported', description: 'Your data has been downloaded as a JSON file.' });
+      toast({ title: tp('toasts.exported'), description: tp('toasts.exportedDesc') });
     } catch (err: any) {
       console.error('Export error:', err);
       toast({
-        title: 'Export failed',
-        description: 'Something went wrong. Please try again or contact support.',
+        title: tp('toasts.exportFailed'),
+        description: tp('toasts.exportFailedDesc'),
         variant: 'destructive',
       });
     } finally {
@@ -189,8 +191,8 @@ const Profile = () => {
     } catch (err: any) {
       console.error('Delete error:', err);
       toast({
-        title: 'Deletion failed',
-        description: 'Something went wrong. Please contact support at privacy@cairnly.io',
+        title: tp('toasts.deleteFailed'),
+        description: tp('toasts.deleteFailedDesc'),
         variant: 'destructive',
       });
       setIsDeleting(false);
@@ -221,11 +223,11 @@ const Profile = () => {
       {/* Sticky cream top nav — same pattern as /dashboard, /jobs, /chat */}
       <DashboardAppNav
         firstName={firstName}
-        pageLabel="Profile Settings"
+        pageLabel={tp('pageLabel')}
         onProfile={() => {/* already on profile */}}
         onSignOut={handleSignOut}
         onBack={() => navigate('/dashboard')}
-        backLabel="Back to dashboard"
+        backLabel={tp('backToDashboard')}
       />
 
       <div className="max-w-[880px] mx-auto px-6 sm:px-8 pt-10 pb-20">
@@ -235,7 +237,7 @@ const Profile = () => {
             className="font-heading uppercase text-[11px]"
             style={{ color: '#EFBE48', letterSpacing: '0.24em', fontWeight: 700 }}
           >
-            Your Account
+            {tp('eyebrow')}
           </span>
           <h1
             className="font-heading text-white m-0 mt-2.5"
@@ -246,20 +248,20 @@ const Profile = () => {
               lineHeight: 1.05,
             }}
           >
-            Profile settings
+            {tp('title')}
           </h1>
           <p
             className="text-[15px] mt-1.5 max-w-xl"
             style={{ color: 'rgba(255,255,255,0.65)', fontWeight: 500, lineHeight: 1.5 }}
           >
-            Manage what we know about you, how we email you, and your data.
+            {tp('intro')}
           </p>
         </div>
 
         {/* Cards stack */}
         <div className="flex flex-col gap-[18px]">
           {/* ----- Resume Status ----- */}
-          <ProfileCard icon={FileText} title="Resume / CV status">
+          <ProfileCard icon={FileText} title={tp('resume.title')}>
             {profile?.resume_uploaded_at ? (
               <>
                 <div className="flex items-center gap-3.5">
@@ -274,10 +276,10 @@ const Profile = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
-                      Resume uploaded successfully
+                      {tp('resume.uploaded')}
                     </p>
                     <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
-                      Uploaded on {formatDate(profile.resume_uploaded_at, i18n.language)}
+                      {tp('resume.uploadedOn', { date: formatDate(profile.resume_uploaded_at, i18n.language) })}
                     </p>
                   </div>
                   <Button
@@ -317,7 +319,7 @@ const Profile = () => {
                       }
                     }}
                   >
-                    Remove
+                    {tp('resume.remove')}
                   </Button>
                 </div>
               </>
@@ -332,10 +334,10 @@ const Profile = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-[14.5px] font-bold" style={{ color: '#122E3B' }}>
-                      No resume uploaded
+                      {tp('resume.none')}
                     </p>
                     <p className="text-[12.5px] font-medium mt-0.5" style={{ color: '#6B7F8B' }}>
-                      Upload one here, or do it when starting your next Cairnly Assessment for automatic pre-filling.
+                      {tp('resume.noneHint')}
                     </p>
                   </div>
                 </div>
@@ -345,8 +347,8 @@ const Profile = () => {
                     the profile and lands the file in the resumes bucket. */}
                 <div className="mt-4">
                   <ResumeUploadCard
-                    title="Upload résumé"
-                    description="PDF, Word (.doc, .docx), or plain text. Used to pre-fill your assessment and to tailor résumés for selected careers."
+                    title={tp('resume.uploadTitle')}
+                    description={tp('resume.uploadDescription')}
                     showSuccessMessage
                     onProcessingComplete={() => {
                       // Reload so the card flips to the "uploaded" state.
@@ -359,31 +361,31 @@ const Profile = () => {
           </ProfileCard>
 
           {/* ----- Personal Information ----- */}
-          <ProfileCard icon={User} title="Personal information">
+          <ProfileCard icon={User} title={tp('personal.title')}>
             <form onSubmit={handleSubmit}>
               {/* First + Last */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-4">
                 <div>
                   <label htmlFor="first_name" className={labelCls} style={labelStyle}>
-                    First Name
+                    {tp('personal.firstName')}
                   </label>
                   <Input
                     id="first_name"
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
-                    placeholder="Enter your first name"
+                    placeholder={tp('personal.firstNamePlaceholder')}
                     className={inputCls}
                   />
                 </div>
                 <div>
                   <label htmlFor="last_name" className={labelCls} style={labelStyle}>
-                    Last Name
+                    {tp('personal.lastName')}
                   </label>
                   <Input
                     id="last_name"
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
-                    placeholder="Enter your last name"
+                    placeholder={tp('personal.lastNamePlaceholder')}
                     className={inputCls}
                   />
                 </div>
@@ -392,7 +394,7 @@ const Profile = () => {
               {/* Email (disabled) */}
               <div className="mb-4">
                 <label htmlFor="email" className={labelCls} style={labelStyle}>
-                  Email Address
+                  {tp('personal.email')}
                 </label>
                 <Input
                   id="email"
@@ -402,14 +404,14 @@ const Profile = () => {
                   className={inputDisabledCls}
                 />
                 <p className={helperCls} style={helperStyle}>
-                  Email cannot be changed from this page
+                  {tp('personal.emailHint')}
                 </p>
               </div>
 
               {/* Sign-in Method (disabled) */}
               <div className="mb-4">
                 <label htmlFor="auth_provider" className={labelCls} style={labelStyle}>
-                  Sign-in Method
+                  {tp('personal.signInMethod')}
                 </label>
                 <Input
                   id="auth_provider"
@@ -418,15 +420,13 @@ const Profile = () => {
                       ? 'Google'
                       : profile?.auth_provider === 'linkedin_oidc'
                         ? 'LinkedIn'
-                        : profile?.auth_provider === 'email'
-                          ? 'Email/Password'
-                          : 'Email/Password'
+                        : tp('personal.emailPassword')
                   }
                   disabled
                   className={inputDisabledCls}
                 />
                 <p className={helperCls} style={helperStyle}>
-                  The authentication method used to create your account
+                  {tp('personal.signInHint')}
                 </p>
               </div>
 
@@ -434,32 +434,32 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mb-4">
                 <div>
                   <label htmlFor="country" className={labelCls} style={labelStyle}>
-                    Country
+                    {tp('personal.country')}
                   </label>
                   <Input
                     id="country"
                     value={formData.country}
                     onChange={(e) => handleInputChange('country', e.target.value)}
-                    placeholder="Enter your country"
+                    placeholder={tp('personal.countryPlaceholder')}
                     className={inputCls}
                   />
                   <p className={helperCls} style={helperStyle}>
-                    From payment form
+                    {tp('personal.countryHint')}
                   </p>
                 </div>
                 <div>
                   <label htmlFor="region" className={labelCls} style={labelStyle}>
-                    Region
+                    {tp('personal.region')}
                   </label>
                   <Input
                     id="region"
                     value={formData.region}
                     disabled
                     className={inputDisabledCls}
-                    placeholder="No region set"
+                    placeholder={tp('personal.regionPlaceholder')}
                   />
                   <p className={helperCls} style={helperStyle}>
-                    From survey Section 1
+                    {tp('personal.regionHint')}
                   </p>
                 </div>
               </div>
@@ -467,21 +467,21 @@ const Profile = () => {
               {/* Pronouns */}
               <div className="mb-4" style={{ width: '40%', minWidth: 200 }}>
                 <label htmlFor="pronouns" className={labelCls} style={labelStyle}>
-                  Pronouns
+                  {tp('personal.pronouns')}
                 </label>
                 <Select
                   value={formData.pronouns}
                   onValueChange={(value) => handleInputChange('pronouns', value)}
                 >
                   <SelectTrigger className={inputCls}>
-                    <SelectValue placeholder="Select your pronouns" />
+                    <SelectValue placeholder={tp('personal.pronounsPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="he/him">he/him</SelectItem>
-                    <SelectItem value="she/her">she/her</SelectItem>
-                    <SelectItem value="they/them">they/them</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                    <SelectItem value="he/him">{tp('personal.pronounOptions.heHim')}</SelectItem>
+                    <SelectItem value="she/her">{tp('personal.pronounOptions.sheHer')}</SelectItem>
+                    <SelectItem value="they/them">{tp('personal.pronounOptions.theyThem')}</SelectItem>
+                    <SelectItem value="other">{tp('personal.pronounOptions.other')}</SelectItem>
+                    <SelectItem value="prefer-not-to-say">{tp('personal.pronounOptions.preferNot')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -489,14 +489,14 @@ const Profile = () => {
               {/* Age Range */}
               <div style={{ width: '40%', minWidth: 200 }}>
                 <label htmlFor="age_range" className={labelCls} style={labelStyle}>
-                  Age Range
+                  {tp('personal.ageRange')}
                 </label>
                 <Select
                   value={formData.age_range}
                   onValueChange={(value) => handleInputChange('age_range', value)}
                 >
                   <SelectTrigger className={inputCls}>
-                    <SelectValue placeholder="Select your age range" />
+                    <SelectValue placeholder={tp('personal.ageRangePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="18-24">18-24</SelectItem>
@@ -522,12 +522,12 @@ const Profile = () => {
                   {isUpdating ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
+                      {tp('personal.saving')}
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                      {tp('personal.save')}
                     </>
                   )}
                 </Button>
@@ -536,17 +536,17 @@ const Profile = () => {
           </ProfileCard>
 
           {/* ----- Email Preferences ----- */}
-          <ProfileCard icon={Bell} title="Email preferences">
+          <ProfileCard icon={Bell} title={tp('emailPrefs.title')}>
             <div className="flex items-center justify-between gap-6">
               <div>
                 <p className="text-[14px] font-bold" style={{ color: '#122E3B' }}>
-                  Email Reminders
+                  {tp('emailPrefs.reminders')}
                 </p>
                 <p
                   className="text-[13px] font-medium mt-1 max-w-md"
                   style={{ color: '#6B7F8B', lineHeight: 1.5 }}
                 >
-                  Receive helpful reminders to continue your assessment and explore your career insights
+                  {tp('emailPrefs.remindersHint')}
                 </p>
               </div>
               <Switch
@@ -573,18 +573,18 @@ const Profile = () => {
           </ProfileCard>
 
           {/* ----- Your Data (GDPR) ----- */}
-          <ProfileCard icon={Shield} title="Your data">
+          <ProfileCard icon={Shield} title={tp('data.title')}>
             <p className="text-[14px] font-medium mb-4" style={{ color: '#1F2937', lineHeight: 1.6 }}>
-              You have the right to download a copy of all your personal data, or request its
-              permanent deletion. See our{' '}
+              {tp('data.bodyBefore')}{' '}
               <a
                 href="/privacy-policy"
                 className="underline hover:opacity-80"
                 style={{ color: '#1F8282' }}
               >
-                Privacy Policy
-              </a>{' '}
-              for more details.
+                {tp('data.privacyLink')}
+              </a>
+              {/* bodyAfter carries its own leading space where the language needs one */}
+              {tp('data.bodyAfter')}
             </p>
             <Button
               variant="outline"
@@ -596,25 +596,23 @@ const Profile = () => {
               {isExporting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Exporting...
+                  {tp('data.exporting')}
                 </>
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Download My Data
+                  {tp('data.download')}
                 </>
               )}
             </Button>
           </ProfileCard>
 
           {/* ----- Delete Account ----- */}
-          <ProfileCard icon={Trash2} title="Delete account" danger>
+          <ProfileCard icon={Trash2} title={tp('delete.title')} danger>
             {!showDeleteConfirm ? (
               <>
                 <p className="text-[14px] font-medium mb-4" style={{ color: '#1F2937', lineHeight: 1.6 }}>
-                  Permanently delete your account and all associated data including assessment
-                  results, career reports, chat history, and uploaded documents. This action
-                  cannot be undone.
+                  {tp('delete.body')}
                 </p>
                 <Button
                   variant="outline"
@@ -623,7 +621,7 @@ const Profile = () => {
                   onClick={() => setShowDeleteConfirm(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete My Account
+                  {tp('delete.button')}
                 </Button>
               </>
             ) : (
@@ -635,20 +633,20 @@ const Profile = () => {
                 }}
               >
                 <p className="text-[14px] font-bold mb-3" style={{ color: '#991B1B' }}>
-                  Are you sure? This will permanently delete:
+                  {tp('delete.confirmTitle')}
                 </p>
                 <ul
                   className="list-disc pl-[22px] text-[13.5px] font-medium mb-3.5"
                   style={{ color: '#B91C1C', lineHeight: 1.8 }}
                 >
-                  <li>Your profile and personal information</li>
-                  <li>All assessment responses</li>
-                  <li>Career reports and recommendations</li>
-                  <li>Chat conversation history</li>
-                  <li>Uploaded resume/CV files</li>
+                  <li>{tp('delete.items.profile')}</li>
+                  <li>{tp('delete.items.responses')}</li>
+                  <li>{tp('delete.items.reports')}</li>
+                  <li>{tp('delete.items.chat')}</li>
+                  <li>{tp('delete.items.files')}</li>
                 </ul>
                 <p className="text-[13.5px] font-bold mb-4" style={{ color: '#991B1B' }}>
-                  This cannot be undone. You will be signed out immediately.
+                  {tp('delete.confirmNote')}
                 </p>
                 <div className="flex gap-2.5 flex-wrap">
                   <Button
@@ -658,7 +656,7 @@ const Profile = () => {
                     className="rounded-full bg-transparent font-bold text-[13px]"
                     style={{ color: '#4B6373', borderColor: 'rgba(75,99,115,0.3)' }}
                   >
-                    Cancel
+                    {t('common:buttons.cancel')}
                   </Button>
                   <Button
                     onClick={handleDeleteAccount}
@@ -669,12 +667,12 @@ const Profile = () => {
                     {isDeleting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Deleting...
+                        {tp('delete.deleting')}
                       </>
                     ) : (
                       <>
                         <Trash2 className="h-3.5 w-3.5 mr-2" />
-                        Yes, Delete Everything
+                        {tp('delete.confirmButton')}
                       </>
                     )}
                   </Button>

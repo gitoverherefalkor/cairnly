@@ -212,5 +212,46 @@
       "top_career_3": "Derde richting",
       "dream_jobs": "Uw idee"
     }
+  },
+  "profilePage": {
+    "eyebrow": "Uw account",
+    "intro": "Beheer wat we over u weten, hoe we u mailen en wat we met uw gegevens doen.",
+    "resume": {
+      "noneHint": "Upload er hier een, of doe het bij de start van een nieuwe vragenlijst. Dan vullen we uw antwoorden alvast in.",
+      "uploadDescription": "Alleen pdf. We gebruiken uw cv om uw vragenlijst alvast in te vullen."
+    },
+    "personal": {
+      "firstNamePlaceholder": "Vul uw voornaam in",
+      "lastNamePlaceholder": "Vul uw achternaam in",
+      "emailHint": "Uw e-mailadres kunt u hier niet wijzigen",
+      "signInHint": "Hiermee hebt u uw account aangemaakt",
+      "countryPlaceholder": "Vul uw land in",
+      "pronounsPlaceholder": "Kies uw voornaamwoorden",
+      "ageRangePlaceholder": "Kies uw leeftijdsgroep"
+    },
+    "emailPrefs": {
+      "remindersHint": "Ontvang af en toe een herinnering om verder te gaan met uw vragenlijst en uw rapport te bekijken"
+    },
+    "data": {
+      "title": "Uw gegevens",
+      "bodyBefore": "U hebt het recht om een kopie van al uw persoonsgegevens te downloaden, of ze definitief te laten verwijderen. Meer hierover leest u in ons"
+    },
+    "delete": {
+      "body": "Verwijder uw account en alle bijbehorende gegevens definitief, inclusief resultaten, rapporten, chatgeschiedenis en geüploade documenten. Dit kan niet ongedaan worden gemaakt.",
+      "confirmTitle": "Weet u het zeker? Dit verwijdert definitief:",
+      "items": {
+        "profile": "Uw profiel en persoonlijke gegevens",
+        "responses": "Al uw antwoorden op de vragenlijst",
+        "reports": "Rapporten en aanbevelingen",
+        "chat": "Uw chatgeschiedenis"
+      },
+      "confirmNote": "Dit kan niet ongedaan worden gemaakt. U wordt direct uitgelogd."
+    },
+    "toasts": {
+      "exportedDesc": "Uw gegevens zijn gedownload als JSON-bestand.",
+      "exportFailedDesc": "Er ging iets mis. Probeer het opnieuw of neem contact met ons op.",
+      "updatedDesc": "Uw profiel is opgeslagen.",
+      "updateFailedDesc": "Uw profiel kon niet worden opgeslagen. Probeer het opnieuw."
+    }
   }
 }

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { isChunkLoadError } from '@/lib/lazyWithRetry';
+import i18n from '@/i18n';
+
+// Class component, so no hook: read the shared i18n instance, English fallback.
+const tr = (key: string, fallback: string) => i18n.t(`common:errorScreen.${key}`, { defaultValue: fallback });
 
 /**
  * Error boundary that catches failed lazy-loaded chunks and reloads the page.
@@ -73,8 +77,8 @@ export class ChunkLoadErrorBoundary extends React.Component<Props, State> {
       return (
         this.props.fallback ?? (
           <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-3">Something went wrong</h2>
-            <p className="text-muted-foreground mb-6">Please refresh the page to continue.</p>
+            <h2 className="text-2xl font-bold text-foreground mb-3">{tr('title', 'Something went wrong')}</h2>
+            <p className="text-muted-foreground mb-6">{tr('refreshHint', 'Please refresh the page to continue.')}</p>
             <button
               onClick={() => {
                 sessionStorage.removeItem(RELOAD_TS_KEY);
@@ -82,7 +86,7 @@ export class ChunkLoadErrorBoundary extends React.Component<Props, State> {
               }}
               className="px-6 py-3 bg-[#27A1A1] hover:bg-[#1f8282] text-white rounded-full font-bold"
             >
-              Refresh
+              {tr('refresh', 'Refresh')}
             </button>
           </div>
         )

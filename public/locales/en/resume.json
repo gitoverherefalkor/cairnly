@@ -48,5 +48,30 @@
       "allDone": "All wins applied. This résumé now reads as unmistakably yours.",
       "close": "Close"
     }
+  },
+  "uploadCard": {
+    "toastSuccess": "Resume uploaded successfully! ✅",
+    "toastSuccessDesc": "Pre-filled {{count}} survey questions from {{file}}.",
+    "toastFailed": "Processing failed",
+    "toastFailedDesc": "We could not process your resume. You can continue manually.",
+    "pdfOnly": "PDF files only",
+    "pdfOnlyDesc": "Please upload your resume as a PDF. Tip: in Word, use \"Save As\" and choose PDF.",
+    "tooLarge": "File too large",
+    "tooLargeDesc": "Please upload a file smaller than 10MB.",
+    "processed": " - Successfully processed ✓",
+    "processingShort": " - Processing...",
+    "processing": "Processing your document...",
+    "readError": "We couldn't read that file",
+    "readErrorDesc": "Please make sure it's a PDF and try again.",
+    "tryOther": "Try a different file",
+    "success": "Resume uploaded successfully!",
+    "prefilled": "Pre-filled {{count}} survey questions",
+    "tailorReady": "Ready to use for tailored résumé generation",
+    "uploadPrompt": "Upload your document",
+    "limits": "PDF files only, up to 10MB",
+    "autoStart": "Processing will start automatically after upload",
+    "select": "Select file",
+    "defaultTitle": "Resume upload",
+    "defaultDescription": "Upload your resume as a PDF."
   }
 }
