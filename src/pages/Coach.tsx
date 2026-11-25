@@ -217,8 +217,10 @@ const Coach: React.FC = () => {
   // anything sitting straight on the canvas needs a cream card (bg-white) or
   // light text, and pills use .ask-pill so they stay white like in the chat.
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen flex flex-col">
+      {/* Same cairn-trail photo backdrop as the first chat (/chat). */}
+      <div className="fixed inset-0 survey-bg" aria-hidden="true" />
+      <header className="relative bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <button
             type="button"
@@ -238,7 +240,7 @@ const Coach: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 grid gap-6 md:grid-cols-[1fr_260px]">
+      <div className="relative flex-1 max-w-5xl w-full mx-auto px-4 py-6 grid gap-6 md:grid-cols-[1fr_260px]">
         <main className="flex flex-col min-h-[60vh]">
           {showNotice && (
             <div className="mb-4 rounded-lg border border-l-4 !border-l-atlas-teal bg-white p-4 text-sm text-gray-700 flex gap-3">
