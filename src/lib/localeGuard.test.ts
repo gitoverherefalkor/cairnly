@@ -10,7 +10,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { FORMAL_NAMESPACES } from './formalDutch';
+import { FORMAL_NAMESPACES, deepMerge } from './formalDutch';
 
 const LOCALES = join(process.cwd(), 'public/locales');
 const read = (lng: string, ns: string) => JSON.parse(readFileSync(join(LOCALES, lng, ns), 'utf-8'));
@@ -40,6 +40,29 @@ describe('locale files', () => {
     expect(FORMAL_NAMESPACES).toContain(ns.replace('.json', ''));
     const nl = new Set(keyPaths(read('nl', ns)));
     expect(keyPaths(read('nl-formal', ns)).filter((k) => !nl.has(k))).toEqual([]);
+  });
+
+  // An Encore user sees nl + the nl-formal override. Any "je/jij" string that
+  // the override forgets leaks through (the coach greeting did, 2026-11-25).
+  // Pro/Starter-only dashboard copy is never shown to Encore users.
+  const PRO_STARTER_ONLY = /^entry\.(flavors\.(pro|starter)|sections\.starter)\./;
+  const INFORMAL = /\b(je|jij|jou|jouw|jezelf|jullie)\b/i;
+
+  function strings(value: unknown, prefix = ''): [string, string][] {
+    if (value && typeof value === 'object') {
+      return Object.entries(value as Record<string, unknown>).flatMap(([k, v]) =>
+        strings(v, prefix ? `${prefix}.${k}` : k),
+      );
+    }
+    return typeof value === 'string' ? [[prefix, value]] : [];
+  }
+
+  it.each(formalFiles)('nl-formal/%s leaves no "je/jij" for Encore users', (ns) => {
+    const merged = deepMerge(read('nl', ns), read('nl-formal', ns));
+    const leaks = strings(merged)
+      .filter(([k, v]) => !PRO_STARTER_ONLY.test(k) && INFORMAL.test(v))
+      .map(([k]) => k);
+    expect(leaks).toEqual([]);
   });
 });
 

@@ -213,9 +213,14 @@ const Coach: React.FC = () => {
 
   const shown = opener ? [opener, ...messages] : messages;
 
+  // The app runs on the navy canvas with cream cards (see .dark in index.css):
+  // anything sitting straight on the canvas needs a cream card (bg-white) or
+  // light text, and pills use .ask-pill so they stay white like in the chat.
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen flex flex-col">
+      {/* Same cairn-trail photo backdrop as the first chat (/chat). */}
+      <div className="fixed inset-0 survey-bg" aria-hidden="true" />
+      <header className="relative bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <button
             type="button"
@@ -226,8 +231,8 @@ const Coach: React.FC = () => {
             {t('header.back')}
           </button>
           <div className="text-center">
-            <h1 className="font-heading font-semibold text-atlas-navy">{t('header.title')}</h1>
-            <p className="text-xs text-gray-500">{t('header.subtitle')}</p>
+            <h1 className="font-heading font-semibold text-atlas-navy whitespace-nowrap">{t('header.title')}</h1>
+            <p className="hidden sm:block text-xs text-gray-500">{t('header.subtitle')}</p>
           </div>
           <span className="text-xs font-medium text-gray-600 whitespace-nowrap" title={t('counter.tooltip', { date: resetLabel })}>
             {t('counter.left', { remaining, limit: COACH_MONTHLY_LIMIT })}
@@ -235,10 +240,10 @@ const Coach: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 grid gap-6 md:grid-cols-[1fr_260px]">
+      <div className="relative flex-1 max-w-5xl w-full mx-auto px-4 py-6 grid gap-6 md:grid-cols-[1fr_260px]">
         <main className="flex flex-col min-h-[60vh]">
           {showNotice && (
-            <div className="mb-4 rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4 text-sm text-gray-700 flex gap-3">
+            <div className="mb-4 rounded-lg border border-l-4 !border-l-atlas-teal bg-white p-4 text-sm text-gray-700 flex gap-3">
               <div className="flex-1">
                 <p className="font-medium text-atlas-navy mb-1">{t('notice.title')}</p>
                 <p>{t('notice.body')}</p>
@@ -284,7 +289,7 @@ const Coach: React.FC = () => {
                     setInput(t(`starters.${k}`));
                     inputRef.current?.focus();
                   }}
-                  className="rounded-full border border-atlas-teal text-atlas-teal px-3.5 py-1.5 text-sm hover:bg-atlas-teal hover:text-white transition-colors"
+                  className="ask-pill rounded-full border border-atlas-teal text-atlas-teal px-3.5 py-1.5 text-sm font-medium shadow-md transition-colors"
                 >
                   {t(`starters.${k}`)}
                 </button>
@@ -292,7 +297,7 @@ const Coach: React.FC = () => {
             </div>
           )}
 
-          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
 
           {limitResetsAt !== null ? (
             <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
@@ -329,7 +334,7 @@ const Coach: React.FC = () => {
               </Button>
             </form>
           )}
-          <p className="mt-2 text-xs text-gray-400">{t('input.hint')}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t('input.hint')}</p>
         </main>
 
         <aside className="order-first md:order-none">

@@ -5,5 +5,23 @@
     "processing": "Uw document wordt verwerkt...",
     "uploadPrompt": "Upload uw document",
     "defaultDescription": "Upload uw cv als pdf."
+  },
+  "strengthen": {
+    "pillTooltip": "Hoe duidelijk een recruiter in dit cv ziet dat het van u is. Verhoog het door de details toe te voegen die alleen u kent.",
+    "analyzing": "We bekijken uw cv door de ogen van een recruiter…",
+    "recruiterReady": "Klaar voor de recruiter. Geen snelle verbeteringen meer: dit cv is onmiskenbaar van u.",
+    "regenerateNudge": "Dit cv heeft meer nodig dan snelle verbeteringen. Voeg meer detail toe aan uw cv en genereer opnieuw.",
+    "review": {
+      "title": "Maak het onmiskenbaar van u",
+      "intro": "Dek uw naam bovenaan even af. Als dit cv van iedereen kan zijn, ziet een recruiter niet wat van u is. Eén snelle verbetering per keer.",
+      "flag_you_had_to_be_there": "U had erbij moeten zijn",
+      "needsInput": "Eén detail van u nodig",
+      "yourAnswer": "Uw antwoord",
+      "yourNewLine": "Uw nieuwe regel",
+      "unsavedTitle": "U heeft een antwoord dat nog niet is opgeslagen",
+      "unsavedBody": "Wilt u zonder dit antwoord verwerken, of gaat u terug om het eerst op te slaan?",
+      "applying": "We verversen uw cv…",
+      "allDone": "Alle verbeteringen verwerkt. Dit cv is nu onmiskenbaar van u."
+    }
   }
 }
