@@ -27,7 +27,6 @@ import {
   matchTone,
   postedAgo as fmtPostedAgo,
   DEFAULT_APPLY_LINK,
-  useHideCvTools,
   type ApplyLinkOptions,
   type JobsTier,
 } from './jobsV2Shared';
@@ -99,8 +98,7 @@ export const JobsResults: React.FC<JobsResultsProps> = ({
   // separately via SearchProgress when relevant.)
   const finished = results.filter((r) => r.status === 'done');
   const totalJobs = finished.reduce((sum, r) => sum + r.jobs.length, 0);
-  const hideCvTools = useHideCvTools();
-  const showInviteHint = !hideCvTools && (!resumeUnlocked || !coverUnlocked);
+  const showInviteHint = !resumeUnlocked || !coverUnlocked;
 
   // Which job has the cover-letter modal open. null = modal closed.
   // Lives here so a single modal instance can be controlled from any
@@ -629,7 +627,6 @@ const JobCardCream: React.FC<{
   applyLink,
 }) => {
   const { t } = useTranslation('jobs');
-  const hideCvTools = useHideCvTools();
   const tone = matchTone(job.match_score, 'cream');
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const postedText = fmtPostedAgo(t, job.posted_date);
@@ -841,8 +838,6 @@ const JobCardCream: React.FC<{
         >
           {t('card.viewApply')} <ExternalLink size={12} />
         </a>
-        {!hideCvTools && (
-        <>
         <LockedActionButton
           unlocked={resumeUnlocked}
           icon={<FileText size={12} />}
@@ -858,8 +853,6 @@ const JobCardCream: React.FC<{
           onLocked={onLockedAction}
           onClick={onGenerateCoverLetter}
         />
-        </>
-        )}
         <button
           type="button"
           onClick={saved ? onUnsave : onSave}

@@ -15,7 +15,6 @@ import {
   CairnGlyph,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 import { DashboardAppNav } from '@/components/dashboard/v2/DashboardAppNav';
-import { useHideCvTools } from './jobsV2Shared';
 
 interface JobsLockedProps {
   firstName: string;
@@ -49,7 +48,6 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
 }) => {
   const mobile = useIsMobile();
   const { t } = useTranslation('jobs');
-  const hideCvTools = useHideCvTools();
   return (
   <LakeBackground intensity="heavy">
     <DashboardAppNav
@@ -222,7 +220,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
           {t('locked.whenUnlocked')}
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: mobile || hideCvTools ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 14, textAlign: 'left' }}>
         {(
           [
             {
@@ -241,7 +239,7 @@ export const JobsLocked: React.FC<JobsLockedProps> = ({
               d: t('locked.perk3Body'),
             },
           ] as const
-        ).filter((_, i) => !hideCvTools || i === 0).map((step, i) => (
+        ).map((step, i) => (
           <div
             key={i}
             style={{

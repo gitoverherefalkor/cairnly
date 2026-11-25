@@ -20,8 +20,7 @@ import type { CareerTier } from '@/components/jobs/CareerSelector';
 import { JobsLocked } from '@/components/jobs/v2/JobsLocked';
 import { JobsSearch, type JobsSearchCareerOption, type RecentSearch } from '@/components/jobs/v2/JobsSearch';
 import { JobsResults, type JobsResultsCareer } from '@/components/jobs/v2/JobsResults';
-import { HideCvToolsContext, searchSummary } from '@/components/jobs/v2/jobsV2Shared';
-import { isEncoreSurveyId } from '@/components/assessment/constants';
+import { searchSummary } from '@/components/jobs/v2/jobsV2Shared';
 import { sectionTitle } from '@/lib/sectionText';
 import { JobsSavedKanban } from '@/components/jobs/v2/JobsSavedKanban';
 import type { JobsTier } from '@/components/jobs/v2/jobsV2Shared';
@@ -133,11 +132,6 @@ const Jobs = () => {
   const [searchParams] = useSearchParams();
 
   const latestReport = reports?.length ? reports[0] : null;
-  // Encore: no CV tools on this page (CV help stays in Cairnly Pro). Same
-  // check as the dashboard: the survey id lives in the payload on current rows.
-  const isEncoreReport = isEncoreSurveyId(
-    latestReport?.survey_id ?? (latestReport?.payload as { survey_id?: string } | null)?.survey_id,
-  );
   const { sections, isLoading: sectionsLoading } = useReportSections(latestReport?.id);
 
   // Free-tier allowance for this report (4 charged searches, uncapped once the
@@ -659,7 +653,7 @@ const Jobs = () => {
       ? resumesByCareerTitle.get(resumeModalCareer.toLowerCase().trim()) ?? []
       : [];
     return (
-      <HideCvToolsContext.Provider value={isEncoreReport}>
+      <>
         <JobsSavedKanban
           firstName={firstName}
           savedJobs={savedJobs}
@@ -694,7 +688,7 @@ const Jobs = () => {
             onClose={() => setCoverModalState(null)}
           />
         )}
-      </HideCvToolsContext.Provider>
+      </>
     );
   }
 
@@ -710,7 +704,6 @@ const Jobs = () => {
       selectedCareers.length,
     );
     return (
-      <HideCvToolsContext.Provider value={isEncoreReport}>
       <JobsResults
         firstName={firstName}
         reportId={latestReport.id}
@@ -733,7 +726,6 @@ const Jobs = () => {
           navigate(`/custom-resume?career=${encodeURIComponent(careerTitle)}`)
         }
       />
-      </HideCvToolsContext.Provider>
     );
   }
 
@@ -744,7 +736,6 @@ const Jobs = () => {
   // that spent their last credit.
   if (outOfSearches) {
     return (
-      <HideCvToolsContext.Provider value={isEncoreReport}>
       <JobsLocked
         firstName={firstName}
         referralCode={referralStatus.referralCode}
@@ -757,7 +748,6 @@ const Jobs = () => {
         onProfile={() => navigate('/profile')}
         onSignOut={() => navigate('/auth')}
       />
-      </HideCvToolsContext.Provider>
     );
   }
 

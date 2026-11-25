@@ -14,14 +14,6 @@ import {
   FONT_BODY,
 } from '@/components/dashboard/v2/dashboardV2Shared';
 
-/**
- * Encore users don't get the CV tools (tailored resume, cover letter): CV help
- * stays in Cairnly Pro. The Jobs page sets this from the report's survey; the
- * job search itself is the same page for Pro and Encore.
- */
-export const HideCvToolsContext = React.createContext(false);
-export const useHideCvTools = () => React.useContext(HideCvToolsContext);
-
 export type JobsTier = 'top-1' | 'top-2' | 'top-3' | 'runner-up' | 'outside-box';
 
 export const TIER_LABEL: Record<JobsTier, string> = {
