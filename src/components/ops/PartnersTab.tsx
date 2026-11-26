@@ -309,6 +309,8 @@ function MintRow({ partner }: { partner: Partner }) {
   const [count, setCount] = useState('5');
   const [expires, setExpires] = useState('');
   const [lang, setLang] = useState<'nl' | 'en'>('nl');
+  // Encore first since the 2026-11-26 refocus; Pro stays one click away.
+  const [product, setProduct] = useState<'encore' | 'pro'>('encore');
   const [busy, setBusy] = useState(false);
   const [links, setLinks] = useState<string[] | null>(null);
   const [copied, setCopied] = useState(false);
@@ -322,6 +324,7 @@ function MintRow({ partner }: { partner: Partner }) {
         action: 'mint',
         slug: partner.slug,
         count: Number(count),
+        product,
         lang,
         // A date input gives a bare date; make it end-of-day so a batch that
         // "expires on the 31st" is usable all of the 31st.
@@ -361,6 +364,17 @@ function MintRow({ partner }: { partner: Partner }) {
             onChange={(e) => setExpires(e.target.value)}
             className="mt-0.5 h-8 bg-[#0E2531] border-white/[0.14] text-xs"
           />
+        </label>
+        <label className="block">
+          <span className="text-[11px] text-white/60">Product</span>
+          <select
+            value={product}
+            onChange={(e) => setProduct(e.target.value as 'encore' | 'pro')}
+            className="mt-0.5 h-8 rounded border border-white/[0.08] bg-[#0E2531] px-2 text-xs text-white/[0.88]"
+          >
+            <option value="encore">Encore</option>
+            <option value="pro">Pro</option>
+          </select>
         </label>
         <label className="block">
           <span className="text-[11px] text-white/60">Link language</span>

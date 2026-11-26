@@ -83,6 +83,21 @@ function decodeBase64(input: string): Uint8Array {
 const candidateLink = (slug: string, code: string, lang: string) =>
   `${SITE}/p/${slug}?code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}`;
 
+// Which product a batch unlocks (2026-11-26: Encore partners). The survey_type
+// on the code decides the survey; Pro stays the default so older callers and
+// existing batches behave exactly as before. Same strings as ops-free-codes.
+const PRODUCT_SURVEY_TYPE: Record<string, string> = {
+  pro: 'Office / Business Pro - 2025 v1 EN',
+  encore: 'Encore - Post-Career Direction - 2026 v2',
+};
+
+// Encore links skip the /p/:slug landing, whose copy is the Pro assessment
+// ("45 minuten", "je", matchscores). They go straight to the signup the
+// landing would hand over to anyway, with flavor=encore so the first render is
+// formal Dutch. The code still carries partner_id, so the report stays branded.
+const encoreLink = (code: string, lang: string) =>
+  `${SITE}/auth?flow=signup&code=${encodeURIComponent(code)}&lang=${lang === 'nl' ? 'nl' : 'en'}&flavor=encore`;
+
 serve(async (req) => {
   const preflight = handleCorsPreFlight(req);
   if (preflight) return preflight;
@@ -278,6 +293,9 @@ serve(async (req) => {
       const count = Number(body.count ?? 0);
       const lang = String(body.lang ?? 'nl');
       const expiresAt = body.expiresAt ? String(body.expiresAt) : null;
+      const product = String(body.product ?? 'pro');
+      const surveyType = PRODUCT_SURVEY_TYPE[product];
+      if (!surveyType) return errorResponse('Unknown product.', 400, corsHeaders);
 
       if (!SLUG_RE.test(slug)) return errorResponse('Unknown partner.', 400, corsHeaders);
       if (!Number.isInteger(count) || count < 1 || count > 500) {
@@ -288,6 +306,7 @@ serve(async (req) => {
         p_partner_slug: slug,
         p_count: count,
         p_expires_at: expiresAt,
+        p_survey_type: surveyType,
       });
       if (error) throw error;
 
@@ -308,7 +327,11 @@ serve(async (req) => {
       }
 
       return ok(
-        { codes, links: codes.map((c: string) => candidateLink(slug, c, lang)) },
+        {
+          codes,
+          product,
+          links: codes.map((c: string) => (product === 'encore' ? encoreLink(c, lang) : candidateLink(slug, c, lang))),
+        },
         corsHeaders,
       );
     }
