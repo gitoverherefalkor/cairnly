@@ -8,9 +8,14 @@ update public.outreach_send_state set gepauzeerd = true where id = true;
 --    older, white-collar candidates). Kept apart from outreach_prospects.tier,
 --    which is the Pro campaign's tiering, and read straight from the browser by
 --    an admin so no edge function has to change. Rows are added only after
---    Sjoerd approves them.
+--    Sjoerd approves them. `slug` matches outreach_prospects.slug when the
+--    party is already in outreach (reply and contact counts come from there);
+--    parties not in outreach yet (e.g. UWV) get a slug of their own and show
+--    as "not contacted".
 create table if not exists public.ops_encore_shortlist (
-  slug        text primary key references public.outreach_prospects(slug) on delete cascade,
+  slug        text primary key,
+  naam        text not null,
+  spoor       text not null default 'partner' check (spoor in ('partner', 'instantie', 'pr')),
   score       numeric(2,1),
   bewijs      text,
   bewijs_url  text,

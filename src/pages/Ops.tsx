@@ -8,7 +8,7 @@ import { isAdminEmail } from '@/lib/admins';
 import { toast } from 'sonner';
 import {
   Loader2, RefreshCw, ExternalLink, AlertTriangle, CheckCircle2, Image, Mail, Copy,
-  Settings, Check, X, ChevronRight, Users, Activity, BarChart3, Wrench, Briefcase,
+  Settings, Check, X, ChevronRight, Activity, Wrench, Sparkles, Archive, Layers,
 } from 'lucide-react';
 import MarketingTab from '@/components/ops/MarketingTab';
 import PartnersTab, { type PartnerDraft } from '@/components/ops/PartnersTab';
@@ -17,6 +17,7 @@ import EmployersTab from '@/components/ops/EmployersTab';
 import FreeCodesTab from '@/components/ops/FreeCodesTab';
 import PartnerLeadsCard from '@/components/ops/PartnerLeadsCard';
 import DismissalsCard, { type DismissalsAggregate } from '@/components/ops/DismissalsCard';
+import { EncoreStats, EncoreShortlist } from '@/components/ops/EncorePanel';
 import { ACTIVATION_NUDGE_WORKING_DAYS, OUTREACH_TABLE_ID, SUBJECT_TEST_ID, codeActivation, isWarm, matchesFocus, type OutreachFocus, type OutreachProspect, type OutreachStatus } from '@/lib/outreach';
 
 // Project ref for Supabase deep-links from the dashboard.
@@ -250,7 +251,9 @@ function countryFlag(country: string | null): string {
 
 // ─── Shell config ─────────────────────────────────────────────────────────────
 
-type MainTab = 'partners' | 'employers' | 'platform' | 'stats';
+// 2026-11-26 overhaul: Encore first, the Pro outreach archived, errors on their
+// own page, Pro B2C and employers downgraded to Other.
+type MainTab = 'encore' | 'archive' | 'technical' | 'other';
 
 /** A single "what changed" chip in the visit bar. */
 interface Delta {
@@ -265,9 +268,10 @@ const OPS_BG_URL = '/dashboard/sections/development-tilted-stone.jpg';
 
 /** Outreach and n8n errors are what you open the console for; the rest wait. */
 const DEFAULT_OPEN: Record<string, boolean> = {
-  employers: true,
-  outreach: true,
-  partners: false,
+  encore_partners: true,
+  employers: false,
+  outreach: false,
+  partners: true,
   freecodes: true,
   prechat: true,
   blockers: true,
@@ -1303,21 +1307,21 @@ function VisitBar({ since, deltas }: { since: string | null; deltas: Delta[] }) 
 function MainTabs({
   active,
   onSelect,
-  partnersBadge,
-  platformBadge,
-  platformUrgent,
+  archiveBadge,
+  technicalBadge,
+  technicalUrgent,
 }: {
   active: MainTab;
   onSelect: (t: MainTab) => void;
-  partnersBadge: number;
-  platformBadge: number;
-  platformUrgent: boolean;
+  archiveBadge: number;
+  technicalBadge: number;
+  technicalUrgent: boolean;
 }) {
   const tabs: Array<{ id: MainTab; label: string; icon: React.ReactNode; badge: number; urgent?: boolean }> = [
-    { id: 'partners', label: 'Partners', icon: <Users size={17} />, badge: partnersBadge },
-    { id: 'employers', label: 'Employers', icon: <Briefcase size={17} />, badge: 0 },
-    { id: 'platform', label: 'Platform', icon: <Activity size={17} />, badge: platformBadge, urgent: platformUrgent },
-    { id: 'stats', label: 'Stats', icon: <BarChart3 size={17} />, badge: 0 },
+    { id: 'encore', label: 'Encore', icon: <Sparkles size={17} />, badge: 0 },
+    { id: 'technical', label: 'Technical', icon: <Activity size={17} />, badge: technicalBadge, urgent: technicalUrgent },
+    { id: 'archive', label: 'Outreach archive', icon: <Archive size={17} />, badge: archiveBadge },
+    { id: 'other', label: 'Other', icon: <Layers size={17} />, badge: 0 },
   ];
   return (
     <div className="flex flex-wrap gap-2">
@@ -1598,7 +1602,7 @@ export default function Ops() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<MainTab>('partners');
+  const [activeTab, setActiveTab] = useState<MainTab>('encore');
   // "Partner aanmaken" on an outreach row hands name + slug to the Partners section.
   const [partnerDraft, setPartnerDraft] = useState<PartnerDraft | null>(null);
 
@@ -1831,8 +1835,6 @@ export default function Ops() {
     !!(lastVisit && iso && new Date(iso).getTime() > new Date(lastVisit).getTime());
 
   const newBlockers = since(blockers, lastVisit);
-  const newN8n = since(n8nErrors, lastVisit).filter((i) => i.severity !== 'blocker');
-  const newSupport = since(support, lastVisit).filter((i) => i.severity !== 'blocker');
   const newSignups = lastVisit
     ? people.filter((p) => newerThan(p.signed_up_at)).length
     : 0;
@@ -1841,19 +1843,17 @@ export default function Ops() {
 
   const deltas: Delta[] = [];
   if (newBlockers.length)
-    deltas.push({ label: `${newBlockers.length} new blocker${newBlockers.length === 1 ? '' : 's'}`, color: '#F87171', onClick: () => setActiveTab('platform') });
+    deltas.push({ label: `${newBlockers.length} new blocker${newBlockers.length === 1 ? '' : 's'}`, color: '#F87171', onClick: () => setActiveTab('technical') });
   if (awaitingReply)
-    deltas.push({ label: `${awaitingReply} waiting on you`, color: '#EFBE48', onClick: () => setActiveTab('partners') });
+    deltas.push({ label: `${awaitingReply} waiting on you`, color: '#EFBE48', onClick: () => setActiveTab('archive') });
   if (newReplies)
-    deltas.push({ label: `${newReplies} replied`, color: '#EFBE48', onClick: () => setActiveTab('partners') });
+    deltas.push({ label: `${newReplies} replied`, color: '#EFBE48', onClick: () => setActiveTab('archive') });
   if (newOpens)
-    deltas.push({ label: `${newOpens} new demo open${newOpens === 1 ? '' : 's'}`, color: '#27A1A1', onClick: () => setActiveTab('partners') });
+    deltas.push({ label: `${newOpens} new demo open${newOpens === 1 ? '' : 's'}`, color: '#27A1A1', onClick: () => setActiveTab('archive') });
   if (newSignups)
-    deltas.push({ label: `${newSignups} new signup${newSignups === 1 ? '' : 's'}`, color: '#3989AF', onClick: () => setActiveTab('stats') });
-  if (newN8n.length)
-    deltas.push({ label: `${newN8n.length} n8n error${newN8n.length === 1 ? '' : 's'}`, color: '#FBBF24', onClick: () => setActiveTab('platform') });
-  if (newSupport.length)
-    deltas.push({ label: `${newSupport.length} support ticket${newSupport.length === 1 ? '' : 's'}`, color: '#7FBCD9', onClick: () => setActiveTab('platform') });
+    deltas.push({ label: `${newSignups} new signup${newSignups === 1 ? '' : 's'}`, color: '#3989AF', onClick: () => setActiveTab('other') });
+  // Non-blocking errors and tickets stay on the Technical tab (its badge counts
+  // them); the home view only ever shouts about blockers.
 
   /** A tile click: filter the outreach table to what the tile counts, open it, bring it into view. */
   const focusOutreach = (next: OutreachFocus) => {
@@ -1872,12 +1872,12 @@ export default function Ops() {
   };
 
   const openBlockers = () => {
-    setActiveTab('platform');
+    setActiveTab('technical');
     if (!open.blockers) toggle('blockers');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const platformBadge = blockers.length > 0 ? blockers.length : n8nErrors.length;
+  const technicalBadge = blockers.length > 0 ? blockers.length : n8nErrors.length + support.length;
 
   return (
     <div className="relative min-h-screen" style={{ background: '#122E3B' }}>
@@ -1929,20 +1929,63 @@ export default function Ops() {
                 <MainTabs
                   active={activeTab}
                   onSelect={setActiveTab}
-                  partnersBadge={awaitingReply}
-                  platformBadge={platformBadge}
-                  platformUrgent={blockers.length > 0}
+                  archiveBadge={awaitingReply}
+                  technicalBadge={technicalBadge}
+                  technicalUrgent={blockers.length > 0}
                 />
-                {activeTab === 'partners' && prospects.length > 0 && (
+                {activeTab === 'archive' && prospects.length > 0 && (
                   <div className="flex-1 min-w-[18rem]">
                     <PipelineBar prospects={prospects} />
                   </div>
                 )}
               </div>
 
-              {/* ══ PARTNERS ══════════════════════════════════════════════ */}
-              {activeTab === 'partners' && (
+              {/* ══ ENCORE (home) ═════════════════════════════════════════ */}
+              {activeTab === 'encore' && (
                 <div className="space-y-4">
+                  <EncoreStats />
+
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+                  <SectionCard
+                    id="freecodes"
+                    title="Code for one person"
+                    subtitle="One free code (Encore or Pro) for one named person, to send yourself. No checkout, no email."
+                    open={open.freecodes}
+                    onToggle={toggle}
+                  >
+                    <FreeCodesTab />
+                  </SectionCard>
+                  <SectionCard
+                    id="partners"
+                    title="Codes for a partner"
+                    subtitle="Save a partner's name and logo, mint a batch of codes and copy the signup links into an email. One code is one person."
+                    open={open.partners}
+                    onToggle={toggle}
+                  >
+                    <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
+                  </SectionCard>
+                  </div>
+
+                  <SectionCard
+                    id="encore_partners"
+                    title="Partners: older people back to work"
+                    subtitle="The A-tier only: parties that demonstrably work with older, white-collar candidates. Replies and contact counts come from the outreach mail log."
+                    open={open.encore_partners}
+                    onToggle={toggle}
+                  >
+                    <EncoreShortlist prospects={prospects} loading={outreachLoading} />
+                  </SectionCard>
+                </div>
+              )}
+
+              {/* ══ OUTREACH ARCHIVE ══════════════════════════════════════ */}
+              {activeTab === 'archive' && (
+                <div className="space-y-4">
+                  <div className={`${GLASS} px-6 py-4 text-[13px] text-white/70`}>
+                    <strong className="text-white/90">Sending is paused</strong> since 26 Nov 2026. No new concepts are written
+                    and nothing goes out; replies are still read in. This is the Pro agency campaign ({prospects.length} agencies),
+                    kept for its numbers and for anyone who writes back.
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
                     <StatTile
                       label="Contacted"
@@ -2000,7 +2043,7 @@ export default function Ops() {
                   <div id="ops-outreach-section" className="scroll-mt-4">
                   <SectionCard
                     id="outreach"
-                    title="Outreach"
+                    title="Outreach (Pro, archived)"
                     subtitle={
                       outreachError
                         ? outreachError
@@ -2021,52 +2064,18 @@ export default function Ops() {
                       onChanged={fetchOutreach}
                       onCreatePartner={(d) => {
                         setPartnerDraft(d);
+                        setActiveTab('encore');
                         if (!open.partners) toggle('partners');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                     />
                   </SectionCard>
                   </div>
-
-                  <SectionCard
-                    id="partners"
-                    title="Partners"
-                    subtitle="Onboard a white-label partner end to end: save their name and logo, mint a batch of codes, and copy the signup links straight into an email. One code is one person."
-                    open={open.partners}
-                    onToggle={toggle}
-                  >
-                    <PartnersTab draft={partnerDraft} onDraftConsumed={() => setPartnerDraft(null)} />
-                  </SectionCard>
-
-                  <SectionCard
-                    id="prechat"
-                    title="Pre-chat leads"
-                    subtitle="Practitioners who talked to the chat on /partners. Free credits are minted by hand in Partners above; set the lead to Credits sent once they are out."
-                    open={open.prechat}
-                    onToggle={toggle}
-                  >
-                    <PartnerLeadsCard />
-                  </SectionCard>
                 </div>
               )}
 
-              {/* ══ EMPLOYERS ═════════════════════════════════════════════ */}
-              {activeTab === 'employers' && (
-                <div className="space-y-4">
-                  <SectionCard
-                    id="employers"
-                    title="Employers"
-                    subtitle="The /employers channel: trial requests, a trial link for the HR contact, then a batch of seat codes for their people. Counts only, never names."
-                    open={open.employers}
-                    onToggle={toggle}
-                  >
-                    <EmployersTab />
-                  </SectionCard>
-                </div>
-              )}
-
-              {/* ══ PLATFORM ══════════════════════════════════════════════ */}
-              {activeTab === 'platform' && (
+              {/* ══ TECHNICAL ═════════════════════════════════════════════ */}
+              {activeTab === 'technical' && (
                 <div className="space-y-4">
                   {blockers.length === 0 && (
                     <div className={`${GLASS} border-emerald-400/20 bg-emerald-500/[0.07] px-6 py-4 flex flex-wrap items-center gap-3`}>
@@ -2179,13 +2188,17 @@ export default function Ops() {
                   </SectionCard>
 
                   <SectionCard
-                    id="freecodes"
-                    title="Free codes"
-                    subtitle="One free code for one named person, to send yourself (WhatsApp, text). No checkout, no email. Logged with their name and the date you gave it."
-                    open={open.freecodes}
+                    id="usage"
+                    title="Usage & cost"
+                    subtitle={
+                      feed.n8n_usage
+                        ? `n8n ${feed.n8n_usage.executions_this_month.toLocaleString()} / ${feed.n8n_usage.limit.toLocaleString()} runs this month`
+                        : 'n8n usage unavailable.'
+                    }
+                    open={open.usage}
                     onToggle={toggle}
                   >
-                    <FreeCodesTab />
+                    <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
                   </SectionCard>
 
                   <SectionCard
@@ -2201,12 +2214,12 @@ export default function Ops() {
                 </div>
               )}
 
-              {/* ══ STATS ═════════════════════════════════════════════════ */}
-              {activeTab === 'stats' && (
+              {/* ══ OTHER (Pro B2C, employers, marketing) ═════════════════ */}
+              {activeTab === 'other' && (
                 <div className="space-y-4">
                   {/* Traffic and people get the room; usage and marketing wait below. */}
                   <div className={`${GLASS} px-6 py-6`}>
-                    <div className={EYEBROW}>Traffic</div>
+                    <div className={EYEBROW}>Site traffic (all pages)</div>
                     <div className="mt-4">
                       <TrafficPanel traffic={feed.traffic} funnel={feed.funnel ?? null} />
                     </div>
@@ -2229,17 +2242,13 @@ export default function Ops() {
                   </div>
 
                   <SectionCard
-                    id="usage"
-                    title="Usage & cost"
-                    subtitle={
-                      feed.n8n_usage
-                        ? `n8n ${feed.n8n_usage.executions_this_month.toLocaleString()} / ${feed.n8n_usage.limit.toLocaleString()} runs this month`
-                        : 'n8n usage unavailable.'
-                    }
-                    open={open.usage}
+                    id="employers"
+                    title="Employers"
+                    subtitle="The /employers channel: trial requests, a trial link for the HR contact, then a batch of seat codes for their people. Counts only, never names."
+                    open={open.employers}
                     onToggle={toggle}
                   >
-                    <UsagePanel usage={feed.n8n_usage} spend={feed.ai_spend ?? []} />
+                    <EmployersTab />
                   </SectionCard>
 
                   <SectionCard
@@ -2250,6 +2259,16 @@ export default function Ops() {
                     onToggle={toggle}
                   >
                     <MarketingTab />
+                  </SectionCard>
+
+                  <SectionCard
+                    id="prechat"
+                    title="Pre-chat leads"
+                    subtitle="Practitioners who talked to the chat on /partners. Free credits are minted by hand on the Encore tab; set the lead to Credits sent once they are out."
+                    open={open.prechat}
+                    onToggle={toggle}
+                  >
+                    <PartnerLeadsCard />
                   </SectionCard>
                 </div>
               )}
