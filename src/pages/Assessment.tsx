@@ -11,6 +11,7 @@ import { STARTER_SURVEY_ID, isEncoreSurveyId } from '@/components/assessment/con
 import { AssessmentSessionProvider } from '@/components/assessment/AssessmentSessionContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useFormalDutch } from '@/hooks/useFormalDutch';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const AssessmentPage = () => {
   const { t } = useTranslation('survey');
@@ -125,9 +126,18 @@ const AssessmentPage = () => {
   );
 };
 
+// The assessment has no site navbar, so without this the only language
+// choice was on the landing/auth pages. Switching mid-survey is safe: answers
+// are stored by question id with English choice values, and the report
+// language follows profiles.preferred_language, which the switcher updates.
 const Assessment = () => (
   <AssessmentSessionProvider>
-    <AssessmentPage />
+    <div className="relative">
+      <div className="absolute top-3 right-3 z-40">
+        <LanguageSwitcher className="text-white/70 hover:text-white hover:bg-white/10" />
+      </div>
+      <AssessmentPage />
+    </div>
   </AssessmentSessionProvider>
 );
 
